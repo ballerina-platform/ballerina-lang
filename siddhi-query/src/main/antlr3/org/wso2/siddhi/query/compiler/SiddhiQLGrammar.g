@@ -583,8 +583,8 @@ millisecond :  {input.LT(1).getText().equals("millisecond")}? ID ;
 
 
 STRING_VAL
-	:'\'' ( ~('\u0000'..'\u001f' | '\\' | '\''| '\"' ) )* '\'' {setText(getText().substring(1, getText().length()-1));}
-	|'"' ( ~('\u0000'..'\u001f' | '\\'  |'\"') )* '"'          {setText(getText().substring(1, getText().length()-1));}
+	:'\'' ( ~('\u0000'..'\u001f' | '\''| '\"' ) )* '\'' {setText(getText().substring(1, getText().length()-1));}
+	|'"' ( ~('\u0000'..'\u001f'  |'\"') )* '"'          {setText(getText().substring(1, getText().length()-1));}
 	;	
 
 fragment NUM: '0'..'9'+;
