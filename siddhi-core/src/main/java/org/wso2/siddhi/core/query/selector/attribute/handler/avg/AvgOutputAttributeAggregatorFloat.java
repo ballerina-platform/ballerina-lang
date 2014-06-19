@@ -33,9 +33,9 @@ public class AvgOutputAttributeAggregatorFloat implements OutputAttributeAggrega
 
     @Override
     public Object processAdd(Object obj) {
-        if(obj==null){
-            System.out.println(obj);
-        }
+//        if(obj==null){
+//            System.out.println(obj);
+//        }
         count++;
         value += (Float) obj;
         if(count==0){

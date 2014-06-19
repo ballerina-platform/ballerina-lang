@@ -29,6 +29,14 @@ public class SqlBinaryConditionNode implements PredicateTreeNode {
     }
 
     @Override
+    public void populateTokens(List tokensList) {
+        // inorder traverse.
+        leftChild.populateTokens(tokensList);
+        tokensList.add("op:" + this.operator);
+        rightChild.populateTokens(tokensList);
+    }
+
+    @Override
     public String toString() {
         return buildPredicateString();
     }

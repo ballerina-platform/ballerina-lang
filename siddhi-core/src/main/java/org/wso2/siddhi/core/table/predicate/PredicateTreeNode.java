@@ -18,4 +18,12 @@ public interface PredicateTreeNode {
      */
     public void populateParameters(List parametersList);
 
+
+    /**
+     * In-order traversed list of all tokens.
+     * e.g. price > 12.50 will result in a token list of [price, >, 12.50]
+     * @param tokens
+     */
+    public void populateTokens(List tokens);
+
 }

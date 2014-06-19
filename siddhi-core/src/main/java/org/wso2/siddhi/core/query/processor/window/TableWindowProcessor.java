@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.StreamEvent;
 import org.wso2.siddhi.core.event.in.InEvent;
 import org.wso2.siddhi.core.event.in.InListEvent;
+import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
 import org.wso2.siddhi.core.query.QueryPostProcessingElement;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -54,6 +55,12 @@ public class TableWindowProcessor extends WindowProcessor {
     @Override
     public Iterator<StreamEvent> iterator(String SQLPredicate) {
       return  eventTable.iterator(SQLPredicate);
+
+    }
+
+    @Override
+    public Iterator<StreamEvent> iterator(StreamEvent streamEvent, ConditionExecutor conditionExecutor) {
+        return  eventTable.iterator(streamEvent, conditionExecutor);
     }
 
     @Override

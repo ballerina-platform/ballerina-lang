@@ -22,6 +22,11 @@ public class SqlPredicateWrapperNode implements PredicateTreeNode {
     }
 
     @Override
+    public void populateTokens(List list) {
+        child.populateTokens(list);
+    }
+
+    @Override
     public String toString() {
         return buildPredicateString();    //To change body of overridden methods use File | Settings | File Templates.
     }

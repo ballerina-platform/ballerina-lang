@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.BundleEvent;
 import org.wso2.siddhi.core.event.StreamEvent;
 import org.wso2.siddhi.core.event.in.InEvent;
 import org.wso2.siddhi.core.event.in.InListEvent;
+import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.snapshot.SnapshotObject;
 import org.wso2.siddhi.core.persistence.PersistenceStore;
@@ -90,6 +91,10 @@ public abstract class WindowProcessor implements Snapshotable, MarkedElement, Pr
     public abstract Iterator<StreamEvent> iterator();
 
     public abstract Iterator<StreamEvent> iterator(String predicate);
+
+    public Iterator<StreamEvent> iterator(StreamEvent streamEvent, ConditionExecutor conditionExecutor) {
+        return null;
+    }
 
     @Override
     public void setElementId(String elementId) {

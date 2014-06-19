@@ -22,6 +22,11 @@ public class SqlVariableNode implements PredicateTreeNode {
     }
 
     @Override
+    public void populateTokens(List tokenList) {
+        tokenList.add("var:" + variableExpression);
+    }
+
+    @Override
     public String toString() {
         return buildPredicateString();
     }

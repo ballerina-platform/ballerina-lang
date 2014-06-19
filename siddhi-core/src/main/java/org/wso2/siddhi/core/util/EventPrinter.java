@@ -30,16 +30,16 @@ public class EventPrinter {
 //        System.out.println(convertToString(complexEvent));
 //    }
     public static void print(Event[] events) {
-        System.out.println(Arrays.deepToString(events));
+//        System.out.println(Arrays.deepToString(events));
     }
 
 
     public static void print(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Events{ @timeStamp = ").append(timeStamp).
-                append(", inEvents = ").append( Arrays.deepToString(inEvents)).
-                append(", RemoveEvents = ").append(Arrays.deepToString(removeEvents)).append(" }");
-        System.out.println(sb.toString());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("Events{ @timeStamp = ").append(timeStamp).
+//                append(", inEvents = ").append( Arrays.deepToString(inEvents)).
+//                append(", RemoveEvents = ").append(Arrays.deepToString(removeEvents)).append(" }");
+//        System.out.println(sb.toString());
     }
 
 }

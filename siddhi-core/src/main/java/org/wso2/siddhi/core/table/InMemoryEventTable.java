@@ -206,6 +206,12 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         return list.iterator();
     }
 
+    @Override
+    public Iterator<StreamEvent> iterator(StreamEvent event, ConditionExecutor conditionExecutor) {
+        return list.iterator();
+    }
+
+
     public TableDefinition getTableDefinition() {
         return tableDefinition;
     }

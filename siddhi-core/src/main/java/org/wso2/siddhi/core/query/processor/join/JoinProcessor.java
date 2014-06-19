@@ -243,7 +243,11 @@ public abstract class JoinProcessor implements QueryPostProcessingElement, PreSe
         } else {
             if (fromDB) {
                 //todo fix
-                iterator = oppositeWindowProcessor.iterator();
+                if (event != null) {
+                    iterator = oppositeWindowProcessor.iterator(event, onConditionExecutor);
+                } else {
+                    iterator = oppositeWindowProcessor.iterator();
+                }
             } else {
                 iterator = oppositeWindowProcessor.iterator();
             }

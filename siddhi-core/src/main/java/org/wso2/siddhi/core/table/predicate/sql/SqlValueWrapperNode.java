@@ -23,6 +23,11 @@ public class SqlValueWrapperNode implements PredicateTreeNode {
     }
 
     @Override
+    public void populateTokens(List tokenList) {
+        tokenList.add("val:" + value);
+    }
+
+    @Override
     public String toString() {
         return value.toString();
     }

@@ -10,6 +10,7 @@ import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
 import org.wso2.siddhi.core.util.collection.list.SiddhiList;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class CachingTable {
 
@@ -19,6 +20,8 @@ public class CachingTable {
     private String elementId;
     private String tableId;
     private CacheManager cacheManager;
+    private int cacheLimit;
+    private boolean isFullyLoaded;
 
     public static final int DEFAULT_CACHE_SIZE = 4096;
 
@@ -30,7 +33,7 @@ public class CachingTable {
         this.elementId = siddhiContext.getElementIdGenerator().createNewId();
         this.list = new SiddhiList<StreamEvent>();
         this.tableId = tableId;
-        int cacheLimit = DEFAULT_CACHE_SIZE;
+        cacheLimit = DEFAULT_CACHE_SIZE;
         if (cacheSize != null) {
             try {
                 cacheLimit = Integer.parseInt(cacheSize);
@@ -51,6 +54,12 @@ public class CachingTable {
         cacheManager.add(streamEvent);
         if (log.isTraceEnabled()) {
             log.trace("list " + elementId + " size " + list.size());
+        }
+    }
+
+    public synchronized void addAll(List<StreamEvent> streamEvents) {
+        for (StreamEvent event: streamEvents) {
+            cacheManager.add(event);
         }
     }
 
@@ -177,5 +186,17 @@ public class CachingTable {
 
     public String getTableId() {
         return tableId;
+    }
+
+    public int getCacheLimit() {
+        return this.cacheLimit;
+    }
+
+    public boolean isFullyLoaded() {
+        return isFullyLoaded;
+    }
+
+    public void setFullyLoaded(boolean fullyLoaded) {
+        isFullyLoaded = fullyLoaded;
     }
 }

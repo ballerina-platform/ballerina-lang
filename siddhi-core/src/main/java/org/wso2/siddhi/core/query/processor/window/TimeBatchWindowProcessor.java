@@ -65,7 +65,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Runnabl
     protected void processEvent(InListEvent listEvent) {
         acquireLock();
         try {
-            System.out.println(listEvent);
+//            System.out.println(listEvent);
             for (int i = 0, size = listEvent.getActiveEvents(); i < size; i++) {
                 newEventList.add((InEvent) listEvent.getEvent(i));
             }

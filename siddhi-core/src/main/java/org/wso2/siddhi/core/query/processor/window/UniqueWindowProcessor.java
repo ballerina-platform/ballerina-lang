@@ -91,7 +91,8 @@ public class UniqueWindowProcessor extends WindowProcessor {
                 nextProcessor.process(new InListEvent(tempMap.values().toArray(new InEvent[tempMapSize])));
             }
         } catch (Throwable t) {
-            System.out.println(t);
+//            System.out.println(t);
+            log.error(t);
         } finally {
             releaseLock();
         }

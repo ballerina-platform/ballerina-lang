@@ -24,6 +24,12 @@ public class SqlUnaryConditionNode implements PredicateTreeNode {
     }
 
     @Override
+    public void populateTokens(List tokenList) {
+        tokenList.add("op:" + operator);
+        child.populateTokens(tokenList);
+    }
+
+    @Override
     public String toString() {
         return buildPredicateString();
     }

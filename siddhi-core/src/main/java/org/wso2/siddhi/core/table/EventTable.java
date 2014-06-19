@@ -43,4 +43,6 @@ public interface EventTable {
     public Iterator<StreamEvent> iterator();
 
     public Iterator<StreamEvent> iterator(String SQLPredicate);
+
+    public Iterator<StreamEvent> iterator(StreamEvent event, ConditionExecutor conditionExecutor);
 }
