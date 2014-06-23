@@ -321,23 +321,17 @@ public class QuerySelector implements QueryPostProcessingElement {
             } else {
                 timeStamp = ((RemoveStream) referenceEvent).getExpiryTime();
             }
-            ListEvent outputListEvent;
+            ListEvent outputListEvent = new InListEvent(groupedEventData.size());
             if (havingConditionExecutor == null) {
-                outputListEvent = new InListEvent(groupedEventData.size());
                 for (Object[] data : groupedEventData) {
                     outputListEvent.addEvent(new InEvent(outputStreamId, timeStamp, data));
                 }
             } else {
-                List<Event> listEvents = new ArrayList<Event>();
                 for (Object[] data : groupedEventData) {
                     Event event = new InEvent(outputStreamId, timeStamp, data);
                     if (havingConditionExecutor.execute(event)) {
-                        listEvents.add(event);
+                        outputListEvent.addEvent(event);
                     }
-                }
-                outputListEvent = new InListEvent(listEvents.size());
-                for(Event event :listEvents){
-                    outputListEvent.addEvent(event);
                 }
             }
             if (outputListEvent.getActiveEvents() > 0) {

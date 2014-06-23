@@ -99,7 +99,7 @@ public abstract class ListEvent implements StreamEvent, BundleEvent {
 
     @Override
     public Event[] toArray() {
-        return events;
+        return Arrays.copyOf(events,activeEvents);
     }
 
     public Event getEvent0() {
