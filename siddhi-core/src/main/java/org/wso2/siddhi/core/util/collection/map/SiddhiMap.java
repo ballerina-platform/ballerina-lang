@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.util.collection.map;
 
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SiddhiMap<T> {
@@ -35,6 +36,17 @@ public class SiddhiMap<T> {
         return map.get(key);
     }
 
+    public Set<String> keySet() {
+        return map.keySet();
+    }
+
+    public boolean containsValue(Object object) {
+        return map.containsValue(object);
+    }
+
+    public boolean containsKey(Object object) {
+        return map.containsKey(object);
+    }
     public T remove(String key) {
         return map.remove(key);
     }
