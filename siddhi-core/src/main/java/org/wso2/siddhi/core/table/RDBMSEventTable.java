@@ -22,7 +22,11 @@ import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.event.*;
+import org.wso2.siddhi.core.event.AtomicEvent;
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.event.ListEvent;
+import org.wso2.siddhi.core.event.StateEvent;
+import org.wso2.siddhi.core.event.StreamEvent;
 import org.wso2.siddhi.core.event.in.InEvent;
 import org.wso2.siddhi.core.event.in.InStateEvent;
 import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
@@ -34,8 +38,11 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.query.QueryEventSource;
 
 import javax.sql.DataSource;
-import java.nio.ByteBuffer;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -246,7 +253,7 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public  void add(StreamEvent streamEvent) {
+    public void add(StreamEvent streamEvent) {
 
         Connection con = null;
         PreparedStatement statement = null;
@@ -290,7 +297,7 @@ public class RDBMSEventTable implements EventTable {
             con = dataSource.getConnection();
             statement = con.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM " + fullTableName +
-                    " LIMIT 0, " + cachedTable.getCacheLimit());
+                                                         " LIMIT 0, " + cachedTable.getCacheLimit());
             resultSet.setFetchSize(cachedTable.getCacheLimit());
             List<StreamEvent> eventList = new ArrayList<StreamEvent>();
             long timestamp = System.currentTimeMillis();
@@ -387,7 +394,7 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public  void delete(StreamEvent streamEvent, ConditionExecutor conditionExecutor) {
+    public void delete(StreamEvent streamEvent, ConditionExecutor conditionExecutor) {
         PreparedStatement statement = null;
         Connection con = null;
         try {
@@ -436,7 +443,8 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public  void update(StreamEvent streamEvent, ConditionExecutor conditionExecutor, int[] attributeUpdateMappingPosition) {
+    public void update(StreamEvent streamEvent, ConditionExecutor conditionExecutor,
+                       int[] attributeUpdateMappingPosition) {
         Connection con = null;
         PreparedStatement statement = null;
 
@@ -520,7 +528,7 @@ public class RDBMSEventTable implements EventTable {
             // looking for two sided equals conditions only.
             for (int ops = 1; ops < tokenList.size() - 1; ops++) {
                 if (tokenList.get(ops).toString().startsWith("op:") &&
-                        tokenList.get(ops).toString().replaceFirst("op:", "").trim().equals("=")) {
+                    tokenList.get(ops).toString().replaceFirst("op:", "").trim().equals("=")) {
                     String param = tokenList.get(ops - 1).toString();
                     String value = tokenList.get(ops + 1).toString();
                     if (!param.startsWith("var:")) {
@@ -552,56 +560,62 @@ public class RDBMSEventTable implements EventTable {
                 if (predicate == null) {
                     predicate = conditionExecutor.constructPredicate(atomicEvent, tableDefinition, new SQLPredicateBuilder());
                 }
-                con = dataSource.getConnection();
-                statement = con.prepareStatement("SELECT * FROM " + fullTableName + " WHERE " + predicate.buildPredicateString() + " LIMIT 0,1");
-                ArrayList paramList = new ArrayList();
-                predicate.populateParameters(paramList);
-                for (int i = 0; i < paramList.size(); i++) {
-                    populateStatement(statement, i + 1, paramList.get(i));
-                }
-                ResultSet resultSet = statement.executeQuery();
+
+                if (dataSource != null) {
+                    con = dataSource.getConnection();
+                    statement = con.prepareStatement("SELECT * FROM " + fullTableName + " WHERE " + predicate.buildPredicateString() + " LIMIT 0,1");
+                    ArrayList paramList = new ArrayList();
+                    predicate.populateParameters(paramList);
+                    for (int i = 0; i < paramList.size(); i++) {
+                        populateStatement(statement, i + 1, paramList.get(i));
+                    }
+                    ResultSet resultSet = statement.executeQuery();
 //                resultSet.setFetchSize(1);
-                boolean contains = false;
-                long timestamp = System.currentTimeMillis();
+                    boolean contains = false;
+                    long timestamp = System.currentTimeMillis();
 
-                while (resultSet.next()) {
-                    contains = true;
-                    if (cachedTable != null) {
+                    while (resultSet.next()) {
+                        contains = true;
+                        if (cachedTable != null) {
 
-                        Object[] data = new Object[attributeList.size()];
-                    for (int i = 0; i < attributeList.size(); i++) {
-                        switch (attributeList.get(i).getType()) {
-                            case BOOL:
-                                data[i] = resultSet.getBoolean(attributeList.get(i).getName());
-                                break;
-                            case DOUBLE:
-                                data[i] = resultSet.getDouble(attributeList.get(i).getName());
-                                break;
-                            case FLOAT:
-                                data[i] = resultSet.getFloat(attributeList.get(i).getName());
-                                break;
-                            case INT:
-                                data[i] = resultSet.getInt(attributeList.get(i).getName());
-                                break;
-                            case LONG:
-                                data[i] = resultSet.getLong(attributeList.get(i).getName());
-                                break;
-                            case STRING:
-                                data[i] = resultSet.getString(attributeList.get(i).getName());
-                                break;
-                            default:
-                                data[i] = resultSet.getObject(attributeList.get(i).getName());
+                            Object[] data = new Object[attributeList.size()];
+                            for (int i = 0; i < attributeList.size(); i++) {
+                                switch (attributeList.get(i).getType()) {
+                                    case BOOL:
+                                        data[i] = resultSet.getBoolean(attributeList.get(i).getName());
+                                        break;
+                                    case DOUBLE:
+                                        data[i] = resultSet.getDouble(attributeList.get(i).getName());
+                                        break;
+                                    case FLOAT:
+                                        data[i] = resultSet.getFloat(attributeList.get(i).getName());
+                                        break;
+                                    case INT:
+                                        data[i] = resultSet.getInt(attributeList.get(i).getName());
+                                        break;
+                                    case LONG:
+                                        data[i] = resultSet.getLong(attributeList.get(i).getName());
+                                        break;
+                                    case STRING:
+                                        data[i] = resultSet.getString(attributeList.get(i).getName());
+                                        break;
+                                    default:
+                                        data[i] = resultSet.getObject(attributeList.get(i).getName());
 
+                                }
+                            }
+                            Event event = new InEvent(tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), timestamp, data);
+                            cachedTable.add(event);
+                        } else {
+                            break;
                         }
                     }
-                    Event event = new InEvent(tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), timestamp, data);
-                        cachedTable.add(event);
-                    }  else {
-                        break;
-                    }
+                    resultSet.close();
+                    return contains;
+                } else {
+                    log.error("DataSource not found for the given configuration of event table, please verify the configuration");
+                    return false;
                 }
-                resultSet.close();
-                return contains;
             } catch (SQLException e) {
                 log.error("Can't read the database table: " + tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), e);
             } finally {
@@ -636,22 +650,22 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public  Iterator<StreamEvent> iterator(StreamEvent event, ConditionExecutor conditionExecutor) {
+    public Iterator<StreamEvent> iterator(StreamEvent event, ConditionExecutor conditionExecutor) {
         if (cachedTable != null && cachedTable.isFullyLoaded()) {
             if (event instanceof AtomicEvent) {
                 synchronized (this) {
-                ArrayList<StreamEvent> resultEvents = new ArrayList<StreamEvent>();
-                Iterator<StreamEvent> iterator = cachedTable.iterator();
-                StateEvent stateEvent = new InStateEvent(new StreamEvent[2]);
-                stateEvent.setStreamEvent(0, event);
-                while (iterator.hasNext()) {
-                    StreamEvent cachedEvent = iterator.next();
-                    stateEvent.setStreamEvent(1, cachedEvent);
-                    if (conditionExecutor.execute(stateEvent)) {
-                        resultEvents.add(cachedEvent);
+                    ArrayList<StreamEvent> resultEvents = new ArrayList<StreamEvent>();
+                    Iterator<StreamEvent> iterator = cachedTable.iterator();
+                    StateEvent stateEvent = new InStateEvent(new StreamEvent[2]);
+                    stateEvent.setStreamEvent(0, event);
+                    while (iterator.hasNext()) {
+                        StreamEvent cachedEvent = iterator.next();
+                        stateEvent.setStreamEvent(1, cachedEvent);
+                        if (conditionExecutor.execute(stateEvent)) {
+                            resultEvents.add(cachedEvent);
+                        }
                     }
-                }
-                return resultEvents.iterator();
+                    return resultEvents.iterator();
                 }
 
             }
@@ -674,14 +688,14 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public  Iterator<StreamEvent> iterator(String SQLPredicate) {
+    public Iterator<StreamEvent> iterator(String SQLPredicate) {
         Connection con = null;
         Statement statement = null;
         try {
             con = dataSource.getConnection();
             statement = con.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM " + fullTableName +
-                    ((SQLPredicate == null) ? "" : (" WHERE " + SQLPredicate)));
+                                                         ((SQLPredicate == null) ? "" : (" WHERE " + SQLPredicate)));
             resultSet.setFetchSize(10000);
             ArrayList<StreamEvent> eventList = new ArrayList<StreamEvent>();
             long timestamp = System.currentTimeMillis();
@@ -748,7 +762,8 @@ public class RDBMSEventTable implements EventTable {
         }
     }
 
-    private void populateStatement(PreparedStatement stmt, int index, Object value) throws SQLException {
+    private void populateStatement(PreparedStatement stmt, int index, Object value)
+            throws SQLException {
         if (value instanceof String) {
             stmt.setString(index, (String) value);
         } else if (value instanceof Integer) {
