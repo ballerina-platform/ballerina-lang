@@ -1,7 +1,7 @@
 package org.wso2.siddhi.test;
 
+import junit.framework.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -13,7 +13,6 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Created by seshika on 4/7/14.
  */
@@ -36,7 +35,9 @@ public class SimpleRegForecastTestCase
         SiddhiConfiguration siddhiConfiguration = new SiddhiConfiguration();
 
         List<Class> list = new ArrayList<Class>();
+        list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionTransformProcessor.class);
         list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionForecastTransformProcessor.class);
+        list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierTransformProcessor.class);
 
         siddhiConfiguration.setSiddhiExtensions(list);
 
@@ -54,6 +55,7 @@ public class SimpleRegForecastTestCase
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if(inEvents[0].getData1()!=null) {
                     betaZero = (Double) inEvents[0].getData2();
+                    System.out.println("beta0: "+betaZero);
                 }
                 count++;
 
@@ -116,9 +118,9 @@ public class SimpleRegForecastTestCase
         Thread.sleep(1000);
         siddhiManager.shutdown();
 
+        double delta=0;
         Assert.assertEquals("No of events: ", 50, count);
-        //Assert.assertEquals("Beta0: ", 573.1418421169493, betaZero);
-
+        Assert.assertEquals(573.1418421169493, betaZero, delta);
     }
 }
 

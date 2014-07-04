@@ -1,6 +1,7 @@
 package org.wso2.siddhi.test;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -37,6 +38,8 @@ public class SimpleRegOutlierTestCase
 
         List<Class> list = new ArrayList<Class>();
         list.add(LinearRegressionOutlierTransformProcessor.class);
+        list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionForecastTransformProcessor.class);
+        list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierTransformProcessor.class);
 
         siddhiConfiguration.setSiddhiExtensions(list);
 
@@ -52,6 +55,10 @@ public class SimpleRegOutlierTestCase
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count++;
+                if(inEvents[0].getData1()!=null){
+                    betaZero= (Double) inEvents[0].getData2();
+                }
 
             }
         });
@@ -113,8 +120,9 @@ public class SimpleRegOutlierTestCase
         Thread.sleep(1000);
         siddhiManager.shutdown();
 
-//        Assert.assertEquals("No of events: ", 50, count);
-//        Assert.assertEquals("Beta0: ", 573.1418421169498, betaZero);
+        double delta=0.0;
+        Assert.assertEquals("No of events: ", 50, count);
+        Assert.assertEquals(573.1418421169493, betaZero, delta);
 
     }
 }

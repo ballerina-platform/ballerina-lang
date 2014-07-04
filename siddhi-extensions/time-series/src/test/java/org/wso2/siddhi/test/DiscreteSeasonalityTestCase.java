@@ -35,6 +35,8 @@ public class DiscreteSeasonalityTestCase
 
         List<Class> list = new ArrayList<Class>();
         list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionTransformProcessor.class);
+        list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionForecastTransformProcessor.class);
+        list.add(org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierTransformProcessor.class);
 
         siddhiConfiguration.setSiddhiExtensions(list);
         SiddhiManager siddhiManager = new SiddhiManager(siddhiConfiguration);
