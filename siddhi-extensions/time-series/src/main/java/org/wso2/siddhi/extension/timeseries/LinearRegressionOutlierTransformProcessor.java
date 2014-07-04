@@ -9,7 +9,6 @@ import org.wso2.siddhi.core.event.in.InStream;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.expression.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.transform.TransformProcessor;
-import org.wso2.siddhi.extension.timeseries.linreg.MultipleLinearRegressionCalculator;
 import org.wso2.siddhi.extension.timeseries.linreg.RegressionCalculator;
 import org.wso2.siddhi.extension.timeseries.linreg.SimpleLinearRegressionCalculator;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -21,42 +20,47 @@ import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.extension.annotation.SiddhiExtension;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by seshika on 4/9/14.
  */
-@SiddhiExtension(namespace = "timeseries", function = "regress")
+@SiddhiExtension(namespace = "timeseries", function = "outlier")
 
 /**
  * The methods supported by this function are
- * timeseries:regress(int/long/float/double y, int/long/float/double x1, int/long/float/double x2 ...)
+ * timeseries:outlier(int range, int/long/float/double y, int/long/float/double x)
  * and
- * timeseries:regress(int calcInterval, int batchSize, double confidenceInterval, int/long/float/double y, int/long/float/double x1, int/long/float/double x2 ...)
+ * timeseries:outlier(int calcInterval, int batchSize, double confidenceInterval, int range, int/long/float/double y, int/long/float/double x)
  *
  * where
- * @param calcInterval      Frequency of regression calculation
- * @param batchSize         Maximum number of events, used for regression calculation
+ * @param calcInterval       Frequency of regression calculation
+ * @param batchSize          Maximum number of events, used for regression calculation
  * @param confidenceInterval Confidence interval to be used for regression calculation
- * @param y                 Dependant variable
- * @param x1~xn             Independant variables
+ * @param range              Number of standard deviations to be used as 'normal' range
+ * @param y                  Dependant variable
+ * @param x                  Independant variable
  */
 
-public class LinearRegressionTransformProcessor extends TransformProcessor
+public class LinearRegressionOutlierTransformProcessor extends TransformProcessor
 {
-    static final Logger log = Logger.getLogger(LinearRegressionTransformProcessor.class);
 
-    private int paramCount = 0;                                         // Number of x variables +1
-    private int calcInterval = 1;                                       // The frequency of regression calculation
-    private int batchSize = 1000000000;                                 // Maximum # of events, used for regression calculation
-    private double ci = 0.95;                                           // Confidence Interval
-    private final int SIMPLE_LINREG_INPUT_PARAM_COUNT = 2;              // Number of Input parameters in a simple linear regression
-    private Object [] regResult;                                        // Calculated Regression Coefficients
-    private Map<Integer, String> paramPositions = new HashMap<Integer, String>();   // Input Parameters
+    static final Logger log = Logger.getLogger(LinearRegressionOutlierTransformProcessor.class);
+
+    private int eventCount = 0;         // Number of events added
+    private int paramCount = 0;         // Number of x variables +1
+    private int calcInterval = 1;       // The frequency of regression calculation
+    private int batchSize = 1000000000; // Maximum # of events, used for regression calculation
+    private double ci = 0.95;           // Confidence Interval
+    private int range = 1;              // Number of standard deviations for outlier calc
+    private Object[] regResult;         // Calculated regression coefficients
+    private Map<Integer, String> paramPositions = new HashMap<Integer, String>(); // Input parameters
+    private final int SIMPLE_LINREG_INPUT_PARAM_COUNT = 2;
     private RegressionCalculator regressionCalculator = null;
 
-    public LinearRegressionTransformProcessor() {
+    public LinearRegressionOutlierTransformProcessor() {
     }
 
     @Override
@@ -67,10 +71,11 @@ public class LinearRegressionTransformProcessor extends TransformProcessor
         }
 
         // Capture constant inputs
-        if(parameters[0] instanceof IntConstant) {
+        if(parameters[1] instanceof IntConstant) {
             try {
                 calcInterval = ((IntConstant) parameters[0]).getValue();
                 batchSize = ((IntConstant) parameters[1]).getValue();
+                range = ((IntConstant) parameters[3]).getValue();
             } catch(ClassCastException c) {
                 throw new QueryCreationException("Calculation interval, batch size and range should be of type int");
             }
@@ -81,7 +86,7 @@ public class LinearRegressionTransformProcessor extends TransformProcessor
             }
 
             // Capture variable inputs
-            for (int i=3; i<parameters.length; i++) {
+            for (int i=4; i<parameters.length; i++) {
                 if (parameters[i] instanceof Variable) {
                     Variable var = (Variable) parameters[i];
                     String attributeName = var.getAttributeName();
@@ -90,8 +95,14 @@ public class LinearRegressionTransformProcessor extends TransformProcessor
                 }
             }
         } else {
+            try {
+                range = ((IntConstant) parameters[0]).getValue();
+            } catch(ClassCastException c) {
+                throw new QueryCreationException("Range should be of type int");
+            }
+
             // Capture variable inputs
-            for (int i=0; i<parameters.length; i++) {
+            for (int i=1; i<parameters.length; i++) {
                 if (parameters[i] instanceof Variable) {
                     Variable var = (Variable) parameters[i];
                     String attributeName = var.getAttributeName();
@@ -101,34 +112,27 @@ public class LinearRegressionTransformProcessor extends TransformProcessor
             }
         }
 
-        // Pick the appropriate regression calculator
+        // pick the appropriate regression calculator
         if(paramCount > SIMPLE_LINREG_INPUT_PARAM_COUNT) {
-            regressionCalculator = new MultipleLinearRegressionCalculator(paramCount, calcInterval, batchSize, ci);
+            throw new QueryCreationException("Outlier Function is available only for simple linear regression");
         } else {
             regressionCalculator = new SimpleLinearRegressionCalculator(paramCount, calcInterval, batchSize, ci);
         }
 
-        // Create outstream
+        // Creating outstream
         if (outStreamDefinition == null) { //WHY DO WE HAVE TO CHECK WHETHER ITS NULL?
             this.outStreamDefinition = new StreamDefinition().name("linregStream");
-
-            // Create outstream attribute to send standard error of regression
+            this.outStreamDefinition.attribute("outlier", Attribute.Type.BOOL);
             this.outStreamDefinition.attribute("stdError", Attribute.Type.DOUBLE);
+            this.outStreamDefinition.attribute("beta0", Attribute.Type.DOUBLE);
+            this.outStreamDefinition.attribute("beta1", Attribute.Type.DOUBLE);
 
-            // Create outstream attributes based on the number of regression coefficients
-            String betaVal;
-            for (int itr = 0; itr < paramCount ; itr++) {
-                betaVal = "beta" + itr;
-                this.outStreamDefinition.attribute(betaVal, Attribute.Type.DOUBLE);
-            }
-
-            // Create outstream attributes for all the attributes in the input stream
+            // Creating outstream attributes for all the attributes in the input stream
             for(Attribute strDef : inStreamDefinition.getAttributeList()) {
                 this.outStreamDefinition.attribute(strDef.getName(), strDef.getType());
             }
         }
     }
-
 
     @Override
     protected InStream processEvent(InEvent inEvent) {
@@ -136,36 +140,48 @@ public class LinearRegressionTransformProcessor extends TransformProcessor
             log.debug("processEvent");
         }
 
-        // Capture all data elements in the input stream
-        Object [] inStreamData = inEvent.getData();
         Object [] outStreamData;
+        Object [] temp;
+        Object [] inStreamData = inEvent.getData();
+        Boolean result = false; // Becomes true if its an outlier
+        eventCount++;
 
-        // Perform Regression and get regression results
-        Object [] temp = regressionCalculator.calculateLinearRegression(inEvent, paramPositions);
-
-        // Send null until the first regression calculation
-        if(regResult==null && temp==null){
+        if(eventCount <= 3 || eventCount <= calcInterval) { // Need atleast 3 events to build the regression equation. Forecasting can be done after that.
+            regResult = regressionCalculator.calculateLinearRegression(inEvent, paramPositions);
             outStreamData = null;
         } else {
-            // For each calculation, get new regression coefficients, otherwise send previous coefficients
-            if(temp!=null) {
+            // Get the current X value
+            Iterator<Map.Entry<Integer, String>> it = paramPositions.entrySet().iterator();
+            it.next();
+            double nextX = ((Number) inEvent.getData(it.next().getKey())).doubleValue();
+
+            // Calculate the upper limit and the lower limit based on standard error and regression equation
+            double forecastY = (Double) regResult[1] + nextX * (Double) regResult[2];
+            double upLimit = (Double) regResult[0] * range + forecastY;
+            double downLimit = - (Double) regResult[0] * range + forecastY;
+
+            // Check whether next Y value is an outlier based on the next X value and the current regression equation
+            double nextY = ((Number)inEvent.getData0()).doubleValue();
+            if(nextY < downLimit || nextY > upLimit) {
+                result = true;
+            }
+            temp = regressionCalculator.calculateLinearRegression(inEvent, paramPositions);
+            if (temp!=null) {
                 regResult = temp;
             }
-
-            // Combine Regression Results and Input Stream Data and send to OutputStream
-            outStreamData = new Object[regResult.length + inStreamData.length];
-            System.arraycopy(regResult, 0, outStreamData, 0, regResult.length);
-            System.arraycopy(inStreamData, 0, outStreamData, regResult.length, inStreamData.length);
+            outStreamData = new Object[inStreamData.length + 4];
+            outStreamData[0] = result;
+            System.arraycopy(regResult,0,outStreamData, 1, regResult.length);
+            System.arraycopy(inStreamData, 0, outStreamData, regResult.length+1, inStreamData.length);
         }
 
-        return new InEvent(inEvent.getStreamId(), System.currentTimeMillis(),  outStreamData);
+        return new InEvent(inEvent.getStreamId(), System.currentTimeMillis(), outStreamData);
     }
 
     @Override
     protected InStream processEvent(InListEvent inListEvent) {
         InStream inStream = null;
 
-        // Perform processEvent() for each event in the list
         for (Event event : inListEvent.getEvents()) {
             if (event instanceof InEvent) {
                 inStream = processEvent((InEvent) event);

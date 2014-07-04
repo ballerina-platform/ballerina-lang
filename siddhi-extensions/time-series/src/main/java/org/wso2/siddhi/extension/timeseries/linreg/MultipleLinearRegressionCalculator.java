@@ -4,82 +4,65 @@ import Jama.Matrix;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.wso2.siddhi.core.event.in.InEvent;
 
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by seshika on 4/9/14.
  */
-public class MultipleLinearRegressionCalculator extends RegressionCalculator{
+public class MultipleLinearRegressionCalculator extends RegressionCalculator
+{
 
-    private List<double[]> yValueList = new ArrayList<double[]>();
-    private List<double[]> xValueList = new ArrayList<double[]>();
-    private double confidenceInterval = 0.0;
-    private int eventCount = 0;
-    private int xArrayLength = 0;
+    private List<double[]> yValueList = new LinkedList<double[]>();
+    private List<double[]> xValueList = new LinkedList<double[]>();
 
-    public MultipleLinearRegressionCalculator() {
-//        init();
+    public MultipleLinearRegressionCalculator(int paramCount, int calcInt, int limit, double ci)
+    {
+        super(paramCount, calcInt, limit, ci);
     }
 
-    public void init() {
-    }
+    public void addEvent (InEvent inEvent, Map<Integer, String> paramPositions, int paramCount) {
 
-    public void close() {
-    }
-
-    public Object[] linearRegressionCalculation ( InEvent inEvent, Map<Integer, String> paramPositions, int dataCount) {
-
-        addEvent(inEvent, paramPositions, dataCount);
-        return processData();
-    }
-
-    public void addEvent (InEvent inEvent, Map<Integer, String> paramPositions, int dataCount) {
-
+        incCounter++;
         eventCount++;
-        double[] dataX = new double[dataCount - 1];
+        double[] dataX = new double[paramCount];
         double[] dataY = new double[1];
-        int itr = 0;
-
         dataX[0] = 1.0;
 
-        for (Map.Entry<Integer, String> entry : paramPositions.entrySet()) {
+        Iterator<Map.Entry<Integer, String>> it = paramPositions.entrySet().iterator();
+        dataY[0] = ((Number) inEvent.getData(it.next().getKey())).doubleValue();
 
-            if (itr == 0) {
-                confidenceInterval = Double.parseDouble(inEvent.getData(entry.getKey()).toString());
-            }
-            else if (itr == 1) {
-                dataY[0] = Double.parseDouble(inEvent.getData(entry.getKey()).toString());
-            }
-            else {
-                dataX[itr - 1] = Double.parseDouble(inEvent.getData(entry.getKey()).toString());
-            }
-            itr++;
+        for(int i=1; i<paramCount; i++) {
+            dataX[i] = ((Number) inEvent.getData(it.next().getKey())).doubleValue();
         }
 
         xValueList.add(dataX);
         yValueList.add(dataY);
-        xArrayLength = dataX.length;
+    }
+
+    public void removeEvent(){
+
+        xValueList.remove(0);
+        yValueList.remove(0);
     }
 
     public Object[] processData() {
 
-        double[][] xArray = xValueList.toArray(new double[eventCount][xArrayLength]);
+        double[][] xArray = xValueList.toArray(new double[eventCount][xParameterCount +1]);
         double[][] yArray = yValueList.toArray(new double[eventCount][1]);
-
-        int parameterCount = xArrayLength - 1; // number of parameters for a given y value
-        double [] betaErrors = new double[parameterCount+1];
-        double [] tStats = new double[parameterCount+1];
-        double sse = 0.0; // sum of square error
-        double df = eventCount - parameterCount - 1; // Degrees of Freedom for Confidence Interval
-        double p = 1- confidenceInterval; // P value of specified confidence interval
+        double [] betaErrors = new double[xParameterCount +1];
+        double [] tStats = new double[xParameterCount +1];
+        double sse = 0.0;                               // sum of square error
+        double df = eventCount - xParameterCount - 1;   // Degrees of Freedom for Confidence Interval
+        double p = 1- confidenceInterval;               // P value of specified confidence interval
         double pValue;
-        int outputDataCount = 1 + (parameterCount + 1) * 2;
-        Object[] dataObjArray = new Object[outputDataCount];
+        Object[] regResults = new Object[xParameterCount + 2];
 
         // Calculate Betas
         try{
+
             Matrix matY = new Matrix(yArray);
             Matrix matX = new Matrix(xArray);
             Matrix matXTranspose = matX.transpose();
@@ -90,33 +73,35 @@ public class MultipleLinearRegressionCalculator extends RegressionCalculator{
 
             // Calculate Sum of Squares
             for (int i = 0; i < eventCount; i++) {
-                sse += Math.pow((yHat.get(i,0) - yArray[i][0]),2);
+                sse += (yHat.get(i,0) - yArray[i][0]) * (yHat.get(i,0) - yArray[i][0]);
             }
 
             // Calculating Errors
             double mse = sse/df;
-            double stdErr = Math.sqrt(mse);
-            dataObjArray[0] = stdErr;
+            regResults[0] = Math.sqrt(mse);      // Standard Error of Regression
             TDistribution t = new TDistribution(df);
 
-            //Calculating beta errors and tstats
-            for(int j=0; j <= parameterCount; j++) {
+            // Calculating beta errors and tstats
+            for(int j=0; j <= xParameterCount; j++) {
                 betaErrors[j] = Math.sqrt(matXTXInverse.get(j,j) * mse);
                 tStats[j] = matBetas.get(j,0)/betaErrors[j];
 
-                pValue = 1-(t.cumulativeProbability(Math.abs(tStats[j])) - 1 + t.cumulativeProbability(Math.abs(tStats[j])));
+                // Eliminating statistically weak coefficients
+                pValue = 2 * (1 - t.cumulativeProbability(Math.abs(tStats[j])));
                 if ( pValue > p) {
-                    matBetas.set(j,0,0);
+                    regResults[j+1] = 0.0;
+                }else {
+                    regResults[j+1] = matBetas.get(j,0);
                 }
-
-                dataObjArray[j+1] = matBetas.get(j,0);
-                dataObjArray[j+2+parameterCount] = tStats[j];
             }
         }
         catch(RuntimeException e){
-            dataObjArray[0]="Insufficient Data";
+            regResults[0] = 0.0;
+            for(int j=0; j <= xParameterCount; j++) {
+                regResults[j+1]= 0.0;
+            }
+            return regResults;
         }
-
-        return dataObjArray;
+        return regResults;
     }
 }

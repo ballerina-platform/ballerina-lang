@@ -38,13 +38,13 @@ public class ContinuousSeasonalityTestCase
         siddhiConfiguration.setSiddhiExtensions(list);
         SiddhiManager siddhiManager = new SiddhiManager(siddhiConfiguration);
 
-        InputHandler inputHandler = siddhiManager.defineStream("define stream DataStream ( ci double, y double, x1 double )");
+        InputHandler inputHandler = siddhiManager.defineStream("define stream DataStream ( y double, x1 double )");
 
         siddhiManager.addQuery("from DataStream " +
-                " select ci, y, x1, sin(x1) as sinx1 " +
+                " select y, x1, sin(x1) as sinx1 " +
                 " insert into tempStream1;");
 
-        String queryReference = siddhiManager.addQuery("from tempStream1#transform.timeseries:regress(ci, y, x1, sinx1) \n" +
+        String queryReference = siddhiManager.addQuery("from tempStream1#transform.timeseries:regress( 1, 1000, 0.95, y, x1, sinx1) \n" +
                 "        select *  \n" +
                 "        insert into RegressionResult;\n");
 
@@ -61,27 +61,27 @@ public class ContinuousSeasonalityTestCase
 
         double ci = 0.95;
 
-        inputHandler.send(new Object[]{ ci, 5.49, 0.00 });
-        inputHandler.send(new Object[]{ ci, 6.79, 1.00 });
-        inputHandler.send(new Object[]{ ci, 6.46, 2.00 });
-        inputHandler.send(new Object[]{ ci, 6.24, 3.00 });
-        inputHandler.send(new Object[]{ ci, 5.05, 4.00 });
-        inputHandler.send(new Object[]{ ci, 4.92, 5.00 });
-        inputHandler.send(new Object[]{ ci, 5.64, 6.00 });
-        inputHandler.send(new Object[]{ ci, 7.33, 7.00 });
-        inputHandler.send(new Object[]{ ci, 7.55, 8.00 });
-        inputHandler.send(new Object[]{ ci, 6.87, 9.00 });
-        inputHandler.send(new Object[]{ ci, 6.20, 10.00 });
-        inputHandler.send(new Object[]{ ci, 5.79, 11.00 });
-        inputHandler.send(new Object[]{ ci, 6.56, 12.00 });
-        inputHandler.send(new Object[]{ ci, 6.71, 13.00 });
-        inputHandler.send(new Object[]{ ci, 7.41, 14.00 });
-        inputHandler.send(new Object[]{ ci, 7.97, 15.00 });
-        inputHandler.send(new Object[]{ ci, 6.51, 16.00 });
-        inputHandler.send(new Object[]{ ci, 5.95, 17.00 });
-        inputHandler.send(new Object[]{ ci, 6.40, 18.00 });
-        inputHandler.send(new Object[]{ ci, 7.88, 19.00 });
-        inputHandler.send(new Object[]{ ci, 7.92, 20.00 });
+        inputHandler.send(new Object[]{ 5.49, 0.00 });
+        inputHandler.send(new Object[]{ 6.79, 1.00 });
+        inputHandler.send(new Object[]{ 6.46, 2.00 });
+        inputHandler.send(new Object[]{ 6.24, 3.00 });
+        inputHandler.send(new Object[]{ 5.05, 4.00 });
+        inputHandler.send(new Object[]{ 4.92, 5.00 });
+        inputHandler.send(new Object[]{ 5.64, 6.00 });
+        inputHandler.send(new Object[]{ 7.33, 7.00 });
+        inputHandler.send(new Object[]{ 7.55, 8.00 });
+        inputHandler.send(new Object[]{ 6.87, 9.00 });
+        inputHandler.send(new Object[]{ 6.20, 10.00 });
+        inputHandler.send(new Object[]{ 5.79, 11.00 });
+        inputHandler.send(new Object[]{ 6.56, 12.00 });
+        inputHandler.send(new Object[]{ 6.71, 13.00 });
+        inputHandler.send(new Object[]{ 7.41, 14.00 });
+        inputHandler.send(new Object[]{ 7.97, 15.00 });
+        inputHandler.send(new Object[]{ 6.51, 16.00 });
+        inputHandler.send(new Object[]{ 5.95, 17.00 });
+        inputHandler.send(new Object[]{ 6.40, 18.00 });
+        inputHandler.send(new Object[]{ 7.88, 19.00 });
+        inputHandler.send(new Object[]{ 7.92, 20.00 });
 
         Thread.sleep(1000);
 
