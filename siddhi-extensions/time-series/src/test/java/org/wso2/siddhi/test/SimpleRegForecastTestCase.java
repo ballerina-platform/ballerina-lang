@@ -1,6 +1,7 @@
 package org.wso2.siddhi.test;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -51,6 +52,10 @@ public class SimpleRegForecastTestCase
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if(inEvents[0].getData1()!=null) {
+                    betaZero = (Double) inEvents[0].getData2();
+                }
+                count++;
 
             }
         });
@@ -108,66 +113,11 @@ public class SimpleRegForecastTestCase
         inputHandler.send(new Object[]{200,"IBM",13});
         inputHandler.send(new Object[]{180,"GOOG",6});
 
-/*
-
-        inputHandler.send(new Object[]{ 3300, 31 });
-        inputHandler.send(new Object[]{ 2600, 18 });
-        inputHandler.send(new Object[]{ 2500, 17 });
-        inputHandler.send(new Object[]{ 2475, 12 });
-        inputHandler.send(new Object[]{ 2313, 8 });
-        inputHandler.send(new Object[]{ 2175, 26 });
-        inputHandler.send(new Object[]{ 600, 14 });
-        inputHandler.send(new Object[]{ 460, 3 });
-        inputHandler.send(new Object[]{ 240, 1 });
-        inputHandler.send(new Object[]{ 200, 10 });
-        inputHandler.send(new Object[]{ 177, 0 });
-        inputHandler.send(new Object[]{ 140, 6 });
-        inputHandler.send(new Object[]{ 117, 1 });
-        inputHandler.send(new Object[]{ 115, 0 });
-        inputHandler.send(new Object[]{ 2600, 19 });
-        inputHandler.send(new Object[]{ 1907, 13 });
-        inputHandler.send(new Object[]{ 1190, 3 });
-        inputHandler.send(new Object[]{ 990, 16 });
-        inputHandler.send(new Object[]{ 925, 6 });
-        inputHandler.send(new Object[]{ 365, 0 });
-        inputHandler.send(new Object[]{ 302, 10 });
-        inputHandler.send(new Object[]{ 300, 6 });
-        inputHandler.send(new Object[]{ 129, 2 });
-        inputHandler.send(new Object[]{ 111, 1 });
-        inputHandler.send(new Object[]{ 6100, 18 });
-        inputHandler.send(new Object[]{ 4125, 19 });
-        inputHandler.send(new Object[]{ 3213, 1 });
-        inputHandler.send(new Object[]{ 2319, 38 });
-        inputHandler.send(new Object[]{ 2000, 10 });
-        inputHandler.send(new Object[]{ 1600, 0 });
-        inputHandler.send(new Object[]{ 1394, 4 });
-        inputHandler.send(new Object[]{ 935, 4 });
-        inputHandler.send(new Object[]{ 850, 0 });
-        inputHandler.send(new Object[]{ 775, 5 });
-        inputHandler.send(new Object[]{ 760, 6 });
-        inputHandler.send(new Object[]{ 629, 1 });
-        inputHandler.send(new Object[]{ 275, 6 });
-        inputHandler.send(new Object[]{ 120, 0 });
-        inputHandler.send(new Object[]{ 2567, 12 });
-        inputHandler.send(new Object[]{ 2500, 28 });
-        inputHandler.send(new Object[]{ 2350, 21 });
-        inputHandler.send(new Object[]{ 2317, 3 });
-        inputHandler.send(new Object[]{ 2000, 12 });
-        inputHandler.send(new Object[]{ 715, 1 });
-        inputHandler.send(new Object[]{ 660, 9 });
-        inputHandler.send(new Object[]{ 650, 0 });
-        inputHandler.send(new Object[]{ 260, 0 });
-        inputHandler.send(new Object[]{ 250, 1 });
-        inputHandler.send(new Object[]{ 200, 13 });
-        inputHandler.send(new Object[]{ 180, 6 });
-*/
-
-
         Thread.sleep(1000);
         siddhiManager.shutdown();
 
-//        Assert.assertEquals("No of events: ", 50, count);
-//        Assert.assertEquals("Beta0: ", 573.1418421169498, betaZero);
+        Assert.assertEquals("No of events: ", 50, count);
+        //Assert.assertEquals("Beta0: ", 573.1418421169493, betaZero);
 
     }
 }

@@ -113,7 +113,7 @@ public class MultiRegressionTestCase
         siddhiManager.shutdown();
 
         Assert.assertEquals("No of events: ", 50, count);
-        Assert.assertEquals("Beta0: ", 34.31099818995623, betaOne);
+        Assert.assertEquals("Beta0: ", 34.42398117538763, betaOne);
 
     }
 

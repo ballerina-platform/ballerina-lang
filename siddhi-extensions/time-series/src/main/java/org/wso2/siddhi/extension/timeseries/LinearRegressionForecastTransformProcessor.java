@@ -69,7 +69,7 @@ public class LinearRegressionForecastTransformProcessor extends TransformProcess
         }
 
         // Capture constant inputs
-        if(parameters[0] instanceof IntConstant) {
+        if(parameters[1] instanceof IntConstant) {
             try {
                 calcInterval = ((IntConstant) parameters[0]).getValue();
                 batchSize = ((IntConstant) parameters[1]).getValue();
