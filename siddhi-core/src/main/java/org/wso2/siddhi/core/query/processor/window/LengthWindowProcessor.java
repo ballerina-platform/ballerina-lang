@@ -42,7 +42,7 @@ public class LengthWindowProcessor extends WindowProcessor {
     protected void processEvent(InEvent event) {
         acquireLock();
         try {
-            window.put(new RemoveEvent(event, System.currentTimeMillis()));
+            window.put(new RemoveEvent(event, Long.MAX_VALUE));
             if (window.size() > lengthToKeep) {
                 nextProcessor.process((Event) window.poll());
             }
