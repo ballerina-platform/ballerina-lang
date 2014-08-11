@@ -55,30 +55,30 @@ public class SortWindowProcessor extends WindowProcessor {
 
     private static final String ASC = "asc";
     private static final String DESC = "desc";
-    
+
     private class EventComparator implements Comparator<Event> {
-		@Override
-		public int compare(Event e1, Event e2) {
-			int comparisonResult;
-			for (int i=0 ; i<attributeList.size(); i++){
-				int[] listItem = attributeList.get(i);
-				int attributePosition = listItem[0];
-				Comparable comparableVariable1 = (Comparable)e1.getData(attributePosition);
-				Comparable comparableVariable2 = (Comparable)e2.getData(attributePosition);
-				comparisonResult = comparableVariable1.compareTo(comparableVariable2);
-				if(comparisonResult != 0){
-					return listItem[1]*comparisonResult;
-				}
-			}
-			return 0;
-		}
+        @Override
+        public int compare(Event e1, Event e2) {
+            int comparisonResult;
+            for (int i=0 ; i<attributeList.size(); i++){
+                int[] listItem = attributeList.get(i);
+                int attributePosition = listItem[0];
+                Comparable comparableVariable1 = (Comparable)e1.getData(attributePosition);
+                Comparable comparableVariable2 = (Comparable)e2.getData(attributePosition);
+                comparisonResult = comparableVariable1.compareTo(comparableVariable2);
+                if(comparisonResult != 0){
+                    return listItem[1]*comparisonResult;
+                }
+            }
+            return 0;
+        }
     }
 
     @Override
     protected void processEvent(InEvent event) {
         acquireLock();
         try {
-        	sortedWindow.add(new RemoveEvent(event, Long.MAX_VALUE));
+            sortedWindow.add(new RemoveEvent(event, Long.MAX_VALUE));
             if (sortedWindow.size() > lengthToKeep) {
                 Collections.sort(sortedWindow, eventComparator);
                 nextProcessor.process(new RemoveEvent(sortedWindow.remove(sortedWindow.size()-1), System.currentTimeMillis()));
@@ -112,7 +112,7 @@ public class SortWindowProcessor extends WindowProcessor {
                     } else {
                         sortedWindow.add(new RemoveEvent(inEvent, Long.MAX_VALUE));
                         Collections.sort(sortedWindow, eventComparator);
-                        RemoveEvent removeEvent = (RemoveEvent) sortedWindow.remove(sortedWindow.size()-1); 
+                        RemoveEvent removeEvent = (RemoveEvent) sortedWindow.remove(sortedWindow.size()-1);
                         removeEvent.setExpiryTime(System.currentTimeMillis());
                         nextProcessor.process(removeEvent);
                         nextProcessor.process(inEvent);
@@ -120,7 +120,7 @@ public class SortWindowProcessor extends WindowProcessor {
                 }
             } else {
                 for (int i = 0; i < listEvent.getActiveEvents(); i++) {
-                	sortedWindow.add(new RemoveEvent(listEvent.getEvent(i), Long.MAX_VALUE));
+                    sortedWindow.add(new RemoveEvent(listEvent.getEvent(i), Long.MAX_VALUE));
                 }
                 nextProcessor.process(listEvent);
             }
@@ -132,13 +132,13 @@ public class SortWindowProcessor extends WindowProcessor {
 
     @Override
     public Iterator<StreamEvent> iterator() {
-    	return new ArrayList<StreamEvent>(sortedWindow).iterator();
+        return new ArrayList<StreamEvent>(sortedWindow).iterator();
     }
 
     @Override
     public Iterator<StreamEvent> iterator(String predicate) {
         //TODO: Handle isDistributedProcessingEnabled case
-/*        if (siddhiContext.isDistributedProcessingEnabled()) {
+        /* if (siddhiContext.isDistributedProcessingEnabled()) {
 
         } else {
             return this.iterator();
@@ -164,33 +164,33 @@ public class SortWindowProcessor extends WindowProcessor {
         } else {
             throw new UnsupportedOperationException("The first parameter should be an integer");
         }
-		attributeList = new ArrayList<int[]>();
-		eventComparator = new EventComparator();
+        attributeList = new ArrayList<int[]>();
+        eventComparator = new EventComparator();
         for (int i = 1, parametersLength = parameters.length  ; i < parametersLength; i++) {
-        	if (parameters[i] instanceof StringConstant){
+            if (parameters[i] instanceof StringConstant){
                 throw new UnsupportedOperationException("Required a variable, but found a string parameter");
-        	}
-        	else{
-        		String attributeName = ((Variable) parameters[i]).getAttributeName();
-        		int position = definition.getAttributePosition(attributeName);
-        		int order;
-        		String nextParameter;
-        		if(i+1 < parametersLength && parameters[i+1] instanceof StringConstant){
-        			nextParameter = ((StringConstant) parameters[i+1]).getValue();
-        			if (nextParameter.equalsIgnoreCase(DESC)){
-        				order = -1;
-        				i++;
-        			} else if (nextParameter.equalsIgnoreCase(ASC)){
-        				order = 1;
-        				i++;
-        			} else {
+            }
+            else{
+                String attributeName = ((Variable) parameters[i]).getAttributeName();
+                int position = definition.getAttributePosition(attributeName);
+                int order;
+                String nextParameter;
+                if(i+1 < parametersLength && parameters[i+1] instanceof StringConstant){
+                    nextParameter = ((StringConstant) parameters[i+1]).getValue();
+                    if (nextParameter.equalsIgnoreCase(DESC)){
+                        order = -1;
+                        i++;
+                    } else if (nextParameter.equalsIgnoreCase(ASC)){
+                        order = 1;
+                        i++;
+                    } else {
                         throw new UnsupportedOperationException("Parameter string literals should only be \"asc\" or \"desc\"");
-        			}
-        		} else {
-        			order = 1; //assigning the default order: "asc"
+                    }
+                } else {
+                    order = 1; //assigning the default order: "asc"
                 }
-        		attributeList.add(new int[]{position,order});
-        	}
+                attributeList.add(new int[]{position,order});
+            }
         }
 
         if (this.siddhiContext.isDistributedProcessingEnabled()) {
@@ -204,5 +204,4 @@ public class SortWindowProcessor extends WindowProcessor {
     @Override
     public void destroy(){
     }
-
 }
