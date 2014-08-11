@@ -169,8 +169,7 @@ public class SortWindowProcessor extends WindowProcessor {
         for (int i = 1, parametersLength = parameters.length  ; i < parametersLength; i++) {
             if (parameters[i] instanceof StringConstant){
                 throw new UnsupportedOperationException("Required a variable, but found a string parameter");
-            }
-            else{
+            } else{
                 String attributeName = ((Variable) parameters[i]).getAttributeName();
                 int position = definition.getAttributePosition(attributeName);
                 int order;
