@@ -145,7 +145,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Runnabl
 
     @Override
     protected void restoreState(Object[] data) {
-        window.restoreState(data);
         window.restoreState((Object[]) data[0]);
         oldEventList = ((ArrayList<RemoveEvent>) data[1]);
         newEventList = ((ArrayList<InEvent>) data[2]);
