@@ -75,12 +75,15 @@ public class SelectorParser {
                             null, siddhiContext, null, metaStreamEvent, executors);
                     if (executor instanceof VariableExpressionExecutor) {
                         metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute());
+                        temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) executor).getAttribute().getType());
                     } else {
                         metaStreamEvent.addOutputData(null);            //To maintain variable positions
                         PassThroughAttributeProcessor attributeProcessor = new PassThroughAttributeProcessor(executor);
                         attributeProcessor.setOutputPosition(i);
                         attributeProcessorList.add(attributeProcessor);
+                        temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
                     }
+
                 } else {
                     //TODO implement support for MetaStateEvent
                 }
