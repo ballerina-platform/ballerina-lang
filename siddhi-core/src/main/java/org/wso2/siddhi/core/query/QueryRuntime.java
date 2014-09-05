@@ -194,4 +194,8 @@ public class QueryRuntime {
         }
 
     }
+
+    public QuerySelector getSelector() {
+        return selector;
+    }
 }
