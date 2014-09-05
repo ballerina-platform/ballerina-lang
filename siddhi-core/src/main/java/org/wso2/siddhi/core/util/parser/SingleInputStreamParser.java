@@ -51,6 +51,7 @@ public class SingleInputStreamParser {
                 }
             }
         }
+        metaStreamEvent.intializeAfterWindowData();
         QueryStreamReceiver queryStreamReceiver = new QueryStreamReceiver((StreamDefinition) metaStreamEvent.getDefinition());
         SingleStreamRuntime singleStreamRuntime = new SingleStreamRuntime(queryStreamReceiver, processor);
         return singleStreamRuntime;

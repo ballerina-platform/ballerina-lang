@@ -24,6 +24,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 public class PassThroughAttributeProcessor implements NonGroupingAttributeProcessor{
     private ExpressionExecutor expressionExecutor;
+    private int outputPosition;
 
     public PassThroughAttributeProcessor(ExpressionExecutor expressionExecutor) {
         this.expressionExecutor=expressionExecutor;
@@ -36,5 +37,13 @@ public class PassThroughAttributeProcessor implements NonGroupingAttributeProces
     @Override
     public Object process(StreamEvent event) {
         return expressionExecutor.execute(event);
+    }
+
+    public void setOutputPosition(int position) {
+        this.outputPosition = position;
+    }
+
+    public int getOutputPosition() {
+        return outputPosition;
     }
 }

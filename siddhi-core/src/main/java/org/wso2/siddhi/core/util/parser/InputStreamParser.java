@@ -41,7 +41,6 @@ public class InputStreamParser {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             MetaStreamEvent metaStreamEvent = generateMetaStreamEvent(inputStream, definitionMap);
             SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream, context, metaStreamEvent, executors);
-            metaStreamEvent.intializeOutputData();
             metaStateEvent.addEvent(metaStreamEvent);
             return singleStreamRuntime;
         } else {

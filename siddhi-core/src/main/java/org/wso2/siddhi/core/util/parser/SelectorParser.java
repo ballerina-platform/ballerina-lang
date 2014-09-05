@@ -20,8 +20,10 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.ValidatorException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
@@ -64,34 +66,29 @@ public class SelectorParser {
     private static List<AttributeProcessor> getAttributeProcessors(Selector selector, OutputStream outStream, SiddhiContext siddhiContext, MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
         StreamDefinition temp = new StreamDefinition(outStream.getId());
+        int i = 0;
         for (OutputAttribute outputAttribute : selector.getSelectionList()) {
             try {
-                if (outputAttribute.getExpression() instanceof Constant) {
-                    PassThroughAttributeProcessor attributeGenerator = new PassThroughAttributeProcessor(ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                            null, siddhiContext, null, metaStateEvent, executors));
-                    attributeProcessorList.add(attributeGenerator);
-                    temp.attribute(outputAttribute.getRename(), attributeGenerator.getOutputType());
-                } else if (outputAttribute.getExpression() instanceof AttributeFunction) {
-                    //TODO implement
-                    throw new OperationNotSupportedException("Attribute Functions are not supported");
-                } else if (outputAttribute.getExpression() instanceof Variable) {
-                    PassThroughAttributeProcessor attributeGenerator;
-                    if (metaStateEvent.getEventCount() == 1) {  //meta stream event
-                        attributeGenerator = new PassThroughAttributeProcessor(ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                                null, siddhiContext, null, metaStateEvent.getMetaEvent(0), executors));
-                        temp.attribute(outputAttribute.getRename(), attributeGenerator.getOutputType());
+                if (metaStateEvent.getEventCount() == 1) {  //meta stream event
+                    MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(0);
+                    ExpressionExecutor executor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
+                            null, siddhiContext, null, metaStreamEvent, executors);
+                    if (executor instanceof VariableExpressionExecutor) {
+                        metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute());
                     } else {
-                        attributeGenerator = new PassThroughAttributeProcessor(ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                                null, siddhiContext, null, metaStateEvent, executors));
-                        temp.attribute(outputAttribute.getRename(), attributeGenerator.getOutputType());
+                        PassThroughAttributeProcessor attributeProcessor = new PassThroughAttributeProcessor(executor);
+                        attributeProcessor.setOutputPosition(i);
+                        attributeProcessorList.add(attributeProcessor);
                     }
-                    attributeProcessorList.add(attributeGenerator);
+                } else {
+                    //TODO implement support for MetaStateEvent
                 }
-                metaStateEvent.setOutputDefinition(temp);
+                i++;
             } catch (ValidatorException e) {
                 //this will never happen as this is already validated
             }
         }
+        metaStateEvent.setOutputDefinition(temp);
         return attributeProcessorList;
     }
 }

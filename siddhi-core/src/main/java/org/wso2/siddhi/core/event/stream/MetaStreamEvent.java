@@ -82,17 +82,7 @@ public class MetaStreamEvent implements ComplexMetaEvent{
      */
     @Override
     public void addData(Attribute attribute) {
-        if (outputData != null) {
-            if (!outputData.isEmpty() && outputData.get(outputData.size() - 1) instanceof ComplexAttribute) {
-                if (!((ComplexAttribute) outputData.get(outputData.size() - 1)).isInitialized()) {   //if last element is a not initialized function attribute,
-                    afterWindowData.add(attribute);                                             //then reserve that spot for result of function and
-                } else {                                                                        //allocate position for actual variable
-                    outputData.add(attribute);
-                }
-            } else {
-                outputData.add(attribute);
-            }
-        } else if (afterWindowData != null) {
+        if (afterWindowData != null) {
             if (!afterWindowData.contains(attribute)) {
                 afterWindowData.add(attribute);
             }
@@ -101,6 +91,13 @@ public class MetaStreamEvent implements ComplexMetaEvent{
                 beforeWindowData.add(attribute);
             }
         }
+    }
+
+    public void addOutputData(Attribute attribute) {
+        if (outputData == null) {
+            outputData = new ArrayList<Attribute>();
+        }
+        outputData.add(attribute);
     }
 
     public AbstractDefinition getDefinition() {
