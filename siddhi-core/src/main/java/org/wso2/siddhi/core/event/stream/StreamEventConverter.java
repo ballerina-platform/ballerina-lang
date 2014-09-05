@@ -66,7 +66,7 @@ public class StreamEventConverter {
             if (currentDataList != null) {
                 int i = 0;
                 for (Attribute attribute : currentDataList) {           //Only variable slots will be filled.
-                    if (!(attribute instanceof ComplexAttribute)) {
+                    if (!(attribute instanceof ComplexAttribute) && attribute != null) {
                         ConverterElement converterElement = new ConverterElement();
                         int[] position = new int[2];
                         converterElement.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
