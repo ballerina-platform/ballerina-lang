@@ -62,7 +62,11 @@ public class SiddhiManager {
         return addExecutionPlan(SiddhiCompiler.parse(executionPlan));
     }
 
+    public ExecutionPlanRuntime getExecutionPlanRuntime(String executionPlanName) {
+        return executionPlanRuntimeMap.get(executionPlanName);
+    }
 
+    //Todo remove the execution plan from SiddhiManager
     public SiddhiContext getSiddhiContext() {
         return siddhiContext;
     }

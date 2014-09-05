@@ -49,8 +49,8 @@ public class DefineStreamTestCase {
 
     @Test
     public void testCreatingStreamDefinition2() {
-        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("define stream StockStream ( symbol string, price int, volume float, data Object );");
-        StreamDefinition api = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).attribute("data", Attribute.Type.OBJECT);
+        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("define stream StockStream ( symbol string, price int, volume double, data Object );");
+        StreamDefinition api = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.DOUBLE).attribute("data", Attribute.Type.OBJECT);
         Assert.assertEquals(api, streamDefinition);
     }
 

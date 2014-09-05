@@ -1611,6 +1611,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             return Attribute.Type.LONG;
         } else if (ctx.FLOAT() != null) {
             return Attribute.Type.FLOAT;
+        } else if (ctx.DOUBLE() != null) {
+            return Attribute.Type.DOUBLE;
         } else if (ctx.BOOL() != null) {
             return Attribute.Type.BOOL;
         } else if (ctx.OBJECT() != null) {
