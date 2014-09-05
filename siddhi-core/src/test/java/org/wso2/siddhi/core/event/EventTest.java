@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompare
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.ComplexAttribute;
+import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.util.parser.QueryParser;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -38,6 +39,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -91,9 +93,8 @@ public class EventTest {
         metaStreamEvent.addData(volume);
         metaStreamEvent.intializeAfterWindowData();
         metaStreamEvent.addData(price);
-        metaStreamEvent.intializeOutputData();
-        metaStreamEvent.addData(symbol);
-        metaStreamEvent.addData(avgPrice);
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(avgPrice);
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
@@ -170,5 +171,9 @@ public class EventTest {
         definitionMap.put("outputStream", outStreamDefinition);
         SiddhiContext context = new SiddhiContext();
         QueryRuntime runtime = QueryParser.parse(query, context, definitionMap);
+        Assert.assertNotNull(runtime);
+        Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
+        Assert.assertNotNull(runtime.getSelector());
+        Assert.assertEquals(1, runtime.getMetaStateEvent().getEventCount());
     }
 }
