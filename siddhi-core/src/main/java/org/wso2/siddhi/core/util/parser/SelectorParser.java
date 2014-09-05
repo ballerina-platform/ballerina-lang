@@ -74,7 +74,7 @@ public class SelectorParser {
                     ExpressionExecutor executor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
                             null, siddhiContext, null, metaStreamEvent, executors);
                     if (executor instanceof VariableExpressionExecutor) {
-                        metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute());
+                        metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute(), i);
                     } else {
                         PassThroughAttributeProcessor attributeProcessor = new PassThroughAttributeProcessor(executor);
                         attributeProcessor.setOutputPosition(i);
