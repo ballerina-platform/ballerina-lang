@@ -39,7 +39,6 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
@@ -51,7 +50,7 @@ public class EventTest {
 
     @Test
     public void testEventCreation() {
-        SiddhiEventFactory eventFactory = new SiddhiEventFactory(2);
+        EventFactory eventFactory = new EventFactory(2);
         Assert.assertEquals(2, eventFactory.newInstance().getData().length);
 
         StreamEventFactory streamEventFactory = new StreamEventFactory(2, 3, 4);
