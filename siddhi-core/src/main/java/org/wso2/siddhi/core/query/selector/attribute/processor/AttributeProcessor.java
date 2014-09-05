@@ -24,4 +24,6 @@ public interface AttributeProcessor {
 
     public Attribute.Type getOutputType();
 
+    public int getOutputPosition();
+
 }

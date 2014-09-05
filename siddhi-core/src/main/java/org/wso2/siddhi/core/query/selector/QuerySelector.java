@@ -21,11 +21,13 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
+import org.wso2.siddhi.core.query.selector.attribute.processor.NonGroupingAttributeProcessor;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
 import java.util.List;
@@ -62,18 +64,25 @@ public class QuerySelector implements Processor {
         if(log.isTraceEnabled()){
             log.trace("event is processed by selector "+ id+ this);
         }
-        Object[] data = new Object[streamEvent.getOutputData().length];      //Returns outData array from meta stream event
+        Object[] data = new Object[outputSize];      //Returns outData array from meta stream event
         for (int i = 0; i < streamEvent.getOutputData().length; i++) {
             data[i] = streamEvent.getOutputData()[i];
         }
 
-        //TODO: populate data for complex attributes
-
-        StreamEvent event = new StreamEvent(streamEvent.getBeforeWindowData().length, streamEvent.getOnAfterWindowData().length, streamEvent.getOutputData().length);
+        for (AttributeProcessor attributeProcessor: attributeProcessorList) {
+            data[attributeProcessor.getOutputPosition()] = processOutputAttributeGenerator(streamEvent, attributeProcessor);
+        }
+        StreamEvent event = new StreamEvent(0,0,outputSize);
         event.setOutputData(data);
-        event.setTimestamp(streamEvent.getTimestamp());
-        outputRateLimiter.send(event.getTimestamp(), event, null);
+        outputRateLimiter.send(streamEvent.getTimestamp(), event, null);
 
+    }
+
+    private Object processOutputAttributeGenerator(StreamEvent streamEvent, AttributeProcessor attributeProcessor) {
+        if (attributeProcessor instanceof NonGroupingAttributeProcessor) {
+            return ((NonGroupingAttributeProcessor) attributeProcessor).process(streamEvent);
+        }
+        return null;
     }
 
     @Override
