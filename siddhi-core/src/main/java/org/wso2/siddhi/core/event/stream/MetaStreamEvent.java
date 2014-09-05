@@ -93,11 +93,11 @@ public class MetaStreamEvent implements ComplexMetaEvent{
         }
     }
 
-    public void addOutputData(Attribute attribute, int index) {
+    public void addOutputData(Attribute attribute) {
         if (outputData == null) {
             outputData = new ArrayList<Attribute>();
         }
-        outputData.add(index, attribute);
+        outputData.add(attribute);
     }
 
     public AbstractDefinition getDefinition() {
