@@ -15,7 +15,7 @@ package org.wso2.siddhi.core.executor.condition.compare.greater_than;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
 public class GreaterThanCompareConditionExpressionExecutorFloatFloat extends
-        GreaterThenCompareConditionExpressionExecutor {
+        GreaterThanCompareConditionExpressionExecutor {
 
 
     public GreaterThanCompareConditionExpressionExecutorFloatFloat(

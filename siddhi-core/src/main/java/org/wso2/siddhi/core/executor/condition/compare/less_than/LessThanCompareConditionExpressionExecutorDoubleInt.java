@@ -15,7 +15,7 @@ package org.wso2.siddhi.core.executor.condition.compare.less_than;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
 public class LessThanCompareConditionExpressionExecutorDoubleInt extends
-        LessThenCompareConditionExpressionExecutor {
+        LessThanCompareConditionExpressionExecutor {
 
 
     public LessThanCompareConditionExpressionExecutorDoubleInt(ExpressionExecutor leftExpressionExecutor,

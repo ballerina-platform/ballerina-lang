@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.event;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.*;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -33,6 +34,7 @@ import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.ComplexAttribute;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.util.parser.QueryParser;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -43,6 +45,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,14 +89,13 @@ public class EventTest {
         Attribute price = new Attribute("price", Attribute.Type.DOUBLE);
         Attribute volume = new Attribute("volume", Attribute.Type.INT);
         Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
-        ComplexAttribute avgPrice = new ComplexAttribute();
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addData(volume);
         metaStreamEvent.intializeAfterWindowData();
         metaStreamEvent.addData(price);
         metaStreamEvent.addOutputData(symbol);
-        metaStreamEvent.addOutputData(avgPrice);
+        metaStreamEvent.addOutputData(null);        //complex attribute
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
@@ -174,5 +176,38 @@ public class EventTest {
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());
         Assert.assertEquals(1, runtime.getMetaStateEvent().getEventCount());
+    }
+
+    @Test
+    public void testUpdateMetaEvent() {
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+
+        Attribute price = new Attribute("price", Attribute.Type.FLOAT);
+        Attribute volume = new Attribute("volume", Attribute.Type.INT);
+        Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
+
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        metaStreamEvent.addData(volume);
+        metaStreamEvent.addData(price);
+        metaStreamEvent.addData(symbol);
+        metaStreamEvent.intializeAfterWindowData();
+        metaStreamEvent.addData(price);
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(null);
+        MetaStateEvent metaStateEvent = new MetaStateEvent(1);
+        metaStateEvent.addEvent(metaStreamEvent);
+
+        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor("price", streamDefinition);
+        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor("volume", streamDefinition);
+        VariableExpressionExecutor symbolVariableExpressionExecutor = new VariableExpressionExecutor("symbol", streamDefinition);
+
+        QueryParserHelper.updateVariablePosition(metaStateEvent, Arrays.asList(priceVariableExpressionExecutor, volumeVariableExpressionExecutor, symbolVariableExpressionExecutor));
+
+        Assert.assertEquals(1, metaStreamEvent.getBeforeWindowData().size());
+        Assert.assertEquals(1, metaStreamEvent.getAfterWindowData().size());
+        Assert.assertEquals(2, metaStreamEvent.getOutputData().size());
+        Assert.assertArrayEquals(new int[]{-1, -1, 1, 0}, priceVariableExpressionExecutor.getPosition());
+        Assert.assertArrayEquals(new int[]{-1, -1, 0, 0}, volumeVariableExpressionExecutor.getPosition());
+        Assert.assertArrayEquals(new int[]{-1, -1, 2, 0}, symbolVariableExpressionExecutor.getPosition());
     }
 }

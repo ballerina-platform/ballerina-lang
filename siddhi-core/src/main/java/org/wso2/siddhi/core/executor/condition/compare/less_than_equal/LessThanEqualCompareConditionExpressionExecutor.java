@@ -10,15 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.siddhi.core.executor.condition.compare.less_than;
+package org.wso2.siddhi.core.executor.condition.compare.less_than_equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.compare.CompareConditionExpressionExecutor;
 
-public abstract class LessThenCompareConditionExpressionExecutor extends CompareConditionExpressionExecutor {
+public abstract class LessThanEqualCompareConditionExpressionExecutor extends CompareConditionExpressionExecutor {
 
-    public LessThenCompareConditionExpressionExecutor(ExpressionExecutor leftExpressionExecutor,
-                                                      ExpressionExecutor rightExpressionExecutor) {
+    public LessThanEqualCompareConditionExpressionExecutor(ExpressionExecutor leftExpressionExecutor,
+                                                           ExpressionExecutor rightExpressionExecutor) {
         super(leftExpressionExecutor, rightExpressionExecutor);
     }
 }
