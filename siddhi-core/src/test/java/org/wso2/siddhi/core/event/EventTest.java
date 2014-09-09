@@ -89,14 +89,13 @@ public class EventTest {
         Attribute price = new Attribute("price", Attribute.Type.DOUBLE);
         Attribute volume = new Attribute("volume", Attribute.Type.INT);
         Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
-        ComplexAttribute avgPrice = new ComplexAttribute();
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addData(volume);
         metaStreamEvent.intializeAfterWindowData();
         metaStreamEvent.addData(price);
         metaStreamEvent.addOutputData(symbol);
-        metaStreamEvent.addOutputData(avgPrice);
+        metaStreamEvent.addOutputData(null);        //complex attribute
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
