@@ -13,16 +13,12 @@
 package org.wso2.siddhi.core.executor.condition.compare.less_than;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.compare.CompareConditionExpressionExecutor;
 
-public abstract class LessThanCompareConditionExpressionExecutor extends ConditionExpressionExecutor {
-
-    protected ExpressionExecutor leftExpressionExecutor;
-    protected ExpressionExecutor rightExpressionExecutor;
+public abstract class LessThanCompareConditionExpressionExecutor extends CompareConditionExpressionExecutor {
 
     public LessThanCompareConditionExpressionExecutor(ExpressionExecutor leftExpressionExecutor,
                                                       ExpressionExecutor rightExpressionExecutor) {
-        this.leftExpressionExecutor = leftExpressionExecutor;
-        this.rightExpressionExecutor = rightExpressionExecutor;
+        super(leftExpressionExecutor, rightExpressionExecutor);
     }
 }
