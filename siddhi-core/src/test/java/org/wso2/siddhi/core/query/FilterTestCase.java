@@ -933,31 +933,31 @@ public class FilterTestCase {
         Assert.assertEquals(1, count);
    }
 
-//    @Test
-//    public void testFilterQuery30() throws InterruptedException, ValidatorException {
-//        log.info("Filter test30");
-//
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String cseEventStream = "define stream cseEventStream (symbol string, price float, available bool);";
-//        String query = "@info(name = 'query1') from cseEventStream[available != true ] select symbol,price,available insert into outputStream ;";
-//
-//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
-//
-//        executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
-//            @Override
-//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-//                EventPrinter.print(timeStamp, inEvents, removeEvents);
-//                count++;
-//            }
-//        });
-//
-//        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-//        inputHandler.send(new Object[]{"IBM", 55.6f, true});
-//        inputHandler.send(new Object[]{"WSO2", 57.6f, false});
-//        Thread.sleep(100);
-//        Assert.assertEquals(1, count);
-//
-//    }
+    @Test
+    public void testFilterQuery30() throws InterruptedException, ValidatorException {
+        log.info("Filter test30");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, available bool);";
+        String query = "@info(name = 'query1') from cseEventStream[available != true ] select symbol,price,available insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count++;
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        inputHandler.send(new Object[]{"IBM", 55.6f, true});
+        inputHandler.send(new Object[]{"WSO2", 57.6f, false});
+        Thread.sleep(100);
+        Assert.assertEquals(1, count);
+
+    }
 
     @Test
     public void testFilterQuery31() throws InterruptedException, ValidatorException {

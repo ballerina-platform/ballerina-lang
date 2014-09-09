@@ -257,8 +257,8 @@ math_operation
     |math_operation OR math_operation             #or_math_operation
     |function_operation                           #basic_math_operation
     |null_check                                   #basic_math_operation
-    |attribute_reference                          #basic_math_operation
     |constant_value                               #basic_math_operation
+    |attribute_reference                          #basic_math_operation
     ;
 
 function_operation
