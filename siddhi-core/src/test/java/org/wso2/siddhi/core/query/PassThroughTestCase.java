@@ -51,15 +51,15 @@ public class PassThroughTestCase {
 
 
     @Test
-    public void PassThroughTest() throws InterruptedException, ValidatorException {
-        log.info("pass through test");
+    public void PassThroughTest1() throws InterruptedException, ValidatorException {
+        log.info("pass through test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition streamA = new StreamDefinition("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("config").element("async", "true"));
 
         Query query = new Query();
-        query.from(InputStream.stream("streamA"));
+        query.from(InputStream.stream("cseEventStream"));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(
                 Selector.selector().
@@ -70,7 +70,7 @@ public class PassThroughTestCase {
 
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(streamA);
+        executionPlan.defineStream(cseEventStream);
         executionPlan.addQuery(query);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(executionPlan);
 
@@ -84,7 +84,7 @@ public class PassThroughTestCase {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         inputHandler.send(new Object[]{"IBM", 100});
         inputHandler.send(new Object[]{"WSO2", 100});
         Thread.sleep(100);
@@ -92,5 +92,98 @@ public class PassThroughTestCase {
         Assert.assertTrue(eventArrived);
     }
 
+    @Test
+    public void PassThroughTest2() throws InterruptedException, ValidatorException {
+        log.info("pass through test2");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+                annotation(Annotation.annotation("config").element("async", "true"));
+        StreamDefinition cseEventStream1 = new StreamDefinition("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+                annotation(Annotation.annotation("config").element("async", "true"));
+
+        Query query = new Query();
+        query.from(InputStream.stream("cseEventStream"));
+        query.annotation(Annotation.annotation("info").element("name", "query1"));
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        select("price", Expression.variable("price"))
+        );
+        query.insertInto("StockQuote");
+
+
+        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
+        executionPlan.defineStream(cseEventStream);
+        executionPlan.defineStream(cseEventStream1);
+        executionPlan.addQuery(query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(executionPlan);
+
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback(query, "query1", 2, siddhiManager.getSiddhiContext()) {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                count++;
+                eventArrived = true;
+            }
+
+        });
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream1");
+        inputHandler.send(new Object[]{"IBM", 100});
+        inputHandler.send(new Object[]{"WSO2", 100});
+        Thread.sleep(100);
+        Assert.assertEquals(0, count);
+        Assert.assertFalse(eventArrived);
+    }
+
+    @Test
+    public void PassThroughTest3() throws InterruptedException, ValidatorException {
+        log.info("pass through test3");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+                annotation(Annotation.annotation("config").element("async", "true"));
+        StreamDefinition cseEventStream1 = new StreamDefinition("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+                annotation(Annotation.annotation("config").element("async", "true"));
+
+        Query query = new Query();
+        query.from(InputStream.stream("cseEventStream"));
+        query.annotation(Annotation.annotation("info").element("name", "query1"));
+        query.select(
+                Selector.selector().
+                        select("symbol", Expression.variable("symbol")).
+                        select("price", Expression.variable("price"))
+        );
+        query.insertInto("StockQuote");
+
+
+        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
+        executionPlan.defineStream(cseEventStream);
+        executionPlan.defineStream(cseEventStream1);
+        executionPlan.addQuery(query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(executionPlan);
+
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback(query, "query1", 2, siddhiManager.getSiddhiContext()) {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                count++;
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        inputHandler.send(new Object[]{"IBM", 100});
+        inputHandler.send(new Object[]{"WSO2", 100});
+
+        InputHandler inputHandler1 = executionPlanRuntime.getInputHandler("cseEventStream1");
+        inputHandler1.send(new Object[]{"ORACLE", 100});
+        inputHandler1.send(new Object[]{"ABC", 100});
+
+        Thread.sleep(100);
+        Assert.assertEquals(2, count);
+        Assert.assertTrue(eventArrived);
+    }
 
 }
