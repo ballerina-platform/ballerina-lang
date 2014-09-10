@@ -384,7 +384,7 @@ public class JunctionTestCase {
 
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
-        Thread.sleep(100);
+        Thread.sleep(1000);
         Assert.assertTrue(eventArrived);
         Assert.assertEquals(12, count);
         for (boolean arrived : eventsArrived) {
