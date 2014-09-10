@@ -21,9 +21,6 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by seshika on 4/29/14.
- */
 public class SinFunctionExecutor extends FunctionExecutor {
 
     @Override
@@ -53,5 +50,10 @@ public class SinFunctionExecutor extends FunctionExecutor {
     @Override
     public Attribute.Type getReturnType() {
         return Attribute.Type.DOUBLE;
+    }
+
+    @Override
+    public void destroy() {
+
     }
 }

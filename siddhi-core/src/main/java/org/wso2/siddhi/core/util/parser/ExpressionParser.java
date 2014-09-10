@@ -21,7 +21,9 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.ComplexMetaEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.CannotLoadClassException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -37,6 +39,7 @@ import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal.*;
 import org.wso2.siddhi.core.executor.condition.compare.less_than.*;
 import org.wso2.siddhi.core.executor.condition.compare.less_than_equal.*;
 import org.wso2.siddhi.core.executor.condition.compare.not_equal.*;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorInt;
@@ -57,6 +60,10 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
+import org.wso2.siddhi.core.query.selector.attribute.factory.OutputAttributeAggregatorFactory;
+import org.wso2.siddhi.core.query.selector.attribute.processor.AggregationAttributeProcessor;
+import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessorFactory;
+import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -69,6 +76,7 @@ import org.wso2.siddhi.query.api.expression.constant.*;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.math.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -227,7 +235,29 @@ public class ExpressionParser {
             }
 
         } else if (expression instanceof AttributeFunction) {
-            //TODO Attribute Functions
+
+            try{
+
+                OutputAttributeAggregatorFactory outputAttributeAggregatorFactory = (OutputAttributeAggregatorFactory) SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), OutputAttributeAggregatorFactory.class);
+                Expression[] expressions = ((AttributeFunction) expression).getParameters();
+                AggregationAttributeProcessor attributeProcessor = AttributeProcessorFactory.createAttributeProcessor(
+                    expressions, streamDefinitionMap, metaEvent, executorList, outputAttributeAggregatorFactory, siddhiContext);
+
+                return attributeProcessor;
+            } catch (QueryCreationException ex) {
+                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
+                for (Expression innerExpression : ((AttributeFunction) expression).getParameters()) {
+                    innerExpressionExecutors.add(parseExpression(innerExpression, currentStreamReference, siddhiContext,streamDefinitionMap,metaEvent,executorList));
+                }
+                FunctionExecutor expressionExecutor= (FunctionExecutor) SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
+                siddhiContext.addEternalReferencedHolder(expressionExecutor);
+                expressionExecutor.setSiddhiContext(siddhiContext);
+                expressionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
+                expressionExecutor.init();
+                return expressionExecutor;
+
+            }
+
         }
 
         //TODO else if parts

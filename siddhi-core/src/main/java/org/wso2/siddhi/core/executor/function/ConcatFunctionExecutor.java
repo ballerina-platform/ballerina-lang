@@ -45,4 +45,8 @@ public class ConcatFunctionExecutor extends FunctionExecutor {
         return data;
     }
 
+    @Override
+    public void destroy() {
+
+    }
 }

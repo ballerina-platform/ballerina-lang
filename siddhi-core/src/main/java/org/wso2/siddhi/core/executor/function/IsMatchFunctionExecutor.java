@@ -75,4 +75,8 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
     }
 
 
+    @Override
+    public void destroy() {
+
+    }
 }

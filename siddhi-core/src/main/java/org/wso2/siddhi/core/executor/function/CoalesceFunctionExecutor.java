@@ -54,4 +54,8 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
         return data;
     }
 
+    @Override
+    public void destroy() {
+
+    }
 }
