@@ -74,7 +74,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event) {
-        StreamEvent streamEvent = eventConverter.convertToStreamEvent(event);
+        StreamEvent streamEvent = new StreamEvent(0,0,event.getData().length);
+        streamEvent.setOutputData(event.getData());
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);
@@ -83,7 +84,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        StreamEvent streamEvent = eventConverter.convertToStreamEvent(event);
+        StreamEvent streamEvent = new StreamEvent(0,0,event.getData().length);
+        streamEvent.setOutputData(event.getData());
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);

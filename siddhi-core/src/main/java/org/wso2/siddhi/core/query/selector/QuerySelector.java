@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcesso
 import org.wso2.siddhi.core.query.selector.attribute.processor.NonGroupingAttributeProcessor;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuerySelector implements Processor {
@@ -123,7 +124,11 @@ public class QuerySelector implements Processor {
 
     public QuerySelector clone(String key){
         QuerySelector clonedQuerySelector = new QuerySelector(id+key,selector,currentOn,expiredOn,siddhiContext);
-        clonedQuerySelector.attributeProcessorList =attributeProcessorList;
+        List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
+        for(AttributeProcessor attributeProcessor :attributeProcessorList){
+            clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor());
+        }
+        clonedQuerySelector.attributeProcessorList =clonedAttributeProcessorList;
         return clonedQuerySelector;
     }
 

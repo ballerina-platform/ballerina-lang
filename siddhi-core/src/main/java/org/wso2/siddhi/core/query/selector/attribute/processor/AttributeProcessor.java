@@ -26,4 +26,7 @@ public interface AttributeProcessor {
 
     public int getOutputPosition();
 
+    public void setOutputPosition(int position);
+
+    AttributeProcessor cloneProcessor();
 }

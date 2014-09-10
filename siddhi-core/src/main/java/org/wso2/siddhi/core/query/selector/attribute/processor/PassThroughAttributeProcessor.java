@@ -43,6 +43,11 @@ public class PassThroughAttributeProcessor implements NonGroupingAttributeProces
         this.outputPosition = position;
     }
 
+    @Override
+    public AttributeProcessor cloneProcessor() {
+        return this;
+    }
+
     public int getOutputPosition() {
         return outputPosition;
     }

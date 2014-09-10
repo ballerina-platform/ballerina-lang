@@ -26,12 +26,15 @@ import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
+import org.wso2.siddhi.core.query.selector.attribute.factory.OutputAttributeAggregatorFactory;
+import org.wso2.siddhi.core.query.selector.attribute.processor.AggregationAttributeProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.PassThroughAttributeProcessor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.constant.Constant;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
@@ -76,6 +79,11 @@ public class SelectorParser {
                     if (executor instanceof VariableExpressionExecutor) {
                         metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute());
                         temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) executor).getAttribute().getType());
+                    }
+                    else if(executor instanceof AggregationAttributeProcessor){
+                        attributeProcessorList.add((AttributeProcessor) executor);
+                        ((AttributeProcessor) executor).setOutputPosition(i);
+                        temp.attribute(outputAttribute.getRename(), ((AttributeProcessor) executor).getOutputType());
                     } else {
                         metaStreamEvent.addOutputData(null);            //To maintain variable positions
                         PassThroughAttributeProcessor attributeProcessor = new PassThroughAttributeProcessor(executor);
