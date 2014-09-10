@@ -21,7 +21,8 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.runtime.StreamRuntime;
@@ -117,7 +118,7 @@ public class QueryParserHelper {
     public static void addEventConverters(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
         int index = 0;
         if (runtime instanceof SingleStreamRuntime) {
-            StreamEventConverter converter = new StreamEventConverter(metaStateEvent.getMetaEvent(index));
+            EventConverter converter = StreamEventConverterFactory.getConverter(metaStateEvent.getMetaEvent(index));
             ((SingleStreamRuntime) runtime).getQueryStreamReceiver().setEventConverter(converter);
         } else {
             //TODO JoinStreamRuntime/PatternStreamRuntime
