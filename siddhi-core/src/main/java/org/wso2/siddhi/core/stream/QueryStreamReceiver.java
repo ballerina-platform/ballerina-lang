@@ -21,14 +21,14 @@ package org.wso2.siddhi.core.stream;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     private String streamId;
-    private StreamEventConverter eventConverter;
+    private EventConverter eventConverter;
     private StreamEvent streamEventBuffer;
     private StreamEvent lastStreamEventInBuffer;
     private Processor processorChain;
@@ -39,7 +39,7 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         this.streamId = streamDefinition.getId();
     }
 
-    private QueryStreamReceiver(String id){
+    private QueryStreamReceiver(String id) {
         streamId = id;
     }
 
@@ -48,8 +48,8 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         return streamId;
     }
 
-    public QueryStreamReceiver clone(String key){
-        QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId+key);
+    public QueryStreamReceiver clone(String key) {
+        QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId + key);
         clonedQueryStreamReceiver.setEventConverter(eventConverter);
         return clonedQueryStreamReceiver;
     }
@@ -57,21 +57,13 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     @Override
     public void receive(StreamEvent streamEvent) {
         StreamEvent convertedStreamEvent = eventConverter.convertToStreamEvent(streamEvent);
-        if (processorChain != null) {
-            processorChain.process(convertedStreamEvent);
-        } else {
-            next.process(convertedStreamEvent);
-        }
+        next.process(convertedStreamEvent);
     }
 
     @Override
     public void receive(Event event) {
         StreamEvent streamEvent = eventConverter.convertToStreamEvent(event);
-        if (processorChain != null) {
-            processorChain.process(streamEvent);
-        } else {
-            next.process(streamEvent);
-        }
+        next.process(streamEvent);
     }
 
     @Override
@@ -118,11 +110,11 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         this.processorChain = processorChain;
     }
 
-    public void setEventConverter(StreamEventConverter eventConverter){
+    public void setEventConverter(EventConverter eventConverter) {
         this.eventConverter = eventConverter;
     }
 
-    public void setNext(Processor next){
+    public void setNext(Processor next) {
         this.next = next;
     }
 }

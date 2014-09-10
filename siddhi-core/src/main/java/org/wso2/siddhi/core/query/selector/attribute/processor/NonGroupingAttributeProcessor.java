@@ -16,13 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.siddhi.core.query.selector.attribute.processor;
 
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
-public interface NonGroupingAttributeProcessor extends AttributeProcessor {
+public class NonGroupingAttributeProcessor implements AttributeProcessor {
+    private ExpressionExecutor expressionExecutor;
+    private int outputPosition;
 
-    public Object process(StreamEvent event);
+    public NonGroupingAttributeProcessor(ExpressionExecutor expressionExecutor) {
+        this.expressionExecutor = expressionExecutor;
+    }
 
+    public Attribute.Type getOutputType() {
+        return expressionExecutor.getReturnType();
+    }
+
+    public void process(StreamEvent event) {
+        event.setOutputData(expressionExecutor.execute(event), outputPosition);
+    }
+
+    public void setOutputPosition(int position) {
+        this.outputPosition = position;
+    }
+
+    public int getOutputPosition() {
+        return outputPosition;
+    }
 }

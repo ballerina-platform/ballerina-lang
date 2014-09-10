@@ -21,20 +21,16 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
-import org.wso2.siddhi.core.query.selector.attribute.processor.PassThroughAttributeProcessor;
+import org.wso2.siddhi.core.query.selector.attribute.processor.NonGroupingAttributeProcessor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.constant.Constant;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +74,7 @@ public class SelectorParser {
                         temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) executor).getAttribute().getType());
                     } else {
                         metaStreamEvent.addOutputData(null);            //To maintain variable positions
-                        PassThroughAttributeProcessor attributeProcessor = new PassThroughAttributeProcessor(executor);
+                        NonGroupingAttributeProcessor attributeProcessor = new NonGroupingAttributeProcessor(executor);
                         attributeProcessor.setOutputPosition(i);
                         attributeProcessorList.add(attributeProcessor);
                         temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());

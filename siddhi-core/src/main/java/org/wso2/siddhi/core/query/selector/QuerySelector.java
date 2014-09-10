@@ -21,13 +21,11 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
-import org.wso2.siddhi.core.query.selector.attribute.processor.NonGroupingAttributeProcessor;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
 import java.util.List;
@@ -46,7 +44,6 @@ public class QuerySelector implements Processor {
     static final Logger log = Logger.getLogger(QuerySelector.class);
 
 
-
     //TODO:aggregateAttributeProcessorList and the methods -processOutputAttributeGenerator
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
@@ -60,29 +57,16 @@ public class QuerySelector implements Processor {
 
     @Override
     public void process(StreamEvent streamEvent) {
-        //TODO:  for RemoveStreamEvents
-        if(log.isTraceEnabled()){
+        /*if(log.isTraceEnabled()){
             log.trace("event is processed by selector "+ id+ this);
-        }
-        Object[] data = new Object[outputSize];      //Returns outData array from meta stream event
-        for (int i = 0; i < streamEvent.getOutputData().length; i++) {
-            data[i] = streamEvent.getOutputData()[i];
-        }
+        }*/
 
-        for (AttributeProcessor attributeProcessor: attributeProcessorList) {
-            data[attributeProcessor.getOutputPosition()] = processOutputAttributeGenerator(streamEvent, attributeProcessor);
+        //TODO: have to change for windows
+        for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+            attributeProcessor.process(streamEvent);
         }
-        StreamEvent event = new StreamEvent(0,0,outputSize);
-        event.setOutputData(data);
-        outputRateLimiter.send(streamEvent.getTimestamp(), event, null);
+        outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
 
-    }
-
-    private Object processOutputAttributeGenerator(StreamEvent streamEvent, AttributeProcessor attributeProcessor) {
-        if (attributeProcessor instanceof NonGroupingAttributeProcessor) {
-            return ((NonGroupingAttributeProcessor) attributeProcessor).process(streamEvent);
-        }
-        return null;
     }
 
     @Override
@@ -121,9 +105,9 @@ public class QuerySelector implements Processor {
         this.attributeProcessorList = attributeProcessorList;
     }
 
-    public QuerySelector clone(String key){
-        QuerySelector clonedQuerySelector = new QuerySelector(id+key,selector,currentOn,expiredOn,siddhiContext);
-        clonedQuerySelector.attributeProcessorList =attributeProcessorList;
+    public QuerySelector clone(String key) {
+        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, siddhiContext);
+        clonedQuerySelector.attributeProcessorList = attributeProcessorList;
         return clonedQuerySelector;
     }
 
