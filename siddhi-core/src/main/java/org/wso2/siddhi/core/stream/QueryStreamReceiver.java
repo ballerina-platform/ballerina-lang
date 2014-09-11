@@ -74,6 +74,12 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         process(endOfBatch, streamEvent);
     }
 
+    @Override
+    public void receive(long timeStamp, Object[] data) {
+        StreamEvent streamEvent = eventConverter.convertToStreamEvent(timeStamp,data);
+        next.process(streamEvent);
+    }
+
     private void process(boolean endOfBatch, StreamEvent streamEvent) {
         if (streamEventBuffer == null) {
             if (endOfBatch) {

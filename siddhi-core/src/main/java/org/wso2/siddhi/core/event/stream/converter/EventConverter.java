@@ -36,4 +36,13 @@ public interface EventConverter {
      * @return converted StreamEvent
      */
     public StreamEvent convertToStreamEvent(StreamEvent streamEvent);
+
+    /**
+     * Method to convert(change format) timeStamp and data into new StreamEvent
+     *
+     * @param timeStamp timeStamp of the event
+     * @param data output data of the event
+     * @return converted StreamEvent
+     */
+    StreamEvent convertToStreamEvent(long timeStamp, Object[] data);
 }

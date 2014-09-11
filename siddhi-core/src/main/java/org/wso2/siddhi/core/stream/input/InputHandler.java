@@ -37,13 +37,11 @@ public class InputHandler {
     }
 
     public void send(Object[] data) throws InterruptedException {
-        Event event = new Event(System.currentTimeMillis(), data);
-        publisher.send(event);
+        publisher.send(System.currentTimeMillis(), data);
     }
 
     public void send(long timeStamp, Object[] data) throws InterruptedException {
-        Event event = new Event(timeStamp, data);
-        publisher.send(event);
+        publisher.send(timeStamp, data);
     }
 
     public void send(Event event) throws InterruptedException {

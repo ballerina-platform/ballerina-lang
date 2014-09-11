@@ -22,7 +22,6 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleStreamEventConverter implements EventConverter {
@@ -60,6 +59,18 @@ public class SimpleStreamEventConverter implements EventConverter {
 
     public StreamEvent convertToStreamEvent(StreamEvent streamEvent) {
         return convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.isExpired(), streamEvent.getTimestamp());
+    }
+
+    /**
+     * Method to convert(change format) timeStamp and data into new StreamEvent
+     *
+     * @param timeStamp timeStamp of the event
+     * @param data      output data of the event
+     * @return converted StreamEvent
+     */
+    @Override
+    public StreamEvent convertToStreamEvent(long timeStamp, Object[] data) {
+        return convertToInnerStreamEvent(data, false, timeStamp);
     }
 
 }
