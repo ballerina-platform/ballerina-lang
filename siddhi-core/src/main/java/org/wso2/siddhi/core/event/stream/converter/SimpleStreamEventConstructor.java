@@ -22,49 +22,44 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
-public class PassThroughStreamEventConverter implements EventConverter {
-    private StreamEventPool streamEventPool;
+import java.util.List;
 
-    public PassThroughStreamEventConverter(StreamEventPool streamEventPool) {
+public class SimpleStreamEventConstructor implements EventConstructor {
+    private StreamEventPool streamEventPool;
+    private List<ConverterElement> converterElements;
+
+    public SimpleStreamEventConstructor(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
         this.streamEventPool = streamEventPool;
+        this.converterElements = converterElements;
     }
 
-    /**
-     * Converts events to StreamEvent
-     *
-     * @param data
-     * @param isExpected
-     * @param timestamp
-     * @return StreamEvent
-     */
     private StreamEvent convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
-        System.arraycopy(data, 0, streamEvent.getOutputData(), 0, data.length);
+        for (ConverterElement element : converterElements) {
+            streamEvent.setOutputData(data[element.getFromPosition()], element.getToPosition()[1]);
+        }
         streamEvent.setExpired(isExpected);
         streamEvent.setTimestamp(timestamp);
 
         return streamEvent;
     }
 
-
-    public StreamEvent convertToStreamEvent(Event event) {
+    public StreamEvent constructStreamEvent(Event event) {
         return convertToInnerStreamEvent(event.getData(), event.isExpired(), event.getTimestamp());
     }
 
-    public StreamEvent convertToStreamEvent(StreamEvent streamEvent) {
+    public StreamEvent constructStreamEvent(StreamEvent streamEvent) {
         return convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.isExpired(), streamEvent.getTimestamp());
     }
 
-    /**
-     * Method to convert(change format) timeStamp and data into new StreamEvent
-     *
-     * @param timeStamp timeStamp of the event
-     * @param data      output data of the event
-     * @return converted StreamEvent
-     */
     @Override
-    public StreamEvent convertToStreamEvent(long timeStamp, Object[] data) {
+    public StreamEvent constructStreamEvent(long timeStamp, Object[] data) {
         return convertToInnerStreamEvent(data, false, timeStamp);
-
     }
+
+    @Override
+    public void returnEvent(StreamEvent streamEvent) {
+        streamEventPool.returnEvent(streamEvent);
+    }
+
 }

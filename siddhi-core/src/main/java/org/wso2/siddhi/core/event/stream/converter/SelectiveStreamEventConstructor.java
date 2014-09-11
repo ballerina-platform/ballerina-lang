@@ -26,25 +26,17 @@ import java.util.List;
 /**
  * The converter class that converts event into StreamEvent
  */
-public class SelectiveStreamEventConverter implements EventConverter {
+public class SelectiveStreamEventConstructor implements EventConstructor {
 
     private List<ConverterElement> converterElements;       //List to hold information needed for conversion
     private StreamEventPool streamEventPool;
 
 
-    public SelectiveStreamEventConverter(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
+    public SelectiveStreamEventConstructor(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
         this.streamEventPool = streamEventPool;
         this.converterElements = converterElements;
     }
 
-    /**
-     * Converts events to StreamEvent
-     *
-     * @param data
-     * @param isExpected
-     * @param timestamp
-     * @return StreamEvent
-     */
     private StreamEvent convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
         for (ConverterElement converterElement : converterElements) {
@@ -71,24 +63,21 @@ public class SelectiveStreamEventConverter implements EventConverter {
     }
 
 
-    public StreamEvent convertToStreamEvent(Event event) {
+    public StreamEvent constructStreamEvent(Event event) {
         return convertToInnerStreamEvent(event.getData(), event.isExpired(), event.getTimestamp());
     }
 
-    public StreamEvent convertToStreamEvent(StreamEvent streamEvent) {
+    public StreamEvent constructStreamEvent(StreamEvent streamEvent) {
         return convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.isExpired(), streamEvent.getTimestamp());
     }
 
-    /**
-     * Method to convert(change format) timeStamp and data into new StreamEvent
-     *
-     * @param timeStamp timeStamp of the event
-     * @param data      output data of the event
-     * @return converted StreamEvent
-     */
     @Override
-    public StreamEvent convertToStreamEvent(long timeStamp, Object[] data) {
+    public StreamEvent constructStreamEvent(long timeStamp, Object[] data) {
         return convertToInnerStreamEvent(data, false, timeStamp);
     }
 
+    @Override
+    public void returnEvent(StreamEvent streamEvent) {
+        streamEventPool.returnEvent(streamEvent);
+    }
 }

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StreamEventConverterFactory {
-    public static EventConverter getConverter(MetaStreamEvent metaStreamEvent) {
+    public static EventConstructor getConverter(MetaStreamEvent metaStreamEvent) {
         StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getDefinition();
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         int onAfterWindowDataSize = metaStreamEvent.getAfterWindowData().size();
@@ -69,7 +69,7 @@ public class StreamEventConverterFactory {
             }
         }
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventConverter(streamEventPool, converterElements);
+            return new SelectiveStreamEventConstructor(streamEventPool, converterElements);
         } else {
             if (metaStreamEvent.getDefinition().getAttributeList().size() == converterElements.size()) {
                 Boolean isPassThrough = true;
@@ -79,10 +79,10 @@ public class StreamEventConverterFactory {
                     }
                 }
                 if (isPassThrough) {
-                    return new PassThroughStreamEventConverter(streamEventPool);
+                    return new PassThroughStreamEventConstructor(streamEventPool);
                 }
             }
-            return new SimpleStreamEventConverter(streamEventPool, converterElements);
+            return new SimpleStreamEventConstructor(streamEventPool, converterElements);
         }
     }
 }
