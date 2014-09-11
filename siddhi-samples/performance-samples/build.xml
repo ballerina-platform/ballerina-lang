@@ -21,14 +21,14 @@
 
 <project name="performance-samples" basedir="." default="main">
 
-    <property name="src.dir" value="src"/>
-    <property name="build.dir" value="build"/>
+    <property name="src.dir" value="src/main/java"/>
+    <property name="resources.dir" value="src/main/resources"/>
+    <property name="build.dir" value="target/build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="api.dir" value="../../siddhi-query-api/target"/>
     <property name="query.dir" value="../../siddhi-query-compiler/target"/>
     <property name="core.dir" value="../../siddhi-core/target"/>
-    <property name="lib.dir" value="../lib"/>
-    <property name="resources.dir" value="../resources"/>
+    <property name="lib.dir" value="../target/lib"/>
 
     <target name="clean">
         <delete dir="${build.dir}"/>
@@ -37,7 +37,7 @@
 
     <path id="classpath">
         <pathelement path="${classes.dir}"/>
-        <fileset dir="../lib" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
         <fileset dir="${api.dir}" includes="**/*.jar"/>
         <fileset dir="${query.dir}" includes="**/*.jar"/>
         <fileset dir="${core.dir}" includes="**/*.jar"/>
