@@ -46,23 +46,19 @@ public class StreamJunction {
     private StreamDefinition streamDefinition;
     private ExecutorService executorService;
     private int bufferSize;
-    private String id;
 
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
     static final Logger log = Logger.getLogger(StreamJunction.class);
 
-    public StreamJunction(String id, StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
-        this.id = id;
+    public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
         this.streamDefinition = streamDefinition;
         bufferSize = defaultBufferSize;
         this.executorService = executorService;
     }
 
     public void sendEvent(StreamEvent streamEvent) {
-        /*if(log.isTraceEnabled()){
-            log.trace("event is received by streamJunction "+ id +this);
-        }*/
+
         StreamEvent streamEventList = streamEvent;
         if (disruptor != null) {
 
@@ -162,9 +158,6 @@ public class StreamJunction {
     }
 
     public synchronized void stopProcessing() {
-        for (Publisher publisher : publishers) {
-            publisher.setStreamJunction(null);
-        }
         if (disruptor != null) {
             disruptor.shutdown();
         }
@@ -222,27 +215,20 @@ public class StreamJunction {
         }
 
         public void send(StreamEvent streamEvent) {
-            if (streamJunction != null) {
                 streamJunction.sendEvent(streamEvent);
-            }
         }
 
         public void send(Event event) {
-            if (streamJunction != null) {
                 streamJunction.sendEvent(event);
-            }
         }
 
         public void send(long timeStamp, Object[] data) {
-            if (streamJunction != null) {
                 streamJunction.sendData(timeStamp, data);
-            }
         }
 
         public String getStreamId() {
             return streamJunction.getStreamId();
         }
-
 
     }
 

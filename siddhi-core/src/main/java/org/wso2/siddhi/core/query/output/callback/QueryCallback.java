@@ -68,7 +68,6 @@ public abstract class QueryCallback {
         } else {
             sendAsync(timeStamp, currentStreamEvent, expiredStreamEvent);
         }
-
     }
 
     private void sendAsync(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent) {

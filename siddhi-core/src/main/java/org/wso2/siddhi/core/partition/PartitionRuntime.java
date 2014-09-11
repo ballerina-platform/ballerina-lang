@@ -147,7 +147,7 @@ public class PartitionRuntime {
 
                     StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
                     if (streamJunction == null) {
-                        streamJunction = new StreamJunction(streamId+ key,(StreamDefinition) localStreamDefinitionMap.get(streamId), (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+                        streamJunction = new StreamJunction((StreamDefinition) localStreamDefinitionMap.get(streamId), (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
                         localStreamJunctionMap.put(streamId + key, streamJunction);
                     }
                     streamJunction.subscribe(((SingleStreamRuntime) (clonedQueryRuntime.getStreamRuntime())).getQueryStreamReceiver());
@@ -212,7 +212,7 @@ public class PartitionRuntime {
             localStreamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
             StreamJunction streamJunction = localStreamJunctionMap.get(streamDefinition.getId());
             if (streamJunction == null) {
-                streamJunction = new StreamJunction(streamDefinition.getId(),streamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+                streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
                 localStreamJunctionMap.putIfAbsent(streamDefinition.getId(), streamJunction);
             }
         }

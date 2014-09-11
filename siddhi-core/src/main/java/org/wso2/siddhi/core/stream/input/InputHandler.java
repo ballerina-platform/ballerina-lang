@@ -23,13 +23,15 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 
 public class InputHandler {
+
     private String streamId;
     private StreamJunction.Publisher publisher;
+    private StreamJunction.Publisher pausedPublisher;
 
-
-    public InputHandler(String streamId,StreamJunction streamJunction) {
+    public InputHandler(String streamId, StreamJunction streamJunction) {
         this.streamId = streamId;
-        publisher = streamJunction.constructPublisher();
+        this.publisher = streamJunction.constructPublisher();
+        this.pausedPublisher=publisher;
     }
 
     public String getStreamId() {
@@ -37,21 +39,36 @@ public class InputHandler {
     }
 
     public void send(Object[] data) throws InterruptedException {
-        publisher.send(System.currentTimeMillis(), data);
-    }
-
-    public void send(long timeStamp, Object[] data) throws InterruptedException {
-        publisher.send(timeStamp, data);
-    }
-
-    public void send(Event event) throws InterruptedException {
-        publisher.send(event);
-    }
-
-    public void send(Event[] events) throws InterruptedException {
-        for (Event event:events){
-            send(event);
+        if (publisher != null) {
+            publisher.send(System.currentTimeMillis(), data);
         }
     }
 
+    public void send(long timeStamp, Object[] data) throws InterruptedException {
+        if (publisher != null) {
+            publisher.send(timeStamp, data);
+        }
+    }
+
+    public void send(Event event) throws InterruptedException {
+        if (publisher != null) {
+            publisher.send(event);
+        }
+    }
+
+    public void send(Event[] events) throws InterruptedException {
+        if (publisher != null) {
+            for (Event event : events) {
+                publisher.send(event);
+            }
+        }
+    }
+
+    void disconnect() {
+        this.publisher = null;
+    }
+
+    void resume() {
+        this.publisher = pausedPublisher;
+    }
 }
