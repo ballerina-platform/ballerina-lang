@@ -20,11 +20,12 @@
 package org.wso2.siddhi.core.config;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class SiddhiContext {
 
-    private int defaultEventBufferSize;
-    private Executor executorService;
+    private int defaultEventBufferSize = 1024;
+    private Executor executorService = Executors.newCachedThreadPool();
 
     public int getDefaultEventBufferSize() {
         return defaultEventBufferSize;
