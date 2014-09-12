@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 
-public class SimpleFilterMultipleQueryWithDisruptorPerformance {
+public class SimpleFilterSingleQueryWithDisruptorPerformance {
     private static int count = 0;
     private static volatile long start = System.currentTimeMillis();
 
@@ -34,11 +34,9 @@ public class SimpleFilterMultipleQueryWithDisruptorPerformance {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
-        String cseEventStream2 = "@config(async = 'true') define stream cseEventStream2 (symbol string, price float, volume int);";
         String query1 = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price,volume insert into outputStream ;";
-        String query2 = "@info(name = 'query2') from cseEventStream[volume > 90] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + cseEventStream2 + query1 + query2);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query1);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
@@ -47,7 +45,8 @@ public class SimpleFilterMultipleQueryWithDisruptorPerformance {
                 if (count % 10000000 == 0) {
                     long end = System.currentTimeMillis();
                     double tp = (10000000 * 1000.0 / (end - start));
-                    System.out.println("Throughput = " + tp + " Event/sec");
+                    //System.out.println("Throughput = " + tp + " Event/sec");
+                    System.out.println("," + tp);
                     start = end;
                 }
             }
@@ -59,16 +58,15 @@ public class SimpleFilterMultipleQueryWithDisruptorPerformance {
         }
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler inputHandler2 = executionPlanRuntime.getInputHandler("cseEventStream2");
         while (true) {
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-            inputHandler2.send(new Object[]{"WSO2", 100f, 80});
-            inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-            inputHandler2.send(new Object[]{"WSO2", 100f, 80});
-            inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
+            inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
+            inputHandler.send(new Object[]{"IBM", 75.6f, 100});
+            inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
+            inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         }
     }
 }

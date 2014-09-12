@@ -40,16 +40,14 @@ import java.util.concurrent.ExecutorService;
 
 public class StreamJunction {
 
+    static final Logger log = Logger.getLogger(StreamJunction.class);
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
-
     private StreamDefinition streamDefinition;
     private ExecutorService executorService;
     private int bufferSize;
-
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
-    static final Logger log = Logger.getLogger(StreamJunction.class);
 
     public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
         this.streamDefinition = streamDefinition;
@@ -108,7 +106,7 @@ public class StreamJunction {
                 Event existingEvent = ringBuffer.get(sequenceNo);
                 existingEvent.setTimestamp(timeStamp);
                 existingEvent.setIsExpired(true);
-                System.arraycopy(existingEvent.getData(), 0, data, 0, data.length);
+                System.arraycopy(data, 0, existingEvent.getData(), 0, data.length);
             } finally {
                 ringBuffer.publish(sequenceNo);
             }

@@ -71,5 +71,10 @@
               classpathref="classpath" fork="true">
         </java>
     </target>
+    <target name="SimpleFilterSingleQueryWithDisruptor" depends="compile">
+        <java classname="org.wso2.siddhi.performance.SimpleFilterSingleQueryWithDisruptorPerformance"
+              classpathref="classpath" fork="true">
+        </java>
+    </target>
 
 </project>
