@@ -199,4 +199,69 @@ public class TableJoinTestCase {
         siddhiManager.shutdown();
     }
 
+
+    //Written to check concurrent modification exception.
+    //To reproduce this issue we need to slow down the iterator in join for process method like below
+    //                    try {
+    //                        log.info("Before sleep "+ windowStreamEvent);
+    //                        Thread.sleep(3000);
+    //                        log.info("After sleep" +windowStreamEvent);
+    //                    } catch (InterruptedException e) {
+    //                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    //                    }
+
+    @Test
+    public void testFilterQuerySupport() throws InterruptedException {
+
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        siddhiManager.defineStream("define stream cseEventStream (symbol string, price float, volume long) ");
+        siddhiManager.defineStream("define stream cseEventCheckStream (symbol string) ");
+        siddhiManager.defineTable("define table cseEventTable (symbol string, price float, volume long) ");
+
+        siddhiManager.addQuery("from cseEventStream " +
+                               "insert into cseEventTable;");
+
+        siddhiManager.addQuery("from cseEventStream [price > 1000] " +
+                               "update cseEventTable " +
+                               "on symbol == cseEventTable.symbol ");
+
+
+        String queryReference = siddhiManager.addQuery("from cseEventCheckStream#window.time(3 second) join cseEventTable " +
+                                                       "select cseEventCheckStream.symbol as checkSymbol, cseEventTable.symbol as symbol, cseEventTable.volume as volume " +
+                                                       "output all every 3 sec "+
+                                                       "insert into joinOutputStream;");
+
+        siddhiManager.addCallback(queryReference, new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                if (inEvents != null) {
+                    eventCount += inEvents.length;
+                }
+            }
+
+        });
+        InputHandler cseEventStreamHandler = siddhiManager.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiManager.getInputHandler("cseEventCheckStream");
+        cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
+        twitterStreamHandler.send(new Object[]{"WSO2"});
+
+
+        Thread.sleep(5000);
+
+        log.info("Send event");
+        cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 1500});
+
+        org.junit.Assert.assertEquals("Number of success events", 1, eventCount);
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+
+
+        Thread.sleep(5000);
+        siddhiManager.shutdown();
+
+    }
+
 }

@@ -58,4 +58,8 @@ public class SiddhiList<T> {
     public void clear() {
         list.clear();
     }
+
+    public LinkedList<T> getList() {
+        return list;
+    }
 }
