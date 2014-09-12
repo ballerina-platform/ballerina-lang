@@ -474,14 +474,17 @@ public class SnapshotOutputRateLimitTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count++;
-                if (count == 2) {
-                    Assert.assertTrue((Long) inEvents[0].getData0() == 9l);
-                } else if (count == 3) {
-                    Assert.assertTrue((Long) inEvents[0].getData0() == 9l);
-                } else if (count == 4) {
-                    Assert.assertTrue((Long) inEvents[0].getData0() == 21l);
+                if(inEvents != null) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertTrue((Long) inEvents[0].getData0() == 9l);
+                    } else if (count == 2) {
+                        Assert.assertTrue((Long) inEvents[0].getData0() == 9l);
+                    } else if (count == 3) {
+                        Assert.assertTrue((Long) inEvents[0].getData0() == 21l);
+                    }
                 }
+                value++;
                 eventArrived = true;
             }
 
@@ -496,7 +499,8 @@ public class SnapshotOutputRateLimitTestCase {
         loginSucceedEvents.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
         Thread.sleep(1200);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 4, count);
+        Assert.assertEquals("Number of output event with value", 3, count);
+        Assert.assertEquals("Number of output events greater then 3", true, value>3);
         siddhiManager.shutdown();
     }
 
