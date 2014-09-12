@@ -1,0 +1,70 @@
+<!--/*
+ * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
+ * All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+-->
+
+
+<project name="performance-samples" basedir="." default="main">
+
+    <property name="src.dir" value="src/main/java"/>
+    <property name="resources.dir" value="src/main/resources"/>
+    <property name="build.dir" value="target/build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="api.dir" value="../../siddhi-api/target"/>
+    <property name="query.dir" value="../../siddhi-query/target"/>
+    <property name="core.dir" value="../../siddhi-core/target"/>
+    <property name="lib.dir" value="../target/lib"/>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+
+    <path id="classpath">
+        <pathelement path="${classes.dir}"/>
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <fileset dir="${api.dir}" includes="**/*.jar"/>
+        <fileset dir="${query.dir}" includes="**/*.jar"/>
+        <fileset dir="${core.dir}" includes="**/*.jar"/>
+        <fileset dir="${resources.dir}" excludes="**/*.java"/>
+    </path>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}" excludes="**/*.java"/>
+        </copy>
+    </target>
+
+    <target name="main" depends="clean,compile"/>
+
+
+    <target name="SimpleFilterSingleQuery" depends="compile">
+        <java classname="org.wso2.siddhi.performance.SimpleFilterSingleQueryPerformance"
+              classpathref="classpath" fork="true">
+
+        </java>
+    </target>
+    <target name="SimpleFilterMultipleQuery" depends="compile">
+        <java classname="org.wso2.siddhi.performance.SimpleFilterMultipleQueryPerformance"
+              classpathref="classpath" fork="true">
+        </java>
+    </target>
+
+</project>
