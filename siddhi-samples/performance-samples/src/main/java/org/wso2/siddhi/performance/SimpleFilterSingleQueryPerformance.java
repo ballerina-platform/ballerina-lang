@@ -38,9 +38,9 @@ public class SimpleFilterSingleQueryPerformance {
             @Override
             public void receive(Event[] events) {
                 count++;
-                if (count % 1000000 == 0) {
+                if (count % 10000000 == 0) {
                     long end = System.currentTimeMillis();
-                    double tp = (1000000 * 1000.0 / (end - start));
+                    double tp = (10000000 * 1000.0 / (end - start));
                     System.out.println("Throughput = " + tp + " Event/sec");
                     start = end;
                 }

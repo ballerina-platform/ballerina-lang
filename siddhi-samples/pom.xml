@@ -47,14 +47,6 @@
                                     </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>com.lmax</groupId>
-                                    <artifactId>disruptor</artifactId>
-                                    <version>3.2.1</version>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.basedir}/target/lib
-                                    </outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.antlr</groupId>
                                     <artifactId>antlr-runtime</artifactId>
                                     <version>${antlr.runtime.version}</version>
