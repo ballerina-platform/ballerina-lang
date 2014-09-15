@@ -44,10 +44,10 @@ public class InStreamValidator {
             for (StreamHandler handler : stream.getStreamHandlers()) {
                 if (handler instanceof Filter) {
                     Expression condition = ((Filter) handler).getFilterExpression();
-                    ExpressionParser.parseExpression(condition, defaultDefinition, mockSiddhiContext, tempDefinitionMap, null, null);
+                    ExpressionParser.parseExpression(condition, defaultDefinition, mockSiddhiContext, tempDefinitionMap, null, null,false);
                 } else if (handler instanceof Window) {
                     for (Expression expression : ((Window) handler).getParameters()) {
-                        ExpressionParser.parseExpression(expression, defaultDefinition, mockSiddhiContext, tempDefinitionMap, null, null);
+                        ExpressionParser.parseExpression(expression, defaultDefinition, mockSiddhiContext, tempDefinitionMap, null, null,false);
                     }
                 } else if (handler instanceof StreamFunction) {
                     //TODO: handle. get output attr names and types and set them in temp map

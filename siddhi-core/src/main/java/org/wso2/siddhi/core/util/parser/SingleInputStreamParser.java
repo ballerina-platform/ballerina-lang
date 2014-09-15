@@ -61,7 +61,7 @@ public class SingleInputStreamParser {
         if (handler instanceof Filter) {
             Expression condition = ((Filter) handler).getFilterExpression();
             try {
-                return new FilterProcessor(ExpressionParser.parseExpression(condition, null, context, null, metaStreamEvent, executors));  //metaStreamEvent has stream definition info
+                return new FilterProcessor(ExpressionParser.parseExpression(condition, null, context, null, metaStreamEvent, executors,false));  //metaStreamEvent has stream definition info
             } catch (ValidatorException e) {
                 //This will never occur
                 return null;

@@ -56,4 +56,15 @@ public class SiddhiClassLoader {
             throw new QueryCreationException(name + " does not exist in type " + interfaze.getSimpleName(), e, true);
         }
     }
+
+    public static Object loadSiddhiImplementation(String functionName, String type, Class interfaze) {
+        try {
+            return SiddhiClassLoader.loadClass(interfaze.getPackage().getName() +
+                    "." +functionName.toLowerCase()+"."+ functionName.substring(0, 1).toUpperCase() +
+                    functionName.substring(1) + interfaze.getSimpleName()+type.substring(0, 1).toUpperCase() +
+                    type.substring(1).toLowerCase() );
+        } catch (CannotLoadClassException e) {
+            throw new QueryCreationException(functionName + " does not exist in type " + interfaze.getSimpleName(), e, true);
+        }
+    }
 }

@@ -24,7 +24,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.io.Serializable;
 
 public interface AttributeAggregator extends Serializable, EternalReferencedHolder {
-                                                                                   //TODO:rename aggreagtor
+
     void init(Attribute.Type type);
 
     Attribute.Type getReturnType();

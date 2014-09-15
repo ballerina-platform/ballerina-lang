@@ -37,18 +37,18 @@ public class SelectorValidator {
         StreamDefinition temp = new StreamDefinition();        //inferred stream
         if (!selector.getSelectionList().isEmpty()) {
             for (OutputAttribute attribute : selector.getSelectionList()) {
-                ExpressionExecutor executor = ExpressionParser.parseExpression(attribute.getExpression(), null, null, streamDefinitionMap, null, null);//current stream reference and siddhi context is null
+                ExpressionExecutor executor = ExpressionParser.parseExpression(attribute.getExpression(), null, null, streamDefinitionMap, null, null,false);//current stream reference and siddhi context is null
                 temp.attribute(attribute.getRename(), executor.getReturnType());
             }
             if (selector.getGroupByList() != null) {                        //Handle group by
                 for (Variable var : selector.getGroupByList()) {
-                    ExpressionParser.parseExpression(var, null, null, streamDefinitionMap, null, null);
+                    ExpressionParser.parseExpression(var, null, null, streamDefinitionMap, null, null,false);
                 }
             }
             if (selector.getHavingExpression() != null) {                    //Handle having onDeleteExpression. send only the inferred stream
                 Map<String, StreamDefinition> tempMap = new HashMap<String, StreamDefinition>(1);
                 tempMap.put(null, temp);                                     //putting with null id to avoid conflicts
-                ExpressionParser.parseExpression(selector.getHavingExpression(), null, null, tempMap, null, null);
+                ExpressionParser.parseExpression(selector.getHavingExpression(), null, null, tempMap, null, null,false);
             }
         } else {
             for (StreamDefinition definition : streamDefinitionMap.values()) {
