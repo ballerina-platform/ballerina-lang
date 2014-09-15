@@ -37,4 +37,9 @@ public class SubtractExpressionExecutorFloat implements ExpressionExecutor {
         return Attribute.Type.FLOAT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new SubtractExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

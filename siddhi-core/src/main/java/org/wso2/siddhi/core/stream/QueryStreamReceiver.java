@@ -21,14 +21,14 @@ package org.wso2.siddhi.core.stream;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventConverter;
+import org.wso2.siddhi.core.event.stream.converter.EventConstructor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     private String streamId;
-    private EventConverter eventConverter;
+    private EventConstructor eventConstructor;
     private StreamEvent streamEventBuffer;
     private StreamEvent lastStreamEventInBuffer;
     private Processor processorChain;
@@ -50,28 +50,36 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     public QueryStreamReceiver clone(String key) {
         QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId + key);
-        clonedQueryStreamReceiver.setEventConverter(eventConverter);
+        clonedQueryStreamReceiver.setEventConstructor(eventConstructor);
         return clonedQueryStreamReceiver;
     }
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        StreamEvent convertedStreamEvent = eventConverter.convertToStreamEvent(streamEvent);
+        StreamEvent convertedStreamEvent = eventConstructor.constructStreamEvent(streamEvent);
         next.process(convertedStreamEvent);
+        eventConstructor.returnEvent(streamEvent);
     }
 
     @Override
     public void receive(Event event) {
-        StreamEvent streamEvent = eventConverter.convertToStreamEvent(event);
+        StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
         next.process(streamEvent);
+        eventConstructor.returnEvent(streamEvent);
     }
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-
-        StreamEvent streamEvent = eventConverter.convertToStreamEvent(event);
-
+        StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
         process(endOfBatch, streamEvent);
+        eventConstructor.returnEvent(streamEvent);
+    }
+
+    @Override
+    public void receive(long timeStamp, Object[] data) {
+        StreamEvent streamEvent = eventConstructor.constructStreamEvent(timeStamp, data);
+        next.process(streamEvent);
+        eventConstructor.returnEvent(streamEvent);
     }
 
     private void process(boolean endOfBatch, StreamEvent streamEvent) {
@@ -110,8 +118,8 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         this.processorChain = processorChain;
     }
 
-    public void setEventConverter(EventConverter eventConverter) {
-        this.eventConverter = eventConverter;
+    public void setEventConstructor(EventConstructor eventConstructor) {
+        this.eventConstructor = eventConstructor;
     }
 
     public void setNext(Processor next) {

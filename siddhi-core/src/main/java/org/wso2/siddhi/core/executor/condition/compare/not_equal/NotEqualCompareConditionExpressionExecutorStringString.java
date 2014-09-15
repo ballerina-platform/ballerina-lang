@@ -25,4 +25,9 @@ public class NotEqualCompareConditionExpressionExecutorStringString extends NotE
     protected Boolean execute(Object left, Object right) {
         return !(left.equals(right));
     }
+
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new NotEqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

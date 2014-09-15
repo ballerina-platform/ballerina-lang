@@ -28,4 +28,8 @@ public class GreaterThanEqualCompareConditionExpressionExecutorFloatFloat extend
         return (Float) left >= (Float) right;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new GreaterThanEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

@@ -29,4 +29,8 @@ public class GreaterThanCompareConditionExpressionExecutorDoubleInt extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new GreaterThanCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

@@ -33,4 +33,9 @@ public class ConstantExpressionExecutor implements ExpressionExecutor {
         return type;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return this;
+    }
+
 }

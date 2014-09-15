@@ -103,10 +103,10 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setDefinition(streamDefinition);
-        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-        StreamEvent streamEvent = converter.convertToStreamEvent(event);
+        EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent streamEvent = converter.constructStreamEvent(event);
 
-        Assert.assertTrue(converter instanceof PassThroughStreamEventConverter);
+        Assert.assertTrue(converter instanceof PassThroughStreamEventConstructor);
         Assert.assertEquals(3, streamEvent.getOutputData().length);
 
         Assert.assertEquals(200, streamEvent.getOutputData()[1]);
@@ -127,10 +127,10 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setDefinition(streamDefinition);
-        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-        StreamEvent streamEvent = converter.convertToStreamEvent(event);
+        EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent streamEvent = converter.constructStreamEvent(event);
 
-        Assert.assertTrue(converter instanceof SimpleStreamEventConverter);
+        Assert.assertTrue(converter instanceof SimpleStreamEventConstructor);
         Assert.assertEquals(0, streamEvent.getBeforeWindowData().length);
         Assert.assertEquals(0, streamEvent.getOnAfterWindowData().length);
         Assert.assertEquals(2, streamEvent.getOutputData().length);
@@ -156,10 +156,10 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setDefinition(streamDefinition);
-        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-        StreamEvent streamEvent = converter.convertToStreamEvent(event);
+        EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent streamEvent = converter.constructStreamEvent(event);
 
-        Assert.assertTrue(converter instanceof SelectiveStreamEventConverter);
+        Assert.assertTrue(converter instanceof SelectiveStreamEventConstructor);
         Assert.assertEquals(1, streamEvent.getBeforeWindowData().length);      //volume
         Assert.assertEquals(1, streamEvent.getOnAfterWindowData().length);     //price
         Assert.assertEquals(2, streamEvent.getOutputData().length);            //symbol and avgPrice

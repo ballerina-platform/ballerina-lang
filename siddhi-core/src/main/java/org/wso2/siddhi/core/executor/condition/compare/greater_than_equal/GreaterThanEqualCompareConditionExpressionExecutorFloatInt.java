@@ -30,4 +30,8 @@ public class GreaterThanEqualCompareConditionExpressionExecutorFloatInt extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new GreaterThanEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

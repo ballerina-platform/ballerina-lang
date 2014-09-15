@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.QueryStreamReceiver;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.input.InputHandlerManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.runtime.StreamRuntime;
@@ -42,7 +43,7 @@ import java.util.concurrent.ExecutorService;
 
 public class ExecutionPlanRuntime {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
-    private ConcurrentMap<String, InputHandler> inputHandlerMap = new ConcurrentHashMap<String, InputHandler>();
+    private InputHandlerManager inputHandlerManager = new InputHandlerManager();
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
@@ -53,20 +54,19 @@ public class ExecutionPlanRuntime {
     }
 
     public InputHandler defineStream(StreamDefinition streamDefinition) {
-        if (inputHandlerMap.get(streamDefinition.getId()) == null) {
+        InputHandler inputHandler = inputHandlerManager.getInputHandler(streamDefinition.getId());
+        if (inputHandler == null) {
             streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
             StreamJunction streamJunction = streamJunctionMap.get(streamDefinition.getId());
             if (streamJunction == null) {
-                streamJunction = new StreamJunction(streamDefinition.getId(),streamDefinition, (ExecutorService) siddhiContext.getExecutorService(),siddhiContext.getDefaultEventBufferSize());
+                streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
                 streamJunctionMap.put(streamDefinition.getId(), streamJunction);
             }
-            InputHandler inputHandler = new InputHandler(streamDefinition.getId(), streamJunction);
-            inputHandlerMap.put(streamDefinition.getId(), inputHandler);
-            return inputHandler;
+            inputHandler = new InputHandler(streamDefinition.getId(), streamJunction);
+            return inputHandlerManager.setIfAbsentInputHandler(streamDefinition.getId(), inputHandler);
         } else {
-            return inputHandlerMap.get(streamDefinition.getId());
+            return inputHandler;
         }
-
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
@@ -94,7 +94,7 @@ public class ExecutionPlanRuntime {
         streamCallback.setStreamId(streamId);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
-            streamJunction = new StreamJunction(streamId,(StreamDefinition) streamDefinitionMap.get(streamId), (ExecutorService) siddhiContext.getExecutorService(),siddhiContext.getDefaultEventBufferSize());
+            streamJunction = new StreamJunction((StreamDefinition) streamDefinitionMap.get(streamId), (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
             streamJunctionMap.put(streamId, streamJunction);
         }
         streamJunction.subscribe(streamCallback);
@@ -109,12 +109,11 @@ public class ExecutionPlanRuntime {
     }
 
     public InputHandler getInputHandler(String streamId) {
-        return inputHandlerMap.get(streamId);
+        return inputHandlerManager.getInputHandler(streamId);
     }
 
     public void addQueryRuntime(QueryRuntime queryRuntime) {
         queryProcessorMap.put(queryRuntime.getQueryId(), queryRuntime);
-
     }
 
     public ConcurrentMap<String, StreamJunction> getStreamJunctions() {
@@ -125,4 +124,10 @@ public class ExecutionPlanRuntime {
         return streamDefinitionMap;
     }
 
+    public void shutdown() {
+        inputHandlerManager.stopProcessing();
+        for (StreamJunction streamJunction : streamJunctionMap.values()) {
+            streamJunction.stopProcessing();
+        }
+    }
 }

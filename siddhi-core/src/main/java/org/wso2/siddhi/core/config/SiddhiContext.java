@@ -24,8 +24,10 @@ import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class SiddhiContext {
+
 
     private int defaultEventBufferSize;
     private Executor executorService;
@@ -34,6 +36,7 @@ public class SiddhiContext {
     public SiddhiContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
     }
+
 
     public int getDefaultEventBufferSize() {
         return defaultEventBufferSize;

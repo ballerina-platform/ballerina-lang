@@ -37,4 +37,9 @@ public class DivideExpressionExecutorFloat implements ExpressionExecutor {
         return Attribute.Type.FLOAT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new DivideExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

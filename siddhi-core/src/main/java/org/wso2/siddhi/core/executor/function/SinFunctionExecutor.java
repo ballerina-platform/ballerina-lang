@@ -53,6 +53,11 @@ public class SinFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
+    public ExpressionExecutor cloneExecutor() {
+        return this;
+    }
+
+    @Override
     public void destroy() {
 
     }

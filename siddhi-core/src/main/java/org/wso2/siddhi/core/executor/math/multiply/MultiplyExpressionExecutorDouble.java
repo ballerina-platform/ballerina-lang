@@ -38,4 +38,9 @@ public class MultiplyExpressionExecutorDouble implements ExpressionExecutor {
         return Attribute.Type.DOUBLE;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new MultiplyExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

@@ -22,26 +22,17 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleStreamEventConverter implements EventConverter {
+public class SimpleStreamEventConstructor implements EventConstructor {
     private StreamEventPool streamEventPool;
     private List<ConverterElement> converterElements;
 
-    public SimpleStreamEventConverter(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
+    public SimpleStreamEventConstructor(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
         this.streamEventPool = streamEventPool;
         this.converterElements = converterElements;
     }
 
-    /**
-     * Converts events to StreamEvent
-     *
-     * @param data
-     * @param isExpected
-     * @param timestamp
-     * @return StreamEvent
-     */
     private StreamEvent convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
         for (ConverterElement element : converterElements) {
@@ -53,13 +44,22 @@ public class SimpleStreamEventConverter implements EventConverter {
         return streamEvent;
     }
 
-
-    public StreamEvent convertToStreamEvent(Event event) {
+    public StreamEvent constructStreamEvent(Event event) {
         return convertToInnerStreamEvent(event.getData(), event.isExpired(), event.getTimestamp());
     }
 
-    public StreamEvent convertToStreamEvent(StreamEvent streamEvent) {
+    public StreamEvent constructStreamEvent(StreamEvent streamEvent) {
         return convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.isExpired(), streamEvent.getTimestamp());
+    }
+
+    @Override
+    public StreamEvent constructStreamEvent(long timeStamp, Object[] data) {
+        return convertToInnerStreamEvent(data, false, timeStamp);
+    }
+
+    @Override
+    public void returnEvent(StreamEvent streamEvent) {
+        streamEventPool.returnEvent(streamEvent);
     }
 
 }

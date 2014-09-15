@@ -34,5 +34,10 @@ public class NotConditionExpressionExecutor extends ConditionExpressionExecutor 
         return !(Boolean) conditionExecutor.execute(event);
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new NotConditionExpressionExecutor(conditionExecutor.cloneExecutor());
+    }
+
 
 }

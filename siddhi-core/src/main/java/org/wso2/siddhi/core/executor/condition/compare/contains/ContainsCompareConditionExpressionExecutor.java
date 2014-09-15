@@ -27,4 +27,9 @@ public class ContainsCompareConditionExpressionExecutor extends CompareCondition
         return ((String) left).contains((String) right);
 
     }
+
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new ContainsCompareConditionExpressionExecutor(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

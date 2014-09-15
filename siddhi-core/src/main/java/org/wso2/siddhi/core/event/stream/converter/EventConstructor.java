@@ -1,4 +1,5 @@
-package org.wso2.siddhi.core.event.stream.converter;/*
+package org.wso2.siddhi.core.event.stream.converter;
+/*
  * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
  * All Rights Reserved.
  *
@@ -20,20 +21,37 @@ package org.wso2.siddhi.core.event.stream.converter;/*
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public interface EventConverter {
-    /**
-     * Method to convert Event into StreamEvent
-     *
-     * @param event Event to be converted
-     * @return converted StreamEvent
-     */
-    public StreamEvent convertToStreamEvent(Event event);
+public interface EventConstructor {
 
     /**
-     * Method to convert(change format) StreamEvent into new StreamEvent
+     * Method to construct StreamEvent form Event
+     *
+     * @param event Event to be converted
+     * @return constructed StreamEvent
+     */
+    public StreamEvent constructStreamEvent(Event event);
+
+    /**
+     * Method to construct(change format) new StreamEvent from StreamEvent
      *
      * @param streamEvent StreamEvent to be Converted
-     * @return converted StreamEvent
+     * @return constructed StreamEvent
      */
-    public StreamEvent convertToStreamEvent(StreamEvent streamEvent);
+    public StreamEvent constructStreamEvent(StreamEvent streamEvent);
+
+    /**
+     * Method to construct(change format) timeStamp and data from StreamEvent
+     *
+     * @param timeStamp timeStamp of the event
+     * @param data      output data of the event
+     * @return constructed StreamEvent
+     */
+    public StreamEvent constructStreamEvent(long timeStamp, Object[] data);
+
+    /**
+     * Return the used event back to the pool
+     *
+     * @param streamEvent used stream event
+     */
+    public void returnEvent(StreamEvent streamEvent);
 }

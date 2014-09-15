@@ -37,4 +37,9 @@ public class ModExpressionExecutorDouble implements ExpressionExecutor {
         return Attribute.Type.DOUBLE;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new ModExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

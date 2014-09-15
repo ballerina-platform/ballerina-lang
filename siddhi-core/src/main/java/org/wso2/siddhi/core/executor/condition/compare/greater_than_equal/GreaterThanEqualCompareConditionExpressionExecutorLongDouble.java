@@ -30,4 +30,8 @@ public class GreaterThanEqualCompareConditionExpressionExecutorLongDouble extend
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new GreaterThanEqualCompareConditionExpressionExecutorLongDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

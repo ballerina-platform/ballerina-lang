@@ -40,29 +40,23 @@ import java.util.concurrent.ExecutorService;
 
 public class StreamJunction {
 
+    static final Logger log = Logger.getLogger(StreamJunction.class);
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
-
     private StreamDefinition streamDefinition;
     private ExecutorService executorService;
     private int bufferSize;
-    private String id;
-
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
-    static final Logger log = Logger.getLogger(StreamJunction.class);
 
-    public StreamJunction(String id, StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
-        this.id = id;
+    public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
         this.streamDefinition = streamDefinition;
         bufferSize = defaultBufferSize;
         this.executorService = executorService;
     }
 
     public void sendEvent(StreamEvent streamEvent) {
-        /*if(log.isTraceEnabled()){
-            log.trace("event is received by streamJunction "+ id +this);
-        }*/
+
         StreamEvent streamEventList = streamEvent;
         if (disruptor != null) {
 
@@ -105,6 +99,24 @@ public class StreamJunction {
 
     }
 
+    private void sendData(long timeStamp, Object[] data) {
+        if (disruptor != null) {
+            long sequenceNo = ringBuffer.next();
+            try {
+                Event existingEvent = ringBuffer.get(sequenceNo);
+                existingEvent.setTimestamp(timeStamp);
+                existingEvent.setIsExpired(true);
+                System.arraycopy(data, 0, existingEvent.getData(), 0, data.length);
+            } finally {
+                ringBuffer.publish(sequenceNo);
+            }
+        } else {
+            for (Receiver receiver : receivers) {
+                receiver.receive(timeStamp,data);
+            }
+        }
+    }
+
     public synchronized void startProcessing() {
         if (!receivers.isEmpty()) {
 
@@ -144,9 +156,6 @@ public class StreamJunction {
     }
 
     public synchronized void stopProcessing() {
-        for (Publisher publisher : publishers) {
-            publisher.setStreamJunction(null);
-        }
         if (disruptor != null) {
             disruptor.shutdown();
         }
@@ -177,6 +186,8 @@ public class StreamJunction {
         public void receive(Event event);
 
         public void receive(Event event, boolean endOfBatch);
+
+        public void receive(long timeStamp, Object[] data);
     }
 
     public class StreamHandler implements EventHandler<Event> {
@@ -202,19 +213,21 @@ public class StreamJunction {
         }
 
         public void send(StreamEvent streamEvent) {
-            if (streamJunction != null) {
                 streamJunction.sendEvent(streamEvent);
-            }
         }
 
         public void send(Event event) {
-            if (streamJunction != null) {
                 streamJunction.sendEvent(event);
-            }
+        }
+
+        public void send(long timeStamp, Object[] data) {
+                streamJunction.sendData(timeStamp, data);
         }
 
         public String getStreamId() {
             return streamJunction.getStreamId();
         }
+
     }
+
 }

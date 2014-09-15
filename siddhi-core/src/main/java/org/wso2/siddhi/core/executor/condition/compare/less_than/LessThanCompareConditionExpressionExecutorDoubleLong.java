@@ -29,4 +29,8 @@ public class LessThanCompareConditionExpressionExecutorDoubleLong extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new LessThanCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

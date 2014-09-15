@@ -30,4 +30,8 @@ public class EqualCompareConditionExpressionExecutorLongFloat
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new EqualCompareConditionExpressionExecutorLongFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

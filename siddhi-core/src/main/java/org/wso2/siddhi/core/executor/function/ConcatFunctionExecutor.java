@@ -27,6 +27,11 @@ public class ConcatFunctionExecutor extends FunctionExecutor {
         return returnType;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return this;
+    }
+
 
     @Override
     public void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext) {

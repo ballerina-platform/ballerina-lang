@@ -37,4 +37,9 @@ public class ModExpressionExecutorInt implements ExpressionExecutor {
         return Attribute.Type.INT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new ModExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

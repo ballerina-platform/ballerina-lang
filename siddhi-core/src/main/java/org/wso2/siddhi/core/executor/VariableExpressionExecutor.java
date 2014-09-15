@@ -46,6 +46,11 @@ public class VariableExpressionExecutor implements ExpressionExecutor {
         return type;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return this;
+    }
+
     public Attribute getAttribute() {
         return attribute;
     }

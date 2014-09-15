@@ -49,4 +49,9 @@ public class AndConditionExpressionExecutor extends ConditionExpressionExecutor 
         return (Boolean) leftConditionExecutor.execute(event) && (Boolean) rightConditionExecutor.execute(event);
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new AndConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(),rightConditionExecutor.cloneExecutor());
+    }
+
 }

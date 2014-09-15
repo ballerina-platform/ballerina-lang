@@ -57,6 +57,10 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         }
     }
 
+    public void receive(long timeStamp, Object[] data) {
+        receive(new Event[]{new Event(timeStamp, data)});
+    }
+
     public abstract void receive(Event[] events);
 
 }

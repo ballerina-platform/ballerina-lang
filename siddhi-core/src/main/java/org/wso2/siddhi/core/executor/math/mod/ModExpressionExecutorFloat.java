@@ -37,4 +37,9 @@ public class ModExpressionExecutorFloat implements ExpressionExecutor {
         return Attribute.Type.FLOAT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new ModExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }
