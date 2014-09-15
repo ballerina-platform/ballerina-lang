@@ -1,4 +1,4 @@
-/*
+package org.wso2.siddhi.core.event.stream.converter;/*
  * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
  * All Rights Reserved.
  *
@@ -16,20 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
 
-import org.wso2.siddhi.core.extension.EternalReferencedHolder;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-import java.io.Serializable;
+public interface EventConverter {
+    /**
+     * Method to convert Event into StreamEvent
+     *
+     * @param event Event to be converted
+     * @return converted StreamEvent
+     */
+    public StreamEvent convertToStreamEvent(Event event);
 
-public interface OutputAttributeAggregator extends Serializable, EternalReferencedHolder {
-
-    Attribute.Type getReturnType();
-
-    Object processAdd(Object obj);
-
-    Object processRemove(Object obj);
-
-    OutputAttributeAggregator newInstance();
+    /**
+     * Method to convert(change format) StreamEvent into new StreamEvent
+     *
+     * @param streamEvent StreamEvent to be Converted
+     * @return converted StreamEvent
+     */
+    public StreamEvent convertToStreamEvent(StreamEvent streamEvent);
 }

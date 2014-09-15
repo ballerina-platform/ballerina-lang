@@ -16,14 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.factory;
+package org.wso2.siddhi.core.query.selector.attribute.handler;
 
-import org.wso2.siddhi.core.query.selector.attribute.handler.OutputAttributeAggregator;
+import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-public interface OutputAttributeAggregatorFactory {
+import java.io.Serializable;
 
-    public OutputAttributeAggregator createAttributeAggregator(Attribute.Type[] types);
+public interface AttributeAggregator extends Serializable, EternalReferencedHolder {
+                                                                                   //TODO:rename aggreagtor
+    void init(Attribute.Type type);
 
+    Attribute.Type getReturnType();
 
+    Object processAdd(Object obj);
+
+    Object processRemove(Object obj);
+
+    AttributeAggregator newInstance();
 }

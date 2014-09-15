@@ -23,7 +23,8 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -43,7 +44,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     private SiddhiContext siddhiContext;
     private PartitionRuntime partitionRuntime;
     private List<PartitionExecutor> partitionExecutors;
-    private StreamEventConverter eventConverter;
+    private EventConverter eventConverter;
     private Map<String, StreamJunction> cachedStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>();
 
     public PartitionStreamReceiver(SiddhiContext siddhiContext, MetaStreamEvent metaStreamEvent, StreamDefinition streamDefinition,
@@ -54,7 +55,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         this.partitionExecutors = partitionExecutors;
         this.siddhiContext = siddhiContext;
         streamId = streamDefinition.getId();
-        eventConverter = new StreamEventConverter(metaStreamEvent);
+        eventConverter = StreamEventConverterFactory.getConverter(metaStreamEvent);
     }
 
 

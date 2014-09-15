@@ -52,7 +52,7 @@ public class StreamJunction {
     private RingBuffer<Event> ringBuffer;
     static final Logger log = Logger.getLogger(StreamJunction.class);
 
-    public StreamJunction(String id,StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
+    public StreamJunction(String id, StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
         this.id = id;
         this.streamDefinition = streamDefinition;
         bufferSize = defaultBufferSize;
@@ -60,9 +60,9 @@ public class StreamJunction {
     }
 
     public void sendEvent(StreamEvent streamEvent) {
-        if(log.isTraceEnabled()){
+        /*if(log.isTraceEnabled()){
             log.trace("event is received by streamJunction "+ id +this);
-        }
+        }*/
         StreamEvent streamEventList = streamEvent;
         if (disruptor != null) {
 
@@ -86,9 +86,9 @@ public class StreamJunction {
     }
 
     public void sendEvent(Event event) {
-        if(log.isTraceEnabled()){
+        /*if(log.isTraceEnabled()){
             log.trace("event is received by streamJunction "+ id+ this);
-        }
+        }*/
         if (disruptor != null) {
             long sequenceNo = ringBuffer.next();
             try {

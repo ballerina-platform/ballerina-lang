@@ -21,7 +21,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.*;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventFactory;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.*;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -31,7 +35,6 @@ import org.wso2.siddhi.core.executor.condition.compare.greater_than.GreaterThanC
 import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatFloat;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.selector.attribute.ComplexAttribute;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.util.parser.QueryParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
@@ -85,7 +88,59 @@ public class EventTest {
     }
 
     @Test
-    public void testEventConverter() {
+    public void testPassThroughStreamEventConverter() {
+        Attribute price = new Attribute("price", Attribute.Type.DOUBLE);
+        Attribute volume = new Attribute("volume", Attribute.Type.INT);
+        Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
+
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(price);
+        metaStreamEvent.addOutputData(volume);
+
+
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
+        Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
+
+        metaStreamEvent.setDefinition(streamDefinition);
+        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent streamEvent = converter.convertToStreamEvent(event);
+
+        Assert.assertTrue(converter instanceof PassThroughStreamEventConverter);
+        Assert.assertEquals(3, streamEvent.getOutputData().length);
+
+        Assert.assertEquals(200, streamEvent.getOutputData()[1]);
+        Assert.assertEquals("WSO2", streamEvent.getOutputData()[0]);
+        Assert.assertEquals(50, streamEvent.getOutputData()[2]);
+    }
+
+    @Test
+    public void testSimpleStreamEventConverter() {
+        Attribute price = new Attribute("price", Attribute.Type.DOUBLE);
+        Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
+
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        metaStreamEvent.addOutputData(symbol);
+        metaStreamEvent.addOutputData(price);
+
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
+        Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
+
+        metaStreamEvent.setDefinition(streamDefinition);
+        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent streamEvent = converter.convertToStreamEvent(event);
+
+        Assert.assertTrue(converter instanceof SimpleStreamEventConverter);
+        Assert.assertEquals(0, streamEvent.getBeforeWindowData().length);
+        Assert.assertEquals(0, streamEvent.getOnAfterWindowData().length);
+        Assert.assertEquals(2, streamEvent.getOutputData().length);
+
+        Assert.assertEquals(200, streamEvent.getOutputData()[1]);
+        Assert.assertEquals("WSO2", streamEvent.getOutputData()[0]);
+    }
+
+    @Test
+    public void testStreamEventConverter() {
         Attribute price = new Attribute("price", Attribute.Type.DOUBLE);
         Attribute volume = new Attribute("volume", Attribute.Type.INT);
         Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
@@ -101,9 +156,10 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setDefinition(streamDefinition);
-        StreamEventConverter converter = new StreamEventConverter(metaStreamEvent);
+        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
         StreamEvent streamEvent = converter.convertToStreamEvent(event);
 
+        Assert.assertTrue(converter instanceof SelectiveStreamEventConverter);
         Assert.assertEquals(1, streamEvent.getBeforeWindowData().length);      //volume
         Assert.assertEquals(1, streamEvent.getOnAfterWindowData().length);     //price
         Assert.assertEquals(2, streamEvent.getOutputData().length);            //symbol and avgPrice

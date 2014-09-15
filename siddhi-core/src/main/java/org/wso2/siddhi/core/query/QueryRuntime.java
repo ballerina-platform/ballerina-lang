@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
+import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.QueryPartitioner;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -58,7 +59,7 @@ public class QueryRuntime {
     private ConcurrentMap<String, AbstractDefinition> definitionMap;
     private MetaStateEvent metaStateEvent;
 
-    public QueryRuntime(Query query,SiddhiContext siddhiContext,StreamRuntime streamRuntime,QuerySelector selector,OutputRateLimiter outputRateLimiter,MetaStateEvent metaStateEvent){
+    public QueryRuntime(Query query, SiddhiContext siddhiContext, StreamRuntime streamRuntime, QuerySelector selector, OutputRateLimiter outputRateLimiter, MetaStateEvent metaStateEvent) {
         this.query = query;
         this.siddhiContext = siddhiContext;
         this.streamRuntime = streamRuntime;
@@ -128,7 +129,7 @@ public class QueryRuntime {
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
 
-        QueryRuntime queryRuntime = new QueryRuntime(query,siddhiContext,clonedStreamRuntime,clonedSelector,clonedOutputRateLimiter,this.metaStateEvent);
+        QueryRuntime queryRuntime = new QueryRuntime(query, siddhiContext, clonedStreamRuntime, clonedSelector, clonedOutputRateLimiter, this.metaStateEvent);
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);
         queryRuntime.setDefinitionMap(definitionMap);
@@ -171,9 +172,10 @@ public class QueryRuntime {
         return metaStateEvent;
     }
 
-    public void setToLocalStream(boolean toLocalStream){
+    public void setToLocalStream(boolean toLocalStream) {
         this.toLocalStream = toLocalStream;
     }
+
     public Query getQuery() {
         return query;
     }
@@ -190,7 +192,9 @@ public class QueryRuntime {
         if (((SingleStreamRuntime) streamRuntime).getProcessorChain() == null) {
             ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(selector);
         } else {
-            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().getProcessorChain().setNext(selector);
+            Processor processor = ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().getProcessorChain();
+            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(processor);
+            processor.setNext(selector);
         }
 
     }

@@ -16,17 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.processor;
+package org.wso2.siddhi.core.event.stream.converter;
 
-import org.wso2.siddhi.query.api.definition.Attribute;
+/**
+ * Element to hold information about event conversion
+ */
+public class ConverterElement {
+    private int fromPosition;               //position in StreamEvent/data[]
+    private int[] toPosition = new int[2];  //new position in StreamEvent
 
-public interface AttributeProcessor {
+    public int[] getToPosition() {
+        return toPosition;
+    }
 
-    public Attribute.Type getOutputType();
+    public void setToPosition(int[] toPosition) {
+        this.toPosition = toPosition;
+    }
 
-    public int getOutputPosition();
+    public int getFromPosition() {
+        return fromPosition;
+    }
 
-    public void setOutputPosition(int position);
+    public void setFromPosition(int fromPosition) {
+        this.fromPosition = fromPosition;
+    }
 
-    AttributeProcessor cloneProcessor();
 }

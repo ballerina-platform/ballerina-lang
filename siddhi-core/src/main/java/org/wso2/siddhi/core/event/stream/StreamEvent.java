@@ -48,7 +48,7 @@ public class StreamEvent implements ComplexEvent {
     }
 
     public void setBeforeWindowData(Object[] beforeWindowData) {
-        this.beforeWindowData = beforeWindowData.clone();
+        this.beforeWindowData = beforeWindowData;
     }
 
     public Object[] getOnAfterWindowData() {
@@ -56,7 +56,7 @@ public class StreamEvent implements ComplexEvent {
     }
 
     public void setOnAfterWindowData(Object[] onAfterWindowData) {
-        this.onAfterWindowData = onAfterWindowData.clone();
+        this.onAfterWindowData = onAfterWindowData;
     }
 
     public long getTimestamp() {
@@ -72,7 +72,7 @@ public class StreamEvent implements ComplexEvent {
     }
 
     public void setOutputData(Object[] outputData) {
-        this.outputData = outputData.clone();
+        this.outputData = outputData;
     }
 
     public boolean isExpired() {
@@ -92,14 +92,13 @@ public class StreamEvent implements ComplexEvent {
     }
 
     /**
-     *
      * @param position int array of 4 elements
      *                 position[0] and position[1] are discarded
      *                 position[2]-BeforeWindowData or OutputData or AfterWindowData, position[3]- which attribute
      * @return
      */
     @Override
-    public Object getAttribute(int[] position){
+    public Object getAttribute(int[] position) {
         StreamEvent streamEvent = this;
         switch (position[2]) {
             case SiddhiConstants.BEFORE_WINDOW_DATA_INDEX:
@@ -112,5 +111,17 @@ public class StreamEvent implements ComplexEvent {
                 return null;
         }
 
+    }
+
+    public void setOutputData(Object object, int index) {
+        this.outputData[index] = object;
+    }
+
+    public void setOnAfterWindowData(Object object, int index) {
+        this.onAfterWindowData[index] = object;
+    }
+
+    public void setBeforeWindowData(Object object, int index) {
+        this.beforeWindowData[index] = object;
     }
 }
