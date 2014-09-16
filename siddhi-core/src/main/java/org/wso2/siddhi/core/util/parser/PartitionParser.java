@@ -21,11 +21,14 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.selector.QueryPartitioner;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
@@ -47,11 +50,23 @@ public class PartitionParser {
                 queryRuntime = QueryParser.parse(query, siddhiContext, streamDefinitionMap);
             }
             queryRuntime.setDefinitionMap(streamDefinitionMap);
-            queryRuntime.setQueryPartitioner(new QueryPartitioner(query.getInputStream(),partition, queryRuntime.getMetaStateEvent().getMetaEvent(0), executors, siddhiContext));
-            partitionRuntime.addQuery(queryRuntime);
-        }
 
+            MetaStreamEvent metaStreamEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
+            queryRuntime.setQueryPartitioner(new QueryPartitioner(query.getInputStream(),partition, metaStreamEvent, executors, siddhiContext));
+            partitionRuntime.addQuery(queryRuntime);
+            partitionRuntime.addPartitionReceiver(queryRuntime,metaStreamEvent);
+        }
         return partitionRuntime;
 
+    }
+
+    private static MetaStreamEvent createMetaEventForPartitioner(MetaStateEvent metaStateEvent){
+        AbstractDefinition definition = metaStateEvent.getMetaEvent(0).getDefinition();
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        for(Attribute attribute:definition.getAttributeList()){
+            metaStreamEvent.addOutputData(attribute);
+        }
+        metaStreamEvent.setDefinition(definition);
+        return metaStreamEvent;
     }
 }

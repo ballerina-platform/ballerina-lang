@@ -58,7 +58,7 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     public void receive(StreamEvent streamEvent) {
         StreamEvent convertedStreamEvent = eventConstructor.constructStreamEvent(streamEvent);
         next.process(convertedStreamEvent);
-        eventConstructor.returnEvent(streamEvent);
+        eventConstructor.returnEvent(convertedStreamEvent);
     }
 
     @Override

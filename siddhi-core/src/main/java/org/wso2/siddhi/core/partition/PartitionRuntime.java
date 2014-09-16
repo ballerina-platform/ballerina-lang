@@ -22,6 +22,7 @@ package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
@@ -106,15 +107,14 @@ public class PartitionRuntime {
                 executionPlanRuntime.defineStream(((InsertIntoStreamCallback) outputCallback).getOutputStreamDefinition());
             }
         }
-        addPartitionReceiver(metaQueryRuntime);
         return metaQueryRuntime;
     }
 
-    private void addPartitionReceiver(QueryRuntime queryRuntime){
+    public void addPartitionReceiver(QueryRuntime queryRuntime,MetaStreamEvent metaStreamEvent){
         Query query = queryRuntime.getQuery();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime && !((SingleInputStream) query.getInputStream()).isInnerStream()) {
                 List<List<PartitionExecutor>> partitionExecutors = queryRuntime.getQueryPartitioner().getPartitionExecutors();
-                addPartitionReceiver(new PartitionStreamReceiver(siddhiContext, queryRuntime.getMetaStateEvent().getMetaEvent(0), (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),  partitionExecutors.get(0), this));
+                addPartitionReceiver(new PartitionStreamReceiver(siddhiContext, metaStreamEvent, (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),  partitionExecutors.get(0), this));
         }//TODO: joins
 
     }
@@ -184,7 +184,7 @@ public class PartitionRuntime {
         localStreamJunctionMap.put(key, streamJunction);
     }
 
-    public void addPartitionReceiver(PartitionStreamReceiver partitionStreamReceiver) {
+    private void addPartitionReceiver(PartitionStreamReceiver partitionStreamReceiver) {
         partitionStreamReceivers.add(partitionStreamReceiver);
         streamJunctionMap.get(partitionStreamReceiver.getStreamId()).subscribe(partitionStreamReceiver);
     }

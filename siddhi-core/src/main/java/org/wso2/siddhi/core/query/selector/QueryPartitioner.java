@@ -47,7 +47,7 @@ public class QueryPartitioner {
                     if (partitionType instanceof ValuePartitionType) {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
                             try {
-                                executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(), ((BasicSingleInputStream) inputStream).getStreamId(), siddhiContext, null, metaStreamEvent, executors,false)));//TODO: add correct streamDefinition map as 4th parameter
+                                executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(), ((BasicSingleInputStream) inputStream).getStreamId(), siddhiContext, null, metaStreamEvent, executors,false)));
                             } catch (ValidatorException e) {
                                 //This will never happen
                             }

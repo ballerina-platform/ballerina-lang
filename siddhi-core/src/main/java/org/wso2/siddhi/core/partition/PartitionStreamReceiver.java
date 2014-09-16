@@ -58,7 +58,6 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         eventConstructor = StreamEventConverterFactory.getConverter(metaStreamEvent);
     }
 
-
     @Override
     public String getStreamId() {
         return streamId;
@@ -66,17 +65,6 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        StreamEvent convertedStreamEvent = eventConstructor.constructStreamEvent(streamEvent);
-        for (PartitionExecutor partitionExecutor : partitionExecutors) {
-            String key = partitionExecutor.execute(convertedStreamEvent);
-            send(key, convertedStreamEvent);
-        }
-    }
-
-    @Override
-    public void receive(Event event) {
-        StreamEvent streamEvent = new StreamEvent(0,0,event.getData().length);
-        streamEvent.setOutputData(event.getData());
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);
@@ -84,9 +72,19 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
+    public void receive(Event event) {
+        StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
+        for (PartitionExecutor partitionExecutor : partitionExecutors) {
+            String key = partitionExecutor.execute(streamEvent);
+            send(key, streamEvent);
+        }
+        eventConstructor.returnEvent(streamEvent);
+    }
+
+    @Override
     public void receive(Event event, boolean endOfBatch) {   //todo use endOfBatch
-            StreamEvent streamEvent = new StreamEvent(0,0,event.getData().length);
-            streamEvent.setOutputData(event.getData());for (PartitionExecutor partitionExecutor : partitionExecutors) {
+        StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
+        for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);
         }
@@ -99,6 +97,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);
         }
+        eventConstructor.returnEvent(streamEvent);
     }
 
     private void send(String key, StreamEvent event) {
@@ -128,4 +127,5 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             }
         }
     }
+
 }
