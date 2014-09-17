@@ -81,7 +81,7 @@ public class QueryParser {
     }
 
     private static void validateOutputStream(StreamDefinition outputStreamDefinition, Map<String, AbstractDefinition> definitionMap) {
-        if (definitionMap.containsKey(outputStreamDefinition.getId()) && !(definitionMap.get(outputStreamDefinition.getId()).equals(outputStreamDefinition))) {
+        if (definitionMap.containsKey(outputStreamDefinition.getId()) && !(definitionMap.get(outputStreamDefinition.getId()).equalsIgnoreAnnotations(outputStreamDefinition))) {
             throw new DifferentDefinitionAlreadyExistException("Different stream definition same as output stream definition is already " +
                     "exist under stream name " + outputStreamDefinition.getId());
         }
