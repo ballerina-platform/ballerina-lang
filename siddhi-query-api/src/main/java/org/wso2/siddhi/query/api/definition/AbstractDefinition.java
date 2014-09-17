@@ -124,4 +124,18 @@ public abstract class AbstractDefinition {
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
     }
+
+
+    public boolean equalsIgnoreAnnotations(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractDefinition)) return false;
+
+        AbstractDefinition that = (AbstractDefinition) o;
+
+        if (attributeList != null ? !attributeList.equals(that.attributeList) : that.attributeList != null)
+            return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
 }
