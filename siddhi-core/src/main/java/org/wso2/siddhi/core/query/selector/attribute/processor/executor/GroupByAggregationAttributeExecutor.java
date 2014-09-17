@@ -55,7 +55,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     }
 
     public ExpressionExecutor cloneExecutor() {
-        return new GroupByAggregationAttributeExecutor(attributeAggregator.newInstance(),expressionExecutors,siddhiContext);
+        return new GroupByAggregationAttributeExecutor(attributeAggregator.newInstance(), expressionExecutors, siddhiContext);
     }
 
 

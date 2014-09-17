@@ -43,7 +43,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     public ExpressionExecutor cloneExecutor() {
-        return new AggregationAttributeExecutor(attributeAggregator.newInstance(),expressionExecutors,siddhiContext);
+        return new AggregationAttributeExecutor(attributeAggregator.newInstance(), expressionExecutors, siddhiContext);
     }
 
 }

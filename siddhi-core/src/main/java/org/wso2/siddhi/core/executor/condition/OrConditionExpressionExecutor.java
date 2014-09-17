@@ -50,7 +50,7 @@ public class OrConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new OrConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(),rightConditionExecutor.cloneExecutor());
+        return new OrConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(), rightConditionExecutor.cloneExecutor());
     }
 
 

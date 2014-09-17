@@ -28,6 +28,6 @@ public class NotEqualCompareConditionExpressionExecutorStringString extends NotE
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new NotEqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new NotEqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

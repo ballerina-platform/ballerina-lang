@@ -49,9 +49,9 @@ public class QueryPartitioner {
                 for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
                     if (partitionType instanceof ValuePartitionType) {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
-                            
-                                executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                         siddhiContext, metaStreamEvent, executors,false)));
+
+                            executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
+                                    siddhiContext, metaStreamEvent, executors, false)));
                             
                         }
                     } else {
@@ -66,7 +66,6 @@ public class QueryPartitioner {
     public List<List<PartitionExecutor>> getPartitionExecutors() {
         return partitionExecutors;
     }
-
 
 
 }

@@ -32,6 +32,6 @@ public class LessThanEqualCompareConditionExpressionExecutorLongInt extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new LessThanEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new LessThanEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

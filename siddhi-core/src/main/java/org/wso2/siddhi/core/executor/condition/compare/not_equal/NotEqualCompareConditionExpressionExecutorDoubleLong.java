@@ -32,6 +32,6 @@ public class NotEqualCompareConditionExpressionExecutorDoubleLong extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new NotEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new NotEqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

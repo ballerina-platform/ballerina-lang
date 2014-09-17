@@ -35,6 +35,8 @@ import java.util.List;
 public class QuerySelector implements Processor {
 
 
+    static final Logger log = Logger.getLogger(QuerySelector.class);
+    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
     private int outputSize;
     private SiddhiContext siddhiContext;
@@ -46,9 +48,6 @@ public class QuerySelector implements Processor {
     private boolean isGroupBy = false;
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
-    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
-
-    static final Logger log = Logger.getLogger(QuerySelector.class);
 
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
@@ -58,6 +57,10 @@ public class QuerySelector implements Processor {
         this.selector = selector;
         this.siddhiContext = siddhiContext;
         this.outputSize = selector.getSelectionList().size();
+    }
+
+    public static String getThreadLocalGroupByKey() {
+        return keyThreadLocal.get();
     }
 
     @Override
@@ -79,7 +82,7 @@ public class QuerySelector implements Processor {
             keyThreadLocal.remove();
         }
 
-        if(havingConditionExecutor == null){
+        if (havingConditionExecutor == null) {
             outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
         } else {
             if (havingConditionExecutor.execute(streamEvent)) {
@@ -116,7 +119,6 @@ public class QuerySelector implements Processor {
         return null;
     }
 
-
     public List<AttributeProcessor> getAttributeProcessorList() {
         return attributeProcessorList;
     }
@@ -125,31 +127,26 @@ public class QuerySelector implements Processor {
         this.attributeProcessorList = attributeProcessorList;
     }
 
-    public void setGroupByKeyGenerator(GroupByKeyGenerator groupByKeyGenerator){
+    public void setGroupByKeyGenerator(GroupByKeyGenerator groupByKeyGenerator) {
         isGroupBy = true;
         this.groupByKeyGenerator = groupByKeyGenerator;
     }
 
-    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor){
+    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor) {
         this.havingConditionExecutor = havingConditionExecutor;
     }
 
-    public QuerySelector clone(String key){
-        QuerySelector clonedQuerySelector = new QuerySelector(id+key,selector,currentOn,expiredOn, siddhiContext);
+    public QuerySelector clone(String key) {
+        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, siddhiContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
-        for(AttributeProcessor attributeProcessor :attributeProcessorList){
+        for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor());
         }
-        clonedQuerySelector.attributeProcessorList =clonedAttributeProcessorList;
+        clonedQuerySelector.attributeProcessorList = clonedAttributeProcessorList;
         clonedQuerySelector.isGroupBy = isGroupBy;
         clonedQuerySelector.groupByKeyGenerator = groupByKeyGenerator;
         clonedQuerySelector.havingConditionExecutor = havingConditionExecutor;
         return clonedQuerySelector;
     }
-
-    public static String getThreadLocalGroupByKey() {
-        return keyThreadLocal.get();
-    }
-
 
 }

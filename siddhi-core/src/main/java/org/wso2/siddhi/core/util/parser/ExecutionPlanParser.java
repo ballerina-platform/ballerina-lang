@@ -58,13 +58,7 @@ public class ExecutionPlanParser {
             if (executionPlan.getName() != null) {
                 throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan " + executionPlan.getName(), e);
             } else {
-<<<<<<< HEAD
                 throw new ExecutionPlanValidationException(e.getMessage(), e);
-=======
-                PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime, (Partition) executionElement,
-                        siddhiContext, executionPlanRuntime.getStreamDefinitionMap());
-                executionPlanRuntime.addPartition(partitionRuntime);
->>>>>>> 2b7404934997e851d85381fea73066b9595018b2
             }
         }
         return executionPlanRuntime;

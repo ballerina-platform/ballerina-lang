@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query.selector;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
@@ -39,18 +38,15 @@ public class GroupByKeyGenerator {
         if (!groupByList.isEmpty()) {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
-                try {
-                    groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                            null, siddhiContext, null, metaStateEvent.getMetaEvent(0), executors, false);
-                } catch (ValidatorException e) {
-                    //this will never happen as this is already validated
-                }
+                groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
+                        siddhiContext, metaStateEvent.getMetaEvent(0), executors, false);
             }
         }
     }
 
     /**
      * generate groupBy key of a streamEvent
+     *
      * @param event streamEvent
      * @return GroupByKey
      */

@@ -112,21 +112,22 @@ public class PartitionRuntime {
         return metaQueryRuntime;
     }
 
-    public void addPartitionReceiver(QueryRuntime queryRuntime,MetaStreamEvent metaStreamEvent){
+    public void addPartitionReceiver(QueryRuntime queryRuntime, MetaStreamEvent metaStreamEvent) {
         Query query = queryRuntime.getQuery();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime && !((SingleInputStream) query.getInputStream()).isInnerStream()) {
-                List<List<PartitionExecutor>> partitionExecutors = queryRuntime.getQueryPartitioner().getPartitionExecutors();
-                addPartitionReceiver(new PartitionStreamReceiver(siddhiContext, metaStreamEvent,
-                        (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),
-                        partitionExecutors.get(0), this));
+            List<List<PartitionExecutor>> partitionExecutors = queryRuntime.getQueryPartitioner().getPartitionExecutors();
+            addPartitionReceiver(new PartitionStreamReceiver(siddhiContext, metaStreamEvent,
+                    (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),
+                    partitionExecutors.get(0), this));
         }//TODO: joins
 
     }
 
     /**
-    * clone all the queries of the partition for a given partition key
-    * @param key partition key
-    */
+     * clone all the queries of the partition for a given partition key
+     *
+     * @param key partition key
+     */
     public void clone(String key) {
         PartitionInstanceRuntime partitionInstance = this.getPartitionInstanceRuntime(key);
         if (partitionInstance == null) {
@@ -146,7 +147,7 @@ public class PartitionRuntime {
                 QueryRuntime clonedQueryRuntime;
 
                 if (queryRuntime.isFromLocalStream()) {
-                    clonedQueryRuntime = queryRuntime.clone(key,localStreamJunctionMap);
+                    clonedQueryRuntime = queryRuntime.clone(key, localStreamJunctionMap);
                     queryRuntimeList.add(clonedQueryRuntime);
 
                     StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
@@ -157,7 +158,7 @@ public class PartitionRuntime {
                     }
                     streamJunction.subscribe(((SingleStreamRuntime) (clonedQueryRuntime.getStreamRuntime())).getQueryStreamReceiver());
                 } else {
-                    clonedQueryRuntime = queryRuntime.clone(key,localStreamJunctionMap);
+                    clonedQueryRuntime = queryRuntime.clone(key, localStreamJunctionMap);
                     queryRuntimeList.add(clonedQueryRuntime);
                     partitionedQueryRuntimeList.add(clonedQueryRuntime);
                 }
@@ -214,6 +215,7 @@ public class PartitionRuntime {
 
     /**
      * define inner stream
+     *
      * @param streamDefinition definition of an inner stream
      */
     public void defineLocalStream(StreamDefinition streamDefinition) {

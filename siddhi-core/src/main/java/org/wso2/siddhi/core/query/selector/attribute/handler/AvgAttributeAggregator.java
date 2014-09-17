@@ -26,8 +26,8 @@ public class AvgAttributeAggregator implements AttributeAggregator {
 
     private AvgAttributeAggregator avgOutputAttributeAggregator;
 
-    public void init(Attribute.Type type){
-        switch (type){
+    public void init(Attribute.Type type) {
+        switch (type) {
             case FLOAT:
                 avgOutputAttributeAggregator = new AvgAttributeAggregatorFloat();
                 break;
@@ -72,9 +72,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
 
     class AvgAttributeAggregatorDouble extends AvgAttributeAggregator {
 
-        private double value = 0.0;
-        private long count=0;
         private final Attribute.Type type = Attribute.Type.DOUBLE;
+        private double value = 0.0;
+        private long count = 0;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -109,10 +109,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
 
     class AvgAttributeAggregatorFloat extends AvgAttributeAggregator {
 
-        private double value = 0.0;
-        private long count=0;
         private final Attribute.Type type = Attribute.Type.DOUBLE;
-
+        private double value = 0.0;
+        private long count = 0;
 
         public Attribute.Type getReturnType() {
             return this.type;
@@ -122,20 +121,20 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         public Object processAdd(Object obj) {
             count++;
             value += (Float) obj;
-            if(count==0){
+            if (count == 0) {
                 return 0;
             }
-            return value/count;
+            return value / count;
         }
 
         @Override
         public Object processRemove(Object obj) {
             count--;
             value -= (Float) obj;
-            if(count==0){
+            if (count == 0) {
                 return 0;
             }
-            return value/count;
+            return value / count;
         }
 
         @Override
@@ -148,9 +147,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
 
     class AvgAttributeAggregatorInt extends AvgAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double value = 0.0;
         private long count = 0;
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
 
         public Attribute.Type getReturnType() {
             return this.type;
@@ -184,9 +183,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
 
     class AvgAttributeAggregatorLong extends AvgAttributeAggregator {
 
-        private double value = 0.0;
-        private long count=0;
         private final Attribute.Type type = Attribute.Type.DOUBLE;
+        private double value = 0.0;
+        private long count = 0;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -196,20 +195,20 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         public Object processAdd(Object obj) {
             count++;
             value += (Long) obj;
-            if(count==0){
+            if (count == 0) {
                 return 0;
             }
-            return value/count;
+            return value / count;
         }
 
         @Override
         public Object processRemove(Object obj) {
             count--;
             value -= (Long) obj;
-            if(count==0){
+            if (count == 0) {
                 return 0;
             }
-            return value/count;
+            return value / count;
         }
 
         @Override

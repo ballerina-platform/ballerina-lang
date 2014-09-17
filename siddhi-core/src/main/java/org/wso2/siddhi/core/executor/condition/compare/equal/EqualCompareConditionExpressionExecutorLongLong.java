@@ -32,6 +32,6 @@ public class EqualCompareConditionExpressionExecutorLongLong extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new EqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new EqualCompareConditionExpressionExecutorLongLong(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

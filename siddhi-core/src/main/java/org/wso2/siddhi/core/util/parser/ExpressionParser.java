@@ -94,7 +94,7 @@ public class ExpressionParser {
      */
     public static ExpressionExecutor parseExpression(Expression expression, SiddhiContext siddhiContext,
                                                      ComplexMetaEvent metaEvent,
-                                                     List<VariableExpressionExecutor> executorList,boolean groupBy) {
+                                                     List<VariableExpressionExecutor> executorList, boolean groupBy) {
         if (expression instanceof And) {
             return new AndConditionExpressionExecutor(
                     parseExpression(((And) expression).getLeftExpression(), siddhiContext, metaEvent, executorList, groupBy),
@@ -232,34 +232,34 @@ public class ExpressionParser {
 
         } else if (expression instanceof AttributeFunction) {
             Object executor;
-            try{
-                executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(),AttributeAggregator.class);
-            } catch(QueryCreationException ex){
-                try{
-                    executor=  SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
-                } catch(QueryCreationException e){
-                    throw new QueryCreationException(((AttributeFunction) expression).getFunction()+" is neither a function nor an aggregated attribute");
+            try {
+                executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), AttributeAggregator.class);
+            } catch (QueryCreationException ex) {
+                try {
+                    executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
+                } catch (QueryCreationException e) {
+                    throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " is neither a function nor an aggregated attribute");
                 }
             }
-            if(executor instanceof AttributeAggregator){
-                if(((AttributeFunction) expression).getParameters().length>1){
-                    throw new QueryCreationException(((AttributeFunction) expression).getFunction()+" can only have one parameter");
+            if (executor instanceof AttributeAggregator) {
+                if (((AttributeFunction) expression).getParameters().length > 1) {
+                    throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
                 }
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-                innerExpressionExecutors.add(parseExpression(((AttributeFunction) expression).getParameters()[0], null, siddhiContext,streamDefinitionMap,metaEvent,executorList,groupBy));
-                ((AttributeAggregator)executor).init(innerExpressionExecutors.get(0).getReturnType());
+                innerExpressionExecutors.add(parseExpression(((AttributeFunction) expression).getParameters()[0], siddhiContext, metaEvent, executorList, groupBy));
+                ((AttributeAggregator) executor).init(innerExpressionExecutors.get(0).getReturnType());
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
-                if(groupBy) {
-                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor((AttributeAggregator) executor,innerExpressionExecutors,siddhiContext);
-                }  else{
-                    aggregationAttributeProcessor = new AggregationAttributeExecutor((AttributeAggregator) executor,innerExpressionExecutors,siddhiContext);
+                if (groupBy) {
+                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor((AttributeAggregator) executor, innerExpressionExecutors, siddhiContext);
+                } else {
+                    aggregationAttributeProcessor = new AggregationAttributeExecutor((AttributeAggregator) executor, innerExpressionExecutors, siddhiContext);
                 }
                 return aggregationAttributeProcessor;
             } else {
                 FunctionExecutor functionExecutor = (FunctionExecutor) executor;
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
                 for (Expression innerExpression : ((AttributeFunction) expression).getParameters()) {
-                    innerExpressionExecutors.add(parseExpression(innerExpression, currentStreamReference, siddhiContext,streamDefinitionMap,metaEvent,executorList,groupBy));
+                    innerExpressionExecutors.add(parseExpression(innerExpression, siddhiContext, metaEvent, executorList, groupBy));
                 }
                 siddhiContext.addEternalReferencedHolder(functionExecutor);
                 functionExecutor.setSiddhiContext(siddhiContext);

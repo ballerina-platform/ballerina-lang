@@ -30,8 +30,8 @@ public class MaxAttributeAggregator implements AttributeAggregator {
 
     private MaxAttributeAggregator maxOutputAttributeAggregator;
 
-    public void init(Attribute.Type type){
-        switch (type){
+    public void init(Attribute.Type type) {
+        switch (type) {
             case FLOAT:
                 maxOutputAttributeAggregator = new MaxAttributeAggregatorFloat();
                 break;
@@ -76,9 +76,9 @@ public class MaxAttributeAggregator implements AttributeAggregator {
 
     class MaxAttributeAggregatorDouble extends MaxAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private Deque<Double> maxDeque = new LinkedList<Double>();
         private volatile Double maxValue = null;
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -95,7 +95,7 @@ public class MaxAttributeAggregator implements AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if(maxValue==null){
+            if (maxValue == null) {
                 maxValue = value;
             } else if (maxValue < value) {
                 maxValue = value;
@@ -118,9 +118,9 @@ public class MaxAttributeAggregator implements AttributeAggregator {
 
     class MaxAttributeAggregatorFloat extends MaxAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.FLOAT;
         private Deque<Float> maxDeque = new LinkedList<Float>();
         private volatile Float maxValue = null;
-        private final Attribute.Type type = Attribute.Type.FLOAT;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -138,7 +138,7 @@ public class MaxAttributeAggregator implements AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if(maxValue==null) {
+            if (maxValue == null) {
                 maxValue = value;
             } else if (maxValue < value) {
                 maxValue = value;
@@ -162,9 +162,9 @@ public class MaxAttributeAggregator implements AttributeAggregator {
 
     class MaxAttributeAggregatorInt extends MaxAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.INT;
         private Deque<Integer> maxDeque = new LinkedList<Integer>();
         private volatile Integer maxValue = null;
-        private final Attribute.Type type = Attribute.Type.INT;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -181,7 +181,7 @@ public class MaxAttributeAggregator implements AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if(maxValue==null){
+            if (maxValue == null) {
                 maxValue = value;
             } else if (maxValue < value) {
                 maxValue = value;
@@ -205,9 +205,9 @@ public class MaxAttributeAggregator implements AttributeAggregator {
 
     class MaxAttributeAggregatorLong extends MaxAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.LONG;
         private Deque<Long> maxDeque = new LinkedList<Long>();
         private volatile Long maxValue = null;
-        private final Attribute.Type type = Attribute.Type.LONG;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -224,7 +224,7 @@ public class MaxAttributeAggregator implements AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if(maxValue==null){
+            if (maxValue == null) {
                 maxValue = value;
             } else if (maxValue < value) {
                 maxValue = value;

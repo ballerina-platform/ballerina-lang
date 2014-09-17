@@ -69,12 +69,12 @@ public class SelectorParser {
             expiredOn = true;
         }
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, context);
-        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, outStream,context, metaStateEvent, executors));
+        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, outStream, context, metaStateEvent, executors));
 
-        ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(), metaStateEvent,context);
+        ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(), metaStateEvent, context);
         querySelector.setHavingConditionExecutor(havingCondition);
         if (!selector.getGroupByList().isEmpty()) {
-            querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(),metaStateEvent,executors,context));
+            querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaStateEvent, executors, context));
         }
 
 
@@ -83,6 +83,7 @@ public class SelectorParser {
 
     /**
      * Method to construct AttributeProcessor list for the selector
+     *
      * @param selector
      * @param outStream
      * @param siddhiContext
@@ -96,26 +97,26 @@ public class SelectorParser {
 
         int i = 0;
         for (OutputAttribute outputAttribute : selector.getSelectionList()) {
-            
-                if (metaStateEvent.getEventCount() == 1) {  //meta stream event
-                    MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(0);
-                    ExpressionExecutor executor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                            siddhiContext, metaStreamEvent, executors);
-                    if (executor instanceof VariableExpressionExecutor) {   //for variables we will directly put value at conversion stage
-                        metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute());
-                        temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) executor).getAttribute().getType());
-                    } else {
-                        metaStreamEvent.addOutputData(null);            //To maintain variable positions
-                        AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor);
-                        attributeProcessor.setOutputPosition(i);
-                        attributeProcessorList.add(attributeProcessor);
-                        temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
-                    }
-            
+
+            if (metaStateEvent.getEventCount() == 1) {  //meta stream event
+                MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(0);
+                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
+                        siddhiContext, metaStreamEvent, executors, !(selector.getGroupByList().isEmpty()));
+                if (expressionExecutor instanceof VariableExpressionExecutor) {   //for variables we will directly put value at conversion stage
+                    metaStreamEvent.addOutputData(((VariableExpressionExecutor) expressionExecutor).getAttribute());
+                    temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) expressionExecutor).getAttribute().getType());
                 } else {
-                    //TODO implement support for MetaStateEvent
+                    metaStreamEvent.addOutputData(null);            //To maintain variable positions
+                    AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor);
+                    attributeProcessor.setOutputPosition(i);
+                    attributeProcessorList.add(attributeProcessor);
+                    temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
                 }
-                i++;
+
+            } else {
+                //TODO implement support for MetaStateEvent
+            }
+            i++;
         }
         metaStateEvent.setOutputDefinition(temp);
         return attributeProcessorList;
@@ -126,18 +127,15 @@ public class SelectorParser {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         MetaStreamEvent metaEvent = new MetaStreamEvent();
         metaEvent.setDefinition(metaStateEvent.getOutputStreamDefinition());
-        for (Attribute attribute:metaStateEvent.getOutputStreamDefinition().getAttributeList()){
+        for (Attribute attribute : metaStateEvent.getOutputStreamDefinition().getAttributeList()) {
             metaEvent.addOutputData(attribute);
         }
         ConditionExpressionExecutor havingConditionExecutor = null;
         if (expression != null) {
-            try {
-                havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression, null, siddhiContext, null,metaEvent, executors, false);
-            } catch (ValidatorException e) {
-                //this will never happen as this is already validated
-            }
+            havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression, siddhiContext, metaEvent, executors, false);
+
         }
-        QueryParserHelper.updateVariablePosition(new MetaStateEvent(new MetaStreamEvent[]{metaEvent}),executors);
+        QueryParserHelper.updateVariablePosition(new MetaStateEvent(new MetaStreamEvent[]{metaEvent}), executors);
         return havingConditionExecutor;
 
     }
