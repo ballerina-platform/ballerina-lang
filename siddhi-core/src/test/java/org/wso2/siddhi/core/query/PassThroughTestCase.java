@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -152,7 +153,7 @@ public class PassThroughTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.variable("price"))
+                        select("price", Expression.function("sum", Expression.variable("price")))
         );
         query.insertInto("StockQuote");
 
@@ -167,6 +168,7 @@ public class PassThroughTestCase {
         executionPlanRuntime.addCallback("query1", new QueryCallback(query, "query1", 2, siddhiManager.getSiddhiContext()) {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(inEvents);
                 count++;
                 eventArrived = true;
             }
