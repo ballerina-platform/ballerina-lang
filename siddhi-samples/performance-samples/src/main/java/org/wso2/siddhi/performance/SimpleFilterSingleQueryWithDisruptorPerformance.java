@@ -21,7 +21,6 @@ package org.wso2.siddhi.performance;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -30,7 +29,7 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
     private static int count = 0;
     private static volatile long start = System.currentTimeMillis();
 
-    public static void main(String[] args) throws ValidatorException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
