@@ -25,11 +25,8 @@ import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
-import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class GroupByKeyGenerator {
@@ -39,20 +36,24 @@ public class GroupByKeyGenerator {
     public GroupByKeyGenerator(List<Variable> groupByList,
                                MetaStateEvent metaStateEvent,
                                List<VariableExpressionExecutor> executors, SiddhiContext siddhiContext) {
-
         if (!groupByList.isEmpty()) {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 try {
-                    groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i), null, siddhiContext, null, metaStateEvent.getMetaEvent(0), executors, false);
+                    groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
+                            null, siddhiContext, null, metaStateEvent.getMetaEvent(0), executors, false);
                 } catch (ValidatorException e) {
                     //this will never happen as this is already validated
                 }
-//                QueryParserHelper.updateVariablePosition(metaStateEvent, Arrays.asList(groupByExecutors));
             }
         }
     }
 
+    /**
+     * generate groupBy key of a streamEvent
+     * @param event streamEvent
+     * @return GroupByKey
+     */
     protected String constructEventKey(StreamEvent event) {
         if (groupByExecutors != null) {
             StringBuilder sb = new StringBuilder();

@@ -82,14 +82,13 @@ public class SelectorParser {
                 if (metaStateEvent.getEventCount() == 1) {  //meta stream event
                     MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(0);
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                            null, siddhiContext, null, metaStreamEvent, executors, (selector.getGroupByList().isEmpty() ? false : true));
-                    ExpressionExecutor executor = expressionExecutor;
-                    if (executor instanceof VariableExpressionExecutor) {
-                        metaStreamEvent.addOutputData(((VariableExpressionExecutor) executor).getAttribute());
-                        temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) executor).getAttribute().getType());
+                            null, siddhiContext, null, metaStreamEvent, executors, !selector.getGroupByList().isEmpty());
+                    if (expressionExecutor instanceof VariableExpressionExecutor) {
+                        metaStreamEvent.addOutputData(((VariableExpressionExecutor) expressionExecutor).getAttribute());
+                        temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) expressionExecutor).getAttribute().getType());
                     } else {
                         metaStreamEvent.addOutputData(null);            //To maintain variable positions
-                        AttributeProcessor attributeProcessor = new AttributeProcessor(executor);
+                        AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor);
                         attributeProcessor.setOutputPosition(i);
                         attributeProcessorList.add(attributeProcessor);
                         temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
@@ -109,14 +108,12 @@ public class SelectorParser {
 
     private static ConditionExpressionExecutor generateHavingExecutor(Expression expression,
                                                                       MetaStateEvent metaStateEvent, SiddhiContext siddhiContext) {
-
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         MetaStreamEvent metaEvent = new MetaStreamEvent();
         metaEvent.setDefinition(metaStateEvent.getOutputStreamDefinition());
         for (Attribute attribute:metaStateEvent.getOutputStreamDefinition().getAttributeList()){
             metaEvent.addOutputData(attribute);
         }
-
         ConditionExpressionExecutor havingConditionExecutor = null;
         if (expression != null) {
             try {

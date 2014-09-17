@@ -23,11 +23,11 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 public class CountAttributeAggregator implements AttributeAggregator {
 
     private long value = 0;
-    private static Attribute.Type type;
+    private static Attribute.Type type = Attribute.Type.LONG;
 
     @Override
     public void init(Attribute.Type type) {
-        this.type = Attribute.Type.LONG;
+        //type is always long
     }
 
     public Attribute.Type getReturnType() {
@@ -53,6 +53,6 @@ public class CountAttributeAggregator implements AttributeAggregator {
 
     @Override
     public void destroy(){
-
+        //nothing to destroy
     }
 }

@@ -61,6 +61,6 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void destroy() {
-
+        //nothing to destroy
     }
 }

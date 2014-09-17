@@ -50,9 +50,5 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
         return attributeAggregator.getReturnType();
     }
 
-
-
-
-
 }
 

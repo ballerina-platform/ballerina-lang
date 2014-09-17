@@ -24,11 +24,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 public class AvgAttributeAggregator implements AttributeAggregator {
 
-    private Attribute.Type type;
     private AvgAttributeAggregator avgOutputAttributeAggregator;
 
     public void init(Attribute.Type type){
-        this.type =type;
         switch (type){
             case FLOAT:
                 avgOutputAttributeAggregator = new AvgAttributeAggregatorFloat();
@@ -69,7 +67,7 @@ public class AvgAttributeAggregator implements AttributeAggregator {
 
     @Override
     public void destroy() {
-
+        //nothing to destroy
     }
 
     class AvgAttributeAggregatorDouble extends AvgAttributeAggregator {

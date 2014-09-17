@@ -33,9 +33,6 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
-
-
-
     public GroupByAggregationAttributeExecutor(AttributeAggregator aggregator,
                                                List<ExpressionExecutor> expressionExecutors, SiddhiContext siddhiContext) {
         this.siddhiContext = siddhiContext;
@@ -45,10 +42,9 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         size = expressionExecutors.size();
     }
 
-
     @Override
     public Object execute(StreamEvent event) {
-        String key = QuerySelector.getGroupByKey();
+        String key = QuerySelector.getThreadLocalGroupByKey();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.newInstance();

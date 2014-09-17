@@ -37,7 +37,6 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
         size = expressionExecutors.size();
     }
 
-
     @Override
     public Object execute(StreamEvent event) {
         return process(event, attributeAggregator);

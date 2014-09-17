@@ -41,6 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
+ * and streamJunctions and inputHandlers used
+ */
 public class ExecutionPlanRuntime {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
     private InputHandlerManager inputHandlerManager = new InputHandlerManager();
@@ -59,7 +63,8 @@ public class ExecutionPlanRuntime {
             streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
             StreamJunction streamJunction = streamJunctionMap.get(streamDefinition.getId());
             if (streamJunction == null) {
-                streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+                streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
+                        siddhiContext.getDefaultEventBufferSize());
                 streamJunctionMap.put(streamDefinition.getId(), streamJunction);
             }
             inputHandler = new InputHandler(streamDefinition.getId(), streamJunction);
@@ -81,7 +86,8 @@ public class ExecutionPlanRuntime {
             streamJunctionMap.get(queryStreamReceiver.getStreamId()).subscribe(queryStreamReceiver);
         }//TODO: for join
 
-        OutputCallback outputCallback = OutputParser.constructOutputCallback(queryRuntime.getQuery().getOutputStream(), streamJunctionMap, queryRuntime.getOutputStreamDefinition(), siddhiContext);
+        OutputCallback outputCallback = OutputParser.constructOutputCallback(queryRuntime.getQuery().getOutputStream(),
+                streamJunctionMap, queryRuntime.getOutputStreamDefinition(), siddhiContext);
         queryRuntime.setOutputCallback(outputCallback);
         queryRuntime.getOutputRateManager().setOutputCallback(outputCallback);
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
@@ -94,7 +100,8 @@ public class ExecutionPlanRuntime {
         streamCallback.setStreamId(streamId);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
-            streamJunction = new StreamJunction((StreamDefinition) streamDefinitionMap.get(streamId), (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+            streamJunction = new StreamJunction((StreamDefinition) streamDefinitionMap.get(streamId), (
+                    ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
             streamJunctionMap.put(streamId, streamJunction);
         }
         streamJunction.subscribe(streamCallback);

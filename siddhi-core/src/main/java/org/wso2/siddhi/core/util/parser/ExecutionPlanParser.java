@@ -41,7 +41,8 @@ public class ExecutionPlanParser {
                 QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, siddhiContext, executionPlanRuntime.getStreamDefinitionMap());
                 executionPlanRuntime.addQuery(queryRuntime);
             } else {
-                PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime, (Partition) executionElement, siddhiContext, executionPlanRuntime.getStreamDefinitionMap());
+                PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime, (Partition) executionElement,
+                        siddhiContext, executionPlanRuntime.getStreamDefinitionMap());
                 executionPlanRuntime.addPartition(partitionRuntime);
             }
         }

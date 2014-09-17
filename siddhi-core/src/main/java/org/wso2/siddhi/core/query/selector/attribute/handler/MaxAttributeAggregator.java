@@ -28,11 +28,9 @@ import java.util.LinkedList;
 
 public class MaxAttributeAggregator implements AttributeAggregator {
 
-    private Attribute.Type type;
     private MaxAttributeAggregator maxOutputAttributeAggregator;
 
     public void init(Attribute.Type type){
-        this.type =type;
         switch (type){
             case FLOAT:
                 maxOutputAttributeAggregator = new MaxAttributeAggregatorFloat();
@@ -73,7 +71,7 @@ public class MaxAttributeAggregator implements AttributeAggregator {
 
     @Override
     public void destroy() {
-
+        //nothing to destroy
     }
 
     class MaxAttributeAggregatorDouble extends MaxAttributeAggregator {

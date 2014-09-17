@@ -24,11 +24,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 public class SumAttributeAggregator implements AttributeAggregator {
 
-    private Attribute.Type type;
     private SumAttributeAggregator sumOutputAttributeAggregator;
 
     public void init(Attribute.Type type){
-        this.type =type;
         switch (type){
             case FLOAT:
                 sumOutputAttributeAggregator = new SumAttributeAggregatorFloat();
@@ -68,7 +66,7 @@ public class SumAttributeAggregator implements AttributeAggregator {
 
     @Override
     public void destroy() {
-
+        //Nothing to destroy
     }
 
     class SumAttributeAggregatorDouble extends SumAttributeAggregator {

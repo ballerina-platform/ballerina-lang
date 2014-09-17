@@ -59,6 +59,6 @@ public class SinFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void destroy() {
-
+        //nothing to destroy
     }
 }

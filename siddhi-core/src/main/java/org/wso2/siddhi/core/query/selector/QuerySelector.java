@@ -147,7 +147,7 @@ public class QuerySelector implements Processor {
         return clonedQuerySelector;
     }
 
-    public static String getGroupByKey() {    //TODO rename including threadLocal
+    public static String getThreadLocalGroupByKey() {
         return keyThreadLocal.get();
     }
 

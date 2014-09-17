@@ -28,11 +28,9 @@ import java.util.LinkedList;
 
 public class MinAttributeAggregator implements AttributeAggregator {
 
-    private Attribute.Type type;
     private MinAttributeAggregator minOutputAttributeAggregator;
 
     public void init(Attribute.Type type){
-        this.type =type;
         switch (type){
             case FLOAT:
                 minOutputAttributeAggregator = new MinAttributeAggregatorFloat();
@@ -73,7 +71,7 @@ public class MinAttributeAggregator implements AttributeAggregator {
 
     @Override
     public void destroy() {
-
+        //nothing to destroy
     }
 
     class MinAttributeAggregatorDouble extends MinAttributeAggregator {

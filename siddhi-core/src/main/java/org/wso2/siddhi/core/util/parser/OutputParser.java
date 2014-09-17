@@ -42,7 +42,8 @@ public class OutputParser {
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id);
             if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(outputStreamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+                outputStreamJunction = new StreamJunction(outputStreamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
+                        siddhiContext.getDefaultEventBufferSize());
                 streamJunctionMap.putIfAbsent(id, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
@@ -52,15 +53,17 @@ public class OutputParser {
         }
     }
 
-    public static OutputCallback constructOutputCallback(OutputStream outStream, String key, ConcurrentMap<String, StreamJunction> streamJunctionMap,
+    public static OutputCallback constructOutputCallback(OutputStream outStream, String key,
+                                                         ConcurrentMap<String, StreamJunction> streamJunctionMap,
                                                          StreamDefinition outputStreamDefinition, SiddhiContext siddhiContext) {
         String id = outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id + key);
             if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(outputStreamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
-                streamJunctionMap.putIfAbsent(id + key, outputStreamJunction);
+                outputStreamJunction = new StreamJunction(outputStreamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
+                        siddhiContext.getDefaultEventBufferSize());
+                streamJunctionMap.put(id + key, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
 

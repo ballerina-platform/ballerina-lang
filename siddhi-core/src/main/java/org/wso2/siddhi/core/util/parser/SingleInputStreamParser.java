@@ -38,7 +38,8 @@ import java.util.List;
 public class SingleInputStreamParser {
 
 
-    public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiContext context, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
+    public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiContext context,
+                                                       MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
         Processor processor = null;
         int i = 0;
         if (!inputStream.getStreamHandlers().isEmpty()) {
@@ -57,7 +58,8 @@ public class SingleInputStreamParser {
         return singleStreamRuntime;
     }
 
-    private static Processor generateProcessor(StreamHandler handler, SiddhiContext context, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
+    private static Processor generateProcessor(StreamHandler handler, SiddhiContext context, MetaStreamEvent metaStreamEvent,
+                                               List<VariableExpressionExecutor> executors) {
         if (handler instanceof Filter) {
             Expression condition = ((Filter) handler).getFilterExpression();
             try {

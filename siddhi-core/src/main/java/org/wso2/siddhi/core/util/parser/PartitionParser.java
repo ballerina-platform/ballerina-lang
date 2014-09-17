@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.selector.QueryPartitioner;
+import org.wso2.siddhi.core.partition.QueryPartitioner;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -38,7 +38,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 public class PartitionParser {
-    public static PartitionRuntime parse(ExecutionPlanRuntime executionPlanRuntime, Partition partition, SiddhiContext siddhiContext, ConcurrentMap<String,AbstractDefinition> streamDefinitionMap) {
+
+    public static PartitionRuntime parse(ExecutionPlanRuntime executionPlanRuntime, Partition partition, SiddhiContext siddhiContext,
+                                         ConcurrentMap<String,AbstractDefinition> streamDefinitionMap) {
         PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntime,partition,siddhiContext);
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         for(Query query:partition.getQueryList()){
@@ -60,6 +62,11 @@ public class PartitionParser {
 
     }
 
+    /**
+     * Create metaEvent to be used by QueryPartitioner with output attributes
+     * @param metaStateEvent  metaStateEvent of the queryRuntime
+     * @return metaStateEvent
+     */
     private static MetaStreamEvent createMetaEventForPartitioner(MetaStateEvent metaStateEvent){
         AbstractDefinition definition = metaStateEvent.getMetaEvent(0).getDefinition();
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
