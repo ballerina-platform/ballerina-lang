@@ -31,6 +31,6 @@ public class GreaterThanCompareConditionExpressionExecutorLongInt extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new GreaterThanCompareConditionExpressionExecutorLongInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new GreaterThanCompareConditionExpressionExecutorLongInt(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

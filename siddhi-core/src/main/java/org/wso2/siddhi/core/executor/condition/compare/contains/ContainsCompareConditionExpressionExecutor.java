@@ -30,6 +30,6 @@ public class ContainsCompareConditionExpressionExecutor extends CompareCondition
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new ContainsCompareConditionExpressionExecutor(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new ContainsCompareConditionExpressionExecutor(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

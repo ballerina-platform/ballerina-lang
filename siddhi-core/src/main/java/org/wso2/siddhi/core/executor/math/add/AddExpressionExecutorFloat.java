@@ -38,7 +38,7 @@ public class AddExpressionExecutorFloat implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new AddExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new AddExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 
 }

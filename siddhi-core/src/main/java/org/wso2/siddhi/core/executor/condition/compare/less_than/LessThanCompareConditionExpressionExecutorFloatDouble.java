@@ -32,6 +32,6 @@ public class LessThanCompareConditionExpressionExecutorFloatDouble extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new LessThanCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new LessThanCompareConditionExpressionExecutorFloatDouble(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

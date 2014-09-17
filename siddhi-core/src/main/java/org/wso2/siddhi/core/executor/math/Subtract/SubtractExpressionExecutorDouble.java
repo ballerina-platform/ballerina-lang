@@ -39,7 +39,7 @@ public class SubtractExpressionExecutorDouble implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new SubtractExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new SubtractExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 
 }

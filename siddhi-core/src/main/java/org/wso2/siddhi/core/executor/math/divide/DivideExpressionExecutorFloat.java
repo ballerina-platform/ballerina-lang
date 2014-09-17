@@ -39,7 +39,7 @@ public class DivideExpressionExecutorFloat implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new DivideExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new DivideExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 
 }

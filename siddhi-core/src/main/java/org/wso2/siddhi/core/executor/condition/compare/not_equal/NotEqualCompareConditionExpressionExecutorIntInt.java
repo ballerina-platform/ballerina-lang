@@ -31,6 +31,6 @@ public class NotEqualCompareConditionExpressionExecutorIntInt
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new NotEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new NotEqualCompareConditionExpressionExecutorIntInt(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

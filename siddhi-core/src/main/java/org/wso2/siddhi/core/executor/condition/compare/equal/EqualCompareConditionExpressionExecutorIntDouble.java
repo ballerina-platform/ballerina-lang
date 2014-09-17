@@ -32,6 +32,6 @@ public class EqualCompareConditionExpressionExecutorIntDouble extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new EqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new EqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

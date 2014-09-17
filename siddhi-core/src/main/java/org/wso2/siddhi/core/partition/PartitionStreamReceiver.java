@@ -110,8 +110,9 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     /**
      * create local streamJunctions through which events are sent to queryStreamReceivers
-     * @param key partitioning key
-     * @param queryRuntimeList  queryRuntime list of the partition
+     *
+     * @param key              partitioning key
+     * @param queryRuntimeList queryRuntime list of the partition
      */
     public void addStreamJunction(String key, List<QueryRuntime> queryRuntimeList) {
         if (!partitionExecutors.isEmpty()) {

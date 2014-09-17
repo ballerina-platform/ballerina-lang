@@ -28,6 +28,6 @@ public class EqualCompareConditionExpressionExecutorStringString extends EqualCo
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new EqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new EqualCompareConditionExpressionExecutorStringString(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

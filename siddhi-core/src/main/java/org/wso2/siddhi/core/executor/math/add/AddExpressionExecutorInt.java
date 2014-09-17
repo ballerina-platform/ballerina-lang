@@ -39,7 +39,7 @@ public class AddExpressionExecutorInt implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new AddExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new AddExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 
 }

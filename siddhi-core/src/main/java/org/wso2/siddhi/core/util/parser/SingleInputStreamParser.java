@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
@@ -37,7 +36,15 @@ import java.util.List;
 
 public class SingleInputStreamParser {
 
-
+    /**
+     * Parse single InputStream and return SingleStreamRuntime
+     *
+     * @param inputStream     single input stream to be parsed
+     * @param context         query to be parsed
+     * @param metaStreamEvent Meta event used to collect execution info of stream associated with query
+     * @param executors       List to hold VariableExpressionExecutors to update after query parsing
+     * @return
+     */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiContext context,
                                                        MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
         Processor processor = null;
@@ -62,12 +69,7 @@ public class SingleInputStreamParser {
                                                List<VariableExpressionExecutor> executors) {
         if (handler instanceof Filter) {
             Expression condition = ((Filter) handler).getFilterExpression();
-            try {
-                return new FilterProcessor(ExpressionParser.parseExpression(condition, null, context, null, metaStreamEvent, executors,false));  //metaStreamEvent has stream definition info
-            } catch (ValidatorException e) {
-                //This will never occur
-                return null;
-            }
+            return new FilterProcessor(ExpressionParser.parseExpression(condition, context, metaStreamEvent, executors, false));  //metaStreamEvent has stream definition info
         } else {
             //TODO else if (window function etc)
             throw new OperationNotSupportedException("Only filter operation is supported at the moment");

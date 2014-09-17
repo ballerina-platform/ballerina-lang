@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -35,11 +33,13 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
+import sun.security.validator.ValidatorException;
 
 public class FilterTestCase {
     static final Logger log = Logger.getLogger(FilterTestCase.class);
@@ -55,7 +55,7 @@ public class FilterTestCase {
 
     // Test cases for GREATER_THAN operator
     @Test
-    public void FilterTest1() throws InterruptedException, ValidatorException {
+    public void FilterTest1() throws InterruptedException {
         log.info("filter test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -96,7 +96,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest2() throws InterruptedException, ValidatorException {
+    public void FilterTest2() throws InterruptedException {
         log.info("filter test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -126,7 +126,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery3() throws InterruptedException, ValidatorException {
+    public void testFilterQuery3() throws InterruptedException {
         log.info("Filter test3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -157,7 +157,7 @@ public class FilterTestCase {
 
 
     @Test
-    public void testFilterQuery4() throws InterruptedException, ValidatorException {
+    public void testFilterQuery4() throws InterruptedException {
         log.info("Filter test4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -184,7 +184,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery5() throws InterruptedException, ValidatorException {
+    public void testFilterQuery5() throws InterruptedException {
         log.info("Filter test5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -212,7 +212,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery6() throws InterruptedException, ValidatorException {
+    public void testFilterQuery6() throws InterruptedException {
         log.info("Filter test6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -240,7 +240,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery7() throws InterruptedException, ValidatorException {
+    public void testFilterQuery7() throws InterruptedException {
         log.info("Filter test7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -268,7 +268,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery8() throws InterruptedException, ValidatorException {
+    public void testFilterQuery8() throws InterruptedException {
         log.info("Filter test8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -296,7 +296,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery9() throws InterruptedException, ValidatorException {
+    public void testFilterQuery9() throws InterruptedException {
         log.info("Filter test9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -324,7 +324,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery10() throws InterruptedException, ValidatorException {
+    public void testFilterQuery10() throws InterruptedException {
         log.info("Filter test10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -352,7 +352,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery11() throws InterruptedException, ValidatorException {
+    public void testFilterQuery11() throws InterruptedException {
         log.info("Filter test11");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -380,7 +380,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery12() throws InterruptedException, ValidatorException {
+    public void testFilterQuery12() throws InterruptedException {
         log.info("Filter test12");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -408,7 +408,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery13() throws InterruptedException, ValidatorException {
+    public void testFilterQuery13() throws InterruptedException {
         log.info("Filter test13");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -436,7 +436,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery14() throws InterruptedException, ValidatorException {
+    public void testFilterQuery14() throws InterruptedException {
         log.info("Filter test14");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -464,7 +464,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery15() throws InterruptedException, ValidatorException {
+    public void testFilterQuery15() throws InterruptedException {
         log.info("Filter test15");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -492,7 +492,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery16() throws InterruptedException, ValidatorException {
+    public void testFilterQuery16() throws InterruptedException {
         log.info("Filter test16");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -520,7 +520,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery17() throws InterruptedException, ValidatorException {
+    public void testFilterQuery17() throws InterruptedException {
         log.info("Filter test17");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -555,7 +555,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery18() throws InterruptedException, ValidatorException {
+    public void testFilterQuery18() throws InterruptedException {
         log.info("Filter test18");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -603,7 +603,7 @@ public class FilterTestCase {
 
     // Test case for CONTAINS operator
     @Test
-    public void testFilterQuery19() throws InterruptedException, ValidatorException {
+    public void testFilterQuery19() throws InterruptedException {
         log.info("Filter test19");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -648,7 +648,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery20() throws InterruptedException, ValidatorException {
+    public void testFilterQuery20() throws InterruptedException {
         log.info("Filter test20");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -694,7 +694,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery21() throws InterruptedException, ValidatorException {
+    public void testFilterQuery21() throws InterruptedException {
         log.info("Filter test21");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -722,7 +722,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery22() throws InterruptedException, ValidatorException {
+    public void testFilterQuery22() throws InterruptedException {
         log.info("Filter test22");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -752,7 +752,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery23() throws InterruptedException, ValidatorException {
+    public void testFilterQuery23() throws InterruptedException {
         log.info("Filter test23");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -780,7 +780,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery24() throws InterruptedException, ValidatorException {
+    public void testFilterQuery24() throws InterruptedException {
         log.info("Filter test24");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -808,7 +808,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery25() throws InterruptedException, ValidatorException {
+    public void testFilterQuery25() throws InterruptedException {
         log.info("Filter test25");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -838,7 +838,7 @@ public class FilterTestCase {
 
 
     @Test
-    public void testFilterQuery26() throws InterruptedException, ValidatorException {
+    public void testFilterQuery26() throws InterruptedException {
         log.info("Filter test26");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -866,7 +866,7 @@ public class FilterTestCase {
 
 
     @Test
-    public void testFilterQuery27() throws InterruptedException, ValidatorException {
+    public void testFilterQuery27() throws InterruptedException {
         log.info("Filter test27");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -893,7 +893,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery28() throws InterruptedException, ValidatorException {
+    public void testFilterQuery28() throws InterruptedException {
         log.info("Filter test28");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -922,7 +922,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery29() throws InterruptedException, ValidatorException {
+    public void testFilterQuery29() throws InterruptedException {
         log.info("Filter test29");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -950,7 +950,7 @@ public class FilterTestCase {
    }
 
     @Test
-    public void testFilterQuery30() throws InterruptedException, ValidatorException {
+    public void testFilterQuery30() throws InterruptedException {
         log.info("Filter test30");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -976,7 +976,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery31() throws InterruptedException, ValidatorException {
+    public void testFilterQuery31() throws InterruptedException {
         log.info("Filter test31");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1022,7 +1022,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery32() throws InterruptedException, ValidatorException {
+    public void testFilterQuery32() throws InterruptedException {
         log.info("Filter test32");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1049,7 +1049,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery33() throws InterruptedException, ValidatorException {
+    public void testFilterQuery33() throws InterruptedException {
         log.info("Filter test33");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1076,7 +1076,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery34() throws InterruptedException, ValidatorException {
+    public void testFilterQuery34() throws InterruptedException {
         log.info("Filter test34");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1103,7 +1103,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery35() throws InterruptedException, ValidatorException {
+    public void testFilterQuery35() throws InterruptedException {
         log.info("Filter test35");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1130,7 +1130,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery36() throws InterruptedException, ValidatorException {
+    public void testFilterQuery36() throws InterruptedException {
         log.info("Filter test36");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1176,7 +1176,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery37() throws InterruptedException, ValidatorException {
+    public void testFilterQuery37() throws InterruptedException {
         log.info("Filter test37");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1203,7 +1203,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery38() throws InterruptedException, ValidatorException {
+    public void testFilterQuery38() throws InterruptedException {
         log.info("Filter test38");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1230,7 +1230,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery39() throws InterruptedException, ValidatorException {
+    public void testFilterQuery39() throws InterruptedException {
         log.info("Filter test39");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1257,7 +1257,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery40() throws InterruptedException, ValidatorException {
+    public void testFilterQuery40() throws InterruptedException {
         log.info("Filter test40");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1284,7 +1284,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery41() throws InterruptedException, ValidatorException {
+    public void testFilterQuery41() throws InterruptedException {
         log.info("Filter test41");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1311,7 +1311,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery42() throws InterruptedException, ValidatorException {
+    public void testFilterQuery42() throws InterruptedException {
         log.info("Filter test42");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1338,7 +1338,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery43() throws InterruptedException, ValidatorException {
+    public void testFilterQuery43() throws InterruptedException {
         log.info("Filter test43");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1364,8 +1364,8 @@ public class FilterTestCase {
         Assert.assertEquals(1, count);
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery44() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery44() throws InterruptedException {
         log.info("Filter test44");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1376,8 +1376,8 @@ public class FilterTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery45() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery45() throws InterruptedException {
         log.info("Filter test45");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1388,8 +1388,8 @@ public class FilterTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery46() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery46() throws InterruptedException {
         log.info("Filter test46");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1400,8 +1400,8 @@ public class FilterTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery47() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery47() throws InterruptedException {
         log.info("Filter test47");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1412,8 +1412,8 @@ public class FilterTestCase {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery48() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery48() throws InterruptedException {
         log.info("Filter test48");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1438,8 +1438,8 @@ public class FilterTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery49() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery49() throws InterruptedException {
         log.info("Filter test49");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1464,8 +1464,8 @@ public class FilterTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery50() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery50() throws InterruptedException {
         log.info("Filter test50");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1477,7 +1477,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery51() throws InterruptedException, ValidatorException {
+    public void testFilterQuery51() throws InterruptedException {
         log.info("Filter test51");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1512,7 +1512,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery52() throws InterruptedException, ValidatorException {
+    public void testFilterQuery52() throws InterruptedException {
         log.info("Filter test52");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1548,7 +1548,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery53() throws InterruptedException, ValidatorException {
+    public void testFilterQuery53() throws InterruptedException {
         log.info("Filter test53");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1584,7 +1584,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery54() throws InterruptedException, ValidatorException {
+    public void testFilterQuery54() throws InterruptedException {
         log.info("Filter test54");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1619,7 +1619,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery55() throws InterruptedException, ValidatorException {
+    public void testFilterQuery55() throws InterruptedException {
         log.info("Filter test55");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1654,7 +1654,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery56() throws InterruptedException, ValidatorException {
+    public void testFilterQuery56() throws InterruptedException {
         log.info("Filter test56");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1689,7 +1689,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery57() throws InterruptedException, ValidatorException {
+    public void testFilterQuery57() throws InterruptedException {
         log.info("Filter test57");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1724,7 +1724,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery58() throws InterruptedException, ValidatorException {
+    public void testFilterQuery58() throws InterruptedException {
         log.info("Filter test58");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1759,7 +1759,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery59() throws InterruptedException, ValidatorException {
+    public void testFilterQuery59() throws InterruptedException {
         log.info("Filter test59");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1794,7 +1794,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery60() throws InterruptedException, ValidatorException {
+    public void testFilterQuery60() throws InterruptedException {
         log.info("Filter test60");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1829,7 +1829,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery61() throws InterruptedException, ValidatorException {
+    public void testFilterQuery61() throws InterruptedException {
         log.info("Filter test61");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1864,7 +1864,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery62() throws InterruptedException, ValidatorException {
+    public void testFilterQuery62() throws InterruptedException {
         log.info("Filter test62");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1899,7 +1899,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery63() throws InterruptedException, ValidatorException {
+    public void testFilterQuery63() throws InterruptedException {
         log.info("Filter test63");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1934,7 +1934,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery64() throws InterruptedException, ValidatorException {
+    public void testFilterQuery64() throws InterruptedException {
         log.info("Filter test64");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -1969,7 +1969,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery65() throws InterruptedException, ValidatorException {
+    public void testFilterQuery65() throws InterruptedException {
         log.info("Filter test65");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2006,7 +2006,7 @@ public class FilterTestCase {
     //**************************************************************************************************************************
 
     @Test
-    public void testFilterQuery66() throws InterruptedException, ValidatorException {
+    public void testFilterQuery66() throws InterruptedException {
         log.info("Filter test66 : NOT Operator");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2043,7 +2043,7 @@ public class FilterTestCase {
     //**************************************************************************************************************************
     //Test cases for less than or equal
     @Test
-    public void testFilterQuery67() throws InterruptedException, ValidatorException {
+    public void testFilterQuery67() throws InterruptedException {
         log.info("Filter test67");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2078,7 +2078,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery68() throws InterruptedException, ValidatorException {
+    public void testFilterQuery68() throws InterruptedException {
         log.info("Filter test68");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2113,7 +2113,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery69() throws InterruptedException, ValidatorException {
+    public void testFilterQuery69() throws InterruptedException {
         log.info("Filter test69");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2148,7 +2148,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery70() throws InterruptedException, ValidatorException {
+    public void testFilterQuery70() throws InterruptedException {
         log.info("Filter test70");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2183,7 +2183,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery71() throws InterruptedException, ValidatorException {
+    public void testFilterQuery71() throws InterruptedException {
         log.info("Filter test71");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2219,7 +2219,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery72() throws InterruptedException, ValidatorException {
+    public void testFilterQuery72() throws InterruptedException {
         log.info("Filter test72");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2254,7 +2254,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery73() throws InterruptedException, ValidatorException {
+    public void testFilterQuery73() throws InterruptedException {
         log.info("Filter test73");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2289,7 +2289,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery74() throws InterruptedException, ValidatorException {
+    public void testFilterQuery74() throws InterruptedException {
         log.info("Filter test74");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2325,7 +2325,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery75() throws InterruptedException, ValidatorException {
+    public void testFilterQuery75() throws InterruptedException {
         log.info("Filter test75");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2360,7 +2360,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery76() throws InterruptedException, ValidatorException {
+    public void testFilterQuery76() throws InterruptedException {
         log.info("Filter test76");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2395,7 +2395,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery77() throws InterruptedException, ValidatorException {
+    public void testFilterQuery77() throws InterruptedException {
         log.info("Filter test77");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2430,7 +2430,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery78() throws InterruptedException, ValidatorException {
+    public void testFilterQuery78() throws InterruptedException {
         log.info("Filter test78");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2465,7 +2465,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery79() throws InterruptedException, ValidatorException {
+    public void testFilterQuery79() throws InterruptedException {
         log.info("Filter test79");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2504,7 +2504,7 @@ public class FilterTestCase {
     //Test cases for less-than operator
 
     @Test
-    public void testFilterQuery80() throws InterruptedException, ValidatorException {
+    public void testFilterQuery80() throws InterruptedException {
         log.info("Filter test80");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2539,7 +2539,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery81() throws InterruptedException, ValidatorException {
+    public void testFilterQuery81() throws InterruptedException {
         log.info("Filter test81");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2574,7 +2574,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery82() throws InterruptedException, ValidatorException {
+    public void testFilterQuery82() throws InterruptedException {
         log.info("Filter test82");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2610,7 +2610,7 @@ public class FilterTestCase {
 
 
     @Test
-    public void testFilterQuery83() throws InterruptedException, ValidatorException {
+    public void testFilterQuery83() throws InterruptedException {
         log.info("Filter test83");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2645,7 +2645,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery84() throws InterruptedException, ValidatorException {
+    public void testFilterQuery84() throws InterruptedException {
         log.info("Filter test84");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2680,7 +2680,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery85() throws InterruptedException, ValidatorException {
+    public void testFilterQuery85() throws InterruptedException {
         log.info("Filter test85");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2715,7 +2715,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery86() throws InterruptedException, ValidatorException {
+    public void testFilterQuery86() throws InterruptedException {
         log.info("Filter test86");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2750,7 +2750,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery87() throws InterruptedException, ValidatorException {
+    public void testFilterQuery87() throws InterruptedException {
         log.info("Filter test87");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2785,7 +2785,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery88() throws InterruptedException, ValidatorException {
+    public void testFilterQuery88() throws InterruptedException {
         log.info("Filter test88");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2820,7 +2820,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery89() throws InterruptedException, ValidatorException {
+    public void testFilterQuery89() throws InterruptedException {
         log.info("Filter test89");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2855,7 +2855,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery90() throws InterruptedException, ValidatorException {
+    public void testFilterQuery90() throws InterruptedException {
         log.info("Filter test90");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2890,7 +2890,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery91() throws InterruptedException, ValidatorException {
+    public void testFilterQuery91() throws InterruptedException {
         log.info("Filter test91");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2925,7 +2925,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery92() throws InterruptedException, ValidatorException {
+    public void testFilterQuery92() throws InterruptedException {
         log.info("Filter test92");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2960,7 +2960,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery93() throws InterruptedException, ValidatorException {
+    public void testFilterQuery93() throws InterruptedException {
         log.info("Filter test93");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -2999,7 +2999,7 @@ public class FilterTestCase {
     // Test cases for Greater_than_equal operator
 
     @Test
-    public void testFilterQuery94() throws InterruptedException, ValidatorException {
+    public void testFilterQuery94() throws InterruptedException {
         log.info("Filter test94");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3034,7 +3034,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery95() throws InterruptedException, ValidatorException {
+    public void testFilterQuery95() throws InterruptedException {
         log.info("Filter test95");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3069,7 +3069,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery96() throws InterruptedException, ValidatorException {
+    public void testFilterQuery96() throws InterruptedException {
         log.info("Filter test96");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3105,7 +3105,7 @@ public class FilterTestCase {
 
 
     @Test
-    public void testFilterQuery97() throws InterruptedException, ValidatorException {
+    public void testFilterQuery97() throws InterruptedException {
         log.info("Filter test97");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3140,7 +3140,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery98() throws InterruptedException, ValidatorException {
+    public void testFilterQuery98() throws InterruptedException {
         log.info("Filter test98");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3175,7 +3175,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery99() throws InterruptedException, ValidatorException {
+    public void testFilterQuery99() throws InterruptedException {
         log.info("Filter test99");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3210,7 +3210,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery100() throws InterruptedException, ValidatorException {
+    public void testFilterQuery100() throws InterruptedException {
         log.info("Filter test100");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3245,7 +3245,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery101() throws InterruptedException, ValidatorException {
+    public void testFilterQuery101() throws InterruptedException {
         log.info("Filter test101");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3280,7 +3280,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery102() throws InterruptedException, ValidatorException {
+    public void testFilterQuery102() throws InterruptedException {
         log.info("Filter test102");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3315,7 +3315,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery103() throws InterruptedException, ValidatorException {
+    public void testFilterQuery103() throws InterruptedException {
         log.info("Filter test103");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3350,7 +3350,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery104() throws InterruptedException, ValidatorException {
+    public void testFilterQuery104() throws InterruptedException {
         log.info("Filter test104");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3385,7 +3385,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery105() throws InterruptedException, ValidatorException {
+    public void testFilterQuery105() throws InterruptedException {
         log.info("Filter test105");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3420,7 +3420,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery106() throws InterruptedException, ValidatorException {
+    public void testFilterQuery106() throws InterruptedException {
         log.info("Filter test106");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3455,7 +3455,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery107() throws InterruptedException, ValidatorException {
+    public void testFilterQuery107() throws InterruptedException {
         log.info("Filter test107");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3489,8 +3489,8 @@ public class FilterTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFilterQuery108() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFilterQuery108() throws InterruptedException {
         log.info("Filter test108");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3523,7 +3523,7 @@ public class FilterTestCase {
     //***********************************************************************************************************************
     //Expression-Add
     @Test
-    public void testFilterQuery109() throws InterruptedException, ValidatorException {
+    public void testFilterQuery109() throws InterruptedException {
         log.info("Filter test109");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3569,7 +3569,7 @@ public class FilterTestCase {
     //*******************************************************************************************************************
     //Expression-Subtract
     @Test
-    public void testFilterQuery110() throws InterruptedException, ValidatorException {
+    public void testFilterQuery110() throws InterruptedException {
         log.info("Filter test110");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3621,7 +3621,7 @@ public class FilterTestCase {
     //************************************************************************************************************************
     //Expression Divide
     @Test
-    public void testFilterQuery111() throws InterruptedException, ValidatorException {
+    public void testFilterQuery111() throws InterruptedException {
         log.info("Filter test111");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3672,7 +3672,7 @@ public class FilterTestCase {
     //*********************************************************************************************************************
     //Expression Multiply
     @Test
-    public void testFilterQuery112() throws InterruptedException, ValidatorException {
+    public void testFilterQuery112() throws InterruptedException {
         log.info("Filter test112");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3724,7 +3724,7 @@ public class FilterTestCase {
     //Expression Mod
 
     @Test
-    public void testFilterQuery113() throws InterruptedException, ValidatorException {
+    public void testFilterQuery113() throws InterruptedException {
         log.info("Filter test113");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3776,7 +3776,7 @@ public class FilterTestCase {
     //true check
 
     @Test
-    public void testFilterQuery114() throws InterruptedException, ValidatorException {
+    public void testFilterQuery114() throws InterruptedException {
         log.info("Filter test114");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -3813,7 +3813,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void testFilterQuery115() throws InterruptedException, ValidatorException {
+    public void testFilterQuery115() throws InterruptedException {
         log.info("Filter test115");
 
         SiddhiManager siddhiManager = new SiddhiManager();

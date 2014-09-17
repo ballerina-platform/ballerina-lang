@@ -30,8 +30,8 @@ public class MinAttributeAggregator implements AttributeAggregator {
 
     private MinAttributeAggregator minOutputAttributeAggregator;
 
-    public void init(Attribute.Type type){
-        switch (type){
+    public void init(Attribute.Type type) {
+        switch (type) {
             case FLOAT:
                 minOutputAttributeAggregator = new MinAttributeAggregatorFloat();
                 break;
@@ -76,9 +76,9 @@ public class MinAttributeAggregator implements AttributeAggregator {
 
     class MinAttributeAggregatorDouble extends MinAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private Deque<Double> minDeque = new LinkedList<Double>();
         private volatile Double minValue = null;
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -94,7 +94,7 @@ public class MinAttributeAggregator implements AttributeAggregator {
                 }
             }
             minDeque.addLast(value);
-            if(minValue==null) {
+            if (minValue == null) {
                 minValue = value;
             } else if (minValue > value) {
                 minValue = value;
@@ -118,9 +118,9 @@ public class MinAttributeAggregator implements AttributeAggregator {
 
     class MinAttributeAggregatorFloat extends MinAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.FLOAT;
         private Deque<Float> minDeque = new LinkedList<Float>();
         private volatile Float minValue = null;
-        private final Attribute.Type type = Attribute.Type.FLOAT;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -136,7 +136,7 @@ public class MinAttributeAggregator implements AttributeAggregator {
                 }
             }
             minDeque.addLast(value);
-            if(minValue==null) {
+            if (minValue == null) {
                 minValue = value;
             } else if (minValue > value) {
                 minValue = value;
@@ -160,9 +160,9 @@ public class MinAttributeAggregator implements AttributeAggregator {
 
     class MinAttributeAggregatorInt extends MinAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.INT;
         private Deque<Integer> minDeque = new LinkedList<Integer>();
         private volatile Integer minValue = null;
-        private final Attribute.Type type = Attribute.Type.INT;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -178,7 +178,7 @@ public class MinAttributeAggregator implements AttributeAggregator {
                 }
             }
             minDeque.addLast(value);
-            if(minValue==null){
+            if (minValue == null) {
                 minValue = value;
             } else if (minValue > value) {
                 minValue = value;
@@ -202,9 +202,9 @@ public class MinAttributeAggregator implements AttributeAggregator {
 
     class MinAttributeAggregatorLong extends MinAttributeAggregator {
 
+        private final Attribute.Type type = Attribute.Type.LONG;
         private Deque<Long> minDeque = new LinkedList<Long>();
         private volatile Long minValue = null;
-        private final Attribute.Type type = Attribute.Type.LONG;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -220,7 +220,7 @@ public class MinAttributeAggregator implements AttributeAggregator {
                 }
             }
             minDeque.addLast(value);
-            if(minValue==null){
+            if (minValue == null) {
                 minValue = value;
             } else if (minValue > value) {
                 minValue = value;

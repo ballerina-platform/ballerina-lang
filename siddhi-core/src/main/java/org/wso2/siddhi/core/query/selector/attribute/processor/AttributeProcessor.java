@@ -40,10 +40,6 @@ public class AttributeProcessor {
         event.setOutputData(expressionExecutor.execute(event), outputPosition);
     }
 
-    public void setOutputPosition(int position) {
-        this.outputPosition = position;
-    }
-
     public AttributeProcessor cloneProcessor() {
         AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor.cloneExecutor());
         attributeProcessor.setOutputPosition(this.outputPosition);
@@ -53,5 +49,9 @@ public class AttributeProcessor {
 
     public int getOutputPosition() {
         return outputPosition;
+    }
+
+    public void setOutputPosition(int position) {
+        this.outputPosition = position;
     }
 }

@@ -39,7 +39,7 @@ public class DivideExpressionExecutorDouble implements ExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new DivideExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new DivideExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 
 }

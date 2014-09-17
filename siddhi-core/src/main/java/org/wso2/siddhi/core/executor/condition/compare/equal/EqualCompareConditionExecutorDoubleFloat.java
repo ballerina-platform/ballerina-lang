@@ -32,6 +32,6 @@ public class EqualCompareConditionExecutorDoubleFloat extends
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new EqualCompareConditionExecutorDoubleFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new EqualCompareConditionExecutorDoubleFloat(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

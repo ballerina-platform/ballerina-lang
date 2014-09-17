@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -34,10 +33,10 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.execution.query.Query;
 
 public class PassThroughTestCase {
     static final Logger log = Logger.getLogger(PassThroughTestCase.class);
@@ -52,7 +51,7 @@ public class PassThroughTestCase {
 
 
     @Test
-    public void PassThroughTest1() throws InterruptedException, ValidatorException {
+    public void PassThroughTest1() throws InterruptedException {
         log.info("pass through test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -94,7 +93,7 @@ public class PassThroughTestCase {
     }
 
     @Test
-    public void PassThroughTest2() throws InterruptedException, ValidatorException {
+    public void PassThroughTest2() throws InterruptedException {
         log.info("pass through test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -138,7 +137,7 @@ public class PassThroughTestCase {
     }
 
     @Test
-    public void PassThroughTest3() throws InterruptedException, ValidatorException {
+    public void PassThroughTest3() throws InterruptedException {
         log.info("pass through test3");
         SiddhiManager siddhiManager = new SiddhiManager();
 

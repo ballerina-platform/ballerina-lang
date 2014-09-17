@@ -112,7 +112,7 @@ public class StreamJunction {
             }
         } else {
             for (Receiver receiver : receivers) {
-                receiver.receive(timeStamp,data);
+                receiver.receive(timeStamp, data);
             }
         }
     }
@@ -216,15 +216,15 @@ public class StreamJunction {
         }
 
         public void send(StreamEvent streamEvent) {
-                streamJunction.sendEvent(streamEvent);
+            streamJunction.sendEvent(streamEvent);
         }
 
         public void send(Event event) {
-                streamJunction.sendEvent(event);
+            streamJunction.sendEvent(event);
         }
 
         public void send(long timeStamp, Object[] data) {
-                streamJunction.sendData(timeStamp, data);
+            streamJunction.sendData(timeStamp, data);
         }
 
         public String getStreamId() {

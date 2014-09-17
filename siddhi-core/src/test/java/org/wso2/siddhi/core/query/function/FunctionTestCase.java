@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -36,10 +35,12 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
+import sun.security.validator.ValidatorException;
 
 public class FunctionTestCase {
     static final Logger log = Logger.getLogger(FunctionTestCase.class);
@@ -55,7 +56,7 @@ public class FunctionTestCase {
     //Coalesce
 
     @Test
-    public void FunctionTest1() throws InterruptedException, ValidatorException {
+    public void FunctionTest1() throws InterruptedException {
         log.info("function test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -68,7 +69,7 @@ public class FunctionTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.function("coalesce",new Expression[]{Expression.variable("price1"),Expression.variable("price2")}))
+                        select("price", Expression.function("coalesce", new Expression[]{Expression.variable("price1"), Expression.variable("price2")}))
         );
         query.insertInto("StockQuote");
 
@@ -81,14 +82,14 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;
+                count = count + inEvents.length;
                 eventArrived = true;
                 if (count == 1) {
                     Assert.assertEquals(55.6f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
                     Assert.assertEquals(65.7f, inEvents[0].getData()[1]);
                 } else if (count == 3) {
-                   Assert.assertEquals(23.6f, inEvents[0].getData()[1]);
+                    Assert.assertEquals(23.6f, inEvents[0].getData()[1]);
                 } else if (count == 4) {
                     Assert.assertEquals(34.6f, inEvents[0].getData()[1]);
                 } else if (count == 5) {
@@ -110,15 +111,15 @@ public class FunctionTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void FunctionTest2() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void FunctionTest2() throws InterruptedException {
         log.info("function test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 double, price2 float, volume long , quantity int);";
         String query = "@info(name = 'query1') from cseEventStream select symbol, coalesce(price1,price2) as price,quantity insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream+query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 2, siddhiManager.getSiddhiContext()) {
             @Override
@@ -148,7 +149,7 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery3() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery3() throws InterruptedException {
         log.info("Function test3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -157,7 +158,7 @@ public class FunctionTestCase {
         String query = "@info(name = 'query1') from cseEventStream[coalesce(price1,price2) > 0f] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream+query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
             @Override
@@ -187,15 +188,16 @@ public class FunctionTestCase {
     //isMatch
 
     @Test
-    public void testFunctionQuery4() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery4() throws InterruptedException {
         log.info("Function test4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-       
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[isMatch('[^//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream+query);
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
+        String query = "@info(name = 'query1') from cseEventStream[isMatch('[^//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
             @Override
@@ -225,14 +227,14 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery5() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery5() throws InterruptedException {
         log.info("Function test5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
         String query =  "@info(name = 'query1') from cseEventStream[not isMatch('[//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
-
+                
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
@@ -264,7 +266,7 @@ public class FunctionTestCase {
 
 
     @Test
-    public void testFunctionQuery6() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery6() throws InterruptedException {
         log.info("Function test6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -280,7 +282,7 @@ public class FunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count+inEvents.length;;
                 if (count == 1) {
-                   Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
+                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
                     Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
                 } else if (count == 3) {
@@ -302,7 +304,7 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery7() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery7() throws InterruptedException {
         log.info("Function test7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -340,7 +342,7 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery8() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery8() throws InterruptedException {
         log.info("Function test8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -371,7 +373,7 @@ public class FunctionTestCase {
     //Concat
 
     @Test
-    public void testFunctionQuery9() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery9() throws InterruptedException {
         log.info("Function test9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -398,7 +400,7 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery10() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery10() throws InterruptedException {
         log.info("Function test10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -426,7 +428,7 @@ public class FunctionTestCase {
     //sin
 
     @Test
-    public void testFunctionQuery11() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery11() throws InterruptedException {
         log.info("Function test11");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -453,7 +455,7 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery12() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery12() throws InterruptedException {
         log.info("Function test12");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -480,7 +482,7 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery13() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery13() throws InterruptedException {
         log.info("Function test13");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -508,7 +510,7 @@ public class FunctionTestCase {
 
 
     @Test
-    public void testFunctionQuery14() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery14() throws InterruptedException {
         log.info("Function test14");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -534,8 +536,8 @@ public class FunctionTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
-    public void testFunctionQuery15() throws InterruptedException, ValidatorException {
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testFunctionQuery15() throws InterruptedException {
         log.info("Function test15");
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -561,7 +563,7 @@ public class FunctionTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
+    @Test(expected = ExecutionPlanValidationException.class)
     public void testFunctionQuery16() throws InterruptedException, ValidatorException {
         log.info("Function test16");
 
@@ -599,7 +601,7 @@ public class FunctionTestCase {
 
     }
 
-    @Test(expected = OperationNotSupportedException.class)
+    @Test(expected = ExecutionPlanValidationException.class)
     public void testFunctionQuery17() throws InterruptedException, ValidatorException {
         log.info("Function test17");
 
@@ -636,6 +638,5 @@ public class FunctionTestCase {
         Assert.assertEquals(4, count);
 
     }
-
 
 }

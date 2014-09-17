@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class SiddhiContext {
 

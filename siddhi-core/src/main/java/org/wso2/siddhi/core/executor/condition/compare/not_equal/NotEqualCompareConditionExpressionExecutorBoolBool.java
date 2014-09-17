@@ -28,6 +28,6 @@ public class NotEqualCompareConditionExpressionExecutorBoolBool extends NotEqual
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return new NotEqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+        return new NotEqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
     }
 }

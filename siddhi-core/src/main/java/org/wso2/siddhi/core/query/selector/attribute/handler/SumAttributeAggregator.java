@@ -26,8 +26,8 @@ public class SumAttributeAggregator implements AttributeAggregator {
 
     private SumAttributeAggregator sumOutputAttributeAggregator;
 
-    public void init(Attribute.Type type){
-        switch (type){
+    public void init(Attribute.Type type) {
+        switch (type) {
             case FLOAT:
                 sumOutputAttributeAggregator = new SumAttributeAggregatorFloat();
                 break;
@@ -45,6 +45,7 @@ public class SumAttributeAggregator implements AttributeAggregator {
         }
 
     }
+
     public Attribute.Type getReturnType() {
         return sumOutputAttributeAggregator.getReturnType();
     }
@@ -71,8 +72,8 @@ public class SumAttributeAggregator implements AttributeAggregator {
 
     class SumAttributeAggregatorDouble extends SumAttributeAggregator {
 
-        private double value = 0.0;
         private final Attribute.Type type = Attribute.Type.DOUBLE;
+        private double value = 0.0;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -99,8 +100,8 @@ public class SumAttributeAggregator implements AttributeAggregator {
 
     class SumAttributeAggregatorFloat extends SumAttributeAggregator {
 
-        private double value = 0.0;
         private final Attribute.Type type = Attribute.Type.DOUBLE;
+        private double value = 0.0;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -127,8 +128,8 @@ public class SumAttributeAggregator implements AttributeAggregator {
 
     class SumAttributeAggregatorInt extends SumAttributeAggregator {
 
-        private long value = 0L;
         private final Attribute.Type type = Attribute.Type.LONG;
+        private long value = 0L;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -155,8 +156,8 @@ public class SumAttributeAggregator implements AttributeAggregator {
 
     class SumAttributeAggregatorLong extends SumAttributeAggregator {
 
-        private long value = 0L;
         private final Attribute.Type type = Attribute.Type.LONG;
+        private long value = 0L;
 
         public Attribute.Type getReturnType() {
             return type;
