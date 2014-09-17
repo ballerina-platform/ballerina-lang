@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
@@ -35,7 +36,16 @@ import java.util.Map;
 
 public class InputStreamParser {
 
-
+    /**
+     * Parse an InputStream returning corresponding StreamRuntime
+     *
+     * @param inputStream    input stream to be parsed
+     * @param context        associated siddhi context
+     * @param definitionMap  map containing user given stream definitions
+     * @param metaStateEvent Meta event used to collect execution info of stream associated with query
+     * @param executors      List to hold VariableExpressionExecutors to update after query parsing
+     * @return
+     */
     public static StreamRuntime parse(InputStream inputStream, SiddhiContext context, Map<String, AbstractDefinition> definitionMap,
                                       MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
@@ -59,7 +69,11 @@ public class InputStreamParser {
      */
     private static MetaStreamEvent generateMetaStreamEvent(InputStream inputStream, Map<String, AbstractDefinition> definitionMap) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.setDefinition(definitionMap.get(((SingleInputStream) inputStream).getStreamId()));
+        if (definitionMap != null && definitionMap.containsKey(((SingleInputStream) inputStream).getStreamId())) {
+            metaStreamEvent.setDefinition(definitionMap.get(((SingleInputStream) inputStream).getStreamId()));
+        } else {
+            throw new DefinitionNotExistException("Stream definition with stream ID" + ((SingleInputStream) inputStream).getStreamId() + " has not been defined");
+        }
         if ((((SingleInputStream) inputStream).getStreamReferenceId() != null) && !(((SingleInputStream) inputStream).getStreamId()).equals(((SingleInputStream) inputStream).getStreamReferenceId())) { //if ref id is provided
             metaStreamEvent.setReferenceId(((SingleInputStream) inputStream).getStreamReferenceId());
         }

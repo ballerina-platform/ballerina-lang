@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.ValuePartitionExecutor;
@@ -40,17 +39,13 @@ public class QueryPartitioner {
 
     public QueryPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent, SiddhiContext siddhiContext) {
         if (partition != null) {
-           if (inputStream instanceof BasicSingleInputStream) {
+            if (inputStream instanceof BasicSingleInputStream) {
                 List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
                 partitionExecutors.add(executorList);
                 for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
                     if (partitionType instanceof ValuePartitionType) {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
-                            try {
-                                executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(), ((BasicSingleInputStream) inputStream).getStreamId(), siddhiContext, null, metaStreamEvent, new ArrayList<VariableExpressionExecutor>())));//TODO: add correct streamDefinition map as 4th parameter
-                            } catch (ValidatorException e) {
-                                //This will never happen
-                            }
+                            executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(), siddhiContext, metaStreamEvent, new ArrayList<VariableExpressionExecutor>())));//TODO: add correct streamDefinition map as 4th parameter
                         }
                     } else {
                         //TODO: range partitioning
@@ -64,7 +59,6 @@ public class QueryPartitioner {
     public List<List<PartitionExecutor>> getPartitionExecutors() {
         return partitionExecutors;
     }
-
 
 
 }

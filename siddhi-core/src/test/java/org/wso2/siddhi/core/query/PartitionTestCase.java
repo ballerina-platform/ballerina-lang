@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -56,7 +55,7 @@ public class PartitionTestCase {
     }
 
     @Test
-    public void PartitionTest() throws InterruptedException, ValidatorException {
+    public void PartitionTest() throws InterruptedException {
         log.info("partition test");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -103,7 +102,7 @@ public class PartitionTestCase {
     }
 
     @Test
-    public void testPartitionQuery1() throws InterruptedException, ValidatorException {
+    public void testPartitionQuery1() throws InterruptedException {
         log.info("Partition test1");
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan1");
@@ -161,7 +160,7 @@ public class PartitionTestCase {
     }
 
     @Test
-    public void testPartitionQuery2() throws InterruptedException, ValidatorException {
+    public void testPartitionQuery2() throws InterruptedException {
         log.info("Partition test2");
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan1");
@@ -217,7 +216,7 @@ public class PartitionTestCase {
     }
 
     @Test
-    public void testPartitionQuery3() throws InterruptedException, ValidatorException {
+    public void testPartitionQuery3() throws InterruptedException {
         log.info("Partition test3");
 
 
@@ -284,7 +283,7 @@ public class PartitionTestCase {
 
 
     @Test
-    public void testPartitionQuery4() throws InterruptedException, ValidatorException {
+    public void testPartitionQuery4() throws InterruptedException {
         log.info("Partition test4");
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan1");
@@ -393,7 +392,7 @@ public class PartitionTestCase {
     }
 
     @Test
-    public void testPartitionQuery5() throws InterruptedException, ValidatorException {
+    public void testPartitionQuery5() throws InterruptedException {
         log.info("Partition test5");
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan1");
@@ -550,7 +549,7 @@ public class PartitionTestCase {
     }
 
     @Test
-    public void testPartitionQuery6() throws InterruptedException, ValidatorException {
+    public void testPartitionQuery6() throws InterruptedException {
         log.info("Partition test6");
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan1");

@@ -12,157 +12,61 @@
  */
 package org.wso2.siddhi.core.validator;
 
-import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.exception.ValidatorException;
-import org.wso2.siddhi.core.util.validate.InStreamValidator;
-import org.wso2.siddhi.core.util.validate.OutStreamValidator;
-import org.wso2.siddhi.core.util.validate.QueryValidator;
-import org.wso2.siddhi.core.util.validate.SelectorValidator;
-import org.wso2.siddhi.query.api.ExecutionPlan;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 public class SimpleQueryValidatorTestCase {
-    static final Logger log = Logger.getLogger(SimpleQueryValidatorTestCase.class);
-    private Map<String, StreamDefinition> definitionMap;
-    private Map<String, String> renameMap;
-    private List<StreamDefinition> streamDefinitionList;
 
-    private ExecutionPlan executionPlan;
-    private Query query;
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testQueryWithNotExistingAttributes() throws InterruptedException {
 
-    private StreamDefinition testDefinition1;
-    private StreamDefinition testDefinition2;
-    private StreamDefinition testDefinition3;
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
+        String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol1,price,volume insert into outputStream ;";
 
-    @Before
-    public void init() {
-        testDefinition1 = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
-        testDefinition2 = StreamDefinition.id("OutStockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        testDefinition3 = StreamDefinition.id("TwitterStream").attribute("symbol", Attribute.Type.STRING).attribute("wordCount", Attribute.Type.INT);
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query));
+    }
 
-        definitionMap = new HashMap<String, StreamDefinition>(2);
-        definitionMap.put(testDefinition1.getId(), testDefinition1);
-        definitionMap.put(testDefinition2.getId(), testDefinition2);
-        definitionMap.put(testDefinition3.getId(), testDefinition3);
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testQueryWithDuplicateDefinition() throws InterruptedException {
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
+        String duplicateStream = "define stream outputStream (symbol string, price float);";
+        String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert into outputStream ;";
 
-        streamDefinitionList = new ArrayList<StreamDefinition>();
-        streamDefinitionList.add(testDefinition1);
-        streamDefinitionList.add(testDefinition2);
-        renameMap = new HashMap<String, String>(2);
-        renameMap.put(testDefinition1.getId(), testDefinition1.getId());
-        renameMap.put(testDefinition2.getId(), testDefinition2.getId());
-        renameMap.put(testDefinition3.getId(), testDefinition3.getId());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + duplicateStream + query));
+    }
 
-        query = new Query();
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testInvalidFilterCondition1() throws InterruptedException {
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
+        String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price,volume insert into outputStream ;";
 
-        query.
-                annotation(Annotation.annotation("info").element("name", "Query1").element("summary", "Test Query")).
-                from(
-                        InputStream.joinStream(
-                                InputStream.stream("StockStream").
-                                        window("lengthBatch", Expression.value(50)),
-                                JoinInputStream.Type.JOIN,
-                                InputStream.stream("TwitterStream").
-                                        filter(
-                                                Expression.compare(
-                                                        Expression.value(50),
-                                                        Compare.Operator.GREATER_THAN,
-                                                        Expression.variable("wordCount").ofStream("TwitterStream")
-                                                )
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query));
+    }
 
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void testInvalidFilterCondition2() throws InterruptedException {
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
+        String query = "@info(name = 'query1') from cseEventStream[not(price)] select symbol,price,volume insert into outputStream ;";
 
-                                        ).window("lengthBatch", Expression.value(50)),
-                                Expression.compare(
-                                        Expression.variable("symbol").ofStream("StockStream"),
-                                        Compare.Operator.EQUAL,
-                                        Expression.variable("symbol").ofStream("TwitterStream"))
-                        )
-                ).
-                select(
-                        Selector.selector().
-                                select("symbol", Expression.variable("symbol").ofStream("StockStream")).
-                                select("price", Expression.variable("price")).
-                                groupBy(Expression.variable("symbol").ofStream("StockStream")).
-                                having(
-                                        Expression.compare(
-                                                Expression.value(50),
-                                                Compare.Operator.GREATER_THAN,
-                                                Expression.variable("price"))
-                                )
-                ).
-                insertInto("OutStockStream", OutputStream.OutputEventType.EXPIRED_EVENTS);
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query));
+
     }
 
     @Test
-    public void streamDefinitionValidatorWithValidStreamTest() throws ValidatorException {
-        StreamDefinition testDefinition = StreamDefinition.id("OutStockStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT);
-        OutStreamValidator.validate(definitionMap, testDefinition);
-    }
+    public void testComplexFilterQuery1() throws InterruptedException {
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long, available bool);";
+        String query = "@info(name = 'query1') from cseEventStream[available] select symbol,price,volume insert into outputStream ;";
 
-    @Test(expected = ValidatorException.class)
-    public void streamDefinitionValidatorWithInvalidStreamTest() throws ValidatorException {
-        StreamDefinition testDefinition = StreamDefinition.id("OutStockStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT);
-        OutStreamValidator.validate(definitionMap, testDefinition);
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query));
     }
 
     @Test
-    public void streamDefinitionValidatorWithSameStreamTest() throws ValidatorException {
-        StreamDefinition testDefinition = StreamDefinition.id("OutStockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        OutStreamValidator.validate(definitionMap, testDefinition);
-    }
+    public void testComplexFilterQuery2() throws InterruptedException {
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long, available bool);";
+        String query = "@info(name = 'query1') from cseEventStream[available and price>50] select symbol,price,volume insert into outputStream ;";
 
-    @Test
-    public void inStreamValidatorTest() throws ValidatorException {
-        Map<String, StreamDefinition> sampleRenameMap = new HashMap<String, StreamDefinition>();
-        InStreamValidator.validate(query.getInputStream(), definitionMap, sampleRenameMap);
-    }
-
-    @Test
-    public void SelectorValidatorTest() throws ValidatorException {
-        Map<String, StreamDefinition> sampleRenameMap = new HashMap<String, StreamDefinition>();
-        sampleRenameMap.put(testDefinition1.getId(), testDefinition1);
-        sampleRenameMap.put(testDefinition3.getId(), testDefinition3);
-        SelectorValidator.validate(query.getSelector(), sampleRenameMap);
-        query.getSelector();
-    }
-
-    @Test(expected = ValidatorException.class)
-    public void SelectorValidatorInvalidTest() throws ValidatorException {
-        Selector selector = Selector.selector().
-                select("symbol", Expression.variable("symbol1")).
-                select("price", Expression.variable("price"));
-        Map<String, StreamDefinition> sampleRenameMap = new HashMap<String, StreamDefinition>();
-        sampleRenameMap.put("testDef", testDefinition1);
-        SelectorValidator.validate(selector, sampleRenameMap);
-    }
-
-    @Test
-    public void QueryValidatorTestCase() throws ValidatorException {
-        QueryValidator.validate(query, definitionMap);
-    }
-
-    @Test(expected = ValidatorException.class)
-    public void QueryValidatorWithInvalidQueryTestCase() throws ValidatorException {
-        query.select(
-                Selector.selector().
-                        select("symbol_dummy", Expression.variable("symbol_dummy").ofStream("StockStream"))
-        );
-        QueryValidator.validate(query, definitionMap);
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query));
     }
 }

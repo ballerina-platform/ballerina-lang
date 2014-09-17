@@ -22,7 +22,6 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.ComplexMetaEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -70,7 +69,6 @@ import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.math.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class to parse Expressions and create Expression executors.
@@ -80,56 +78,54 @@ public class ExpressionParser {
     /**
      * Parse the given expression and create the appropriate Executor by recursively traversing the expression
      *
-     * @param expression             Expression to be parsed
-     * @param currentStreamReference Stream id associated with current expression
-     * @param siddhiContext          Associated Siddhi Context to be used when parsing Function Expressions
-     * @param streamDefinitionMap    Map containing all relevant stream definitions for parsing the expression
+     * @param expression    Expression to be parsed
+     * @param siddhiContext Associated Siddhi Context to be used when parsing Function Expressions
      * @param metaEvent
-     * @param executorList           List to hold VariableExpressionExecutors to update after query parsing  @return
-     * @throws ValidatorException
+     * @param executorList  List to hold VariableExpressionExecutors to update after query parsing  @return
+     * @
      */
-    public static ExpressionExecutor parseExpression(Expression expression, String currentStreamReference, SiddhiContext siddhiContext,
-                                                     Map<String, StreamDefinition> streamDefinitionMap, ComplexMetaEvent metaEvent,
-                                                     List<VariableExpressionExecutor> executorList) throws ValidatorException {
+    public static ExpressionExecutor parseExpression(Expression expression, SiddhiContext siddhiContext,
+                                                     ComplexMetaEvent metaEvent,
+                                                     List<VariableExpressionExecutor> executorList) {
         if (expression instanceof And) {
             return new AndConditionExpressionExecutor(
-                    parseExpression(((And) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                    parseExpression(((And) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                    parseExpression(((And) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                    parseExpression(((And) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
         } else if (expression instanceof Or) {
             return new OrConditionExpressionExecutor(
-                    parseExpression(((Or) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                    parseExpression(((Or) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                    parseExpression(((Or) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                    parseExpression(((Or) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
         } else if (expression instanceof Not) {
-            return new NotConditionExpressionExecutor(parseExpression(((Not) expression).getExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+            return new NotConditionExpressionExecutor(parseExpression(((Not) expression).getExpression(), siddhiContext, metaEvent, executorList));
         } else if (expression instanceof Compare) {
             if (((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 return parseEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             } else if (((Compare) expression).getOperator() == Compare.Operator.NOT_EQUAL) {
                 return parseNotEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN) {
                 return parseGreaterThanCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN_EQUAL) {
                 return parseGreaterThanEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN) {
                 return parseLessThanCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN_EQUAL) {
                 return parseLessThanEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             } else if (((Compare) expression).getOperator() == Compare.Operator.CONTAINS) {
                 return parseContainsCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList),
-                        parseExpression(((Compare) expression).getRightExpression(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList));
+                        parseExpression(((Compare) expression).getLeftExpression(), siddhiContext, metaEvent, executorList),
+                        parseExpression(((Compare) expression).getRightExpression(), siddhiContext, metaEvent, executorList));
             }
 
         } else if (expression instanceof Constant) {
@@ -148,11 +144,11 @@ public class ExpressionParser {
             }
 
         } else if (expression instanceof Variable) {
-            return parseVariable((Variable) expression, currentStreamReference, streamDefinitionMap, metaEvent, executorList);
+            return parseVariable((Variable) expression, metaEvent, executorList);
 
         } else if (expression instanceof Multiply) {
-            ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
-            ExpressionExecutor right = parseExpression(((Multiply) expression).getRightValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
+            ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), siddhiContext, metaEvent, executorList);
+            ExpressionExecutor right = parseExpression(((Multiply) expression).getRightValue(), siddhiContext, metaEvent, executorList);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -166,8 +162,8 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Add) {
-            ExpressionExecutor left = parseExpression(((Add) expression).getLeftValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
-            ExpressionExecutor right = parseExpression(((Add) expression).getRightValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
+            ExpressionExecutor left = parseExpression(((Add) expression).getLeftValue(), siddhiContext, metaEvent, executorList);
+            ExpressionExecutor right = parseExpression(((Add) expression).getRightValue(), siddhiContext, metaEvent, executorList);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -181,8 +177,8 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Subtract) {
-            ExpressionExecutor left = parseExpression(((Subtract) expression).getLeftValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
-            ExpressionExecutor right = parseExpression(((Subtract) expression).getRightValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
+            ExpressionExecutor left = parseExpression(((Subtract) expression).getLeftValue(), siddhiContext, metaEvent, executorList);
+            ExpressionExecutor right = parseExpression(((Subtract) expression).getRightValue(), siddhiContext, metaEvent, executorList);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -196,8 +192,8 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Mod) {
-            ExpressionExecutor left = parseExpression(((Mod) expression).getLeftValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
-            ExpressionExecutor right = parseExpression(((Mod) expression).getRightValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
+            ExpressionExecutor left = parseExpression(((Mod) expression).getLeftValue(), siddhiContext, metaEvent, executorList);
+            ExpressionExecutor right = parseExpression(((Mod) expression).getRightValue(), siddhiContext, metaEvent, executorList);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -211,8 +207,8 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
         } else if (expression instanceof Divide) {
-            ExpressionExecutor left = parseExpression(((Divide) expression).getLeftValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
-            ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), currentStreamReference, siddhiContext, streamDefinitionMap, metaEvent, executorList);
+            ExpressionExecutor left = parseExpression(((Divide) expression).getLeftValue(), siddhiContext, metaEvent, executorList);
+            ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), siddhiContext, metaEvent, executorList);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -809,74 +805,24 @@ public class ExpressionParser {
     /**
      * Parse and validate the given Siddhi variable and return a VariableExpressionExecutor
      *
-     * @param variable               Variable to be parsed
-     * @param currentStreamReference Stream id associated with current expression
-     * @param streamDefinitionMap    Map containing all relevant stream definitions for parsing the expression
-     * @param metaEvent              Meta event used to collect execution info of stream associated with query
-     * @param executorList           List to hold VariableExpressionExecutors to update after query parsing
+     * @param variable     Variable to be parsed
+     * @param metaEvent    Meta event used to collect execution info of stream associated with query
+     * @param executorList List to hold VariableExpressionExecutors to update after query parsing
      * @return VariableExpressionExecutor representing given variable
-     * @throws ValidatorException
      */
-    private static ExpressionExecutor parseVariable(Variable variable, String currentStreamReference, Map<String, StreamDefinition> streamDefinitionMap,
-                                                    ComplexMetaEvent metaEvent, List<VariableExpressionExecutor> executorList) throws ValidatorException {
+    private static ExpressionExecutor parseVariable(Variable variable,
+                                                    ComplexMetaEvent metaEvent, List<VariableExpressionExecutor> executorList) {
         String attributeName = variable.getAttributeName();
-        String streamId = variable.getStreamId();
-        String[] attributeNameArray;
-        if (metaEvent == null) {  //validation step
-            if (streamDefinitionMap == null) {    //stream definition map should be present
-                throw new ValidatorException("Provided stream definition map is null");
-            }
-            if (streamId == null) {
-                if (currentStreamReference != null) {
-                    if (streamDefinitionMap.containsKey(currentStreamReference)) {
-                        attributeNameArray = streamDefinitionMap.get(currentStreamReference).getAttributeNameArray();
-                        streamId = currentStreamReference;
-                    } else {
-                        throw new ValidatorException("Can not find a stream definition named " + currentStreamReference);
-                    }
-                } else { //if current stream reference is also null check for unique attribute
-                    int count = 0;
-                    for (Map.Entry<String, StreamDefinition> entry : streamDefinitionMap.entrySet()) {
-                        attributeNameArray = entry.getValue().getAttributeNameArray();
-                        for (String anAttributeNameArray : attributeNameArray) {           //iterate through attribute list
-                            if (anAttributeNameArray.equals(attributeName)) {
-                                count++;
-                                streamId = entry.getKey();
-                            }
-                        }
-                    }
-                    if (count == 1) {
-                        attributeNameArray = streamDefinitionMap.get(streamId).getAttributeNameArray();
-                    } else if (count == 0) {
-                        throw new ValidatorException("Could not find an attribute named " + attributeName);
-                    } else {
-                        throw new ValidatorException("Could not find an unique attribute named " + attributeName);
-                    }
-                }
-            } else {
-                attributeNameArray = streamDefinitionMap.get(streamId).getAttributeNameArray();
-            }
-            if (attributeNameArray != null) {
-                for (String resultAttributeName : attributeNameArray) {           //iterate through attribute list
-                    if (attributeName.equals(resultAttributeName)) {
-                        return new VariableExpressionExecutor(attributeName, streamDefinitionMap.get(streamId));
-                    }
-                }
-                throw new ValidatorException("Stream definition " + streamId + " does not contain an attribute named " + attributeName);
-            } else {
-                throw new ValidatorException("Stream definition " + streamId + " does not contain any attributes");
-            }
+
+        if (metaEvent instanceof MetaStreamEvent) {
+            MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
+            metaEvent.addData(new Attribute(attributeName, metaStreamEvent.getDefinition().getAttributeType(attributeName)));
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName, (StreamDefinition) (metaStreamEvent.getDefinition()));
+            executorList.add(variableExpressionExecutor);
+            return variableExpressionExecutor;
         } else {
-            if (metaEvent instanceof MetaStreamEvent) {
-                MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
-                metaEvent.addData(new Attribute(attributeName, metaStreamEvent.getDefinition().getAttributeType(attributeName)));
-                VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName, (StreamDefinition) (metaStreamEvent.getDefinition()));
-                executorList.add(variableExpressionExecutor);
-                return variableExpressionExecutor;
-            } else {
-                //TODO handle meta state events
-                throw new OperationNotSupportedException("MetaStateEvents are not supported at the moment");
-            }
+            //TODO handle meta state events
+            throw new OperationNotSupportedException("MetaStateEvents are not supported at the moment");
         }
     }
 

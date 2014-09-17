@@ -20,12 +20,8 @@
 package org.wso2.siddhi.core;
 
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.ValidatorException;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
-import org.wso2.siddhi.core.util.validate.QueryValidator;
 import org.wso2.siddhi.query.api.ExecutionPlan;
-import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.UUID;
@@ -45,20 +41,16 @@ public class SiddhiManager {
      * add stream definitions, partitions and queries of an execution plan
      * @param executionPlan  executionPlan which contains stream definitions,queries and partitions
      * @return executionPlanRuntime corresponding to the given executionPlan
-     * @throws ValidatorException
+     * @
      */
-    public ExecutionPlanRuntime addExecutionPlan(ExecutionPlan executionPlan) throws ValidatorException {
-        for (ExecutionElement element : executionPlan.getExecutionElementList()) {
-            if (element instanceof Query) {
-                QueryValidator.validate((Query) element, executionPlan.getStreamDefinitionMap());
-            }//TODO add partition validation
-        }
+    public ExecutionPlanRuntime addExecutionPlan(ExecutionPlan executionPlan) {
+        validateExecutionPlan(executionPlan);
         ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan);
         executionPlanRuntimeMap.put((executionPlan.getName()!= null) ? executionPlan.getName(): UUID.randomUUID().toString(), executionPlanRuntime);
         return executionPlanRuntime;
     }
 
-    public ExecutionPlanRuntime addExecutionPlan(String executionPlan) throws ValidatorException {
+    public ExecutionPlanRuntime addExecutionPlan(String executionPlan) {
         return addExecutionPlan(SiddhiCompiler.parse(executionPlan));
     }
 
@@ -69,6 +61,10 @@ public class SiddhiManager {
     //Todo remove the execution plan from SiddhiManager
     public SiddhiContext getSiddhiContext() {
         return siddhiContext;
+    }
+
+    private void validateExecutionPlan(ExecutionPlan executionPlan) {
+        ExecutionPlanParser.parse(executionPlan);
     }
 
 }
