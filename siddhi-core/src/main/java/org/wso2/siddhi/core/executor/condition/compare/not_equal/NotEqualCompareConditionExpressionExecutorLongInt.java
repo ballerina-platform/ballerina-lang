@@ -30,4 +30,8 @@ public class NotEqualCompareConditionExpressionExecutorLongInt extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new NotEqualCompareConditionExpressionExecutorLongInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

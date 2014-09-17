@@ -28,4 +28,8 @@ public class LessThanCompareConditionExpressionExecutorIntInt extends LessThanCo
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new LessThanCompareConditionExpressionExecutorIntInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

@@ -23,11 +23,13 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuerySelector implements Processor {
@@ -40,11 +42,14 @@ public class QuerySelector implements Processor {
     private boolean expiredOn = false;
     private OutputRateLimiter outputRateLimiter;
     private List<AttributeProcessor> attributeProcessorList;
+    private ConditionExpressionExecutor havingConditionExecutor = null;
+    private boolean isGroupBy = false;
+    private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
+    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
+
     static final Logger log = Logger.getLogger(QuerySelector.class);
 
-
-    //TODO:aggregateAttributeProcessorList and the methods -processOutputAttributeGenerator
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
         this.id = id;
@@ -61,11 +66,26 @@ public class QuerySelector implements Processor {
             log.trace("event is processed by selector "+ id+ this);
         }*/
 
+        if (isGroupBy) {
+            keyThreadLocal.set(groupByKeyGenerator.constructEventKey(streamEvent));
+        }
+
         //TODO: have to change for windows
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             attributeProcessor.process(streamEvent);
         }
-        outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+
+        if (isGroupBy) {
+            keyThreadLocal.remove();
+        }
+
+        if(havingConditionExecutor == null){
+            outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+        } else {
+            if (havingConditionExecutor.execute(streamEvent)) {
+                outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+            }
+        }
 
     }
 
@@ -105,10 +125,30 @@ public class QuerySelector implements Processor {
         this.attributeProcessorList = attributeProcessorList;
     }
 
-    public QuerySelector clone(String key) {
-        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, siddhiContext);
-        clonedQuerySelector.attributeProcessorList = attributeProcessorList;
+    public void setGroupByKeyGenerator(GroupByKeyGenerator groupByKeyGenerator){
+        isGroupBy = true;
+        this.groupByKeyGenerator = groupByKeyGenerator;
+    }
+
+    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor){
+        this.havingConditionExecutor = havingConditionExecutor;
+    }
+
+    public QuerySelector clone(String key){
+        QuerySelector clonedQuerySelector = new QuerySelector(id+key,selector,currentOn,expiredOn, siddhiContext);
+        List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
+        for(AttributeProcessor attributeProcessor :attributeProcessorList){
+            clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor());
+        }
+        clonedQuerySelector.attributeProcessorList =clonedAttributeProcessorList;
+        clonedQuerySelector.isGroupBy = isGroupBy;
+        clonedQuerySelector.groupByKeyGenerator = groupByKeyGenerator;
+        clonedQuerySelector.havingConditionExecutor = havingConditionExecutor;
         return clonedQuerySelector;
+    }
+
+    public static String getThreadLocalGroupByKey() {
+        return keyThreadLocal.get();
     }
 
 

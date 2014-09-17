@@ -16,19 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
+package org.wso2.siddhi.core.exception;
 
-import org.wso2.siddhi.query.api.definition.Attribute;
+public class CannotLoadClassException extends Exception {
+    public CannotLoadClassException() {
+        super();
+    }
 
-import java.io.Serializable;
+    public CannotLoadClassException(String message) {
+        super(message);
+    }
 
-public interface OutputAttributeAggregator extends Serializable {
+    public CannotLoadClassException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 
-    Attribute.Type getReturnType();
-
-    Object processAdd(Object obj);
-
-    Object processRemove(Object obj);
-
-    OutputAttributeAggregator newInstance();
+    public CannotLoadClassException(Throwable throwable) {
+        super(throwable);
+    }
 }

@@ -30,4 +30,8 @@ public class NotEqualCompareConditionExpressionExecutorIntDouble extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new NotEqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

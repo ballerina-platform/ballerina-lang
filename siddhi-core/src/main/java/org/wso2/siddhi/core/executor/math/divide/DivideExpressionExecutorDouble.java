@@ -37,4 +37,9 @@ public class DivideExpressionExecutorDouble implements ExpressionExecutor {
         return Attribute.Type.DOUBLE;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new DivideExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

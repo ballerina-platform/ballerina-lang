@@ -29,4 +29,8 @@ public class LessThanCompareConditionExpressionExecutorIntFloat extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new LessThanCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

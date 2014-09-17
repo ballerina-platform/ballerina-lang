@@ -15,10 +15,11 @@ package org.wso2.siddhi.core.executor.function;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 
 import java.util.List;
 
-public abstract class FunctionExecutor implements ExpressionExecutor {
+public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder {
 
     protected List<ExpressionExecutor> attributeExpressionExecutors;
     protected SiddhiContext siddhiContext;

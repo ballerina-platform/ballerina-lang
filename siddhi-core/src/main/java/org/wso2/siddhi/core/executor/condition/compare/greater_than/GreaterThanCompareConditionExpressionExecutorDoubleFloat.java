@@ -29,4 +29,8 @@ public class GreaterThanCompareConditionExpressionExecutorDoubleFloat extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new GreaterThanCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

@@ -25,4 +25,9 @@ public class EqualCompareConditionExpressionExecutorBoolBool extends EqualCompar
     protected Boolean execute(Object left, Object right) {
         return ((Boolean) left).booleanValue() == ((Boolean) right).booleanValue();
     }
+
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new EqualCompareConditionExpressionExecutorBoolBool(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

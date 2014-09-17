@@ -28,4 +28,8 @@ public class LessThanCompareConditionExpressionExecutorFloatFloat extends
         return (Float) left < (Float) right;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new LessThanCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

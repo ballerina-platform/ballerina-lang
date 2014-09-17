@@ -37,4 +37,9 @@ public class SubtractExpressionExecutorDouble implements ExpressionExecutor {
         return Attribute.Type.DOUBLE;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new SubtractExpressionExecutorDouble(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

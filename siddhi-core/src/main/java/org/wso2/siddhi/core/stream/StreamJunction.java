@@ -117,6 +117,9 @@ public class StreamJunction {
         }
     }
 
+    /**
+     * create and start disruptor based on annotations given in the streamDefinition
+     */
     public synchronized void startProcessing() {
         if (!receivers.isEmpty()) {
 

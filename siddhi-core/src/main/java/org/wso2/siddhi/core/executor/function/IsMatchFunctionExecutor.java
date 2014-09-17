@@ -70,9 +70,18 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
+    public ExpressionExecutor cloneExecutor() {
+        return this;
+    }
+
+    @Override
     public Object execute(StreamEvent event) {
         return execute(expressionExecutor.execute(event));
     }
 
 
+    @Override
+    public void destroy() {
+        //nothing to destroy
+    }
 }

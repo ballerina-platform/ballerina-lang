@@ -30,4 +30,8 @@ public class EqualCompareConditionExpressionExecutorDoubleInt extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new EqualCompareConditionExpressionExecutorDoubleInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

@@ -30,4 +30,8 @@ public class LessThanEqualCompareConditionExpressionExecutorDoubleFloat extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new LessThanEqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

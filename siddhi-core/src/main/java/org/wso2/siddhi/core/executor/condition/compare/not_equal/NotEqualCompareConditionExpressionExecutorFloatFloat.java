@@ -28,4 +28,8 @@ public class NotEqualCompareConditionExpressionExecutorFloatFloat extends
         return ((Float) left).floatValue() != ((Float) right).floatValue();
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new NotEqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

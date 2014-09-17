@@ -37,4 +37,9 @@ public class AddExpressionExecutorInt implements ExpressionExecutor {
         return Attribute.Type.INT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new AddExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

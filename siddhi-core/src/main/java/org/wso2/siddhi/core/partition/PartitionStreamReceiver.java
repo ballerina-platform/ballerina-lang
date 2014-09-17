@@ -58,7 +58,6 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         eventConstructor = StreamEventConverterFactory.getConverter(metaStreamEvent);
     }
 
-
     @Override
     public String getStreamId() {
         return streamId;
@@ -66,10 +65,9 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        StreamEvent convertedStreamEvent = eventConstructor.constructStreamEvent(streamEvent);
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
-            String key = partitionExecutor.execute(convertedStreamEvent);
-            send(key, convertedStreamEvent);
+            String key = partitionExecutor.execute(streamEvent);
+            send(key, streamEvent);
         }
     }
 
@@ -80,10 +78,11 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);
         }
+        eventConstructor.returnEvent(streamEvent);
     }
 
     @Override
-    public void receive(Event event, boolean endOfBatch) {   //todo use endOfBatch
+    public void receive(Event event, boolean endOfBatch) {
         StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(streamEvent);
@@ -98,6 +97,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             String key = partitionExecutor.execute(streamEvent);
             send(key, streamEvent);
         }
+        eventConstructor.returnEvent(streamEvent);
     }
 
     private void send(String key, StreamEvent event) {
@@ -108,23 +108,27 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         cachedStreamJunctionMap.get(streamId + key).sendEvent(event);
     }
 
+    /**
+     * create local streamJunctions through which events are sent to queryStreamReceivers
+     * @param key partitioning key
+     * @param queryRuntimeList  queryRuntime list of the partition
+     */
     public void addStreamJunction(String key, List<QueryRuntime> queryRuntimeList) {
         if (!partitionExecutors.isEmpty()) {
             StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
             if (streamJunction == null) {
                 for (QueryRuntime queryRuntime : queryRuntimeList) {
                     if (queryRuntime.getInputStreamId().get(0).equals(streamId)) {
-
                         StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
-                        streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+                        streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
+                                siddhiContext.getDefaultEventBufferSize());
                         streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver());
                         partitionRuntime.addStreamJunction(streamId + key, streamJunction);
                         cachedStreamJunctionMap.put(streamId + key, streamJunction);
-
-
                     }
                 }
             }
         }
     }
+
 }

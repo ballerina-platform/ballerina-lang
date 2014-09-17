@@ -30,4 +30,8 @@ public class NotEqualCompareConditionExpressionExecutorFloatInt extends
 
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new NotEqualCompareConditionExpressionExecutorFloatInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

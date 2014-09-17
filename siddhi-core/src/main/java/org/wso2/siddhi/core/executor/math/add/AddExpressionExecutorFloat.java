@@ -36,4 +36,9 @@ public class AddExpressionExecutorFloat implements ExpressionExecutor {
         return Attribute.Type.FLOAT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new AddExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

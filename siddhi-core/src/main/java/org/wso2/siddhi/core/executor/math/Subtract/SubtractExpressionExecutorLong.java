@@ -37,4 +37,9 @@ public class SubtractExpressionExecutorLong implements ExpressionExecutor {
         return Attribute.Type.LONG;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new SubtractExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

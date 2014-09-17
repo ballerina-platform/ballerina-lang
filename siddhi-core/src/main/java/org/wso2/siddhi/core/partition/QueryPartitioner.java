@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector;
+package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -33,11 +33,15 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * create PartitionExecutors to be used to get partitioning key
+ */
 public class QueryPartitioner {
 
     private List<List<PartitionExecutor>> partitionExecutors = new ArrayList<List<PartitionExecutor>>();
 
-    public QueryPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent, SiddhiContext siddhiContext) {
+    public QueryPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
+                            List<VariableExpressionExecutor> executors, SiddhiContext siddhiContext) {
         if (partition != null) {
             if (inputStream instanceof BasicSingleInputStream) {
                 List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
@@ -45,7 +49,10 @@ public class QueryPartitioner {
                 for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
                     if (partitionType instanceof ValuePartitionType) {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
-                            executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(), siddhiContext, metaStreamEvent, new ArrayList<VariableExpressionExecutor>())));//TODO: add correct streamDefinition map as 4th parameter
+                            
+                                executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
+                                         siddhiContext, metaStreamEvent, executors,false)));
+                            
                         }
                     } else {
                         //TODO: range partitioning
@@ -59,6 +66,7 @@ public class QueryPartitioner {
     public List<List<PartitionExecutor>> getPartitionExecutors() {
         return partitionExecutors;
     }
+
 
 
 }

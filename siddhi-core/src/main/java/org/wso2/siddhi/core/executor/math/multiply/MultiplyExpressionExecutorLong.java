@@ -38,4 +38,9 @@ public class MultiplyExpressionExecutorLong implements ExpressionExecutor {
         return Attribute.Type.LONG;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new MultiplyExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

@@ -37,4 +37,9 @@ public class ModExpressionExecutorLong implements ExpressionExecutor {
         return Attribute.Type.LONG;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new ModExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

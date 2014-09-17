@@ -28,4 +28,8 @@ public class EqualCompareConditionExpressionExecutorFloatFloat extends
         return ((Float) left).floatValue() == ((Float) right).floatValue();
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new EqualCompareConditionExpressionExecutorFloatFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
 }

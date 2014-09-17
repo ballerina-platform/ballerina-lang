@@ -38,4 +38,9 @@ public class MultiplyExpressionExecutorInt implements ExpressionExecutor {
         return Attribute.Type.INT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new MultiplyExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

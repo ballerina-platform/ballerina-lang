@@ -16,27 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.siddhi.core.query.selector.attribute.processor;
 
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-public interface AttributeProcessor {
+public class AttributeProcessor {
 
-    /**
-     * Method to get output type of the result produced by the Processor
-     *
-     * @return
-     */
-    public Attribute.Type getOutputType();
+    private ExpressionExecutor expressionExecutor;
+    private int outputPosition;
 
-    public int getOutputPosition();
+    public AttributeProcessor(ExpressionExecutor expressionExecutor) {
+        this.expressionExecutor = expressionExecutor;
+    }
 
-    /**
-     * Method to process attributes of given StreamEvent.
-     *
-     * @param event event to be processed
-     */
-    public void process(StreamEvent event);
+    public Attribute.Type getOutputType() {
+        return expressionExecutor.getReturnType();
+    }
 
+    public void process(StreamEvent event) {
+        event.setOutputData(expressionExecutor.execute(event), outputPosition);
+    }
+
+    public void setOutputPosition(int position) {
+        this.outputPosition = position;
+    }
+
+    public AttributeProcessor cloneProcessor() {
+        AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor.cloneExecutor());
+        attributeProcessor.setOutputPosition(this.outputPosition);
+        return attributeProcessor;
+
+    }
+
+    public int getOutputPosition() {
+        return outputPosition;
+    }
 }

@@ -46,6 +46,9 @@ public class SingleInputStreamParser {
      * @return
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiContext context, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
+
+    public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiContext context,
+                                                       MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
         Processor processor = null;
         int i = 0;
         if (!inputStream.getStreamHandlers().isEmpty()) {
@@ -64,10 +67,11 @@ public class SingleInputStreamParser {
         return singleStreamRuntime;
     }
 
-    private static Processor generateProcessor(StreamHandler handler, SiddhiContext context, MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
+    private static Processor generateProcessor(StreamHandler handler, SiddhiContext context, MetaStreamEvent metaStreamEvent,
+                                               List<VariableExpressionExecutor> executors) {
         if (handler instanceof Filter) {
             Expression condition = ((Filter) handler).getFilterExpression();
-            return new FilterProcessor(ExpressionParser.parseExpression(condition, context, metaStreamEvent, executors));  //metaStreamEvent has stream definition info
+            return new FilterProcessor(ExpressionParser.parseExpression(condition, context, metaStreamEvent, executors,false));  //metaStreamEvent has stream definition info
         } else {
             //TODO else if (window function etc)
             throw new OperationNotSupportedException("Only filter operation is supported at the moment");

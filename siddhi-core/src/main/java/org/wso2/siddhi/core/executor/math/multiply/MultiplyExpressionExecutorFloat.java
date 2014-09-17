@@ -37,4 +37,9 @@ public class MultiplyExpressionExecutorFloat implements ExpressionExecutor {
         return Attribute.Type.FLOAT;
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new MultiplyExpressionExecutorFloat(leftExpressionExecutor.cloneExecutor(),rightExpressionExecutor.cloneExecutor());
+    }
+
 }

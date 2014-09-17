@@ -48,5 +48,10 @@ public class OrConditionExpressionExecutor extends ConditionExpressionExecutor {
         return (Boolean) leftConditionExecutor.execute(event) || (Boolean) rightConditionExecutor.execute(event);
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new OrConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(),rightConditionExecutor.cloneExecutor());
+    }
+
 
 }

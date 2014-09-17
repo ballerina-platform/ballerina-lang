@@ -50,7 +50,8 @@ public class InputStreamParser {
                                       MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             MetaStreamEvent metaStreamEvent = generateMetaStreamEvent(inputStream, definitionMap);
-            SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream, context, metaStreamEvent, executors);
+            SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
+                    context, metaStreamEvent, executors);
             metaStateEvent.addEvent(metaStreamEvent);
             return singleStreamRuntime;
         } else {
