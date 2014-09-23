@@ -39,7 +39,6 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
-import sun.security.validator.ValidatorException;
 
 public class FilterTestCase {
     static final Logger log = Logger.getLogger(FilterTestCase.class);
@@ -3848,7 +3847,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest116() throws InterruptedException, ValidatorException {
+    public void FilterTest116() throws InterruptedException {
         log.info("filter test116");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -3876,7 +3875,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest117() throws InterruptedException, ValidatorException {
+    public void FilterTest117() throws InterruptedException {
         log.info("filter test116");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -3904,7 +3903,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest118() throws InterruptedException, ValidatorException {
+    public void FilterTest118() throws InterruptedException {
         log.info("filter test118");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -3932,7 +3931,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest119() throws InterruptedException, ValidatorException {
+    public void FilterTest119() throws InterruptedException {
         log.info("filter test119");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -3960,7 +3959,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest120() throws InterruptedException, ValidatorException {
+    public void FilterTest120() throws InterruptedException {
         log.info("filter test120");
         SiddhiManager siddhiManager = new SiddhiManager();
 

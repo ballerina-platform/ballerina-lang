@@ -26,9 +26,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.ExecutionPlan;
@@ -40,7 +38,6 @@ import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
-import sun.security.validator.ValidatorException;
 
 public class FunctionTestCase {
     static final Logger log = Logger.getLogger(FunctionTestCase.class);
@@ -61,7 +58,8 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).
-                annotation(Annotation.annotation("config").element("async", "true"));;
+                annotation(Annotation.annotation("config").element("async", "true"));
+        ;
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -98,8 +96,8 @@ public class FunctionTestCase {
             }
 
         });
-        
-        
+
+
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         inputHandler.send(new Object[]{"IBM", 55.6f, 70.6f});
         inputHandler.send(new Object[]{"WSO2", 65.7f, 12.8f});
@@ -125,7 +123,7 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;
+                count = count + inEvents.length;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -164,7 +162,8 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -203,7 +202,8 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -233,15 +233,16 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[not isMatch('[//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
-                
+        String query = "@info(name = 'query1') from cseEventStream[not isMatch('[//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -272,7 +273,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[not (isMatch('[^//s]+',symbol) and false)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[not (isMatch('[^//s]+',symbol) and false)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -280,7 +281,8 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -310,7 +312,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[not (isMatch('[//s]+',symbol) and false)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[not (isMatch('[//s]+',symbol) and false)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -318,7 +320,8 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -348,7 +351,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[(not isMatch('[//s]+',symbol)) and false] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[(not isMatch('[//s]+',symbol)) and false] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -356,7 +359,8 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -379,7 +383,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, concat(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, concat(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -388,7 +392,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals("50.060.0", inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -406,7 +411,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, concat(symbol,' ',price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, concat(symbol,' ',price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -415,7 +420,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals("WSO2 60.0", inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -434,7 +440,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -443,7 +449,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals(1.0, inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -461,7 +468,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -470,7 +477,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals(0.9999417202299663, inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -488,7 +496,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -497,7 +505,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals(0.9999417202299663, inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -516,7 +525,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(volume) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(volume) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -525,7 +534,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals(0.5311861979208834, inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -543,7 +553,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price,volume) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price,volume) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
@@ -552,7 +562,8 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals(0.5311861979208834, inEvents[0].getData()[1]);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
             }
         });
 
@@ -564,21 +575,22 @@ public class FunctionTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testFunctionQuery16() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery16() throws InterruptedException {
         log.info("Function test16");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[isMatch(symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[isMatch(symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream+query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -602,21 +614,22 @@ public class FunctionTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testFunctionQuery17() throws InterruptedException, ValidatorException {
+    public void testFunctionQuery17() throws InterruptedException {
         log.info("Function test17");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[isMatch(12,symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[isMatch(12,symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream+query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback(null, "query1", 3, siddhiManager.getSiddhiContext()) {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count+inEvents.length;;
+                count = count + inEvents.length;
+                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
