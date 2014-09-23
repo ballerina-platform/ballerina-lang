@@ -93,12 +93,12 @@ public class QuerySelector implements Processor {
     }
 
     @Override
-    public Processor getNext() {
+    public Processor getNextProcessor() {
         return outputRateLimiter;
     }
 
     @Override
-    public void setNext(Processor processor) {
+    public void setNextProcessor(Processor processor) {
         if (!(processor instanceof OutputRateLimiter)) {
             throw new QueryCreationException("processor is not an instance of OutputRateLimiter");
         }
@@ -111,7 +111,7 @@ public class QuerySelector implements Processor {
 
     @Override
     public void setToLast(Processor processor) {
-        setNext(processor);
+        setNextProcessor(processor);
     }
 
     @Override

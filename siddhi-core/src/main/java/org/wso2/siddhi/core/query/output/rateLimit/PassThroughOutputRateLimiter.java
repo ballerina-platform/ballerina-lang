@@ -49,12 +49,12 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     }
 
     @Override
-    public Processor getNext() {
+    public Processor getNextProcessor() {
         return null;
     }
 
     @Override
-    public void setNext(Processor processor) {
+    public void setNextProcessor(Processor processor) {
         //this method will not be used as there is no processors after an outputRateLimiter
     }
 

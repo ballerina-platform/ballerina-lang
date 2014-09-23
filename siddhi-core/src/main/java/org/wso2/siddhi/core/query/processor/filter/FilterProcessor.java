@@ -51,12 +51,12 @@ public class FilterProcessor implements Processor {
     }
 
     @Override
-    public Processor getNext() {
+    public Processor getNextProcessor() {
         return next;
     }
 
     @Override
-    public void setNext(Processor processor) {
+    public void setNextProcessor(Processor processor) {
         next = processor;
     }
 
@@ -65,7 +65,7 @@ public class FilterProcessor implements Processor {
         if (next == null) {
             this.next = processor;
         } else {
-            this.next.setNext(processor);
+            this.next.setNextProcessor(processor);
         }
     }
 

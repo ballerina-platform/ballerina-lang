@@ -151,7 +151,7 @@ public class QueryRuntime {
 
     public void setOutputRateLimiter(OutputRateLimiter outputRateLimiter) {
         this.outputRateLimiter = outputRateLimiter;
-        selector.setNext(outputRateLimiter);
+        selector.setNextProcessor(outputRateLimiter);
     }
 
     public StreamRuntime getStreamRuntime() {
@@ -193,7 +193,7 @@ public class QueryRuntime {
         } else {
             Processor processor = ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().getProcessorChain();
             ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(processor);
-            processor.setNext(selector);
+            processor.setNextProcessor(selector);
         }
 
     }
