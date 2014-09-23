@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.QueryStreamReceiver;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
-public class SingleStreamRuntime implements StreamRuntime{
+public class SingleStreamRuntime implements StreamRuntime {
 
     private Processor processorChain;
     private QueryStreamReceiver queryStreamReceiver;
@@ -39,7 +39,7 @@ public class SingleStreamRuntime implements StreamRuntime{
         return processorChain;
     }
 
-    public QueryStreamReceiver getQueryStreamReceiver(){
+    public QueryStreamReceiver getQueryStreamReceiver() {
         return queryStreamReceiver;
     }
 
@@ -47,18 +47,18 @@ public class SingleStreamRuntime implements StreamRuntime{
     public StreamRuntime clone(String key) {
         QueryStreamReceiver clonedQueryStreamReceiver = this.queryStreamReceiver.clone(key);
         Processor clonedProcessorChain = null;
-        if(processorChain != null){
-            if(!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)){
-                clonedProcessorChain =  processorChain.cloneProcessor();
+        if (processorChain != null) {
+            if (!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)) {
+                clonedProcessorChain = processorChain.cloneProcessor();
             }
-            Processor processor =  processorChain.getNext();
-            while(processor != null){
-                if(!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)){
-                         clonedProcessorChain.setToLast(processorChain.cloneProcessor());
+            Processor processor = processorChain.getNextProcessor();
+            while (processor != null) {
+                if (!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)) {
+                    clonedProcessorChain.setToLast(processorChain.cloneProcessor());
                 }
-                processor = processor.getNext();
+                processor = processor.getNextProcessor();
             }
         }
-        return new SingleStreamRuntime(clonedQueryStreamReceiver,clonedProcessorChain);
+        return new SingleStreamRuntime(clonedQueryStreamReceiver, clonedProcessorChain);
     }
 }
