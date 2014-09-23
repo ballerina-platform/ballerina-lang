@@ -124,4 +124,25 @@ public class StreamEvent implements ComplexEvent {
     public void setBeforeWindowData(Object object, int index) {
         this.beforeWindowData[index] = object;
     }
+
+    public int getOnAfterWindowDataSize() {
+        return this.onAfterWindowData.length;
+    }
+
+    public int getOutputDataSize() {
+        return this.outputData.length;
+    }
+
+    /**
+     * Add a given event to the last position of the event chain
+     *
+     * @param event
+     */
+    public void addToLast(StreamEvent event) {
+        if (next == null) {
+            next = event;
+        } else {
+            next.addToLast(event);
+        }
+    }
 }

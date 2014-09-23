@@ -24,11 +24,14 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
+import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.QueryStreamReceiver;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
+import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
+import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -70,6 +73,13 @@ public class SingleInputStreamParser {
         if (handler instanceof Filter) {
             Expression condition = ((Filter) handler).getFilterExpression();
             return new FilterProcessor(ExpressionParser.parseExpression(condition, context, metaStreamEvent, executors, false));  //metaStreamEvent has stream definition info
+        } else if (handler instanceof Window) {
+            WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) handler).getFunction(),
+                    WindowProcessor.class);
+            windowProcessor.setParameters(((Window) handler).getParameters());
+            windowProcessor.init();
+            return windowProcessor;
+
         } else {
             //TODO else if (window function etc)
             throw new OperationNotSupportedException("Only filter operation is supported at the moment");
