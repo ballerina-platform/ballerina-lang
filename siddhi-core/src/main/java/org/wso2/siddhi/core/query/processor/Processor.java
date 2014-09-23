@@ -23,19 +23,38 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 public interface Processor {
 
+    /**
+     * Process the handed StreamEvent
+     *
+     * @param event event to be processed
+     */
     public void process(StreamEvent event);
 
-    public Processor getNext();
+    /**
+     * Get next processor element in the processor chain. Processed event should be sent to next processor
+     *
+     * @return
+     */
+    public Processor getNextProcessor();
 
-    public void setNext(Processor processor);
+    /**
+     * Set next processor element in processor chain
+     *
+     * @param processor Processor to be set as next element of processor chain
+     */
+    public void setNextProcessor(Processor processor);
 
     /**
      * Set as the last element of the processor chain
      *
-     * @param processor the last processor in the chain
+     * @param processor Last processor in the chain
      */
     public void setToLast(Processor processor);
 
+    /**
+     * Clone a copy of processor
+     * @return
+     */
     public Processor cloneProcessor();
 
 }
