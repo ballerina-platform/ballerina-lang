@@ -29,7 +29,7 @@ import java.util.List;
 
 public class StreamEventConverterFactory {
     public static EventConstructor getConverter(MetaStreamEvent metaStreamEvent) {
-        StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getDefinition();
+        StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         int onAfterWindowDataSize = metaStreamEvent.getAfterWindowData().size();
         int outputDataSize = metaStreamEvent.getOutputData().size();
@@ -71,7 +71,7 @@ public class StreamEventConverterFactory {
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
             return new SelectiveStreamEventConstructor(streamEventPool, converterElements);
         } else {
-            if (metaStreamEvent.getDefinition().getAttributeList().size() == converterElements.size()) {
+            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == converterElements.size()) {
                 Boolean isPassThrough = true;
                 for (int k = 0; k < converterElements.size(); k++) {
                     if (!(converterElements.get(k).getFromPosition() == converterElements.get(k).getToPosition()[1])) {

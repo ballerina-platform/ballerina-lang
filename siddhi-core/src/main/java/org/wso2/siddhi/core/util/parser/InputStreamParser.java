@@ -71,12 +71,12 @@ public class InputStreamParser {
     private static MetaStreamEvent generateMetaStreamEvent(InputStream inputStream, Map<String, AbstractDefinition> definitionMap) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         if (definitionMap != null && definitionMap.containsKey(((SingleInputStream) inputStream).getStreamId())) {
-            metaStreamEvent.setDefinition(definitionMap.get(((SingleInputStream) inputStream).getStreamId()));
+            metaStreamEvent.setInputDefinition(definitionMap.get(((SingleInputStream) inputStream).getStreamId()));
         } else {
             throw new DefinitionNotExistException("Stream definition with stream ID" + ((SingleInputStream) inputStream).getStreamId() + " has not been defined");
         }
         if ((((SingleInputStream) inputStream).getStreamReferenceId() != null) && !(((SingleInputStream) inputStream).getStreamId()).equals(((SingleInputStream) inputStream).getStreamReferenceId())) { //if ref id is provided
-            metaStreamEvent.setReferenceId(((SingleInputStream) inputStream).getStreamReferenceId());
+            metaStreamEvent.setInputReferenceId(((SingleInputStream) inputStream).getStreamReferenceId());
         }
         return metaStreamEvent;
     }

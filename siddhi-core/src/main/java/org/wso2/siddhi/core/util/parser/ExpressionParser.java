@@ -895,8 +895,8 @@ public class ExpressionParser {
 
         if (metaEvent instanceof MetaStreamEvent) {
             MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
-            metaEvent.addData(new Attribute(attributeName, metaStreamEvent.getDefinition().getAttributeType(attributeName)));
-            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName, (StreamDefinition) (metaStreamEvent.getDefinition()));
+            metaEvent.addData(new Attribute(attributeName, metaStreamEvent.getInputDefinition().getAttributeType(attributeName)));
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName, (StreamDefinition) (metaStreamEvent.getInputDefinition()));
             executorList.add(variableExpressionExecutor);
             return variableExpressionExecutor;
         } else {

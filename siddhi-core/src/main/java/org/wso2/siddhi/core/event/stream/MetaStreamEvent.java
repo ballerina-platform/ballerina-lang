@@ -34,8 +34,8 @@ public class MetaStreamEvent implements ComplexMetaEvent {
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
     private List<Attribute> afterWindowData = null;
     private List<Attribute> outputData = null;
-    private AbstractDefinition definition;      //TODO;change to inputdefinition.//check Abstract/Stream Definition
-    private String referenceId;                 //TODO:input reference ID
+    private AbstractDefinition inputDefinition;
+    private String inputReferenceId;
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;
@@ -99,20 +99,20 @@ public class MetaStreamEvent implements ComplexMetaEvent {
         outputData.add(attribute);
     }
 
-    public AbstractDefinition getDefinition() {
-        return definition;
+    public AbstractDefinition getInputDefinition() {
+        return inputDefinition;
     }
 
-    public void setDefinition(AbstractDefinition definition) {
-        this.definition = definition;
+    public void setInputDefinition(AbstractDefinition inputDefinition) {
+        this.inputDefinition = inputDefinition;
     }
 
-    public String getReferenceId() {
-        return referenceId;
+    public String getInputReferenceId() {
+        return inputReferenceId;
     }
 
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
+    public void setInputReferenceId(String inputReferenceId) {
+        this.inputReferenceId = inputReferenceId;
     }
 
 

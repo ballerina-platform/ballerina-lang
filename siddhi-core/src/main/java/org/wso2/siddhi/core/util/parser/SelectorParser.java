@@ -126,7 +126,7 @@ public class SelectorParser {
                                                                       MetaStateEvent metaStateEvent, SiddhiContext siddhiContext) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         MetaStreamEvent metaEvent = new MetaStreamEvent();
-        metaEvent.setDefinition(metaStateEvent.getOutputStreamDefinition());
+        metaEvent.setInputDefinition(metaStateEvent.getOutputStreamDefinition());
         for (Attribute attribute : metaStateEvent.getOutputStreamDefinition().getAttributeList()) {
             metaEvent.addOutputData(attribute);
         }
