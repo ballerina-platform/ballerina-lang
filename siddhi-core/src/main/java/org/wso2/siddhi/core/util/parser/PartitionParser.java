@@ -65,12 +65,12 @@ public class PartitionParser {
      * @return metaStateEvent
      */
     private static MetaStreamEvent createMetaEventForPartitioner(MetaStateEvent metaStateEvent) {   //TOdo : handle joins
-        AbstractDefinition definition = metaStateEvent.getMetaEvent(0).getDefinition();
+        AbstractDefinition definition = metaStateEvent.getMetaEvent(0).getInputDefinition();
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         for (Attribute attribute : definition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);
         }
-        metaStreamEvent.setDefinition(definition);
+        metaStreamEvent.setInputDefinition(definition);
         return metaStreamEvent;
     }
 }

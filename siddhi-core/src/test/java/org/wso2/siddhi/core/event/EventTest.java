@@ -102,7 +102,7 @@ public class EventTest {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
-        metaStreamEvent.setDefinition(streamDefinition);
+        metaStreamEvent.setInputDefinition(streamDefinition);
         EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
         StreamEvent streamEvent = converter.constructStreamEvent(event);
 
@@ -126,7 +126,7 @@ public class EventTest {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
-        metaStreamEvent.setDefinition(streamDefinition);
+        metaStreamEvent.setInputDefinition(streamDefinition);
         EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
         StreamEvent streamEvent = converter.constructStreamEvent(event);
 
@@ -155,7 +155,7 @@ public class EventTest {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
-        metaStreamEvent.setDefinition(streamDefinition);
+        metaStreamEvent.setInputDefinition(streamDefinition);
         EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
         StreamEvent streamEvent = converter.constructStreamEvent(event);
 
