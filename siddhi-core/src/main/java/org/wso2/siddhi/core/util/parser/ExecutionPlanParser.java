@@ -40,8 +40,7 @@ public class ExecutionPlanParser {
      * @param executionPlan plan to be parsed
      * @return ExecutionPlanRuntime
      */
-    public static ExecutionPlanRuntime parse(ExecutionPlan executionPlan) {
-        SiddhiContext siddhiContext = new SiddhiContext();
+    public static ExecutionPlanRuntime parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
         ExecutionPlanRuntime executionPlanRuntime = new ExecutionPlanRuntime(siddhiContext);
         defineStreamDefinitions(executionPlanRuntime, executionPlan.getStreamDefinitionMap());
         try {

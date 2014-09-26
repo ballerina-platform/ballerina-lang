@@ -36,12 +36,12 @@ import java.util.List;
 /**
  * create PartitionExecutors to be used to get partitioning key
  */
-public class QueryPartitioner {
+public class StreamPartitioner {
 
     private List<List<PartitionExecutor>> partitionExecutors = new ArrayList<List<PartitionExecutor>>();
 
-    public QueryPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
-                            List<VariableExpressionExecutor> executors, SiddhiContext siddhiContext) {
+    public StreamPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
+                             List<VariableExpressionExecutor> executors, SiddhiContext siddhiContext) {
         if (partition != null) {
             if (inputStream instanceof BasicSingleInputStream) {
                 List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();

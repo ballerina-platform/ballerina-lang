@@ -20,9 +20,11 @@
 package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class SiddhiContext {
@@ -31,9 +33,11 @@ public class SiddhiContext {
     private int defaultEventBufferSize;
     private Executor executorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
+    private Map<String,Class> siddhiExtensions;
 
     public SiddhiContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
+        setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
     }
 
 
@@ -51,5 +55,13 @@ public class SiddhiContext {
 
     public void addEternalReferencedHolder(EternalReferencedHolder eternalReferencedHolder) {
         eternalReferencedHolders.add(eternalReferencedHolder);
+    }
+
+    public void setSiddhiExtensions(Map<String,Class> siddhiExtensions) {
+        this.siddhiExtensions = siddhiExtensions;
+    }
+
+    public Map<String, Class> getSiddhiExtensions() {
+        return siddhiExtensions;
     }
 }

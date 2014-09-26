@@ -35,8 +35,8 @@ public class MetaStreamEvent implements ComplexMetaEvent{
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
     private List<Attribute> afterWindowData = null;
     private List<Attribute> outputData = null;
-    private AbstractDefinition definition;      //check Abstract/Stream Definition
-    private String referenceId;
+    private AbstractDefinition definition;      //TODO;change to inputdefinition.//check Abstract/Stream Definition
+    private String referenceId;                 //TODO:input reference ID
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;

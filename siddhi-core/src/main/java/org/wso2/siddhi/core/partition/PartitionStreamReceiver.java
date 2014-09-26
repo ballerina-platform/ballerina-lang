@@ -109,26 +109,27 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     }
 
     /**
-     * create local streamJunctions through which events are sent to queryStreamReceivers
+     * create local streamJunctions through which events received by partitionStreamReceiver, are sent to queryStreamReceivers
      *
      * @param key              partitioning key
      * @param queryRuntimeList queryRuntime list of the partition
      */
     public void addStreamJunction(String key, List<QueryRuntime> queryRuntimeList) {
         if (!partitionExecutors.isEmpty()) {
-            StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
-            if (streamJunction == null) {
-                for (QueryRuntime queryRuntime : queryRuntimeList) {
-                    if (queryRuntime.getInputStreamId().get(0).equals(streamId)) {
-                        StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
+            for (QueryRuntime queryRuntime : queryRuntimeList) {
+                if (queryRuntime.getInputStreamId().get(0).equals(streamId)) {
+                    StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
+                    StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
+                    if (streamJunction == null) {
                         streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
                                 siddhiContext.getDefaultEventBufferSize());
-                        streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver());
                         partitionRuntime.addStreamJunction(streamId + key, streamJunction);
                         cachedStreamJunctionMap.put(streamId + key, streamJunction);
                     }
+                    streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver());
                 }
             }
+
         }
     }
 

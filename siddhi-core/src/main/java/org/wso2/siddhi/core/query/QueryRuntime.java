@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
-import org.wso2.siddhi.core.partition.QueryPartitioner;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -32,7 +31,6 @@ import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.runtime.StreamRuntime;
 import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -53,10 +51,8 @@ public class QueryRuntime {
     private SiddhiContext siddhiContext;
     private OutputCallback outputCallback;
     private StreamDefinition outputStreamDefinition;
-    private QueryPartitioner queryPartitioner;
     private boolean toLocalStream;
     private QuerySelector selector;
-    private ConcurrentMap<String, AbstractDefinition> definitionMap;
     private MetaStateEvent metaStateEvent;
 
     public QueryRuntime(Query query, SiddhiContext siddhiContext, StreamRuntime streamRuntime, QuerySelector selector,
@@ -134,7 +130,6 @@ public class QueryRuntime {
                 clonedOutputRateLimiter, this.metaStateEvent);
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);
-        queryRuntime.setDefinitionMap(definitionMap);
 
         if (!toLocalStream) {
             queryRuntime.outputRateLimiter.setOutputCallback(outputCallback);
@@ -158,10 +153,6 @@ public class QueryRuntime {
         return streamRuntime;
     }
 
-    public void setDefinitionMap(ConcurrentMap<String, AbstractDefinition> definitionMap) {
-        this.definitionMap = definitionMap;
-    }
-
     public MetaStateEvent getMetaStateEvent() {
         return metaStateEvent;
     }
@@ -177,14 +168,7 @@ public class QueryRuntime {
 
     public void setOutputCallback(OutputCallback outputCallback) {
         this.outputCallback = outputCallback;
-    }
-
-    public QueryPartitioner getQueryPartitioner() {
-        return queryPartitioner;
-    }
-
-    public void setQueryPartitioner(QueryPartitioner queryPartitioner) {
-        this.queryPartitioner = queryPartitioner;
+        outputRateLimiter.setOutputCallback(outputCallback);
     }
 
     public void init() {
@@ -192,8 +176,8 @@ public class QueryRuntime {
             ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(selector);
         } else {
             Processor processor = ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().getProcessorChain();
-            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(processor);
-            processor.setNextProcessor(selector);
+            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNextProcessor(processor);
+            processor.setToLast(selector);
         }
 
     }

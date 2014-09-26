@@ -58,6 +58,8 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
+import org.wso2.siddhi.core.extension.holder.ExecutorExtensionHolder;
+import org.wso2.siddhi.core.extension.holder.OutputAttributeExtensionHolder;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
@@ -73,6 +75,7 @@ import org.wso2.siddhi.query.api.expression.condition.Not;
 import org.wso2.siddhi.query.api.expression.condition.Or;
 import org.wso2.siddhi.query.api.expression.constant.*;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
+import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.expression.math.*;
 
 import java.util.LinkedList;
@@ -230,6 +233,38 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
 
+        } else if(expression instanceof AttributeFunctionExtension) {
+            try{
+                FunctionExecutor expressionExecutor = (FunctionExecutor) SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, ExecutorExtensionHolder.getInstance(siddhiContext));
+                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
+                for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
+                    innerExpressionExecutors.add(parseExpression(innerExpression, siddhiContext, metaEvent, executorList, groupBy));
+                }
+                siddhiContext.addEternalReferencedHolder(expressionExecutor);
+                expressionExecutor.setSiddhiContext(siddhiContext);
+                expressionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
+                expressionExecutor.init();
+                return expressionExecutor;
+            } catch(QueryCreationException ex){
+
+                AttributeAggregator executor = (AttributeAggregator) SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, OutputAttributeExtensionHolder.getInstance(siddhiContext));
+                if (((AttributeFunction) expression).getParameters().length > 1) {
+                    throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
+                }
+                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
+                for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
+                    innerExpressionExecutors.add(parseExpression(innerExpression, siddhiContext, metaEvent, executorList, groupBy));
+                }
+                (executor).init(innerExpressionExecutors.get(0).getReturnType());
+                AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
+                if (groupBy) {
+                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(executor, innerExpressionExecutors, siddhiContext);
+                } else {
+                    aggregationAttributeProcessor = new AggregationAttributeExecutor(executor, innerExpressionExecutors, siddhiContext);
+                }
+                return aggregationAttributeProcessor;
+
+            }
         } else if (expression instanceof AttributeFunction) {
             Object executor;
             try {

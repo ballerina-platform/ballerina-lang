@@ -46,20 +46,18 @@ public class QueryParser {
      * @param query         query to be parsed
      * @param siddhiContext associated siddhi context
      * @param definitionMap map containing user given stream definitions
-     * @return
+     * @return queryRuntime
      */
     public static QueryRuntime parse(Query query, SiddhiContext siddhiContext, Map<String, AbstractDefinition> definitionMap) {
         MetaStateEvent metaStateEvent = new MetaStateEvent(query.getInputStream().getStreamIds().size()); //MetaStateEvent for the query
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-        StreamRuntime streamRuntime;
-        QuerySelector selector;
-        OutputRateLimiter outputRateLimiter;
         QueryRuntime queryRuntime;
         Element element = null;
         try {
-            streamRuntime = InputStreamParser.parse(query.getInputStream(), siddhiContext, definitionMap, metaStateEvent, executors);
-            selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(), siddhiContext, metaStateEvent, executors);
-            outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
+            element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
+            StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(), siddhiContext, definitionMap, metaStateEvent, executors);
+            QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(), siddhiContext, metaStateEvent, executors);
+            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
             QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
             QueryParserHelper.addEventConverters(streamRuntime, metaStateEvent);
@@ -67,7 +65,7 @@ public class QueryParser {
             queryRuntime = new QueryRuntime(query, siddhiContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
             validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
 
-            element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
+
         } catch (Exception e) {
             if (element != null) {
                 throw new QueryCreationException(e.getMessage() + " when creating query " + element.getValue(), e);

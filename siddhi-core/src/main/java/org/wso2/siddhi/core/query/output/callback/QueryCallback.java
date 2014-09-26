@@ -39,8 +39,6 @@ import java.util.List;
 
 public abstract class QueryCallback {
 
-    private final String queryName;
-    private final int outputDataSize;
     private SiddhiContext siddhiContext;
     private Query query;
     private List<Event> currentEventBuffer = new ArrayList<Event>();
@@ -50,15 +48,12 @@ public abstract class QueryCallback {
     private RingBuffer<EventHolder> ringBuffer;
     private AsyncEventHandler asyncEventHandler;
 
-    protected QueryCallback(Query query, String queryName, int outputDataSize, SiddhiContext siddhiContext) {
+    public void setQuery(Query query){
         this.query = query;
-        this.queryName = queryName;
-        this.outputDataSize = outputDataSize;
-        this.siddhiContext = siddhiContext;
     }
 
-    public String getQueryName() {
-        return queryName;
+    public void setContext(SiddhiContext siddhiContext){
+        this.siddhiContext = siddhiContext;
     }
 
     public void receiveStreamEvent(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent) {
@@ -122,7 +117,7 @@ public abstract class QueryCallback {
 
         StreamEvent processedEvent = streamEventList;
         while (processedEvent != null) {
-            eventBuffer.add(new Event(outputDataSize).copyFrom(processedEvent));
+            eventBuffer.add(new Event(processedEvent.getOutputData().length).copyFrom(processedEvent));
             processedEvent = processedEvent.getNext();
         }
     }
@@ -161,7 +156,6 @@ public abstract class QueryCallback {
             disruptor.shutdown();
         }
     }
-
 
     public abstract void receive(long timeStamp, Event[] inEvents, Event[] removeEvents);
 
