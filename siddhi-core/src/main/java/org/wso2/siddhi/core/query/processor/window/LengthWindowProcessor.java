@@ -32,7 +32,7 @@ public class LengthWindowProcessor extends WindowProcessor {
     @Override
     public void init() {
         if (parameters != null) {
-            this.setLength(((IntConstant) parameters[0]).getValue());
+            length = ((IntConstant) parameters[0]).getValue();
         }
     }
 
