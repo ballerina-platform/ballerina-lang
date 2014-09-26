@@ -23,7 +23,9 @@ import org.wso2.siddhi.query.api.query.input.pattern.element.FollowedByElement;
 import org.wso2.siddhi.query.api.query.input.pattern.element.LogicalElement;
 import org.wso2.siddhi.query.api.query.input.pattern.element.PatternElement;
 
-public class Pattern {
+import java.io.Serializable;
+
+public class Pattern implements Serializable {
 
 
     public static PatternStream every(PatternElement patternElement) {

@@ -23,7 +23,9 @@ import org.wso2.siddhi.query.api.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.query.input.handler.Transformer;
 import org.wso2.siddhi.query.api.query.input.handler.Window;
 
-public class QueryEventSource {
+import java.io.Serializable;
+
+public class QueryEventSource implements Serializable{
 
     private String sourceId;
     private String referenceSourceId;

@@ -17,5 +17,7 @@
 */
 package org.wso2.siddhi.query.api;
 
-public interface ExecutionPlan {
+import java.io.Serializable;
+
+public interface ExecutionPlan extends Serializable {
 }

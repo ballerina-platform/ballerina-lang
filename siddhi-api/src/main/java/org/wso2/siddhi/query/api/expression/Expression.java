@@ -27,11 +27,12 @@ import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import org.wso2.siddhi.query.api.expression.constant.StringConstant;
 import org.wso2.siddhi.query.api.query.QueryEventSource;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class Expression {
+public abstract class Expression implements Serializable{
     public static StringConstant value(String value) {
         return new StringConstant(value);
     }

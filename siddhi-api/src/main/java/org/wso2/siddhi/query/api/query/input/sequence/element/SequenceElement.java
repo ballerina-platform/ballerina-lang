@@ -17,5 +17,7 @@
 */
 package org.wso2.siddhi.query.api.query.input.sequence.element;
 
-public interface SequenceElement {
+import java.io.Serializable;
+
+public interface SequenceElement extends Serializable {
 }

@@ -20,7 +20,9 @@ package org.wso2.siddhi.query.api.query.input.handler;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.extension.Extension;
 
-public class Transformer {
+import java.io.Serializable;
+
+public class Transformer implements Serializable {
 
     private String name;
     private TransformExtension extension;

@@ -17,6 +17,8 @@
 */
 package org.wso2.siddhi.query.api.query.output;
 
-public interface OutputRate {
+import java.io.Serializable;
+
+public interface OutputRate extends Serializable{
 
 }

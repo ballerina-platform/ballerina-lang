@@ -23,7 +23,9 @@ import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
-public abstract class Output {
+import java.io.Serializable;
+
+public abstract class Output implements Serializable{
 
     public enum Type {
         ALL, FIRST, LAST, SNAPSHOT

@@ -26,12 +26,13 @@ import org.wso2.siddhi.query.api.query.selection.attribute.OutputAttribute;
 import org.wso2.siddhi.query.api.query.selection.attribute.OutputAttributeExtension;
 import org.wso2.siddhi.query.api.query.selection.attribute.SimpleAttribute;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Selector {
+public class Selector implements Serializable{
     private List<OutputAttribute> selectionList = new ArrayList<OutputAttribute>();
     private List<Variable> groupByList = new ArrayList<Variable>();
     private Condition havingCondition;

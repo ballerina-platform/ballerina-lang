@@ -19,7 +19,9 @@ package org.wso2.siddhi.query.api.query.input.handler;
 
 import org.wso2.siddhi.query.api.condition.Condition;
 
-public class Filter {
+import java.io.Serializable;
+
+public class Filter implements Serializable {
 
     private Condition filterCondition;
 

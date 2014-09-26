@@ -17,9 +17,10 @@
 */
 package org.wso2.siddhi.query.api.query.selection.attribute;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public interface OutputAttribute {
+public interface OutputAttribute extends Serializable {
 
     String getRename();
 

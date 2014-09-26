@@ -20,10 +20,11 @@ package org.wso2.siddhi.query.api.query.input;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.query.QueryEventSource;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-public interface Stream {
+public interface Stream extends Serializable{
 
     List<String> getStreamIds();
 

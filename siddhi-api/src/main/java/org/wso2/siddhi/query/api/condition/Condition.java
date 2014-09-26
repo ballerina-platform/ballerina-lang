@@ -21,12 +21,13 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.query.QueryEventSource;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-public abstract class Condition {
+public abstract class Condition implements Serializable {
 
     public static Condition compare(Expression leftExpression, Operator operator,
                                     Expression rightExpression) {

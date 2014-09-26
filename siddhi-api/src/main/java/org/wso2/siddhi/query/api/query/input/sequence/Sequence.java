@@ -24,7 +24,9 @@ import org.wso2.siddhi.query.api.query.input.sequence.element.RegexElement;
 import org.wso2.siddhi.query.api.query.input.sequence.element.SequenceElement;
 import org.wso2.siddhi.query.api.utils.SiddhiConstants;
 
-public class Sequence {
+import java.io.Serializable;
+
+public class Sequence implements Serializable {
 
 
     public static SequenceElement or(TransformedStream transformedStream1,

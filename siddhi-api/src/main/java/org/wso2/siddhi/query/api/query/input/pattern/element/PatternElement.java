@@ -17,5 +17,7 @@
 */
 package org.wso2.siddhi.query.api.query.input.pattern.element;
 
-public interface PatternElement {
+import java.io.Serializable;
+
+public interface PatternElement extends Serializable {
 }

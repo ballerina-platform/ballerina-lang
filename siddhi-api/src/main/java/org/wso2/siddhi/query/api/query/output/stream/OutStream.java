@@ -17,7 +17,9 @@
 */
 package org.wso2.siddhi.query.api.query.output.stream;
 
-public abstract class OutStream {
+import java.io.Serializable;
+
+public abstract class OutStream implements Serializable{
 
     protected OutputEventsFor outputEventsFor;
 
