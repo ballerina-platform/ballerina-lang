@@ -19,7 +19,6 @@
 
 package org.wso2.siddhi.core.query.extension.util;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -48,7 +47,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return this;
     }
 
     @Override

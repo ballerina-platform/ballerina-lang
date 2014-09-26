@@ -21,11 +21,11 @@ package org.wso2.siddhi.core.query.extension.util;
 
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute.Type;
-import org.wso2.siddhi.query.api.extension.annotation.SiddhiExtension;
+
 
 public class StringConcatAggregatorString implements AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
-    private String aggregatedStringVlaue = "";
+    private String aggregatedStringValue = "";
 
     @Override
     public void init(Type type) {
@@ -40,25 +40,21 @@ public class StringConcatAggregatorString implements AttributeAggregator {
 
     @Override
     public Object processAdd(Object obj) {
-
         if (obj instanceof String) {
-
             String sender = (String) obj;
-            aggregatedStringVlaue = aggregatedStringVlaue +sender;
+            aggregatedStringValue = aggregatedStringValue + sender;
         }
-        return aggregatedStringVlaue;
+        return aggregatedStringValue;
     }
 
 
     @Override
     public Object processRemove(Object obj) {
-
         if (obj instanceof String) {
-
             String sender = (String)obj;
-            aggregatedStringVlaue = aggregatedStringVlaue.replace(sender, "");
+            aggregatedStringValue = aggregatedStringValue.replace(sender, "");
         }
-        return aggregatedStringVlaue;
+        return aggregatedStringValue;
     }
 
 
