@@ -62,9 +62,8 @@ public class SiddhiManager {
         return siddhiContext;
     }
 
-    //TODO make this public
-    private void validateExecutionPlan(ExecutionPlan executionPlan) {
-//        ExecutionPlanParser.parse(executionPlan);
+    public void validateExecutionPlan(ExecutionPlan executionPlan) {
+        ExecutionPlanParser.parse(executionPlan, siddhiContext);
     }
 
 }
