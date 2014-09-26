@@ -54,7 +54,7 @@ public class SingleStreamRuntime implements StreamRuntime{
             Processor processor =  processorChain.getNext();
             while(processor != null){
                 if(!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)){
-                         clonedProcessorChain.setToLast(processorChain.cloneProcessor());
+                         clonedProcessorChain.setToLast(processor.cloneProcessor());
                 }
                 processor = processor.getNext();
             }

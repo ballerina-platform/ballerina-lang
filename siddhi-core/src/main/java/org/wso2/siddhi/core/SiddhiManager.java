@@ -43,15 +43,14 @@ public class SiddhiManager {
      * @return executionPlanRuntime corresponding to the given executionPlan
      * @
      */
-    public ExecutionPlanRuntime addExecutionPlan(ExecutionPlan executionPlan) {
-        validateExecutionPlan(executionPlan);
-        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan);
+    public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
+        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan,siddhiContext);
         executionPlanRuntimeMap.put((executionPlan.getName()!= null) ? executionPlan.getName(): UUID.randomUUID().toString(), executionPlanRuntime);
         return executionPlanRuntime;
     }
 
-    public ExecutionPlanRuntime addExecutionPlan(String executionPlan) {
-        return addExecutionPlan(SiddhiCompiler.parse(executionPlan));
+    public ExecutionPlanRuntime createExecutionPlanRuntime(String executionPlan) {
+        return createExecutionPlanRuntime(SiddhiCompiler.parse(executionPlan));
     }
 
     public ExecutionPlanRuntime getExecutionPlanRuntime(String executionPlanName) {
@@ -63,8 +62,9 @@ public class SiddhiManager {
         return siddhiContext;
     }
 
+    //TODO make this public
     private void validateExecutionPlan(ExecutionPlan executionPlan) {
-        ExecutionPlanParser.parse(executionPlan);
+//        ExecutionPlanParser.parse(executionPlan);
     }
 
 }

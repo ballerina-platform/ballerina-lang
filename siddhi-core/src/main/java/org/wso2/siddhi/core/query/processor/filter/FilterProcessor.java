@@ -40,7 +40,7 @@ public class FilterProcessor implements Processor {
     }
 
     public FilterProcessor cloneProcessor(){
-       return new FilterProcessor(conditionExecutor);
+       return new FilterProcessor(conditionExecutor.cloneExecutor());
     }
 
     @Override

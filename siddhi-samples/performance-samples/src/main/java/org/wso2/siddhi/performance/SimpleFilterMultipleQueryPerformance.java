@@ -35,7 +35,7 @@ public class SimpleFilterMultipleQueryPerformance {
         String query1 = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price,volume insert into outputStream ;";
         String query2 = "@info(name = 'query2') from cseEventStream[volume > 90] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query1 + query2);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query1 + query2);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override

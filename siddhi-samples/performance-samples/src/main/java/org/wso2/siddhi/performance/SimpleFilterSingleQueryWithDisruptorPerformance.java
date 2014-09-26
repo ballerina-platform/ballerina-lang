@@ -35,7 +35,7 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
         String query1 = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.addExecutionPlan(cseEventStream + query1);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query1);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override

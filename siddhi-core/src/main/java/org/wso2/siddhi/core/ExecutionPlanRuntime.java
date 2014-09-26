@@ -89,7 +89,6 @@ public class ExecutionPlanRuntime {
         OutputCallback outputCallback = OutputParser.constructOutputCallback(queryRuntime.getQuery().getOutputStream(),
                 streamJunctionMap, queryRuntime.getOutputStreamDefinition(), siddhiContext);
         queryRuntime.setOutputCallback(outputCallback);
-        queryRuntime.getOutputRateManager().setOutputCallback(outputCallback);
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
             defineStream(((InsertIntoStreamCallback) outputCallback).getOutputStreamDefinition());
         }
@@ -108,7 +107,9 @@ public class ExecutionPlanRuntime {
     }
 
     public void addCallback(String queryName, QueryCallback callback) {
+        callback.setContext(siddhiContext);
         QueryRuntime queryRuntime = queryProcessorMap.get(queryName);
+        callback.setQuery(queryRuntime.getQuery());
         if (queryRuntime == null) {
             throw new QueryNotExistException("No query fund for " + queryName);
         }
