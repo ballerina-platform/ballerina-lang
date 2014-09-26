@@ -176,7 +176,7 @@ public class QueryRuntime {
             ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(selector);
         } else {
             Processor processor = ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().getProcessorChain();
-            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNextProcessor(processor);
+            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(processor);
             processor.setToLast(selector);
         }
 

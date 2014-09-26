@@ -64,7 +64,7 @@ public class PartitionRuntime {
     private ConcurrentMap<String, StreamJunction> streamJunctionMap;
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, PartitionInstanceRuntime> partitionInstanceRuntimeMap = new ConcurrentHashMap<String, PartitionInstanceRuntime>();
-    private ConcurrentMap<String,PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String,PartitionStreamReceiver>();
+    private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
     private ExecutionPlanRuntime executionPlanRuntime;
 
 
@@ -113,10 +113,10 @@ public class PartitionRuntime {
         return metaQueryRuntime;
     }
 
-    public void addPartitionReceiver(QueryRuntime queryRuntime, List<VariableExpressionExecutor>executors,MetaStreamEvent metaStreamEvent) {
+    public void addPartitionReceiver(QueryRuntime queryRuntime, List<VariableExpressionExecutor> executors, MetaStreamEvent metaStreamEvent) {
         Query query = queryRuntime.getQuery();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime && !((SingleInputStream) query.getInputStream()).isInnerStream()) {
-            if(!partitionStreamReceivers.containsKey(((SingleInputStream) query.getInputStream()).getStreamId())) {
+            if (!partitionStreamReceivers.containsKey(((SingleInputStream) query.getInputStream()).getStreamId())) {
                 List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaStreamEvent,
                         executors, siddhiContext).getPartitionExecutors();
                 addPartitionReceiver(new PartitionStreamReceiver(siddhiContext, metaStreamEvent,
@@ -164,7 +164,7 @@ public class PartitionRuntime {
                 }
             }
             addPartitionInstance(key, new PartitionInstanceRuntime(key, queryRuntimeList));
-            updatePartitionStreamReceivers(key,partitionedQueryRuntimeList);
+            updatePartitionStreamReceivers(key, partitionedQueryRuntimeList);
 
         }
 
@@ -189,7 +189,7 @@ public class PartitionRuntime {
     }
 
     private void addPartitionReceiver(PartitionStreamReceiver partitionStreamReceiver) {
-        partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(),partitionStreamReceiver);
+        partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(), partitionStreamReceiver);
         streamJunctionMap.get(partitionStreamReceiver.getStreamId()).subscribe(partitionStreamReceiver);
     }
 

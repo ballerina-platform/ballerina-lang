@@ -26,7 +26,7 @@ public class SimpleQueryValidatorTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol1,price,volume insert into outputStream ;";
 
-        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query),new SiddhiContext());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query), new SiddhiContext());
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
@@ -35,7 +35,7 @@ public class SimpleQueryValidatorTestCase {
         String duplicateStream = "define stream outputStream (symbol string, price float);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + duplicateStream + query),new SiddhiContext());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + duplicateStream + query), new SiddhiContext());
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
@@ -43,7 +43,7 @@ public class SimpleQueryValidatorTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query),new SiddhiContext());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query), new SiddhiContext());
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
@@ -51,7 +51,7 @@ public class SimpleQueryValidatorTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[not(price)] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query),new SiddhiContext());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query), new SiddhiContext());
 
     }
 
@@ -60,7 +60,7 @@ public class SimpleQueryValidatorTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long, available bool);";
         String query = "@info(name = 'query1') from cseEventStream[available] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query),new SiddhiContext());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query), new SiddhiContext());
     }
 
     @Test
@@ -68,6 +68,6 @@ public class SimpleQueryValidatorTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long, available bool);";
         String query = "@info(name = 'query1') from cseEventStream[available and price>50] select symbol,price,volume insert into outputStream ;";
 
-        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query),new SiddhiContext());
+        ExecutionPlanParser.parse(SiddhiCompiler.parse(cseEventStream + query), new SiddhiContext());
     }
 }

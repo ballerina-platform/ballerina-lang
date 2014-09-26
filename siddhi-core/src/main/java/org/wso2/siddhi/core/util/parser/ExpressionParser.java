@@ -233,8 +233,8 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
 
-        } else if(expression instanceof AttributeFunctionExtension) {
-            try{
+        } else if (expression instanceof AttributeFunctionExtension) {
+            try {
                 FunctionExecutor expressionExecutor = (FunctionExecutor) SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, ExecutorExtensionHolder.getInstance(siddhiContext));
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
@@ -245,7 +245,7 @@ public class ExpressionParser {
                 expressionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
                 expressionExecutor.init();
                 return expressionExecutor;
-            } catch(QueryCreationException ex){
+            } catch (QueryCreationException ex) {
 
                 AttributeAggregator executor = (AttributeAggregator) SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, OutputAttributeExtensionHolder.getInstance(siddhiContext));
                 if (((AttributeFunction) expression).getParameters().length > 1) {

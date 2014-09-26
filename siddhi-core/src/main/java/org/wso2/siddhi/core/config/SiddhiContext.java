@@ -33,7 +33,7 @@ public class SiddhiContext {
     private int defaultEventBufferSize;
     private Executor executorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
-    private Map<String,Class> siddhiExtensions;
+    private Map<String, Class> siddhiExtensions;
 
     public SiddhiContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -57,11 +57,11 @@ public class SiddhiContext {
         eternalReferencedHolders.add(eternalReferencedHolder);
     }
 
-    public void setSiddhiExtensions(Map<String,Class> siddhiExtensions) {
-        this.siddhiExtensions = siddhiExtensions;
-    }
-
     public Map<String, Class> getSiddhiExtensions() {
         return siddhiExtensions;
+    }
+
+    public void setSiddhiExtensions(Map<String, Class> siddhiExtensions) {
+        this.siddhiExtensions = siddhiExtensions;
     }
 }

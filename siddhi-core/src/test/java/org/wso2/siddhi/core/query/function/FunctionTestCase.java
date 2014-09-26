@@ -95,8 +95,8 @@ public class FunctionTestCase {
             }
 
         });
-        
-        
+
+
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         inputHandler.send(new Object[]{"IBM", 55.6f, 70.6f});
         inputHandler.send(new Object[]{"WSO2", 65.7f, 12.8f});
@@ -232,8 +232,8 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[not isMatch('[//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
-                
+        String query = "@info(name = 'query1') from cseEventStream[not isMatch('[//s]+',symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -309,7 +309,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[not (isMatch('[//s]+',symbol) and false)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[not (isMatch('[//s]+',symbol) and false)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -347,7 +347,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[(not isMatch('[//s]+',symbol)) and false] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[(not isMatch('[//s]+',symbol)) and false] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -378,7 +378,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, concat(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, concat(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -405,7 +405,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, concat(symbol,' ',price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, concat(symbol,' ',price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -433,7 +433,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -460,7 +460,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -487,7 +487,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -515,7 +515,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(volume) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(volume) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -542,7 +542,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream select symbol, sin(price,volume) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, sin(price,volume) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -569,7 +569,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[isMatch(symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[isMatch(symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -607,7 +607,7 @@ public class FunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query =  "@info(name = 'query1') from cseEventStream[isMatch(12,symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
+        String query = "@info(name = 'query1') from cseEventStream[isMatch(12,symbol)] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

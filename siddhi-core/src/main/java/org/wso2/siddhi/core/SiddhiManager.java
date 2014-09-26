@@ -44,7 +44,7 @@ public class SiddhiManager {
      * @
      */
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
-        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan,siddhiContext);
+        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext);
         executionPlanRuntimeMap.put((executionPlan.getName()!= null) ? executionPlan.getName(): UUID.randomUUID().toString(), executionPlanRuntime);
         return executionPlanRuntime;
     }

@@ -52,7 +52,7 @@ public class StreamPartitioner {
 
                             executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
                                     siddhiContext, metaStreamEvent, executors, false)));
-                            
+
                         }
                     } else {
                         //TODO: range partitioning

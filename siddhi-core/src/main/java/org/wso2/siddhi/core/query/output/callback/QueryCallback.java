@@ -48,11 +48,11 @@ public abstract class QueryCallback {
     private RingBuffer<EventHolder> ringBuffer;
     private AsyncEventHandler asyncEventHandler;
 
-    public void setQuery(Query query){
+    public void setQuery(Query query) {
         this.query = query;
     }
 
-    public void setContext(SiddhiContext siddhiContext){
+    public void setContext(SiddhiContext siddhiContext) {
         this.siddhiContext = siddhiContext;
     }
 
@@ -113,7 +113,7 @@ public abstract class QueryCallback {
         receive(timeStamp, currentEvents, expiredEvents);
     }
 
-    private void bufferEvents(StreamEvent streamEventList,List<Event> eventBuffer) {
+    private void bufferEvents(StreamEvent streamEventList, List<Event> eventBuffer) {
 
         StreamEvent processedEvent = streamEventList;
         while (processedEvent != null) {

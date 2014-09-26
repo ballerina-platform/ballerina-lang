@@ -59,7 +59,7 @@ public class SiddhiExtensionLoader {
             Collection<String> siddhiExtensionResource = getResourcesFromJarFile(file, Pattern.compile(".*siddhi.extension"));
 
             if (!siddhiExtensionResource.isEmpty()) {
-                for(String resourceName:siddhiExtensionResource)   {
+                for (String resourceName : siddhiExtensionResource) {
                     try {
                         JarFile jar = new JarFile(file);
                         ZipEntry entry = jar.getEntry(resourceName);
@@ -73,14 +73,14 @@ public class SiddhiExtensionLoader {
                                 try {
                                     classMap.put(info[0].trim(), Class.forName(info[1].trim()));
                                 } catch (ClassNotFoundException e) {
-                                    log.error("Cannot load Siddhi extension " + info[1].trim(),e);
+                                    log.error("Cannot load Siddhi extension " + info[1].trim(), e);
                                 }
                             }
                         } finally {
                             inputStream.close();
                         }
                     } catch (IOException e) {
-                        log.error("unable to get file "+ file, e);
+                        log.error("unable to get file " + file, e);
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class SiddhiExtensionLoader {
             for (File file : fileList) {
                 if (file.isDirectory()) {
                     resources.addAll(getResourcesFromDirectory(file, pattern));
-                }  else {
+                } else {
                     try {
                         String fileName = file.getCanonicalPath();
                         if (pattern.matcher(fileName).matches()) {
@@ -113,27 +113,27 @@ public class SiddhiExtensionLoader {
         return resources;
     }
 
-    private static Collection<String> getResourcesFromJarFile(File file,Pattern pattern){
+    private static Collection<String> getResourcesFromJarFile(File file, Pattern pattern) {
         ArrayList<String> resources = new ArrayList<String>();
         ZipFile zf;
-        try{
+        try {
             zf = new ZipFile(file);
-        } catch( ZipException e){
+        } catch (ZipException e) {
             throw new Error(e);
-        } catch( IOException e){
+        } catch (IOException e) {
             throw new Error(e);
         }
         Enumeration e = zf.entries();
-        while(e.hasMoreElements()){
+        while (e.hasMoreElements()) {
             ZipEntry ze = (ZipEntry) e.nextElement();
             String fileName = ze.getName();
-            if(pattern.matcher(fileName).matches()){
+            if (pattern.matcher(fileName).matches()) {
                 resources.add(fileName);
             }
         }
-        try{
+        try {
             zf.close();
-        } catch( IOException e1){
+        } catch (IOException e1) {
             throw new Error(e1);
         }
         return resources;

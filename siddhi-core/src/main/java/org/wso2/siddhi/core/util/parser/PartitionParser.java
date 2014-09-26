@@ -52,7 +52,7 @@ public class PartitionParser {
             }
             MetaStreamEvent metaStreamEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
             partitionRuntime.addQuery(queryRuntime);
-            partitionRuntime.addPartitionReceiver(queryRuntime, executors,metaStreamEvent);
+            partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStreamEvent);
         }
         return partitionRuntime;
 
