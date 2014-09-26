@@ -65,9 +65,9 @@ public class QuerySelector implements Processor {
 
     @Override
     public void process(StreamEvent streamEvent) {
-        /*if(log.isTraceEnabled()){
+        if (log.isTraceEnabled()) {
             log.trace("event is processed by selector "+ id+ this);
-        }*/
+        }
 
         if (isGroupBy) {
             keyThreadLocal.set(groupByKeyGenerator.constructEventKey(streamEvent));

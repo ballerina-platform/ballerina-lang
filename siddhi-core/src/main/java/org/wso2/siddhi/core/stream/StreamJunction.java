@@ -80,9 +80,9 @@ public class StreamJunction {
     }
 
     public void sendEvent(Event event) {
-        /*if(log.isTraceEnabled()){
-            log.trace("event is received by streamJunction "+ id+ this);
-        }*/
+        if (log.isTraceEnabled()) {
+            log.trace("event is received by streamJunction " + this);
+        }
         if (disruptor != null) {
             long sequenceNo = ringBuffer.next();
             try {
