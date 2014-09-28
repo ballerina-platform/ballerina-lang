@@ -119,10 +119,10 @@ public class ExecutionPlanRuntime {
     public void addCallback(String queryName, QueryCallback callback) {
         callback.setContext(siddhiContext);
         QueryRuntime queryRuntime = queryProcessorMap.get(queryName);
-        callback.setQuery(queryRuntime.getQuery());
         if (queryRuntime == null) {
             throw new QueryNotExistException("No query fund for " + queryName);
         }
+        callback.setQuery(queryRuntime.getQuery());
         queryRuntime.addCallback(callback);
     }
 

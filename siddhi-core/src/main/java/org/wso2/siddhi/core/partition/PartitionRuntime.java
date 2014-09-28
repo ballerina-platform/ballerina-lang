@@ -63,7 +63,7 @@ public class PartitionRuntime {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap;
     private ConcurrentMap<String, StreamJunction> streamJunctionMap;
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private ConcurrentMap<String, PartitionInstanceRuntime> partitionInstanceRuntimeMap = new ConcurrentHashMap<String, PartitionInstanceRuntime>();
+    private List<PartitionInstanceRuntime> partitionInstanceRuntimeList = new ArrayList<PartitionInstanceRuntime>();
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
     private ExecutionPlanRuntime executionPlanRuntime;
 
@@ -163,7 +163,7 @@ public class PartitionRuntime {
                     partitionedQueryRuntimeList.add(clonedQueryRuntime);
                 }
             }
-            addPartitionInstance(key, new PartitionInstanceRuntime(key, queryRuntimeList));
+            addPartitionInstance(new PartitionInstanceRuntime(key, queryRuntimeList));
             updatePartitionStreamReceivers(key, partitionedQueryRuntimeList);
 
         }
@@ -176,12 +176,17 @@ public class PartitionRuntime {
         }
     }
 
-    public void addPartitionInstance(String queryId, PartitionInstanceRuntime partitionInstanceRuntime) {
-        partitionInstanceRuntimeMap.put(queryId, partitionInstanceRuntime);
+    public void addPartitionInstance(PartitionInstanceRuntime partitionInstanceRuntime) {
+        partitionInstanceRuntimeList.add(partitionInstanceRuntime);
     }
 
     public PartitionInstanceRuntime getPartitionInstanceRuntime(String key) {
-        return partitionInstanceRuntimeMap.get(key);
+        for(PartitionInstanceRuntime partitionInstanceRuntime:partitionInstanceRuntimeList) {
+             if(key.equals(partitionInstanceRuntime.getKey())){
+                 return partitionInstanceRuntime;
+             }
+        }
+        return null;
     }
 
     public void addStreamJunction(String key, StreamJunction streamJunction) {

@@ -32,6 +32,14 @@ public class PartitionInstanceRuntime {
         this.queryRuntimeList = queryRuntimeList;
     }
 
+    public List<QueryRuntime> getQueryRuntimeList(){
+        return queryRuntimeList;
+    }
+
+    public String getKey(){
+        return key;
+    }
+
 }
 
 
