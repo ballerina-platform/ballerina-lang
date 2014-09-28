@@ -83,7 +83,7 @@ public class QueryParserHelper {
      *
      * @param metaStreamEvent
      */
-    private synchronized static void refactorMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
+    private static synchronized void refactorMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
         for (Attribute attribute : metaStreamEvent.getOutputData()) {
             if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
                 metaStreamEvent.getBeforeWindowData().remove(attribute);

@@ -18,9 +18,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class VariableExpressionExecutor implements ExpressionExecutor {
-    Attribute attribute;
-    Attribute.Type type;
-    int attributePosition = -1;
+    private Attribute attribute;
+    private Attribute.Type type;
+    private int attributePosition = -1;
     private int[] position = new int[]{-1, -1, -1, -1};
     //Position[state event index, event chain index, array ID, index] : Array ID -> outData = 2; afterWindowData = 1; beforeWindowData = 0;
 

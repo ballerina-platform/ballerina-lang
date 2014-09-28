@@ -38,8 +38,7 @@ public class StreamEventConverterFactory {
         int defaultPoolSize = 5;
         StreamEventPool streamEventPool = new StreamEventPool(eventFactory, defaultPoolSize);
         int size = metaStreamEvent.getBeforeWindowData().size() + metaStreamEvent.getAfterWindowData().size() + metaStreamEvent.getOutputData().size();
-        ArrayList<ConverterElement> converterElements = new ArrayList<ConverterElement>(size);
-
+        List<ConverterElement> converterElements = new ArrayList<ConverterElement>(size);
 
         for (int j = 0; j < 3; j++) {
             List<Attribute> currentDataList = null;

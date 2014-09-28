@@ -40,7 +40,7 @@ import java.util.concurrent.ExecutorService;
 
 public class StreamJunction {
 
-    static final Logger log = Logger.getLogger(StreamJunction.class);
+    private static final Logger log = Logger.getLogger(StreamJunction.class);
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
     private StreamDefinition streamDefinition;
