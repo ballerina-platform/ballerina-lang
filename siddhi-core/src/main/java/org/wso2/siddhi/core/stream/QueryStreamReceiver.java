@@ -72,7 +72,6 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     public void receive(Event event, boolean endOfBatch) {
         StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
         process(endOfBatch, streamEvent);
-        eventConstructor.returnEvent(streamEvent);
     }
 
     @Override
@@ -86,18 +85,26 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         if (streamEventBuffer == null) {
             if (endOfBatch) {
                 next.process(streamEvent);
+                eventConstructor.returnEvent(streamEvent);
             } else {
                 streamEventBuffer = streamEvent;
-                lastStreamEventInBuffer = streamEvent;
             }
         } else {
-            lastStreamEventInBuffer.setNext(streamEvent);
+            if(lastStreamEventInBuffer == null){
+                lastStreamEventInBuffer = streamEvent;
+                streamEventBuffer.setNext(lastStreamEventInBuffer);
+            } else{
+                lastStreamEventInBuffer.setNext(streamEvent);
+                lastStreamEventInBuffer = streamEvent;
+            }
             if (endOfBatch) {
                 next.process(streamEventBuffer);
+                while (streamEventBuffer != null){
+                    eventConstructor.returnEvent(streamEventBuffer);
+                    streamEventBuffer = streamEventBuffer.getNext();
+                }
                 streamEventBuffer = null;
                 lastStreamEventInBuffer = null;
-            } else {
-                lastStreamEventInBuffer = streamEvent;
             }
         }
     }
