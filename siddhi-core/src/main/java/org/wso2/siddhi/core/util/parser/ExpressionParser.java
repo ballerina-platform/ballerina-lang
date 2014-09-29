@@ -234,8 +234,19 @@ public class ExpressionParser {
             }
 
         } else if (expression instanceof AttributeFunctionExtension) {
+            //extensions
+            Object executor;
             try {
-                FunctionExecutor expressionExecutor = (FunctionExecutor) SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, ExecutorExtensionHolder.getInstance(siddhiContext));
+                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, ExecutorExtensionHolder.getInstance(siddhiContext));
+            } catch (QueryCreationException ex) {
+                try {
+                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, OutputAttributeExtensionHolder.getInstance(siddhiContext));
+                } catch (QueryCreationException e) {
+                    throw new QueryCreationException(((AttributeFunctionExtension) expression).getFunction() + " is neither a function extension nor an aggregated attribute extension");
+                }
+            }
+            if(executor instanceof  FunctionExecutor) {
+                FunctionExecutor expressionExecutor = (FunctionExecutor) executor;
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
                     innerExpressionExecutors.add(parseExpression(innerExpression, siddhiContext, metaEvent, executorList, groupBy));
@@ -245,9 +256,8 @@ public class ExpressionParser {
                 expressionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
                 expressionExecutor.init();
                 return expressionExecutor;
-            } catch (QueryCreationException ex) {
-
-                AttributeAggregator executor = (AttributeAggregator) SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, OutputAttributeExtensionHolder.getInstance(siddhiContext));
+            } else {
+                AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
                 if (((AttributeFunction) expression).getParameters().length > 1) {
                     throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
                 }
@@ -255,15 +265,14 @@ public class ExpressionParser {
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
                     innerExpressionExecutors.add(parseExpression(innerExpression, siddhiContext, metaEvent, executorList, groupBy));
                 }
-                (executor).init(innerExpressionExecutors.get(0).getReturnType());
+                (attributeAggregator).init(innerExpressionExecutors.get(0).getReturnType());
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
-                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(executor, innerExpressionExecutors, siddhiContext);
+                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(attributeAggregator, innerExpressionExecutors, siddhiContext);
                 } else {
-                    aggregationAttributeProcessor = new AggregationAttributeExecutor(executor, innerExpressionExecutors, siddhiContext);
+                    aggregationAttributeProcessor = new AggregationAttributeExecutor(attributeAggregator, innerExpressionExecutors, siddhiContext);
                 }
                 return aggregationAttributeProcessor;
-
             }
         } else if (expression instanceof AttributeFunction) {
             Object executor;
