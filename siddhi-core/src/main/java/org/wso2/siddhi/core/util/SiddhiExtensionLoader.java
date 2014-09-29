@@ -106,7 +106,7 @@ public class SiddhiExtensionLoader {
         try{
             zf = new ZipFile(file);
         } catch( IOException e){
-            log.error("Error creating zip file ", e);
+            log.error("Error creating zip file for jar:" + file, e);
         }
 
         if (zf != null) {
@@ -119,14 +119,14 @@ public class SiddhiExtensionLoader {
                         InputStream inputStream = zf.getInputStream(ze);
                         resources.addAll(readContent(fileName, inputStream));
                     } catch (IOException ex) {
-                        log.error("unable to get input stream of " + fileName, ex);
+                        log.error("unable to get input stream of " + fileName + "in jar:" + file, ex);
                     }
                 }
             }
             try{
                 zf.close();
             } catch( IOException e1){
-                log.error("Error closing zip file ", e1);
+                log.error("Error closing zip file created for jar:" + file, e1);
             }
         }
 
