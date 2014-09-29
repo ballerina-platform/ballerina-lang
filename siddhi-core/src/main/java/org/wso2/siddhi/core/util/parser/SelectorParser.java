@@ -55,21 +55,16 @@ public class SelectorParser {
         boolean expiredOn = false;
         String id = null;
 
-        if (outStream != null) {
-            if (outStream.getOutputEventType() == OutputStream.OutputEventType.CURRENT_EVENTS || outStream.getOutputEventType() == OutputStream.OutputEventType.ALL_EVENTS) {
-                currentOn = true;
-            }
-            if (outStream.getOutputEventType() == OutputStream.OutputEventType.EXPIRED_EVENTS || outStream.getOutputEventType() == OutputStream.OutputEventType.ALL_EVENTS) {
-                expiredOn = true;
-            }
-
-            id = outStream.getId();
-        } else {
+        if (outStream.getOutputEventType() == OutputStream.OutputEventType.CURRENT_EVENTS || outStream.getOutputEventType() == OutputStream.OutputEventType.ALL_EVENTS) {
             currentOn = true;
+        }
+        if (outStream.getOutputEventType() == OutputStream.OutputEventType.EXPIRED_EVENTS || outStream.getOutputEventType() == OutputStream.OutputEventType.ALL_EVENTS) {
             expiredOn = true;
         }
+
+        id = outStream.getId();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, context);
-        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, outStream, context, metaStateEvent, executors));
+        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, id, context, metaStateEvent, executors));
 
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(), metaStateEvent, context);
         querySelector.setHavingConditionExecutor(havingCondition);
@@ -85,15 +80,15 @@ public class SelectorParser {
      * Method to construct AttributeProcessor list for the selector
      *
      * @param selector
-     * @param outStream
+     * @param id
      * @param siddhiContext
      * @param metaStateEvent
      * @param executors
      * @return
      */
-    private static List<AttributeProcessor> getAttributeProcessors(Selector selector, OutputStream outStream, SiddhiContext siddhiContext, MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
+    private static List<AttributeProcessor> getAttributeProcessors(Selector selector, String id, SiddhiContext siddhiContext, MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
-        StreamDefinition temp = new StreamDefinition(outStream.getId());
+        StreamDefinition temp = new StreamDefinition(id);
 
         int i = 0;
         for (OutputAttribute outputAttribute : selector.getSelectionList()) {

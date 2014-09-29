@@ -40,7 +40,7 @@ import java.util.concurrent.ExecutorService;
 
 public class StreamJunction {
 
-    static final Logger log = Logger.getLogger(StreamJunction.class);
+    private static final Logger log = Logger.getLogger(StreamJunction.class);
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
     private StreamDefinition streamDefinition;
@@ -80,9 +80,9 @@ public class StreamJunction {
     }
 
     public void sendEvent(Event event) {
-        /*if(log.isTraceEnabled()){
-            log.trace("event is received by streamJunction "+ id+ this);
-        }*/
+        if (log.isTraceEnabled()) {
+            log.trace("event is received by streamJunction " + this);
+        }
         if (disruptor != null) {
             long sequenceNo = ringBuffer.next();
             try {

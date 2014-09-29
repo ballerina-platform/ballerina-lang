@@ -30,7 +30,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class WindowTestCase {
-    static final Logger log = Logger.getLogger(WindowTestCase.class);
+    private static final Logger log = Logger.getLogger(WindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;

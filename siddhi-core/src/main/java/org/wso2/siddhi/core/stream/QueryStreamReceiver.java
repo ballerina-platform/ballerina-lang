@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.stream;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventConstructor;
+import org.wso2.siddhi.core.event.stream.constructor.EventConstructor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
