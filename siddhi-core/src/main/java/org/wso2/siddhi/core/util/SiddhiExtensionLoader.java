@@ -60,7 +60,7 @@ public class SiddhiExtensionLoader {
     }
 
     private static Collection<String> getResources(String element,Pattern pattern){
-        ArrayList<String> resources = new ArrayList<String>();
+        List<String> resources = new ArrayList<String>();
         File file = new File(element);
         if(file.isDirectory()){
             resources.addAll(getContentFromDirectory(file, pattern));
@@ -71,7 +71,7 @@ public class SiddhiExtensionLoader {
     }
 
     private static Collection<String> getContentFromDirectory(File directory, Pattern pattern) {
-        ArrayList<String> resources = new ArrayList<String>();
+        List<String> resources = new ArrayList<String>();
         File[] fileList = directory.listFiles();
         if (fileList != null) {
             for (File file : fileList) {
@@ -101,7 +101,7 @@ public class SiddhiExtensionLoader {
     }
 
     private static Collection<String> getContentFromJarFile(File file, Pattern pattern){
-        ArrayList<String> resources = new ArrayList<String>();
+        List<String> resources = new ArrayList<String>();
         ZipFile zf = null;
         try{
             zf = new ZipFile(file);
@@ -134,7 +134,7 @@ public class SiddhiExtensionLoader {
     }
 
     public static Collection<String> readContent(String fileName,InputStream inputStream){
-        ArrayList<String> resources = new ArrayList<String>();
+        List<String> resources = new ArrayList<String>();
         String[] file = fileName.split("/");
         String namespace = file[file.length-1].split("\\.")[0];
         try{

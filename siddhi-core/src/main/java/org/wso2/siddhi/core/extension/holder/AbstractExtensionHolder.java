@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractExtensionHolder {
-    public static final String EXTENSION_SEPARATOR = ":";
-    static final Logger log = Logger.getLogger(AbstractExtensionHolder.class);
+    private static final String EXTENSION_SEPARATOR = ":";
+    private static final Logger log = Logger.getLogger(AbstractExtensionHolder.class);
 
     protected Map<String, Class> extensionMap = new HashMap<String, Class>();
 
