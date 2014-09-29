@@ -35,13 +35,6 @@ public abstract class CompareConditionExpressionExecutor extends ConditionExpres
         return !(left == null || right == null) && execute(left, right);
     }
 
-    protected String convertOperator(String operator, int level) {
-        if (level == PREDICATE_LEVEL && operator.contains("==")) {
-            return " = ";
-        }
-        return operator;
-    }
-
     protected abstract Boolean execute(Object left, Object right);
 
 }

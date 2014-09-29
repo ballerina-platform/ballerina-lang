@@ -21,7 +21,6 @@ import org.wso2.siddhi.query.api.definition.Attribute;
  * special type of Executors which will always return Boolean type.
  */
 public abstract class ConditionExpressionExecutor implements ExpressionExecutor {
-    protected int PREDICATE_LEVEL = -1;
 
     public Attribute.Type getReturnType() {
         return Attribute.Type.BOOL;
