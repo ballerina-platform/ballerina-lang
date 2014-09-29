@@ -88,21 +88,14 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
                 eventConstructor.returnEvent(streamEvent);
             } else {
                 streamEventBuffer = streamEvent;
+                lastStreamEventInBuffer = streamEvent;
             }
         } else {
-            if(lastStreamEventInBuffer == null){
-                lastStreamEventInBuffer = streamEvent;
-                streamEventBuffer.setNext(lastStreamEventInBuffer);
-            } else{
-                lastStreamEventInBuffer.setNext(streamEvent);
-                lastStreamEventInBuffer = streamEvent;
-            }
+               lastStreamEventInBuffer.setNext(streamEvent);
+               lastStreamEventInBuffer = streamEvent;
             if (endOfBatch) {
                 next.process(streamEventBuffer);
-                while (streamEventBuffer != null){
-                    eventConstructor.returnEvent(streamEventBuffer);
-                    streamEventBuffer = streamEventBuffer.getNext();
-                }
+                eventConstructor.returnEvent(streamEventBuffer);
                 streamEventBuffer = null;
                 lastStreamEventInBuffer = null;
             }
