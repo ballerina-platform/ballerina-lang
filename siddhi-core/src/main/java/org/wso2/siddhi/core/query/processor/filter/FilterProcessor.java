@@ -45,9 +45,28 @@ public class FilterProcessor implements Processor {
 
     @Override
     public void process(StreamEvent event) {
-        if ((Boolean) conditionExecutor.execute(event)) {
-            this.next.process(event);
+        StreamEvent previous = null;
+        StreamEvent first = null;
+        while (event != null){
+            if ((Boolean) conditionExecutor.execute(event)) {
+                if(first == null){
+                    first = event;
+                    previous = event;
+                } else {
+                    previous.setNext(event);
+                    previous = event;
+                }
+            }
+
+            event = event.getNext();
         }
+
+        if(first != null){
+            this.next.process(first);
+        }
+//        if ((Boolean) conditionExecutor.execute(event)) {
+//            this.next.process(event);
+//        }
     }
 
     @Override
