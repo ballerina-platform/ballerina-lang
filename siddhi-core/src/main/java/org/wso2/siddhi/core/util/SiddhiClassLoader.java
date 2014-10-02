@@ -22,8 +22,6 @@ import org.wso2.siddhi.core.exception.CannotLoadClassException;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.query.api.extension.Extension;
-//import org.wso2.siddhi.core.extension.holder.AbstractExtensionHolder;
-//import org.wso2.siddhi.query.api.extension.Extension;
 
 public class SiddhiClassLoader {
 

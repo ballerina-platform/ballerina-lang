@@ -2006,7 +2006,7 @@ public class FilterTestCase {
 
     @Test
     public void testFilterQuery66() throws InterruptedException {
-        log.info("Filter test66 : NOT Operator");
+        log.info("Filter test66");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);

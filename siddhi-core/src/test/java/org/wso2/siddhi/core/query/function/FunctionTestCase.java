@@ -162,7 +162,6 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
-                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -202,7 +201,6 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
-                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {
@@ -616,7 +614,6 @@ public class FunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
-                ;
                 if (count == 1) {
                     Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
                 } else if (count == 2) {

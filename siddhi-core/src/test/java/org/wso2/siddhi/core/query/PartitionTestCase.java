@@ -139,6 +139,7 @@ public class PartitionTestCase {
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                EventPrinter.print(events);
                 count = count+events.length;
                 eventArrived = true;
             }
@@ -203,6 +204,7 @@ public class PartitionTestCase {
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                EventPrinter.print(events);
                 count = count+events.length;
                 eventArrived = true;
             }
@@ -305,6 +307,7 @@ public class PartitionTestCase {
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                EventPrinter.print(events);
                 count = count+events.length;
                 eventArrived = true;
             }
@@ -453,6 +456,7 @@ public class PartitionTestCase {
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                EventPrinter.print(events);
                 count = count+events.length;
                 eventArrived = true;
             }
@@ -504,6 +508,7 @@ public class PartitionTestCase {
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                EventPrinter.print(events);
                 count = count+events.length;
                 eventArrived = true;
             }
