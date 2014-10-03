@@ -19,7 +19,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 public class NotConditionExpressionExecutor extends ConditionExpressionExecutor {
 
-    public ExpressionExecutor conditionExecutor;
+    protected ExpressionExecutor conditionExecutor;
 
     public NotConditionExpressionExecutor(ExpressionExecutor conditionExecutor) {
         if (conditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {

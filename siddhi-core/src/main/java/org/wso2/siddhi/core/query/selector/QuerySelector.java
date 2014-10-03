@@ -35,7 +35,7 @@ import java.util.List;
 public class QuerySelector implements Processor {
 
 
-    static final Logger log = Logger.getLogger(QuerySelector.class);
+    private static final Logger log = Logger.getLogger(QuerySelector.class);
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
     private int outputSize;
@@ -65,9 +65,9 @@ public class QuerySelector implements Processor {
 
     @Override
     public void process(StreamEvent streamEvent) {
-        /*if(log.isTraceEnabled()){
-            log.trace("event is processed by selector "+ id+ this);
-        }*/
+        if (log.isTraceEnabled()) {
+            log.trace("event is processed by selector " + id + this);
+        }
 
         if (isGroupBy) {
             keyThreadLocal.set(groupByKeyGenerator.constructEventKey(streamEvent));

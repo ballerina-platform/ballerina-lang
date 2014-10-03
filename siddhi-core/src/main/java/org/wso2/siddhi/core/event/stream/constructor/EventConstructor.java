@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.event.stream.converter;
+package org.wso2.siddhi.core.event.stream.constructor;
 /*
  * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
  * All Rights Reserved.

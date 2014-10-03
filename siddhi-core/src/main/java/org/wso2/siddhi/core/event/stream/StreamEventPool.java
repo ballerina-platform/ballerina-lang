@@ -58,10 +58,19 @@ public class StreamEventPool {
      */
     public void returnEvent(StreamEvent streamEvent) {
         if (index < size) {
-            streamEvent.setNext(streamEventList);
-            streamEventList = streamEvent;
-            index++;
+            StreamEvent first = streamEvent;
+            StreamEvent last = streamEvent;
+            while (streamEvent != null) {
+                last = streamEvent;
+                index++;
+                streamEvent = streamEvent.getNext();
+            }
+            if(last != null){
+                last.setNext(streamEventList);
+                streamEventList = first;
+            }
         }
+
     }
 
     /**

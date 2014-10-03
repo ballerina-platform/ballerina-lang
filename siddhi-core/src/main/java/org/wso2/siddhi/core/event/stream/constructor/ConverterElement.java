@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream.converter;
+package org.wso2.siddhi.core.event.stream.constructor;
 
 /**
  * Element to hold information about event conversion

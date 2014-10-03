@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.stream;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventConstructor;
+import org.wso2.siddhi.core.event.stream.constructor.EventConstructor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -72,7 +72,6 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     public void receive(Event event, boolean endOfBatch) {
         StreamEvent streamEvent = eventConstructor.constructStreamEvent(event);
         process(endOfBatch, streamEvent);
-        eventConstructor.returnEvent(streamEvent);
     }
 
     @Override
@@ -86,18 +85,19 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         if (streamEventBuffer == null) {
             if (endOfBatch) {
                 next.process(streamEvent);
+                eventConstructor.returnEvent(streamEvent);
             } else {
                 streamEventBuffer = streamEvent;
                 lastStreamEventInBuffer = streamEvent;
             }
         } else {
-            lastStreamEventInBuffer.setNext(streamEvent);
+               lastStreamEventInBuffer.setNext(streamEvent);
+               lastStreamEventInBuffer = streamEvent;
             if (endOfBatch) {
                 next.process(streamEventBuffer);
+                eventConstructor.returnEvent(streamEventBuffer);
                 streamEventBuffer = null;
                 lastStreamEventInBuffer = null;
-            } else {
-                lastStreamEventInBuffer = streamEvent;
             }
         }
     }
