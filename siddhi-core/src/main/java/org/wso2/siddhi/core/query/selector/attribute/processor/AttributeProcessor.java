@@ -38,6 +38,9 @@ public class AttributeProcessor {
 
     public void process(StreamEvent event) {
         event.setOutputData(expressionExecutor.execute(event), outputPosition);
+        if(event.getNext()!= null) {
+             process(event.getNext());
+        }
     }
 
     public AttributeProcessor cloneProcessor() {

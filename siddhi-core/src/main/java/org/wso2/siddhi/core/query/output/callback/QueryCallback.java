@@ -66,15 +66,17 @@ public abstract class QueryCallback {
     }
 
     private void sendAsync(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent) {
-
-        long sequenceNo = ringBuffer.next();
-        try {
-            EventHolder holder = ringBuffer.get(sequenceNo);
-            holder.timeStamp = timeStamp;
-            holder.currentStreamEvent = currentStreamEvent;
-            holder.expiredStreamEvent = expiredStreamEvent;
-        } finally {
-            ringBuffer.publish(sequenceNo);
+        while (currentStreamEvent != null){
+            long sequenceNo = ringBuffer.next();
+            try {
+                EventHolder holder = ringBuffer.get(sequenceNo);
+                holder.timeStamp = timeStamp;
+                holder.currentStreamEvent = currentStreamEvent;
+                holder.expiredStreamEvent = expiredStreamEvent;
+            } finally {
+                ringBuffer.publish(sequenceNo);
+            }
+            currentStreamEvent = currentStreamEvent.getNext();
         }
     }
 

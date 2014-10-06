@@ -40,7 +40,10 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        receive(new Event[]{new Event(streamEvent.getOutputData().length).copyFrom(streamEvent)});
+        while (streamEvent != null){
+            receive(new Event[]{new Event(streamEvent.getOutputData().length).copyFrom(streamEvent)});
+            streamEvent = streamEvent.getNext();
+        }
     }
 
     @Override

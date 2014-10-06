@@ -85,8 +85,11 @@ public class QuerySelector implements Processor {
         if (havingConditionExecutor == null) {
             outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
         } else {
-            if (havingConditionExecutor.execute(streamEvent)) {
-                outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+            while (streamEvent != null){
+                if (havingConditionExecutor.execute(streamEvent)) {
+                    outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+                }
+                streamEvent = streamEvent.getNext();
             }
         }
 
