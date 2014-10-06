@@ -79,9 +79,13 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
         return execute(expressionExecutor.execute(event));
     }
 
+    @Override
+    public void start() {
+        //Nothing to start
+    }
 
     @Override
-    public void destroy() {
-        //nothing to destroy
+    public void stop() {
+        //nothing to stop
     }
 }

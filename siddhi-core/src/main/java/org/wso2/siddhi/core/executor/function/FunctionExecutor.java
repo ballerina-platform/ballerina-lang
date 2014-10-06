@@ -46,6 +46,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      */
     public abstract void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext);
 
+
     @Override
     public Object execute(StreamEvent event) {
 

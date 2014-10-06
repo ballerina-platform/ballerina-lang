@@ -52,7 +52,12 @@ public class CountAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
-    public void destroy() {
-        //nothing to destroy
+    public void start() {
+        //Nothing to start
+    }
+
+    @Override
+    public void stop() {
+        //nothing to stop
     }
 }

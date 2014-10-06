@@ -20,6 +20,8 @@ package org.wso2.siddhi.core.extension;
 
 public interface EternalReferencedHolder {
 
-    public void destroy();
+    public void start();
+
+    public void stop();
 
 }
