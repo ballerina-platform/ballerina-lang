@@ -66,8 +66,13 @@ public class SumAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
-    public void destroy() {
-        //Nothing to destroy
+    public void start() {
+        //Nothing to start
+    }
+
+    @Override
+    public void stop() {
+        //Nothing to stop
     }
 
     class SumAttributeAggregatorDouble extends SumAttributeAggregator {

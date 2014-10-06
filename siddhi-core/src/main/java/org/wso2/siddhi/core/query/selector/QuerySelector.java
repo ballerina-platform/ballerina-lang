@@ -22,6 +22,7 @@ package org.wso2.siddhi.core.query.selector;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventIterator;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -68,28 +69,36 @@ public class QuerySelector implements Processor {
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
+        StreamEventIterator iterator = streamEvent.getIterator();
+        while (iterator.hasNext()) {
+            StreamEvent event = iterator.next();
+            if (isGroupBy) {
+                keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
+            }
 
-        if (isGroupBy) {
-            keyThreadLocal.set(groupByKeyGenerator.constructEventKey(streamEvent));
-        }
+            //TODO: have to change for windows
+            for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                attributeProcessor.process(event);
+            }
 
-        //TODO: have to change for windows
-        for (AttributeProcessor attributeProcessor : attributeProcessorList) {
-            attributeProcessor.process(streamEvent);
-        }
-
-        if (isGroupBy) {
-            keyThreadLocal.remove();
+            if (isGroupBy) {
+                keyThreadLocal.remove();
+            }
         }
 
         if (havingConditionExecutor == null) {
             outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
         } else {
-            while (streamEvent != null){
-                if (havingConditionExecutor.execute(streamEvent)) {
-                    outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+            iterator = streamEvent.getIterator();
+            while (iterator.hasNext()){
+                StreamEvent event = iterator.next();
+                if (!havingConditionExecutor.execute(event)) {
+                        iterator.remove();
                 }
-                streamEvent = streamEvent.getNext();
+            }
+            StreamEvent returnEvent = iterator.getFirstElement();
+            if(returnEvent != null){
+                outputRateLimiter.send(returnEvent.getTimestamp(), returnEvent, null);
             }
         }
 

@@ -20,6 +20,8 @@ package org.wso2.siddhi.core.event.stream;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 
+import java.util.Iterator;
+
 /**
  * Standard processing event inside Siddhi. StreamEvent will be created
  * from StreamEvent before sending to relevant Queries.
@@ -131,6 +133,12 @@ public class StreamEvent implements ComplexEvent {
 
     public int getOutputDataSize() {
         return this.outputData.length;
+    }
+
+    public StreamEventIterator getIterator(){
+        StreamEventIterator iterator = new StreamEventIterator();
+        iterator.setEvent(this);
+        return iterator;
     }
 
     /**

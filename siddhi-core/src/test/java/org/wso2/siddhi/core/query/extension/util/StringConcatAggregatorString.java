@@ -63,9 +63,13 @@ public class StringConcatAggregatorString implements AttributeAggregator {
         return new StringConcatAggregatorString();
     }
 
+    @Override
+    public void start() {
+        //Nothing to start
+    }
 
     @Override
-    public void destroy() {
+    public void stop() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

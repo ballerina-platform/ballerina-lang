@@ -30,9 +30,13 @@ import java.util.List;
 public class CustomFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType;
 
+    @Override
+    public void start() {
+        //Nothing to start
+    }
 
     @Override
-    public void destroy() {
+    public void stop() {
     }
     /**
      * Return type of the custom function mentioned
