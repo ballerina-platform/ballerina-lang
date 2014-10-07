@@ -258,9 +258,6 @@ public class ExpressionParser {
                 return expressionExecutor;
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
-                if (((AttributeFunction) expression).getParameters().length > 1) {
-                    throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
-                }
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
                     innerExpressionExecutors.add(parseExpression(innerExpression, siddhiContext, metaEvent, executorList, groupBy));
