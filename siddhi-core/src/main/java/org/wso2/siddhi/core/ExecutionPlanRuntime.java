@@ -53,6 +53,7 @@ public class ExecutionPlanRuntime {
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private SiddhiContext siddhiContext;
+    private String name;
 
     public ExecutionPlanRuntime(SiddhiContext siddhiContext) {
         this.siddhiContext = siddhiContext;
@@ -147,5 +148,13 @@ public class ExecutionPlanRuntime {
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.stopProcessing();
         }
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }

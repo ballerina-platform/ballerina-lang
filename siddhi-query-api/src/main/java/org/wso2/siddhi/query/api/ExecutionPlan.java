@@ -17,6 +17,7 @@
 */
 package org.wso2.siddhi.query.api;
 
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -35,14 +36,18 @@ import java.util.Map;
 
 public class ExecutionPlan {
 
-    private String name;
     private Map<String, StreamDefinition> streamDefinitionMap = new HashMap<String, StreamDefinition>();
     private Map<String, TableDefinition> tableDefinitionMap = new HashMap<String, TableDefinition>();
     private List<ExecutionElement> executionElementList = new ArrayList<ExecutionElement>();
     private List<String> executionElementNameList = new ArrayList<String>();
+    private List<Annotation> annotations = new ArrayList<Annotation>();
 
     public ExecutionPlan(String name) {
-        this.name = name;
+        annotations.add(Annotation.annotation("info").element("name", name));
+    }
+
+    public ExecutionPlan(List<Annotation> annotations) {
+        this.annotations = annotations;
     }
 
     public ExecutionPlan() {
@@ -142,8 +147,13 @@ public class ExecutionPlan {
         return this;
     }
 
-    public String getName() {
-        return name;
+    public ExecutionPlan annotation(Annotation annotation) {
+        annotations.add(annotation);
+        return this;
+    }
+
+    public List<Annotation> getAnnotations() {
+        return annotations;
     }
 
     public List<ExecutionElement> getExecutionElementList() {
@@ -161,10 +171,11 @@ public class ExecutionPlan {
     @Override
     public String toString() {
         return "ExecutionPlan{" +
-                "name='" + name + '\'' +
-                ", streamDefinitionMap=" + streamDefinitionMap +
+                "streamDefinitionMap=" + streamDefinitionMap +
                 ", tableDefinitionMap=" + tableDefinitionMap +
                 ", executionElementList=" + executionElementList +
+                ", executionElementNameList=" + executionElementNameList +
+                ", annotations=" + annotations +
                 '}';
     }
 
@@ -175,9 +186,11 @@ public class ExecutionPlan {
 
         ExecutionPlan that = (ExecutionPlan) o;
 
+        if (annotations != null ? !annotations.equals(that.annotations) : that.annotations != null) return false;
         if (executionElementList != null ? !executionElementList.equals(that.executionElementList) : that.executionElementList != null)
             return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (executionElementNameList != null ? !executionElementNameList.equals(that.executionElementNameList) : that.executionElementNameList != null)
+            return false;
         if (streamDefinitionMap != null ? !streamDefinitionMap.equals(that.streamDefinitionMap) : that.streamDefinitionMap != null)
             return false;
         if (tableDefinitionMap != null ? !tableDefinitionMap.equals(that.tableDefinitionMap) : that.tableDefinitionMap != null)
@@ -188,10 +201,11 @@ public class ExecutionPlan {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (streamDefinitionMap != null ? streamDefinitionMap.hashCode() : 0);
+        int result = streamDefinitionMap != null ? streamDefinitionMap.hashCode() : 0;
         result = 31 * result + (tableDefinitionMap != null ? tableDefinitionMap.hashCode() : 0);
         result = 31 * result + (executionElementList != null ? executionElementList.hashCode() : 0);
+        result = 31 * result + (executionElementNameList != null ? executionElementNameList.hashCode() : 0);
+        result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
     }
 }

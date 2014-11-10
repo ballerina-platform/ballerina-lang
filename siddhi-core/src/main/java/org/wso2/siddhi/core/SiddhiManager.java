@@ -24,12 +24,12 @@ import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 
 public class SiddhiManager {
+
     private SiddhiContext siddhiContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = new ConcurrentHashMap<String, ExecutionPlanRuntime>();
 
@@ -39,13 +39,14 @@ public class SiddhiManager {
 
     /**
      * add stream definitions, partitions and queries of an execution plan
-     * @param executionPlan  executionPlan which contains stream definitions,queries and partitions
+     *
+     * @param executionPlan executionPlan which contains stream definitions,queries and partitions
      * @return executionPlanRuntime corresponding to the given executionPlan
      * @
      */
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
         ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext);
-        executionPlanRuntimeMap.put((executionPlan.getName()!= null) ? executionPlan.getName(): UUID.randomUUID().toString(), executionPlanRuntime);
+        executionPlanRuntimeMap.put(executionPlanRuntime.getName(), executionPlanRuntime);
         return executionPlanRuntime;
     }
 

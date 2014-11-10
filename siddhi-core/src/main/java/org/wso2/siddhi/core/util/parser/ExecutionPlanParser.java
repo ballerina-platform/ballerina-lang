@@ -24,13 +24,17 @@ import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class ExecutionPlanParser {
 
@@ -42,6 +46,19 @@ public class ExecutionPlanParser {
      */
     public static ExecutionPlanRuntime parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
         ExecutionPlanRuntime executionPlanRuntime = new ExecutionPlanRuntime(siddhiContext);
+
+        try {
+            Element element = AnnotationHelper.getAnnotationElement("info", "name", executionPlan.getAnnotations());
+            if (element != null) {
+                executionPlanRuntime.setName(element.getValue());
+            } else {
+                executionPlanRuntime.setName(UUID.randomUUID().toString());
+            }
+        } catch (DuplicateAnnotationException e) {
+            throw new ExecutionPlanValidationException(e.getMessage() + " for the same Execution Plan " +
+                    executionPlan.toString());
+        }
+
         defineStreamDefinitions(executionPlanRuntime, executionPlan.getStreamDefinitionMap());
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
@@ -54,11 +71,8 @@ public class ExecutionPlanParser {
                 }
             }
         } catch (QueryCreationException e) {
-            if (executionPlan.getName() != null) {
-                throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan " + executionPlan.getName(), e);
-            } else {
-                throw new ExecutionPlanValidationException(e.getMessage(), e);
-            }
+            throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan " +
+                    executionPlanRuntime.getName(), e);
         }
         return executionPlanRuntime;
     }
