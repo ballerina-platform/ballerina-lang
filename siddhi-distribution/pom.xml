@@ -90,7 +90,7 @@
                                     </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>com.hazelcast</groupId>
+                                    <groupId>com.hazelcast.wso2</groupId>
                                     <artifactId>hazelcast</artifactId>
                                     <version>${hazelcast.version}</version>
                                     <overWrite>false</overWrite>
