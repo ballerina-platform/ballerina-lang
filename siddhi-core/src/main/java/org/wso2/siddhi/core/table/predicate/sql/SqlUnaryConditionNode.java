@@ -1,5 +1,6 @@
 package org.wso2.siddhi.core.table.predicate.sql;
 
+import org.wso2.siddhi.core.table.predicate.PredicateToken;
 import org.wso2.siddhi.core.table.predicate.PredicateTreeNode;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class SqlUnaryConditionNode implements PredicateTreeNode {
 
     @Override
     public void populateTokens(List tokenList) {
-        tokenList.add("op:" + operator);
+        tokenList.add(new PredicateToken(PredicateToken.Type.OPERATOR, operator));
         child.populateTokens(tokenList);
     }
 

@@ -1,5 +1,6 @@
 package org.wso2.siddhi.core.table.predicate.sql;
 
+import org.wso2.siddhi.core.table.predicate.PredicateToken;
 import org.wso2.siddhi.core.table.predicate.PredicateTreeNode;
 
 import java.util.List;
@@ -24,7 +25,8 @@ public class SqlValueWrapperNode implements PredicateTreeNode {
 
     @Override
     public void populateTokens(List tokenList) {
-        tokenList.add("val:" + value);
+        // todo - check if needed to add value as an object
+        tokenList.add(new PredicateToken(PredicateToken.Type.VALUE, value.toString()));
     }
 
     @Override

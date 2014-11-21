@@ -1,5 +1,6 @@
 package org.wso2.siddhi.core.table.predicate.sql;
 
+import org.wso2.siddhi.core.table.predicate.PredicateToken;
 import org.wso2.siddhi.core.table.predicate.PredicateTreeNode;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class SqlVariableNode implements PredicateTreeNode {
 
     @Override
     public void populateTokens(List tokenList) {
-        tokenList.add("var:" + variableExpression);
+        tokenList.add(new PredicateToken(PredicateToken.Type.VARIABLE, variableExpression));
     }
 
     @Override
