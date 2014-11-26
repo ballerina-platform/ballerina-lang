@@ -58,10 +58,25 @@ public class FilterTestCase {
         log.info("filter test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price insert into outputStream ;";
-        String query2 = "@info(name = 'query2') from outputStream[70 > price] select symbol,price insert into outputStream2 ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query + query2);
+        String executionPlan = "" +
+                "@plan:info(name='test') " +
+                "@plan:config(threads='single') " +
+                "" +
+                "@config(async = 'true') " +
+                "define stream cseEventStream (symbol string, price float, volume long);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream[70 > price] " +
+                "select symbol, price " +
+                "insert into outputStream;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from outputStream[70 > price] " +
+                "select symbol, price " +
+                "insert into outputStream2 ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

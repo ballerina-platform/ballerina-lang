@@ -32,8 +32,8 @@ error
     ;
 
 execution_plan
-    :(definition_stream|definition_table|execution_element|error)
-        (';'  (definition_stream|definition_table|execution_element|error))* ';'? 
+    :plan_annotation* (definition_stream|definition_table|execution_element|error)
+        (';'  (definition_stream|definition_table|execution_element|error))* ';'?
     ;
 
 execution_element
@@ -58,6 +58,10 @@ definition_table
 
 annotation
     : '@' name ('(' annotation_element (',' annotation_element )* ')' )?
+    ;
+
+plan_annotation
+    : '@' 'plan' ':' name ('(' annotation_element (',' annotation_element )* ')' )?
     ;
 
 annotation_element

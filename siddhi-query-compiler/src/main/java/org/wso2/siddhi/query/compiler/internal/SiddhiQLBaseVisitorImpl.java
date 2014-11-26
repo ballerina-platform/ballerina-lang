@@ -82,6 +82,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public ExecutionPlan visitExecution_plan(@NotNull SiddhiQLParser.Execution_planContext ctx) {
         ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
+        for (SiddhiQLParser.Plan_annotationContext annotationContext : ctx.plan_annotation()) {
+            executionPlan.annotation((Annotation) visit(annotationContext));
+        }
         for (SiddhiQLParser.Definition_streamContext streamContext : ctx.definition_stream()) {
             executionPlan.defineStream((StreamDefinition) visit(streamContext));
         }
@@ -327,6 +330,25 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } finally {
             activeStreams.clear();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Annotation visitPlan_annotation(@NotNull SiddhiQLParser.Plan_annotationContext ctx) {
+        Annotation annotation = new Annotation((String) visit(ctx.name()));
+
+        for (SiddhiQLParser.Annotation_elementContext elementContext : ctx.annotation_element()) {
+            annotation.element((Element) visit(elementContext));
+        }
+
+        return annotation;
     }
 
     /**
