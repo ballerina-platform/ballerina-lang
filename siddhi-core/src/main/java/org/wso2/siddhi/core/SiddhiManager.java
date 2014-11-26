@@ -27,15 +27,14 @@ import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
-import org.wso2.siddhi.core.extension.holder.EventTableExtensionHolder;
 import org.wso2.siddhi.core.persistence.PersistenceService;
+import org.wso2.siddhi.core.snapshot.SnapshotService;
 import org.wso2.siddhi.core.persistence.PersistenceStore;
+import org.wso2.siddhi.core.snapshot.ThreadBarrier;
 import org.wso2.siddhi.core.query.QueryManager;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.snapshot.SnapshotService;
-import org.wso2.siddhi.core.snapshot.ThreadBarrier;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -58,7 +57,12 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class SiddhiManager {
 
@@ -201,17 +205,6 @@ public class SiddhiManager {
                 if (tableDefinition.getExternalTable() == null) {
                     eventTable = new InMemoryEventTable(tableDefinition, siddhiContext);
                     siddhiContext.getSnapshotService().addSnapshotable((InMemoryEventTable) eventTable);
-                } else if (tableDefinition.getExternalTable().getParameter("namespace") != null && tableDefinition.getExternalTable().getParameter("function") != null) {
-                    // loading custom event table extensions.
-                    Class extensionClass = EventTableExtensionHolder.getInstance(getSiddhiContext()).getExtension(tableDefinition.getExternalTable().getParameter("namespace"), tableDefinition.getExternalTable().getParameter("function"));
-                    try {
-                        eventTable = (EventTable) extensionClass.newInstance();
-                        eventTable.init(tableDefinition, getSiddhiContext());
-                    } catch (Exception e) {
-                        throw new RuntimeException("Error loading the extension class: " + tableDefinition.getExternalTable().getParameter("namespace") + ":" + tableDefinition.getExternalTable().getParameter("function"));
-                    }
-//                } else if (tableDefinition.getExternalTable().getParameter("columnfamily.name") != null) {
-//                    eventTable = new CassandraEventTable(tableDefinition, siddhiContext);
                 } else {
                     eventTable = new RDBMSEventTable(tableDefinition, siddhiContext);
                     // load params for table.

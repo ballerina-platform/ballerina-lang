@@ -1,6 +1,5 @@
 package org.wso2.siddhi.core.table.predicate.sql;
 
-import org.wso2.siddhi.core.table.predicate.PredicateToken;
 import org.wso2.siddhi.core.table.predicate.PredicateTreeNode;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class SqlBinaryConditionNode implements PredicateTreeNode {
     public void populateTokens(List tokensList) {
         // inorder traverse.
         leftChild.populateTokens(tokensList);
-        tokensList.add(new PredicateToken(PredicateToken.Type.OPERATOR, this.operator));
+        tokensList.add("op:" + this.operator);
         rightChild.populateTokens(tokensList);
     }
 

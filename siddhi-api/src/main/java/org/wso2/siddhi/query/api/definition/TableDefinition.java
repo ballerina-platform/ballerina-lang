@@ -17,7 +17,6 @@
 */
 package org.wso2.siddhi.query.api.definition;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,7 +62,7 @@ public class TableDefinition extends AbstractDefinition {
     }
 
 
-    public class ExternalTable implements Serializable {
+    public class ExternalTable {
 
         private Map<String, String> tableParameters;
 

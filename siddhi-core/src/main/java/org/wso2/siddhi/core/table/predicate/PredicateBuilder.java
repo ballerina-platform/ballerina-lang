@@ -23,16 +23,16 @@ public interface PredicateBuilder {
     /**
      * For creating expression that includes a variable
      *
-     * @param variable variable name
-     * @return the built predicate tree node
+     * @param variable
+     * @return
      */
     public PredicateTreeNode buildVariableExpression(String variable);
 
     /**
      * Boolean not conditions
      *
-     * @param subPredicate predicate tree node with sub predicate
-     * @return predicate tree with not condition
+     * @param subPredicate
+     * @return
      */
     public PredicateTreeNode buildNotCondition(PredicateTreeNode subPredicate);
 
@@ -40,20 +40,20 @@ public interface PredicateBuilder {
     /**
      * To be used for two sided Boolean operations
      *
-     * @param leftSubPredicate  predicate tree for left condition
-     * @param rightSubPredicate predicate tree for right condition
-     * @param operator          operator to be applied
-     * @return predicate tree with the binary condition applied
+     * @param leftSubPredicate
+     * @param rightSubPredicate
+     * @param operator
+     * @return
      */
     public PredicateTreeNode buildBinaryCondition(PredicateTreeNode leftSubPredicate, PredicateTreeNode rightSubPredicate, BinaryOperator operator);
 
     /**
      * To be used for Numerical comparisons
      *
-     * @param leftPredicate  predicate tree for left expression
-     * @param rightPredicate predicate tree for right expression
-     * @param comparisonType the comparison type GREATER_THAN, EQUALS etc.
-     * @return the predicate tree with the comparison
+     * @param leftPredicate
+     * @param rightPredicate
+     * @param comparisonType
+     * @return
      */
     public PredicateTreeNode buildCompareCondition(PredicateTreeNode leftPredicate, PredicateTreeNode rightPredicate, ComparisonType comparisonType);
 
@@ -68,8 +68,8 @@ public interface PredicateBuilder {
     /**
      * wrap with parenthesis or other database specific means.
      *
-     * @param predicate predicate tree to be wrapped
-     * @return wrapped predicate tree
+     * @param predicate
+     * @return
      */
     public PredicateTreeNode wrapPredicate(PredicateTreeNode predicate);
 

@@ -77,7 +77,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      * The main executions method which will be called upon event arrival
      *
      * @param data the runtime values of the attributeExpressionExecutors
-     * @return the processed object
+     * @return
      */
     protected abstract Object process(Object data);
 

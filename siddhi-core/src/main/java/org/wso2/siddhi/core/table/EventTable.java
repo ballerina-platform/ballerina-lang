@@ -17,7 +17,6 @@
 */
 package org.wso2.siddhi.core.table;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.AtomicEvent;
 import org.wso2.siddhi.core.event.StreamEvent;
 import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
@@ -30,8 +29,6 @@ public interface EventTable {
 
 
     public TableDefinition getTableDefinition();
-
-    public void init(TableDefinition tableDefinition, SiddhiContext siddhiContext);
 
     public void add(StreamEvent streamEvent);
 

@@ -50,17 +50,15 @@ public class SiddhiContext {
     private List<Class> siddhiExtensions;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
-    private ConcurrentHashMap<String, SiddhiDsConfiguration> siddhiDsConfigurations;
     private EventMonitorService eventMonitorService;
 
-    public enum ProcessingState {ENABLE_INTERNAL, ENABLE_EXTERNAL, DISABLED}
+    public enum ProcessingState {ENABLE_INTERNAL,ENABLE_EXTERNAL,DISABLED}
 
     public SiddhiContext(String queryPlanIdentifier, ProcessingState distributedProcessingState) {
         this.queryPlanIdentifier = queryPlanIdentifier;
         this.distributedProcessingState = distributedProcessingState;
         this.elementIdGenerator = new ElementIdGenerator(queryPlanIdentifier);
         this.siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
-        this.siddhiDsConfigurations = new ConcurrentHashMap<String, SiddhiDsConfiguration>();
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
     }
 
@@ -167,14 +165,6 @@ public class SiddhiContext {
 
     public void addDataSource(String name, DataSource dataSource) {
         siddhiDataSources.put(name, dataSource);
-    }
-
-    public void addDsConfiguration(String name, SiddhiDsConfiguration siddhiDsConfiguration) {
-        siddhiDsConfigurations.put(name, siddhiDsConfiguration);
-    }
-
-    public SiddhiDsConfiguration getDsConfiguration(String name) {
-        return siddhiDsConfigurations.get(name);
     }
 
     public EventMonitorService getEventMonitorService() {
