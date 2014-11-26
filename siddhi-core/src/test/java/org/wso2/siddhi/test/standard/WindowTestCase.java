@@ -32,6 +32,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.query.Query;
 import org.wso2.siddhi.query.api.query.output.stream.OutStream;
+import org.wso2.siddhi.test.util.ThreadUtil;
 
 public class WindowTestCase {
     static final Logger log = Logger.getLogger(WindowTestCase.class);
@@ -526,6 +527,52 @@ public class WindowTestCase {
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Event count", 2, count);
+        siddhiManager.shutdown();
+    }
+
+    @Test
+    public void testWindowQuery10ThreadLimit() throws InterruptedException {
+        log.info("Window test10: Verify thread limit");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+
+        siddhiManager.defineStream("define stream LoginEvents (timeStamp long, ip string) ");
+
+        String queryReference = siddhiManager.addQuery("from LoginEvents#window.timeBatch(1000) " +
+                "select ip, count(ip) as ipCount group by ip " +
+                "insert into LoginEventsByHourAndIP;");
+
+        siddhiManager.addCallback(queryReference, new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents.length == 2) {
+                    count++;
+                }
+                eventArrived = true;
+            }
+
+        });
+        InputHandler loginSucceedEvents = siddhiManager.getInputHandler("LoginEvents");
+        for (int i = 0; i < 100; i++) {
+            loginSucceedEvents.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+            loginSucceedEvents.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});
+            Thread.sleep(500);
+            int threadCount = ThreadUtil.getThreadsStartingWith("Siddhi").size();
+            if (log.isDebugEnabled()) {
+                log.debug("Thread count for Siddhi : " + threadCount);
+            }
+            if (threadCount > 50) {
+                log.warn("Thread count:" + threadCount);
+                Assert.fail("Thread count is increasing... failing test");
+            }
+        }
+
+        Thread.sleep(1000);
+
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Event count", 50, count);
         siddhiManager.shutdown();
     }
 
