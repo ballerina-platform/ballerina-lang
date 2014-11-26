@@ -146,7 +146,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
                     if (conditionExecutor != null) {
                         if (conditionExecutor.execute(stateEvent)) {
                             for (int i1 = 0, size1 = attributeUpdateMappingPosition.length; i1 < size1; i1++) {
-                                ((RemoveEvent) tableStreamEvent).getData()[attributeUpdateMappingPosition[i1]] = ((Event) streamEvent).getData()[i1];
+                                ((RemoveEvent) tableStreamEvent).getData()[attributeUpdateMappingPosition[i1]] = ((Event) stateEvent.getEvent0()).getData()[i1];
                             }
                             if (enableRemoveAndAdd) {
                                 iterator.remove();
