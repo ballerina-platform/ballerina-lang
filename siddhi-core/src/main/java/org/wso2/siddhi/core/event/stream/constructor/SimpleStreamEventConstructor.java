@@ -26,16 +26,16 @@ import java.util.List;
 
 public class SimpleStreamEventConstructor implements EventConstructor {
     private StreamEventPool streamEventPool;
-    private List<ConverterElement> converterElements;
+    private List<ConvertionElement> convertionElements;
 
-    public SimpleStreamEventConstructor(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
+    public SimpleStreamEventConstructor(StreamEventPool streamEventPool, List<ConvertionElement> convertionElements) {
         this.streamEventPool = streamEventPool;
-        this.converterElements = converterElements;
+        this.convertionElements = convertionElements;
     }
 
     private StreamEvent convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
-        for (ConverterElement element : converterElements) {
+        for (ConvertionElement element : convertionElements) {
             streamEvent.setOutputData(data[element.getFromPosition()], element.getToPosition()[1]);
         }
         streamEvent.setExpired(isExpected);

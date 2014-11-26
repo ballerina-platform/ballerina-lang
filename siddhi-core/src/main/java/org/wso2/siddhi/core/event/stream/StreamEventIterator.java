@@ -27,7 +27,7 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
     StreamEvent lastReturned;
     StreamEvent first;
 
-    public void setEvent(StreamEvent streamEvent) {
+    public void assignEvent(StreamEvent streamEvent) {
         first = streamEvent;
     }
 
@@ -52,8 +52,7 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
      * Returns the next element in the iteration.
      *
      * @return the next element in the iteration.
-     * @throws java.util.NoSuchElementException
-     *          iteration has no more elements.
+     * @throws java.util.NoSuchElementException iteration has no more elements.
      */
     public StreamEvent next() {
         StreamEvent returnEvent;
@@ -98,7 +97,14 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
         lastReturned = null;
     }
 
-    public StreamEvent getFirstElement() {
+    public StreamEvent getFirst() {
         return first;
     }
+
+    public void clear() {
+        previousToLastReturned = null;
+        lastReturned = null;
+        first = null;
+    }
+
 }

@@ -55,12 +55,20 @@ public class LengthWindowProcessor extends WindowProcessor {
             expiredEventHead = removeEventHead;
             removeEventHead = expiredEventTail.getNext();
             expiredEventTail.setNext(null);
-            head.addToLast(expiredEventHead);
+            addToLast(head, expiredEventHead);
             nextProcessor.process(head);                            //emit in events and remove events as expired events
             count = count - diff;
         } else {
             nextProcessor.process(head);                            //emit only in events as window is not expired
         }
+    }
+
+    private void addToLast(StreamEvent head, StreamEvent expiredEventHead) {
+        StreamEvent last = head;
+        while (null != last.getNext()) {
+            last = last.getNext();
+        }
+        last.setNext(expiredEventHead);
     }
 
     /**

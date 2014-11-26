@@ -49,6 +49,7 @@ public class QuerySelector implements Processor {
     private boolean isGroupBy = false;
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
+    private StreamEventIterator iterator = new StreamEventIterator();
 
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
@@ -69,36 +70,44 @@ public class QuerySelector implements Processor {
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
-        StreamEventIterator iterator = streamEvent.getIterator();
-        while (iterator.hasNext()) {
-            StreamEvent event = iterator.next();
-            if (isGroupBy) {
-                keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
-            }
+        iterator.assignEvent(streamEvent);
+        try {
+            while (iterator.hasNext()) {
+                StreamEvent event = iterator.next();
+                if (isGroupBy) {
+                    keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
+                }
 
-            //TODO: have to change for windows
-            for (AttributeProcessor attributeProcessor : attributeProcessorList) {
-                attributeProcessor.process(event);
-            }
+                //TODO: have to change for windows
+                for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                    attributeProcessor.process(event);
+                }
 
-            if (isGroupBy) {
-                keyThreadLocal.remove();
+                if (isGroupBy) {
+                    keyThreadLocal.remove();
+                }
             }
+        } finally {
+            iterator.clear();
         }
 
         if (havingConditionExecutor == null) {
             outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
         } else {
-            iterator = streamEvent.getIterator();
-            while (iterator.hasNext()){
-                StreamEvent event = iterator.next();
-                if (!havingConditionExecutor.execute(event)) {
+            iterator.assignEvent(streamEvent);
+            try {
+                while (iterator.hasNext()) {
+                    StreamEvent event = iterator.next();
+                    if (!havingConditionExecutor.execute(event)) {
                         iterator.remove();
+                    }
                 }
-            }
-            StreamEvent returnEvent = iterator.getFirstElement();
-            if(returnEvent != null){
-                outputRateLimiter.send(returnEvent.getTimestamp(), returnEvent, null);
+                StreamEvent returnEvent = iterator.getFirst();
+                if (returnEvent != null) {
+                    outputRateLimiter.send(returnEvent.getTimestamp(), returnEvent, null);
+                }
+            } finally {
+                iterator.clear();
             }
         }
 

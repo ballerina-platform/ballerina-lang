@@ -38,7 +38,7 @@ public class StreamEventConverterFactory {
         int defaultPoolSize = 5;
         StreamEventPool streamEventPool = new StreamEventPool(eventFactory, defaultPoolSize);
         int size = metaStreamEvent.getBeforeWindowData().size() + metaStreamEvent.getAfterWindowData().size() + metaStreamEvent.getOutputData().size();
-        List<ConverterElement> converterElements = new ArrayList<ConverterElement>(size);
+        List<ConvertionElement> convertionElements = new ArrayList<ConvertionElement>(size);
 
         for (int j = 0; j < 3; j++) {
             List<Attribute> currentDataList = null;
@@ -55,25 +55,25 @@ public class StreamEventConverterFactory {
                     if (attribute == null) {
                         i++;
                     } else {
-                        ConverterElement converterElement = new ConverterElement();
+                        ConvertionElement convertionElement = new ConvertionElement();
                         int[] position = new int[2];
-                        converterElement.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
+                        convertionElement.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
                         position[0] = j;
                         position[1] = i;
-                        converterElement.setToPosition(position);
-                        converterElements.add(converterElement);
+                        convertionElement.setToPosition(position);
+                        convertionElements.add(convertionElement);
                         i++;
                     }
                 }
             }
         }
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventConstructor(streamEventPool, converterElements);
+            return new SelectiveStreamEventConstructor(streamEventPool, convertionElements);
         } else {
-            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == converterElements.size()) {
+            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == convertionElements.size()) {
                 Boolean isPassThrough = true;
-                for (int k = 0; k < converterElements.size(); k++) {
-                    if (!(converterElements.get(k).getFromPosition() == converterElements.get(k).getToPosition()[1])) {
+                for (ConvertionElement convertionElement : convertionElements) {
+                    if (!(convertionElement.getFromPosition() == convertionElement.getToPosition()[1])) {
                         isPassThrough = false;
                     }
                 }
@@ -81,7 +81,7 @@ public class StreamEventConverterFactory {
                     return new PassThroughStreamEventConstructor(streamEventPool);
                 }
             }
-            return new SimpleStreamEventConstructor(streamEventPool, converterElements);
+            return new SimpleStreamEventConstructor(streamEventPool, convertionElements);
         }
     }
 }

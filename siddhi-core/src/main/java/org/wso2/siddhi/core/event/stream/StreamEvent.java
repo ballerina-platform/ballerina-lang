@@ -20,8 +20,6 @@ package org.wso2.siddhi.core.event.stream;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 
-import java.util.Iterator;
-
 /**
  * Standard processing event inside Siddhi. StreamEvent will be created
  * from StreamEvent before sending to relevant Queries.
@@ -36,14 +34,20 @@ public class StreamEvent implements ComplexEvent {
     private StreamEvent next;
 
     public StreamEvent(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize) {
-        beforeWindowData = new Object[beforeWindowDataSize];
-        onAfterWindowData = new Object[onAfterWindowDataSize];
-        outputData = new Object[outputDataSize];
+        if (beforeWindowDataSize > 0) {
+            beforeWindowData = new Object[beforeWindowDataSize];
+        }
+        if (onAfterWindowDataSize > 0) {
+            onAfterWindowData = new Object[onAfterWindowDataSize];
+        }
+        if (outputDataSize > 0) {
+            outputData = new Object[outputDataSize];
+        }
     }
 
-    public StreamEvent() {
-        //Do nothing
-    }
+//    public StreamEvent() {
+//        //Do nothing
+//    }
 
     public Object[] getBeforeWindowData() {
         return beforeWindowData;
@@ -135,22 +139,4 @@ public class StreamEvent implements ComplexEvent {
         return this.outputData.length;
     }
 
-    public StreamEventIterator getIterator(){
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.setEvent(this);
-        return iterator;
-    }
-
-    /**
-     * Add a given event to the last position of the event chain
-     *
-     * @param event
-     */
-    public void addToLast(StreamEvent event) {
-        if (next == null) {
-            next = event;
-        } else {
-            next.addToLast(event);
-        }
-    }
 }

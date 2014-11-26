@@ -57,13 +57,13 @@ public class MetaStreamEvent implements ComplexMetaEvent {
         }
     }
 
-    public void intializeAfterWindowData() {
+    public void initializeAfterWindowData() {
         if (afterWindowData == null) {
             afterWindowData = new ArrayList<Attribute>();
         }
     }
 
-    public void intializeOutputData() {
+    public void initializeOutputData() {
         if (afterWindowData == null) {
             afterWindowData = new ArrayList<Attribute>();
         }

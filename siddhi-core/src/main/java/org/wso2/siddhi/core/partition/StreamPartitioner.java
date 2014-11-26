@@ -38,14 +38,14 @@ import java.util.List;
  */
 public class StreamPartitioner {
 
-    private List<List<PartitionExecutor>> partitionExecutors = new ArrayList<List<PartitionExecutor>>();
+    private List<List<PartitionExecutor>> partitionExecutorLists = new ArrayList<List<PartitionExecutor>>();
 
     public StreamPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
                              List<VariableExpressionExecutor> executors, SiddhiContext siddhiContext) {
         if (partition != null) {
             if (inputStream instanceof BasicSingleInputStream) {
                 List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
-                partitionExecutors.add(executorList);
+                partitionExecutorLists.add(executorList);
                 for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
                     if (partitionType instanceof ValuePartitionType) {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
@@ -63,8 +63,8 @@ public class StreamPartitioner {
         }
     }
 
-    public List<List<PartitionExecutor>> getPartitionExecutors() {
-        return partitionExecutors;
+    public List<List<PartitionExecutor>> getPartitionExecutorLists() {
+        return partitionExecutorLists;
     }
 
 

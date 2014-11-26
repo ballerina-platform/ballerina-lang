@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.event.stream.constructor;
 /**
  * Element to hold information about event conversion
  */
-public class ConverterElement {
+public class ConvertionElement {
     private int fromPosition;               //position in StreamEvent/data[]
     private int[] toPosition = new int[2];  //new position in StreamEvent
 

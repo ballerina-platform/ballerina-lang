@@ -30,31 +30,36 @@ public class FilterProcessor implements Processor {
 
     protected Processor next;
     private ExpressionExecutor conditionExecutor;
+    private StreamEventIterator iterator = new StreamEventIterator();
 
     public FilterProcessor(ExpressionExecutor conditionExecutor) {
-        if(Attribute.Type.BOOL.equals(conditionExecutor.getReturnType())) {
+        if (Attribute.Type.BOOL.equals(conditionExecutor.getReturnType())) {
             this.conditionExecutor = conditionExecutor;
-        }else{
-            throw new OperationNotSupportedException("Return type of "+conditionExecutor.toString()+" should be of type BOOL. " +
-                    "Actual type: "+conditionExecutor.getReturnType().toString());
+        } else {
+            throw new OperationNotSupportedException("Return type of " + conditionExecutor.toString() + " should be of type BOOL. " +
+                    "Actual type: " + conditionExecutor.getReturnType().toString());
         }
     }
 
-    public FilterProcessor cloneProcessor(){
+    public FilterProcessor cloneProcessor() {
         return new FilterProcessor(conditionExecutor.cloneExecutor());
     }
 
     @Override
     public void process(StreamEvent event) {
-        StreamEventIterator iterator = event.getIterator();
-        while (iterator.hasNext()){
-            StreamEvent streamEvent = iterator.next();
-            if (!(Boolean) conditionExecutor.execute(streamEvent)){
-                iterator.remove();
+        iterator.assignEvent(event);
+        try {
+            while (iterator.hasNext()) {
+                StreamEvent streamEvent = iterator.next();
+                if (!(Boolean) conditionExecutor.execute(streamEvent)) {
+                    iterator.remove();
+                }
             }
-        }
-        if(iterator.getFirstElement() != null){
-            this.next.process(iterator.getFirstElement());
+            if (iterator.getFirst() != null) {
+                this.next.process(iterator.getFirst());
+            }
+        } finally {
+            iterator.clear();
         }
     }
 

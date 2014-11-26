@@ -28,28 +28,28 @@ import java.util.List;
  */
 public class SelectiveStreamEventConstructor implements EventConstructor {
 
-    private List<ConverterElement> converterElements;       //List to hold information needed for conversion
+    private List<ConvertionElement> convertionElements;       //List to hold information needed for conversion
     private StreamEventPool streamEventPool;
 
 
-    public SelectiveStreamEventConstructor(StreamEventPool streamEventPool, List<ConverterElement> converterElements) {
+    public SelectiveStreamEventConstructor(StreamEventPool streamEventPool, List<ConvertionElement> convertionElements) {
         this.streamEventPool = streamEventPool;
-        this.converterElements = converterElements;
+        this.convertionElements = convertionElements;
     }
 
     private StreamEvent convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
-        for (ConverterElement converterElement : converterElements) {
-            int[] position = converterElement.getToPosition();
+        for (ConvertionElement convertionElement : convertionElements) {
+            int[] position = convertionElement.getToPosition();
             switch (position[0]) {
                 case 0:
-                    streamEvent.setBeforeWindowData(data[converterElement.getFromPosition()], position[1]);
+                    streamEvent.setBeforeWindowData(data[convertionElement.getFromPosition()], position[1]);
                     break;
                 case 1:
-                    streamEvent.setOnAfterWindowData(data[converterElement.getFromPosition()], position[1]);
+                    streamEvent.setOnAfterWindowData(data[convertionElement.getFromPosition()], position[1]);
                     break;
                 case 2:
-                    streamEvent.setOutputData(data[converterElement.getFromPosition()], position[1]);
+                    streamEvent.setOutputData(data[convertionElement.getFromPosition()], position[1]);
                     break;
                 default:
                     //can not happen
