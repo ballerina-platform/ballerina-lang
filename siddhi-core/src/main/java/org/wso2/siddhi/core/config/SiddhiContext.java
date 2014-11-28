@@ -52,7 +52,7 @@ public class SiddhiContext {
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
     private EventMonitorService eventMonitorService;
 
-    public enum ProcessingState {ENABLE_INTERNAL,ENABLE_EXTERNAL,DISABLED}
+    public enum ProcessingState {ENABLE_INTERNAL, ENABLE_EXTERNAL, DISABLED}
 
     public SiddhiContext(String queryPlanIdentifier, ProcessingState distributedProcessingState) {
         this.queryPlanIdentifier = queryPlanIdentifier;
@@ -166,6 +166,7 @@ public class SiddhiContext {
     public void addDataSource(String name, DataSource dataSource) {
         siddhiDataSources.put(name, dataSource);
     }
+
 
     public EventMonitorService getEventMonitorService() {
         return eventMonitorService;

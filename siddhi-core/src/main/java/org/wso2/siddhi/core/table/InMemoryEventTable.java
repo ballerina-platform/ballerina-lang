@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.event.in.InStateEvent;
 import org.wso2.siddhi.core.event.remove.RemoveEvent;
 import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
 import org.wso2.siddhi.core.snapshot.SnapshotObject;
-import org.wso2.siddhi.core.persistence.PersistenceStore;
 import org.wso2.siddhi.core.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.collection.list.SiddhiList;
 import org.wso2.siddhi.core.util.collection.list.SiddhiListGrid;
@@ -55,6 +54,10 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
             enableRemoveAndAdd = false;
             this.list = new SiddhiList<StreamEvent>();
         }
+
+    }
+
+    public void init(TableDefinition tableDefinition, SiddhiContext siddhiContext) {
 
     }
 

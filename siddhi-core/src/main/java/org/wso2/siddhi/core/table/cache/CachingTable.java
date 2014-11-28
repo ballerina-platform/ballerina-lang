@@ -1,7 +1,6 @@
 package org.wso2.siddhi.core.table.cache;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.*;
 import org.wso2.siddhi.core.event.in.InStateEvent;
@@ -42,12 +41,13 @@ public class CachingTable {
             }
         }
         if (CACHING_ALGO_LFU.equalsIgnoreCase(cachingAlgorithm)) {
-            this.cacheManager = new LFUCacheManager(list, cacheLimit);
+            this.cacheManager = new LFUCacheManager();
         } else if (CACHING_ALGO_LRU.equalsIgnoreCase(cachingAlgorithm)) {
-            this.cacheManager = new LRUCacheManager(list, cacheLimit);
+            this.cacheManager = new LRUCacheManager();
         } else {
-            this.cacheManager = new BasicCacheManager(list, cacheLimit);
+            this.cacheManager = new BasicCacheManager();
         }
+        this.cacheManager.init(list, cacheLimit);
     }
 
     public synchronized void add(StreamEvent streamEvent) {
@@ -58,7 +58,7 @@ public class CachingTable {
     }
 
     public synchronized void addAll(List<StreamEvent> streamEvents) {
-        for (StreamEvent event: streamEvents) {
+        for (StreamEvent event : streamEvents) {
             cacheManager.add(event);
         }
     }

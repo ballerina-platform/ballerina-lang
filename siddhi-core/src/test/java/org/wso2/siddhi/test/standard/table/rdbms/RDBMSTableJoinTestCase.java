@@ -246,5 +246,38 @@ public class RDBMSTableJoinTestCase {
 
     }
 
+    @Test
+    public void testConditionsWithBloomFilters() throws InterruptedException {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addDataSource(dataSourceName, dataSource);
+
+        siddhiManager.defineStream("define stream siddhi_db_input (id int, value int) ");
+        siddhiManager.defineTable("define table cepEventTable11 (id int, value int) from " +
+                "    ('datasource.name'='cepDataSource', 'table.name'='cepEventTableBloomFilters11', 'bloom.filters'='enabled')" );
+
+
+        siddhiManager.addQuery("from siddhi_db_input[not ((id == cepEventTable11.id ) in cepEventTable11)] " +
+                "select id, value " +
+                "insert into tempDataStream");
+
+        siddhiManager.addQuery("from tempDataStream insert into cepEventTable11");
+
+        siddhiManager.addQuery("from siddhi_db_input join cepEventTable11 on " +
+                "    siddhi_db_input.id == cepEventTable11.id " +
+                "    select siddhi_db_input.id as id, siddhi_db_input.value + cepEventTable11.value as value " +
+                "    insert into out_stream");
+
+        siddhiManager.addQuery("from out_stream select out_stream.id, out_stream.value " +
+                "    update cepEventTable11 " +
+                "    on siddhi_db_input.id == cepEventTable11.id");
+
+
+
+        InputHandler cseEventStreamHandler = siddhiManager.getInputHandler("siddhi_db_input");
+        cseEventStreamHandler.send(new Object[]{11, 123});
+        cseEventStreamHandler.send(new Object[]{11, 1213});
+
+    }
+
 
 }

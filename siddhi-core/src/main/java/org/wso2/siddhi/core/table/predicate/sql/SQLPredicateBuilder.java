@@ -11,28 +11,28 @@ public class SQLPredicateBuilder implements PredicateBuilder {
 
     @Override
     public PredicateTreeNode wrapPredicate(PredicateTreeNode predicate) {
-        return new SqlPredicateWrapperNode(predicate);
+        return new SQLPredicateWrapperNode(predicate);
     }
 
     @Override
     public PredicateTreeNode buildVariableExpression(String variable) {
-        return new SqlVariableNode(variable);
+        return new SQLVariableNode(variable);
     }
 
     @Override
     public PredicateTreeNode buildNotCondition(PredicateTreeNode subPredicate) {
-        return new SqlUnaryConditionNode("!", subPredicate);
+        return new SQLUnaryConditionNode("!", subPredicate);
     }
 
     @Override
     public PredicateTreeNode buildBinaryCondition(PredicateTreeNode leftSubPredicate, PredicateTreeNode rightSubPredicate, BinaryOperator operator) {
         switch (operator) {
             case AND:
-                return new SqlBinaryConditionNode(leftSubPredicate, rightSubPredicate, " AND ");
+                return new SQLBinaryConditionNode(leftSubPredicate, rightSubPredicate, " AND ");
             case OR:
-                return new SqlBinaryConditionNode(leftSubPredicate, rightSubPredicate, " OR ");
+                return new SQLBinaryConditionNode(leftSubPredicate, rightSubPredicate, " OR ");
         }
-        return new SqlBinaryConditionNode(leftSubPredicate, rightSubPredicate, " OR ");
+        return new SQLBinaryConditionNode(leftSubPredicate, rightSubPredicate, " OR ");
     }
 
     @Override
@@ -59,13 +59,13 @@ public class SQLPredicateBuilder implements PredicateBuilder {
                 break;
 
         }
-        return new SqlBinaryConditionNode(leftPredicate, rightPredicate, operator);
+        return new SQLBinaryConditionNode(leftPredicate, rightPredicate, operator);
     }
 
     @Override
     public PredicateTreeNode buildValue(Object value) {
 
-        return new SqlValueWrapperNode(value);
+        return new SQLValueWrapperNode(value);
     }
 
 }

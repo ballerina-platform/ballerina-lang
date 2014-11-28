@@ -1,20 +1,18 @@
 package org.wso2.siddhi.core.util.collection.queue;
 
 import org.wso2.siddhi.core.event.StreamEvent;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.LinkedBlockingQueue;
-
-
 import org.wso2.siddhi.core.event.remove.RemoveEvent;
 import org.wso2.siddhi.core.util.collection.Pair;
 import org.wso2.siddhi.core.util.collection.queue.scheduler.timestamp.ISchedulerTimestampSiddhiQueue;
 import org.wso2.siddhi.core.util.collection.queue.scheduler.timestamp.TimestampQueueIterator;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * This class implements a sliding window which slides once in every given constant time.
- * @param <T>
+ * @param <T> any type that extends from StreamEvent
  */
 public class TimeStampSiddhiQueue<T extends StreamEvent> extends SiddhiQueue<T> implements  ISchedulerTimestampSiddhiQueue<T> {
     private LinkedBlockingQueue<Pair<Long, LinkedBlockingQueue<T>>> pairQueue = new LinkedBlockingQueue<Pair<Long, LinkedBlockingQueue<T>>>();
@@ -38,7 +36,7 @@ public class TimeStampSiddhiQueue<T extends StreamEvent> extends SiddhiQueue<T> 
      * time. In this way separate groups will be created for messages which expires before
      * a particular polling time. And since this is a FIFO queue the group that has to be
      * pop-ed out in the next pol will always at the peek of the queue
-     * @param streamEvent
+     * @param streamEvent the incoming stream event
      */
     @Override
     public synchronized void put(T streamEvent) {

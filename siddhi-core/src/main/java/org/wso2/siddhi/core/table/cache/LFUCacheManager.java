@@ -12,7 +12,12 @@ public class LFUCacheManager implements CacheManager {
     private SiddhiList<StreamEvent> cacheList;
     private int limit;
 
-    public LFUCacheManager(SiddhiList<StreamEvent> cacheList, int limit) {
+    public LFUCacheManager() {
+
+    }
+
+    @Override
+    public void init(SiddhiList<StreamEvent> cacheList, int limit) {
         this.eventAccessFrequencies = new ConcurrentHashMap<StreamEvent, Integer>();
         this.cacheList = cacheList;
         this.limit = limit;

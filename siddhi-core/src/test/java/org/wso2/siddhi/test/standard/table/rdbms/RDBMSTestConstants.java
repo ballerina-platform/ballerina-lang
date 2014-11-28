@@ -24,5 +24,5 @@ public class RDBMSTestConstants {
     public static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/cepdb";
     public static final String H2_CONNECTION_URL = "jdbc:h2:~";
     public static final String USERNAME = "root";
-    public static final String PASSWORD = "admin";
+    public static final String PASSWORD = "";
 }

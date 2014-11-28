@@ -1,8 +1,11 @@
 package org.wso2.siddhi.core.table.cache;
 
 import org.wso2.siddhi.core.event.StreamEvent;
+import org.wso2.siddhi.core.util.collection.list.SiddhiList;
 
 public interface CacheManager {
+
+    public void init(SiddhiList<StreamEvent> cacheList, int limit);
 
     public void add(StreamEvent item);
 

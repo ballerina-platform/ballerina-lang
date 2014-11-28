@@ -8,47 +8,53 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LRUCacheManager implements CacheManager {
 
-    private ConcurrentHashMap<StreamEvent, Long> eventTimestamps;
+    private ConcurrentHashMap<StreamEvent, Long> eventSequenceNumbers;
     private SiddhiList<StreamEvent> cacheList;
     private int limit;
+    private volatile long sequenceNo;
 
-    public LRUCacheManager(SiddhiList<StreamEvent> cacheList, int limit) {
-        this.eventTimestamps = new ConcurrentHashMap<StreamEvent, Long>();
+    public LRUCacheManager() {
+    }
+
+    @Override
+    public void init(SiddhiList<StreamEvent> cacheList, int limit) {
+        this.eventSequenceNumbers = new ConcurrentHashMap<StreamEvent, Long>();
         this.cacheList = cacheList;
         this.limit = limit;
+        this.sequenceNo = 0;
     }
 
     @Override
     public void add(StreamEvent item) {
         cacheList.add(item);
-        eventTimestamps.put(item, System.currentTimeMillis());
-        if (eventTimestamps.size() >= limit) {
+        eventSequenceNumbers.put(item, ++sequenceNo);
+        if (eventSequenceNumbers.size() >= limit) {
             StreamEvent leastRecent = null;
             long leastRecentTime = Long.MAX_VALUE;
-            for (Map.Entry<StreamEvent, Long> entry : eventTimestamps.entrySet()) {
+            for (Map.Entry<StreamEvent, Long> entry : eventSequenceNumbers.entrySet()) {
                 if (leastRecentTime > entry.getValue()) {
                     leastRecentTime = entry.getValue();
                     leastRecent = entry.getKey();
                 }
             }
-            eventTimestamps.remove(leastRecent);
+            eventSequenceNumbers.remove(leastRecent);
             cacheList.remove(leastRecent);
         }
     }
 
     @Override
     public void delete(StreamEvent item) {
-        eventTimestamps.remove(item);
+        eventSequenceNumbers.remove(item);
         cacheList.remove(item);
     }
 
     @Override
     public void read(StreamEvent item) {
-        eventTimestamps.put(item, System.currentTimeMillis());
+        eventSequenceNumbers.put(item, ++sequenceNo);
     }
 
     @Override
     public void update(StreamEvent item) {
-        eventTimestamps.put(item, System.currentTimeMillis());
+        eventSequenceNumbers.put(item, ++sequenceNo);
     }
 }

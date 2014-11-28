@@ -231,7 +231,7 @@ public abstract class JoinProcessor implements QueryPostProcessingElement, PreSe
             StateEvent newEvent = createNewEvent(event, null);
             if (fromDB) {
                 //Todo fix this based on the SQL impel
-                iterator = oppositeWindowProcessor.iterator();
+                iterator = oppositeWindowProcessor.iterator(event, onConditionExecutor);
             } else {
                 String sqlPredicate = onConditionExecutor.constructFilterQuery(newEvent, 1);
                 if (within > -1) {

@@ -18,19 +18,17 @@
 
 package org.wso2.siddhi.core.table;
 
-import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnels;
+import org.apache.hadoop.util.bloom.CountingBloomFilter;
+import org.apache.hadoop.util.bloom.Key;
+import org.apache.hadoop.util.hash.Hash;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.event.AtomicEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.ListEvent;
-import org.wso2.siddhi.core.event.StateEvent;
-import org.wso2.siddhi.core.event.StreamEvent;
+import org.wso2.siddhi.core.event.*;
 import org.wso2.siddhi.core.event.in.InEvent;
 import org.wso2.siddhi.core.event.in.InStateEvent;
 import org.wso2.siddhi.core.executor.conditon.ConditionExecutor;
 import org.wso2.siddhi.core.table.cache.CachingTable;
+import org.wso2.siddhi.core.table.predicate.PredicateToken;
 import org.wso2.siddhi.core.table.predicate.PredicateTreeNode;
 import org.wso2.siddhi.core.table.predicate.sql.SQLPredicateBuilder;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -38,11 +36,8 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.query.QueryEventSource;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.nio.ByteBuffer;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -56,12 +51,15 @@ public class RDBMSEventTable implements EventTable {
     static final String PARAM_CACHE_LOADING = "cache.loading";
     static final String PARAM_BLOOM_FILTERS = "bloom.filters";
 
+    public static final int BLOOM_FILTER_SIZE = 10000;
+    public static final int BLOOM_FILTER_HASH_FUNCTIONS = 4;
+
     static final Logger log = Logger.getLogger(RDBMSEventTable.class);
 
     private TableDefinition tableDefinition;
     private QueryEventSource queryEventSource;
     // attribute list used for accessing the table.
-    private List<Attribute> attributeList;
+    private List<Attribute> attributeList;  // full attribute list of the table
     private boolean eagerCacheLoading;
 
     private DataSource dataSource;
@@ -70,27 +68,36 @@ public class RDBMSEventTable implements EventTable {
     private String fullTableName;  // schema.tableName
     private String tableColumnList;   // for insertion queries.
 
-    private boolean isInitialized;
+    private boolean isInitialized;  // db connection init status
 
     private String insertQuery;
     private boolean bloomFiltersEnabled;
 
     private CachingTable cachedTable;
-    private BloomFilter[] bloomFilters;
+    //    private BloomFilter[] bloomFilters;   // bloom filters for each column
+    private CountingBloomFilter[] bloomFilters;
 
-    public RDBMSEventTable(TableDefinition tableDefinition, SiddhiContext siddhiContext) {
+    public RDBMSEventTable( ) {
+    }
+
+    public void init(TableDefinition tableDefinition, SiddhiContext siddhiContext) {
         this.tableDefinition = tableDefinition;
         this.queryEventSource = new QueryEventSource(tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), tableDefinition.getTableId(), tableDefinition, null, null, null);
         this.dataSource = siddhiContext.getDataSource(tableDefinition.getExternalTable().getParameter(PARAM_DATASOURCE_NAME));
         this.attributeList = new ArrayList<Attribute>();
+
+        // caching is enabled by default.
         if ((tableDefinition.getExternalTable().getParameter(PARAM_CACHING_ALGORITHM) != null) && (!tableDefinition.getExternalTable().getParameter(PARAM_CACHING_ALGORITHM).equalsIgnoreCase("disable"))) {
             this.cachedTable = new CachingTable(tableDefinition.getTableId(), tableDefinition.getExternalTable().getParameter(PARAM_CACHING_ALGORITHM), tableDefinition.getExternalTable().getParameter(PARAM_CACHE_SIZE), siddhiContext);
         }
+
+        // cache is by default loaded Lazily
         if (cachedTable != null && (tableDefinition.getExternalTable().getParameter(PARAM_CACHE_LOADING) != null) && (tableDefinition.getExternalTable().getParameter(PARAM_CACHE_LOADING).equalsIgnoreCase("eager"))) {
             this.eagerCacheLoading = true;
         }
 
-        if ((tableDefinition.getExternalTable().getParameter(PARAM_BLOOM_FILTERS) != null) && (tableDefinition.getExternalTable().getParameter(PARAM_BLOOM_FILTERS).equalsIgnoreCase("enable"))) {
+        // bloom filters are disabled by default
+        if ((tableDefinition.getExternalTable().getParameter(PARAM_BLOOM_FILTERS) != null) && (tableDefinition.getExternalTable().getParameter(PARAM_BLOOM_FILTERS).equalsIgnoreCase("enabled"))) {
             this.bloomFiltersEnabled = true;
         }
 
@@ -103,106 +110,114 @@ public class RDBMSEventTable implements EventTable {
             if (bloomFiltersEnabled) {
                 buildBloomFilters();
             }
-
+        } catch (ClassNotFoundException e) {
+            log.error("Class not found. Can't continue to initialize the table.", e);
+            throw new RuntimeException(e);
         } catch (Exception e) {
             log.error("Unable to connect to the database.", e);
         }
     }
 
-    private synchronized void initializeConnection() throws SQLException, ClassNotFoundException {
+    private void initializeConnection() throws SQLException, ClassNotFoundException {
         if (!isInitialized) {
-            Connection con = null;
-            Statement statement = null;
-            try {
-                tableName = tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME);
+            synchronized (this) {
+                // synchronized double checking to ensure this doesn't get hit when there are concurrent calls
+                if (!isInitialized) {
 
-                if (dataSource == null) {
-                    throw new RuntimeException("Data source doesn't exist: " + tableDefinition.getExternalTable().getParameter(PARAM_DATASOURCE_NAME));
-                }
-                con = dataSource.getConnection();
+                    Connection con = null;
+                    Statement statement = null;
+                    try {
+                        tableName = tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME);
 
-                // default mysql jdbc driver
-                databaseName = con.getCatalog();
-                fullTableName = databaseName + "." + tableName;
+                        if (dataSource == null) {
+                            throw new RuntimeException("Data source doesn't exist: " + tableDefinition.getExternalTable().getParameter(PARAM_DATASOURCE_NAME));
+                        }
+                        con = dataSource.getConnection();
 
-                statement = con.createStatement();
+                        // default mysql jdbc driver
+                        databaseName = con.getCatalog();
+                        fullTableName = databaseName + "." + tableName;
 
+                        statement = con.createStatement();
 
-                String createQuery = tableDefinition.getExternalTable().getParameter(PARAM_CREATE_QUERY);
+                        String createQuery = tableDefinition.getExternalTable().getParameter(PARAM_CREATE_QUERY);
 
-                // table creation.
-                if (createQuery == null || createQuery.length() < 1) {
-                    StringBuilder stringBuilder = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
-                    stringBuilder.append(fullTableName);
-                    stringBuilder.append(" (");
-                    boolean appendComma = false;
-                    for (Attribute column : tableDefinition.getAttributeList()) {
-                        if (appendComma) {
-                            stringBuilder.append(", ");
+                        // table creation.
+                        if (createQuery == null || createQuery.length() < 1) {
+                            StringBuilder stringBuilder = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
+                            stringBuilder.append(fullTableName);
+                            stringBuilder.append(" (");
+                            boolean appendComma = false;
+                            for (Attribute column : tableDefinition.getAttributeList()) {
+                                if (appendComma) {
+                                    stringBuilder.append(", ");
+                                } else {
+                                    appendComma = true;
+                                }
+                                stringBuilder.append(column.getName());
+                                stringBuilder.append("  ");
+                                switch (column.getType()) {
+                                    case INT:
+                                        stringBuilder.append("INT");
+                                        break;
+                                    case LONG:
+                                        stringBuilder.append("BIGINT");
+                                        break;
+                                    case FLOAT:
+                                        stringBuilder.append("DECIMAL(30,10)");
+                                        break;
+                                    case DOUBLE:
+                                        stringBuilder.append("DECIMAL(40,15)");
+                                        break;
+                                    case BOOL:
+                                        stringBuilder.append("BOOL");
+                                        break;
+                                    default:
+                                        stringBuilder.append("VARCHAR(255)");
+                                        break;
+                                }
+                            }
+                            stringBuilder.append(");");
+                            createQuery = stringBuilder.toString();
+                            statement.execute(createQuery);
+
                         } else {
+                            // users may not use 'IF NOT EXISTS' clause, so need to check whether the table exists before
+                            // executing their create queries.
+                            try {
+                                statement.execute("SELECT 1 FROM " + fullTableName + " LIMIT 1");
+                            } catch (SQLException e) {
+                                statement.execute(createQuery);
+                            }
+                        }
+
+                        StringBuilder builder = new StringBuilder("(");
+                        boolean appendComma = false;
+                        for (Attribute att : tableDefinition.getAttributeList()) {
+                            attributeList.add(att);
+                            if (appendComma) {
+                                builder.append(",");
+                            }
+                            builder.append(att.getName());
                             appendComma = true;
                         }
-                        stringBuilder.append(column.getName());
-                        stringBuilder.append("  ");
-                        switch (column.getType()) {
-                            case INT:
-                                stringBuilder.append("INT");
-                                break;
-                            case LONG:
-                                stringBuilder.append("BIGINT");
-                                break;
-                            case FLOAT:
-                                stringBuilder.append("DECIMAL(30,10)");
-                                break;
-                            case DOUBLE:
-                                stringBuilder.append("DECIMAL(40,15)");
-                                break;
-                            case BOOL:
-                                stringBuilder.append("BOOL");
-                                break;
-                            default:
-                                stringBuilder.append("VARCHAR(255)");
-                                break;
-                        }
-                    }
-                    stringBuilder.append(");");
-                    createQuery = stringBuilder.toString();
-                    statement.execute(createQuery);
-
-                } else {
-                    // users may not use 'IF NOT EXISTS' clause, so need to check whether the table exists before
-                    // executing their create queries.
-                    try {
-                        statement.execute("SELECT 1 FROM " + fullTableName + " LIMIT 1");
-                    } catch (SQLException e) {
-                        statement.execute(createQuery);
+                        builder.append(")");
+                        tableColumnList = builder.toString();
+                        isInitialized = true;
+                    } finally {
+                        cleanUpConnections(statement, con);
                     }
                 }
-
-                StringBuilder builder = new StringBuilder("(");
-                boolean appendComma = false;
-                for (Attribute att : tableDefinition.getAttributeList()) {
-                    attributeList.add(att);
-                    if (appendComma) {
-                        builder.append(",");
-                    }
-                    builder.append(att.getName());
-                    appendComma = true;
-                }
-                builder.append(")");
-                tableColumnList = builder.toString();
-                isInitialized = true;
-            } finally {
-                cleanUpConnections(statement, con);
             }
         }
     }
 
 
     private synchronized void buildBloomFilters() {
-        this.bloomFilters = new BloomFilter[tableDefinition.getAttributeList().size()];
+        this.bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
         for (int i = 0; i < bloomFilters.length; i++) {
-            bloomFilters[i] = BloomFilter.create(Funnels.byteArrayFunnel(), 100000);
+            // number of hashes: 4
+            bloomFilters[i] = new CountingBloomFilter(BLOOM_FILTER_SIZE, BLOOM_FILTER_HASH_FUNCTIONS, Hash.MURMUR_HASH);
         }
         Connection con = null;
         Statement stmt = null;
@@ -216,22 +231,22 @@ public class RDBMSEventTable implements EventTable {
                 for (int i = 0; i < bloomFilters.length; i++) {
                     switch (tableDefinition.getAttributeList().get(i).getType()) {
                         case INT:
-                            bloomFilters[i].put(Integer.toString(results.getInt(i + 1)).getBytes());
+                            bloomFilters[i].add(new Key(Integer.toString(results.getInt(i + 1)).getBytes()));
                             break;
                         case LONG:
-                            bloomFilters[i].put(Long.toString(results.getLong(i + 1)).getBytes());
+                            bloomFilters[i].add(new Key(Long.toString(results.getLong(i + 1)).getBytes()));
                             break;
                         case FLOAT:
-                            bloomFilters[i].put(Float.toString(results.getFloat(i + 1)).getBytes());
+                            bloomFilters[i].add(new Key(Float.toString(results.getFloat(i + 1)).getBytes()));
                             break;
                         case DOUBLE:
-                            bloomFilters[i].put(Double.toString(results.getDouble(i + 1)).getBytes());
+                            bloomFilters[i].add(new Key(Double.toString(results.getDouble(i + 1)).getBytes()));
                             break;
                         case STRING:
-                            bloomFilters[i].put(results.getString(i + 1).getBytes());
+                            bloomFilters[i].add(new Key(results.getString(i + 1).getBytes()));
                             break;
                         case BOOL:
-                            bloomFilters[i].put(Boolean.toString(results.getBoolean(i + 1)).getBytes());
+                            bloomFilters[i].add(new Key(Boolean.toString(results.getBoolean(i + 1)).getBytes()));
                             break;
 
                     }
@@ -260,33 +275,102 @@ public class RDBMSEventTable implements EventTable {
         try {
             initializeConnection();
             con = dataSource.getConnection();
-            statement = con.prepareStatement(insertQuery);
+            con.setAutoCommit(false);
 
+            statement = con.prepareStatement(insertQuery);
+            ArrayList<Event> bloomFilterInsertionList = null;
+            if (bloomFiltersEnabled) {
+                bloomFilterInsertionList = new ArrayList<Event>();
+            }
             if (streamEvent instanceof AtomicEvent) {
                 populateInsertQuery((Event) streamEvent, statement);
                 statement.executeUpdate();
+                if (bloomFiltersEnabled) {
+                    bloomFilterInsertionList.add((Event) streamEvent);
+                }
             } else {
                 ListEvent listEvent = ((ListEvent) streamEvent);
                 for (int i = 0, size = listEvent.getActiveEvents(); i < size; i++) {
                     populateInsertQuery(listEvent.getEvent(i), statement);
                     statement.addBatch();
+                    if (bloomFiltersEnabled) {
+                        bloomFilterInsertionList.add(listEvent.getEvent(i));
+                    }
                 }
                 statement.executeBatch();
             }
+            con.commit();
 
             if (cachedTable != null) {
                 cachedTable.add(streamEvent);
             }
             if (bloomFiltersEnabled) {
-                buildBloomFilters();
+                addToBloomFilters(bloomFilterInsertionList);
             }
 
-        } catch (ClassNotFoundException e) {
-            log.error("Couldn't load the database driver", e);
         } catch (SQLException e) {
             log.error("Unable to insert the records to the table", e);
+        } catch (Exception e) {
+            log.error("Error while inserting data.", e);
         } finally {
             cleanUpConnections(statement, con);
+        }
+    }
+
+
+    private void addToBloomFilters(List<Event> eventList) {
+        for (Event event : eventList) {
+            for (int i = 0; i < attributeList.size(); i++) {
+                Attribute at = attributeList.get(i);
+                switch (at.getType()) {
+                    case INT:
+                        bloomFilters[i].add(new Key(Integer.toString((Integer) event.getData(i)).getBytes()));
+                        break;
+                    case LONG:
+                        bloomFilters[i].add(new Key(Long.toString((Long) event.getData(i)).getBytes()));
+                        break;
+                    case FLOAT:
+                        bloomFilters[i].add(new Key(Float.toString((Float) event.getData(i)).getBytes()));
+                        break;
+                    case DOUBLE:
+                        bloomFilters[i].add(new Key(Double.toString((Double) event.getData(i)).getBytes()));
+                        break;
+                    case STRING:
+                        bloomFilters[i].add(new Key(event.getData(i).toString().getBytes()));
+                        break;
+                    case BOOL:
+                        bloomFilters[i].add(new Key(Boolean.toString((Boolean) event.getData(i)).getBytes()));
+                        break;
+                }
+            }
+        }
+    }
+
+    private void removeFromBloomFilters(List<Event> eventList) {
+        for (Event event : eventList) {
+            for (int i = 0; i < attributeList.size(); i++) {
+                Attribute at = attributeList.get(i);
+                switch (at.getType()) {
+                    case INT:
+                        bloomFilters[i].delete(new Key(ByteBuffer.allocate(4).putInt((Integer) event.getData(i)).array()));
+                        break;
+                    case LONG:
+                        bloomFilters[i].delete(new Key(ByteBuffer.allocate(8).putLong((Long) event.getData(i)).array()));
+                        break;
+                    case FLOAT:
+                        bloomFilters[i].delete(new Key(ByteBuffer.allocate(4).putFloat((Float) event.getData(i)).array()));
+                        break;
+                    case DOUBLE:
+                        bloomFilters[i].delete(new Key(ByteBuffer.allocate(8).putDouble((Double) event.getData(i)).array()));
+                        break;
+                    case STRING:
+                        bloomFilters[i].delete(new Key(event.getData(i).toString().getBytes()));
+                        break;
+                    case BOOL:
+                        bloomFilters[i].delete(new Key(Boolean.toString((Boolean) event.getData(i)).getBytes()));
+                        break;
+                }
+            }
         }
     }
 
@@ -297,7 +381,7 @@ public class RDBMSEventTable implements EventTable {
             con = dataSource.getConnection();
             statement = con.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM " + fullTableName +
-                                                         " LIMIT 0, " + cachedTable.getCacheLimit());
+                    " LIMIT 0, " + cachedTable.getCacheLimit());
             resultSet.setFetchSize(cachedTable.getCacheLimit());
             List<StreamEvent> eventList = new ArrayList<StreamEvent>();
             long timestamp = System.currentTimeMillis();
@@ -333,12 +417,14 @@ public class RDBMSEventTable implements EventTable {
             }
             if (cachedTable != null) {
                 cachedTable.addAll(eventList);
+                // checking whether the table size is equal to the current cache size
                 ResultSet resultCount = statement.executeQuery("SELECT COUNT(*) FROM " + fullTableName);
                 int rowCount = 0;
                 while (resultCount.next()) {
                     rowCount = resultCount.getInt(1);
                 }
                 if (rowCount <= cachedTable.getCacheLimit()) {
+                    // this is later used for optimizations when reading
                     cachedTable.setFullyLoaded(true);
                 }
                 resultCount.close();
@@ -377,6 +463,7 @@ public class RDBMSEventTable implements EventTable {
     }
 
     private void createPreparedStatementQueries() {
+        // only the insert query can be created since update, delete have query-specific predicates
         StringBuilder builder = new StringBuilder("INSERT INTO ");
         builder.append(fullTableName);
         builder.append(tableColumnList);
@@ -400,9 +487,14 @@ public class RDBMSEventTable implements EventTable {
         try {
             initializeConnection();
             con = dataSource.getConnection();
+            con.setAutoCommit(false);
             StringBuilder statementBuilder = new StringBuilder("DELETE FROM ");
             statementBuilder.append(fullTableName);
             statementBuilder.append(" WHERE ");
+            ArrayList<Event> bloomFilterDeletionList = null;
+            if (bloomFiltersEnabled) {
+                bloomFilterDeletionList = new ArrayList<Event>();
+            }
             if (streamEvent instanceof AtomicEvent) {
                 PredicateTreeNode predicate = conditionExecutor.constructPredicate((Event) streamEvent, tableDefinition, new SQLPredicateBuilder());
                 statementBuilder.append(predicate.buildPredicateString());
@@ -412,24 +504,32 @@ public class RDBMSEventTable implements EventTable {
                 for (int i = 0; i < paramList.size(); i++) {
                     populateStatement(statement, i + 1, paramList.get(i));
                 }
+                if (bloomFiltersEnabled) {
+                    bloomFilterDeletionList.add((Event) streamEvent);
+                }
                 statement.executeUpdate();
             } else {
                 for (int i = 0, size = ((ListEvent) streamEvent).getActiveEvents(); i < size; i++) {
+                    // deleting the entire event set using an aggregate query with OR conditions
                     if (i > 0) {
                         statementBuilder.append(" OR ");
                     }
                     statementBuilder.append("(");
-                    statementBuilder.append(conditionExecutor.constructPredicate((Event) ((ListEvent) streamEvent).getEvent(i), tableDefinition, new SQLPredicateBuilder()).buildPredicateString());
+                    statementBuilder.append(conditionExecutor.constructPredicate(((ListEvent) streamEvent).getEvent(i), tableDefinition, new SQLPredicateBuilder()).buildPredicateString());
                     statementBuilder.append(")");
+                    if (bloomFiltersEnabled) {
+                        bloomFilterDeletionList.add(((ListEvent) streamEvent).getEvent(i));
+                    }
                 }
                 statement = con.prepareStatement(statementBuilder.toString());
                 statement.executeUpdate();
             }
+            con.commit();
             if (cachedTable != null) {
                 cachedTable.delete(streamEvent, conditionExecutor);
             }
             if (bloomFiltersEnabled) {
-                buildBloomFilters();
+                removeFromBloomFilters(bloomFilterDeletionList);
             }
 
         } catch (SQLException e) {
@@ -451,10 +551,11 @@ public class RDBMSEventTable implements EventTable {
         try {
             initializeConnection();
             con = dataSource.getConnection();
+            con.setAutoCommit(false);
             Event atomicEvent = null;
             SQLPredicateBuilder predicateBuilder = new SQLPredicateBuilder();
             if (streamEvent instanceof AtomicEvent) {
-                atomicEvent = (Event) streamEvent;
+                atomicEvent = (Event) streamEvent;  // used to execute the condition executor
             } else {
                 if (((ListEvent) streamEvent).getActiveEvents() > 0) {
                     atomicEvent = ((ListEvent) streamEvent).getEvent(0);
@@ -464,23 +565,24 @@ public class RDBMSEventTable implements EventTable {
             PredicateTreeNode predicate = conditionExecutor.constructPredicate(atomicEvent, tableDefinition, predicateBuilder);
             String query = createUpdateQuery(predicate.buildPredicateString(), attributeUpdateMappingPosition);
             statement = con.prepareStatement(query);
-
-            for (int i = 0; i < attributeList.size(); i++) {
-                populateStatement(statement, i + 1, atomicEvent.getData(i));
-            }
-
             ArrayList paramList = new ArrayList();
-            predicate.populateParameters(paramList);
-            for (int i = 0; i < paramList.size(); i++) {
-                populateStatement(statement, attributeList.size() + i + 1, paramList.get(i));
-            }
-            statement.executeUpdate();
 
-            if (streamEvent instanceof ListEvent) {
+            if (streamEvent instanceof AtomicEvent) {
+
+                for (int i = 0; i < attributeList.size(); i++) {
+                    populateStatement(statement, i + 1, atomicEvent.getData(i));
+                }
+
+                predicate.populateParameters(paramList);
+                for (int i = 0; i < paramList.size(); i++) {
+                    populateStatement(statement, attributeList.size() + i + 1, paramList.get(i));
+                }
+                statement.executeUpdate();
+
+            } else {      // streamEvent instanceof ListEvent
                 statement.clearParameters();
 
-                //  event at index 0 is already processed
-                for (int j = 1, size = ((ListEvent) streamEvent).getActiveEvents(); j < size; j++) {
+                for (int j = 0, size = ((ListEvent) streamEvent).getActiveEvents(); j < size; j++) {
                     Event event = ((ListEvent) streamEvent).getEvent(j);
                     predicate = conditionExecutor.constructPredicate(event, tableDefinition, predicateBuilder);
                     paramList.clear();
@@ -495,7 +597,7 @@ public class RDBMSEventTable implements EventTable {
                 }
                 statement.executeBatch();
             }
-
+            con.commit();
             if (cachedTable != null) {
                 cachedTable.update(streamEvent, conditionExecutor, attributeUpdateMappingPosition);
             }
@@ -520,29 +622,33 @@ public class RDBMSEventTable implements EventTable {
         PredicateTreeNode predicate = null;
 
         if (bloomFiltersEnabled) {
-            // bloom filters only for the equal conditions only.
+            // bloom filters used only for the equal conditions.
             predicate = conditionExecutor.constructPredicate(atomicEvent, tableDefinition, new SQLPredicateBuilder());
-            ArrayList tokenList = new ArrayList();
+            ArrayList<PredicateToken> tokenList = new ArrayList<PredicateToken>(3);
             predicate.populateTokens(tokenList);
-//        if (predicateParts.length == 2) {
-            // looking for two sided equals conditions only.
-            for (int ops = 1; ops < tokenList.size() - 1; ops++) {
-                if (tokenList.get(ops).toString().startsWith("op:") &&
-                    tokenList.get(ops).toString().replaceFirst("op:", "").trim().equals("=")) {
-                    String param = tokenList.get(ops - 1).toString();
-                    String value = tokenList.get(ops + 1).toString();
-                    if (!param.startsWith("var:")) {
-                        param = value.replaceFirst("var:", "").trim();
-                        value = tokenList.get(ops - 1).toString().replaceFirst("val:", "").trim();
-                    } else {
-                        param = param.replaceFirst("var:", "").trim();
-                        value = value.replaceFirst("val:", "").trim();
-                    }
-                    for (int i = 0; i < attributeList.size(); i++) {
-                        if (attributeList.get(i).getName().equals(param)) {
-                            boolean mightContain = bloomFilters[i].mightContain(value.getBytes());
-                            if (!mightContain) {
-                                return false;
+
+            // looking for two sided equals conditions (operators) only.
+            if (tokenList.size() < 4) {
+                // not using bloom filters for complex conditions
+                for (int operatorIndex = 1; operatorIndex < tokenList.size() - 1; operatorIndex++) {
+
+                    // at this level the operator becomes '=' instead of '=='
+                    if (tokenList.get(operatorIndex).getGetTokenType() == PredicateToken.Type.OPERATOR &&
+                            tokenList.get(operatorIndex).getTokenValue().trim().equals("=")) {
+
+                        // param and value can be in any order i.e. price = 3 or 1 = price. this is to handle such scenarios.
+                        String param = tokenList.get(operatorIndex - 1).getGetTokenType() == PredicateToken.Type.VARIABLE ? tokenList.get(operatorIndex - 1).getTokenValue().trim() :
+                                tokenList.get(operatorIndex + 1).getTokenValue().toString().trim();
+                        String value = tokenList.get(operatorIndex - 1).getGetTokenType() == PredicateToken.Type.VARIABLE ? tokenList.get(operatorIndex + 1).getTokenValue().toString().trim() :
+                                tokenList.get(operatorIndex - 1).getTokenValue().trim();
+
+                        for (int i = 0; i < attributeList.size(); i++) {
+                            if (attributeList.get(i).getName().equals(param)) {
+                                boolean mightContain = bloomFilters[i].membershipTest(new Key(value.getBytes()));
+
+                                if (!mightContain) {
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -557,67 +663,67 @@ public class RDBMSEventTable implements EventTable {
             Connection con = null;
             PreparedStatement statement = null;
             try {
+                initializeConnection();
+
                 if (predicate == null) {
                     predicate = conditionExecutor.constructPredicate(atomicEvent, tableDefinition, new SQLPredicateBuilder());
                 }
-
-                if (dataSource != null) {
-                    con = dataSource.getConnection();
-                    statement = con.prepareStatement("SELECT * FROM " + fullTableName + " WHERE " + predicate.buildPredicateString() + " LIMIT 0,1");
-                    ArrayList paramList = new ArrayList();
-                    predicate.populateParameters(paramList);
-                    for (int i = 0; i < paramList.size(); i++) {
-                        populateStatement(statement, i + 1, paramList.get(i));
-                    }
-                    ResultSet resultSet = statement.executeQuery();
-//                resultSet.setFetchSize(1);
-                    boolean contains = false;
-                    long timestamp = System.currentTimeMillis();
-
-                    while (resultSet.next()) {
-                        contains = true;
-                        if (cachedTable != null) {
-
-                            Object[] data = new Object[attributeList.size()];
-                            for (int i = 0; i < attributeList.size(); i++) {
-                                switch (attributeList.get(i).getType()) {
-                                    case BOOL:
-                                        data[i] = resultSet.getBoolean(attributeList.get(i).getName());
-                                        break;
-                                    case DOUBLE:
-                                        data[i] = resultSet.getDouble(attributeList.get(i).getName());
-                                        break;
-                                    case FLOAT:
-                                        data[i] = resultSet.getFloat(attributeList.get(i).getName());
-                                        break;
-                                    case INT:
-                                        data[i] = resultSet.getInt(attributeList.get(i).getName());
-                                        break;
-                                    case LONG:
-                                        data[i] = resultSet.getLong(attributeList.get(i).getName());
-                                        break;
-                                    case STRING:
-                                        data[i] = resultSet.getString(attributeList.get(i).getName());
-                                        break;
-                                    default:
-                                        data[i] = resultSet.getObject(attributeList.get(i).getName());
-
-                                }
-                            }
-                            Event event = new InEvent(tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), timestamp, data);
-                            cachedTable.add(event);
-                        } else {
-                            break;
-                        }
-                    }
-                    resultSet.close();
-                    return contains;
-                } else {
-                    log.error("DataSource not found for the given configuration of event table, please verify the configuration");
-                    return false;
+                con = dataSource.getConnection();
+                // need to construct this each time since there are multiple queries and their predicates differ.
+                statement = con.prepareStatement("SELECT * FROM " + fullTableName + " WHERE " + predicate.buildPredicateString() + " LIMIT 0,1");
+                ArrayList paramList = new ArrayList();
+                predicate.populateParameters(paramList);
+                for (int i = 0; i < paramList.size(); i++) {
+                    populateStatement(statement, i + 1, paramList.get(i));
                 }
+                ResultSet resultSet = statement.executeQuery();
+
+                boolean contains = false;
+                long timestamp = System.currentTimeMillis();
+
+                while (resultSet.next()) {
+                    contains = true;
+                    if (cachedTable != null) {
+
+                        Object[] data = new Object[attributeList.size()];
+                        for (int i = 0; i < attributeList.size(); i++) {
+                            switch (attributeList.get(i).getType()) {
+                                case BOOL:
+                                    data[i] = resultSet.getBoolean(attributeList.get(i).getName());
+                                    break;
+                                case DOUBLE:
+                                    data[i] = resultSet.getDouble(attributeList.get(i).getName());
+                                    break;
+                                case FLOAT:
+                                    data[i] = resultSet.getFloat(attributeList.get(i).getName());
+                                    break;
+                                case INT:
+                                    data[i] = resultSet.getInt(attributeList.get(i).getName());
+                                    break;
+                                case LONG:
+                                    data[i] = resultSet.getLong(attributeList.get(i).getName());
+                                    break;
+                                case STRING:
+                                    data[i] = resultSet.getString(attributeList.get(i).getName());
+                                    break;
+                                default:
+                                    data[i] = resultSet.getObject(attributeList.get(i).getName());
+
+                            }
+                        }
+                        // lazy loading caches since we've already read the event
+                        Event event = new InEvent(tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), timestamp, data);
+                        cachedTable.add(event);
+                    } else {
+                        break;
+                    }
+                }
+                resultSet.close();
+                return contains;
             } catch (SQLException e) {
                 log.error("Can't read the database table: " + tableDefinition.getExternalTable().getParameter(PARAM_TABLE_NAME), e);
+            } catch (Exception e) {
+                log.error("Can't connect to the database.", e);
             } finally {
                 cleanUpConnections(statement, con);
             }
@@ -682,20 +788,20 @@ public class RDBMSEventTable implements EventTable {
             if (value != null) {
                 value = value.toString().replaceAll("'", "''");
             }
-            sqlPredicate = sqlPredicate.replaceFirst("\\?", "'" + value.toString() + "'");
+            sqlPredicate = sqlPredicate.replaceFirst("\\?", "'" + value.toString() + "'");  // populate one by one.
         }
         return iterator(sqlPredicate);
     }
 
     @Override
-    public Iterator<StreamEvent> iterator(String SQLPredicate) {
+    public Iterator<StreamEvent> iterator(String sqlPredicate) {
         Connection con = null;
         Statement statement = null;
         try {
             con = dataSource.getConnection();
             statement = con.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM " + fullTableName +
-                                                         ((SQLPredicate == null) ? "" : (" WHERE " + SQLPredicate)));
+                    ((sqlPredicate == null) ? "" : (" WHERE " + sqlPredicate)));
             resultSet.setFetchSize(10000);
             ArrayList<StreamEvent> eventList = new ArrayList<StreamEvent>();
             long timestamp = System.currentTimeMillis();

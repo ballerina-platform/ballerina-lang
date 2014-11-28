@@ -53,8 +53,8 @@ public class TableWindowProcessor extends WindowProcessor {
     }
 
     @Override
-    public Iterator<StreamEvent> iterator(String SQLPredicate) {
-      return  eventTable.iterator(SQLPredicate);
+    public Iterator<StreamEvent> iterator(String sqlPredicate) {
+      return  eventTable.iterator(sqlPredicate);
 
     }
 

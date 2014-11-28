@@ -12,7 +12,12 @@ public class BasicCacheManager implements CacheManager {
     private SiddhiList<StreamEvent> cacheList;
     private int limit;
 
-    public BasicCacheManager(SiddhiList<StreamEvent> cacheList, int limit) {
+    public BasicCacheManager() {
+
+    }
+
+    @Override
+    public void init(SiddhiList<StreamEvent> cacheList, int limit) {
         this.cacheList = cacheList;
         this.limit = limit;
     }
@@ -41,11 +46,11 @@ public class BasicCacheManager implements CacheManager {
 
     @Override
     public void read(StreamEvent item) {
-
+        // has no effect on cached items.
     }
 
     @Override
     public void update(StreamEvent item) {
-
+        // has no effect
     }
 }

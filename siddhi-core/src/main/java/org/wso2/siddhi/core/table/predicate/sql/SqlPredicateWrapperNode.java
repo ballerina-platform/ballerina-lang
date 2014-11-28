@@ -4,10 +4,10 @@ import org.wso2.siddhi.core.table.predicate.PredicateTreeNode;
 
 import java.util.List;
 
-public class SqlPredicateWrapperNode implements PredicateTreeNode {
+public class SQLPredicateWrapperNode implements PredicateTreeNode {
     private PredicateTreeNode child;
 
-    public SqlPredicateWrapperNode(PredicateTreeNode child) {
+    public SQLPredicateWrapperNode(PredicateTreeNode child) {
         this.child = child;
     }
 
