@@ -29,8 +29,7 @@ import java.util.concurrent.Executor;
 
 public class SiddhiContext {
 
-
-    private int defaultEventBufferSize;
+    private int eventBufferSize ;
     private Executor executorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private Map<String, Class> siddhiExtensions;
@@ -40,9 +39,8 @@ public class SiddhiContext {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
     }
 
-
-    public int getDefaultEventBufferSize() {
-        return defaultEventBufferSize;
+    public int getEventBufferSize() {
+        return eventBufferSize;
     }
 
     public Executor getExecutorService() {
@@ -63,5 +61,9 @@ public class SiddhiContext {
 
     public void setSiddhiExtensions(Map<String, Class> siddhiExtensions) {
         this.siddhiExtensions = siddhiExtensions;
+    }
+
+    public void setEventBufferSize(int eventBufferSize) {
+        this.eventBufferSize = eventBufferSize;
     }
 }

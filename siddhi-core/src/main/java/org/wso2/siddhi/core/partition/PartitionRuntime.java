@@ -21,7 +21,7 @@
 package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.QueryCreationException;
@@ -59,16 +59,17 @@ public class PartitionRuntime {
     private Partition partition;
     private ConcurrentMap<String, StreamJunction> localStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains definition
     private ConcurrentMap<String, AbstractDefinition> localStreamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
-    private SiddhiContext siddhiContext;
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap;
     private ConcurrentMap<String, StreamJunction> streamJunctionMap;
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
     private List<PartitionInstanceRuntime> partitionInstanceRuntimeList = new ArrayList<PartitionInstanceRuntime>();
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
     private ExecutionPlanRuntime executionPlanRuntime;
+    private ExecutionPlanContext executionPlanContext;
 
 
-    public PartitionRuntime(ExecutionPlanRuntime executionPlanRuntime, Partition partition, SiddhiContext siddhiContext) {
+    public PartitionRuntime(ExecutionPlanRuntime executionPlanRuntime, Partition partition, ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
         try {
             Element element = AnnotationHelper.getAnnotationElement("info", "name", partition.getAnnotations());
             if (element != null) {
@@ -84,7 +85,6 @@ public class PartitionRuntime {
         this.streamDefinitionMap = executionPlanRuntime.getStreamDefinitionMap();
         this.streamJunctionMap = executionPlanRuntime.getStreamJunctions();
         this.executionPlanRuntime = executionPlanRuntime;
-        this.siddhiContext = siddhiContext;
     }
 
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {
@@ -93,10 +93,10 @@ public class PartitionRuntime {
         if (query.getOutputStream() instanceof InsertIntoStream && ((InsertIntoStream) query.getOutputStream()).isInnerStream()) {
             metaQueryRuntime.setToLocalStream(true);
             outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), localStreamJunctionMap,
-                    metaQueryRuntime.getOutputStreamDefinition(), siddhiContext);
+                    metaQueryRuntime.getOutputStreamDefinition(), executionPlanContext);
         } else {
             outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), streamJunctionMap,
-                    metaQueryRuntime.getOutputStreamDefinition(), siddhiContext);
+                    metaQueryRuntime.getOutputStreamDefinition(), executionPlanContext);
         }
         metaQueryRuntime.setOutputCallback(outputCallback);
 
@@ -118,8 +118,8 @@ public class PartitionRuntime {
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime && !((SingleInputStream) query.getInputStream()).isInnerStream()) {
             if (!partitionStreamReceivers.containsKey(((SingleInputStream) query.getInputStream()).getStreamId())) {
                 List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaStreamEvent,
-                        executors, siddhiContext).getPartitionExecutorLists();
-                addPartitionReceiver(new PartitionStreamReceiver(siddhiContext, metaStreamEvent,
+                        executors, executionPlanContext.getSiddhiContext()).getPartitionExecutorLists();
+                addPartitionReceiver(new PartitionStreamReceiver(executionPlanContext, metaStreamEvent,
                         (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),
                         partitionExecutors.get(0), this));
             }
@@ -128,11 +128,11 @@ public class PartitionRuntime {
     }
 
     /**
-     * clone all the queries of the partition for a given partition key
+     * clone all the queries of the partition for a given partition key if they are not available
      *
      * @param key partition key
      */
-    public void clone(String key) {
+    public void cloneIfNotExist(String key) {
         PartitionInstanceRuntime partitionInstance = this.getPartitionInstanceRuntime(key);
         if (partitionInstance == null) {
             clonePartition(key);
@@ -155,7 +155,9 @@ public class PartitionRuntime {
                     StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
                     if (streamJunction == null) {
                         streamJunction = new StreamJunction((StreamDefinition) localStreamDefinitionMap.get(streamId),
-                                (ExecutorService) siddhiContext.getExecutorService(), siddhiContext.getDefaultEventBufferSize());
+                                (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                                executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext
+                                );
                         localStreamJunctionMap.put(streamId + key, streamJunction);
                     }
                     streamJunction.subscribe(((SingleStreamRuntime) (clonedQueryRuntime.getStreamRuntime())).getQueryStreamReceiver());
@@ -216,8 +218,9 @@ public class PartitionRuntime {
             localStreamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
             StreamJunction streamJunction = localStreamJunctionMap.get(streamDefinition.getId());
             if (streamJunction == null) {
-                streamJunction = new StreamJunction(streamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
-                        siddhiContext.getDefaultEventBufferSize());
+                streamJunction = new StreamJunction(streamDefinition,
+                        (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
                 localStreamJunctionMap.putIfAbsent(streamDefinition.getId(), streamJunction);
             }
         }

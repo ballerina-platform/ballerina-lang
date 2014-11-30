@@ -42,8 +42,8 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 public class FilterTestCase {
     static final Logger log = Logger.getLogger(FilterTestCase.class);
-    private int count;
-    private boolean eventArrived;
+    private volatile int count;
+    private volatile boolean eventArrived;
 
     @Before
     public void init() {
@@ -59,10 +59,8 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:info(name='test') " +
-                "@plan:config(threads='single') " +
+                "@Plan:name('FilterTest1') " +
                 "" +
-                "@config(async = 'true') " +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
                 "@info(name = 'query1') " +
@@ -77,6 +75,8 @@ public class FilterTestCase {
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        System.out.println("Running : "+executionPlanRuntime.getName());
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -100,6 +100,9 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         Thread.sleep(300);
@@ -119,7 +122,6 @@ public class FilterTestCase {
         String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
-
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -132,11 +134,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         Thread.sleep(500);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -150,7 +157,6 @@ public class FilterTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
-
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -162,11 +168,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 200});
         Thread.sleep(500);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
     }
 
 
@@ -190,11 +200,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(200);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -217,11 +231,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(200);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -245,11 +263,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 44f, 200});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -273,12 +295,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
 
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -301,11 +327,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60f});
         inputHandler.send(new Object[]{"WSO2", 70f, 40f});
         inputHandler.send(new Object[]{"WSO2", 44f, 200f});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -329,11 +360,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60f});
         inputHandler.send(new Object[]{"WSO2", 70f, 40f});
         inputHandler.send(new Object[]{"WSO2", 44f, 200f});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -357,11 +393,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -385,11 +425,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -413,11 +457,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -441,11 +489,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60f});
         inputHandler.send(new Object[]{"WSO2", 70f, 40f});
         inputHandler.send(new Object[]{"WSO2", 44f, 200f});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -469,11 +521,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60f});
         inputHandler.send(new Object[]{"WSO2", 70f, 40f});
         inputHandler.send(new Object[]{"WSO2", 44f, 200f});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -497,11 +553,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 200d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -525,11 +585,14 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -560,11 +623,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -607,11 +674,15 @@ public class FilterTestCase {
         };
         executionPlanRuntime.addCallback("query1", queryCallback);
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 50});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 30});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
     }
 
 
@@ -653,11 +724,15 @@ public class FilterTestCase {
             }
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100l});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 100l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -700,10 +775,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 103l});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 10l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -728,10 +807,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 10l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -758,10 +841,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100d});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 10d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -785,11 +872,14 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 45f, 100l});
         inputHandler.send(new Object[]{"IBM", 35f, 50l});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -813,11 +903,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 45f, 100l});
         inputHandler.send(new Object[]{"IBM", 35f, 50l});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -842,11 +936,14 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 45f, 100l});
         inputHandler.send(new Object[]{"IBM", 35f, 50l});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -871,10 +968,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
         inputHandler.send(new Object[]{"IBM", 57.6f, 10l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -899,10 +1000,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
         inputHandler.send(new Object[]{"IBM", 57.6f, 10l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -926,12 +1031,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50});
         inputHandler.send(new Object[]{"WSO2", 50.5f, 400});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -955,12 +1064,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50});
         inputHandler.send(new Object[]{"WSO2", 50.5f, 400});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -982,10 +1095,14 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 55.6f, true});
         inputHandler.send(new Object[]{"WSO2", 57.6f, false});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -1028,10 +1145,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 55.6f, true});
         inputHandler.send(new Object[]{"WSO2", 57.6f, false});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -1055,11 +1176,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1082,11 +1207,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1109,11 +1238,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1136,11 +1269,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1182,10 +1319,14 @@ public class FilterTestCase {
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 55.6f, true});
         inputHandler.send(new Object[]{"WSO2", 57.6f, false});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -1209,11 +1350,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1236,11 +1381,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"IBM", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1263,11 +1412,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1290,11 +1443,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40d});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50d});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1317,11 +1474,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1344,11 +1505,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -1371,11 +1536,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 55.5f, 40l});
         inputHandler.send(new Object[]{"WSO2", 53.5f, 50l});
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
@@ -1517,11 +1686,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -1553,11 +1726,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -1589,11 +1766,15 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
+
 
     }
 
@@ -1624,11 +1805,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1659,11 +1842,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1694,11 +1879,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1729,11 +1916,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d});
         inputHandler.send(new Object[]{"WSO2", 60f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1764,11 +1953,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 200d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1799,11 +1990,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 200d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1834,11 +2027,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 200d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1869,11 +2064,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 200d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1904,11 +2101,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60l, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 200l, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1939,11 +2138,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -1974,11 +2175,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2009,11 +2212,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2046,11 +2251,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2083,11 +2290,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50d, 60l});
         inputHandler.send(new Object[]{"WSO2", 70d, 40l});
         inputHandler.send(new Object[]{"WSO2", 44d, 200l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2118,11 +2327,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50d, 60l});
         inputHandler.send(new Object[]{"WSO2", 70d, 40l});
         inputHandler.send(new Object[]{"WSO2", 44d, 200l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2153,11 +2364,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50d, 60l});
         inputHandler.send(new Object[]{"WSO2", 70d, 40l});
         inputHandler.send(new Object[]{"WSO2", 44d, 200l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2188,11 +2401,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2223,13 +2438,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2259,11 +2474,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 60d, 5});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2294,11 +2511,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2329,11 +2548,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
 
     }
@@ -2365,11 +2586,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2400,12 +2623,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2435,12 +2659,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2470,12 +2695,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2505,12 +2731,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60l, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300l, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
 
@@ -2544,12 +2771,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2579,12 +2807,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2614,12 +2843,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50d, 60d});
         inputHandler.send(new Object[]{"WSO2", 70d, 40d});
         inputHandler.send(new Object[]{"WSO2", 44d, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
 
@@ -2650,12 +2880,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2685,12 +2916,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2720,12 +2952,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2755,12 +2988,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 20l, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300l, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2790,11 +3024,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -2825,12 +3061,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2860,12 +3097,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2895,12 +3133,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2930,12 +3169,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -2965,12 +3205,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3000,12 +3241,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
 
@@ -3039,12 +3281,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3074,12 +3317,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3109,12 +3353,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50d, 60d});
         inputHandler.send(new Object[]{"WSO2", 70d, 40d});
         inputHandler.send(new Object[]{"WSO2", 44d, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
 
@@ -3145,12 +3390,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3180,12 +3426,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3215,12 +3462,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3250,11 +3498,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 20l, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300l, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3285,12 +3535,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3320,12 +3571,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3355,11 +3607,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3390,12 +3644,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3425,11 +3680,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3460,12 +3717,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3495,11 +3753,13 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3569,15 +3829,17 @@ public class FilterTestCase {
                 Assert.assertTrue("150.0".equals(inEvents[0].getData()[2].toString()));
                 Assert.assertTrue("9".equals(inEvents[0].getData()[3].toString()));
                 Assert.assertTrue("20".equals(inEvents[0].getData()[4].toString()));
+                count = count + inEvents.length;
             }
 
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 10l});
-
         Thread.sleep(100);
-
+        Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
     }
 
     //*******************************************************************************************************************
@@ -3618,15 +3880,17 @@ public class FilterTestCase {
                 Assert.assertTrue("35.5".equals(inEvents[0].getData()[1].toString()));
                 Assert.assertTrue("50.0".equals(inEvents[0].getData()[2].toString()));
                 Assert.assertTrue("1".equals(inEvents[0].getData()[3].toString()));
-                Assert.assertTrue("40".equals(inEvents[0].getData()[4].toString()));
+                Assert.assertTrue("0".equals(inEvents[0].getData()[4].toString()));
+                count = count + inEvents.length;
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 50l});
-
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 10l});
         Thread.sleep(100);
-
+        Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3670,15 +3934,17 @@ public class FilterTestCase {
                 Assert.assertTrue("50.0".equals(inEvents[0].getData()[2].toString()));
                 Assert.assertTrue("20.0".equals(inEvents[0].getData()[3].toString()));
                 Assert.assertTrue("7.0".equals(inEvents[0].getData()[4].toString()));
+                count = count + inEvents.length;
 
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 60f, 100d, 100, 70l});
-
         Thread.sleep(100);
-
+        Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3721,14 +3987,16 @@ public class FilterTestCase {
                 Assert.assertTrue("111.0".equals(inEvents[0].getData()[2].toString()));
                 Assert.assertTrue("300.0".equals(inEvents[0].getData()[3].toString()));
                 Assert.assertTrue("15".equals(inEvents[0].getData()[4].toString()));
+                count = count + inEvents.length;
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 3l});
-
         Thread.sleep(100);
-
+        Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -3772,15 +4040,16 @@ public class FilterTestCase {
                 Assert.assertTrue("1.0".equals(inEvents[0].getData()[2].toString()));
                 Assert.assertTrue("1".equals(inEvents[0].getData()[3].toString()));
                 Assert.assertTrue("1".equals(inEvents[0].getData()[4].toString()));
+                count = count + inEvents.length;
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 101d, 5, 7l});
-
         Thread.sleep(100);
-
-
+        Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
     }
 
 
@@ -3816,11 +4085,11 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3852,10 +4121,10 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         Thread.sleep(100);
-        Assert.assertEquals(0, count);
-
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -3878,12 +4147,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -3906,12 +4179,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -3934,12 +4211,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -3962,12 +4243,16 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
     }
 
     @Test
@@ -3990,11 +4275,14 @@ public class FilterTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
     }
 }

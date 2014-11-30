@@ -107,4 +107,13 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
         first = null;
     }
 
+    public void detach() {
+        if (lastReturned == null) {
+            throw new IllegalStateException();
+        }
+        if (previousToLastReturned != null) {
+            previousToLastReturned.setNext(null);
+        }
+        lastReturned = null;
+    }
 }

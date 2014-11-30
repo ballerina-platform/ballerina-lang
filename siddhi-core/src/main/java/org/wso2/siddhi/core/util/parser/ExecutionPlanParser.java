@@ -19,11 +19,14 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
@@ -45,34 +48,60 @@ public class ExecutionPlanParser {
      * @return ExecutionPlanRuntime
      */
     public static ExecutionPlanRuntime parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
-        ExecutionPlanRuntime executionPlanRuntime = new ExecutionPlanRuntime(siddhiContext);
+
+        ExecutionPlanContext executionPlanContext = new ExecutionPlanContext();
+        executionPlanContext.setSiddhiContext(siddhiContext);
 
         try {
-            Element element = AnnotationHelper.getAnnotationElement("info", "name", executionPlan.getAnnotations());
+            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_NAME, null,
+                    executionPlan.getAnnotations());
             if (element != null) {
-                executionPlanRuntime.setName(element.getValue());
+                executionPlanContext.setName(element.getValue());
             } else {
-                executionPlanRuntime.setName(UUID.randomUUID().toString());
+                executionPlanContext.setName(UUID.randomUUID().toString());
             }
+
+            Annotation annotation=AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PLAYBACK,
+                    executionPlan.getAnnotations());
+            if (annotation != null) {
+                executionPlanContext.setPlayback(true);
+            }
+
+            annotation=AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ENFORCE_ORDER,
+                    executionPlan.getAnnotations());
+            if (annotation != null) {
+                executionPlanContext.setEnforceOrder(true);
+            }
+
+            annotation=AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
+                    executionPlan.getAnnotations());
+            if (annotation != null) {
+                executionPlanContext.setParallel(true);
+            }
+
         } catch (DuplicateAnnotationException e) {
             throw new ExecutionPlanValidationException(e.getMessage() + " for the same Execution Plan " +
                     executionPlan.toString());
         }
 
+        ExecutionPlanRuntime executionPlanRuntime = new ExecutionPlanRuntime(executionPlanContext);
+
         defineStreamDefinitions(executionPlanRuntime, executionPlan.getStreamDefinitionMap());
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
-                    QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, siddhiContext, executionPlanRuntime.getStreamDefinitionMap());
+                    QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, executionPlanContext,
+                            executionPlanRuntime.getStreamDefinitionMap());
                     executionPlanRuntime.addQuery(queryRuntime);
                 } else {
-                    PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime, (Partition) executionElement, siddhiContext, executionPlanRuntime.getStreamDefinitionMap());
+                    PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime,
+                            (Partition) executionElement, executionPlanContext, executionPlanRuntime.getStreamDefinitionMap());
                     executionPlanRuntime.addPartition(partitionRuntime);
                 }
             }
         } catch (QueryCreationException e) {
-            throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan " +
-                    executionPlanRuntime.getName(), e);
+            throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
+                    executionPlanRuntime.getName() + "\"", e);
         }
         return executionPlanRuntime;
     }

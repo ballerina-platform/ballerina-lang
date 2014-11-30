@@ -72,7 +72,7 @@ public class QuerySelector implements Processor {
         }
         iterator.assignEvent(streamEvent);
         try {
-            while (iterator.hasNext()) {
+            while (iterator.hasNext()) {       //todo optimize
                 StreamEvent event = iterator.next();
                 if (isGroupBy) {
                     keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));

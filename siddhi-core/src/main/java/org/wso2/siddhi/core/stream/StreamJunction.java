@@ -24,14 +24,17 @@ import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.StreamContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventFactory;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.List;
@@ -43,16 +46,32 @@ public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
-    private StreamDefinition streamDefinition;
+    private StreamContext streamContext;
     private ExecutorService executorService;
     private int bufferSize;
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
 
-    public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize) {
-        this.streamDefinition = streamDefinition;
+    public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize,
+                          ExecutionPlanContext executionPlanContext) {
         bufferSize = defaultBufferSize;
         this.executorService = executorService;
+        streamContext = new StreamContext();
+        streamContext.setStreamDefinition(streamDefinition);
+        streamContext.setExecutionPlanContext(executionPlanContext);
+
+        try {
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
+                    streamContext.getStreamDefinition().getAnnotations());
+            if (annotation != null) {
+                streamContext.setParallel(true);
+            }
+
+        } catch (DuplicateAnnotationException e) {
+            throw new ExecutionPlanValidationException(e.getMessage() + " for the same Stream " +
+                    streamDefinition.getId());
+        }
+
     }
 
     public void sendEvent(StreamEvent streamEvent) {
@@ -81,7 +100,7 @@ public class StreamJunction {
 
     public void sendEvent(Event event) {
         if (log.isTraceEnabled()) {
-            log.trace("event is received by streamJunction " + this);
+            log.trace(event + " event is received by streamJunction " + this);
         }
         if (disruptor != null) {
             long sequenceNo = ringBuffer.next();
@@ -97,6 +116,27 @@ public class StreamJunction {
             }
         }
 
+    }
+
+    private void sendEvent(Event[] events) {
+        if (log.isTraceEnabled()) {
+            log.trace("event is received by streamJunction " + this);
+        }
+        if (disruptor != null) {
+            for (Event event : events) {   //todo optimize for arrays
+                long sequenceNo = ringBuffer.next();
+                try {
+                    Event existingEvent = ringBuffer.get(sequenceNo);
+                    existingEvent.copyFrom(event);
+                } finally {
+                    ringBuffer.publish(sequenceNo);
+                }
+            }
+        } else {
+            for (Receiver receiver : receivers) {
+                receiver.receive(events);
+            }
+        }
     }
 
     private void sendData(long timeStamp, Object[] data) {
@@ -123,29 +163,18 @@ public class StreamJunction {
     public synchronized void startProcessing() {
         if (!receivers.isEmpty()) {
 
-            Boolean asyncEnabled = null;
-            try {
-                Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_CONFIG,
-                        SiddhiConstants.ANNOTATION_ELEMENT_ASYNC,
-                        streamDefinition.getAnnotations());
-
-                if (element != null) {
-                    asyncEnabled = SiddhiConstants.TRUE.equalsIgnoreCase(element.getValue());
-                }
-
-            } catch (DuplicateAnnotationException e) {
-                throw new QueryCreationException(e.getMessage() + " for the same Stream Definition " +
-                        streamDefinition.toString());
+            Boolean parallel = streamContext.isParallel();
+            if (parallel == null) {
+                parallel = streamContext.getExecutionPlanContext().isParallel();
             }
-
-            if (asyncEnabled != null && asyncEnabled || asyncEnabled == null && publishers.size() > 1) {
+            if (parallel) {
 
                 ProducerType producerType = ProducerType.SINGLE;
                 if (publishers.size() > 1) {
                     producerType = ProducerType.MULTI;
                 }
 
-                disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
+                disruptor = new Disruptor<Event>(new EventFactory(streamContext.getStreamDefinition().getAttributeList().size()),
                         bufferSize, executorService, producerType, new SleepingWaitStrategy());
 
                 for (Receiver receiver : receivers) {
@@ -177,7 +206,7 @@ public class StreamJunction {
     }
 
     public String getStreamId() {
-        return streamDefinition.getId();
+        return streamContext.getStreamDefinition().getId();
     }
 
     public interface Receiver {
@@ -191,6 +220,8 @@ public class StreamJunction {
         public void receive(Event event, boolean endOfBatch);
 
         public void receive(long timeStamp, Object[] data);
+
+        public void receive(Event[] events);
     }
 
     public class StreamHandler implements EventHandler<Event> {
@@ -207,7 +238,7 @@ public class StreamJunction {
 
     }
 
-    public class Publisher {
+    public class Publisher implements InputProcessor {
 
         private StreamJunction streamJunction;
 
@@ -219,18 +250,24 @@ public class StreamJunction {
             streamJunction.sendEvent(streamEvent);
         }
 
-        public void send(Event event) {
+        @Override
+        public void send(Event event, int streamIndex) {
             streamJunction.sendEvent(event);
         }
 
-        public void send(long timeStamp, Object[] data) {
+        @Override
+        public void send(Event[] events, int streamIndex) {
+            streamJunction.sendEvent(events);
+        }
+
+        @Override
+        public void send(long timeStamp, Object[] data, int streamIndex) {
             streamJunction.sendData(timeStamp, data);
         }
 
         public String getStreamId() {
             return streamJunction.getStreamId();
         }
-
     }
 
 }

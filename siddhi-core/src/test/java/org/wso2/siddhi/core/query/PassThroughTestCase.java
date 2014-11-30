@@ -80,17 +80,19 @@ public class PassThroughTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(inEvents);
                 Assert.assertTrue("IBM".equals(inEvents[0].getData(0)) || "WSO2".equals(inEvents[0].getData(0)));
-                count++;
+                count += inEvents.length;
                 eventArrived = true;
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 100});
         inputHandler.send(new Object[]{"WSO2", 100});
-        Thread.sleep(100);
+        Thread.sleep(1000);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -125,17 +127,19 @@ public class PassThroughTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(inEvents);
-                count++;
+                count += inEvents.length;
                 eventArrived = true;
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream1");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 100});
         inputHandler.send(new Object[]{"WSO2", 100});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
         Assert.assertFalse(eventArrived);
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -170,23 +174,25 @@ public class PassThroughTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(inEvents);
-                count++;
+                count += inEvents.length;
                 eventArrived = true;
             }
 
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler1 = executionPlanRuntime.getInputHandler("cseEventStream1");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 100});
         inputHandler.send(new Object[]{"WSO2", 100});
 
-        InputHandler inputHandler1 = executionPlanRuntime.getInputHandler("cseEventStream1");
         inputHandler1.send(new Object[]{"ORACLE", 100});
         inputHandler1.send(new Object[]{"ABC", 100});
 
         Thread.sleep(100);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
     }
 
 }

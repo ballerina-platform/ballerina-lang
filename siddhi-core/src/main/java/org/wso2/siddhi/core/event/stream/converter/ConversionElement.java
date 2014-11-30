@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream.constructor;
+package org.wso2.siddhi.core.event.stream.converter;
 
 /**
  * Element to hold information about event conversion
  */
-public class ConvertionElement {
+public class ConversionElement {
     private int fromPosition;               //position in StreamEvent/data[]
     private int[] toPosition = new int[2];  //new position in StreamEvent
 

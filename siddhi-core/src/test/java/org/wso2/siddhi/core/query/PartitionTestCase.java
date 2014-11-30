@@ -68,18 +68,20 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 Assert.assertTrue("IBM".equals(events[0].getData(0)) || "WSO2".equals(events[0].getData(0)));
-                count = count+events.length;
+                count = count + events.length;
                 eventArrived = true;
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
         Thread.sleep(1000);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -100,7 +102,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 eventArrived = true;
                 if (count == 1) {
                     Assert.assertEquals(75.5999984741211, events[0].getData()[1]);
@@ -113,13 +115,14 @@ public class PartitionTestCase {
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStreamOne");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 70005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(3, count);
-
+        executionRuntime.shutdown();
 
     }
 
@@ -140,18 +143,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 eventArrived = true;
             }
         });
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(4, count);
-
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -205,19 +209,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 eventArrived = true;
             }
         });
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
         Thread.sleep(1000);
-
         Assert.assertEquals(4, count);
-
+        executionRuntime.shutdown();
 
     }
 
@@ -308,19 +312,20 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 eventArrived = true;
             }
         });
 
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
 
-        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
         inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler2.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
@@ -329,13 +334,13 @@ public class PartitionTestCase {
         Thread.sleep(2000);
         Assert.assertEquals(8, count);
 
-
+        executionRuntime.shutdown();
     }
 
     @Test
     public void testPartitionQuery5() throws InterruptedException {
         log.info("Partition test5");
-        SiddhiManager siddhiManager = new SiddhiManager();
+        final SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan1");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
@@ -345,7 +350,6 @@ public class PartitionTestCase {
 
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(streamDefinition1);
-
         executionPlan.defineStream(streamDefinition2);
 
 
@@ -447,7 +451,7 @@ public class PartitionTestCase {
         executionRuntime.addCallback("StockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
-                stockStreamEventCount = stockStreamEventCount+events.length;
+                stockStreamEventCount = stockStreamEventCount + events.length;
 
             }
         });
@@ -457,36 +461,39 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
-                eventArrived = true;
+                synchronized (siddhiManager) {
+                    count = count + events.length;
+                    eventArrived = true;
+                }
             }
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
+        InputHandler inputHandler3 = executionRuntime.getInputHandler("StockStream");
+
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
 
-        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"WSO21", 75.6f, 100});
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE1", 75.6f, 100});
 
-
-        InputHandler inputHandler3 = executionRuntime.getInputHandler("StockStream");
         inputHandler3.send(new Object[]{"ABC", 75.6f, 100});
         inputHandler3.send(new Object[]{"DEF", 75.6f, 100});
         inputHandler3.send(new Object[]{"KLM", 75.6f, 100});
         inputHandler3.send(new Object[]{"ABC", 75.6f, 100});
 
-        Thread.sleep(8000);
-
+        Thread.sleep(5000);
 
         Assert.assertEquals(16, count);
         Thread.sleep(1000);
         Assert.assertEquals(8, stockStreamEventCount);
+        executionRuntime.shutdown();
 
     }
 
@@ -509,28 +516,30 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 eventArrived = true;
             }
         });
 
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
+
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
 
-        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
         inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler2.send(new Object[]{"WSO21", 75.6f, 100});
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE1", 75.6f, 100});
 
-
         Thread.sleep(1000);
         Assert.assertEquals(8, count);
 
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -553,7 +562,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 if (count == 1) {
                     Assert.assertEquals(75.0, events[0].getData()[1]);
                 } else if (count == 2) {
@@ -561,21 +570,21 @@ public class PartitionTestCase {
                 } else if (count == 3) {
                     Assert.assertEquals(110.0, events[0].getData()[1]);
                 } else if (count == 4) {
-                    Assert.assertEquals(50.0,events[0].getData()[1]);
+                    Assert.assertEquals(50.0, events[0].getData()[1]);
                 }
                 eventArrived = true;
             }
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75f, 100});
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(4, count);
-
-
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -596,7 +605,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 if (count == 1) {
                     Assert.assertEquals(75.0f, events[0].getData()[1]);
                 } else if (count == 2) {
@@ -604,21 +613,21 @@ public class PartitionTestCase {
                 } else if (count == 3) {
                     Assert.assertEquals(75.0f, events[0].getData()[1]);
                 } else if (count == 4) {
-                    Assert.assertEquals(50.0f,events[0].getData()[1]);
+                    Assert.assertEquals(50.0f, events[0].getData()[1]);
                 }
                 eventArrived = true;
             }
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75f, 100});
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(4, count);
-
-
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -639,7 +648,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 if (count == 1) {
                     Assert.assertEquals(75.0f, events[0].getData()[1]);
                 } else if (count == 2) {
@@ -647,21 +656,21 @@ public class PartitionTestCase {
                 } else if (count == 3) {
                     Assert.assertEquals(35.0f, events[0].getData()[1]);
                 } else if (count == 4) {
-                    Assert.assertEquals(50.0f,events[0].getData()[1]);
+                    Assert.assertEquals(50.0f, events[0].getData()[1]);
                 }
                 eventArrived = true;
             }
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75f, 100});
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(4, count);
-
-
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -682,7 +691,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count+events.length;
+                count = count + events.length;
                 if (count == 1) {
                     Assert.assertEquals(75.0, events[0].getData()[1]);
                 } else if (count == 2) {
@@ -690,21 +699,21 @@ public class PartitionTestCase {
                 } else if (count == 3) {
                     Assert.assertEquals(55.0, events[0].getData()[1]);
                 } else if (count == 4) {
-                    Assert.assertEquals(50.0,events[0].getData()[1]);
+                    Assert.assertEquals(50.0, events[0].getData()[1]);
                 }
                 eventArrived = true;
             }
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75f, 100});
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(4, count);
-
-
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -740,13 +749,14 @@ public class PartitionTestCase {
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75f, 100});
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
         Thread.sleep(1000);
         Assert.assertEquals(4, count);
-
+        executionRuntime.shutdown();
     }
 
 
@@ -785,29 +795,31 @@ public class PartitionTestCase {
         });
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
+        InputHandler inputHandler3 = executionRuntime.getInputHandler("StockStream");
+
+        executionRuntime.start();
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
 
-        InputHandler inputHandler2 = executionRuntime.getInputHandler("cseEventStream1");
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"WSO21", 75.6f, 100});
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE1", 75.6f, 100});
 
-        InputHandler inputHandler3 = executionRuntime.getInputHandler("StockStream");
         inputHandler3.send(new Object[]{"ABC", 75.6d, 100});
         inputHandler3.send(new Object[]{"DEF", 75.6d, 100});
         inputHandler3.send(new Object[]{"KLM", 75.6d, 100});
         inputHandler3.send(new Object[]{"ABC", 75.6d, 100});
 
-        Thread.sleep(8000);
-
+        Thread.sleep(5000);
 
         Assert.assertEquals(16, count);
         Thread.sleep(1000);
         Assert.assertEquals(8, stockStreamEventCount);
+        executionRuntime.shutdown();
     }
 
     @Test
@@ -832,12 +844,14 @@ public class PartitionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
         Thread.sleep(1000);
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
     }
 
 }

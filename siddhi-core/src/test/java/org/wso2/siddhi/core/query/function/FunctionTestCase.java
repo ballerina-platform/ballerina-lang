@@ -79,18 +79,20 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
                 eventArrived = true;
-                if (count == 1) {
-                    Assert.assertEquals(55.6f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(65.7f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(23.6f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(34.6f, inEvents[0].getData()[1]);
-                } else if (count == 5) {
-                    Assert.assertNull(inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(55.6f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(65.7f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(23.6f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(34.6f, inEvent.getData()[1]);
+                    } else if (count == 5) {
+                        Assert.assertNull(inEvent.getData()[1]);
+                    }
                 }
             }
 
@@ -98,6 +100,7 @@ public class FunctionTestCase {
 
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 55.6f, 70.6f});
         inputHandler.send(new Object[]{"WSO2", 65.7f, 12.8f});
         inputHandler.send(new Object[]{"WSO2", 23.6f, null});
@@ -105,6 +108,7 @@ public class FunctionTestCase {
         inputHandler.send(new Object[]{"WSO2", null, null});
         Thread.sleep(100);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -122,26 +126,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
 
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -161,24 +169,28 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(3, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -200,26 +212,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -238,26 +254,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -277,26 +297,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -315,26 +339,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -358,12 +386,14 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -390,9 +420,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -417,9 +449,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
     }
 
     //sin
@@ -445,9 +479,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.570796325, 60l, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -472,9 +508,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56f, 60l, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -499,9 +537,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56d, 60l, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -527,9 +567,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56f, 0.56, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -554,9 +596,11 @@ public class FunctionTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56f, 0.56, 6});
         Thread.sleep(100);
         junit.framework.Assert.assertEquals(1, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -575,26 +619,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 
@@ -613,26 +661,30 @@ public class FunctionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(50.0f, inEvents[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(70.0f, inEvents[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(44.0f, inEvents[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(null, inEvents[0].getData()[1]);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(50.0f, inEvent.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(70.0f, inEvent.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(44.0f, inEvent.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData()[1]);
+                    }
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
         inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
         inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
+        executionPlanRuntime.shutdown();
 
     }
 

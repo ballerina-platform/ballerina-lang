@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
@@ -36,14 +36,16 @@ public class OutputParser {
 
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                                         StreamDefinition outputStreamDefinition, SiddhiContext siddhiContext) {
+                                                         StreamDefinition outputStreamDefinition,
+                                                         ExecutionPlanContext executionPlanContext) {
         String id = outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id);
             if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(outputStreamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
-                        siddhiContext.getDefaultEventBufferSize());
+                outputStreamJunction = new StreamJunction(outputStreamDefinition,
+                        (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
                 streamJunctionMap.putIfAbsent(id, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
@@ -55,14 +57,16 @@ public class OutputParser {
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, String key,
                                                          ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                                         StreamDefinition outputStreamDefinition, SiddhiContext siddhiContext) {
+                                                         StreamDefinition outputStreamDefinition,
+                                                         ExecutionPlanContext executionPlanContext) {
         String id = outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id + key);
             if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(outputStreamDefinition, (ExecutorService) siddhiContext.getExecutorService(),
-                        siddhiContext.getDefaultEventBufferSize());
+                outputStreamJunction = new StreamJunction(outputStreamDefinition,
+                        (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
                 streamJunctionMap.put(id + key, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);

@@ -15,7 +15,7 @@ public class AnnotationHelper {
     public static Annotation getAnnotation(String annotationName, List<Annotation> annotationList) throws DuplicateAnnotationException {
         Annotation annotation = null;
         for (Annotation aAnnotation : annotationList) {
-            if (annotationName.equals(aAnnotation.getName())) {
+            if (annotationName.equalsIgnoreCase(aAnnotation.getName())) {
                 if (annotation == null) {
                     annotation = aAnnotation;
                 } else {
@@ -41,7 +41,7 @@ public class AnnotationHelper {
                         }
                     }
                 } else {
-                    if (elementName.equals(aElement.getKey())) {
+                    if (elementName.equalsIgnoreCase(aElement.getKey())) {
 
                         if (element == null) {
                             element = aElement;

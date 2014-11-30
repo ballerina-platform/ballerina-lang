@@ -24,12 +24,21 @@ public final class SiddhiConstants {
     public static final int AFTER_WINDOW_DATA_INDEX = 1;
     public static final int OUTPUT_DATA_INDEX = 2;
 
-    public static final String ANNOTATION_CONFIG = "config";
-    public static final String ANNOTATION_ELEMENT_ASYNC = "async";
+
 
     public static final String ANNOTATION_ELEMENT_CALLBACK_ASYNC = "callback.async";
 
+    public static final String ANNOTATION_NAME = "Name";
+    public static final String ANNOTATION_PLAYBACK = "Playback";
+    public static final String ANNOTATION_ENFORCE_ORDER = "EnforceOrder";
+    public static final String ANNOTATION_PARALLEL = "parallel";
+
+//    public static final String ANNOTATION_CONFIG = "config";
+//    public static final String ANNOTATION_INFO = "info";
+//    public static final String ASYNC = "async";
     public static final String TRUE = "true";
 
+
+    public static final int DEFAULT_EVENT_BUFFER_SIZE = 1024;
 
 }

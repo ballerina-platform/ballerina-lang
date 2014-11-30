@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream.constructor;
+package org.wso2.siddhi.core.event.stream.converter;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventFactory;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StreamEventConverterFactory {
-    public static EventConstructor getConverter(MetaStreamEvent metaStreamEvent) {
+    public static EventConverter getConverter(MetaStreamEvent metaStreamEvent) {
         StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         int onAfterWindowDataSize = metaStreamEvent.getAfterWindowData().size();
@@ -38,7 +38,7 @@ public class StreamEventConverterFactory {
         int defaultPoolSize = 5;
         StreamEventPool streamEventPool = new StreamEventPool(eventFactory, defaultPoolSize);
         int size = metaStreamEvent.getBeforeWindowData().size() + metaStreamEvent.getAfterWindowData().size() + metaStreamEvent.getOutputData().size();
-        List<ConvertionElement> convertionElements = new ArrayList<ConvertionElement>(size);
+        List<ConversionElement> conversionElements = new ArrayList<ConversionElement>(size);
 
         for (int j = 0; j < 3; j++) {
             List<Attribute> currentDataList = null;
@@ -55,33 +55,33 @@ public class StreamEventConverterFactory {
                     if (attribute == null) {
                         i++;
                     } else {
-                        ConvertionElement convertionElement = new ConvertionElement();
+                        ConversionElement conversionElement = new ConversionElement();
                         int[] position = new int[2];
-                        convertionElement.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
+                        conversionElement.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
                         position[0] = j;
                         position[1] = i;
-                        convertionElement.setToPosition(position);
-                        convertionElements.add(convertionElement);
+                        conversionElement.setToPosition(position);
+                        conversionElements.add(conversionElement);
                         i++;
                     }
                 }
             }
         }
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventConstructor(streamEventPool, convertionElements);
+            return new SelectiveStreamEventConverter(streamEventPool, conversionElements);
         } else {
-            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == convertionElements.size()) {
+            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionElements.size()) {
                 Boolean isPassThrough = true;
-                for (ConvertionElement convertionElement : convertionElements) {
-                    if (!(convertionElement.getFromPosition() == convertionElement.getToPosition()[1])) {
+                for (ConversionElement conversionElement : conversionElements) {
+                    if (!(conversionElement.getFromPosition() == conversionElement.getToPosition()[1])) {
                         isPassThrough = false;
                     }
                 }
                 if (isPassThrough) {
-                    return new PassThroughStreamEventConstructor(streamEventPool);
+                    return new PassThroughStreamEventConverter(streamEventPool);
                 }
             }
-            return new SimpleStreamEventConstructor(streamEventPool, convertionElements);
+            return new SimpleStreamEventConverter(streamEventPool, conversionElements);
         }
     }
 }

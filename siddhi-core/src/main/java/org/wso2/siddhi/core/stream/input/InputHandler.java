@@ -19,19 +19,23 @@
 
 package org.wso2.siddhi.core.stream.input;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.StreamJunction;
 
 public class InputHandler {
 
-    private String streamId;
-    private StreamJunction.Publisher publisher;
-    private StreamJunction.Publisher pausedPublisher;
+    private static final Logger log = Logger.getLogger(InputHandler.class);
 
-    public InputHandler(String streamId, StreamJunction streamJunction) {
+    protected String streamId;
+    protected int streamIndex;
+    protected InputProcessor inputProcessor;
+    protected InputProcessor pausedInputPublisher;
+
+    public InputHandler(String streamId, int streamIndex, InputProcessor inputProcessor) {
         this.streamId = streamId;
-        this.publisher = streamJunction.constructPublisher();
-        this.pausedPublisher=publisher;
+        this.streamIndex = streamIndex;
+        this.inputProcessor = inputProcessor;
+        this.pausedInputPublisher = this.inputProcessor;
     }
 
     public String getStreamId() {
@@ -39,36 +43,34 @@ public class InputHandler {
     }
 
     public void send(Object[] data) throws InterruptedException {
-        if (publisher != null) {
-            publisher.send(System.currentTimeMillis(), data);
+        if (inputProcessor != null) {
+            inputProcessor.send(System.currentTimeMillis(), data, streamIndex);
         }
     }
 
     public void send(long timeStamp, Object[] data) throws InterruptedException {
-        if (publisher != null) {
-            publisher.send(timeStamp, data);
+        if (inputProcessor != null) {
+            inputProcessor.send(timeStamp, data, streamIndex);
         }
     }
 
     public void send(Event event) throws InterruptedException {
-        if (publisher != null) {
-            publisher.send(event);
+        if (inputProcessor != null) {
+            inputProcessor.send(event, streamIndex);
         }
     }
 
     public void send(Event[] events) throws InterruptedException {
-        if (publisher != null) {
-            for (Event event : events) {
-                publisher.send(event);
-            }
+        if (inputProcessor != null) {
+            inputProcessor.send(events, streamIndex);
         }
     }
 
     void disconnect() {
-        this.publisher = null;
+        this.inputProcessor = null;
     }
 
     void resume() {
-        this.publisher = pausedPublisher;
+        this.inputProcessor = pausedInputPublisher;
     }
 }

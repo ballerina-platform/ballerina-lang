@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.event.stream.constructor;
+package org.wso2.siddhi.core.event.stream.converter;
 /*
  * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
  * All Rights Reserved.
@@ -21,32 +21,37 @@ package org.wso2.siddhi.core.event.stream.constructor;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public interface EventConstructor {
+public interface EventConverter {
 
     /**
      * Method to construct StreamEvent form Event
      *
-     * @param event Event to be converted
-     * @return constructed StreamEvent
+     * @param event         Event to be converted
+     * @param borrowedEvent Event that will be populated
      */
-    public StreamEvent constructStreamEvent(Event event);
+    public void convertEvent(Event event, StreamEvent borrowedEvent);
 
     /**
      * Method to construct(change format) new StreamEvent from StreamEvent
      *
-     * @param streamEvent StreamEvent to be Converted
-     * @return constructed StreamEvent
+     * @param streamEvent   StreamEvent to be Converted
+     * @param borrowedEvent Event that will be populated
      */
-    public StreamEvent constructStreamEvent(StreamEvent streamEvent);
+    public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent);
 
     /**
      * Method to construct(change format) timeStamp and data from StreamEvent
      *
-     * @param timeStamp timeStamp of the event
-     * @param data      output data of the event
-     * @return constructed StreamEvent
+     * @param timeStamp     timeStamp of the event
+     * @param data          output data of the event
+     * @param borrowedEvent Event that will be populated
      */
-    public StreamEvent constructStreamEvent(long timeStamp, Object[] data);
+    public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
+
+    /**
+     * Borrow a event from the pool
+     */
+    public StreamEvent borrowEvent();
 
     /**
      * Return the used event back to the pool
@@ -54,4 +59,6 @@ public interface EventConstructor {
      * @param streamEvent used stream event
      */
     public void returnEvent(StreamEvent streamEvent);
+
+
 }

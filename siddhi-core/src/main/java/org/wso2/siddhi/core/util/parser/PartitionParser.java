@@ -20,7 +20,7 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -38,17 +38,19 @@ import java.util.concurrent.ConcurrentMap;
 
 public class PartitionParser {
 
-    public static PartitionRuntime parse(ExecutionPlanRuntime executionPlanRuntime, Partition partition, SiddhiContext siddhiContext,
+    public static PartitionRuntime parse(ExecutionPlanRuntime executionPlanRuntime, Partition partition,
+                                         ExecutionPlanContext executionPlanContext,
                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
-        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntime, partition, siddhiContext);
+        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntime, partition, executionPlanContext);
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         for (Query query : partition.getQueryList()) {
 
             QueryRuntime queryRuntime;
             if (query.getInputStream() instanceof BasicSingleInputStream && ((BasicSingleInputStream) query.getInputStream()).isInnerStream()) {
-                queryRuntime = QueryParser.parse(query, siddhiContext, partitionRuntime.getLocalStreamDefinitionMap());
+                queryRuntime = QueryParser.parse(query, executionPlanContext,
+                        partitionRuntime.getLocalStreamDefinitionMap());
             } else {
-                queryRuntime = QueryParser.parse(query, siddhiContext, streamDefinitionMap);
+                queryRuntime = QueryParser.parse(query, executionPlanContext, streamDefinitionMap);
             }
             MetaStreamEvent metaStreamEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
             partitionRuntime.addQuery(queryRuntime);

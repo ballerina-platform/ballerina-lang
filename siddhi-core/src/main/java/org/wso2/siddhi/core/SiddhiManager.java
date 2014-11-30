@@ -20,12 +20,12 @@
 package org.wso2.siddhi.core;
 
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 
 public class SiddhiManager {
@@ -35,6 +35,10 @@ public class SiddhiManager {
 
     public SiddhiManager() {
         siddhiContext = new SiddhiContext();
+        siddhiContext.setEventBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
+        siddhiContext.setExecutorService(new ThreadPoolExecutor(5, Integer.MAX_VALUE,
+                60L, TimeUnit.SECONDS,
+                new LinkedBlockingDeque<Runnable>()));
     }
 
     /**

@@ -19,13 +19,14 @@ package org.wso2.siddhi.core.event;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventFactory;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.constructor.*;
+import org.wso2.siddhi.core.event.stream.converter.*;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -103,15 +104,17 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
-        EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-        StreamEvent streamEvent = converter.constructStreamEvent(event);
+        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
 
-        Assert.assertTrue(converter instanceof PassThroughStreamEventConstructor);
-        Assert.assertEquals(3, streamEvent.getOutputData().length);
+        StreamEvent borrowedEvent = converter.borrowEvent();
+        converter.convertEvent(event, borrowedEvent);
 
-        Assert.assertEquals(200, streamEvent.getOutputData()[1]);
-        Assert.assertEquals("WSO2", streamEvent.getOutputData()[0]);
-        Assert.assertEquals(50, streamEvent.getOutputData()[2]);
+        Assert.assertTrue(converter instanceof PassThroughStreamEventConverter);
+        Assert.assertEquals(3, borrowedEvent.getOutputData().length);
+
+        Assert.assertEquals(200, borrowedEvent.getOutputData()[1]);
+        Assert.assertEquals("WSO2", borrowedEvent.getOutputData()[0]);
+        Assert.assertEquals(50, borrowedEvent.getOutputData()[2]);
     }
 
     @Test
@@ -127,16 +130,17 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
-        EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-        StreamEvent streamEvent = converter.constructStreamEvent(event);
+        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent borrowedEvent = converter.borrowEvent();
+        converter.convertEvent(event, borrowedEvent);
 
-        Assert.assertTrue(converter instanceof SimpleStreamEventConstructor);
-        Assert.assertEquals(0, streamEvent.getBeforeWindowData().length);
-        Assert.assertEquals(0, streamEvent.getOnAfterWindowData().length);
-        Assert.assertEquals(2, streamEvent.getOutputData().length);
+        Assert.assertTrue(converter instanceof SimpleStreamEventConverter);
+        Assert.assertEquals(0, borrowedEvent.getBeforeWindowData().length);
+        Assert.assertEquals(0, borrowedEvent.getOnAfterWindowData().length);
+        Assert.assertEquals(2, borrowedEvent.getOutputData().length);
 
-        Assert.assertEquals(200, streamEvent.getOutputData()[1]);
-        Assert.assertEquals("WSO2", streamEvent.getOutputData()[0]);
+        Assert.assertEquals(200, borrowedEvent.getOutputData()[1]);
+        Assert.assertEquals("WSO2", borrowedEvent.getOutputData()[0]);
     }
 
     @Test
@@ -156,17 +160,18 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
-        EventConstructor converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-        StreamEvent streamEvent = converter.constructStreamEvent(event);
+        EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        StreamEvent borrowedEvent = converter.borrowEvent();
+        converter.convertEvent(event, borrowedEvent);
 
-        Assert.assertTrue(converter instanceof SelectiveStreamEventConstructor);
-        Assert.assertEquals(1, streamEvent.getBeforeWindowData().length);      //volume
-        Assert.assertEquals(1, streamEvent.getOnAfterWindowData().length);     //price
-        Assert.assertEquals(2, streamEvent.getOutputData().length);            //symbol and avgPrice
+        Assert.assertTrue(converter instanceof SelectiveStreamEventConverter);
+        Assert.assertEquals(1, borrowedEvent.getBeforeWindowData().length);      //volume
+        Assert.assertEquals(1, borrowedEvent.getOnAfterWindowData().length);     //price
+        Assert.assertEquals(2, borrowedEvent.getOutputData().length);            //symbol and avgPrice
 
-        Assert.assertEquals(50, streamEvent.getBeforeWindowData()[0]);
-        Assert.assertEquals(200, streamEvent.getOnAfterWindowData()[0]);
-        Assert.assertEquals("WSO2", streamEvent.getOutputData()[0]);
+        Assert.assertEquals(50, borrowedEvent.getBeforeWindowData()[0]);
+        Assert.assertEquals(200, borrowedEvent.getOnAfterWindowData()[0]);
+        Assert.assertEquals("WSO2", borrowedEvent.getOutputData()[0]);
     }
 
     @Test
@@ -226,7 +231,9 @@ public class EventTest {
         Map<String, AbstractDefinition> definitionMap = new HashMap<String, AbstractDefinition>();
         definitionMap.put("cseEventStream", streamDefinition);
         definitionMap.put("outputStream", outStreamDefinition);
-        SiddhiContext context = new SiddhiContext();
+        SiddhiContext siddhicontext = new SiddhiContext();
+        ExecutionPlanContext context = new ExecutionPlanContext();
+        context.setSiddhiContext(siddhicontext);
         QueryRuntime runtime = QueryParser.parse(query, context, definitionMap);
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);

@@ -27,12 +27,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.QueryCreationException;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,23 +122,23 @@ public abstract class QueryCallback {
     public synchronized void startProcessing() {
 
         Boolean asyncEnabled = null;
-        try {
-            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_CONFIG,
-                    SiddhiConstants.ANNOTATION_ELEMENT_CALLBACK_ASYNC,
-                    query.getAnnotations());
-
-            if (element != null) {
-                asyncEnabled = SiddhiConstants.TRUE.equalsIgnoreCase(element.getValue());
-            }
-
-        } catch (DuplicateAnnotationException e) {
-            throw new QueryCreationException(e.getMessage() + " for the same Query " +
-                    query.toString());
-        }
+//        try {
+//            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_CONFIG,
+//                    SiddhiConstants.ANNOTATION_ELEMENT_CALLBACK_ASYNC,
+//                    query.getAnnotations());
+//
+//            if (element != null) {
+//                asyncEnabled = SiddhiConstants.TRUE.equalsIgnoreCase(element.getValue());
+//            }
+//
+//        } catch (DuplicateAnnotationException e) {
+//            throw new QueryCreationException(e.getMessage() + " for the same Query " +
+//                    query.toString());
+//        }
 
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
 
-            disruptor = new Disruptor<EventHolder>(new EventHolderFactory(), siddhiContext.getDefaultEventBufferSize(),
+            disruptor = new Disruptor<EventHolder>(new EventHolderFactory(), siddhiContext.getEventBufferSize(),
                     siddhiContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
 
             asyncEventHandler = new AsyncEventHandler(this);

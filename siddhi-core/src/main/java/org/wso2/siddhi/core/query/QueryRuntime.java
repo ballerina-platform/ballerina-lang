@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
@@ -48,17 +48,17 @@ public class QueryRuntime {
     private OutputRateLimiter outputRateLimiter;
     private String queryId;
     private Query query;
-    private SiddhiContext siddhiContext;
+    private ExecutionPlanContext executionPlanContext;
     private OutputCallback outputCallback;
     private StreamDefinition outputStreamDefinition;
     private boolean toLocalStream;
     private QuerySelector selector;
     private MetaStateEvent metaStateEvent;
 
-    public QueryRuntime(Query query, SiddhiContext siddhiContext, StreamRuntime streamRuntime, QuerySelector selector,
+    public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
                         OutputRateLimiter outputRateLimiter, MetaStateEvent metaStateEvent) {
         this.query = query;
-        this.siddhiContext = siddhiContext;
+        this.executionPlanContext = executionPlanContext;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
         setOutputRateLimiter(outputRateLimiter);
@@ -126,7 +126,7 @@ public class QueryRuntime {
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
 
-        QueryRuntime queryRuntime = new QueryRuntime(query, siddhiContext, clonedStreamRuntime, clonedSelector,
+        QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
                 clonedOutputRateLimiter, this.metaStateEvent);
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);
@@ -136,7 +136,7 @@ public class QueryRuntime {
             queryRuntime.outputCallback = this.outputCallback;
         } else {
             OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), key,
-                    localStreamJunctionMap, outputStreamDefinition, siddhiContext);
+                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;
         }

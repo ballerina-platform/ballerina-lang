@@ -61,7 +61,7 @@ annotation
     ;
 
 plan_annotation
-    : '@' 'plan' ':' name ('(' annotation_element (',' annotation_element )* ')' )?
+    : '@' PLAN ':' name ('(' annotation_element (',' annotation_element )* ')' )?
     ;
 
 annotation_element
@@ -547,6 +547,7 @@ HASH:'#';
 STREAM:   S T R E A M;
 DEFINE:   D E F I N E;
 TABLE:    T A B L E;
+PLAN:     P L A N;
 FROM:     F R O M;
 PARTITION:    P A R T I T I O N; 
 WINDOW:   W I N D O W;

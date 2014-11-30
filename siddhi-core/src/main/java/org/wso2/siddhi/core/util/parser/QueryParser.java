@@ -18,7 +18,7 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.QueryCreationException;
@@ -44,25 +44,28 @@ public class QueryParser {
      * Parse a query and return corresponding QueryRuntime
      *
      * @param query         query to be parsed
-     * @param siddhiContext associated siddhi context
+     * @param executionPlanContext associated Execution Plan context
      * @param definitionMap map containing user given stream definitions
      * @return queryRuntime
      */
-    public static QueryRuntime parse(Query query, SiddhiContext siddhiContext, Map<String, AbstractDefinition> definitionMap) {
+    public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext, Map<String,
+            AbstractDefinition> definitionMap) {
         MetaStateEvent metaStateEvent = new MetaStateEvent(query.getInputStream().getStreamIds().size()); //MetaStateEvent for the query
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
-            StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(), siddhiContext, definitionMap, metaStateEvent, executors);
-            QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(), siddhiContext, metaStateEvent, executors);
+            StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
+                    executionPlanContext.getSiddhiContext(), definitionMap, metaStateEvent, executors);
+            QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
+                    executionPlanContext.getSiddhiContext(), metaStateEvent, executors);
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
             QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
             QueryParserHelper.addEventConverters(streamRuntime, metaStateEvent);
 
-            queryRuntime = new QueryRuntime(query, siddhiContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
+            queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
             validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
 
 
