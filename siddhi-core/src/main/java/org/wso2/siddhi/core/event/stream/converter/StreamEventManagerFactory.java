@@ -27,8 +27,8 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreamEventConverterFactory {
-    public static EventConverter getConverter(MetaStreamEvent metaStreamEvent) {
+public class StreamEventManagerFactory {
+    public static EventManager constructEventManager(MetaStreamEvent metaStreamEvent) {
         StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         int onAfterWindowDataSize = metaStreamEvent.getAfterWindowData().size();
@@ -68,7 +68,7 @@ public class StreamEventConverterFactory {
             }
         }
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventConverter(streamEventPool, conversionElements);
+            return new SelectiveStreamEventManager(streamEventPool, conversionElements);
         } else {
             if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionElements.size()) {
                 Boolean isPassThrough = true;
@@ -78,10 +78,10 @@ public class StreamEventConverterFactory {
                     }
                 }
                 if (isPassThrough) {
-                    return new PassThroughStreamEventConverter(streamEventPool);
+                    return new PassThroughStreamEventManager(streamEventPool);
                 }
             }
-            return new SimpleStreamEventConverter(streamEventPool, conversionElements);
+            return new SimpleStreamEventManager(streamEventPool, conversionElements);
         }
     }
 }

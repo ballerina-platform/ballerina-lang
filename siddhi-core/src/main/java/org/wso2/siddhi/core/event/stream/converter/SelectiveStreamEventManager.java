@@ -24,15 +24,15 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import java.util.List;
 
 /**
- * The converter class that converts event into StreamEvent
+ * The converter class that converts and manages events
  */
-public class SelectiveStreamEventConverter implements EventConverter {
+public class SelectiveStreamEventManager implements EventManager {
 
     private List<ConversionElement> conversionElements;       //List to hold information needed for conversion
     private StreamEventPool streamEventPool;
 
 
-    public SelectiveStreamEventConverter(StreamEventPool streamEventPool, List<ConversionElement> conversionElements) {
+    public SelectiveStreamEventManager(StreamEventPool streamEventPool, List<ConversionElement> conversionElements) {
         this.streamEventPool = streamEventPool;
         this.conversionElements = conversionElements;
     }

@@ -25,7 +25,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.config.StreamContext;
+import org.wso2.siddhi.core.config.StreamJunctionContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventFactory;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -46,7 +46,7 @@ public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
-    private StreamContext streamContext;
+    private StreamJunctionContext streamJunctionContext;
     private ExecutorService executorService;
     private int bufferSize;
     private Disruptor<Event> disruptor;
@@ -56,15 +56,15 @@ public class StreamJunction {
                           ExecutionPlanContext executionPlanContext) {
         bufferSize = defaultBufferSize;
         this.executorService = executorService;
-        streamContext = new StreamContext();
-        streamContext.setStreamDefinition(streamDefinition);
-        streamContext.setExecutionPlanContext(executionPlanContext);
+        streamJunctionContext = new StreamJunctionContext();
+        streamJunctionContext.setStreamDefinition(streamDefinition);
+        streamJunctionContext.setExecutionPlanContext(executionPlanContext);
 
         try {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
-                    streamContext.getStreamDefinition().getAnnotations());
+                    streamJunctionContext.getStreamDefinition().getAnnotations());
             if (annotation != null) {
-                streamContext.setParallel(true);
+                streamJunctionContext.setParallel(true);
             }
 
         } catch (DuplicateAnnotationException e) {
@@ -163,9 +163,9 @@ public class StreamJunction {
     public synchronized void startProcessing() {
         if (!receivers.isEmpty()) {
 
-            Boolean parallel = streamContext.isParallel();
+            Boolean parallel = streamJunctionContext.isParallel();
             if (parallel == null) {
-                parallel = streamContext.getExecutionPlanContext().isParallel();
+                parallel = streamJunctionContext.getExecutionPlanContext().isParallel();
             }
             if (parallel) {
 
@@ -174,7 +174,7 @@ public class StreamJunction {
                     producerType = ProducerType.MULTI;
                 }
 
-                disruptor = new Disruptor<Event>(new EventFactory(streamContext.getStreamDefinition().getAttributeList().size()),
+                disruptor = new Disruptor<Event>(new EventFactory(streamJunctionContext.getStreamDefinition().getAttributeList().size()),
                         bufferSize, executorService, producerType, new SleepingWaitStrategy());
 
                 for (Receiver receiver : receivers) {
@@ -206,7 +206,7 @@ public class StreamJunction {
     }
 
     public String getStreamId() {
-        return streamContext.getStreamDefinition().getId();
+        return streamJunctionContext.getStreamDefinition().getId();
     }
 
     public interface Receiver {

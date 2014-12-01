@@ -22,10 +22,10 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
-public class PassThroughStreamEventConverter implements EventConverter {
+public class PassThroughStreamEventManager implements EventManager {
     private StreamEventPool streamEventPool;
 
-    public PassThroughStreamEventConverter(StreamEventPool streamEventPool) {
+    public PassThroughStreamEventManager(StreamEventPool streamEventPool) {
         this.streamEventPool = streamEventPool;
     }
 

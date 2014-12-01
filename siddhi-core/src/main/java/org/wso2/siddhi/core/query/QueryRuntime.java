@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.QueryContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
@@ -30,6 +31,7 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.runtime.StreamRuntime;
 import org.wso2.siddhi.core.util.parser.OutputParser;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
@@ -48,7 +50,7 @@ public class QueryRuntime {
     private OutputRateLimiter outputRateLimiter;
     private String queryId;
     private Query query;
-    private ExecutionPlanContext executionPlanContext;
+    private QueryContext queryContext;
     private OutputCallback outputCallback;
     private StreamDefinition outputStreamDefinition;
     private boolean toLocalStream;
@@ -58,9 +60,12 @@ public class QueryRuntime {
     public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
                         OutputRateLimiter outputRateLimiter, MetaStateEvent metaStateEvent) {
         this.query = query;
-        this.executionPlanContext = executionPlanContext;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
+
+        this.queryContext=new QueryContext();
+        queryContext.setExecutionPlanContext(executionPlanContext);
+
         setOutputRateLimiter(outputRateLimiter);
         setMetaStateEvent(metaStateEvent);
         setId();
@@ -126,8 +131,10 @@ public class QueryRuntime {
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
 
-        QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
+        QueryRuntime queryRuntime = new QueryRuntime(query, queryContext.getExecutionPlanContext(), clonedStreamRuntime, clonedSelector,
                 clonedOutputRateLimiter, this.metaStateEvent);
+        QueryParserHelper.addEventManagers(clonedStreamRuntime,metaStateEvent);
+
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);
 
@@ -136,7 +143,7 @@ public class QueryRuntime {
             queryRuntime.outputCallback = this.outputCallback;
         } else {
             OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), key,
-                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext);
+                    localStreamJunctionMap, outputStreamDefinition, queryContext.getExecutionPlanContext());
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;
         }

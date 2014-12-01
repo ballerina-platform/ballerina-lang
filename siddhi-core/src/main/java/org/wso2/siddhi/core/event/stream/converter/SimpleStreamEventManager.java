@@ -24,11 +24,11 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
 import java.util.List;
 
-public class SimpleStreamEventConverter implements EventConverter {
+public class SimpleStreamEventManager implements EventManager {
     private StreamEventPool streamEventPool;
     private List<ConversionElement> conversionElements;
 
-    public SimpleStreamEventConverter(StreamEventPool streamEventPool, List<ConversionElement> conversionElements) {
+    public SimpleStreamEventManager(StreamEventPool streamEventPool, List<ConversionElement> conversionElements) {
         this.streamEventPool = streamEventPool;
         this.conversionElements = conversionElements;
     }

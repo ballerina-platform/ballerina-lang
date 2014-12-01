@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.event.stream.converter;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public interface EventConverter {
+public interface EventManager {
 
     /**
      * Method to construct StreamEvent form Event

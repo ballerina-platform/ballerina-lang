@@ -21,8 +21,8 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventConverter;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
+import org.wso2.siddhi.core.event.stream.converter.EventManager;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventManagerFactory;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
@@ -117,14 +117,15 @@ public class QueryParserHelper {
         }
     }
 
-    public static void addEventConverters(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
+    public static void addEventManagers(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
         int index = 0;
         if (runtime instanceof SingleStreamRuntime) {
             MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(index);
-            EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
-            ((SingleStreamRuntime) runtime).getQueryStreamReceiver().setEventConverter(converter);
+            EventManager eventManager = StreamEventManagerFactory.constructEventManager(metaStreamEvent);
+            ((SingleStreamRuntime) runtime).getQueryStreamReceiver().setEventManager(eventManager);
             Processor processor = ((SingleStreamRuntime) runtime).getProcessorChain();
             while (processor != null) {
+                processor.setEventManager(eventManager);
                 if (processor instanceof WindowProcessor) {
                     ((WindowProcessor) processor).init(metaStreamEvent);
                 }

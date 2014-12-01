@@ -15,13 +15,9 @@
 
 package org.wso2.siddhi.core.config;
 
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-
-public class StreamContext {
+public class QueryContext {
 
     private ExecutionPlanContext executionPlanContext;
-    private StreamDefinition streamDefinition;
-    private Boolean parallel;
 
     public ExecutionPlanContext getExecutionPlanContext() {
         return executionPlanContext;
@@ -31,19 +27,4 @@ public class StreamContext {
         this.executionPlanContext = executionPlanContext;
     }
 
-    public StreamDefinition getStreamDefinition() {
-        return streamDefinition;
-    }
-
-    public void setStreamDefinition(StreamDefinition streamDefinition) {
-        this.streamDefinition = streamDefinition;
-    }
-
-    public Boolean isParallel() {
-        return parallel;
-    }
-
-    public void setParallel(Boolean parallel) {
-        this.parallel = parallel;
-    }
 }

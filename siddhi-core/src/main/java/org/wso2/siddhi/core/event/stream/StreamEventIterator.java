@@ -94,6 +94,7 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
         } else {
             first = lastReturned.getNext();
         }
+        lastReturned.setNext(null);
         lastReturned = null;
     }
 

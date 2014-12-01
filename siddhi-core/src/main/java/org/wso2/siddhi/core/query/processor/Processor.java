@@ -20,6 +20,7 @@
 package org.wso2.siddhi.core.query.processor;
 
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.converter.EventManager;
 
 public interface Processor {
 
@@ -57,4 +58,5 @@ public interface Processor {
      */
     public Processor cloneProcessor();
 
+    void setEventManager(EventManager eventManager);
 }

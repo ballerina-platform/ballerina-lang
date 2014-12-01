@@ -23,8 +23,8 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventConverter;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
+import org.wso2.siddhi.core.event.stream.converter.EventManager;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventManagerFactory;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -44,7 +44,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     private ExecutionPlanContext executionPlanContext;
     private PartitionRuntime partitionRuntime;
     private List<PartitionExecutor> partitionExecutors;
-    private EventConverter eventConverter;
+    private EventManager eventManager;
     private Map<String, StreamJunction> cachedStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>();
 
 
@@ -56,7 +56,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         this.partitionExecutors = partitionExecutors;
         this.executionPlanContext = executionPlanContext;
         streamId = streamDefinition.getId();
-        eventConverter = StreamEventConverterFactory.getConverter(metaStreamEvent);
+        eventManager = StreamEventManagerFactory.constructEventManager(metaStreamEvent);
     }
 
     @Override
@@ -79,13 +79,13 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event) {
-        StreamEvent borrowedEvent = eventConverter.borrowEvent();
-        eventConverter.convertEvent(event, borrowedEvent);
+        StreamEvent borrowedEvent = eventManager.borrowEvent();
+        eventManager.convertEvent(event, borrowedEvent);
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);
         }
-        eventConverter.returnEvent(borrowedEvent);
+        eventManager.returnEvent(borrowedEvent);
     }
 
     @Override
@@ -95,25 +95,25 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        StreamEvent borrowedEvent = eventConverter.borrowEvent();
-        eventConverter.convertData(timeStamp, data, borrowedEvent);
+        StreamEvent borrowedEvent = eventManager.borrowEvent();
+        eventManager.convertData(timeStamp, data, borrowedEvent);
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);
         }
-        eventConverter.returnEvent(borrowedEvent);
+        eventManager.returnEvent(borrowedEvent);
     }
 
     @Override
     public void receive(Event[] events) {
         for(Event event:events){
-            StreamEvent borrowedEvent = eventConverter.borrowEvent();
-            eventConverter.convertEvent(event, borrowedEvent);
+            StreamEvent borrowedEvent = eventManager.borrowEvent();
+            eventManager.convertEvent(event, borrowedEvent);
             for (PartitionExecutor partitionExecutor : partitionExecutors) {
                 String key = partitionExecutor.execute(borrowedEvent);
                 send(key, borrowedEvent);
             }
-            eventConverter.returnEvent(borrowedEvent);
+            eventManager.returnEvent(borrowedEvent);
         }
     }
 

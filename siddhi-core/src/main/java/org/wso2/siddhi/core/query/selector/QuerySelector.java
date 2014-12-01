@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventIterator;
+import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -50,7 +51,7 @@ public class QuerySelector implements Processor {
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
     private StreamEventIterator iterator = new StreamEventIterator();
-
+    private EventManager eventManager;
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
         this.id = id;
@@ -100,6 +101,7 @@ public class QuerySelector implements Processor {
                     StreamEvent event = iterator.next();
                     if (!havingConditionExecutor.execute(event)) {
                         iterator.remove();
+//                        eventManager.returnEvent(event);  todo use this after fixing join cases
                     }
                 }
                 StreamEvent returnEvent = iterator.getFirst();
@@ -138,6 +140,11 @@ public class QuerySelector implements Processor {
     @Override
     public Processor cloneProcessor() {
         return null;
+    }
+
+    @Override
+    public void setEventManager(EventManager eventManager) {
+        this.eventManager = eventManager;
     }
 
     public List<AttributeProcessor> getAttributeProcessorList() {
