@@ -23,6 +23,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.IndexedEventFactory;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +35,12 @@ public class SingleStreamEntryValve implements InputProcessor {
 
     private Disruptor<IndexedEventFactory.IndexedEvent> singleEntryDisruptor;
     private RingBuffer<IndexedEventFactory.IndexedEvent> ringBuffer;
+    private ExecutionPlanContext executionPlanContext;
     private InputProcessor inputProcessor;
 
 
     public SingleStreamEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
+        this.executionPlanContext = executionPlanContext;
         this.inputProcessor = inputProcessor;
         SingleEntryValveHandler singleEntryValveHandler = new SingleEntryValveHandler();
         singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
@@ -50,13 +53,18 @@ public class SingleStreamEntryValve implements InputProcessor {
 
     @Override
     public void send(Event event, int streamIndex) {
-        long sequenceNo = ringBuffer.next();
         try {
-            IndexedEventFactory.IndexedEvent existingEvent = ringBuffer.get(sequenceNo);
-            existingEvent.setEvent(event);
-            existingEvent.setStreamIndex(streamIndex);
-        } finally {
-            ringBuffer.publish(sequenceNo);    //Todo fix this for array of events
+            long sequenceNo = ringBuffer.next();
+            try {
+                IndexedEventFactory.IndexedEvent existingEvent = ringBuffer.get(sequenceNo);
+                existingEvent.setEvent(event);
+                existingEvent.setStreamIndex(streamIndex);
+            } finally {
+                ringBuffer.publish(sequenceNo);    //Todo fix this for array of events
+            }
+        } catch (NullPointerException e) {
+            throw new ExecutionPlanRuntimeException("Execution Plan:" + executionPlanContext.getName() + " not " +
+                    "initialised yet! Run executionPlanRuntime.start();", e);
         }
 
     }
