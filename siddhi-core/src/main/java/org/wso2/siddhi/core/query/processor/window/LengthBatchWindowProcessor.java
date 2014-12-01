@@ -18,7 +18,9 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventFactory;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
@@ -28,12 +30,18 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     private int count = 0;
     private StreamEvent removeEventHead = null;
     private StreamEvent removeEventTail = null;
+    StreamEventFactory removeEventFactory;
+    private MetaStreamEvent metaStreamEvent;
 
     @Override
-    public void init() {
+    public void init(MetaStreamEvent metaStreamEvent) {
+        this.metaStreamEvent = metaStreamEvent;
         if (parameters != null) {
             this.setLength(((IntConstant) parameters[0]).getValue());
         }
+        removeEventFactory = new StreamEventFactory(0, metaStreamEvent.getAfterWindowData().size(),
+                metaStreamEvent.getOutputData().size());
+
     }
 
     @Override
@@ -60,9 +68,12 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
      * @param event
      */
     private void processEvent(StreamEvent event) {      //can do in event or borrow from pool??
-        StreamEvent removeEvent = new StreamEvent(0, event.getOnAfterWindowDataSize(), event.getOutputDataSize());
-        System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0, event.getOnAfterWindowDataSize());
-        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputDataSize());
+        StreamEvent removeEvent = removeEventFactory.newInstance();
+        if(removeEvent.getOnAfterWindowData()!=null) {
+            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
+                    event.getOnAfterWindowData().length);
+        }
+        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputData().length);
         removeEvent.setExpired(true);
         if (removeEventHead == null) {      //better if we can do it in init()
             removeEventHead = removeEvent;

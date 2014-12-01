@@ -18,7 +18,9 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventFactory;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
@@ -28,12 +30,16 @@ public class LengthWindowProcessor extends WindowProcessor {
     private int count = 0;
     private StreamEvent removeEventHead = null;
     private StreamEvent removeEventTail = null;
+    private StreamEventFactory removeEventFactory;
 
     @Override
-    public void init() {
+    public void init(MetaStreamEvent metaStreamEvent) {
         if (parameters != null) {
             length = ((IntConstant) parameters[0]).getValue();
         }
+        removeEventFactory = new StreamEventFactory(0, metaStreamEvent.getAfterWindowData().size(),
+                metaStreamEvent.getOutputData().size());
+
     }
 
     @Override
@@ -77,9 +83,12 @@ public class LengthWindowProcessor extends WindowProcessor {
      * @param event
      */
     private void processEvent(StreamEvent event) {
-        StreamEvent removeEvent = new StreamEvent(0, event.getOnAfterWindowDataSize(), event.getOutputDataSize());
-        System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getBeforeWindowData(), 0, event.getOnAfterWindowDataSize());
-        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputDataSize());
+        StreamEvent removeEvent = removeEventFactory.newInstance();
+        if (removeEvent.getOnAfterWindowData() != null) {
+            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
+                    event.getOnAfterWindowData().length);
+        }
+        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputData().length);
         removeEvent.setExpired(true);
         if (removeEventHead == null) {      //better if we can do it in init()
             removeEventHead = removeEvent;

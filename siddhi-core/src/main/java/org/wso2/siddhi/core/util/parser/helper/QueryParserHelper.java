@@ -24,6 +24,8 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.converter.EventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.runtime.StreamRuntime;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -118,8 +120,16 @@ public class QueryParserHelper {
     public static void addEventConverters(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
         int index = 0;
         if (runtime instanceof SingleStreamRuntime) {
-            EventConverter converter = StreamEventConverterFactory.getConverter(metaStateEvent.getMetaEvent(index));
+            MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(index);
+            EventConverter converter = StreamEventConverterFactory.getConverter(metaStreamEvent);
             ((SingleStreamRuntime) runtime).getQueryStreamReceiver().setEventConverter(converter);
+            Processor processor = ((SingleStreamRuntime) runtime).getProcessorChain();
+            while (processor != null) {
+                if (processor instanceof WindowProcessor) {
+                    ((WindowProcessor) processor).init(metaStreamEvent);
+                }
+                processor = processor.getNextProcessor();
+            }
         } else {
             //TODO JoinStreamRuntime/PatternStreamRuntime
         }

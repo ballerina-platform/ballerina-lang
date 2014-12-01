@@ -76,7 +76,6 @@ public class SingleInputStreamParser {
             WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) handler).getFunction(),
                     WindowProcessor.class);
             windowProcessor.setParameters(((Window) handler).getParameters());
-            windowProcessor.init();
             return windowProcessor;
 
         } else {

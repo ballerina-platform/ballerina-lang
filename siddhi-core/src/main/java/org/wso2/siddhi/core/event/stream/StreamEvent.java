@@ -131,12 +131,4 @@ public class StreamEvent implements ComplexEvent {
         this.beforeWindowData[index] = object;
     }
 
-    public int getOnAfterWindowDataSize() {
-        return this.onAfterWindowData.length;
-    }
-
-    public int getOutputDataSize() {
-        return this.outputData.length;
-    }
-
 }

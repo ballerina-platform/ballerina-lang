@@ -18,6 +18,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -29,8 +30,9 @@ public abstract class WindowProcessor implements Processor {
     /**
      * Initialization method for window processors. Should set parameters accordingly and configure processor
      * to an executable status.
+     * @param metaStreamEvent
      */
-    public abstract void init();
+    public abstract void init(MetaStreamEvent metaStreamEvent);
 
     public Processor getNextProcessor() {
         return nextProcessor;
