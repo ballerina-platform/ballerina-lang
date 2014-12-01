@@ -106,6 +106,8 @@ public class ExecutionPlanRuntime {
 
     public void addCallback(String streamId, StreamCallback streamCallback) {
         streamCallback.setStreamId(streamId);
+        streamCallback.setStreamDefinition(streamDefinitionMap.get(streamId));
+        streamCallback.setContext(siddhiContext);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
             streamJunction = new StreamJunction((StreamDefinition) streamDefinitionMap.get(streamId),

@@ -63,7 +63,7 @@ public class PartitionTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
-        executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
+        StreamCallback streamCallback =new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -71,7 +71,9 @@ public class PartitionTestCase {
                 count = count + events.length;
                 eventArrived = true;
             }
-        });
+        };
+        executionPlanRuntime.addCallback("StockQuote", streamCallback);
+        streamCallback.startProcessing();
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
         executionPlanRuntime.start();

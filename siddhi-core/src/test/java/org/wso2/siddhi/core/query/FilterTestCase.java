@@ -89,7 +89,7 @@ public class FilterTestCase {
 
         });
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        QueryCallback queryCallback = new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -97,7 +97,9 @@ public class FilterTestCase {
 
             }
 
-        });
+        };
+        executionPlanRuntime.addCallback("query2",queryCallback );
+        queryCallback.startProcessing();
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
 
