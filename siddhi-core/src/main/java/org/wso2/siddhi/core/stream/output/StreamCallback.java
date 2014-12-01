@@ -118,25 +118,10 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
     }
 
     public synchronized void startProcessing() {
-
         Boolean asyncEnabled = null;
-        try {
-            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_CONFIG,
-                    SiddhiConstants.ANNOTATION_ELEMENT_ASYNC,
-                    streamDefinition.getAnnotations());
-
-            if (element != null) {
-                asyncEnabled = SiddhiConstants.TRUE.equalsIgnoreCase(element.getValue());
-            }
-
-        } catch (DuplicateAnnotationException e) {
-            throw new QueryCreationException(e.getMessage() + " for the same Stream Definition " +
-                    streamDefinition.toString());
-        }
-
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
 
-            disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()), siddhiContext.getDefaultEventBufferSize(),
+            disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()), siddhiContext.getEventBufferSize(),
                     siddhiContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
 
             asyncEventHandler = new AsyncEventHandler(this);
