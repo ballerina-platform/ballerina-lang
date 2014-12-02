@@ -38,6 +38,7 @@ import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 
 public class PartitionTestCase {
@@ -854,6 +855,129 @@ public class PartitionTestCase {
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
+    }
+
+
+    @Test
+    public void testPartitionQuery17() throws InterruptedException {
+        log.info("Partition test17");
+
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        ExecutionPlan executionPlan = new ExecutionPlan("plan1");
+
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+
+        executionPlan.defineStream(streamDefinition);
+
+        Partition partition = Partition.partition().
+                with("cseEventStream",
+                        Partition.range("LessValue",
+                                Expression.compare(
+                                        Expression.value(200),
+                                        Compare.Operator.GREATER_THAN,
+                                        Expression.variable("volume"))
+                        ),
+                        Partition.range("HighValue",
+                                Expression.compare(
+                                        Expression.value(200),
+                                        Compare.Operator.LESS_THAN_EQUAL,
+                                        Expression.variable("volume"))
+                        )) ;
+
+        Query query = Query.query();
+        query.from(InputStream.stream("cseEventStream"));
+
+        query.select(
+                Selector.selector().
+                        select("sumvolume", Expression.function("sum",Expression.variable("volume")))
+
+        );
+        query.insertInto("StockStream");
+
+
+
+        partition.addQuery(query);
+
+
+        executionPlan.addPartition(partition);
+
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+
+        executionRuntime.addCallback("StockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count = count + events.length;
+                if (count == 1) {
+                    Assert.assertEquals(100l, events[0].getData()[0]);
+                } else if (count == 2) {
+                    Assert.assertEquals(600l, events[0].getData()[0]);
+                } else if (count == 3) {
+                    Assert.assertEquals(200l, events[0].getData()[0]);
+                } else if (count == 4) {
+                    Assert.assertEquals(250l, events[0].getData()[0]);
+                }
+                eventArrived = true;
+            }
+        });
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
+        inputHandler.send(new Object[]{"WSO2", 75.6f, 600});
+        inputHandler.send(new Object[]{"IBM", 75.6f, 100});
+        inputHandler.send(new Object[]{"ORACLE", 75.6f, 50});
+        Thread.sleep(1000);
+        Assert.assertEquals(4, count);
+        executionRuntime.shutdown();
+
+    }
+
+
+    @Test
+    public void testPartitionQuery18() throws InterruptedException {
+        log.info("Partition test18");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+                + "@config(async = 'true')define stream cseEventStreamOne (symbol string, price float,volume int);"
+                + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
+                + "partition with (price>=100 as 'large' or price<100 as 'small' of cseEventStream) begin @info(name = 'query1') from cseEventStream select symbol,sum(price) as price insert into OutStockStream ;  end ";
+
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+
+        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count = count + events.length;
+                eventArrived = true;
+                if (count == 1) {
+                    Assert.assertEquals(25.0, events[0].getData()[1]);
+                } else if (count == 2) {
+                    Assert.assertEquals(7005.60009765625, events[0].getData()[1]);
+                } else if (count == 3) {
+                    Assert.assertEquals(75.0, events[0].getData()[1]);
+                }  else if (count == 4) {
+                    Assert.assertEquals(100.0, events[0].getData()[1]);
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStreamOne");
+        executionRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 25f, 100});
+        inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
+        inputHandler.send(new Object[]{"IBM", 50f, 100});
+        inputHandler.send(new Object[]{"ORACLE", 25f, 100});
+        Thread.sleep(1000);
+        Assert.assertEquals(4, count);
+        executionRuntime.shutdown();
+
     }
 
 }
