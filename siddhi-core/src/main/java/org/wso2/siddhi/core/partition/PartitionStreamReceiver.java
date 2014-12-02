@@ -118,8 +118,10 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     }
 
     private void send(String key, StreamEvent event) {
-        partitionRuntime.cloneIfNotExist(key);
-        cachedStreamJunctionMap.get(streamId + key).sendEvent(event);
+        if(key!=null){
+            partitionRuntime.cloneIfNotExist(key);
+            cachedStreamJunctionMap.get(streamId + key).sendEvent(event);
+        }
     }
 
     /**

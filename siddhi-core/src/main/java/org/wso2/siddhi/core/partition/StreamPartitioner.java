@@ -21,11 +21,14 @@ package org.wso2.siddhi.core.partition;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
+import org.wso2.siddhi.core.partition.executor.RangePartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.ValuePartitionExecutor;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
+import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
 import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -55,7 +58,9 @@ public class StreamPartitioner {
 
                         }
                     } else {
-                        //TODO: range partitioning
+                        for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
+                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor) ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), siddhiContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
+                        }
                     }
                 }
             }
