@@ -280,7 +280,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitCondition_range(@NotNull SiddhiQLParser.Condition_rangeContext ctx) {
-        return new RangePartitionType.RangePartitionProperty((String) visit(ctx.string_value()), (Expression) visit(ctx.expression()));
+        return new RangePartitionType.RangePartitionProperty((String)((StringConstant)visit(ctx.string_value())).getValue(), (Expression) visit(ctx.expression()));
     }
 
     /**
