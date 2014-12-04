@@ -28,9 +28,16 @@ public class StreamEventPool {
     private int index = 0;
     private StreamEvent streamEventList;
 
-    public StreamEventPool(StreamEventFactory eventFactory, int size) {
-        this.eventFactory = eventFactory;
+    public StreamEventPool(MetaStreamEvent metaStreamEvent, int size) {
+        eventFactory = new StreamEventFactory(metaStreamEvent.getBeforeWindowData().size(),
+                metaStreamEvent.getAfterWindowData().size(),
+                metaStreamEvent.getOutputData().size());
         this.size = size;
+    }
+
+    public StreamEventPool(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize, int poolSize) {
+        eventFactory = new StreamEventFactory(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize);
+        this.size = poolSize;
     }
 
     /**

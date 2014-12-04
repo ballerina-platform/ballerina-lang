@@ -19,24 +19,17 @@
 package org.wso2.siddhi.core.event.stream.converter;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventFactory;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreamEventManagerFactory {
-    public static EventManager constructEventManager(MetaStreamEvent metaStreamEvent) {
+public class StreamEventConverterFactory {
+    public static EventConverter constructEventConvertor(MetaStreamEvent metaStreamEvent) {
         StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         int onAfterWindowDataSize = metaStreamEvent.getAfterWindowData().size();
-        int outputDataSize = metaStreamEvent.getOutputData().size();
-
-        StreamEventFactory eventFactory = new StreamEventFactory(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize);
-        int defaultPoolSize = 5;
-        StreamEventPool streamEventPool = new StreamEventPool(eventFactory, defaultPoolSize);
         int size = metaStreamEvent.getBeforeWindowData().size() + metaStreamEvent.getAfterWindowData().size() + metaStreamEvent.getOutputData().size();
         List<ConversionElement> conversionElements = new ArrayList<ConversionElement>(size);
 
@@ -68,7 +61,7 @@ public class StreamEventManagerFactory {
             }
         }
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventManager(streamEventPool, conversionElements);
+            return new SelectiveStreamEventConverter(conversionElements);
         } else {
             if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionElements.size()) {
                 Boolean isPassThrough = true;
@@ -78,10 +71,10 @@ public class StreamEventManagerFactory {
                     }
                 }
                 if (isPassThrough) {
-                    return new PassThroughStreamEventManager(streamEventPool);
+                    return new PassThroughStreamEventConverter();
                 }
             }
-            return new SimpleStreamEventManager(streamEventPool, conversionElements);
+            return new SimpleStreamEventConverter(conversionElements);
         }
     }
 }

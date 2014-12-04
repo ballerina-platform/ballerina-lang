@@ -20,14 +20,8 @@ package org.wso2.siddhi.core.event.stream.converter;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
-public class PassThroughStreamEventManager implements EventManager {
-    private StreamEventPool streamEventPool;
-
-    public PassThroughStreamEventManager(StreamEventPool streamEventPool) {
-        this.streamEventPool = streamEventPool;
-    }
+public class PassThroughStreamEventConverter implements EventConverter {
 
     private void convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp, StreamEvent borrowedEvent) {
         System.arraycopy(data, 0, borrowedEvent.getOutputData(), 0, data.length);
@@ -50,16 +44,4 @@ public class PassThroughStreamEventManager implements EventManager {
         convertToInnerStreamEvent(data, false, timeStamp, borrowedEvent);
     }
 
-    /**
-     * Borrow a event from the pool
-     */
-    @Override
-    public StreamEvent borrowEvent() {
-        return streamEventPool.borrowEvent();
-    }
-
-    @Override
-    public void returnEvent(StreamEvent streamEvent) {
-        streamEventPool.returnEvent(streamEvent);
-    }
 }

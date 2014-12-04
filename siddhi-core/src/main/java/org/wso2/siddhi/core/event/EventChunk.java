@@ -19,25 +19,45 @@
 
 package org.wso2.siddhi.core.event;
 
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventBuffer;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class EventChunk implements Iterator<StreamEvent> {
-    private EventManager eventManager;
-    StreamEvent previousToLastReturned;
-    StreamEvent lastReturned;
-    StreamEvent first;
+
+    private EventConverter eventConverter;
+    private StreamEvent previousToLastReturned;
+    private StreamEvent lastReturned;
+    private StreamEvent first;
+    private StreamEventPool streamEventPool;
+
+    public EventChunk(MetaStreamEvent metaStreamEvent) {
+        streamEventPool = new StreamEventPool(metaStreamEvent, 5);
+        eventConverter= StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
+    }
+
+    public EventChunk(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize,EventConverter eventConverter) {
+        this.eventConverter = eventConverter;
+        streamEventPool = new StreamEventPool(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, 5);
+    }
+
+    public EventChunk(StreamEventPool eventPool, EventConverter eventConverter) {
+        streamEventPool = eventPool;
+        this.eventConverter = eventConverter;
+    }
 
     public void assignEvent(StreamEvent streamEvent) {
         StreamEventBuffer streamEventBuffer = new StreamEventBuffer();
         while (streamEvent != null) {
             StreamEvent aStreamEvent = streamEvent;
-            StreamEvent borrowedEvent = eventManager.borrowEvent();
-            eventManager.convertStreamEvent(aStreamEvent, borrowedEvent);
+            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+            eventConverter.convertStreamEvent(aStreamEvent, borrowedEvent);
             streamEventBuffer.addEvent(borrowedEvent);
             streamEvent = streamEvent.getNext();
         }
@@ -47,11 +67,11 @@ public class EventChunk implements Iterator<StreamEvent> {
 
     public void insert(Event event){
 
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(event, borrowedEvent);
-        if(first==null){
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertEvent(event, borrowedEvent);
+        if (first == null) {
             first = borrowedEvent;
-        } else if (lastReturned != null){
+        } else if (lastReturned != null) {
             StreamEvent nextToLastReturned = lastReturned.getNext();
             borrowedEvent.setNext(nextToLastReturned);
             lastReturned.setNext(borrowedEvent);
@@ -64,10 +84,10 @@ public class EventChunk implements Iterator<StreamEvent> {
     public void insert(StreamEvent streamEvent){
         StreamEvent firstConvertedEvent =null;
         StreamEvent lastConvertedEvent = null;
-        while (streamEvent!=null){
-            StreamEvent borrowedEvent = eventManager.borrowEvent();
-            eventManager.convertStreamEvent(streamEvent, borrowedEvent);
-            if(firstConvertedEvent ==null){
+        while (streamEvent != null) {
+            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+            eventConverter.convertStreamEvent(streamEvent, borrowedEvent);
+            if (firstConvertedEvent == null) {
                 firstConvertedEvent = borrowedEvent;
                 lastConvertedEvent = borrowedEvent;
             } else {
@@ -90,8 +110,8 @@ public class EventChunk implements Iterator<StreamEvent> {
     }
 
     public void add(StreamEvent streamEvent){
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertStreamEvent(streamEvent, borrowedEvent);
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertStreamEvent(streamEvent, borrowedEvent);
         if(lastReturned!=null){
             StreamEvent lastEvent = lastReturned;
             StreamEvent even= null;
@@ -116,24 +136,24 @@ public class EventChunk implements Iterator<StreamEvent> {
     }
 
     public void assignEvent(Event event) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(event, borrowedEvent);
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertEvent(event, borrowedEvent);
         first = borrowedEvent;
     }
 
     public void assignEvent(long timeStamp, Object[] data) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertData(timeStamp, data, borrowedEvent);
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertData(timeStamp, data, borrowedEvent);
         first = borrowedEvent;
     }
 
     public void assignEvent(Event[] events) {
-        StreamEvent firstEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(events[0], firstEvent);
+        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        eventConverter.convertEvent(events[0], firstEvent);
         StreamEvent currentEvent = firstEvent;
         for (int i = 1, eventsLength = events.length; i < eventsLength; i++) {
-            StreamEvent nextEvent = eventManager.borrowEvent();
-            eventManager.convertEvent(events[i], nextEvent);
+            StreamEvent nextEvent = streamEventPool.borrowEvent();
+            eventConverter.convertEvent(events[i], nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
         }
@@ -142,14 +162,6 @@ public class EventChunk implements Iterator<StreamEvent> {
 
     public void assignConvertedEvent(StreamEvent streamEvent) {
         first = streamEvent;
-    }
-
-    public void setEventManager(EventManager eventManager){
-        this.eventManager = eventManager;
-    }
-
-    public EventManager getEventManager(){
-        return eventManager;
     }
 
     /**
@@ -216,7 +228,7 @@ public class EventChunk implements Iterator<StreamEvent> {
             first = lastReturned.getNext();
         }
         lastReturned.setNext(null);
-        eventManager.returnEvent(lastReturned);
+        streamEventPool.returnEvent(lastReturned);
         lastReturned = null;
     }
 
@@ -243,8 +255,11 @@ public class EventChunk implements Iterator<StreamEvent> {
     }
 
     public void returnAllAndClear() {
-       eventManager.returnEvent(first);
+        streamEventPool.returnEvent(first);
         clear();
     }
 
+    public void addEvent(StreamEvent streamEvent, boolean setAsExpired) {
+
+    }
 }

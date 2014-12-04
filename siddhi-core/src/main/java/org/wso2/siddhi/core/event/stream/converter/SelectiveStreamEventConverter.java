@@ -19,21 +19,17 @@ package org.wso2.siddhi.core.event.stream.converter;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
 import java.util.List;
 
 /**
  * The converter class that converts and manages events
  */
-public class SelectiveStreamEventManager implements EventManager {
+public class SelectiveStreamEventConverter implements EventConverter {
 
     private List<ConversionElement> conversionElements;       //List to hold information needed for conversion
-    private StreamEventPool streamEventPool;
 
-
-    public SelectiveStreamEventManager(StreamEventPool streamEventPool, List<ConversionElement> conversionElements) {
-        this.streamEventPool = streamEventPool;
+    public SelectiveStreamEventConverter(List<ConversionElement> conversionElements) {
         this.conversionElements = conversionElements;
     }
 
@@ -73,16 +69,4 @@ public class SelectiveStreamEventManager implements EventManager {
         convertToInnerStreamEvent(data, false, timeStamp, borrowedEvent);
     }
 
-    /**
-     * Borrow a event from the pool
-     */
-    @Override
-    public StreamEvent borrowEvent() {
-        return streamEventPool.borrowEvent();
-    }
-
-    @Override
-    public void returnEvent(StreamEvent streamEvent) {
-        streamEventPool.returnEvent(streamEvent);
-    }
 }

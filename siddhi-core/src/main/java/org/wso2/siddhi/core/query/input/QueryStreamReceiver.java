@@ -21,8 +21,8 @@ package org.wso2.siddhi.core.query.input;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventChunk;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -32,7 +32,8 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     private String streamId;
     private Processor processorChain;
     private Processor next;
-    private EventChunk eventChunk = new EventChunk();
+    private EventChunk eventChunk;
+    private MetaStreamEvent metaStreamEvent;
 
 
     public QueryStreamReceiver(StreamDefinition streamDefinition) {
@@ -50,7 +51,7 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     public QueryStreamReceiver clone(String key) {
         QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId + key);
-        clonedQueryStreamReceiver.setEventManager(eventChunk.getEventManager());
+        clonedQueryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
         return clonedQueryStreamReceiver;
     }
 
@@ -83,11 +84,11 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        eventChunk.assignEvent(timeStamp,data);
+        eventChunk.assignEvent(timeStamp, data);
         processAndClear();
     }
 
-    private void processAndClear(){
+    private void processAndClear() {
         next.process(eventChunk);
         eventChunk.returnAllAndClear();
     }
@@ -100,8 +101,9 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         this.processorChain = processorChain;
     }
 
-    public void setEventManager(EventManager eventManager) {
-        this.eventChunk.setEventManager(eventManager);
+    public void setMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
+        this.metaStreamEvent = metaStreamEvent;
+        this.eventChunk = new EventChunk(metaStreamEvent);
     }
 
     public void setNext(Processor next) {

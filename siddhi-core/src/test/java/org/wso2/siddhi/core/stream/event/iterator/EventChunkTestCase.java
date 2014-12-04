@@ -24,23 +24,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventFactory;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
-import org.wso2.siddhi.core.event.stream.converter.PassThroughStreamEventManager;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
+import org.wso2.siddhi.core.event.stream.converter.PassThroughStreamEventConverter;
 
 
 public class EventChunkTestCase {
     private int count;
-    private  EventManager eventManager;
+    private EventConverter eventConverter;
+    private int beforeWindowDataSize;
+    private int onAfterWindowDataSize;
+    private int outputDataSize;
 
     @Before
     public void init() {
         count = 0;
-        StreamEventFactory eventFactory = new StreamEventFactory(0, 0, 2);
-        int defaultPoolSize = 5;
-        StreamEventPool streamEventPool = new StreamEventPool(eventFactory, defaultPoolSize);
-        eventManager = new PassThroughStreamEventManager(streamEventPool) ;
+        eventConverter = new PassThroughStreamEventConverter();
 
 
     }
@@ -60,13 +58,12 @@ public class EventChunkTestCase {
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
-        EventChunk iterator = new EventChunk();
-        iterator.setEventManager(eventManager);
-        iterator.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
+        eventChunk.assignConvertedEvent(streamEvent1);
 
-        while (iterator.hasNext()) {
+        while (eventChunk.hasNext()) {
             count++;
-            iterator.next();
+            eventChunk.next();
         }
         Assert.assertEquals(3, count);
     }
@@ -85,18 +82,17 @@ public class EventChunkTestCase {
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
-        EventChunk iterator = new EventChunk();
-        iterator.setEventManager(eventManager);
-        iterator.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
+        eventChunk.assignConvertedEvent(streamEvent1);
 
-        while (iterator.hasNext()) {
+        while (eventChunk.hasNext()) {
             count++;
-            iterator.next();
+            eventChunk.next();
             if (count == 1) {
-                iterator.remove();
+                eventChunk.remove();
             }
         }
-        Assert.assertEquals(streamEvent2, iterator.getFirst());
+        Assert.assertEquals(streamEvent2, eventChunk.getFirst());
     }
 
     @Test
@@ -117,18 +113,17 @@ public class EventChunkTestCase {
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        EventChunk iterator = new EventChunk();
-        iterator.setEventManager(eventManager);
-        iterator.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
+        eventChunk.assignConvertedEvent(streamEvent1);
 
-        while (iterator.hasNext()) {
+        while (eventChunk.hasNext()) {
             count++;
-            iterator.next();
+            eventChunk.next();
             if (count == 1 || count == 2) {
-                iterator.remove();
+                eventChunk.remove();
             }
         }
-        StreamEvent streamEvent = iterator.getFirst();
+        StreamEvent streamEvent = eventChunk.getFirst();
         Assert.assertEquals(streamEvent3, streamEvent);
         Assert.assertEquals(streamEvent4, streamEvent.getNext());
     }
@@ -151,16 +146,15 @@ public class EventChunkTestCase {
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        EventChunk iterator = new EventChunk();
-        iterator.setEventManager(eventManager);
-        iterator.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
+        eventChunk.assignConvertedEvent(streamEvent1);
 
-        while (iterator.hasNext()) {
-            iterator.next();
-            iterator.remove();
+        while (eventChunk.hasNext()) {
+            eventChunk.next();
+            eventChunk.remove();
         }
 
-        Assert.assertNull(iterator.getFirst());
+        Assert.assertNull(eventChunk.getFirst());
     }
 
     @Test
@@ -181,18 +175,17 @@ public class EventChunkTestCase {
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        EventChunk iterator = new EventChunk();
-        iterator.setEventManager(eventManager);
-        iterator.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
+        eventChunk.assignConvertedEvent(streamEvent1);
 
-        while (iterator.hasNext()) {
+        while (eventChunk.hasNext()) {
             count++;
-            iterator.next();
+            eventChunk.next();
             if (count == 2 || count == 4) {
-                iterator.remove();
+                eventChunk.remove();
             }
         }
-        StreamEvent streamEvent = iterator.getFirst();
+        StreamEvent streamEvent = eventChunk.getFirst();
         Assert.assertEquals(streamEvent1, streamEvent);
         Assert.assertEquals(streamEvent3, streamEvent.getNext());
         Assert.assertNull(streamEvent.getNext().getNext());
@@ -208,12 +201,11 @@ public class EventChunkTestCase {
 
         streamEvent1.setNext(streamEvent2);
 
-        EventChunk iterator = new EventChunk();
-        iterator.setEventManager(eventManager);
-        iterator.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
+        eventChunk.assignConvertedEvent(streamEvent1);
 
-        iterator.remove();
-        iterator.remove();
+        eventChunk.remove();
+        eventChunk.remove();
     }
 
 

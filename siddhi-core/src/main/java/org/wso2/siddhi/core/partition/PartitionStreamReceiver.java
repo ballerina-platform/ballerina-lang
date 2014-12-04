@@ -24,8 +24,9 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventManagerFactory;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -40,14 +41,15 @@ import java.util.concurrent.ExecutorService;
 
 public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
+    private final EventConverter eventConverter;
+    private final StreamEventPool eventPool;
     private String streamId;
     private StreamDefinition streamDefinition;
     private ExecutionPlanContext executionPlanContext;
     private PartitionRuntime partitionRuntime;
     private List<PartitionExecutor> partitionExecutors;
-    private EventManager eventManager;
     private Map<String, StreamJunction> cachedStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>();
-    private EventChunk eventChunk = new EventChunk();
+    private EventChunk eventChunk;
 
 
     public PartitionStreamReceiver(ExecutionPlanContext executionPlanContext, MetaStreamEvent metaStreamEvent, StreamDefinition streamDefinition,
@@ -58,8 +60,10 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         this.partitionExecutors = partitionExecutors;
         this.executionPlanContext = executionPlanContext;
         streamId = streamDefinition.getId();
-        eventManager = StreamEventManagerFactory.constructEventManager(metaStreamEvent);
-        eventChunk.setEventManager(eventManager);
+        this.eventPool = new StreamEventPool(metaStreamEvent, 5);
+        this.eventConverter = StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
+        this.eventChunk = new EventChunk(eventPool, eventConverter);
+
     }
 
     @Override
@@ -79,14 +83,14 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             String currentKey = null;
             while (eventChunk.hasNext()) {
                 StreamEvent aStreamEvent = eventChunk.next();
-                StreamEvent lastChunkEvent= null;
+                StreamEvent lastChunkEvent = null;
                 for (PartitionExecutor partitionExecutor : partitionExecutors) {
                     String key = partitionExecutor.execute(aStreamEvent);
-                    if(key!=null){
+                    if (key != null) {
                         if (currentKey == null) {
                             currentKey = key;
                         } else if (!currentKey.equals(key)) {
-                            if(lastChunkEvent!=aStreamEvent) {
+                            if (lastChunkEvent != aStreamEvent) {
                                 eventChunk.detach();
                                 send(currentKey, eventChunk.getFirst());
                                 eventChunk.clear();
@@ -96,7 +100,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                             } else {
                                 eventChunk.detach();
                                 StreamEvent nextToCloneEvent = aStreamEvent.getNext();
-                                StreamEvent cloneEvent =aStreamEvent;
+                                StreamEvent cloneEvent = aStreamEvent;
                                 cloneEvent.setNext(null);
                                 eventChunk.add(cloneEvent);
                                 send(currentKey, eventChunk.getFirst());
@@ -119,13 +123,13 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(event, borrowedEvent);
+        eventChunk.assignEvent(event);
+        StreamEvent borrowedEvent = eventChunk.next();
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);
         }
-        eventManager.returnEvent(borrowedEvent);
+        eventChunk.returnAllAndClear();
     }
 
     @Override
@@ -135,13 +139,13 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertData(timeStamp, data, borrowedEvent);
+        eventChunk.assignEvent(timeStamp, data);
+        StreamEvent borrowedEvent = eventChunk.next();
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);
         }
-        eventManager.returnEvent(borrowedEvent);
+        eventChunk.returnAllAndClear();
     }
 
     @Override
@@ -149,18 +153,18 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         String key = null;
         StreamEvent firstEvent = null;
         StreamEvent currentEvent = null;
-        for (Event event:events) {
-            StreamEvent nextEvent = eventManager.borrowEvent();
-            eventManager.convertEvent(event, nextEvent);
+        for (Event event : events) {
+            StreamEvent nextEvent = eventPool.borrowEvent();
+            eventConverter.convertEvent(event, nextEvent);
             for (PartitionExecutor partitionExecutor : partitionExecutors) {
                 String currentKey = partitionExecutor.execute(nextEvent);
-                if(currentKey!=null){
-                    if(key == null){
+                if (currentKey != null) {
+                    if (key == null) {
                         key = currentKey;
                         firstEvent = nextEvent;
                     } else if (!currentKey.equals(key)) {
                         send(key, firstEvent);
-                        eventManager.returnEvent(firstEvent);
+                        eventPool.returnEvent(firstEvent);
                         key = currentKey;
                         firstEvent = nextEvent;
                     } else {
@@ -171,11 +175,11 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             }
         }
         send(key, firstEvent);
-        eventManager.returnEvent(firstEvent);
+        eventPool.returnEvent(firstEvent);
     }
 
     private void send(String key, StreamEvent event) {
-        if(key!=null){
+        if (key != null) {
             partitionRuntime.cloneIfNotExist(key);
             cachedStreamJunctionMap.get(streamId + key).sendEvent(event);
         }

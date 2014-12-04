@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query.processor.window;
 import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventFactory;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
@@ -29,22 +28,32 @@ public class LengthWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
+    private EventChunk expiredEventChunk;
     private StreamEvent removeEventHead = null;
     private StreamEvent removeEventTail = null;
-    private StreamEventFactory removeEventFactory;
+//    private StreamEventFactory removeEventFactory;
 
     @Override
     public void init(MetaStreamEvent metaStreamEvent) {
+//        MetaStreamEvent   expiredMetaStreamEvent =  metaStreamEvent.clone();
+        expiredEventChunk = new EventChunk(metaStreamEvent);
         if (parameters != null) {
             length = ((IntConstant) parameters[0]).getValue();
         }
-        removeEventFactory = new StreamEventFactory(0, metaStreamEvent.getAfterWindowData().size(),
-                metaStreamEvent.getOutputData().size());
-
     }
 
     @Override
     public void process(EventChunk eventChunk) {
+//        expiredEventChunk.assignEvent();
+        while (eventChunk.hasNext()) {
+            StreamEvent event = eventChunk.next();
+            if (count > length) {
+
+            }else {
+              //  expiredEventChunk.add(event,true);
+            }
+
+        }
         StreamEvent event = eventChunk.getFirst();
         StreamEvent head = event;           //head of in events
         StreamEvent expiredEventTail;
@@ -65,14 +74,14 @@ public class LengthWindowProcessor extends WindowProcessor {
             expiredEventTail.setNext(null);
             addToLast(head, expiredEventHead);
 
-            EventChunk headEventChunk = new EventChunk();
-            headEventChunk.setEventManager(eventChunk.getEventManager());
+            EventChunk headEventChunk = new EventChunk(null);
+//            headEventChunk.setEventConverter(expiredEventChunk.getEventConverter());
             headEventChunk.assignEvent(head);
             nextProcessor.process(headEventChunk);                            //emit in events and remove events as expired events
             count = count - diff;
         } else {
-            EventChunk headEventChunk = new EventChunk();
-            headEventChunk.setEventManager(eventChunk.getEventManager());
+            EventChunk headEventChunk = new EventChunk(null);
+//            headEventChunk.setEventConverter(expiredEventChunk.getEventConverter());
             headEventChunk.assignEvent(head);
             nextProcessor.process(headEventChunk);                            //emit only in events as window is not expired
         }
@@ -92,7 +101,7 @@ public class LengthWindowProcessor extends WindowProcessor {
      * @param event
      */
     private void processEvent(StreamEvent event) {
-        StreamEvent removeEvent = removeEventFactory.newInstance();
+        StreamEvent removeEvent =null;//= removeEventFactory.newInstance();
         if (removeEvent.getOnAfterWindowData() != null) {
             System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
                     event.getOnAfterWindowData().length);

@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.event.stream.converter;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public interface EventManager {
+public interface EventConverter {
 
     /**
      * Method to construct StreamEvent form Event
@@ -47,18 +47,5 @@ public interface EventManager {
      * @param borrowedEvent Event that will be populated
      */
     public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
-
-    /**
-     * Borrow a event from the pool
-     */
-    public StreamEvent borrowEvent();
-
-    /**
-     * Return the used event back to the pool
-     *
-     * @param streamEvent used stream event
-     */
-    public void returnEvent(StreamEvent streamEvent);
-
 
 }

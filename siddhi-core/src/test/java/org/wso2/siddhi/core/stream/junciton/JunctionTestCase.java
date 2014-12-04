@@ -23,10 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventFactory;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -413,12 +412,11 @@ public class JunctionTestCase {
     public void MultiThreadedWithEventPoolTest() throws InterruptedException {
         log.info("multi threaded test using event pool");
 
-        StreamEventFactory eventFactory = new StreamEventFactory(2, 2, 2);
-        final StreamEventPool streamEventPool_A_1 = new StreamEventPool(eventFactory, 4);
-        final StreamEventPool streamEventPool_A_2 = new StreamEventPool(eventFactory, 4);
-        final StreamEventPool streamEventPool_A_3 = new StreamEventPool(eventFactory, 4);
-        final StreamEventPool streamEventPool_B_1 = new StreamEventPool(eventFactory, 4);
-        final StreamEventPool streamEventPool_B_2 = new StreamEventPool(eventFactory, 4);
+        final StreamEventPool streamEventPool_A_1 = new StreamEventPool(2, 2, 2, 4);
+        final StreamEventPool streamEventPool_A_2 = new StreamEventPool(2, 2, 2, 4);
+        final StreamEventPool streamEventPool_A_3 = new StreamEventPool(2, 2, 2, 4);
+        final StreamEventPool streamEventPool_B_1 = new StreamEventPool(2, 2, 2, 4);
+        final StreamEventPool streamEventPool_B_2 = new StreamEventPool(2, 2, 2, 4);
 
 
         StreamDefinition streamA = new StreamDefinition("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
