@@ -45,7 +45,7 @@ public class EventChunk implements Iterator<StreamEvent> {
     }
 
 
-    public void add(Event event){
+    public void insert(Event event){
 
         StreamEvent borrowedEvent = eventManager.borrowEvent();
         eventManager.convertEvent(event, borrowedEvent);
@@ -61,7 +61,7 @@ public class EventChunk implements Iterator<StreamEvent> {
         }
     }
 
-    public void add(StreamEvent streamEvent){
+    public void insert(StreamEvent streamEvent){
         StreamEvent firstConvertedEvent =null;
         StreamEvent lastConvertedEvent = null;
         while (streamEvent!=null){
@@ -75,15 +75,43 @@ public class EventChunk implements Iterator<StreamEvent> {
             }
             streamEvent = streamEvent.getNext();
         }
-        if(first==null){
-            first = firstConvertedEvent;
-        } else if (lastReturned != null){
-            StreamEvent nextToLastReturned = lastReturned.getNext();
-            lastConvertedEvent.setNext(nextToLastReturned);
-            lastReturned.setNext(firstConvertedEvent);
-        } else {       //when first!=null
-            lastConvertedEvent.setNext(first);
-            first = firstConvertedEvent;
+        if(firstConvertedEvent!=null){
+            if(first==null){
+                first = firstConvertedEvent;
+            } else if (lastReturned != null){
+                StreamEvent nextToLastReturned = lastReturned.getNext();
+                lastConvertedEvent.setNext(nextToLastReturned);
+                lastReturned.setNext(firstConvertedEvent);
+            } else {       //when first!=null
+                lastConvertedEvent.setNext(first);
+                first = firstConvertedEvent;
+            }
+        }
+    }
+
+    public void add(StreamEvent streamEvent){
+        StreamEvent borrowedEvent = eventManager.borrowEvent();
+        eventManager.convertStreamEvent(streamEvent, borrowedEvent);
+        if(lastReturned!=null){
+            StreamEvent lastEvent = lastReturned;
+            StreamEvent even= null;
+            while (lastEvent!=null){
+                even = lastEvent;
+                lastEvent = lastEvent.getNext();
+            }
+            even.setNext(borrowedEvent);
+        }else if(previousToLastReturned!=null){
+            previousToLastReturned.setNext(borrowedEvent);
+        }  else if (first != null){
+            StreamEvent lastEvent = first;
+            StreamEvent even= null;
+            while (lastEvent!=null){
+                even = lastEvent;
+                lastEvent = lastEvent.getNext();
+            }
+            even.setNext(borrowedEvent);
+        } else {
+            assignEvent(borrowedEvent);
         }
     }
 
@@ -208,6 +236,8 @@ public class EventChunk implements Iterator<StreamEvent> {
         }
         if (previousToLastReturned != null) {
             previousToLastReturned.setNext(null);
+        } else{
+            clear();
         }
         lastReturned = null;
     }

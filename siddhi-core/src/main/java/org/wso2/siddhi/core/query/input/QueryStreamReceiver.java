@@ -75,7 +75,7 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        eventChunk.add(event);
+        eventChunk.insert(event);
         if (endOfBatch) {
             processAndClear();
         }
