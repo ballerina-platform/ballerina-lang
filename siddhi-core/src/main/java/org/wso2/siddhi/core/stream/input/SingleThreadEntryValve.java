@@ -15,8 +15,10 @@
 
 package org.wso2.siddhi.core.stream.input;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -24,12 +26,15 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SingleThreadEntryValve implements InputProcessor {
 
-    private ReentrantLock lock;
+    private Lock lock;
     private InputProcessor inputProcessor;
 
 
-    public SingleThreadEntryValve(ReentrantLock lock, InputProcessor inputProcessor) {
-        this.lock = lock;
+    public SingleThreadEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
+        this.lock = executionPlanContext.getSharedLock();
+        if(lock==null){
+            lock=new ReentrantLock();
+        }
         this.inputProcessor = inputProcessor;
     }
 

@@ -18,7 +18,7 @@
  */
 package org.wso2.siddhi.core.partition;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
@@ -44,7 +44,7 @@ public class StreamPartitioner {
     private List<List<PartitionExecutor>> partitionExecutorLists = new ArrayList<List<PartitionExecutor>>();
 
     public StreamPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
-                             List<VariableExpressionExecutor> executors, SiddhiContext siddhiContext) {
+                             List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         if (partition != null) {
             if (inputStream instanceof BasicSingleInputStream) {
                 List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
@@ -54,12 +54,12 @@ public class StreamPartitioner {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
 
                             executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                    siddhiContext, metaStreamEvent, executors, false)));
+                                    executionPlanContext, metaStreamEvent, executors, false)));
 
                         }
                     } else {
                         for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
-                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor) ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), siddhiContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
+                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor) ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
                         }
                     }
                 }

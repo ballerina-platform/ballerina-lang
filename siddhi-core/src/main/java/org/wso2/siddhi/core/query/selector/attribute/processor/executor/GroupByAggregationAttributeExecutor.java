@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
@@ -34,11 +34,11 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
     public GroupByAggregationAttributeExecutor(AttributeAggregator aggregator,
-                                               List<ExpressionExecutor> expressionExecutors, SiddhiContext siddhiContext) {
-        this.siddhiContext = siddhiContext;
+                                               List<ExpressionExecutor> expressionExecutors, ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
         this.expressionExecutors = expressionExecutors;
         this.attributeAggregator = aggregator;
-        siddhiContext.addEternalReferencedHolder(attributeAggregator);
+        executionPlanContext.addEternalReferencedHolder(attributeAggregator);
         size = expressionExecutors.size();
     }
 
@@ -48,14 +48,14 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.newInstance();
-            siddhiContext.addEternalReferencedHolder(currentAttributeAggregator);
+            executionPlanContext.addEternalReferencedHolder(currentAttributeAggregator);
             aggregatorMap.put(key, currentAttributeAggregator);
         }
         return process(event, currentAttributeAggregator);
     }
 
     public ExpressionExecutor cloneExecutor() {
-        return new GroupByAggregationAttributeExecutor(attributeAggregator.newInstance(), expressionExecutors, siddhiContext);
+        return new GroupByAggregationAttributeExecutor(attributeAggregator.newInstance(), expressionExecutors, executionPlanContext);
     }
 
 

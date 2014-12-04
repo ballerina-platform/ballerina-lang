@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
@@ -30,7 +30,7 @@ import java.util.List;
 public abstract class AbstractAggregationAttributeExecutor implements ExpressionExecutor {
     protected AttributeAggregator attributeAggregator;
     protected List<ExpressionExecutor> expressionExecutors;
-    protected SiddhiContext siddhiContext;
+    protected ExecutionPlanContext executionPlanContext;
     protected int size;
 
     protected Object process(StreamEvent event, AttributeAggregator attributeAggregator) {

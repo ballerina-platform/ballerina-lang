@@ -15,9 +15,11 @@
 
 package org.wso2.siddhi.core.query.processor.valve;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -26,7 +28,16 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SingleThreadEntryValveProcessor implements Processor {
 
     private Processor next;
-    private ReentrantLock lock;
+    private Lock lock;
+    private ExecutionPlanContext executionPlanContext;
+
+    public SingleThreadEntryValveProcessor(ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
+        lock = executionPlanContext.getSharedLock();
+        if (lock == null) {
+            lock = new ReentrantLock();
+        }
+    }
 
 
     /**
@@ -62,7 +73,7 @@ public class SingleThreadEntryValveProcessor implements Processor {
      */
     @Override
     public void setNextProcessor(Processor processor) {
-          next=processor;
+        next = processor;
     }
 
     /**
@@ -86,7 +97,7 @@ public class SingleThreadEntryValveProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor() {
-        return new SingleThreadEntryValveProcessor();
+        return new SingleThreadEntryValveProcessor(executionPlanContext);
     }
 
 }

@@ -18,19 +18,19 @@
  */
 package org.wso2.siddhi.core.extension.holder;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 
 public class ExecutorExtensionHolder extends AbstractExtensionHolder {
     private static ExecutorExtensionHolder instance;
 
-    private ExecutorExtensionHolder(SiddhiContext siddhiContext) {
-        super(FunctionExecutor.class, siddhiContext);
+    private ExecutorExtensionHolder(ExecutionPlanContext executionPlanContext) {
+        super(FunctionExecutor.class, executionPlanContext);
     }
 
-    public static ExecutorExtensionHolder getInstance(SiddhiContext siddhiContext) {
+    public static ExecutorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
         if (instance == null) {
-            instance = new ExecutorExtensionHolder(siddhiContext);
+            instance = new ExecutorExtensionHolder(executionPlanContext);
         }
         return instance;
     }

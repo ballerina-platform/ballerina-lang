@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -30,7 +30,7 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
     private ExpressionExecutor expressionExecutor;
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext) {
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeSize != 2) {
             throw new OperationNotSupportedException("IsMatch has to have 2 expressions regex and the attribute, " +
                     "currently " + attributeSize + " expressions provided");

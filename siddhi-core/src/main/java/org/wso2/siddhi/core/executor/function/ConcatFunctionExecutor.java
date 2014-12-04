@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -34,7 +34,7 @@ public class ConcatFunctionExecutor extends FunctionExecutor {
 
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext) {
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
     }
 
     protected Object execute(Object[] obj) {

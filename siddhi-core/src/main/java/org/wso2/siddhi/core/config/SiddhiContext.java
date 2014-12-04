@@ -19,11 +19,8 @@
 
 package org.wso2.siddhi.core.config;
 
-import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -31,11 +28,9 @@ public class SiddhiContext {
 
     private int eventBufferSize ;
     private Executor executorService;
-    private List<EternalReferencedHolder> eternalReferencedHolders;
     private Map<String, Class> siddhiExtensions;
 
     public SiddhiContext() {
-        this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
     }
 
@@ -49,10 +44,6 @@ public class SiddhiContext {
 
     public void setExecutorService(Executor executorService) {
         this.executorService = executorService;
-    }
-
-    public void addEternalReferencedHolder(EternalReferencedHolder eternalReferencedHolder) {
-        eternalReferencedHolders.add(eternalReferencedHolder);
     }
 
     public Map<String, Class> getSiddhiExtensions() {

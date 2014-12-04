@@ -20,7 +20,7 @@
 package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.QueryCreationException;
@@ -40,7 +40,7 @@ public class QuerySelector implements Processor {
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
     private int outputSize;
-    private SiddhiContext siddhiContext;
+    private ExecutionPlanContext executionPlanContext;
     private boolean currentOn = false;
     private boolean expiredOn = false;
     private OutputRateLimiter outputRateLimiter;
@@ -50,12 +50,12 @@ public class QuerySelector implements Processor {
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
 
-    public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
+    public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, ExecutionPlanContext executionPlanContext) {
         this.id = id;
         this.currentOn = currentOn;
         this.expiredOn = expiredOn;
         this.selector = selector;
-        this.siddhiContext = siddhiContext;
+        this.executionPlanContext = executionPlanContext;
         this.outputSize = selector.getSelectionList().size();
     }
 
@@ -150,7 +150,7 @@ public class QuerySelector implements Processor {
     }
 
     public QuerySelector clone(String key) {
-        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, siddhiContext);
+        QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, executionPlanContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor());

@@ -18,7 +18,7 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -45,12 +45,13 @@ public class SelectorParser {
      *
      * @param selector       selector to be parsed
      * @param outStream      output stream of the query
-     * @param context        query to be parsed
+     * @param executionPlanContext        query to be parsed
      * @param metaStateEvent Meta event used to collect execution info of stream associated with query
      * @param executors      List to hold VariableExpressionExecutors to update after query parsing
      * @return
      */
-    public static QuerySelector parse(Selector selector, OutputStream outStream, SiddhiContext context, MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
+    public static QuerySelector parse(Selector selector, OutputStream outStream, ExecutionPlanContext executionPlanContext,
+                                      MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         boolean currentOn = false;
         boolean expiredOn = false;
         String id = null;
@@ -63,13 +64,13 @@ public class SelectorParser {
         }
 
         id = outStream.getId();
-        QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, context);
-        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, id, context, metaStateEvent, executors));
+        QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, executionPlanContext);
+        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, id, executionPlanContext, metaStateEvent, executors));
 
-        ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(), metaStateEvent, context);
+        ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(), metaStateEvent, executionPlanContext);
         querySelector.setHavingConditionExecutor(havingCondition);
         if (!selector.getGroupByList().isEmpty()) {
-            querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaStateEvent, executors, context));
+            querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaStateEvent, executors, executionPlanContext));
         }
 
 
@@ -81,12 +82,13 @@ public class SelectorParser {
      *
      * @param selector
      * @param id
-     * @param siddhiContext
+     * @param executionPlanContext
      * @param metaStateEvent
      * @param executors
      * @return
      */
-    private static List<AttributeProcessor> getAttributeProcessors(Selector selector, String id, SiddhiContext siddhiContext, MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
+    private static List<AttributeProcessor> getAttributeProcessors(Selector selector, String id, ExecutionPlanContext executionPlanContext,
+                                                                   MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
         StreamDefinition temp = new StreamDefinition(id);
 
@@ -96,7 +98,7 @@ public class SelectorParser {
             if (metaStateEvent.getEventCount() == 1) {  //meta stream event
                 MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(0);
                 ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                        siddhiContext, metaStreamEvent, executors, !(selector.getGroupByList().isEmpty()));
+                        executionPlanContext, metaStreamEvent, executors, !(selector.getGroupByList().isEmpty()));
                 if (expressionExecutor instanceof VariableExpressionExecutor) {   //for variables we will directly put value at conversion stage
                     metaStreamEvent.addOutputData(((VariableExpressionExecutor) expressionExecutor).getAttribute());
                     temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) expressionExecutor).getAttribute().getType());
@@ -118,7 +120,7 @@ public class SelectorParser {
     }
 
     private static ConditionExpressionExecutor generateHavingExecutor(Expression expression,
-                                                                      MetaStateEvent metaStateEvent, SiddhiContext siddhiContext) {
+                                                                      MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         MetaStreamEvent metaEvent = new MetaStreamEvent();
         metaEvent.setInputDefinition(metaStateEvent.getOutputStreamDefinition());
@@ -127,7 +129,7 @@ public class SelectorParser {
         }
         ConditionExpressionExecutor havingConditionExecutor = null;
         if (expression != null) {
-            havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression, siddhiContext, metaEvent, executors, false);
+            havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression, executionPlanContext, metaEvent, executors, false);
 
         }
         QueryParserHelper.updateVariablePosition(new MetaStateEvent(new MetaStreamEvent[]{metaEvent}), executors);

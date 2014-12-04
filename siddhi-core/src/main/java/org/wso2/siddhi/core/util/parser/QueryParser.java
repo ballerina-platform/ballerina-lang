@@ -57,9 +57,9 @@ public class QueryParser {
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext.getSiddhiContext(), definitionMap, metaStateEvent, executors);
+                    executionPlanContext, definitionMap, metaStateEvent, executors);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
-                    executionPlanContext.getSiddhiContext(), metaStateEvent, executors);
+                    executionPlanContext, metaStateEvent, executors);
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
             QueryParserHelper.updateVariablePosition(metaStateEvent, executors);

@@ -22,7 +22,6 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class InputManager {
 
@@ -44,7 +43,7 @@ public class InputManager {
                 !executionPlanContext.isEnforceOrder() &&
                 !executionPlanContext.isParallel()) {
             inputDistributor = new InputDistributor();
-            singleThreadEntryValve = new SingleThreadEntryValve(new ReentrantLock(), inputDistributor);
+            singleThreadEntryValve = new SingleThreadEntryValve(executionPlanContext, inputDistributor);
             singleStreamEntryValve = new SingleStreamEntryValve(executionPlanContext, singleThreadEntryValve);
         }
 

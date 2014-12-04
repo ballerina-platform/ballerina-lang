@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -35,7 +35,7 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
 
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext) {
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             if (type != expressionExecutor.getReturnType()) {

@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.extension.holder;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +30,10 @@ public abstract class AbstractExtensionHolder {
 
     protected Map<String, Class> extensionMap = new HashMap<String, Class>();
 
-    protected AbstractExtensionHolder(Class clazz, SiddhiContext siddhiContext) {
-        Map<String, Class> extensions = siddhiContext.getSiddhiExtensions();
+    protected AbstractExtensionHolder(Class clazz, ExecutionPlanContext executionPlanContext) {
+        Map<String, Class> extensions = executionPlanContext.getSiddhiContext().getSiddhiExtensions();
         if (extensions != null) {
-            for (String extensionKey : siddhiContext.getSiddhiExtensions().keySet()) {
+            for (String extensionKey : executionPlanContext.getSiddhiContext().getSiddhiExtensions().keySet()) {
                 Class extension = extensions.get(extensionKey);
                 if (clazz.isAssignableFrom(extension)) {
                     if (extensionMap.containsKey(extensionKey)) {

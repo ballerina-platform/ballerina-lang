@@ -118,7 +118,7 @@ public class PartitionRuntime {
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime && !((SingleInputStream) query.getInputStream()).isInnerStream()) {
             if (!partitionStreamReceivers.containsKey(((SingleInputStream) query.getInputStream()).getStreamId())) {
                 List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaStreamEvent,
-                        executors, executionPlanContext.getSiddhiContext()).getPartitionExecutorLists();
+                        executors, executionPlanContext).getPartitionExecutorLists();
                 addPartitionReceiver(new PartitionStreamReceiver(executionPlanContext, metaStreamEvent,
                         (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),
                         partitionExecutors.get(0), this));

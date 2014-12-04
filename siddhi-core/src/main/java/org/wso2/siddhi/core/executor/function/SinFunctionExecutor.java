@@ -13,7 +13,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -24,7 +24,7 @@ import java.util.List;
 public class SinFunctionExecutor extends FunctionExecutor {
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext) {
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeSize != 1) {
             throw new OperationNotSupportedException("Sin function has to have exactly 1 parameter, currently " +
                     attributeSize + " parameters provided");

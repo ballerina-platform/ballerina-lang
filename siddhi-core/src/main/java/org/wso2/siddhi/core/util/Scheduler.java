@@ -26,16 +26,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created on 12/3/14.
  */
-public class TimeNotifier {
+public class Scheduler {
 
-    private static final Logger log = Logger.getLogger(TimeNotifier.class);
+    private static final Logger log = Logger.getLogger(Scheduler.class);
     private final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
     private ScheduledExecutorService scheduledExecutorService;
     private EventCaller eventCaller;
     private volatile boolean running = false;
 
 
-    public TimeNotifier(ScheduledExecutorService scheduledExecutorService, Processor singleThreadEntryValve) {
+    public Scheduler(ScheduledExecutorService scheduledExecutorService, Processor singleThreadEntryValve) {
         this.scheduledExecutorService = scheduledExecutorService;
         eventCaller = new EventCaller(singleThreadEntryValve);
     }

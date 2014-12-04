@@ -18,19 +18,19 @@
  */
 package org.wso2.siddhi.core.extension.holder;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 
 public class OutputAttributeExtensionHolder extends AbstractExtensionHolder {
     private static OutputAttributeExtensionHolder instance;
 
-    private OutputAttributeExtensionHolder(SiddhiContext siddhiContext) {
-        super(AttributeAggregator.class, siddhiContext);
+    private OutputAttributeExtensionHolder(ExecutionPlanContext executionPlanContext) {
+        super(AttributeAggregator.class, executionPlanContext);
     }
 
-    public static OutputAttributeExtensionHolder getInstance(SiddhiContext siddhiContext) {
+    public static OutputAttributeExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
         if (instance == null) {
-            instance = new OutputAttributeExtensionHolder(siddhiContext);
+            instance = new OutputAttributeExtensionHolder(executionPlanContext);
         }
         return instance;
     }

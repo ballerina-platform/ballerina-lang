@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.sample.util;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
@@ -55,7 +55,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
     }
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, SiddhiContext siddhiContext) {
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         for(ExpressionExecutor expressionExecutor: attributeExpressionExecutors){
         Attribute.Type attributeType = expressionExecutor.getReturnType();
             if (attributeType == Attribute.Type.DOUBLE) {

@@ -18,7 +18,7 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
@@ -46,7 +46,7 @@ public class InputStreamParser {
      * @param executors      List to hold VariableExpressionExecutors to update after query parsing
      * @return
      */
-    public static StreamRuntime parse(InputStream inputStream, SiddhiContext context, Map<String, AbstractDefinition> definitionMap,
+    public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext context, Map<String, AbstractDefinition> definitionMap,
                                       MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             MetaStreamEvent metaStreamEvent = generateMetaStreamEvent(inputStream, definitionMap);

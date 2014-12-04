@@ -38,6 +38,7 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ExecutionPlanParser {
 
@@ -61,22 +62,26 @@ public class ExecutionPlanParser {
                 executionPlanContext.setName(UUID.randomUUID().toString());
             }
 
-            Annotation annotation=AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PLAYBACK,
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PLAYBACK,
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 executionPlanContext.setPlayback(true);
             }
 
-            annotation=AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ENFORCE_ORDER,
+            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ENFORCE_ORDER,
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 executionPlanContext.setEnforceOrder(true);
             }
 
-            annotation=AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
+            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 executionPlanContext.setParallel(true);
+            }
+
+            if (!executionPlanContext.isPlayback() && !executionPlanContext.isEnforceOrder() && !executionPlanContext.isParallel()) {
+                executionPlanContext.setSharedLock(new ReentrantLock());
             }
 
         } catch (DuplicateAnnotationException e) {

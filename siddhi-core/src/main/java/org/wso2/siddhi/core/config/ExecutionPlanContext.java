@@ -15,6 +15,13 @@
 
 package org.wso2.siddhi.core.config;
 
+import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.Lock;
+
 public class ExecutionPlanContext {
 
     private SiddhiContext siddhiContext;
@@ -22,6 +29,14 @@ public class ExecutionPlanContext {
     private boolean playback;
     private boolean enforceOrder;
     private boolean parallel;
+    private ScheduledExecutorService scheduledExecutorService;
+    private List<EternalReferencedHolder> eternalReferencedHolders;
+    private Lock sharedLock =null;
+
+    public ExecutionPlanContext() {
+        this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
+
+    }
 
     public SiddhiContext getSiddhiContext() {
         return siddhiContext;
@@ -61,5 +76,25 @@ public class ExecutionPlanContext {
 
     public void setEnforceOrder(boolean enforceOrder) {
         this.enforceOrder = enforceOrder;
+    }
+
+    public ScheduledExecutorService getScheduledExecutorService() {
+        return scheduledExecutorService;
+    }
+
+    public void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
+        this.scheduledExecutorService = scheduledExecutorService;
+    }
+
+    public void addEternalReferencedHolder(EternalReferencedHolder eternalReferencedHolder) {
+        eternalReferencedHolders.add(eternalReferencedHolder);
+    }
+
+    public Lock getSharedLock() {
+        return sharedLock;
+    }
+
+    public void setSharedLock(Lock sharedLock) {
+        this.sharedLock = sharedLock;
     }
 }
