@@ -20,7 +20,6 @@
 package org.wso2.siddhi.core.query.output.rateLimit;
 
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -34,7 +33,6 @@ public abstract class OutputRateLimiter implements Processor {
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();
     protected OutputCallback outputCallback = null;
     private boolean hasCallBack = false;
-    protected EventManager eventManager;
 
 
     public abstract void send(long timeStamp, StreamEvent currentEvent, StreamEvent expiredEvent);
@@ -75,9 +73,5 @@ public abstract class OutputRateLimiter implements Processor {
 
     public abstract Processor cloneProcessor();
 
-    @Override
-    public void setEventManager(EventManager eventManager) {
-        this.eventManager = eventManager;
-    }
 }
 

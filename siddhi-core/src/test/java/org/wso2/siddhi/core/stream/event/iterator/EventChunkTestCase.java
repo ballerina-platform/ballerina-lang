@@ -22,20 +22,32 @@ package org.wso2.siddhi.core.stream.event.iterator;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventIterator;
+import org.wso2.siddhi.core.event.stream.StreamEventFactory;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.EventManager;
+import org.wso2.siddhi.core.event.stream.converter.PassThroughStreamEventManager;
 
-public class StreamEventIteratorTestCase {
+
+public class EventChunkTestCase {
     private int count;
+    private  EventManager eventManager;
 
     @Before
     public void init() {
         count = 0;
+        StreamEventFactory eventFactory = new StreamEventFactory(0, 0, 2);
+        int defaultPoolSize = 5;
+        StreamEventPool streamEventPool = new StreamEventPool(eventFactory, defaultPoolSize);
+        eventManager = new PassThroughStreamEventManager(streamEventPool) ;
+
+
     }
 
 
     @Test
-    public void StreamEventIteratorTest() {
+    public void EventChunkTest() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
@@ -48,8 +60,9 @@ public class StreamEventIteratorTestCase {
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.assignEvent(streamEvent1);
+        EventChunk iterator = new EventChunk();
+        iterator.setEventManager(eventManager);
+        iterator.assignConvertedEvent(streamEvent1);
 
         while (iterator.hasNext()) {
             count++;
@@ -59,7 +72,7 @@ public class StreamEventIteratorTestCase {
     }
 
     @Test
-    public void StreamEventIteratorRemoveTest1() {
+    public void EventChunkRemoveTest1() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
@@ -72,8 +85,9 @@ public class StreamEventIteratorTestCase {
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.assignEvent(streamEvent1);
+        EventChunk iterator = new EventChunk();
+        iterator.setEventManager(eventManager);
+        iterator.assignConvertedEvent(streamEvent1);
 
         while (iterator.hasNext()) {
             count++;
@@ -86,7 +100,7 @@ public class StreamEventIteratorTestCase {
     }
 
     @Test
-    public void StreamEventIteratorRemoveTest2() {
+    public void EventChunkRemoveTest2() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
@@ -103,8 +117,9 @@ public class StreamEventIteratorTestCase {
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.assignEvent(streamEvent1);
+        EventChunk iterator = new EventChunk();
+        iterator.setEventManager(eventManager);
+        iterator.assignConvertedEvent(streamEvent1);
 
         while (iterator.hasNext()) {
             count++;
@@ -119,7 +134,7 @@ public class StreamEventIteratorTestCase {
     }
 
     @Test
-    public void StreamEventIteratorRemoveTest3() {
+    public void EventChunkRemoveTest3() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
@@ -136,8 +151,9 @@ public class StreamEventIteratorTestCase {
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.assignEvent(streamEvent1);
+        EventChunk iterator = new EventChunk();
+        iterator.setEventManager(eventManager);
+        iterator.assignConvertedEvent(streamEvent1);
 
         while (iterator.hasNext()) {
             iterator.next();
@@ -148,7 +164,7 @@ public class StreamEventIteratorTestCase {
     }
 
     @Test
-    public void StreamEventIteratorRemoveTest4() {
+    public void EventChunkRemoveTest4() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
@@ -165,8 +181,9 @@ public class StreamEventIteratorTestCase {
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.assignEvent(streamEvent1);
+        EventChunk iterator = new EventChunk();
+        iterator.setEventManager(eventManager);
+        iterator.assignConvertedEvent(streamEvent1);
 
         while (iterator.hasNext()) {
             count++;
@@ -182,7 +199,7 @@ public class StreamEventIteratorTestCase {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void StreamEventIteratorRemoveTest5() {
+    public void EventChunkRemoveTest5() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
@@ -191,8 +208,9 @@ public class StreamEventIteratorTestCase {
 
         streamEvent1.setNext(streamEvent2);
 
-        StreamEventIterator iterator = new StreamEventIterator();
-        iterator.assignEvent(streamEvent1);
+        EventChunk iterator = new EventChunk();
+        iterator.setEventManager(eventManager);
+        iterator.assignConvertedEvent(streamEvent1);
 
         iterator.remove();
         iterator.remove();

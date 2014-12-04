@@ -18,6 +18,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventFactory;
@@ -45,7 +46,8 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     }
 
     @Override
-    public void process(StreamEvent event) {
+    public void process(EventChunk eventChunk) {
+        StreamEvent event = eventChunk.getFirst();
         StreamEvent currentEvent;
         StreamEvent head = event;
         while (event != null) {
@@ -59,7 +61,10 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                 count = 0;
             }
         }
-        nextProcessor.process(head);
+        EventChunk headEventChunk = new EventChunk();
+        headEventChunk.setEventManager(eventChunk.getEventManager());
+        headEventChunk.assignConvertedEvent(head);
+        nextProcessor.process(headEventChunk);
     }
 
     /**

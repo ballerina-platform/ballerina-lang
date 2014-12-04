@@ -17,18 +17,111 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event.stream;
+package org.wso2.siddhi.core.event;
+
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventBuffer;
+import org.wso2.siddhi.core.event.stream.converter.EventManager;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class StreamEventIterator implements Iterator<StreamEvent> {
+public class EventChunk implements Iterator<StreamEvent> {
+    private EventManager eventManager;
     StreamEvent previousToLastReturned;
     StreamEvent lastReturned;
     StreamEvent first;
 
     public void assignEvent(StreamEvent streamEvent) {
+        StreamEventBuffer streamEventBuffer = new StreamEventBuffer();
+        while (streamEvent != null) {
+            StreamEvent aStreamEvent = streamEvent;
+            StreamEvent borrowedEvent = eventManager.borrowEvent();
+            eventManager.convertStreamEvent(aStreamEvent, borrowedEvent);
+            streamEventBuffer.addEvent(borrowedEvent);
+            streamEvent = streamEvent.getNext();
+        }
+        first = streamEventBuffer.getFirst();
+    }
+
+
+    public void add(Event event){
+
+        StreamEvent borrowedEvent = eventManager.borrowEvent();
+        eventManager.convertEvent(event, borrowedEvent);
+        if(first==null){
+            first = borrowedEvent;
+        } else if (lastReturned != null){
+            StreamEvent nextToLastReturned = lastReturned.getNext();
+            borrowedEvent.setNext(nextToLastReturned);
+            lastReturned.setNext(borrowedEvent);
+        } else {       //when first!=null
+            borrowedEvent.setNext(first);
+            first = borrowedEvent;
+        }
+    }
+
+    public void add(StreamEvent streamEvent){
+        StreamEvent firstConvertedEvent =null;
+        StreamEvent lastConvertedEvent = null;
+        while (streamEvent!=null){
+            StreamEvent borrowedEvent = eventManager.borrowEvent();
+            eventManager.convertStreamEvent(streamEvent, borrowedEvent);
+            if(firstConvertedEvent ==null){
+                firstConvertedEvent = borrowedEvent;
+                lastConvertedEvent = borrowedEvent;
+            } else {
+                lastConvertedEvent.setNext(borrowedEvent);
+            }
+            streamEvent = streamEvent.getNext();
+        }
+        if(first==null){
+            first = firstConvertedEvent;
+        } else if (lastReturned != null){
+            StreamEvent nextToLastReturned = lastReturned.getNext();
+            lastConvertedEvent.setNext(nextToLastReturned);
+            lastReturned.setNext(firstConvertedEvent);
+        } else {       //when first!=null
+            lastConvertedEvent.setNext(first);
+            first = firstConvertedEvent;
+        }
+    }
+
+    public void assignEvent(Event event) {
+        StreamEvent borrowedEvent = eventManager.borrowEvent();
+        eventManager.convertEvent(event, borrowedEvent);
+        first = borrowedEvent;
+    }
+
+    public void assignEvent(long timeStamp, Object[] data) {
+        StreamEvent borrowedEvent = eventManager.borrowEvent();
+        eventManager.convertData(timeStamp, data, borrowedEvent);
+        first = borrowedEvent;
+    }
+
+    public void assignEvent(Event[] events) {
+        StreamEvent firstEvent = eventManager.borrowEvent();
+        eventManager.convertEvent(events[0], firstEvent);
+        StreamEvent currentEvent = firstEvent;
+        for (int i = 1, eventsLength = events.length; i < eventsLength; i++) {
+            StreamEvent nextEvent = eventManager.borrowEvent();
+            eventManager.convertEvent(events[i], nextEvent);
+            currentEvent.setNext(nextEvent);
+            currentEvent = nextEvent;
+        }
+        first = firstEvent;
+    }
+
+    public void assignConvertedEvent(StreamEvent streamEvent) {
         first = streamEvent;
+    }
+
+    public void setEventManager(EventManager eventManager){
+        this.eventManager = eventManager;
+    }
+
+    public EventManager getEventManager(){
+        return eventManager;
     }
 
     /**
@@ -95,6 +188,7 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
             first = lastReturned.getNext();
         }
         lastReturned.setNext(null);
+        eventManager.returnEvent(lastReturned);
         lastReturned = null;
     }
 
@@ -117,4 +211,10 @@ public class StreamEventIterator implements Iterator<StreamEvent> {
         }
         lastReturned = null;
     }
+
+    public void returnAllAndClear() {
+       eventManager.returnEvent(first);
+        clear();
+    }
+
 }

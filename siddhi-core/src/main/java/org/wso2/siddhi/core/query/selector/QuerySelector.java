@@ -21,9 +21,8 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventIterator;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -50,8 +49,6 @@ public class QuerySelector implements Processor {
     private boolean isGroupBy = false;
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
-    private StreamEventIterator iterator = new StreamEventIterator();
-    private EventManager eventManager;
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiContext siddhiContext) {
         this.id = id;
@@ -67,49 +64,42 @@ public class QuerySelector implements Processor {
     }
 
     @Override
-    public void process(StreamEvent streamEvent) {
+    public void process(EventChunk eventChunk) {
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
-        iterator.assignEvent(streamEvent);
-        try {
-            while (iterator.hasNext()) {       //todo optimize
-                StreamEvent event = iterator.next();
-                if (isGroupBy) {
-                    keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
-                }
-
-                //TODO: have to change for windows
-                for (AttributeProcessor attributeProcessor : attributeProcessorList) {
-                    attributeProcessor.process(event);
-                }
-
-                if (isGroupBy) {
-                    keyThreadLocal.remove();
-                }
+        StreamEvent  event = eventChunk.getFirst();
+        while (event!=null) {       //todo optimize
+            if (isGroupBy) {
+                keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
             }
-        } finally {
-            iterator.clear();
+
+            //TODO: have to change for windows
+            for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                attributeProcessor.process(event);
+            }
+
+            if (isGroupBy) {
+                keyThreadLocal.remove();
+            }
+            event = event.getNext();
         }
 
+
         if (havingConditionExecutor == null) {
+            StreamEvent streamEvent = eventChunk.getFirst();
             outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
         } else {
-            iterator.assignEvent(streamEvent);
-            try {
-                while (iterator.hasNext()) {
-                    StreamEvent event = iterator.next();
-                    if (!havingConditionExecutor.execute(event)) {
-                        iterator.remove();
-//                        eventManager.returnEvent(event);  todo use this after fixing join cases
-                    }
+            while (eventChunk.hasNext()) {
+                StreamEvent streamEvent = eventChunk.next();
+                if (!havingConditionExecutor.execute(streamEvent)) {
+                    eventChunk.remove();
+//                        eventManager.returnAllAndClear(event);  todo use this after fixing join cases
                 }
-                StreamEvent returnEvent = iterator.getFirst();
-                if (returnEvent != null) {
-                    outputRateLimiter.send(returnEvent.getTimestamp(), returnEvent, null);
-                }
-            } finally {
-                iterator.clear();
+            }
+            StreamEvent returnEvent = eventChunk.getFirst();
+            if (returnEvent != null) {
+                outputRateLimiter.send(returnEvent.getTimestamp(), returnEvent, null);
             }
         }
 
@@ -140,11 +130,6 @@ public class QuerySelector implements Processor {
     @Override
     public Processor cloneProcessor() {
         return null;
-    }
-
-    @Override
-    public void setEventManager(EventManager eventManager) {
-        this.eventManager = eventManager;
     }
 
     public List<AttributeProcessor> getAttributeProcessorList() {

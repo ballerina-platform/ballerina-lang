@@ -20,9 +20,8 @@
 package org.wso2.siddhi.core.stream;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventBuffer;
-import org.wso2.siddhi.core.event.stream.StreamEventIterator;
 import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -30,11 +29,9 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     private String streamId;
-    private EventManager eventManager;
     private Processor processorChain;
     private Processor next;
-    private StreamEventIterator streamEventIterator = new StreamEventIterator();
-    private StreamEventBuffer streamEventBuffer = new StreamEventBuffer();
+    private EventChunk eventChunk = new EventChunk();
 
 
     public QueryStreamReceiver(StreamDefinition streamDefinition) {
@@ -52,74 +49,46 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     public QueryStreamReceiver clone(String key) {
         QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId + key);
-        clonedQueryStreamReceiver.setEventManager(eventManager);
+        clonedQueryStreamReceiver.setEventManager(eventChunk.getEventManager());
         return clonedQueryStreamReceiver;
     }
 
     @Override
     public void receive(StreamEvent streamEvent) {
-
-        if (streamEvent.getNext() == null) {
-            StreamEvent borrowedEvent = eventManager.borrowEvent();
-            eventManager.convertStreamEvent(streamEvent, borrowedEvent);
-            next.process(borrowedEvent);
-            eventManager.returnEvent(borrowedEvent);
-        } else {
-            streamEventIterator.assignEvent(streamEvent);
-            while (streamEventIterator.hasNext()) {
-                StreamEvent aStreamEvent = streamEventIterator.next();
-                StreamEvent borrowedEvent = eventManager.borrowEvent();
-                eventManager.convertStreamEvent(aStreamEvent, borrowedEvent);
-                streamEventBuffer.addEvent(borrowedEvent);
-            }
-            next.process(streamEventBuffer.getFirst());
-            streamEventIterator.clear();
-            eventManager.returnEvent(streamEventBuffer.getFirstAndClear());
-        }
+        eventChunk.assignEvent(streamEvent);
+        processAndClear();
     }
 
     @Override
     public void receive(Event event) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(event, borrowedEvent);
-        next.process(borrowedEvent);
-        eventManager.returnEvent(borrowedEvent);
+        eventChunk.assignEvent(event);
+        processAndClear();
     }
 
     @Override
     public void receive(Event[] events) {
-        StreamEvent firstEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(events[0], firstEvent);
-        StreamEvent currentEvent = firstEvent;
-        for (int i = 1, eventsLength = events.length; i < eventsLength; i++) {
-            StreamEvent nextEvent = eventManager.borrowEvent();
-            eventManager.convertEvent(events[i], nextEvent);
-            currentEvent.setNext(nextEvent);
-            currentEvent = nextEvent;
-        }
-        next.process(firstEvent);
-        eventManager.returnEvent(firstEvent);
+        eventChunk.assignEvent(events);
+        processAndClear();
     }
 
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertEvent(event, borrowedEvent);
-
-        streamEventBuffer.addEvent(borrowedEvent);
+        eventChunk.add(event);
         if (endOfBatch) {
-            next.process(streamEventBuffer.getFirst());
-            eventManager.returnEvent(streamEventBuffer.getFirstAndClear());
+            processAndClear();
         }
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        StreamEvent borrowedEvent = eventManager.borrowEvent();
-        eventManager.convertData(timeStamp, data, borrowedEvent);
-        next.process(borrowedEvent);
-        eventManager.returnEvent(borrowedEvent);
+        eventChunk.assignEvent(timeStamp,data);
+        processAndClear();
+    }
+
+    private void processAndClear(){
+        next.process(eventChunk);
+        eventChunk.returnAllAndClear();
     }
 
     public Processor getProcessorChain() {
@@ -131,7 +100,7 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     }
 
     public void setEventManager(EventManager eventManager) {
-        this.eventManager = eventManager;
+        this.eventChunk.setEventManager(eventManager);
     }
 
     public void setNext(Processor next) {

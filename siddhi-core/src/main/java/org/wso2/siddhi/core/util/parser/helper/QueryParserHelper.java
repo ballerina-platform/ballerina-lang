@@ -125,7 +125,6 @@ public class QueryParserHelper {
             ((SingleStreamRuntime) runtime).getQueryStreamReceiver().setEventManager(eventManager);
             Processor processor = ((SingleStreamRuntime) runtime).getProcessorChain();
             while (processor != null) {
-                processor.setEventManager(eventManager);
                 if (processor instanceof WindowProcessor) {
                     ((WindowProcessor) processor).init(metaStreamEvent);
                 }

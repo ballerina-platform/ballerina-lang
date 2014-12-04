@@ -19,17 +19,16 @@
 
 package org.wso2.siddhi.core.query.processor;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
+import org.wso2.siddhi.core.event.EventChunk;
 
 public interface Processor {
 
     /**
      * Process the handed StreamEvent
      *
-     * @param event event to be processed
+     * @param eventChunk event chunk to be processed
      */
-    public void process(StreamEvent event);
+    public void process(EventChunk eventChunk);
 
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
@@ -58,5 +57,4 @@ public interface Processor {
      */
     public Processor cloneProcessor();
 
-    void setEventManager(EventManager eventManager);
 }

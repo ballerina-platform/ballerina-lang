@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -27,7 +26,6 @@ public abstract class WindowProcessor implements Processor {
 
     protected Processor nextProcessor;
     protected Expression[] parameters;
-    private EventManager eventManager;
 
     /**
      * Initialization method for window processors. Should set parameters accordingly and configure processor
@@ -59,8 +57,4 @@ public abstract class WindowProcessor implements Processor {
 
     public abstract Processor cloneProcessor();
 
-    @Override
-    public void setEventManager(EventManager eventManager) {
-        this.eventManager = eventManager;
-    }
 }

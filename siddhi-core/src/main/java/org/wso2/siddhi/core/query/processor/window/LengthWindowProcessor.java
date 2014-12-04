@@ -18,6 +18,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventFactory;
@@ -43,7 +44,8 @@ public class LengthWindowProcessor extends WindowProcessor {
     }
 
     @Override
-    public void process(StreamEvent event) {
+    public void process(EventChunk eventChunk) {
+        StreamEvent event = eventChunk.getFirst();
         StreamEvent head = event;           //head of in events
         StreamEvent expiredEventTail;
         StreamEvent expiredEventHead;
@@ -62,10 +64,17 @@ public class LengthWindowProcessor extends WindowProcessor {
             removeEventHead = expiredEventTail.getNext();
             expiredEventTail.setNext(null);
             addToLast(head, expiredEventHead);
-            nextProcessor.process(head);                            //emit in events and remove events as expired events
+
+            EventChunk headEventChunk = new EventChunk();
+            headEventChunk.setEventManager(eventChunk.getEventManager());
+            headEventChunk.assignEvent(head);
+            nextProcessor.process(headEventChunk);                            //emit in events and remove events as expired events
             count = count - diff;
         } else {
-            nextProcessor.process(head);                            //emit only in events as window is not expired
+            EventChunk headEventChunk = new EventChunk();
+            headEventChunk.setEventManager(eventChunk.getEventManager());
+            headEventChunk.assignEvent(head);
+            nextProcessor.process(headEventChunk);                            //emit only in events as window is not expired
         }
     }
 
