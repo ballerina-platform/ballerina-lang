@@ -59,6 +59,7 @@ public class SimpleFilterMultipleQueryWithDisruptorPerformance {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         InputHandler inputHandler2 = executionPlanRuntime.getInputHandler("cseEventStream2");
+        executionPlanRuntime.start();
         while (true) {
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100});

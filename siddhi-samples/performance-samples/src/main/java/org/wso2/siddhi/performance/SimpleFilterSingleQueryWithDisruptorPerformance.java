@@ -57,6 +57,7 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
         }
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
         while (true) {
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100});
