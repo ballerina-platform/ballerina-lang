@@ -44,12 +44,13 @@ public class LengthWindowProcessor extends WindowProcessor {
 
     @Override
     public void process(EventChunk eventChunk) {
-//        expiredEventChunk.assignEvent();
+//        expiredEventChunk.assign();
         while (eventChunk.hasNext()) {
             StreamEvent event = eventChunk.next();
             if (count > length) {
 
             }else {
+//                expiredEventChunk.add();
               //  expiredEventChunk.add(event,true);
             }
 
@@ -76,13 +77,13 @@ public class LengthWindowProcessor extends WindowProcessor {
 
             EventChunk headEventChunk = new EventChunk(null);
 //            headEventChunk.setEventConverter(expiredEventChunk.getEventConverter());
-            headEventChunk.assignEvent(head);
+            headEventChunk.assign(head);
             nextProcessor.process(headEventChunk);                            //emit in events and remove events as expired events
             count = count - diff;
         } else {
             EventChunk headEventChunk = new EventChunk(null);
 //            headEventChunk.setEventConverter(expiredEventChunk.getEventConverter());
-            headEventChunk.assignEvent(head);
+            headEventChunk.assign(head);
             nextProcessor.process(headEventChunk);                            //emit only in events as window is not expired
         }
     }

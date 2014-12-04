@@ -94,7 +94,7 @@ public class QuerySelector implements Processor {
                 StreamEvent streamEvent = eventChunk.next();
                 if (!havingConditionExecutor.execute(streamEvent)) {
                     eventChunk.remove();
-//                        eventManager.returnAllAndClear(event);  todo use this after fixing join cases
+//                        eventManager.clear(event);  todo use this after fixing join cases
                 }
             }
             StreamEvent returnEvent = eventChunk.getFirst();

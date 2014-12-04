@@ -31,59 +31,55 @@ import org.wso2.siddhi.core.event.stream.converter.PassThroughStreamEventConvert
 public class EventChunkTestCase {
     private int count;
     private EventConverter eventConverter;
-    private int beforeWindowDataSize;
-    private int onAfterWindowDataSize;
-    private int outputDataSize;
 
     @Before
     public void init() {
         count = 0;
         eventConverter = new PassThroughStreamEventConverter();
-
-
     }
 
 
     @Test
     public void EventChunkTest() {
-        StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
+        StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
+        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 1l});
 
-        StreamEvent streamEvent2 = new StreamEvent(0, 0, 2);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 2l});
 
-        StreamEvent streamEvent3 = new StreamEvent(0, 0, 2);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 3l});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
-        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
-        eventChunk.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(0, 0, 3, eventConverter);
+        eventChunk.assign(streamEvent1);
 
         while (eventChunk.hasNext()) {
             count++;
-            eventChunk.next();
+            StreamEvent event = eventChunk.next();
+            Assert.assertEquals(count * 1l, event.getOutputData()[2]);
         }
         Assert.assertEquals(3, count);
     }
 
     @Test
     public void EventChunkRemoveTest1() {
-        StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
+        StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
+        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 1l});
 
-        StreamEvent streamEvent2 = new StreamEvent(0, 0, 2);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 2l});
 
-        StreamEvent streamEvent3 = new StreamEvent(0, 0, 2);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 3l});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
-        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
-        eventChunk.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(0, 0, 3, eventConverter);
+        eventChunk.assign(streamEvent1);
 
         while (eventChunk.hasNext()) {
             count++;
@@ -97,24 +93,24 @@ public class EventChunkTestCase {
 
     @Test
     public void EventChunkRemoveTest2() {
-        StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
+        StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
+        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 1l});
 
-        StreamEvent streamEvent2 = new StreamEvent(0, 0, 2);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 2l});
 
-        StreamEvent streamEvent3 = new StreamEvent(0, 0, 2);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 3l});
 
-        StreamEvent streamEvent4 = new StreamEvent(0, 0, 2);
-        streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        StreamEvent streamEvent4 = new StreamEvent(0, 0, 3);
+        streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 4l});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
-        eventChunk.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(0, 0, 3, eventConverter);
+        eventChunk.assign(streamEvent1);
 
         while (eventChunk.hasNext()) {
             count++;
@@ -130,24 +126,24 @@ public class EventChunkTestCase {
 
     @Test
     public void EventChunkRemoveTest3() {
-        StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
-        StreamEvent streamEvent2 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
         streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
-        StreamEvent streamEvent3 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
         streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
-        StreamEvent streamEvent4 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent4 = new StreamEvent(0, 0, 3);
         streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
-        eventChunk.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(0, 0, 3, eventConverter);
+        eventChunk.assign(streamEvent1);
 
         while (eventChunk.hasNext()) {
             eventChunk.next();
@@ -159,24 +155,24 @@ public class EventChunkTestCase {
 
     @Test
     public void EventChunkRemoveTest4() {
-        StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
-        StreamEvent streamEvent2 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
         streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
-        StreamEvent streamEvent3 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
         streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
-        StreamEvent streamEvent4 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent4 = new StreamEvent(0, 0, 3);
         streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
-        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
-        eventChunk.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(0, 0, 3, eventConverter);
+        eventChunk.assign(streamEvent1);
 
         while (eventChunk.hasNext()) {
             count++;
@@ -193,16 +189,16 @@ public class EventChunkTestCase {
 
     @Test(expected = IllegalStateException.class)
     public void EventChunkRemoveTest5() {
-        StreamEvent streamEvent1 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
         streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
 
-        StreamEvent streamEvent2 = new StreamEvent(0, 0, 2);
+        StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
         streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
 
         streamEvent1.setNext(streamEvent2);
 
-        EventChunk eventChunk = new EventChunk(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, eventConverter);
-        eventChunk.assignConvertedEvent(streamEvent1);
+        EventChunk eventChunk = new EventChunk(0, 0, 3, eventConverter);
+        eventChunk.assign(streamEvent1);
 
         eventChunk.remove();
         eventChunk.remove();

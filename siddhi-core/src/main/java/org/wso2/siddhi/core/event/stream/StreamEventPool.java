@@ -63,7 +63,7 @@ public class StreamEventPool {
      *
      * @param streamEvent used event
      */
-    public void returnEvent(StreamEvent streamEvent) {
+    public void returnEvents(StreamEvent streamEvent) {
         if (streamEvent != null) {
             if (index < size) {
                 StreamEvent first = streamEvent;

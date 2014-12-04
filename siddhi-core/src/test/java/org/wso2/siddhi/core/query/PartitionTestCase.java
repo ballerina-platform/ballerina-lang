@@ -64,7 +64,7 @@ public class PartitionTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
-        StreamCallback streamCallback =new StreamCallback() {
+        StreamCallback streamCallback = new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -883,18 +883,17 @@ public class PartitionTestCase {
                                         Expression.value(200),
                                         Compare.Operator.LESS_THAN_EQUAL,
                                         Expression.variable("volume"))
-                        )) ;
+                        ));
 
         Query query = Query.query();
         query.from(InputStream.stream("cseEventStream"));
 
         query.select(
                 Selector.selector().
-                        select("sumvolume", Expression.function("sum",Expression.variable("volume")))
+                        select("sumvolume", Expression.function("sum", Expression.variable("volume")))
 
         );
         query.insertInto("StockStream");
-
 
 
         partition.addQuery(query);
@@ -962,7 +961,7 @@ public class PartitionTestCase {
                     Assert.assertEquals(7005.60009765625, events[0].getData()[1]);
                 } else if (count == 3) {
                     Assert.assertEquals(75.0, events[0].getData()[1]);
-                }  else if (count == 4) {
+                } else if (count == 4) {
                     Assert.assertEquals(100.0, events[0].getData()[1]);
                 }
             }
@@ -1006,12 +1005,12 @@ public class PartitionTestCase {
                     Assert.assertEquals(25.0, events[0].getData()[1]);
                 } else if (count == 3) {
                     Assert.assertEquals(7005.60009765625, events[0].getData()[1]);
-                }  else if (count == 4) {
+                } else if (count == 4) {
                     Assert.assertEquals(75.0, events[0].getData()[1]);
                 } else if (count == 5) {
-                Assert.assertEquals(100.0, events[0].getData()[1]);
-                }  else if (count == 6) {
-                Assert.assertEquals(50.0, events[0].getData()[1]);
+                    Assert.assertEquals(100.0, events[0].getData()[1]);
+                } else if (count == 6) {
+                    Assert.assertEquals(50.0, events[0].getData()[1]);
                 }
             }
         });

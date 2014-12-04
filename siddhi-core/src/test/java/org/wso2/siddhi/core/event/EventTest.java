@@ -78,7 +78,7 @@ public class EventTest {
         Assert.assertEquals(0, streamEventPool.getBufferedEventsSize());
 
         for (int i = 0; i < 5; i++) {
-            streamEventPool.returnEvent(streamEvents[i]);
+            streamEventPool.returnEvents(streamEvents[i]);
         }
         Assert.assertEquals(4, streamEventPool.getBufferedEventsSize());
 

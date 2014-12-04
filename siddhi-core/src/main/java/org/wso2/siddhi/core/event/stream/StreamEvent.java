@@ -20,6 +20,8 @@ package org.wso2.siddhi.core.event.stream;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 
+import java.util.Arrays;
+
 /**
  * Standard processing event inside Siddhi. StreamEvent will be created
  * from StreamEvent before sending to relevant Queries.
@@ -27,10 +29,10 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 public class StreamEvent implements ComplexEvent {
 
     protected long timestamp = -1;
-    protected Object[] outputData;              //Attributes to sent as output
-    protected boolean isExpired = false;
     private Object[] beforeWindowData;          //Attributes before window execution
     private Object[] onAfterWindowData;         //Attributes on and after window execution
+    protected Object[] outputData;              //Attributes to sent as output
+    protected boolean isExpired = false;
     private StreamEvent next;
 
     public StreamEvent(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize) {
@@ -131,4 +133,45 @@ public class StreamEvent implements ComplexEvent {
         this.beforeWindowData[index] = object;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StreamEvent)) return false;
+
+        StreamEvent event = (StreamEvent) o;
+
+        if (isExpired != event.isExpired) return false;
+        if (timestamp != event.timestamp) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(beforeWindowData, event.beforeWindowData)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(onAfterWindowData, event.onAfterWindowData)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(outputData, event.outputData)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (beforeWindowData != null ? Arrays.hashCode(beforeWindowData) : 0);
+        result = 31 * result + (onAfterWindowData != null ? Arrays.hashCode(onAfterWindowData) : 0);
+        result = 31 * result + (outputData != null ? Arrays.hashCode(outputData) : 0);
+        result = 31 * result + (isExpired ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("StreamEvent{");
+        sb.append("timestamp=").append(timestamp);
+        sb.append(", beforeWindowData=").append(beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData).toString());
+        sb.append(", onAfterWindowData=").append(onAfterWindowData == null ? "null" : Arrays.asList(onAfterWindowData).toString());
+        sb.append(", outputData=").append(outputData == null ? "null" : Arrays.asList(outputData).toString());
+        sb.append(", isExpired=").append(isExpired);
+        sb.append(", next=").append(next);
+        sb.append('}');
+        return sb.toString();
+    }
 }

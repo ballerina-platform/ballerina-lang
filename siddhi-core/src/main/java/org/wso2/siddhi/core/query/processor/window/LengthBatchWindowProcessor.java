@@ -63,7 +63,7 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
         }
         EventChunk headEventChunk = new EventChunk(null);
 //        headEventChunk.setEventConverter(eventChunk.getEventConverter());
-        headEventChunk.assignConvertedEvent(head);
+//        headEventChunk.assignConvertedEvents(head);
         nextProcessor.process(headEventChunk);
     }
 

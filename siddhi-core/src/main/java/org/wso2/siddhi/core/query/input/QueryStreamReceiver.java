@@ -57,26 +57,26 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        eventChunk.assignEvent(streamEvent);
+        eventChunk.assign(streamEvent);
         processAndClear();
     }
 
     @Override
     public void receive(Event event) {
-        eventChunk.assignEvent(event);
+        eventChunk.assign(event);
         processAndClear();
     }
 
     @Override
     public void receive(Event[] events) {
-        eventChunk.assignEvent(events);
+        eventChunk.assign(events);
         processAndClear();
     }
 
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        eventChunk.insert(event);
+        eventChunk.insertBeforeCurrent(event);
         if (endOfBatch) {
             processAndClear();
         }
@@ -84,13 +84,13 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        eventChunk.assignEvent(timeStamp, data);
+        eventChunk.assign(timeStamp, data);
         processAndClear();
     }
 
     private void processAndClear() {
         next.process(eventChunk);
-        eventChunk.returnAllAndClear();
+        eventChunk.clear();
     }
 
     public Processor getProcessorChain() {

@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.event;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventBuffer;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.EventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
@@ -31,18 +30,21 @@ import java.util.NoSuchElementException;
 
 public class EventChunk implements Iterator<StreamEvent> {
 
-    private EventConverter eventConverter;
+    private StreamEvent first;
+    //    private StreamEvent current;
     private StreamEvent previousToLastReturned;
     private StreamEvent lastReturned;
-    private StreamEvent first;
+    private StreamEvent last;
+
+    private EventConverter eventConverter;
     private StreamEventPool streamEventPool;
 
     public EventChunk(MetaStreamEvent metaStreamEvent) {
         streamEventPool = new StreamEventPool(metaStreamEvent, 5);
-        eventConverter= StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
+        eventConverter = StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
     }
 
-    public EventChunk(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize,EventConverter eventConverter) {
+    public EventChunk(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize, EventConverter eventConverter) {
         this.eventConverter = eventConverter;
         streamEventPool = new StreamEventPool(beforeWindowDataSize, onAfterWindowDataSize, outputDataSize, 5);
     }
@@ -52,102 +54,26 @@ public class EventChunk implements Iterator<StreamEvent> {
         this.eventConverter = eventConverter;
     }
 
-    public void assignEvent(StreamEvent streamEvent) {
-        StreamEventBuffer streamEventBuffer = new StreamEventBuffer();
-        while (streamEvent != null) {
-            StreamEvent aStreamEvent = streamEvent;
-            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(aStreamEvent, borrowedEvent);
-            streamEventBuffer.addEvent(borrowedEvent);
-            streamEvent = streamEvent.getNext();
-        }
-        first = streamEventBuffer.getFirst();
-    }
-
-
-    public void insert(Event event){
-
-        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        eventConverter.convertEvent(event, borrowedEvent);
-        if (first == null) {
-            first = borrowedEvent;
-        } else if (lastReturned != null) {
-            StreamEvent nextToLastReturned = lastReturned.getNext();
-            borrowedEvent.setNext(nextToLastReturned);
-            lastReturned.setNext(borrowedEvent);
-        } else {       //when first!=null
-            borrowedEvent.setNext(first);
-            first = borrowedEvent;
-        }
-    }
-
-    public void insert(StreamEvent streamEvent){
-        StreamEvent firstConvertedEvent =null;
-        StreamEvent lastConvertedEvent = null;
-        while (streamEvent != null) {
-            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(streamEvent, borrowedEvent);
-            if (firstConvertedEvent == null) {
-                firstConvertedEvent = borrowedEvent;
-                lastConvertedEvent = borrowedEvent;
-            } else {
-                lastConvertedEvent.setNext(borrowedEvent);
-            }
-            streamEvent = streamEvent.getNext();
-        }
-        if(firstConvertedEvent!=null){
-            if(first==null){
-                first = firstConvertedEvent;
-            } else if (lastReturned != null){
-                StreamEvent nextToLastReturned = lastReturned.getNext();
-                lastConvertedEvent.setNext(nextToLastReturned);
-                lastReturned.setNext(firstConvertedEvent);
-            } else {       //when first!=null
-                lastConvertedEvent.setNext(first);
-                first = firstConvertedEvent;
-            }
-        }
-    }
-
-    public void add(StreamEvent streamEvent){
-        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        eventConverter.convertStreamEvent(streamEvent, borrowedEvent);
-        if(lastReturned!=null){
-            StreamEvent lastEvent = lastReturned;
-            StreamEvent even= null;
-            while (lastEvent!=null){
-                even = lastEvent;
-                lastEvent = lastEvent.getNext();
-            }
-            even.setNext(borrowedEvent);
-        }else if(previousToLastReturned!=null){
-            previousToLastReturned.setNext(borrowedEvent);
-        }  else if (first != null){
-            StreamEvent lastEvent = first;
-            StreamEvent even= null;
-            while (lastEvent!=null){
-                even = lastEvent;
-                lastEvent = lastEvent.getNext();
-            }
-            even.setNext(borrowedEvent);
-        } else {
-            assignEvent(borrowedEvent);
-        }
-    }
-
-    public void assignEvent(Event event) {
+    public void assign(Event event) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         eventConverter.convertEvent(event, borrowedEvent);
         first = borrowedEvent;
+        last = first;
     }
 
-    public void assignEvent(long timeStamp, Object[] data) {
+    public void assign(long timeStamp, Object[] data) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         eventConverter.convertData(timeStamp, data, borrowedEvent);
         first = borrowedEvent;
+        last = first;
     }
 
-    public void assignEvent(Event[] events) {
+    public void assign(StreamEvent streamEvents) {
+        first = streamEventPool.borrowEvent();
+        last = convertAllStreamEvents(streamEvents, first);
+    }
+
+    public void assign(Event[] events) {
         StreamEvent firstEvent = streamEventPool.borrowEvent();
         eventConverter.convertEvent(events[0], firstEvent);
         StreamEvent currentEvent = firstEvent;
@@ -158,10 +84,105 @@ public class EventChunk implements Iterator<StreamEvent> {
             currentEvent = nextEvent;
         }
         first = firstEvent;
+        last = currentEvent;
     }
 
-    public void assignConvertedEvent(StreamEvent streamEvent) {
-        first = streamEvent;
+    public void insertBeforeCurrent(Event event) {
+
+        if (lastReturned == null) {
+            throw new IllegalStateException();
+        }
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertEvent(event, borrowedEvent);
+
+        if (previousToLastReturned != null) {
+            previousToLastReturned.setNext(borrowedEvent);
+        } else {
+            first = borrowedEvent;
+        }
+
+        borrowedEvent.setNext(lastReturned);
+    }
+
+    public void insertAfterCurrent(Event event) {
+
+        if (lastReturned == null) {
+            throw new IllegalStateException();
+        }
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertEvent(event, borrowedEvent);
+
+        StreamEvent nextEvent = lastReturned.getNext();
+        lastReturned.setNext(borrowedEvent);
+        borrowedEvent.setNext(nextEvent);
+
+    }
+
+    public void insertBeforeCurrent(StreamEvent streamEvents) {
+
+        if (lastReturned == null) {
+            throw new IllegalStateException();
+        }
+
+        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        StreamEvent currentEvent = convertAllStreamEvents(streamEvents, firstEvent);
+
+        if (previousToLastReturned != null) {
+            previousToLastReturned.setNext(firstEvent);
+        } else {
+            first = firstEvent;
+        }
+
+        currentEvent.setNext(lastReturned);
+    }
+
+    public void insertAfterCurrent(StreamEvent streamEvents) {
+
+        if (lastReturned == null) {
+            throw new IllegalStateException();
+        }
+
+        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        StreamEvent currentEvent = convertAllStreamEvents(streamEvents, firstEvent);
+
+        StreamEvent nextEvent = lastReturned.getNext();
+        lastReturned.setNext(firstEvent);
+        currentEvent.setNext(nextEvent);
+
+    }
+
+    public void add(StreamEvent streamEvents) {
+
+        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        StreamEvent currentEvent = convertAllStreamEvents(streamEvents, firstEvent);
+
+        last.setNext(firstEvent);
+        last = currentEvent;
+
+    }
+
+    public void add(Event event) {
+
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        eventConverter.convertEvent(event, borrowedEvent);
+
+        last.setNext(borrowedEvent);
+        last = borrowedEvent;
+
+    }
+
+    private StreamEvent convertAllStreamEvents(StreamEvent streamEvents, StreamEvent firstEvent) {
+        eventConverter.convertStreamEvent(streamEvents, firstEvent);
+        StreamEvent currentEvent = firstEvent;
+        streamEvents = streamEvents.getNext();
+        while (streamEvents != null) {
+            StreamEvent nextEvent = streamEventPool.borrowEvent();
+            eventConverter.convertStreamEvent(streamEvents, nextEvent);
+            currentEvent.setNext(nextEvent);
+            currentEvent = nextEvent;
+            streamEvents = streamEvents.getNext();
+        }
+        return currentEvent;
     }
 
     /**
@@ -228,18 +249,8 @@ public class EventChunk implements Iterator<StreamEvent> {
             first = lastReturned.getNext();
         }
         lastReturned.setNext(null);
-        streamEventPool.returnEvent(lastReturned);
+        streamEventPool.returnEvents(lastReturned);
         lastReturned = null;
-    }
-
-    public StreamEvent getFirst() {
-        return first;
-    }
-
-    public void clear() {
-        previousToLastReturned = null;
-        lastReturned = null;
-        first = null;
     }
 
     public void detach() {
@@ -248,18 +259,41 @@ public class EventChunk implements Iterator<StreamEvent> {
         }
         if (previousToLastReturned != null) {
             previousToLastReturned.setNext(null);
-        } else{
+        } else {
             clear();
         }
         lastReturned = null;
     }
 
-    public void returnAllAndClear() {
-        streamEventPool.returnEvent(first);
-        clear();
+    public StreamEvent detachAllBeforeCurrent() {
+
+        if (lastReturned == null) {
+            throw new IllegalStateException();
+        }
+
+        StreamEvent firstEvent = null;
+        if (previousToLastReturned != null) {
+            previousToLastReturned.setNext(null);
+            firstEvent = first;
+            first = lastReturned;
+            previousToLastReturned = null;
+        }
+        return firstEvent;
     }
 
-    public void addEvent(StreamEvent streamEvent, boolean setAsExpired) {
-
+    public void clear() {
+        streamEventPool.returnEvents(first);
+        previousToLastReturned = null;
+        lastReturned = null;
+        first = null;
     }
+
+    public StreamEvent getFirst() {
+        return first;
+    }
+
+    public StreamEvent getLast() {
+        return last;
+    }
+
 }
