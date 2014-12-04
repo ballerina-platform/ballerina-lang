@@ -19,6 +19,7 @@
 
 package org.wso2.siddhi.core;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
@@ -30,6 +31,7 @@ import java.util.concurrent.*;
 
 public class SiddhiManager {
 
+    private static final Logger log = Logger.getLogger(SiddhiManager.class);
     private SiddhiContext siddhiContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = new ConcurrentHashMap<String, ExecutionPlanRuntime>();
 

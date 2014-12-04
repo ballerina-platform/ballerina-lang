@@ -17,13 +17,14 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream;
+package org.wso2.siddhi.core.query.input;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.converter.EventManager;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class QueryStreamReceiver implements StreamJunction.Receiver {

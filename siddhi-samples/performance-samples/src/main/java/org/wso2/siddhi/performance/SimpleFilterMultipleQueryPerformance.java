@@ -38,14 +38,20 @@ public class SimpleFilterMultipleQueryPerformance {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query1 + query2);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            private long chunk = 0;
+            private long prevCount = 0;
+
             @Override
             public void receive(Event[] inEvents) {
-                count++;
-                if (count % 2000000 == 0) {
+                count += inEvents.length;
+                long currentChunk = count / 2000000;
+                if (currentChunk != chunk) {
                     long end = System.currentTimeMillis();
-                    double tp = (2000000 * 1000.0 / (end - start));
+                    double tp = ((count - prevCount) * 1000.0 / (end - start));
                     System.out.println("Throughput = " + tp + " Event/sec");
                     start = end;
+                    chunk = currentChunk;
+                    prevCount = count;
                 }
             }
 

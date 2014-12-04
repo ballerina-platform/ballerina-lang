@@ -22,10 +22,10 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
-import org.wso2.siddhi.core.stream.QueryStreamReceiver;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -51,12 +51,12 @@ public class SingleInputStreamParser {
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, SiddhiContext context,
                                                        MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
         Processor processor = null;
-        int i = 0;
+        boolean first = true;
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                if (i == 0) {
+                if (first) {
                     processor = generateProcessor(handler, context, metaStreamEvent, executors);
-                    i++;
+                    first = false;
                 } else {
                     processor.setToLast(generateProcessor(handler, context, metaStreamEvent, executors));
                 }

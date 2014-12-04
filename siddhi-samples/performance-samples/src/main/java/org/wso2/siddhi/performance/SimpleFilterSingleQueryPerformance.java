@@ -36,14 +36,20 @@ public class SimpleFilterSingleQueryPerformance {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            private long chunk = 0;
+            private long prevCount = 0;
+
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
-                if (count % 10000000 == 0) {
+                count += inEvents.length;
+                long currentChunk = count / 2000000;
+                if (currentChunk != chunk) {
                     long end = System.currentTimeMillis();
-                    double tp = (10000000 * 1000.0 / (end - start));
+                    double tp = ((count - prevCount) * 1000.0 / (end - start));
                     System.out.println("Throughput = " + tp + " Event/sec");
                     start = end;
+                    chunk = currentChunk;
+                    prevCount = count;
                 }
             }
 
@@ -64,5 +70,6 @@ public class SimpleFilterSingleQueryPerformance {
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         }
+
     }
 }

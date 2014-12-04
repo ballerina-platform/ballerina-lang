@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.stream.runtime;
 
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.stream.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
 public class SingleStreamRuntime implements StreamRuntime {
