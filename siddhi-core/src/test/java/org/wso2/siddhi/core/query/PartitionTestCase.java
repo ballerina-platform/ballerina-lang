@@ -980,4 +980,53 @@ public class PartitionTestCase {
 
     }
 
+    @Test
+    public void testPartitionQuery19() throws InterruptedException {
+        log.info("Partition test19");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+                + "@config(async = 'true')define stream cseEventStreamOne (symbol string, price float,volume int);"
+                + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
+                + "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of cseEventStream) begin @info(name = 'query1') from cseEventStream select symbol,sum(price) as price insert into OutStockStream ;  end ";
+
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+
+        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count = count + events.length;
+                eventArrived = true;
+                if (count == 1) {
+                    Assert.assertEquals(25.0, events[0].getData()[1]);
+                } else if (count == 2) {
+                    Assert.assertEquals(25.0, events[0].getData()[1]);
+                } else if (count == 3) {
+                    Assert.assertEquals(7005.60009765625, events[0].getData()[1]);
+                }  else if (count == 4) {
+                    Assert.assertEquals(75.0, events[0].getData()[1]);
+                } else if (count == 5) {
+                Assert.assertEquals(100.0, events[0].getData()[1]);
+                }  else if (count == 6) {
+                Assert.assertEquals(50.0, events[0].getData()[1]);
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStreamOne");
+        executionRuntime.start();
+
+        inputHandler.send(new Object[]{"IBM", 25f, 100});
+        inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
+        inputHandler.send(new Object[]{"IBM", 50f, 100});
+        inputHandler.send(new Object[]{"ORACLE", 25f, 100});
+        Thread.sleep(1000);
+        Assert.assertEquals(6, count);
+        executionRuntime.shutdown();
+
+    }
+
 }
