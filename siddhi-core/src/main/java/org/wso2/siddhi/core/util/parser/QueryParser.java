@@ -63,7 +63,7 @@ public class QueryParser {
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
             QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
-            QueryParserHelper.addEventManagers(streamRuntime, metaStateEvent);
+            QueryParserHelper.initStreamRuntime(streamRuntime, metaStateEvent);
 
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
             validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);

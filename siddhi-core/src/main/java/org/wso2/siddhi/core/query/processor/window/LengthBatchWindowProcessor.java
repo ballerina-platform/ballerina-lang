@@ -18,10 +18,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
-import org.wso2.siddhi.core.event.EventChunk;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventFactory;
+import org.wso2.siddhi.core.event.stream.*;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
@@ -29,25 +26,34 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
+    private StreamEventChunk expiredEventChunk=new StreamEventChunk();
     private StreamEvent removeEventHead = null;
     private StreamEvent removeEventTail = null;
     StreamEventFactory removeEventFactory;
     private MetaStreamEvent metaStreamEvent;
 
+
+    /**
+     * Initialization method for window processors. Should set parameters accordingly and configure processor
+     * to an executable status.
+     *
+     * @param metaStreamEvent
+     * @param streamEventCloner
+     */
     @Override
-    public void init(MetaStreamEvent metaStreamEvent) {
+    public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
         this.metaStreamEvent = metaStreamEvent;
         if (parameters != null) {
             this.setLength(((IntConstant) parameters[0]).getValue());
         }
-        removeEventFactory = new StreamEventFactory(0, metaStreamEvent.getAfterWindowData().size(),
+        removeEventFactory = new StreamEventFactory(0, metaStreamEvent.getOnAfterWindowData().size(),
                 metaStreamEvent.getOutputData().size());
 
     }
 
     @Override
-    public void process(EventChunk eventChunk) {
-        StreamEvent event = eventChunk.getFirst();
+    public void process(StreamEventChunk streamEventChunk, Processor nextProcessor) {
+        StreamEvent event = streamEventChunk.getFirst();
         StreamEvent currentEvent;
         StreamEvent head = event;
         while (event != null) {
@@ -61,10 +67,10 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                 count = 0;
             }
         }
-        EventChunk headEventChunk = new EventChunk(null);
+//        ConvertingStreamEventChunk headStreamEventChunk = new ConvertingStreamEventChunk(null,null);
 //        headEventChunk.setEventConverter(eventChunk.getEventConverter());
 //        headEventChunk.assignConvertedEvents(head);
-        nextProcessor.process(headEventChunk);
+//        nextProcessor.process(headStreamEventChunk);
     }
 
     /**
@@ -89,7 +95,6 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
         }
         count++;
     }
-
 
     @Override
     public Processor cloneProcessor() {

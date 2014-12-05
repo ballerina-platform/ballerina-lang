@@ -19,8 +19,7 @@ package org.wso2.siddhi.core.query.output.rateLimit;
 
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.event.EventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
@@ -36,16 +35,19 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     }
 
 
-    @Override
-    public void send(long timeStamp, StreamEvent currentEvent, StreamEvent expiredEvent) {
-        if (log.isTraceEnabled()) {
-            log.trace("event is sent through outputRateLimiter "+ id+ this);
-        }
-        sendToCallBacks(timeStamp, currentEvent, expiredEvent, currentEvent != null ? currentEvent : expiredEvent);
-    }
+//    @Override
+//    public void send(long timeStamp, StreamEvent currentEvent, StreamEvent expiredEvent) {
+//        if (log.isTraceEnabled()) {
+//            log.trace("event is sent through outputRateLimiter "+ id+ this);
+//        }
+//        sendToCallBacks(timeStamp, currentEvent, expiredEvent, currentEvent != null ? currentEvent : expiredEvent);
+//    }
 
     @Override
-    public void process(EventChunk eventChunk) {
+    public void process(StreamEventChunk streamEventChunk) {
+        streamEventChunk.reset();
+        sendToCallBacks(streamEventChunk);
+
         //this method will not be used since no processing is done by rateLimiters
     }
 

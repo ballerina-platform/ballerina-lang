@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -27,12 +30,15 @@ public abstract class WindowProcessor implements Processor {
     protected Processor nextProcessor;
     protected Expression[] parameters;
 
+
     /**
      * Initialization method for window processors. Should set parameters accordingly and configure processor
      * to an executable status.
+     *
      * @param metaStreamEvent
+     * @param streamEventCloner
      */
-    public abstract void init(MetaStreamEvent metaStreamEvent);
+    public abstract void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner);
 
     public Processor getNextProcessor() {
         return nextProcessor;
@@ -42,6 +48,12 @@ public abstract class WindowProcessor implements Processor {
         this.nextProcessor = processor;
     }
 
+    public void process(StreamEventChunk streamEventChunk){
+        streamEventChunk.reset();
+        process(streamEventChunk, nextProcessor);
+    }
+
+    protected abstract void process(StreamEventChunk streamEventChunk, Processor nextProcessor);
 
     public void setToLast(Processor processor) {
         if (nextProcessor == null) {
@@ -57,4 +69,8 @@ public abstract class WindowProcessor implements Processor {
 
     public abstract Processor cloneProcessor();
 
+    public void initProcessor(MetaStreamEvent metaStreamEvent, StreamEventPool streamEventPool) {
+        init(metaStreamEvent, new StreamEventCloner(metaStreamEvent, streamEventPool));
+
+    }
 }

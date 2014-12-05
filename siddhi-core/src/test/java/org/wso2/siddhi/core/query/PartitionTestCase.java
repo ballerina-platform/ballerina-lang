@@ -105,14 +105,16 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                eventArrived = true;
-                if (count == 1) {
-                    Assert.assertEquals(75.5999984741211, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(151.1999969482422, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(75.5999984741211, events[0].getData()[1]);
+                for (Event event : events) {
+                    count++;
+                    eventArrived = true;
+                    if (count == 1) {
+                        Assert.assertEquals(75.5999984741211, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(151.1999969482422, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(75.5999984741211, event.getData()[1]);
+                    }
                 }
             }
         });
@@ -565,17 +567,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                if (count == 1) {
-                    Assert.assertEquals(75.0, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(705.0, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(110.0, events[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(50.0, events[0].getData()[1]);
+                for (Event event : events) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(75.0, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(705.0, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(110.0, event.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(50.0, event.getData()[1]);
+                    }
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
         });
 
@@ -608,17 +612,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                if (count == 1) {
-                    Assert.assertEquals(75.0f, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(705.0f, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(75.0f, events[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(50.0f, events[0].getData()[1]);
+                for (Event event : events) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(75.0f, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(705.0f, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(75.0f, event.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(50.0f, event.getData()[1]);
+                    }
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
         });
 
@@ -651,17 +657,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                if (count == 1) {
-                    Assert.assertEquals(75.0f, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(705.0f, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(35.0f, events[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(50.0f, events[0].getData()[1]);
+                for (Event event : events) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(75.0f, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(705.0f, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(35.0f, event.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(50.0f, event.getData()[1]);
+                    }
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
         });
 
@@ -694,17 +702,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                if (count == 1) {
-                    Assert.assertEquals(75.0, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(705.0, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(55.0, events[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(50.0, events[0].getData()[1]);
+                for (Event event : events) {
+                    count ++;
+                    if (count == 1) {
+                        Assert.assertEquals(75.0, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(705.0, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(55.0, event.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(50.0, event.getData()[1]);
+                    }
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
         });
 
@@ -737,17 +747,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                if (count == 1) {
-                    Assert.assertEquals(1l, events[0].getData()[0]);
-                } else if (count == 2) {
-                    Assert.assertEquals(1l, events[0].getData()[0]);
-                } else if (count == 3) {
-                    Assert.assertEquals(2l, events[0].getData()[0]);
-                } else if (count == 4) {
-                    Assert.assertEquals(1l, events[0].getData()[0]);
+                for (Event event : events) {
+                    count ++;
+                    if (count == 1) {
+                        Assert.assertEquals(1l, event.getData()[0]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(1l, event.getData()[0]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(2l, event.getData()[0]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(1l, event.getData()[0]);
+                    }
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
         });
 
@@ -909,17 +921,19 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                if (count == 1) {
-                    Assert.assertEquals(100l, events[0].getData()[0]);
-                } else if (count == 2) {
-                    Assert.assertEquals(600l, events[0].getData()[0]);
-                } else if (count == 3) {
-                    Assert.assertEquals(200l, events[0].getData()[0]);
-                } else if (count == 4) {
-                    Assert.assertEquals(250l, events[0].getData()[0]);
+                for (Event event : events) {
+                    count ++;
+                    if (count == 1) {
+                        Assert.assertEquals(100l, event.getData()[0]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(600l, event.getData()[0]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(200l, event.getData()[0]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(250l, event.getData()[0]);
+                    }
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
         });
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
@@ -953,16 +967,18 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                eventArrived = true;
-                if (count == 1) {
-                    Assert.assertEquals(25.0, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(7005.60009765625, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(75.0, events[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(100.0, events[0].getData()[1]);
+                for (Event event : events) {
+                    count++;
+                    eventArrived = true;
+                    if (count == 1) {
+                        Assert.assertEquals(25.0, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(7005.60009765625, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(75.0, event.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(100.0, event.getData()[1]);
+                    }
                 }
             }
         });
@@ -997,20 +1013,22 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
-                eventArrived = true;
-                if (count == 1) {
-                    Assert.assertEquals(25.0, events[0].getData()[1]);
-                } else if (count == 2) {
-                    Assert.assertEquals(25.0, events[0].getData()[1]);
-                } else if (count == 3) {
-                    Assert.assertEquals(7005.60009765625, events[0].getData()[1]);
-                } else if (count == 4) {
-                    Assert.assertEquals(75.0, events[0].getData()[1]);
-                } else if (count == 5) {
-                    Assert.assertEquals(100.0, events[0].getData()[1]);
-                } else if (count == 6) {
-                    Assert.assertEquals(50.0, events[0].getData()[1]);
+                for (Event event : events) {
+                    count ++;
+                    eventArrived = true;
+                    if (count == 1) {
+                        Assert.assertEquals(25.0, event.getData()[1]);
+                    } else if (count == 2) {
+                        Assert.assertEquals(25.0, event.getData()[1]);
+                    } else if (count == 3) {
+                        Assert.assertEquals(7005.60009765625, event.getData()[1]);
+                    } else if (count == 4) {
+                        Assert.assertEquals(75.0, event.getData()[1]);
+                    } else if (count == 5) {
+                        Assert.assertEquals(100.0, event.getData()[1]);
+                    } else if (count == 6) {
+                        Assert.assertEquals(50.0, event.getData()[1]);
+                    }
                 }
             }
         });

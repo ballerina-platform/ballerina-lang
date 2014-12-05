@@ -29,7 +29,6 @@ public class PassThroughStreamEventConverter implements EventConverter {
         borrowedEvent.setTimestamp(timestamp);
     }
 
-
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
         convertToInnerStreamEvent(event.getData(), event.isExpired(), event.getTimestamp(), borrowedEvent);
     }

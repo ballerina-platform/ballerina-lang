@@ -41,7 +41,7 @@ public class MetaStreamEvent implements ComplexMetaEvent {
         return beforeWindowData;
     }
 
-    public List<Attribute> getAfterWindowData() {
+    public List<Attribute> getOnAfterWindowData() {
         if (afterWindowData != null) {
             return afterWindowData;
         } else {

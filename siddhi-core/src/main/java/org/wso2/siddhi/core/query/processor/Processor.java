@@ -19,16 +19,16 @@
 
 package org.wso2.siddhi.core.query.processor;
 
-import org.wso2.siddhi.core.event.EventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 
 public interface Processor {
 
     /**
      * Process the handed StreamEvent
      *
-     * @param eventChunk event chunk to be processed
+     * @param streamEventChunk event chunk to be processed
      */
-    public void process(EventChunk eventChunk);
+    public void process(StreamEventChunk streamEventChunk);
 
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor

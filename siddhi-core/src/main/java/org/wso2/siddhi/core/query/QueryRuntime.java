@@ -133,7 +133,7 @@ public class QueryRuntime {
 
         QueryRuntime queryRuntime = new QueryRuntime(query, queryContext.getExecutionPlanContext(), clonedStreamRuntime, clonedSelector,
                 clonedOutputRateLimiter, this.metaStateEvent);
-        QueryParserHelper.addEventManagers(clonedStreamRuntime,metaStateEvent);
+        QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaStateEvent);
 
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);

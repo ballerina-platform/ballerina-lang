@@ -103,7 +103,7 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
-        EventConverter converter = StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
+        EventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent,5);
 
         StreamEvent borrowedEvent = eventPool.borrowEvent();
@@ -130,7 +130,7 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
-        EventConverter converter = StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
+        EventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent,5);
         StreamEvent borrowedEvent = eventPool.borrowEvent();
         converter.convertEvent(event, borrowedEvent);
@@ -161,7 +161,7 @@ public class EventTest {
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
-        EventConverter converter = StreamEventConverterFactory.constructEventConvertor(metaStreamEvent);
+        EventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent,5);
 
         StreamEvent borrowedEvent = eventPool.borrowEvent();
@@ -270,7 +270,7 @@ public class EventTest {
         QueryParserHelper.updateVariablePosition(metaStateEvent, Arrays.asList(priceVariableExpressionExecutor, volumeVariableExpressionExecutor, symbolVariableExpressionExecutor));
 
         Assert.assertEquals(1, metaStreamEvent.getBeforeWindowData().size());
-        Assert.assertEquals(1, metaStreamEvent.getAfterWindowData().size());
+        Assert.assertEquals(1, metaStreamEvent.getOnAfterWindowData().size());
         Assert.assertEquals(2, metaStreamEvent.getOutputData().size());
         Assert.assertArrayEquals(new int[]{-1, -1, 1, 0}, priceVariableExpressionExecutor.getPosition());
         Assert.assertArrayEquals(new int[]{-1, -1, 0, 0}, volumeVariableExpressionExecutor.getPosition());

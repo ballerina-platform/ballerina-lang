@@ -30,7 +30,7 @@ public class StreamEventPool {
 
     public StreamEventPool(MetaStreamEvent metaStreamEvent, int size) {
         eventFactory = new StreamEventFactory(metaStreamEvent.getBeforeWindowData().size(),
-                metaStreamEvent.getAfterWindowData().size(),
+                metaStreamEvent.getOnAfterWindowData().size(),
                 metaStreamEvent.getOutputData().size());
         this.size = size;
     }
@@ -85,5 +85,9 @@ public class StreamEventPool {
      */
     public int getBufferedEventsSize() {
         return index;
+    }
+
+    public int getSize() {
+        return size;
     }
 }

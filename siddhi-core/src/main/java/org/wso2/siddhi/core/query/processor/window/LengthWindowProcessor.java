@@ -18,9 +18,10 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
-import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
@@ -28,95 +29,37 @@ public class LengthWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
-    private EventChunk expiredEventChunk;
-    private StreamEvent removeEventHead = null;
-    private StreamEvent removeEventTail = null;
-//    private StreamEventFactory removeEventFactory;
+    private StreamEventChunk expiredEventChunk;
+    private StreamEventCloner streamEventCloner;
+    private MetaStreamEvent metaStreamEvent;
 
     @Override
-    public void init(MetaStreamEvent metaStreamEvent) {
-//        MetaStreamEvent   expiredMetaStreamEvent =  metaStreamEvent.clone();
-        expiredEventChunk = new EventChunk(metaStreamEvent);
+    public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
+        this.metaStreamEvent = metaStreamEvent;
+        this.streamEventCloner = streamEventCloner;
+        expiredEventChunk = new StreamEventChunk();
+
         if (parameters != null) {
             length = ((IntConstant) parameters[0]).getValue();
         }
     }
 
     @Override
-    public void process(EventChunk eventChunk) {
-//        expiredEventChunk.assign();
-        while (eventChunk.hasNext()) {
-            StreamEvent event = eventChunk.next();
-            if (count > length) {
-
-            }else {
-//                expiredEventChunk.add();
-              //  expiredEventChunk.add(event,true);
+    public void process(StreamEventChunk streamEventChunk, Processor nextProcessor) {
+        while (streamEventChunk.hasNext()) {
+            StreamEvent streamEvent = streamEventChunk.next();
+            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            clonedEvent.setExpired(true);
+            if (count < length) {
+                count++;
+                this.expiredEventChunk.add(clonedEvent);
+            } else {
+                StreamEvent firstEvent = this.expiredEventChunk.poll();
+                streamEventChunk.insertBeforeCurrent(firstEvent);
+                this.expiredEventChunk.add(clonedEvent);
             }
-
         }
-        StreamEvent event = eventChunk.getFirst();
-        StreamEvent head = event;           //head of in events
-        StreamEvent expiredEventTail;
-        StreamEvent expiredEventHead;
-        while (event != null) {
-            processEvent(event);
-            event = event.getNext();
-        }
-        //if window is expired
-        if (count > length) {
-            int diff = count - length;
-            expiredEventTail = removeEventHead;
-            for (int i = 1; i < diff; i++) {
-                expiredEventTail = expiredEventTail.getNext();
-            }
-            expiredEventHead = removeEventHead;
-            removeEventHead = expiredEventTail.getNext();
-            expiredEventTail.setNext(null);
-            addToLast(head, expiredEventHead);
-
-            EventChunk headEventChunk = new EventChunk(null);
-//            headEventChunk.setEventConverter(expiredEventChunk.getEventConverter());
-            headEventChunk.assign(head);
-            nextProcessor.process(headEventChunk);                            //emit in events and remove events as expired events
-            count = count - diff;
-        } else {
-            EventChunk headEventChunk = new EventChunk(null);
-//            headEventChunk.setEventConverter(expiredEventChunk.getEventConverter());
-            headEventChunk.assign(head);
-            nextProcessor.process(headEventChunk);                            //emit only in events as window is not expired
-        }
-    }
-
-    private void addToLast(StreamEvent head, StreamEvent expiredEventHead) {
-        StreamEvent last = head;
-        while (null != last.getNext()) {
-            last = last.getNext();
-        }
-        last.setNext(expiredEventHead);
-    }
-
-    /**
-     * Create a copy of in event and store as remove event to emit at window expiration as expired events.
-     *
-     * @param event
-     */
-    private void processEvent(StreamEvent event) {
-        StreamEvent removeEvent =null;//= removeEventFactory.newInstance();
-        if (removeEvent.getOnAfterWindowData() != null) {
-            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
-                    event.getOnAfterWindowData().length);
-        }
-        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputData().length);
-        removeEvent.setExpired(true);
-        if (removeEventHead == null) {      //better if we can do it in init()
-            removeEventHead = removeEvent;
-            removeEventTail = removeEvent;
-        } else {
-            removeEventTail.setNext(removeEvent);
-            removeEventTail = removeEvent;
-        }
-        count++;
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override

@@ -21,7 +21,9 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.runtime.SingleStreamRuntime;
@@ -57,13 +59,13 @@ public class QueryParserHelper {
                     variableExpressionExecutor.setPosition(new int[]{SiddhiConstants.OUTPUT_DATA_INDEX, metaStreamEvent.getOutputData()
                             .indexOf(variableExpressionExecutor.getAttribute())});
                 }
-            } else if (metaStreamEvent.getAfterWindowData().contains(variableExpressionExecutor.getAttribute())) {
+            } else if (metaStreamEvent.getOnAfterWindowData().contains(variableExpressionExecutor.getAttribute())) {
                 if (position[0] != -1 || position[1] != -1) {
                     variableExpressionExecutor.setPosition(new int[]{position[0], position[1], SiddhiConstants.AFTER_WINDOW_DATA_INDEX, metaStreamEvent
-                            .getAfterWindowData().indexOf(variableExpressionExecutor.getAttribute())});
+                            .getOnAfterWindowData().indexOf(variableExpressionExecutor.getAttribute())});
                 } else {
                     variableExpressionExecutor.setPosition(new int[]{SiddhiConstants.AFTER_WINDOW_DATA_INDEX, metaStreamEvent
-                            .getAfterWindowData().indexOf(variableExpressionExecutor.getAttribute())});
+                            .getOnAfterWindowData().indexOf(variableExpressionExecutor.getAttribute())});
                 }
             } else if (metaStreamEvent.getBeforeWindowData().contains(variableExpressionExecutor.getAttribute())) {
                 if (position[0] != -1 || position[1] != -1) {
@@ -88,11 +90,11 @@ public class QueryParserHelper {
             if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
                 metaStreamEvent.getBeforeWindowData().remove(attribute);
             }
-            if (metaStreamEvent.getAfterWindowData().contains(attribute)) {
-                metaStreamEvent.getAfterWindowData().remove(attribute);
+            if (metaStreamEvent.getOnAfterWindowData().contains(attribute)) {
+                metaStreamEvent.getOnAfterWindowData().remove(attribute);
             }
         }
-        for (Attribute attribute : metaStreamEvent.getAfterWindowData()) {
+        for (Attribute attribute : metaStreamEvent.getOnAfterWindowData()) {
             if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
                 metaStreamEvent.getBeforeWindowData().remove(attribute);
             }
@@ -115,15 +117,19 @@ public class QueryParserHelper {
         }
     }
 
-    public static void addEventManagers(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
+    public static void initStreamRuntime(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
         int index = 0;
         if (runtime instanceof SingleStreamRuntime) {
             MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(index);
-            ((SingleStreamRuntime) runtime).getQueryStreamReceiver().setMetaStreamEvent(metaStreamEvent);
+            StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
+            QueryStreamReceiver queryStreamReceiver = ((SingleStreamRuntime) runtime).getQueryStreamReceiver();
+            queryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
+            queryStreamReceiver.setStreamEventPool(streamEventPool);
+            queryStreamReceiver.init();
             Processor processor = ((SingleStreamRuntime) runtime).getProcessorChain();
             while (processor != null) {
                 if (processor instanceof WindowProcessor) {
-                    ((WindowProcessor) processor).init(metaStreamEvent);
+                    ((WindowProcessor) processor).initProcessor(metaStreamEvent, streamEventPool);
                 }
                 processor = processor.getNextProcessor();
             }

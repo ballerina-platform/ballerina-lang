@@ -20,9 +20,10 @@
 package org.wso2.siddhi.core.query.input;
 
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ConvertingStreamEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -32,8 +33,9 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     private String streamId;
     private Processor processorChain;
     private Processor next;
-    private EventChunk eventChunk;
+    private ConvertingStreamEventChunk streamEventChunk;
     private MetaStreamEvent metaStreamEvent;
+    private StreamEventPool streamEventPool;
 
 
     public QueryStreamReceiver(StreamDefinition streamDefinition) {
@@ -52,31 +54,32 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     public QueryStreamReceiver clone(String key) {
         QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId + key);
         clonedQueryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
+        clonedQueryStreamReceiver.setStreamEventPool(new StreamEventPool(metaStreamEvent, streamEventPool.getSize()));
         return clonedQueryStreamReceiver;
     }
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        eventChunk.assign(streamEvent);
+        streamEventChunk.convertAndAssign(streamEvent);
         processAndClear();
     }
 
     @Override
     public void receive(Event event) {
-        eventChunk.assign(event);
+        streamEventChunk.convertAndAssign(event);
         processAndClear();
     }
 
     @Override
     public void receive(Event[] events) {
-        eventChunk.assign(events);
+        streamEventChunk.convertAndAssign(events);
         processAndClear();
     }
 
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        eventChunk.insertBeforeCurrent(event);
+        streamEventChunk.convertAndAdd(event);
         if (endOfBatch) {
             processAndClear();
         }
@@ -84,13 +87,13 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        eventChunk.assign(timeStamp, data);
+        streamEventChunk.convertAndAssign(timeStamp, data);
         processAndClear();
     }
 
     private void processAndClear() {
-        next.process(eventChunk);
-        eventChunk.clear();
+        next.process(streamEventChunk);
+        streamEventChunk.clear();
     }
 
     public Processor getProcessorChain() {
@@ -103,10 +106,21 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     public void setMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
         this.metaStreamEvent = metaStreamEvent;
-        this.eventChunk = new EventChunk(metaStreamEvent);
+    }
+
+    public MetaStreamEvent getMetaStreamEvent() {
+        return metaStreamEvent;
     }
 
     public void setNext(Processor next) {
         this.next = next;
+    }
+
+    public void setStreamEventPool(StreamEventPool streamEventPool) {
+        this.streamEventPool = streamEventPool;
+    }
+
+    public void init() {
+        streamEventChunk = new ConvertingStreamEventChunk(metaStreamEvent, streamEventPool);
     }
 }

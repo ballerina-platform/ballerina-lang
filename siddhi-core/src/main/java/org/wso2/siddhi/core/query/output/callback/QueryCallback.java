@@ -27,6 +27,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.query.api.execution.query.Query;
 
 import java.util.ArrayList;
@@ -51,72 +52,78 @@ public abstract class QueryCallback {
         this.siddhiContext = siddhiContext;
     }
 
-    public void receiveStreamEvent(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent) {
-
-        if (disruptor == null) {
-            send(timeStamp, currentStreamEvent, expiredStreamEvent);
-        } else {
-            sendAsync(timeStamp, currentStreamEvent, expiredStreamEvent);
-        }
-    }
-
-    private void sendAsync(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent) {
-        while (currentStreamEvent != null){
-            long sequenceNo = ringBuffer.next();
-            try {
-                EventHolder holder = ringBuffer.get(sequenceNo);
-                holder.timeStamp = timeStamp;
-                holder.currentStreamEvent = currentStreamEvent;
-                holder.expiredStreamEvent = expiredStreamEvent;
-            } finally {
-                ringBuffer.publish(sequenceNo);
-            }
-            currentStreamEvent = currentStreamEvent.getNext();
-        }
-    }
-
-    private void send(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent, boolean endOfBatch) {
-
-        if (endOfBatch) {
-            send(timeStamp, currentStreamEvent, expiredStreamEvent);
-        } else {
-            StreamEvent processedEvent = currentStreamEvent;
-            bufferEvents(processedEvent, currentEventBuffer);
-
-            processedEvent = expiredStreamEvent;
-            bufferEvents(processedEvent, expiredEventBuffer);
-        }
-    }
-
-    private void send(long timeStamp, StreamEvent currentStreamEvent, StreamEvent expiredStreamEvent) {
+    public void receiveStreamEvent(StreamEventChunk streamEventChunk) {
 
         Event[] currentEvents = null;
         Event[] expiredEvents = null;
+        long timeStamp = -1;
 
-        bufferEvents(currentStreamEvent, currentEventBuffer);
+        while (streamEventChunk.hasNext()) {
+            StreamEvent streamEvent = streamEventChunk.next();
+            if (streamEvent.isExpired()) {
+                bufferEvent(streamEvent, expiredEventBuffer);
+            } else {
+                bufferEvent(streamEvent, currentEventBuffer);
+            }
+            timeStamp = streamEvent.getTimestamp();
+        }
 
         if (!currentEventBuffer.isEmpty()) {
             currentEvents = currentEventBuffer.toArray(new Event[currentEventBuffer.size()]);
             currentEventBuffer.clear();
         }
 
-        bufferEvents(expiredStreamEvent, expiredEventBuffer);
-
         if (!expiredEventBuffer.isEmpty()) {
             expiredEvents = expiredEventBuffer.toArray(new Event[expiredEventBuffer.size()]);
             expiredEventBuffer.clear();
         }
 
+        if (disruptor == null) {
+            send(timeStamp, currentEvents, expiredEvents);
+        } else {
+            sendAsync(timeStamp, currentEvents, expiredEvents);
+        }
+    }
+
+    private void sendAsync(long timeStamp, Event[] currentEvents, Event[] expiredEvents) {
+        long sequenceNo = ringBuffer.next();
+        try {
+            EventHolder holder = ringBuffer.get(sequenceNo);
+            holder.timeStamp = timeStamp;
+            holder.currentEvents = currentEvents;
+            holder.expiredEvents = expiredEvents;
+        } finally {
+            ringBuffer.publish(sequenceNo);
+        }
+    }
+
+//    private void send(long timeStamp, Event[] currentEvents, Event[] expiredEvents, boolean endOfBatch) {
+//
+//        if (endOfBatch) {
+//            send(timeStamp, currentEvents, currentEvents);
+//        } else {
+//            StreamEvent processedEvent = currentStreamEvent;
+//            bufferEvent(processedEvent, currentEventBuffer);
+//
+//            processedEvent = expiredStreamEvent;
+//            bufferEvent(processedEvent, expiredEventBuffer);
+//        }
+//    }
+
+    private void send(long timeStamp, Event[] currentEvents, Event[] expiredEvents) {
+
         receive(timeStamp, currentEvents, expiredEvents);
     }
 
-    private void bufferEvents(StreamEvent streamEventList, List<Event> eventBuffer) {
+    private void bufferEvent(StreamEvent streamEvent, List<Event> eventBuffer) {
+        eventBuffer.add(new Event(streamEvent.getOutputData().length).copyFrom(streamEvent));
 
-        StreamEvent processedEvent = streamEventList;
-        while (processedEvent != null) {
-            eventBuffer.add(new Event(processedEvent.getOutputData().length).copyFrom(processedEvent));
-            processedEvent = processedEvent.getNext();
-        }
+
+//        StreamEvent processedEvent = streamEventList;
+//        while (processedEvent != null) {
+//            eventBuffer.add(new Event(processedEvent.getOutputData().length).copyFrom(processedEvent));
+//            processedEvent = processedEvent.getNext();
+//        }
     }
 
     public synchronized void startProcessing() {
@@ -176,17 +183,15 @@ public abstract class QueryCallback {
         @Override
         public void onEvent(EventHolder eventHolder, long sequence, boolean endOfBatch) throws Exception {
             if (queryCallback != null) {
-                queryCallback.send(eventHolder.timeStamp, eventHolder.currentStreamEvent, eventHolder.expiredStreamEvent, endOfBatch);
+                queryCallback.send(eventHolder.timeStamp, eventHolder.currentEvents, eventHolder.expiredEvents);
             }
         }
     }
 
     public class EventHolder {
-
         private long timeStamp;
-        private StreamEvent currentStreamEvent;
-        private StreamEvent expiredStreamEvent;
-
+        private Event[] currentEvents;
+        private Event[] expiredEvents;
     }
 
     public class EventHolderFactory implements com.lmax.disruptor.EventFactory<EventHolder> {

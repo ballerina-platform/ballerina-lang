@@ -26,11 +26,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StreamEventConverterFactory {
-    public static EventConverter constructEventConvertor(MetaStreamEvent metaStreamEvent) {
-        StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+
+    public static EventConverter constructEventConverter(MetaStreamEvent metaStreamEvent) {
+
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
-        int onAfterWindowDataSize = metaStreamEvent.getAfterWindowData().size();
-        int size = metaStreamEvent.getBeforeWindowData().size() + metaStreamEvent.getAfterWindowData().size() + metaStreamEvent.getOutputData().size();
+        int onAfterWindowDataSize = metaStreamEvent.getOnAfterWindowData().size();
+        int size = beforeWindowDataSize + onAfterWindowDataSize + metaStreamEvent.getOutputData().size();
+
+        List<ConversionElement> conversionElements = getConversionElements(metaStreamEvent, size);
+
+        if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
+            return new SelectiveStreamEventConverter(conversionElements);
+        } else {
+            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionElements.size()) {
+                Boolean isPassThrough = true;
+                for (ConversionElement conversionElement : conversionElements) {
+                    if (!(conversionElement.getFromPosition() == conversionElement.getToPosition()[1])) {
+                        isPassThrough = false;
+                    }
+                }
+                if (isPassThrough) {
+                    return new PassThroughStreamEventConverter();
+                }
+            }
+            return new SimpleStreamEventConverter(conversionElements);
+        }
+    }
+
+    private static List<ConversionElement> getConversionElements(MetaStreamEvent metaStreamEvent, int size) {
+
+        StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
         List<ConversionElement> conversionElements = new ArrayList<ConversionElement>(size);
 
         for (int j = 0; j < 3; j++) {
@@ -38,11 +63,11 @@ public class StreamEventConverterFactory {
             if (j == 0) {
                 currentDataList = metaStreamEvent.getBeforeWindowData();
             } else if (j == 1) {
-                currentDataList = metaStreamEvent.getAfterWindowData();
+                currentDataList = metaStreamEvent.getOnAfterWindowData();
             } else if (j == 2) {
                 currentDataList = metaStreamEvent.getOutputData();
             }
-            if (!currentDataList.isEmpty()) {
+            if (currentDataList != null) {
                 int i = 0;
                 for (Attribute attribute : currentDataList) {           //Only variable slots will be filled.
                     if (attribute == null) {
@@ -60,21 +85,6 @@ public class StreamEventConverterFactory {
                 }
             }
         }
-        if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventConverter(conversionElements);
-        } else {
-            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionElements.size()) {
-                Boolean isPassThrough = true;
-                for (ConversionElement conversionElement : conversionElements) {
-                    if (!(conversionElement.getFromPosition() == conversionElement.getToPosition()[1])) {
-                        isPassThrough = false;
-                    }
-                }
-                if (isPassThrough) {
-                    return new PassThroughStreamEventConverter();
-                }
-            }
-            return new SimpleStreamEventConverter(conversionElements);
-        }
+        return conversionElements;
     }
 }

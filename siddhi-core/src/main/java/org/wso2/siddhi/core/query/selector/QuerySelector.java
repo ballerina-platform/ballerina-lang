@@ -21,8 +21,8 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.EventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -39,7 +39,6 @@ public class QuerySelector implements Processor {
     private static final Logger log = Logger.getLogger(QuerySelector.class);
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
-    private int outputSize;
     private ExecutionPlanContext executionPlanContext;
     private boolean currentOn = false;
     private boolean expiredOn = false;
@@ -56,7 +55,6 @@ public class QuerySelector implements Processor {
         this.expiredOn = expiredOn;
         this.selector = selector;
         this.executionPlanContext = executionPlanContext;
-        this.outputSize = selector.getSelectionList().size();
     }
 
     public static String getThreadLocalGroupByKey() {
@@ -64,12 +62,14 @@ public class QuerySelector implements Processor {
     }
 
     @Override
-    public void process(EventChunk eventChunk) {
+    public void process(StreamEventChunk streamEventChunk) {
+        streamEventChunk.reset();
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
-        StreamEvent  event = eventChunk.getFirst();
-        while (event!=null) {       //todo optimize
+
+        while (streamEventChunk.hasNext()) {       //todo optimize
+            StreamEvent event = streamEventChunk.next();
             if (isGroupBy) {
                 keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
             }
@@ -82,27 +82,27 @@ public class QuerySelector implements Processor {
             if (isGroupBy) {
                 keyThreadLocal.remove();
             }
-            event = event.getNext();
         }
-
 
         if (havingConditionExecutor == null) {
-            StreamEvent streamEvent = eventChunk.getFirst();
-            outputRateLimiter.send(streamEvent.getTimestamp(), streamEvent, null);
+            outputRateLimiter.process(streamEventChunk);
         } else {
-            while (eventChunk.hasNext()) {
-                StreamEvent streamEvent = eventChunk.next();
-                if (!havingConditionExecutor.execute(streamEvent)) {
-                    eventChunk.remove();
-//                        eventManager.clear(event);  todo use this after fixing join cases
-                }
-            }
-            StreamEvent returnEvent = eventChunk.getFirst();
-            if (returnEvent != null) {
-                outputRateLimiter.send(returnEvent.getTimestamp(), returnEvent, null);
-            }
+            streamEventChunk.reset();
+            evaluateHavingConditions(streamEventChunk);
+            outputRateLimiter.process(streamEventChunk);
+
         }
 
+    }
+
+    private void evaluateHavingConditions(StreamEventChunk streamEventBuffer) {
+        while (streamEventBuffer.hasNext()) {
+            StreamEvent streamEvent = streamEventBuffer.next();
+            if (!havingConditionExecutor.execute(streamEvent)) {
+                streamEventBuffer.remove();
+//                        eventManager.clear(event);  todo use this after fixing join cases
+            }
+        }
     }
 
     @Override

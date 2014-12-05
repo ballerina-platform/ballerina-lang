@@ -24,15 +24,9 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.EventFactory;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +39,8 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
     private SiddhiContext siddhiContext;
     private AsyncEventHandler asyncEventHandler;
 
-    private Disruptor<Event> disruptor;
-    private RingBuffer<Event> ringBuffer;
+    private Disruptor<EventHolder> disruptor;
+    private RingBuffer<EventHolder> ringBuffer;
 
 
     @Override
@@ -68,14 +62,18 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     @Override
     public void receive(StreamEvent streamEvent) {
-        while (streamEvent != null){
-            if (disruptor == null) {
-                receive(new Event[]{new Event(streamEvent.getOutputData().length).copyFrom(streamEvent)});
-            } else {
-                receiveAsync(new Event(streamEvent.getOutputData().length).copyFrom(streamEvent));
-            }
+
+        while (streamEvent != null) {
+            eventBuffer.add(new Event(streamEvent.getOutputData().length).copyFrom(streamEvent));
             streamEvent = streamEvent.getNext();
         }
+        if (disruptor == null) {
+            receive(eventBuffer.toArray(new Event[eventBuffer.size()]));
+        } else {
+            receiveAsync(eventBuffer.toArray(new Event[eventBuffer.size()]));
+        }
+        eventBuffer.clear();
+
     }
 
     @Override
@@ -83,7 +81,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         if (disruptor == null) {
             receive(new Event[]{event});
         } else {
-            receiveAsync(event);
+            receiveAsync(new Event[]{event});
         }
     }
 
@@ -100,18 +98,17 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         if (disruptor == null) {
             receive(new Event[]{new Event(timeStamp, data)});
         } else {
-            receiveAsync(new Event(timeStamp, data));
+            receiveAsync(new Event[]{new Event(timeStamp, data)});
         }
     }
 
     public abstract void receive(Event[] events);
 
-    private void receiveAsync(Event event) {
+    private void receiveAsync(Event[] events) {
         long sequenceNo = ringBuffer.next();
         try {
-            Event existingEvent = ringBuffer.get(sequenceNo);
-            existingEvent.setTimestamp(event.getTimestamp());
-            existingEvent.setData(event.getData());
+            EventHolder eventHolder = ringBuffer.get(sequenceNo);
+            eventHolder.events = events;
         } finally {
             ringBuffer.publish(sequenceNo);
         }
@@ -121,7 +118,13 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         Boolean asyncEnabled = null;
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
 
-            disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()), siddhiContext.getEventBufferSize(),
+            disruptor = new Disruptor<EventHolder>(new com.lmax.disruptor.EventFactory<EventHolder>() {
+                @Override
+                public EventHolder newInstance() {
+                    return new EventHolder();
+                }
+            },
+                    siddhiContext.getEventBufferSize(),
                     siddhiContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
 
             asyncEventHandler = new AsyncEventHandler(this);
@@ -137,7 +140,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         }
     }
 
-    public class AsyncEventHandler implements EventHandler<Event> {
+    public class AsyncEventHandler implements EventHandler<EventHolder> {
 
         private StreamCallback streamCallback;
 
@@ -148,18 +151,21 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         /**
          * Called when a publisher has published an event to the {@link com.lmax.disruptor.RingBuffer}
          *
-         * @param event published to the {@link com.lmax.disruptor.RingBuffer}
+         * @param eventHolder published to the {@link com.lmax.disruptor.RingBuffer}
          * @param sequence    of the event being processed
          * @param endOfBatch  flag to indicate if this is the last event in a batch from the {@link com.lmax.disruptor.RingBuffer}
          * @throws Exception if the EventHandler would like the exception handled further up the chain.
          */
         @Override
-        public void onEvent(Event event, long sequence, boolean endOfBatch) throws Exception {
+        public void onEvent(EventHolder eventHolder, long sequence, boolean endOfBatch) throws Exception {
             if (streamCallback != null) {
-                streamCallback.receive(event, endOfBatch);
+                streamCallback.receive(eventHolder.events);
             }
         }
     }
 
 
+    private class EventHolder {
+        public Event[] events;
+    }
 }

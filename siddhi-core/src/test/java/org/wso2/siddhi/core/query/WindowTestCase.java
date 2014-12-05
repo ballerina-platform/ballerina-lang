@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class WindowTestCase {
@@ -61,19 +62,18 @@ public class WindowTestCase {
 
         });
 
-//        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-//        executionPlanRuntime.start();
-//        inputHandler.send(new Object[]{"IBM", 700f, 0});
-//        inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
-//        Thread.sleep(500);
-//        Assert.assertEquals(2, inEventCount);
-//        Assert.assertTrue(eventArrived);
-//        executionPlanRuntime.shutdown();
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 0});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
+        Thread.sleep(500);
+        Assert.assertEquals(2, inEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
 
     }
 
-    //@Test
-    //todo
+    @Test
     public void LengthWindowTest2() throws InterruptedException {
         log.info("Testing length window with no of events greater than window size");
 
@@ -85,23 +85,24 @@ public class WindowTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                for (Event event : inEvents) {
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                eventArrived = true;
+                for (Event event : events) {
                     if (event.isExpired()) {
                         removeEventCount++;
                         Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
-                        Assert.assertEquals("Expired event triggering position", length, inEventCount - removeEventCount);
+                        Assert.assertEquals("Expired event triggering position", inEventCount + 1,
+                                length + removeEventCount);
                     } else {
                         inEventCount++;
                         Assert.assertEquals("In event order", inEventCount, event.getData(2));
                     }
                 }
-                eventArrived = true;
             }
-
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
@@ -120,7 +121,61 @@ public class WindowTestCase {
 
     }
 
- //   @Test
+    @Test
+    public void LengthWindowTest3() throws InterruptedException {
+        log.info("Testing length window with no of events greater than window size");
+
+        final int length = 4;
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
+        String query = "@info(name = 'query1') from cseEventStream#window.length(" + length + ") select symbol,price,volume insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        if (event.isExpired()) {
+                            removeEventCount++;
+                        } else {
+                            inEventCount++;
+                        }
+                    }
+                }
+                if (removeEvents != null) {
+                    for (Event event : removeEvents) {
+                        if (event.isExpired()) {
+                            removeEventCount++;
+                        } else {
+                            inEventCount++;
+                        }
+                    }
+                }
+                eventArrived = true;
+            }
+
+        });
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 1});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 2});
+        inputHandler.send(new Object[]{"IBM", 700f, 3});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 4});
+        inputHandler.send(new Object[]{"IBM", 700f, 5});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
+        Thread.sleep(500);
+        Assert.assertEquals("In event count", 6, inEventCount);
+        Assert.assertEquals("Remove event count", 2, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+    //    @Test
     public void LengthBatchWindowTest1() throws InterruptedException {
         log.info("Testing length batch window with no of events smaller than window size");
 
@@ -154,7 +209,7 @@ public class WindowTestCase {
 
     }
 
-//    @Test
+    //    @Test
     public void LengthBatchWindowTest2() throws InterruptedException {
         log.info("Testing length batch window with no of events greater than window size");
 
