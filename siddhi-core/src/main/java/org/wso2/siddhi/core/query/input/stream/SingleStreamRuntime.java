@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.runtime;
+package org.wso2.siddhi.core.query.input.stream;
 
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;

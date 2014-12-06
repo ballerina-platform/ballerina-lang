@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.runtime;
+package org.wso2.siddhi.core.query.input.stream;
 
 /**
  * Interface for all StreamRuntime s.(Ex: JoinStreamRuntime, SingleStreamRuntime)
