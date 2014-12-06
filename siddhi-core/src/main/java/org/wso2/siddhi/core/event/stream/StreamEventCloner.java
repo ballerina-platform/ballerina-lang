@@ -46,7 +46,7 @@ public class StreamEventCloner {
         if (outputDataSize > 0) {
             System.arraycopy(streamEvent.getOutputData(), 0, borrowedEvent.getOutputData(), 0, outputDataSize);
         }
-        borrowedEvent.setExpired(streamEvent.isExpired());
+        borrowedEvent.setType(streamEvent.getType());
         borrowedEvent.setTimestamp(streamEvent.getTimestamp());
         return borrowedEvent;
     }

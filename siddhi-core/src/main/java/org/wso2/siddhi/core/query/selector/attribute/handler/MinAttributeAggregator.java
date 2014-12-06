@@ -65,6 +65,11 @@ public class MinAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
+    public void reset() {
+        minOutputAttributeAggregator.reset();
+    }
+
+    @Override
     public AttributeAggregator newInstance() {
         return minOutputAttributeAggregator.newInstance();
     }
@@ -115,6 +120,12 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            minDeque.clear();
+            minValue = null;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new MinAttributeAggregatorDouble();
         }
@@ -157,6 +168,12 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            minDeque.clear();
+            minValue = null;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new MinAttributeAggregatorFloat();
         }
@@ -189,6 +206,12 @@ public class MinAttributeAggregator implements AttributeAggregator {
                 minValue = value;
             }
             return minValue;
+        }
+
+        @Override
+        public void reset() {
+            minDeque.clear();
+            minValue = null;
         }
 
         @Override
@@ -231,6 +254,12 @@ public class MinAttributeAggregator implements AttributeAggregator {
                 minValue = value;
             }
             return minValue;
+        }
+
+        @Override
+        public void reset() {
+            minDeque.clear();
+            minValue = null;
         }
 
         @Override

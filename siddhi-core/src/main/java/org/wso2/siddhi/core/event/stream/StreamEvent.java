@@ -28,11 +28,16 @@ import java.util.Arrays;
  */
 public class StreamEvent implements ComplexEvent {
 
+    public enum Type{
+        CURRENT, EXPIRED, TIMER, RESET
+    }
+
     protected long timestamp = -1;
     private Object[] beforeWindowData;          //Attributes before window execution
     private Object[] onAfterWindowData;         //Attributes on and after window execution
     protected Object[] outputData;              //Attributes to sent as output
-    protected boolean isExpired = false;
+//    protected boolean isExpired = false;
+    protected Type type = Type.CURRENT;
     private StreamEvent next;
 
     public StreamEvent(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize) {
@@ -83,12 +88,20 @@ public class StreamEvent implements ComplexEvent {
         this.outputData = outputData;
     }
 
-    public boolean isExpired() {
-        return isExpired;
+//    public boolean isExpired() {
+//        return isExpired;
+//    }
+//
+//    public void setExpired(boolean isExpired) {
+//        this.isExpired = isExpired;
+//    }
+
+    public Type getType() {
+        return type;
     }
 
-    public void setExpired(boolean isExpired) {
-        this.isExpired = isExpired;
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public StreamEvent getNext() {
@@ -140,7 +153,7 @@ public class StreamEvent implements ComplexEvent {
 
         StreamEvent event = (StreamEvent) o;
 
-        if (isExpired != event.isExpired) return false;
+        if (type != event.type) return false;
         if (timestamp != event.timestamp) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(beforeWindowData, event.beforeWindowData)) return false;
@@ -158,7 +171,7 @@ public class StreamEvent implements ComplexEvent {
         result = 31 * result + (beforeWindowData != null ? Arrays.hashCode(beforeWindowData) : 0);
         result = 31 * result + (onAfterWindowData != null ? Arrays.hashCode(onAfterWindowData) : 0);
         result = 31 * result + (outputData != null ? Arrays.hashCode(outputData) : 0);
-        result = 31 * result + (isExpired ? 1 : 0);
+        result = 31 * result + type.hashCode();
         return result;
     }
 
@@ -169,7 +182,7 @@ public class StreamEvent implements ComplexEvent {
         sb.append(", beforeWindowData=").append(beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData).toString());
         sb.append(", onAfterWindowData=").append(onAfterWindowData == null ? "null" : Arrays.asList(onAfterWindowData).toString());
         sb.append(", outputData=").append(outputData == null ? "null" : Arrays.asList(outputData).toString());
-        sb.append(", isExpired=").append(isExpired);
+        sb.append(", type=").append(type);
         sb.append(", next=").append(next);
         sb.append('}');
         return sb.toString();

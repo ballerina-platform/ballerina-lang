@@ -30,26 +30,27 @@ public class SimpleStreamEventConverter implements EventConverter {
         this.conversionElements = conversionElements;
     }
 
-    private void convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp, StreamEvent borrowedEvent) {
+    private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
         for (ConversionElement element : conversionElements) {
             borrowedEvent.setOutputData(data[element.getFromPosition()], element.getToPosition()[1]);
         }
-        borrowedEvent.setExpired(isExpected);
+        borrowedEvent.setType(type);
         borrowedEvent.setTimestamp(timestamp);
     }
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(event.getData(), event.isExpired(), event.getTimestamp(), borrowedEvent);
+        convertToInnerStreamEvent(event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+                event.getTimestamp(), borrowedEvent);
     }
 
     public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.isExpired(), streamEvent.getTimestamp(),
+        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.getType(), streamEvent.getTimestamp(),
                 borrowedEvent);
     }
 
     @Override
     public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(data, false, timeStamp, borrowedEvent);
+        convertToInnerStreamEvent(data, StreamEvent.Type.CURRENT, timeStamp, borrowedEvent);
     }
 
 }

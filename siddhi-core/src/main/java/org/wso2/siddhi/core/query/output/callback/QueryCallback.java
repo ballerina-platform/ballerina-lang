@@ -60,7 +60,7 @@ public abstract class QueryCallback {
 
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
-            if (streamEvent.isExpired()) {
+            if (streamEvent.getType()== StreamEvent.Type.EXPIRED) {
                 bufferEvent(streamEvent, expiredEventBuffer);
             } else {
                 bufferEvent(streamEvent, currentEventBuffer);

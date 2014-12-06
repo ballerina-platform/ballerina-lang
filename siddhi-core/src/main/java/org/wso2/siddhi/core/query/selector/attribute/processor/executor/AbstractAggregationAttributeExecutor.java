@@ -39,19 +39,30 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
             for (int i = 0, size = data.length; i < size; i++) {
                 data[i] = expressionExecutors.get(i).execute(event);
             }
-            if(event.isExpired()){
-                return attributeAggregator.processRemove(data);
-            } else {
-                return attributeAggregator.processAdd(data);
+            switch (event.getType()) {
+
+                case CURRENT:
+                    return attributeAggregator.processAdd(data);
+                case EXPIRED:
+                    return attributeAggregator.processRemove(data);
+                case RESET:
+                    attributeAggregator.reset();
+                    return null;
             }
 
         } else {
-            if(event.isExpired()){
-                return attributeAggregator.processRemove(expressionExecutors.get(0).execute(event));
-            } else {
-                return attributeAggregator.processAdd(expressionExecutors.get(0).execute(event));
+            switch (event.getType()) {
+
+                case CURRENT:
+                    return attributeAggregator.processAdd(expressionExecutors.get(0).execute(event));
+                case EXPIRED:
+                    return attributeAggregator.processRemove(expressionExecutors.get(0).execute(event));
+                case RESET:
+                    attributeAggregator.reset();
+                    return null;
             }
         }
+        return null;
     }
 
     @Override

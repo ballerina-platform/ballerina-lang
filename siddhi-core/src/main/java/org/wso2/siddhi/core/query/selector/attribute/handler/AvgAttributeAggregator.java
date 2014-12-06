@@ -61,6 +61,11 @@ public class AvgAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
+    public void reset() {
+        avgOutputAttributeAggregator.reset();
+    }
+
+    @Override
     public AttributeAggregator newInstance() {
         return avgOutputAttributeAggregator.newInstance();
     }
@@ -106,6 +111,13 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            value=0.0;
+            count=0;
+        }
+
+
+        @Override
         public AttributeAggregator newInstance() {
             return new AvgAttributeAggregatorDouble();
         }
@@ -141,6 +153,13 @@ public class AvgAttributeAggregator implements AttributeAggregator {
             }
             return value / count;
         }
+
+        @Override
+        public void reset() {
+            value=0.0;
+            count=0;
+        }
+
 
         @Override
         public AttributeAggregator newInstance() {
@@ -181,6 +200,12 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            value=0.0;
+            count=0;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new AvgAttributeAggregatorInt();
         }
@@ -214,6 +239,12 @@ public class AvgAttributeAggregator implements AttributeAggregator {
                 return 0;
             }
             return value / count;
+        }
+
+        @Override
+        public void reset() {
+            value=0.0;
+            count=0;
         }
 
         @Override

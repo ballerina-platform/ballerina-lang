@@ -51,10 +51,15 @@ public class StringConcatAggregatorString implements AttributeAggregator {
     @Override
     public Object processRemove(Object obj) {
         if (obj instanceof String) {
-            String sender = (String)obj;
+            String sender = (String) obj;
             aggregatedStringValue = aggregatedStringValue.replace(sender, "");
         }
         return aggregatedStringValue;
+    }
+
+    @Override
+    public void reset() {
+        aggregatedStringValue = "";
     }
 
 

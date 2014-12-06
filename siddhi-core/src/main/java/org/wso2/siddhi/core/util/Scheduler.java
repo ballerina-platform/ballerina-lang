@@ -16,6 +16,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.concurrent.BlockingQueue;
@@ -33,6 +34,7 @@ public class Scheduler {
     private ScheduledExecutorService scheduledExecutorService;
     private EventCaller eventCaller;
     private volatile boolean running = false;
+    private StreamEventPool streamEventPool;
 
 
     public Scheduler(ScheduledExecutorService scheduledExecutorService, Processor singleThreadEntryValve) {
@@ -48,7 +50,7 @@ public class Scheduler {
                 synchronized (toNotifyQueue) {
                     if (!running) {
                         running = true;
-                        long timeDiff = time - System.currentTimeMillis();
+                        long timeDiff = time - System.currentTimeMillis(); //todo fix
                         if (timeDiff > 0) {
                             scheduledExecutorService.schedule(eventCaller, timeDiff, TimeUnit.MILLISECONDS);
                         } else {
@@ -63,6 +65,10 @@ public class Scheduler {
         }
 
 
+    }
+
+    public void setStreamEventPool(StreamEventPool streamEventPool) {
+        this.streamEventPool = streamEventPool;
     }
 
     private class EventCaller implements Runnable {
@@ -90,7 +96,7 @@ public class Scheduler {
             long currentTime = System.currentTimeMillis();
             while (toNotifyTime != null && currentTime - toNotifyTime <= 0) {
                 toNotifyQueue.poll();
-//                singleThreadEntryValve.process(new StreamEvent(0, 0, 0));   //todo fix
+//                singleThreadEntryValve.process(streamEventPool.borrowEvent());   //todo fix
 
                 toNotifyTime = toNotifyQueue.peek();
                 currentTime = System.currentTimeMillis();

@@ -68,7 +68,7 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                 while (currentEventChunk.hasNext()) {
                     StreamEvent currentEvent = currentEventChunk.next();
                     StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
-                    toExpireEvent.setExpired(true);
+                    toExpireEvent.setType(StreamEvent.Type.EXPIRED);
                     expiredEventChunk.add(toExpireEvent);
                 }
                 streamEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());

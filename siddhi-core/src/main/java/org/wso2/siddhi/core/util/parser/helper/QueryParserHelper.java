@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
@@ -128,6 +129,9 @@ public class QueryParserHelper {
             queryStreamReceiver.init();
             Processor processor = ((SingleStreamRuntime) runtime).getProcessorChain();
             while (processor != null) {
+                if(processor instanceof SchedulingProcessor){
+                    ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
+                }
                 if (processor instanceof WindowProcessor) {
                     ((WindowProcessor) processor).initProcessor(metaStreamEvent, streamEventPool);
                 }

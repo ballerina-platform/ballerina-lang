@@ -47,6 +47,11 @@ public class CountAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
+    public void reset() {
+        value = 0;
+    }
+
+    @Override
     public AttributeAggregator newInstance() {
         return new CountAttributeAggregator();
     }

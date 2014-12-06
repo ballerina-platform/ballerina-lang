@@ -24,4 +24,6 @@ public interface SchedulingProcessor extends Processor {
 
     public void setScheduler(Scheduler scheduler);
 
+    public Scheduler getScheduler();
+
 }

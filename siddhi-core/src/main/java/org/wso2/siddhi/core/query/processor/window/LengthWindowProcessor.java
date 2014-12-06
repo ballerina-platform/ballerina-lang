@@ -49,7 +49,7 @@ public class LengthWindowProcessor extends WindowProcessor {
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setExpired(true);
+            clonedEvent.setType(StreamEvent.Type.EXPIRED);
             if (count < length) {
                 count++;
                 this.expiredEventChunk.add(clonedEvent);

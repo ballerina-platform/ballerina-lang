@@ -33,7 +33,7 @@ public class SelectiveStreamEventConverter implements EventConverter {
         this.conversionElements = conversionElements;
     }
 
-    private void convertToInnerStreamEvent(Object[] data, boolean isExpected, long timestamp, StreamEvent borrowedEvent) {
+    private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
         for (ConversionElement conversionElement : conversionElements) {
             int[] position = conversionElement.getToPosition();
             switch (position[0]) {
@@ -51,22 +51,24 @@ public class SelectiveStreamEventConverter implements EventConverter {
             }
         }
 
-        borrowedEvent.setExpired(isExpected);
+        borrowedEvent.setType(type);
         borrowedEvent.setTimestamp(timestamp);
     }
 
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(event.getData(), event.isExpired(), event.getTimestamp(), borrowedEvent);
+        convertToInnerStreamEvent(event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+                event.getTimestamp(), borrowedEvent);
     }
 
     public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.isExpired(), streamEvent.getTimestamp(), borrowedEvent);
+        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.getType(), streamEvent.getTimestamp(),
+                borrowedEvent);
     }
 
     @Override
     public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(data, false, timeStamp, borrowedEvent);
+        convertToInnerStreamEvent(data, StreamEvent.Type.CURRENT, timeStamp, borrowedEvent);
     }
 
 }

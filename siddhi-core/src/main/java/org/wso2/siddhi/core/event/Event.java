@@ -88,7 +88,7 @@ public class Event {
     public Event copyFrom(StreamEvent streamEventList) {
         timestamp = streamEventList.getTimestamp();
         System.arraycopy(streamEventList.getOutputData(), 0, data, 0, data.length);
-        isExpired = streamEventList.isExpired();
+        isExpired = streamEventList.getType() == StreamEvent.Type.EXPIRED;
         return this;
     }
 }

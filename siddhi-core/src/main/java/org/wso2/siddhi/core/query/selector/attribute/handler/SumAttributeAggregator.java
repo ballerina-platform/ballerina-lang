@@ -61,6 +61,11 @@ public class SumAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
+    public void reset() {
+        sumOutputAttributeAggregator.reset();
+    }
+
+    @Override
     public AttributeAggregator newInstance() {
         return sumOutputAttributeAggregator.newInstance();
     }
@@ -97,6 +102,11 @@ public class SumAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            value = 0.0;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new SumAttributeAggregatorDouble();
         }
@@ -122,6 +132,11 @@ public class SumAttributeAggregator implements AttributeAggregator {
         public Object processRemove(Object obj) {
             value -= ((Float) obj).doubleValue();
             return value;
+        }
+
+        @Override
+        public void reset() {
+            value = 0.0;
         }
 
         @Override
@@ -153,6 +168,11 @@ public class SumAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            value = 0L;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new SumAttributeAggregatorInt();
         }
@@ -178,6 +198,11 @@ public class SumAttributeAggregator implements AttributeAggregator {
         public Object processRemove(Object obj) {
             value -= (Long) obj;
             return value;
+        }
+
+        @Override
+        public void reset() {
+            value = 0L;
         }
 
         @Override

@@ -33,5 +33,7 @@ public interface AttributeAggregator extends Serializable, EternalReferencedHold
 
     Object processRemove(Object obj);
 
+    void reset();
+
     AttributeAggregator newInstance();
 }

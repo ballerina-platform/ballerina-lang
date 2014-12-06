@@ -65,6 +65,11 @@ public class MaxAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
+    public void reset() {
+        maxOutputAttributeAggregator.reset();
+    }
+
+    @Override
     public AttributeAggregator newInstance() {
         return maxOutputAttributeAggregator.newInstance();
     }
@@ -116,6 +121,12 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            maxDeque.clear();
+            maxValue = null;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new MaxAttributeAggregatorDouble();
         }
@@ -156,6 +167,12 @@ public class MaxAttributeAggregator implements AttributeAggregator {
             maxDeque.removeFirstOccurrence(obj);
             maxValue = maxDeque.peekFirst();
             return maxValue;
+        }
+
+        @Override
+        public void reset() {
+            maxDeque.clear();
+            maxValue = null;
         }
 
         @Override
@@ -202,6 +219,12 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
+        public void reset() {
+            maxDeque.clear();
+            maxValue = null;
+        }
+
+        @Override
         public AttributeAggregator newInstance() {
             return new MaxAttributeAggregatorInt();
         }
@@ -242,6 +265,12 @@ public class MaxAttributeAggregator implements AttributeAggregator {
             maxDeque.removeFirstOccurrence(obj);
             maxValue = maxDeque.peekFirst();
             return maxValue;
+        }
+
+        @Override
+        public void reset() {
+            maxDeque.clear();
+            maxValue = null;
         }
 
         @Override
