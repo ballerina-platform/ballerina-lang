@@ -18,6 +18,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -26,6 +27,8 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public abstract class WindowProcessor implements Processor {
+
+    private static final Logger log = Logger.getLogger(WindowProcessor.class);
 
     protected Processor nextProcessor;
     protected Expression[] parameters;
@@ -50,7 +53,11 @@ public abstract class WindowProcessor implements Processor {
 
     public void process(StreamEventChunk streamEventChunk){
         streamEventChunk.reset();
-        process(streamEventChunk, nextProcessor);
+        try {
+            process(streamEventChunk, nextProcessor);
+        }catch (Throwable t){    //todo improve
+            log.error(t);
+        }
     }
 
     protected abstract void process(StreamEventChunk streamEventChunk, Processor nextProcessor);

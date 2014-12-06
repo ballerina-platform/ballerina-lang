@@ -175,7 +175,7 @@ public class WindowTestCase {
 
     }
 
-    //    @Test
+    @Test
     public void LengthBatchWindowTest1() throws InterruptedException {
         log.info("Testing length batch window with no of events smaller than window size");
 
@@ -190,8 +190,7 @@ public class WindowTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("Message order inEventCount", inEventCount, inEvents[0].getData(2));
-                Assert.assertEquals("Events cannot be expired", false, inEvents[0].isExpired());
+                Assert.fail("No events should arrive");
                 inEventCount = inEventCount + inEvents.length;
                 eventArrived = true;
             }
@@ -203,13 +202,13 @@ public class WindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(500);
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertTrue(eventArrived);
+        Assert.assertEquals(0, inEventCount);
+        Assert.assertFalse(eventArrived);
         executionPlanRuntime.shutdown();
 
     }
 
-    //    @Test
+    @Test
     public void LengthBatchWindowTest2() throws InterruptedException {
         log.info("Testing length batch window with no of events greater than window size");
 
@@ -221,11 +220,12 @@ public class WindowTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                for (Event event : inEvents) {
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
                     if (event.isExpired()) {
                         removeEventCount++;
                         Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
@@ -242,7 +242,58 @@ public class WindowTestCase {
                 }
                 eventArrived = true;
             }
+        });
 
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 1});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 2});
+        inputHandler.send(new Object[]{"IBM", 700f, 3});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 4});
+        inputHandler.send(new Object[]{"IBM", 700f, 5});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
+        Thread.sleep(500);
+        Assert.assertEquals("In event count", 4, inEventCount);
+        Assert.assertEquals("Remove event count", 0, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+
+    @Test
+    public void LengthBatchWindowTest3() throws InterruptedException {
+        log.info("Testing length batch window with no of events greater than window size");
+
+        final int length = 2;
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
+        String query = "@info(name = 'query1') from cseEventStream#window.lengthBatch(" + length + ") select symbol,price,volume insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    if (event.isExpired()) {
+                        removeEventCount++;
+                        Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
+                        if (removeEventCount == 1) {
+                            Assert.assertEquals("Expired event triggering position", length, inEventCount);
+                        }
+                    } else {
+                        inEventCount++;
+                        Assert.assertEquals("In event order", inEventCount, event.getData(2));
+                    }
+                }
+                Assert.assertEquals("No of emitted events at window expiration", inEventCount - length,
+                        removeEventCount);
+                eventArrived = true;
+            }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");

@@ -26,11 +26,10 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
-    private StreamEventChunk expiredEventChunk=new StreamEventChunk();
-    private StreamEvent removeEventHead = null;
-    private StreamEvent removeEventTail = null;
-    StreamEventFactory removeEventFactory;
+    private StreamEventChunk currentEventChunk = new StreamEventChunk();
+    private StreamEventChunk expiredEventChunk = new StreamEventChunk();
     private MetaStreamEvent metaStreamEvent;
+    private StreamEventCloner streamEventCloner;
 
 
     /**
@@ -43,58 +42,89 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     @Override
     public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
         this.metaStreamEvent = metaStreamEvent;
+        this.streamEventCloner = streamEventCloner;
         if (parameters != null) {
             this.setLength(((IntConstant) parameters[0]).getValue());
         }
-        removeEventFactory = new StreamEventFactory(0, metaStreamEvent.getOnAfterWindowData().size(),
-                metaStreamEvent.getOutputData().size());
-
     }
 
     @Override
     public void process(StreamEventChunk streamEventChunk, Processor nextProcessor) {
-        StreamEvent event = streamEventChunk.getFirst();
-        StreamEvent currentEvent;
-        StreamEvent head = event;
-        while (event != null) {
-            processEvent(event);
-            currentEvent = event;
-            event = event.getNext();
+        while (streamEventChunk.hasNext()) {
+            StreamEvent streamEvent = streamEventChunk.next();
+            StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
+//            clonedStreamEvent.setExpired(true);
+            currentEventChunk.add(clonedStreamEvent);
+            count++;
             if (count == length) {
-                currentEvent.setNext(removeEventHead);
-                removeEventHead = null;
-                removeEventTail.setNext(event);
-                count = 0;
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = expiredEventChunk.next();
+                    expiredEvent.setTimestamp(System.currentTimeMillis());  //todo fix
+                }
+                if(expiredEventChunk.getFirst()!=null) {
+                    streamEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());
+                }
+                expiredEventChunk.clear();
+                while (currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = currentEventChunk.next();
+                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+                    toExpireEvent.setExpired(true);
+                    expiredEventChunk.add(toExpireEvent);
+                }
+                streamEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());
+                currentEventChunk.clear();
+                count=0;
+
             }
+            streamEventChunk.remove();
+
         }
+        if(streamEventChunk.getFirst()!=null) {
+            nextProcessor.process(streamEventChunk);
+        }
+
+//        StreamEvent event = streamEventChunk.getFirst();
+//        StreamEvent currentEvent;
+//        StreamEvent head = event;
+//        while (event != null) {
+//            processEvent(event);
+//            currentEvent = event;
+//            event = event.getNext();
+//            if (count == length) {
+//                currentEvent.setNext(removeEventHead);
+//                removeEventHead = null;
+//                removeEventTail.setNext(event);
+//                count = 0;
+//            }
+//        }
 //        ConvertingStreamEventChunk headStreamEventChunk = new ConvertingStreamEventChunk(null,null);
 //        headEventChunk.setEventConverter(eventChunk.getEventConverter());
 //        headEventChunk.assignConvertedEvents(head);
 //        nextProcessor.process(headStreamEventChunk);
     }
 
-    /**
-     * Create a copy of in event and store as remove event to emit at window expiration as expired events.
-     *
-     * @param event
-     */
-    private void processEvent(StreamEvent event) {      //can do in event or borrow from pool??
-        StreamEvent removeEvent = removeEventFactory.newInstance();
-        if(removeEvent.getOnAfterWindowData()!=null) {
-            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
-                    event.getOnAfterWindowData().length);
-        }
-        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputData().length);
-        removeEvent.setExpired(true);
-        if (removeEventHead == null) {      //better if we can do it in init()
-            removeEventHead = removeEvent;
-            removeEventTail = removeEvent;
-        } else {
-            removeEventTail.setNext(removeEvent);
-            removeEventTail = removeEvent;
-        }
-        count++;
-    }
+//    /**
+//     * Create a copy of in event and store as remove event to emit at window expiration as expired events.
+//     *
+//     * @param event
+//     */
+//    private void processEvent(StreamEvent event) {      //can do in event or borrow from pool??
+//        StreamEvent removeEvent = removeEventFactory.newInstance();
+//        if (removeEvent.getOnAfterWindowData() != null) {
+//            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
+//                    event.getOnAfterWindowData().length);
+//        }
+//        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputData().length);
+//        removeEvent.setExpired(true);
+//        if (removeEventHead == null) {      //better if we can do it in init()
+//            removeEventHead = removeEvent;
+//            removeEventTail = removeEvent;
+//        } else {
+//            removeEventTail.setNext(removeEvent);
+//            removeEventTail = removeEvent;
+//        }
+//        count++;
+//    }
 
     @Override
     public Processor cloneProcessor() {
