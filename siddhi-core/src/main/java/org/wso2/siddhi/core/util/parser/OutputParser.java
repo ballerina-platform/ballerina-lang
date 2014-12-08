@@ -30,7 +30,6 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 
 public class OutputParser {
 
@@ -44,7 +43,7 @@ public class OutputParser {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id);
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
-                        (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                        executionPlanContext.getExecutorService(),
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
                 streamJunctionMap.putIfAbsent(id, outputStreamJunction);
             }
@@ -65,7 +64,7 @@ public class OutputParser {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id + key);
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
-                        (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                        executionPlanContext.getExecutorService(),
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
                 streamJunctionMap.put(id + key, outputStreamJunction);
             }

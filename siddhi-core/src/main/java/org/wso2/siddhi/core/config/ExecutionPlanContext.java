@@ -20,6 +20,7 @@ import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
 
 public class ExecutionPlanContext {
@@ -32,6 +33,7 @@ public class ExecutionPlanContext {
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private Lock sharedLock =null;
+    private ThreadPoolExecutor executorService;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -96,5 +98,13 @@ public class ExecutionPlanContext {
 
     public void setSharedLock(Lock sharedLock) {
         this.sharedLock = sharedLock;
+    }
+
+    public void setExecutorService(ThreadPoolExecutor executorService) {
+        this.executorService = executorService;
+    }
+
+    public ThreadPoolExecutor getExecutorService() {
+        return executorService;
     }
 }

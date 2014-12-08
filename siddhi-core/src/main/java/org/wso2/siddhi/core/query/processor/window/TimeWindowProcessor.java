@@ -22,10 +22,11 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
 public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor {
 
-    private int time;
+    private long timeInMilliSeconds;
     private StreamEventChunk expiredEventChunk;
     private StreamEventCloner streamEventCloner;
     private MetaStreamEvent metaStreamEvent;
@@ -38,7 +39,12 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
         expiredEventChunk = new StreamEventChunk();
 
         if (parameters != null) {
-            time = ((IntConstant) parameters[0]).getValue();
+            if (parameters[0] instanceof TimeConstant) {
+                timeInMilliSeconds = ((TimeConstant) parameters[0]).getValue();
+            } else {
+                timeInMilliSeconds = ((IntConstant) parameters[0]).getValue();
+            }
+
         }
     }
 
@@ -47,13 +53,14 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
-
             long currentTime = System.currentTimeMillis();  //todo fix
-            clonedEvent.setTimestamp(currentTime + time);
 
-            this.expiredEventChunk.add(clonedEvent);
+            StreamEvent clonedEvent = null;
+            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
+                clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
+                clonedEvent.setTimestamp(currentTime + timeInMilliSeconds);
+            }
 
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
@@ -67,6 +74,10 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                     break;
                 }
             }
+            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
+                this.expiredEventChunk.add(clonedEvent);
+            }
+            expiredEventChunk.reset();
         }
         nextProcessor.process(streamEventChunk);
     }
@@ -74,16 +85,12 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     public Processor cloneProcessor() {
         TimeWindowProcessor lengthWindowProcessor = new TimeWindowProcessor();
-        lengthWindowProcessor.setTime(this.time);
+        lengthWindowProcessor.setTimeInMilliSeconds(this.timeInMilliSeconds);
         return lengthWindowProcessor;
     }
 
-    public int getTime() {
-        return time;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
+    public void setTimeInMilliSeconds(long timeInMilliSeconds) {
+        this.timeInMilliSeconds = timeInMilliSeconds;
     }
 
     @Override

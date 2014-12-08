@@ -16,7 +16,11 @@
 package org.wso2.siddhi.core.util;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ConvertingStreamEventChunk;
+import org.wso2.siddhi.core.event.stream.converter.EventConverter;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.concurrent.BlockingQueue;
@@ -35,6 +39,7 @@ public class Scheduler {
     private EventCaller eventCaller;
     private volatile boolean running = false;
     private StreamEventPool streamEventPool;
+    private StreamEventChunk streamEventChunk;
 
 
     public Scheduler(ScheduledExecutorService scheduledExecutorService, Processor singleThreadEntryValve) {
@@ -69,6 +74,7 @@ public class Scheduler {
 
     public void setStreamEventPool(StreamEventPool streamEventPool) {
         this.streamEventPool = streamEventPool;
+        streamEventChunk = new ConvertingStreamEventChunk((EventConverter) null, streamEventPool);
     }
 
     private class EventCaller implements Runnable {
@@ -94,9 +100,16 @@ public class Scheduler {
         public void run() {
             Long toNotifyTime = toNotifyQueue.peek();
             long currentTime = System.currentTimeMillis();
-            while (toNotifyTime != null && currentTime - toNotifyTime <= 0) {
+            long timeDiff = toNotifyTime - currentTime ;
+            while (toNotifyTime != null && timeDiff <= 0) {
                 toNotifyQueue.poll();
-//                singleThreadEntryValve.process(streamEventPool.borrowEvent());   //todo fix
+
+                StreamEvent timerEvent = streamEventPool.borrowEvent();
+                timerEvent.setType(StreamEvent.Type.TIMER);
+                timerEvent.setTimestamp(currentTime);
+                streamEventChunk.add(timerEvent);
+                singleThreadEntryValve.process(streamEventChunk);
+                streamEventChunk.clear();
 
                 toNotifyTime = toNotifyQueue.peek();
                 currentTime = System.currentTimeMillis();
@@ -107,7 +120,7 @@ public class Scheduler {
             } else {
                 synchronized (toNotifyQueue) {
                     running = false;
-                    if( toNotifyQueue.peek()!=null){
+                    if (toNotifyQueue.peek() != null) {
                         running = true;
                         scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
                     }

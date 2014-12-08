@@ -22,7 +22,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -36,7 +36,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
     private String streamId;
     private AbstractDefinition streamDefinition;
     private List<Event> eventBuffer = new ArrayList<Event>();
-    private SiddhiContext siddhiContext;
+    private ExecutionPlanContext executionPlanContext;
     private AsyncEventHandler asyncEventHandler;
 
     private Disruptor<EventHolder> disruptor;
@@ -56,8 +56,8 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         this.streamDefinition = streamDefinition;
     }
 
-    public void setContext(SiddhiContext siddhiContext) {
-        this.siddhiContext = siddhiContext;
+    public void setContext(ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
     }
 
     @Override
@@ -124,8 +124,8 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
                     return new EventHolder();
                 }
             },
-                    siddhiContext.getEventBufferSize(),
-                    siddhiContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
+                    executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                    executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
 
             asyncEventHandler = new AsyncEventHandler(this);
             disruptor.handleEventsWith(asyncEventHandler);

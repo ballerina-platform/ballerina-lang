@@ -70,29 +70,32 @@ public class QuerySelector implements Processor {
 
         while (streamEventChunk.hasNext()) {       //todo optimize
             StreamEvent event = streamEventChunk.next();
-            if (isGroupBy) {
-                keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
+            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
+                if (isGroupBy) {
+                    keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
+                }
+
+                //TODO: have to change for windows
+                for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                    attributeProcessor.process(event);
+                }
+
+                if (isGroupBy) {
+                    keyThreadLocal.remove();
+                }
+
+                if (havingConditionExecutor != null && !havingConditionExecutor.execute(event)) {
+                    streamEventChunk.remove();
+                }
+            } else {
+                streamEventChunk.remove();
             }
 
-            //TODO: have to change for windows
-            for (AttributeProcessor attributeProcessor : attributeProcessorList) {
-                attributeProcessor.process(event);
-            }
-
-            if (isGroupBy) {
-                keyThreadLocal.remove();
-            }
         }
 
-        if (havingConditionExecutor == null) {
+        if (streamEventChunk.getFirst() != null) {
             outputRateLimiter.process(streamEventChunk);
-        } else {
-            streamEventChunk.reset();
-            evaluateHavingConditions(streamEventChunk);
-            outputRateLimiter.process(streamEventChunk);
-
         }
-
     }
 
     private void evaluateHavingConditions(StreamEventChunk streamEventBuffer) {

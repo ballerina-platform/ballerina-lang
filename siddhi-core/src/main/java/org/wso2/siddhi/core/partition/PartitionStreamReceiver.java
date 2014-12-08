@@ -29,15 +29,14 @@ import org.wso2.siddhi.core.event.stream.converter.EventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 
 public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
@@ -203,7 +202,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                     StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
                     if (streamJunction == null) {
                         streamJunction = new StreamJunction(streamDefinition,
-                                (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                                executionPlanContext.getExecutorService(),
                                 executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
                         partitionRuntime.addStreamJunction(streamId + key, streamJunction);
                         cachedStreamJunctionMap.put(streamId + key, streamJunction);

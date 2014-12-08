@@ -28,10 +28,10 @@ import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
 import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -50,7 +50,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
 
 public class PartitionRuntime {
 
@@ -155,7 +154,7 @@ public class PartitionRuntime {
                     StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
                     if (streamJunction == null) {
                         streamJunction = new StreamJunction((StreamDefinition) localStreamDefinitionMap.get(streamId),
-                                (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                                executionPlanContext.getExecutorService(),
                                 executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext
                                 );
                         localStreamJunctionMap.put(streamId + key, streamJunction);
@@ -219,7 +218,7 @@ public class PartitionRuntime {
             StreamJunction streamJunction = localStreamJunctionMap.get(streamDefinition.getId());
             if (streamJunction == null) {
                 streamJunction = new StreamJunction(streamDefinition,
-                        (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                        executionPlanContext.getExecutorService(),
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
                 localStreamJunctionMap.putIfAbsent(streamDefinition.getId(), streamJunction);
             }

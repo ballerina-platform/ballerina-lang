@@ -45,7 +45,7 @@ public class SingleStreamEntryValve implements InputProcessor {
         SingleEntryValveHandler singleEntryValveHandler = new SingleEntryValveHandler();
         singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
                 executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                executionPlanContext.getSiddhiContext().getExecutorService(),
+                executionPlanContext.getExecutorService(),
                 ProducerType.MULTI,
                 new SleepingWaitStrategy());
         singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);

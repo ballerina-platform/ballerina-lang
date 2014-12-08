@@ -22,12 +22,10 @@ package org.wso2.siddhi.core.config;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 public class SiddhiContext {
 
     private int eventBufferSize ;
-    private Executor executorService;
     private Map<String, Class> siddhiExtensions;
 
     public SiddhiContext() {
@@ -36,14 +34,6 @@ public class SiddhiContext {
 
     public int getEventBufferSize() {
         return eventBufferSize;
-    }
-
-    public Executor getExecutorService() {
-        return executorService;
-    }
-
-    public void setExecutorService(Executor executorService) {
-        this.executorService = executorService;
     }
 
     public Map<String, Class> getSiddhiExtensions() {

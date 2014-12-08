@@ -38,6 +38,10 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ExecutionPlanParser {
@@ -83,6 +87,12 @@ public class ExecutionPlanParser {
             if (!executionPlanContext.isPlayback() && !executionPlanContext.isEnforceOrder() && !executionPlanContext.isParallel()) {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
+
+            executionPlanContext.setExecutorService(new ThreadPoolExecutor(5, Integer.MAX_VALUE,
+                    60L, TimeUnit.SECONDS,
+                    new LinkedBlockingDeque<Runnable>()));
+
+            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5));
 
         } catch (DuplicateAnnotationException e) {
             throw new ExecutionPlanValidationException(e.getMessage() + " for the same Execution Plan " +

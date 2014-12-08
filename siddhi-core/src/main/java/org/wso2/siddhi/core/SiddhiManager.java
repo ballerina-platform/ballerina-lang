@@ -38,9 +38,7 @@ public class SiddhiManager {
     public SiddhiManager() {
         siddhiContext = new SiddhiContext();
         siddhiContext.setEventBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
-        siddhiContext.setExecutorService(new ThreadPoolExecutor(5, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new LinkedBlockingDeque<Runnable>()));
+
     }
 
     /**

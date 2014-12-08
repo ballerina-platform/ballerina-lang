@@ -56,7 +56,8 @@ public abstract class WindowProcessor implements Processor {
         try {
             process(streamEventChunk, nextProcessor);
         }catch (Throwable t){    //todo improve
-            log.error(t);
+//            t.printStackTrace();
+            log.error(t.getMessage(),t);
         }
     }
 

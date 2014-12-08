@@ -24,7 +24,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventChunk;
@@ -35,7 +35,7 @@ import java.util.List;
 
 public abstract class QueryCallback {
 
-    private SiddhiContext siddhiContext;
+    private ExecutionPlanContext executionPlanContext;
     private Query query;
     private List<Event> currentEventBuffer = new ArrayList<Event>();
     private List<Event> expiredEventBuffer = new ArrayList<Event>();
@@ -48,8 +48,8 @@ public abstract class QueryCallback {
         this.query = query;
     }
 
-    public void setContext(SiddhiContext siddhiContext) {
-        this.siddhiContext = siddhiContext;
+    public void setContext(ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
     }
 
     public void receiveStreamEvent(StreamEventChunk streamEventChunk) {
@@ -145,8 +145,9 @@ public abstract class QueryCallback {
 
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
 
-            disruptor = new Disruptor<EventHolder>(new EventHolderFactory(), siddhiContext.getEventBufferSize(),
-                    siddhiContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
+            disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
+                    executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                    executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
 
             asyncEventHandler = new AsyncEventHandler(this);
             disruptor.handleEventsWith(asyncEventHandler);

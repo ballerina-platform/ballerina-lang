@@ -25,23 +25,22 @@ import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 
 /**
  * keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
@@ -68,8 +67,8 @@ public class ExecutionPlanRuntime {
             streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
             SiddhiContext siddhiContext = executionPlanContext.getSiddhiContext();
             streamJunction = new StreamJunction(streamDefinition,
-                    (ExecutorService) siddhiContext.getExecutorService(),
-                    siddhiContext.getEventBufferSize(),executionPlanContext);
+                    executionPlanContext.getExecutorService(),
+                    siddhiContext.getEventBufferSize(), executionPlanContext);
             streamJunctionMap.put(streamDefinition.getId(), streamJunction);
 
         }
@@ -107,11 +106,11 @@ public class ExecutionPlanRuntime {
     public void addCallback(String streamId, StreamCallback streamCallback) {
         streamCallback.setStreamId(streamId);
         streamCallback.setStreamDefinition(streamDefinitionMap.get(streamId));
-        streamCallback.setContext(executionPlanContext.getSiddhiContext());
+        streamCallback.setContext(executionPlanContext);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
             streamJunction = new StreamJunction((StreamDefinition) streamDefinitionMap.get(streamId),
-                    (ExecutorService) executionPlanContext.getSiddhiContext().getExecutorService(),
+                    executionPlanContext.getExecutorService(),
                     executionPlanContext.getSiddhiContext().getEventBufferSize(),
                     executionPlanContext);
             streamJunctionMap.put(streamId, streamJunction);
@@ -120,7 +119,7 @@ public class ExecutionPlanRuntime {
     }
 
     public void addCallback(String queryName, QueryCallback callback) {
-        callback.setContext(executionPlanContext.getSiddhiContext());
+        callback.setContext(executionPlanContext);
         QueryRuntime queryRuntime = queryProcessorMap.get(queryName);
         if (queryRuntime == null) {
             throw new QueryNotExistException("No query fund for " + queryName);
