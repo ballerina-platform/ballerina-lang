@@ -569,13 +569,13 @@ public class RDBMSEventTable implements EventTable {
 
             if (streamEvent instanceof AtomicEvent) {
 
-                for (int i = 0; i < attributeList.size(); i++) {
+                for (int i = 0; i < attributeUpdateMappingPosition.length; i++) {
                     populateStatement(statement, i + 1, atomicEvent.getData(i));
                 }
 
                 predicate.populateParameters(paramList);
                 for (int i = 0; i < paramList.size(); i++) {
-                    populateStatement(statement, attributeList.size() + i + 1, paramList.get(i));
+                    populateStatement(statement, attributeUpdateMappingPosition.length + i + 1, paramList.get(i));
                 }
                 statement.executeUpdate();
 
@@ -736,11 +736,11 @@ public class RDBMSEventTable implements EventTable {
         statementBuilder.append(fullTableName);
         statementBuilder.append(" SET ");
 
-        for (int i = 0; i < attributeList.size(); i++) {
+        for (int i = 0; i < attributeMappingPositions.length; i++) {
             if (i > 0) {
                 statementBuilder.append(", ");
             }
-            statementBuilder.append(attributeList.get(i).getName());
+            statementBuilder.append(attributeList.get(attributeMappingPositions[i]).getName());
             statementBuilder.append(" = ?");
         }
         statementBuilder.append(" WHERE ");
