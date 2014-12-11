@@ -13,7 +13,7 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 
@@ -47,7 +47,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
 
     @Override
-    public Object execute(StreamEvent event) {
+    public Object execute(ComplexEvent event) {
 
         if (attributeSize > 1) {
             Object[] data = new Object[attributeExpressionExecutors.size()];

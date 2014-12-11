@@ -34,16 +34,19 @@ import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.handler.*;
 import org.wso2.siddhi.query.api.execution.query.input.state.*;
 import org.wso2.siddhi.query.api.execution.query.input.stream.*;
-import org.wso2.siddhi.query.api.execution.query.output.ratelimit.*;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRate;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.TimeOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.*;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 import org.wso2.siddhi.query.api.expression.constant.*;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
-import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.compiler.SiddhiQLBaseVisitor;
 import org.wso2.siddhi.query.compiler.SiddhiQLParser;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
@@ -280,7 +283,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitCondition_range(@NotNull SiddhiQLParser.Condition_rangeContext ctx) {
-        return new RangePartitionType.RangePartitionProperty((String)((StringConstant)visit(ctx.string_value())).getValue(), (Expression) visit(ctx.expression()));
+        return new RangePartitionType.RangePartitionProperty((String) ((StringConstant) visit(ctx.string_value())).getValue(), (Expression) visit(ctx.expression()));
     }
 
     /**
@@ -493,8 +496,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             activeStreams.remove(ctx.source().getText());
             activeStreams.add(streamAlias);
         }
-        BasicSingleInputStream basicSingleInputStream = new BasicSingleInputStream(source.streamId,
-                streamAlias, source.isInnerStream);
+        BasicSingleInputStream basicSingleInputStream = new BasicSingleInputStream(streamAlias, source.streamId,
+                source.isInnerStream);
 
         if (ctx.basic_source_stream_handlers() != null) {
             basicSingleInputStream.addStreamHandlers((List<StreamHandler>) visit(ctx.basic_source_stream_handlers()));
@@ -763,7 +766,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         Source source = (Source) visit(ctx.source());
 
         BasicSingleInputStream basicSingleInputStream =
-                new BasicSingleInputStream(source.streamId, null, source.isInnerStream);
+                new BasicSingleInputStream(null, source.streamId, source.isInnerStream);
 
         if (ctx.basic_source_stream_handlers() != null) {
             basicSingleInputStream.addStreamHandlers((List<StreamHandler>) visit(ctx.basic_source_stream_handlers()));
@@ -868,7 +871,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public AnonymousInputStream visitAnonymous_stream(@NotNull SiddhiQLParser.Anonymous_streamContext ctx) {
 
-        if(ctx.anonymous_stream()!=null){
+        if (ctx.anonymous_stream() != null) {
             return (AnonymousInputStream) visit(ctx.anonymous_stream());
         }
 
@@ -1695,7 +1698,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } else if (ctx.time_value() != null) {
             return (TimeConstant) visit(ctx.time_value());
         } else if (ctx.string_value() != null) {
-            return Expression.value(((StringConstant)visit(ctx.string_value())).getValue());
+            return Expression.value(((StringConstant) visit(ctx.string_value())).getValue());
         } else {
             throw newSiddhiParserException(ctx);
         }

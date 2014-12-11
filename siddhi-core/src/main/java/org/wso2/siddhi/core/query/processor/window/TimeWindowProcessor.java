@@ -14,20 +14,21 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.query.input.stream.join.Finder;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
-public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor {
+public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
-    private StreamEventChunk expiredEventChunk;
+    private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private StreamEventCloner streamEventCloner;
     private MetaStreamEvent metaStreamEvent;
     private Scheduler scheduler;
@@ -36,7 +37,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
         this.metaStreamEvent = metaStreamEvent;
         this.streamEventCloner = streamEventCloner;
-        expiredEventChunk = new StreamEventChunk();
+        expiredEventChunk = new ComplexEventChunk<StreamEvent>();
 
         if (parameters != null) {
             if (parameters[0] instanceof TimeConstant) {
@@ -49,7 +50,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     }
 
     @Override
-    public void process(StreamEventChunk streamEventChunk, Processor nextProcessor) {
+    public void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor) {
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
@@ -101,5 +102,18 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    @Override
+    public StreamEvent find(Finder finder) {    //todo optimize
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        expiredEventChunk.reset();
+        while (expiredEventChunk.hasNext()) {
+            StreamEvent streamEvent = expiredEventChunk.next();
+            if (finder.execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        return returnEventChunk.getFirst();
     }
 }

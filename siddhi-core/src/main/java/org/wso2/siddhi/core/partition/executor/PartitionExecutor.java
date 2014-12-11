@@ -18,10 +18,10 @@
  */
 package org.wso2.siddhi.core.partition.executor;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 
 public interface PartitionExecutor {
 
-    public String execute(StreamEvent event);
+    public String execute(ComplexEvent event);
 
 }

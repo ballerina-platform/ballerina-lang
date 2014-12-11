@@ -30,14 +30,15 @@ public class ExecutionPlanContext {
     private boolean playback;
     private boolean enforceOrder;
     private boolean parallel;
+
+    private ThreadPoolExecutor executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
+
     private Lock sharedLock =null;
-    private ThreadPoolExecutor executorService;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
-
     }
 
     public SiddhiContext getSiddhiContext() {

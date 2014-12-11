@@ -23,8 +23,8 @@ import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
@@ -61,11 +61,11 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(StreamEvent streamEvent) {
+    public void receive(ComplexEvent complexEvent) {
 
-        while (streamEvent != null) {
-            eventBuffer.add(new Event(streamEvent.getOutputData().length).copyFrom(streamEvent));
-            streamEvent = streamEvent.getNext();
+        while (complexEvent != null) {
+            eventBuffer.add(new Event(complexEvent.getOutputData().length).copyFrom(complexEvent));
+            complexEvent = complexEvent.getNext();
         }
         if (disruptor == null) {
             receive(eventBuffer.toArray(new Event[eventBuffer.size()]));

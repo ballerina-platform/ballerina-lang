@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.query.selector;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
@@ -39,7 +39,7 @@ public class GroupByKeyGenerator {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                        siddhiContext, metaStateEvent.getMetaEvent(0), executors, false);
+                        siddhiContext, metaStateEvent.getMetaStreamEvent(0), executors, false);
             }
         }
     }
@@ -47,10 +47,10 @@ public class GroupByKeyGenerator {
     /**
      * generate groupBy key of a streamEvent
      *
-     * @param event streamEvent
+     * @param event complexEvent
      * @return GroupByKey
      */
-    protected String constructEventKey(StreamEvent event) {
+    protected String constructEventKey(ComplexEvent event) {
         if (groupByExecutors != null) {
             StringBuilder sb = new StringBuilder();
             for (ExpressionExecutor executor : groupByExecutors) {

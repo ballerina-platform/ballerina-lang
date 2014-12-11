@@ -20,7 +20,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 
@@ -38,7 +38,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     @Override
-    public Object execute(StreamEvent event) {
+    public Object execute(ComplexEvent event) {
         return process(event, attributeAggregator);
     }
 

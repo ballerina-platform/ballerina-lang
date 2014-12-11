@@ -17,12 +17,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream;
+package org.wso2.siddhi.core.query.input.stream.single;
 
+import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SingleStreamRuntime implements StreamRuntime {
 
@@ -39,8 +43,20 @@ public class SingleStreamRuntime implements StreamRuntime {
         return processorChain;
     }
 
+    public void setProcessorChain(Processor processorChain) {
+        this.processorChain = processorChain;
+    }
+
     public QueryStreamReceiver getQueryStreamReceiver() {
         return queryStreamReceiver;
+    }
+
+    @Override
+    public List<SingleStreamRuntime> getSingleStreamRuntimes() {
+        List<SingleStreamRuntime> list = new ArrayList<SingleStreamRuntime>(1);
+        list.add(this);
+        return list;
+
     }
 
     @Override
@@ -60,5 +76,15 @@ public class SingleStreamRuntime implements StreamRuntime {
             }
         }
         return new SingleStreamRuntime(clonedQueryStreamReceiver, clonedProcessorChain);
+    }
+
+    @Override
+    public void setCommonProcessor(Processor commonProcessor) {
+        if (processorChain == null) {
+            queryStreamReceiver.setNext(commonProcessor);
+        } else {
+            queryStreamReceiver.setNext(processorChain);
+            processorChain.setToLast(commonProcessor);
+        }
     }
 }

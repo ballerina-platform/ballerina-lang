@@ -20,9 +20,11 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexMetaEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.QueryCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -67,6 +69,8 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByA
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.And;
@@ -88,10 +92,11 @@ public class ExpressionParser {
 
     /**
      * Parse the given expression and create the appropriate Executor by recursively traversing the expression
-     *  @param expression    Expression to be parsed
+     *
+     * @param expression           Expression to be parsed
      * @param executionPlanContext
      * @param metaEvent
-     * @param executorList  List to hold VariableExpressionExecutors to update after query parsing  @return
+     * @param executorList         List to hold VariableExpressionExecutors to update after query parsing  @return
      */
     public static ExpressionExecutor parseExpression(Expression expression, ExecutionPlanContext executionPlanContext,
                                                      ComplexMetaEvent metaEvent,
@@ -236,14 +241,14 @@ public class ExpressionParser {
             Object executor;
             try {
                 executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, ExecutorExtensionHolder.getInstance(executionPlanContext));
-            } catch (QueryCreationException ex) {
+            } catch (ExecutionPlanCreationException ex) {
                 try {
                     executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, OutputAttributeExtensionHolder.getInstance(executionPlanContext));
-                } catch (QueryCreationException e) {
-                    throw new QueryCreationException(((AttributeFunctionExtension) expression).getFunction() + " is neither a function extension nor an aggregated attribute extension");
+                } catch (ExecutionPlanCreationException e) {
+                    throw new ExecutionPlanCreationException(((AttributeFunctionExtension) expression).getFunction() + " is neither a function extension nor an aggregated attribute extension");
                 }
             }
-            if(executor instanceof  FunctionExecutor) {
+            if (executor instanceof FunctionExecutor) {
                 FunctionExecutor expressionExecutor = (FunctionExecutor) executor;
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
@@ -273,16 +278,16 @@ public class ExpressionParser {
             Object executor;
             try {
                 executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), AttributeAggregator.class);
-            } catch (QueryCreationException ex) {
+            } catch (ExecutionPlanCreationException ex) {
                 try {
                     executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
-                } catch (QueryCreationException e) {
-                    throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " is neither a function nor an aggregated attribute");
+                } catch (ExecutionPlanCreationException e) {
+                    throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " is neither a function nor an aggregated attribute");
                 }
             }
             if (executor instanceof AttributeAggregator) {
                 if (((AttributeFunction) expression).getParameters().length > 1) {
-                    throw new QueryCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
+                    throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
                 }
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
                 innerExpressionExecutors.add(parseExpression(((AttributeFunction) expression).getParameters()[0], executionPlanContext, metaEvent, executorList, groupBy));
@@ -899,13 +904,74 @@ public class ExpressionParser {
 
         if (metaEvent instanceof MetaStreamEvent) {
             MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
-            metaEvent.addData(new Attribute(attributeName, metaStreamEvent.getInputDefinition().getAttributeType(attributeName)));
-            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName, (StreamDefinition) (metaStreamEvent.getInputDefinition()));
+            ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, metaStreamEvent.getInputDefinition()
+                    .getAttributeType(attributeName)));
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName,
+                    (StreamDefinition) (metaStreamEvent.getInputDefinition()));
             executorList.add(variableExpressionExecutor);
             return variableExpressionExecutor;
-        } else {
-            //TODO handle meta state events
-            throw new OperationNotSupportedException("MetaStateEvents are not supported at the moment");
+        } else {      //todo support stream index
+            MetaStateEvent metaStateEvent = (MetaStateEvent) metaEvent;
+            Attribute.Type type = null;
+            StreamDefinition inputStreamDefinition = null;
+            String firstInput = null;
+            int[] eventPosition = new int[2];
+            if (variable.getStreamId() == null) {
+                MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
+                for (int i = 0; i < metaStreamEvents.length; i++) {
+                    MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
+                    if (type == null) {
+                        try {
+                            inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                            type = inputStreamDefinition.getAttributeType(attributeName);
+                            firstInput = "Input Stream: " + inputStreamDefinition.getId() + " with " +
+                                    "reference: " + metaStreamEvent.getInputReferenceId();
+                            eventPosition[0] = i;
+                        } catch (AttributeNotExistException e) {
+                            //do nothing
+                        }
+                    } else {
+                        try {
+                            metaStreamEvent.getInputDefinition().getAttributeType(attributeName);
+                            throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + metaStreamEvent
+                                    .getInputDefinition().getId() + " with " +
+                                    "reference: " + metaStreamEvent.getInputReferenceId() + " contains attributes with same" +
+                                    " names ");
+                        } catch (AttributeNotExistException e) {
+                            //do nothing as its expected
+                        }
+                    }
+                }
+            } else {
+                MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
+                for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
+                    MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
+                    if (metaStreamEvent.getInputReferenceId() == null) {
+                        if (metaStreamEvent.getInputDefinition().getId().equals(variable.getStreamId())) {
+                            inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                            type = inputStreamDefinition.getAttributeType(attributeName);
+                            eventPosition[0] = i;
+                            break;
+                        }
+                    } else {
+                        if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
+                            inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                            type = inputStreamDefinition.getAttributeType(attributeName);
+                            eventPosition[0] = i;
+                            break;
+                        }
+                    }
+
+
+                }
+            }
+
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName,
+                    inputStreamDefinition, eventPosition[0], eventPosition[1]);
+            ((MetaStateEvent) metaEvent).putData(
+                    new MetaStateEventAttribute(new Attribute(attributeName, type), variableExpressionExecutor.getPosition()));
+            executorList.add(variableExpressionExecutor);
+            return variableExpressionExecutor;
         }
     }
 

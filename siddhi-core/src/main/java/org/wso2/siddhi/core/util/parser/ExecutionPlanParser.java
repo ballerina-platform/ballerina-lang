@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -114,7 +114,7 @@ public class ExecutionPlanParser {
                     executionPlanRuntime.addPartition(partitionRuntime);
                 }
             }
-        } catch (QueryCreationException e) {
+        } catch (ExecutionPlanCreationException e) {
             throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
                     executionPlanRuntime.getName() + "\"", e);
         }

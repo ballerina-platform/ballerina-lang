@@ -21,9 +21,11 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.populater.StateEventPopulater;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -48,6 +50,7 @@ public class QuerySelector implements Processor {
     private boolean isGroupBy = false;
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
+    private StateEventPopulater eventPopulator;
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, ExecutionPlanContext executionPlanContext) {
         this.id = id;
@@ -62,14 +65,18 @@ public class QuerySelector implements Processor {
     }
 
     @Override
-    public void process(StreamEventChunk streamEventChunk) {
-        streamEventChunk.reset();
+    public void process(ComplexEventChunk complexEventChunk) {
+
+        complexEventChunk.reset();
+
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
 
-        while (streamEventChunk.hasNext()) {       //todo optimize
-            StreamEvent event = streamEventChunk.next();
+        while (complexEventChunk.hasNext()) {       //todo optimize
+            ComplexEvent event = complexEventChunk.next();
+            eventPopulator.convertToStateEvent(event);
+
             if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
                 if (isGroupBy) {
                     keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
@@ -85,20 +92,20 @@ public class QuerySelector implements Processor {
                 }
 
                 if (havingConditionExecutor != null && !havingConditionExecutor.execute(event)) {
-                    streamEventChunk.remove();
+                    complexEventChunk.remove();
                 }
             } else {
-                streamEventChunk.remove();
+                complexEventChunk.remove();
             }
 
         }
 
-        if (streamEventChunk.getFirst() != null) {
-            outputRateLimiter.process(streamEventChunk);
+        if (complexEventChunk.getFirst() != null) {
+            outputRateLimiter.process(complexEventChunk);
         }
     }
 
-    private void evaluateHavingConditions(StreamEventChunk streamEventBuffer) {
+    private void evaluateHavingConditions(ComplexEventChunk<StreamEvent> streamEventBuffer) {
         while (streamEventBuffer.hasNext()) {
             StreamEvent streamEvent = streamEventBuffer.next();
             if (!havingConditionExecutor.execute(streamEvent)) {
@@ -116,18 +123,22 @@ public class QuerySelector implements Processor {
     @Override
     public void setNextProcessor(Processor processor) {
         if (!(processor instanceof OutputRateLimiter)) {
-            throw new QueryCreationException("processor is not an instance of OutputRateLimiter");
+            throw new ExecutionPlanCreationException("processor is not an instance of OutputRateLimiter");
         }
         if (outputRateLimiter == null) {
             this.outputRateLimiter = (OutputRateLimiter) processor;
         } else {
-            throw new QueryCreationException("outputRateLimiter is already assigned");
+            throw new ExecutionPlanCreationException("outputRateLimiter is already assigned");
         }
     }
 
     @Override
     public void setToLast(Processor processor) {
-        setNextProcessor(processor);
+        if (getNextProcessor() == null) {
+            this.setNextProcessor(processor);
+        } else {
+            getNextProcessor().setToLast(processor);
+        }
     }
 
     @Override
@@ -162,7 +173,12 @@ public class QuerySelector implements Processor {
         clonedQuerySelector.isGroupBy = isGroupBy;
         clonedQuerySelector.groupByKeyGenerator = groupByKeyGenerator;
         clonedQuerySelector.havingConditionExecutor = havingConditionExecutor;
+        clonedQuerySelector.eventPopulator = eventPopulator;
         return clonedQuerySelector;
+    }
+
+    public void setEventPopulator(StateEventPopulater eventPopulator) {
+        this.eventPopulator = eventPopulator;
     }
 
 }

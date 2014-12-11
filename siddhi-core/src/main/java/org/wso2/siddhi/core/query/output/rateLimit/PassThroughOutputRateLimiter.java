@@ -19,7 +19,7 @@ package org.wso2.siddhi.core.query.output.rateLimit;
 
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
@@ -44,9 +44,9 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
 //    }
 
     @Override
-    public void process(StreamEventChunk streamEventChunk) {
-        streamEventChunk.reset();
-        sendToCallBacks(streamEventChunk);
+    public void process(ComplexEventChunk complexEventChunk) {
+        complexEventChunk.reset();
+        sendToCallBacks(complexEventChunk);
 
         //this method will not be used since no processing is done by rateLimiters
     }
@@ -63,6 +63,7 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public void setToLast(Processor processor) {
+        throw new IllegalStateException(" ");
         //this method will not be used as there is no processors after an outputRateLimiter
     }
 

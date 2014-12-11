@@ -21,51 +21,78 @@ package org.wso2.siddhi.core.event.state;
 
 import org.wso2.siddhi.core.event.ComplexMetaEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Class to hold mapping between Events and respective StateEvent.
+ * Class to hold mapping between StreamEvents and respective StateEvent.
  * This consist of array of MetaStreamEvents which represent each
- * Event within StateEvent
+ * StreamEvent within StateEvent
  */
-public class MetaStateEvent implements ComplexMetaEvent{
+public class MetaStateEvent implements ComplexMetaEvent {
+
     private MetaStreamEvent[] metaStreamEvents;
-    private int eventCount = 0;
+    private int streamEventCount = 0;
     private StreamDefinition outputStreamDefinition;
 
-    public MetaStateEvent(int size){
+    private List<MetaStateEventAttribute> metaStateEventAttributes = new ArrayList<MetaStateEventAttribute>();
+    private List<MetaStateEventAttribute> outputDataAttributes;
+
+    public MetaStateEvent(int size) {
         metaStreamEvents = new MetaStreamEvent[size];
     }
 
-    public MetaStateEvent(MetaStreamEvent[] metaStreamEvents){
+    public MetaStateEvent(MetaStreamEvent[] metaStreamEvents) {
         this.metaStreamEvents = metaStreamEvents.clone();
-        eventCount = metaStreamEvents.length;
+        streamEventCount = metaStreamEvents.length;
     }
 
-    public MetaStreamEvent getMetaEvent(int position){
+    public MetaStreamEvent getMetaStreamEvent(int position) {
         return metaStreamEvents[position];
     }
 
-    public void addEvent(MetaStreamEvent metaStreamEvent){
-        metaStreamEvents[eventCount] = metaStreamEvent;
-        eventCount++;
+    public void addEvent(MetaStreamEvent metaStreamEvent) {
+        metaStreamEvents[streamEventCount] = metaStreamEvent;
+        streamEventCount++;
     }
 
-    @Override
-    public void addData(Attribute attribute) {
-        //TODO consider selector population
+    public void putData(MetaStateEventAttribute metaStateEventAttribute) {
+        if (!metaStateEventAttributes.contains(metaStateEventAttribute)) {
+            metaStateEventAttributes.add(metaStateEventAttribute);
+        }
     }
 
-    public int getEventCount() {
-        return eventCount;
+    public void putOutputData(MetaStateEventAttribute metaStateEventAttribute) {
+        if (outputDataAttributes == null) {
+            outputDataAttributes = new ArrayList<MetaStateEventAttribute>();
+        }
+        outputDataAttributes.add(metaStateEventAttribute);
     }
 
-    public void setOutputDefinition(StreamDefinition definition) {
-        this.outputStreamDefinition = definition;
+    public List<MetaStateEventAttribute> getPreOutputDataAttributes() {
+        return metaStateEventAttributes;
+    }
+
+    public List<MetaStateEventAttribute> getOutputDataAttributes() {
+        return outputDataAttributes;
+    }
+
+    public int getStreamEventCount() {
+        return streamEventCount;
+    }
+
+    public MetaStreamEvent[] getMetaStreamEvents() {
+        return metaStreamEvents;
+    }
+
+    public void setOutputDefinition(StreamDefinition streamDefinition) {
+        this.outputStreamDefinition = streamDefinition;
     }
 
     public StreamDefinition getOutputStreamDefinition() {
         return outputStreamDefinition;
     }
+
 }

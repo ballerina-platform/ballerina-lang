@@ -21,15 +21,13 @@ package org.wso2.siddhi.core.query;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.QueryContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -63,7 +61,7 @@ public class QueryRuntime {
         this.streamRuntime = streamRuntime;
         this.selector = selector;
 
-        this.queryContext=new QueryContext();
+        this.queryContext = new QueryContext();
         queryContext.setExecutionPlanContext(executionPlanContext);
 
         setOutputRateLimiter(outputRateLimiter);
@@ -72,7 +70,7 @@ public class QueryRuntime {
         init();
     }
 
-    public void setId() {
+    private void setId() {
         try {
             Element element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             if (element != null) {
@@ -80,7 +78,7 @@ public class QueryRuntime {
 
             }
         } catch (DuplicateAnnotationException e) {
-            throw new QueryCreationException(e.getMessage() + " for the same Query " + query.toString());
+            throw new ExecutionPlanCreationException(e.getMessage() + " for the same Query " + query.toString());
         }
         if (queryId == null) {
             queryId = UUID.randomUUID().toString();
@@ -151,7 +149,7 @@ public class QueryRuntime {
 
     }
 
-    public void setOutputRateLimiter(OutputRateLimiter outputRateLimiter) {
+    private void setOutputRateLimiter(OutputRateLimiter outputRateLimiter) {
         this.outputRateLimiter = outputRateLimiter;
         selector.setNextProcessor(outputRateLimiter);
     }
@@ -164,7 +162,7 @@ public class QueryRuntime {
         return metaStateEvent;
     }
 
-    public void setMetaStateEvent(MetaStateEvent metaStateEvent) {
+    private void setMetaStateEvent(MetaStateEvent metaStateEvent) {
         outputStreamDefinition = metaStateEvent.getOutputStreamDefinition();
         this.metaStateEvent = metaStateEvent;
     }
@@ -179,14 +177,7 @@ public class QueryRuntime {
     }
 
     public void init() {
-        if (((SingleStreamRuntime) streamRuntime).getProcessorChain() == null) {
-            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(selector);
-        } else {
-            Processor processor = ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().getProcessorChain();
-            ((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver().setNext(processor);
-            processor.setToLast(selector);
-        }
-
+        streamRuntime.setCommonProcessor(selector);
     }
 
     public QuerySelector getSelector() {

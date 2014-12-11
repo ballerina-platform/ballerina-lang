@@ -19,11 +19,11 @@
 
 package org.wso2.siddhi.core.query.input;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.ConvertingStreamEventChunk;
+import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -33,7 +33,7 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     private String streamId;
     private Processor processorChain;
     private Processor next;
-    private ConvertingStreamEventChunk streamEventChunk;
+    private ConversionStreamEventChunk streamEventChunk;
     private MetaStreamEvent metaStreamEvent;
     private StreamEventPool streamEventPool;
 
@@ -59,8 +59,8 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(StreamEvent streamEvent) {
-        streamEventChunk.convertAndAssign(streamEvent);
+    public void receive(ComplexEvent complexEvent) {
+        streamEventChunk.convertAndAssign(complexEvent);
         processAndClear();
     }
 
@@ -121,6 +121,6 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     }
 
     public void init() {
-        streamEventChunk = new ConvertingStreamEventChunk(metaStreamEvent, streamEventPool);
+        streamEventChunk = new ConversionStreamEventChunk(metaStreamEvent, streamEventPool);
     }
 }

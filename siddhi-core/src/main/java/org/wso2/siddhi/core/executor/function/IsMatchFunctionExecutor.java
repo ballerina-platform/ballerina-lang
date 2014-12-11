@@ -13,7 +13,7 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -75,7 +75,7 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object execute(StreamEvent event) {
+    public Object execute(ComplexEvent event) {
         return execute(expressionExecutor.execute(event));
     }
 

@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.partition.executor;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 
 public class RangePartitionExecutor implements PartitionExecutor {
@@ -32,7 +32,7 @@ public class RangePartitionExecutor implements PartitionExecutor {
         this.key = key;
     }
 
-    public String execute(StreamEvent event) {
+    public String execute(ComplexEvent event) {
         if (conditionExecutor.execute(event)) {
             return key;
         }

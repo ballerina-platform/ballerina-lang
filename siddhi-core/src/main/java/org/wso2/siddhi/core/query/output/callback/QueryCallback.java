@@ -25,9 +25,10 @@ import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.query.api.execution.query.Query;
 
 import java.util.ArrayList;
@@ -52,14 +53,14 @@ public abstract class QueryCallback {
         this.executionPlanContext = executionPlanContext;
     }
 
-    public void receiveStreamEvent(StreamEventChunk streamEventChunk) {
+    public void receiveStreamEvent(ComplexEventChunk complexEventChunk) {
 
         Event[] currentEvents = null;
         Event[] expiredEvents = null;
         long timeStamp = -1;
 
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent streamEvent = complexEventChunk.next();
             if (streamEvent.getType()== StreamEvent.Type.EXPIRED) {
                 bufferEvent(streamEvent, expiredEventBuffer);
             } else {
@@ -115,13 +116,13 @@ public abstract class QueryCallback {
         receive(timeStamp, currentEvents, expiredEvents);
     }
 
-    private void bufferEvent(StreamEvent streamEvent, List<Event> eventBuffer) {
-        eventBuffer.add(new Event(streamEvent.getOutputData().length).copyFrom(streamEvent));
+    private void bufferEvent(ComplexEvent complexEvent, List<Event> eventBuffer) {
+        eventBuffer.add(new Event(complexEvent.getOutputData().length).copyFrom(complexEvent));
 
 
 //        StreamEvent processedEvent = streamEventList;
 //        while (processedEvent != null) {
-//            eventBuffer.add(new Event(processedEvent.getOutputData().length).copyFrom(processedEvent));
+//            eventBuffer.add(new Event(processedEvent.getOutputDataAttributes().length).copyFrom(processedEvent));
 //            processedEvent = processedEvent.getNext();
 //        }
     }

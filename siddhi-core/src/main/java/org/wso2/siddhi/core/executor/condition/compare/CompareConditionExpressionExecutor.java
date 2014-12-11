@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.condition.compare;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 
@@ -29,7 +29,7 @@ public abstract class CompareConditionExpressionExecutor extends ConditionExpres
     }
 
 
-    public Boolean execute(StreamEvent event) {
+    public Boolean execute(ComplexEvent event) {
         Object left = leftExpressionExecutor.execute(event);
         Object right = rightExpressionExecutor.execute(event);
         return !(left == null || right == null) && execute(left, right);

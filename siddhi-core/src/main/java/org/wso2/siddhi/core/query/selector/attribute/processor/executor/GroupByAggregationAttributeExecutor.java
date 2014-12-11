@@ -20,7 +20,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
@@ -43,7 +43,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     }
 
     @Override
-    public Object execute(StreamEvent event) {
+    public Object execute(ComplexEvent event) {
         String key = QuerySelector.getThreadLocalGroupByKey();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {

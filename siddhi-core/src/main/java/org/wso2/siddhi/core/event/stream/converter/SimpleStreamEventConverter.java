@@ -18,20 +18,21 @@
  */
 package org.wso2.siddhi.core.event.stream.converter;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.List;
 
-public class SimpleStreamEventConverter implements EventConverter {
-    private List<ConversionElement> conversionElements;
+public class SimpleStreamEventConverter implements StreamEventConverter {
+    private List<ConversionMapping> conversionMappings;
 
-    public SimpleStreamEventConverter(List<ConversionElement> conversionElements) {
-        this.conversionElements = conversionElements;
+    public SimpleStreamEventConverter(List<ConversionMapping> conversionMappings) {
+        this.conversionMappings = conversionMappings;
     }
 
     private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
-        for (ConversionElement element : conversionElements) {
+        for (ConversionMapping element : conversionMappings) {
             borrowedEvent.setOutputData(data[element.getFromPosition()], element.getToPosition()[1]);
         }
         borrowedEvent.setType(type);
@@ -43,8 +44,8 @@ public class SimpleStreamEventConverter implements EventConverter {
                 event.getTimestamp(), borrowedEvent);
     }
 
-    public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.getType(), streamEvent.getTimestamp(),
+    public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent) {
+        convertToInnerStreamEvent(complexEvent.getOutputData(), complexEvent.getType(), complexEvent.getTimestamp(),
                 borrowedEvent);
     }
 

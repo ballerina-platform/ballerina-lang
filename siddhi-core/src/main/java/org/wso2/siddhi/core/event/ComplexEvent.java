@@ -19,8 +19,26 @@
 
 package org.wso2.siddhi.core.event;
 
-
+/**
+ * The interface for the internal event implementation
+ */
 public interface ComplexEvent {
 
+    public enum Type {
+        CURRENT, EXPIRED, TIMER, RESET
+    }
+
+    ComplexEvent getNext();
+
+    void setNext(ComplexEvent events);
+
+    Object[] getOutputData();
+
+    void setOutputData(Object object, int index);
+
+    long getTimestamp();
+
     Object getAttribute(int[] position);
+
+    Type getType();
 }

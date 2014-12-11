@@ -22,7 +22,6 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.IndexedEventFactory;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
 import java.util.ArrayList;
@@ -135,5 +134,35 @@ public class SingleStreamEntryValve implements InputProcessor {
             }
         }
 
+    }
+
+    public static class IndexedEventFactory implements com.lmax.disruptor.EventFactory<IndexedEventFactory.IndexedEvent> {
+
+
+        public IndexedEvent newInstance() {
+            return new IndexedEvent();
+        }
+
+        public class IndexedEvent {
+
+            private int streamIndex;
+            private Event event;
+
+            public Event getEvent() {
+                return event;
+            }
+
+            public void setEvent(Event event) {
+                this.event = event;
+            }
+
+            public int getStreamIndex() {
+                return streamIndex;
+            }
+
+            public void setStreamIndex(int streamIndex) {
+                this.streamIndex = streamIndex;
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -50,7 +50,7 @@ public class OutputParser {
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
 
         } else {
-            throw new QueryCreationException(outStream.getClass().getName() + " not supported");
+            throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");
         }
     }
 
@@ -71,7 +71,7 @@ public class OutputParser {
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
 
         } else {
-            throw new QueryCreationException(outStream.getClass().getName() + " not supported");
+            throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");
         }
     }
 

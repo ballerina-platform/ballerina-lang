@@ -20,13 +20,14 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.populater.StateEventPopulaterFactory;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -58,6 +59,7 @@ public class QueryParser {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
                     executionPlanContext, definitionMap, metaStateEvent, executors);
+
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, metaStateEvent, executors);
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
@@ -65,15 +67,17 @@ public class QueryParser {
             QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
             QueryParserHelper.initStreamRuntime(streamRuntime, metaStateEvent);
 
+            selector.setEventPopulator(StateEventPopulaterFactory.constructEventPopulator(metaStateEvent));
+
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
             validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
 
 
         } catch (Exception e) {
             if (element != null) {
-                throw new QueryCreationException(e.getMessage() + " when creating query " + element.getValue(), e);
+                throw new ExecutionPlanCreationException(e.getMessage() + " when creating query " + element.getValue(), e);
             } else {
-                throw new QueryCreationException(e.getMessage(), e);
+                throw new ExecutionPlanCreationException(e.getMessage(), e);
             }
         }
 

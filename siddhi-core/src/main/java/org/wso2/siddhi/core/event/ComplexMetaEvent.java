@@ -18,16 +18,6 @@
  */
 package org.wso2.siddhi.core.event;
 
-import org.wso2.siddhi.query.api.definition.Attribute;
-
 public interface ComplexMetaEvent {
 
-    /**
-     * Universal method to add data to MetaStream event.
-     * Will make sure event will be added to corresponding array by
-     * initializing them accordingly.
-     *
-     * @param attribute
-     */
-    public void addData(Attribute attribute);
 }

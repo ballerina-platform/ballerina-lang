@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.condition;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -45,7 +45,7 @@ public class AndConditionExpressionExecutor extends ConditionExpressionExecutor 
 
     }
 
-    public Boolean execute(StreamEvent event) {
+    public Boolean execute(ComplexEvent event) {
         return (Boolean) leftConditionExecutor.execute(event) && (Boolean) rightConditionExecutor.execute(event);
     }
 

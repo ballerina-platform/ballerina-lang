@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -36,8 +36,14 @@ public class VariableExpressionExecutor implements ExpressionExecutor {
         }
     }
 
+    public VariableExpressionExecutor(String attributeName, StreamDefinition inputStreamDefinition, int eventIndex, int eventChainIndex) {
+        this(attributeName, inputStreamDefinition);
+        position[0] = eventIndex;
+        position[1] = eventChainIndex;
+    }
+
     @Override
-    public Object execute(StreamEvent event) {      //TODO handle state events
+    public Object execute(ComplexEvent event) {      //TODO handle state events
         return event.getAttribute(position);
     }
 

@@ -18,10 +18,11 @@ package org.wso2.siddhi.core.event.stream.converter;
  * under the License.
  */
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public interface EventConverter {
+public interface StreamEventConverter {
 
     /**
      * Method to construct StreamEvent form Event
@@ -34,10 +35,10 @@ public interface EventConverter {
     /**
      * Method to construct(change format) new StreamEvent from StreamEvent
      *
-     * @param streamEvent   StreamEvent to be Converted
+     * @param complexEvent   StreamEvent to be Converted
      * @param borrowedEvent Event that will be populated
      */
-    public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent);
+    public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent);
 
     /**
      * Method to construct(change format) timeStamp and data from StreamEvent
@@ -48,4 +49,28 @@ public interface EventConverter {
      */
     public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
 
+    /**
+     * Element to hold information about event conversion
+     */
+    class ConversionMapping {
+        private int fromPosition;               //position in StreamEvent/data[]
+        private int[] toPosition = new int[2];  //new position in StreamEvent
+
+        public int[] getToPosition() {
+            return toPosition;
+        }
+
+        public void setToPosition(int[] toPosition) {
+            this.toPosition = toPosition;
+        }
+
+        public int getFromPosition() {
+            return fromPosition;
+        }
+
+        public void setFromPosition(int fromPosition) {
+            this.fromPosition = fromPosition;
+        }
+
+    }
 }

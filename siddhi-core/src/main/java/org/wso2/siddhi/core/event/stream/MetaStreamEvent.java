@@ -32,8 +32,9 @@ import java.util.List;
  */
 public class MetaStreamEvent implements ComplexMetaEvent {
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
-    private List<Attribute> afterWindowData = null;
+    private List<Attribute> onAfterWindowData = null;
     private List<Attribute> outputData = null;
+    private int maxEvents = -1;
     private AbstractDefinition inputDefinition;
     private String inputReferenceId;
 
@@ -42,8 +43,8 @@ public class MetaStreamEvent implements ComplexMetaEvent {
     }
 
     public List<Attribute> getOnAfterWindowData() {
-        if (afterWindowData != null) {
-            return afterWindowData;
+        if (onAfterWindowData != null) {
+            return onAfterWindowData;
         } else {
             return new ArrayList<Attribute>();  //return empty arraylist to avoid NPE
         }
@@ -58,17 +59,8 @@ public class MetaStreamEvent implements ComplexMetaEvent {
     }
 
     public void initializeAfterWindowData() {
-        if (afterWindowData == null) {
-            afterWindowData = new ArrayList<Attribute>();
-        }
-    }
-
-    public void initializeOutputData() {
-        if (afterWindowData == null) {
-            afterWindowData = new ArrayList<Attribute>();
-        }
-        if (outputData == null) {
-            outputData = new ArrayList<Attribute>();
+        if (onAfterWindowData == null) {
+            onAfterWindowData = new ArrayList<Attribute>();
         }
     }
 
@@ -79,11 +71,10 @@ public class MetaStreamEvent implements ComplexMetaEvent {
      *
      * @param attribute
      */
-    @Override
     public void addData(Attribute attribute) {
-        if (afterWindowData != null) {
-            if (!afterWindowData.contains(attribute)) {
-                afterWindowData.add(attribute);
+        if (onAfterWindowData != null) {
+            if (!onAfterWindowData.contains(attribute)) {
+                onAfterWindowData.add(attribute);
             }
         } else {
             if (!beforeWindowData.contains(attribute)) {

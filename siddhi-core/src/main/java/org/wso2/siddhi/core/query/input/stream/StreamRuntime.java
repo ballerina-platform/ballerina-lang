@@ -19,11 +19,19 @@
 
 package org.wso2.siddhi.core.query.input.stream;
 
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.processor.Processor;
+
+import java.util.List;
+
 /**
  * Interface for all StreamRuntime s.(Ex: JoinStreamRuntime, SingleStreamRuntime)
  */
 public interface StreamRuntime {
 
+    public List<SingleStreamRuntime> getSingleStreamRuntimes();
+
     public StreamRuntime clone(String key);
 
+    void setCommonProcessor(Processor commonProcessor);
 }

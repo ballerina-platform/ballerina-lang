@@ -17,34 +17,35 @@
 */
 package org.wso2.siddhi.core.event.stream.converter;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.List;
 
 /**
- * The converter class that converts and manages events
+ * The populater class that converts and manages events
  */
-public class SelectiveStreamEventConverter implements EventConverter {
+public class SelectiveStreamEventConverter implements StreamEventConverter {
 
-    private List<ConversionElement> conversionElements;       //List to hold information needed for conversion
+    private List<ConversionMapping> conversionMappings;       //List to hold information needed for conversion
 
-    public SelectiveStreamEventConverter(List<ConversionElement> conversionElements) {
-        this.conversionElements = conversionElements;
+    public SelectiveStreamEventConverter(List<ConversionMapping> conversionMappings) {
+        this.conversionMappings = conversionMappings;
     }
 
     private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
-        for (ConversionElement conversionElement : conversionElements) {
-            int[] position = conversionElement.getToPosition();
+        for (ConversionMapping conversionMapping : conversionMappings) {
+            int[] position = conversionMapping.getToPosition();
             switch (position[0]) {
                 case 0:
-                    borrowedEvent.setBeforeWindowData(data[conversionElement.getFromPosition()], position[1]);
+                    borrowedEvent.setBeforeWindowData(data[conversionMapping.getFromPosition()], position[1]);
                     break;
                 case 1:
-                    borrowedEvent.setOnAfterWindowData(data[conversionElement.getFromPosition()], position[1]);
+                    borrowedEvent.setOnAfterWindowData(data[conversionMapping.getFromPosition()], position[1]);
                     break;
                 case 2:
-                    borrowedEvent.setOutputData(data[conversionElement.getFromPosition()], position[1]);
+                    borrowedEvent.setOutputData(data[conversionMapping.getFromPosition()], position[1]);
                     break;
                 default:
                     //can not happen
@@ -61,8 +62,8 @@ public class SelectiveStreamEventConverter implements EventConverter {
                 event.getTimestamp(), borrowedEvent);
     }
 
-    public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.getType(), streamEvent.getTimestamp(),
+    public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent) {
+        convertToInnerStreamEvent(complexEvent.getOutputData(), complexEvent.getType(), complexEvent.getTimestamp(),
                 borrowedEvent);
     }
 

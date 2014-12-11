@@ -27,36 +27,36 @@ import java.util.List;
 
 public class StreamEventConverterFactory {
 
-    public static EventConverter constructEventConverter(MetaStreamEvent metaStreamEvent) {
+    public static StreamEventConverter constructEventConverter(MetaStreamEvent metaStreamEvent) {
 
         int beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         int onAfterWindowDataSize = metaStreamEvent.getOnAfterWindowData().size();
         int size = beforeWindowDataSize + onAfterWindowDataSize + metaStreamEvent.getOutputData().size();
 
-        List<ConversionElement> conversionElements = getConversionElements(metaStreamEvent, size);
+        List<StreamEventConverter.ConversionMapping> conversionMappings = getConversionElements(metaStreamEvent, size);
 
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
-            return new SelectiveStreamEventConverter(conversionElements);
+            return new SelectiveStreamEventConverter(conversionMappings);
         } else {
-            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionElements.size()) {
+            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionMappings.size()) {
                 Boolean isPassThrough = true;
-                for (ConversionElement conversionElement : conversionElements) {
-                    if (!(conversionElement.getFromPosition() == conversionElement.getToPosition()[1])) {
+                for (StreamEventConverter.ConversionMapping conversionMapping : conversionMappings) {
+                    if (!(conversionMapping.getFromPosition() == conversionMapping.getToPosition()[1])) {
                         isPassThrough = false;
                     }
                 }
                 if (isPassThrough) {
-                    return new PassThroughStreamEventConverter();
+                    return new ZeroStreamEventConverter();
                 }
             }
-            return new SimpleStreamEventConverter(conversionElements);
+            return new SimpleStreamEventConverter(conversionMappings);
         }
     }
 
-    private static List<ConversionElement> getConversionElements(MetaStreamEvent metaStreamEvent, int size) {
+    private static List<StreamEventConverter.ConversionMapping> getConversionElements(MetaStreamEvent metaStreamEvent, int size) {
 
         StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
-        List<ConversionElement> conversionElements = new ArrayList<ConversionElement>(size);
+        List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter.ConversionMapping>(size);
 
         for (int j = 0; j < 3; j++) {
             List<Attribute> currentDataList = null;
@@ -73,18 +73,18 @@ public class StreamEventConverterFactory {
                     if (attribute == null) {
                         i++;
                     } else {
-                        ConversionElement conversionElement = new ConversionElement();
+                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
                         int[] position = new int[2];
-                        conversionElement.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
+                        conversionMapping.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
                         position[0] = j;
                         position[1] = i;
-                        conversionElement.setToPosition(position);
-                        conversionElements.add(conversionElement);
+                        conversionMapping.setToPosition(position);
+                        conversionMappings.add(conversionMapping);
                         i++;
                     }
                 }
             }
         }
-        return conversionElements;
+        return conversionMappings;
     }
 }

@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.math.add;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -27,7 +27,7 @@ public class AddExpressionExecutorFloat implements ExpressionExecutor {
     }
 
     @Override
-    public Object execute(StreamEvent event) {
+    public Object execute(ComplexEvent event) {
         return ((Number) leftExpressionExecutor.execute(event)).floatValue() +
                 ((Number) rightExpressionExecutor.execute(event)).floatValue();
     }

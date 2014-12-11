@@ -24,19 +24,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.ConvertingStreamEventChunk;
-import org.wso2.siddhi.core.event.stream.converter.EventConverter;
-import org.wso2.siddhi.core.event.stream.converter.PassThroughStreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 
 
-public class StreamEventChunkTestCase {
+public class ComplexEventChunkTestCase {
     private int count;
-    private EventConverter eventConverter;
+    private StreamEventConverter streamEventConverter;
 
     @Before
     public void init() {
         count = 0;
-        eventConverter = new PassThroughStreamEventConverter();
+        streamEventConverter = new ZeroStreamEventConverter();
     }
 
 
@@ -55,7 +55,7 @@ public class StreamEventChunkTestCase {
         streamEvent2.setNext(streamEvent3);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConvertingStreamEventChunk streamEventChunk = new ConvertingStreamEventChunk(eventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -81,7 +81,7 @@ public class StreamEventChunkTestCase {
         streamEvent2.setNext(streamEvent3);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConvertingStreamEventChunk streamEventChunk = new ConvertingStreamEventChunk(eventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -113,7 +113,7 @@ public class StreamEventChunkTestCase {
         streamEvent3.setNext(streamEvent4);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConvertingStreamEventChunk streamEventChunk = new ConvertingStreamEventChunk(eventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -147,7 +147,7 @@ public class StreamEventChunkTestCase {
         streamEvent3.setNext(streamEvent4);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConvertingStreamEventChunk streamEventChunk = new ConvertingStreamEventChunk(eventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -177,7 +177,7 @@ public class StreamEventChunkTestCase {
         streamEvent3.setNext(streamEvent4);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConvertingStreamEventChunk streamEventChunk = new ConvertingStreamEventChunk(eventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -204,7 +204,7 @@ public class StreamEventChunkTestCase {
         streamEvent1.setNext(streamEvent2);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConvertingStreamEventChunk streamEventChunk = new ConvertingStreamEventChunk(eventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         streamEventChunk.remove();

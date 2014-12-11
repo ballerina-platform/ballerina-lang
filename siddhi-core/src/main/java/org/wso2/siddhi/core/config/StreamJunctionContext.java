@@ -19,9 +19,9 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class StreamJunctionContext {
 
-    private ExecutionPlanContext executionPlanContext;
-    private StreamDefinition streamDefinition;
     private Boolean parallel;
+    private StreamDefinition streamDefinition;
+    private ExecutionPlanContext executionPlanContext;
 
     public ExecutionPlanContext getExecutionPlanContext() {
         return executionPlanContext;

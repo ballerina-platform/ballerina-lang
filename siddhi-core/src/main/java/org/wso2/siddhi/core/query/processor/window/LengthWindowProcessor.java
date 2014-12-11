@@ -18,9 +18,9 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
@@ -29,7 +29,7 @@ public class LengthWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
-    private StreamEventChunk expiredEventChunk;
+    private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private StreamEventCloner streamEventCloner;
     private MetaStreamEvent metaStreamEvent;
 
@@ -37,7 +37,7 @@ public class LengthWindowProcessor extends WindowProcessor {
     public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
         this.metaStreamEvent = metaStreamEvent;
         this.streamEventCloner = streamEventCloner;
-        expiredEventChunk = new StreamEventChunk();
+        expiredEventChunk = new ComplexEventChunk<StreamEvent>();
 
         if (parameters != null) {
             length = ((IntConstant) parameters[0]).getValue();
@@ -45,7 +45,7 @@ public class LengthWindowProcessor extends WindowProcessor {
     }
 
     @Override
-    public void process(StreamEventChunk streamEventChunk, Processor nextProcessor) {
+    public void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor) {
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);

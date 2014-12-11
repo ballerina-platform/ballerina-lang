@@ -19,10 +19,8 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.*;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -51,23 +49,22 @@ public abstract class WindowProcessor implements Processor {
         this.nextProcessor = processor;
     }
 
-    public void process(StreamEventChunk streamEventChunk){
+    public void process(ComplexEventChunk<StreamEvent> streamEventChunk){
         streamEventChunk.reset();
         try {
             process(streamEventChunk, nextProcessor);
         }catch (Throwable t){    //todo improve
-//            t.printStackTrace();
             log.error(t.getMessage(),t);
         }
     }
 
-    protected abstract void process(StreamEventChunk streamEventChunk, Processor nextProcessor);
+    protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor);
 
     public void setToLast(Processor processor) {
         if (nextProcessor == null) {
             this.nextProcessor = processor;
         } else {
-            this.nextProcessor.setNextProcessor(processor);
+            this.nextProcessor.setToLast(processor);
         }
     }
 

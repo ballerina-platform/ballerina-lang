@@ -18,7 +18,10 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
-import org.wso2.siddhi.core.event.stream.*;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
@@ -26,8 +29,8 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
-    private StreamEventChunk currentEventChunk = new StreamEventChunk();
-    private StreamEventChunk expiredEventChunk = new StreamEventChunk();
+    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
     private MetaStreamEvent metaStreamEvent;
     private StreamEventCloner streamEventCloner;
 
@@ -49,9 +52,9 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     }
 
     @Override
-    public void process(StreamEventChunk streamEventChunk, Processor nextProcessor) {
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
+    public void process(ComplexEventChunk<StreamEvent> complexEventChunk, Processor nextProcessor) {
+        while (complexEventChunk.hasNext()) {
+            StreamEvent streamEvent = complexEventChunk.next();
             StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
 //            clonedStreamEvent.setExpired(true);
             currentEventChunk.add(clonedStreamEvent);
@@ -62,7 +65,7 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                     expiredEvent.setTimestamp(System.currentTimeMillis());  //todo fix
                 }
                 if(expiredEventChunk.getFirst()!=null) {
-                    streamEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());
+                    complexEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());
                 }
                 expiredEventChunk.clear();
                 while (currentEventChunk.hasNext()) {
@@ -71,19 +74,19 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                     toExpireEvent.setType(StreamEvent.Type.EXPIRED);
                     expiredEventChunk.add(toExpireEvent);
                 }
-                streamEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());
+                complexEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());
                 currentEventChunk.clear();
                 count=0;
 
             }
-            streamEventChunk.remove();
+            complexEventChunk.remove();
 
         }
-        if(streamEventChunk.getFirst()!=null) {
-            nextProcessor.process(streamEventChunk);
+        if(complexEventChunk.getFirst()!=null) {
+            nextProcessor.process(complexEventChunk);
         }
 
-//        StreamEvent event = streamEventChunk.getFirst();
+//        StreamEvent event = complexEventChunk.getFirst();
 //        StreamEvent currentEvent;
 //        StreamEvent head = event;
 //        while (event != null) {
@@ -114,7 +117,7 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
 //            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
 //                    event.getOnAfterWindowData().length);
 //        }
-//        System.arraycopy(event.getOutputData(), 0, removeEvent.getOutputData(), 0, event.getOutputData().length);
+//        System.arraycopy(event.getOutputDataAttributes(), 0, removeEvent.getOutputDataAttributes(), 0, event.getOutputDataAttributes().length);
 //        removeEvent.setExpired(true);
 //        if (removeEventHead == null) {      //better if we can do it in init()
 //            removeEventHead = removeEvent;

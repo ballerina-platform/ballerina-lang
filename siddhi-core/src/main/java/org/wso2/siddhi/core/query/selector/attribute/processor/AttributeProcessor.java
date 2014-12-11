@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.processor;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -36,7 +36,7 @@ public class AttributeProcessor {
         return expressionExecutor.getReturnType();
     }
 
-    public void process(StreamEvent event) {
+    public void process(ComplexEvent event) {
         event.setOutputData(expressionExecutor.execute(event), outputPosition);
     }
 

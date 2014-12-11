@@ -12,7 +12,7 @@
  */
 package org.wso2.siddhi.core.executor.condition;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -26,6 +26,6 @@ public abstract class ConditionExpressionExecutor implements ExpressionExecutor 
         return Attribute.Type.BOOL;
     }
 
-    public abstract Boolean execute(StreamEvent event);
+    public abstract Boolean execute(ComplexEvent event);
 
 }

@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -43,11 +44,11 @@ public class SelectorParser {
     /**
      * Parse Selector portion of a query and return corresponding QuerySelector
      *
-     * @param selector       selector to be parsed
-     * @param outStream      output stream of the query
-     * @param executionPlanContext        query to be parsed
-     * @param metaStateEvent Meta event used to collect execution info of stream associated with query
-     * @param executors      List to hold VariableExpressionExecutors to update after query parsing
+     * @param selector             selector to be parsed
+     * @param outStream            output stream of the query
+     * @param executionPlanContext query to be parsed
+     * @param metaStateEvent       Meta event used to collect execution info of stream associated with query
+     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
      * @return
      */
     public static QuerySelector parse(Selector selector, OutputStream outStream, ExecutionPlanContext executionPlanContext,
@@ -95,8 +96,8 @@ public class SelectorParser {
         int i = 0;
         for (OutputAttribute outputAttribute : selector.getSelectionList()) {
 
-            if (metaStateEvent.getEventCount() == 1) {  //meta stream event
-                MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(0);
+            if (metaStateEvent.getStreamEventCount() == 1) {  //meta stream event
+                MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(0);
                 ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
                         executionPlanContext, metaStreamEvent, executors, !(selector.getGroupByList().isEmpty()));
                 if (expressionExecutor instanceof VariableExpressionExecutor) {   //for variables we will directly put value at conversion stage
@@ -110,8 +111,24 @@ public class SelectorParser {
                     temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
                 }
 
-            } else {
-                //TODO implement support for MetaStateEvent
+            } else {  //meta state event
+                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
+                        executionPlanContext, metaStateEvent, executors, !(selector.getGroupByList().isEmpty()));
+
+                if (expressionExecutor instanceof VariableExpressionExecutor) {   //for variables we will directly put value at conversion stage
+                    VariableExpressionExecutor executor = ((VariableExpressionExecutor) expressionExecutor);
+//                    int position[] = new int[2];
+//                    position[0] = executor.getPosition()[2];
+//                    position[1] = executor.getPosition()[3];
+                    metaStateEvent.putOutputData(new MetaStateEventAttribute(executor.getAttribute(), executor.getPosition()));
+                    temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) expressionExecutor).getAttribute().getType());
+                } else {
+                    metaStateEvent.putOutputData(null);            //To maintain variable positions
+                    AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor);
+                    attributeProcessor.setOutputPosition(i);
+                    attributeProcessorList.add(attributeProcessor);
+                    temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
+                }
             }
             i++;
         }

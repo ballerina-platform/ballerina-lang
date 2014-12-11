@@ -19,44 +19,45 @@
 
 package org.wso2.siddhi.core.event.stream.converter;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
-public class ConvertingStreamEventChunk extends StreamEventChunk {
+public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
 
-    private EventConverter eventConverter;
+    private StreamEventConverter streamEventConverter;
     private StreamEventPool streamEventPool;
 
-    public ConvertingStreamEventChunk(MetaStreamEvent metaStreamEvent, StreamEventPool streamEventPool) {
+    public ConversionStreamEventChunk(MetaStreamEvent metaStreamEvent, StreamEventPool streamEventPool) {
         this.streamEventPool = streamEventPool;
-        eventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
+        streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
     }
 
-    public ConvertingStreamEventChunk(EventConverter eventConverter, StreamEventPool streamEventPool) {
-        this.eventConverter = eventConverter;
+    public ConversionStreamEventChunk(StreamEventConverter streamEventConverter, StreamEventPool streamEventPool) {
+        this.streamEventConverter = streamEventConverter;
         this.streamEventPool = streamEventPool;
     }
 
     public void convertAndAssign(Event event) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        eventConverter.convertEvent(event, borrowedEvent);
+        streamEventConverter.convertEvent(event, borrowedEvent);
         first = borrowedEvent;
         last = first;
     }
 
     public void convertAndAssign(long timeStamp, Object[] data) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        eventConverter.convertData(timeStamp, data, borrowedEvent);
+        streamEventConverter.convertData(timeStamp, data, borrowedEvent);
         first = borrowedEvent;
         last = first;
     }
 
-    public void convertAndAssign(StreamEvent streamEvents) {
+    public void convertAndAssign(ComplexEvent complexEvent) {
         first = streamEventPool.borrowEvent();
-        last = convertAllStreamEvents(streamEvents, first);
+        last = convertAllStreamEvents(complexEvent, (StreamEvent)first);
     }
 
 //    @Override
@@ -69,11 +70,11 @@ public class ConvertingStreamEventChunk extends StreamEventChunk {
 
     public void convertAndAssign(Event[] events) {
         StreamEvent firstEvent = streamEventPool.borrowEvent();
-        eventConverter.convertEvent(events[0], firstEvent);
+        streamEventConverter.convertEvent(events[0], firstEvent);
         StreamEvent currentEvent = firstEvent;
         for (int i = 1, eventsLength = events.length; i < eventsLength; i++) {
             StreamEvent nextEvent = streamEventPool.borrowEvent();
-            eventConverter.convertEvent(events[i], nextEvent);
+            streamEventConverter.convertEvent(events[i], nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
         }
@@ -83,9 +84,9 @@ public class ConvertingStreamEventChunk extends StreamEventChunk {
 
     public void convertAndAdd(Event event) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        eventConverter.convertEvent(event, borrowedEvent);
+        streamEventConverter.convertEvent(event, borrowedEvent);
 
-        if(first==null){
+        if (first == null) {
             first = borrowedEvent;
             last = first;
         } else {
@@ -95,16 +96,16 @@ public class ConvertingStreamEventChunk extends StreamEventChunk {
 
     }
 
-    private StreamEvent convertAllStreamEvents(StreamEvent streamEvents, StreamEvent firstEvent) {
-        eventConverter.convertStreamEvent(streamEvents, firstEvent);
+    private StreamEvent convertAllStreamEvents(ComplexEvent complexEvents, StreamEvent firstEvent) {
+        streamEventConverter.convertStreamEvent(complexEvents, firstEvent);
         StreamEvent currentEvent = firstEvent;
-        streamEvents = streamEvents.getNext();
-        while (streamEvents != null) {
+        complexEvents = complexEvents.getNext();
+        while (complexEvents != null) {
             StreamEvent nextEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(streamEvents, nextEvent);
+            streamEventConverter.convertStreamEvent(complexEvents, nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
-            streamEvents = streamEvents.getNext();
+            complexEvents = complexEvents.getNext();
         }
         return currentEvent;
     }
@@ -134,7 +135,7 @@ public class ConvertingStreamEventChunk extends StreamEventChunk {
             first = lastReturned.getNext();
         }
         lastReturned.setNext(null);
-        streamEventPool.returnEvents(lastReturned);
+        streamEventPool.returnEvents((StreamEvent) lastReturned);
         lastReturned = null;
     }
 

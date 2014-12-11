@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.Arrays;
 
+/**
+ * Event that is used external to Siddhi
+ */
 public class Event {
 
     protected long timestamp = -1;
@@ -85,10 +88,10 @@ public class Event {
         return this;
     }
 
-    public Event copyFrom(StreamEvent streamEventList) {
-        timestamp = streamEventList.getTimestamp();
-        System.arraycopy(streamEventList.getOutputData(), 0, data, 0, data.length);
-        isExpired = streamEventList.getType() == StreamEvent.Type.EXPIRED;
+    public Event copyFrom(ComplexEvent complexEvent) {
+        timestamp = complexEvent.getTimestamp();
+        System.arraycopy(complexEvent.getOutputData(), 0, data, 0, data.length);
+        isExpired = complexEvent.getType() == StreamEvent.Type.EXPIRED;
         return this;
     }
 }

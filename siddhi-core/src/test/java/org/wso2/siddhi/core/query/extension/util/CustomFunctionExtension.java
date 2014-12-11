@@ -20,7 +20,7 @@
 package org.wso2.siddhi.core.query.extension.util;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -62,7 +62,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
                 returnType = attributeType;
 
             } else if ((attributeType == Attribute.Type.STRING) || (attributeType == Attribute.Type.BOOL)) {
-                throw new QueryCreationException("Plus cannot have parameters with types String or Bool");
+                throw new ExecutionPlanCreationException("Plus cannot have parameters with types String or Bool");
             } else {
                 returnType = Attribute.Type.LONG;
             }

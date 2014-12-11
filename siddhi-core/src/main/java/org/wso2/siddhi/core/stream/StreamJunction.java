@@ -26,9 +26,9 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.StreamJunctionContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventFactory;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -74,25 +74,25 @@ public class StreamJunction {
 
     }
 
-    public void sendEvent(StreamEvent streamEvent) {
+    public void sendEvent(ComplexEvent complexEvent) {
 
-        StreamEvent streamEventList = streamEvent;
+        ComplexEvent complexEventList = complexEvent;
         if (disruptor != null) {
 
-            while (streamEventList != null) {
+            while (complexEventList != null) {
                 long sequenceNo = ringBuffer.next();
                 try {
                     Event existingEvent = ringBuffer.get(sequenceNo);
-                    existingEvent.copyFrom(streamEventList);
+                    existingEvent.copyFrom(complexEventList);
                 } finally {
                     ringBuffer.publish(sequenceNo);
                 }
-                streamEventList = streamEventList.getNext();
+                complexEventList = complexEventList.getNext();
             }
 
         } else {
             for (Receiver receiver : receivers) {
-                receiver.receive(streamEvent);
+                receiver.receive(complexEvent);
             }
         }
 
@@ -213,7 +213,7 @@ public class StreamJunction {
 
         public String getStreamId();
 
-        public void receive(StreamEvent streamEvent);
+        public void receive(ComplexEvent complexEvent);
 
         public void receive(Event event);
 
@@ -246,8 +246,8 @@ public class StreamJunction {
             this.streamJunction = streamJunction;
         }
 
-        public void send(StreamEvent streamEvent) {
-            streamJunction.sendEvent(streamEvent);
+        public void send(ComplexEvent complexEvent) {
+            streamJunction.sendEvent(complexEvent);
         }
 
         @Override

@@ -28,15 +28,11 @@ import java.util.Arrays;
  */
 public class StreamEvent implements ComplexEvent {
 
-    public enum Type{
-        CURRENT, EXPIRED, TIMER, RESET
-    }
-
     protected long timestamp = -1;
     private Object[] beforeWindowData;          //Attributes before window execution
     private Object[] onAfterWindowData;         //Attributes on and after window execution
     protected Object[] outputData;              //Attributes to sent as output
-//    protected boolean isExpired = false;
+    //    protected boolean isExpired = false;
     protected Type type = Type.CURRENT;
     private StreamEvent next;
 
@@ -108,8 +104,8 @@ public class StreamEvent implements ComplexEvent {
         return next;
     }
 
-    public void setNext(StreamEvent next) {
-        this.next = next;
+    public void setNext(ComplexEvent next) {
+        this.next = (StreamEvent) next;
     }
 
     /**

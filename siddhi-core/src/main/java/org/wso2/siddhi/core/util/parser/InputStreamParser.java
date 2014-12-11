@@ -24,11 +24,12 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 
 import java.util.List;
@@ -39,23 +40,41 @@ public class InputStreamParser {
     /**
      * Parse an InputStream returning corresponding StreamRuntime
      *
-     * @param inputStream    input stream to be parsed
-     * @param context        associated siddhi context
-     * @param definitionMap  map containing user given stream definitions
-     * @param metaStateEvent Meta event used to collect execution info of stream associated with query
-     * @param executors      List to hold VariableExpressionExecutors to update after query parsing
+     * @param inputStream          input stream to be parsed
+     * @param executionPlanContext associated siddhi executionPlanContext
+     * @param definitionMap        map containing user given stream definitions
+     * @param metaStateEvent       Meta event used to collect execution info of stream associated with query
+     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
      * @return
      */
-    public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext context, Map<String, AbstractDefinition> definitionMap,
+    public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> definitionMap,
                                       MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
-            MetaStreamEvent metaStreamEvent = generateMetaStreamEvent(inputStream, definitionMap);
+            MetaStreamEvent metaStreamEvent = generateMetaStreamEvent((SingleInputStream) inputStream, definitionMap);
             SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    context, metaStreamEvent, executors);
+                    executionPlanContext, metaStreamEvent, executors);
             metaStateEvent.addEvent(metaStreamEvent);
             return singleStreamRuntime;
+        } else if (inputStream instanceof JoinInputStream) {
+
+            SingleInputStream leftStream = (SingleInputStream) ((JoinInputStream) inputStream).getLeftInputStream();
+            MetaStreamEvent leftMetaStreamEvent = generateMetaStreamEvent(leftStream, definitionMap);
+            metaStateEvent.addEvent(leftMetaStreamEvent);
+
+            SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream(leftStream,
+                    executionPlanContext, leftMetaStreamEvent, executors);
+
+            SingleInputStream rightStream = (SingleInputStream) ((JoinInputStream) inputStream).getRightInputStream();
+            MetaStreamEvent rightMetaStreamEvent = generateMetaStreamEvent(rightStream, definitionMap);
+            metaStateEvent.addEvent(rightMetaStreamEvent);
+
+            SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream(rightStream,
+                    executionPlanContext, rightMetaStreamEvent, executors);
+
+            return JoinInputStreamParser.parseInputStream(leftStreamRuntime, rightStreamRuntime,
+                    (JoinInputStream) inputStream, executionPlanContext, metaStateEvent, executors);
         } else {
-            //TODO: join,pattern, etc
+            //TODO: pattern, etc
             throw new OperationNotSupportedException();
         }
     }
@@ -68,17 +87,16 @@ public class InputStreamParser {
      * @param definitionMap
      * @return
      */
-    private static MetaStreamEvent generateMetaStreamEvent(InputStream inputStream, Map<String, AbstractDefinition> definitionMap) {
+    private static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream, Map<String, AbstractDefinition> definitionMap) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        if (definitionMap != null && definitionMap.containsKey(((SingleInputStream) inputStream).getStreamId())) {
-            metaStreamEvent.setInputDefinition(definitionMap.get(((SingleInputStream) inputStream).getStreamId()));
+        if (definitionMap != null && definitionMap.containsKey(inputStream.getStreamId())) {
+            metaStreamEvent.setInputDefinition(definitionMap.get(inputStream.getStreamId()));
         } else {
-            throw new DefinitionNotExistException("Stream definition with stream ID " + ((SingleInputStream)
-                    inputStream).getStreamId() + " has not been defined");
+            throw new DefinitionNotExistException("Stream definition with stream ID " + inputStream.getStreamId() + " has not been defined");
         }
-        if ((((SingleInputStream) inputStream).getStreamReferenceId() != null) &&
-                !(((SingleInputStream) inputStream).getStreamId()).equals(((SingleInputStream) inputStream).getStreamReferenceId())) { //if ref id is provided
-            metaStreamEvent.setInputReferenceId(((SingleInputStream) inputStream).getStreamReferenceId());
+        if ((inputStream.getStreamReferenceId() != null) &&
+                !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided
+            metaStreamEvent.setInputReferenceId(inputStream.getStreamReferenceId());
         }
         return metaStreamEvent;
     }

@@ -18,10 +18,11 @@
  */
 package org.wso2.siddhi.core.event.stream.converter;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public class PassThroughStreamEventConverter implements EventConverter {
+public class ZeroStreamEventConverter implements StreamEventConverter {
 
     private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
         System.arraycopy(data, 0, borrowedEvent.getOutputData(), 0, data.length);
@@ -34,9 +35,9 @@ public class PassThroughStreamEventConverter implements EventConverter {
                 event.getTimestamp(), borrowedEvent);
     }
 
-    public void convertStreamEvent(StreamEvent streamEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(streamEvent.getOutputData(), streamEvent.getType(),
-                streamEvent.getTimestamp(), borrowedEvent);
+    public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent) {
+        convertToInnerStreamEvent(complexEvent.getOutputData(), complexEvent.getType(),
+                complexEvent.getTimestamp(), borrowedEvent);
     }
 
     @Override

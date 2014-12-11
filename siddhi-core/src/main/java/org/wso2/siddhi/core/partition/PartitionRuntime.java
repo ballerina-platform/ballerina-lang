@@ -24,11 +24,11 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
-import org.wso2.siddhi.core.exception.QueryCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -75,7 +75,7 @@ public class PartitionRuntime {
                 this.partitionId = element.getValue();
             }
         } catch (DuplicateAnnotationException e) {
-            throw new QueryCreationException(e.getMessage() + " for the same Query " + partition.toString());
+            throw new ExecutionPlanCreationException(e.getMessage() + " for the same Query " + partition.toString());
         }
         if (partitionId == null) {
             this.partitionId = UUID.randomUUID().toString();

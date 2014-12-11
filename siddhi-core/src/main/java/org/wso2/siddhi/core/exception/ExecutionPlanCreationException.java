@@ -17,31 +17,31 @@
 */
 package org.wso2.siddhi.core.exception;
 
-public class QueryCreationException extends RuntimeException {
+public class ExecutionPlanCreationException extends RuntimeException {
     boolean classLoadingIssue = false;
 
-    public QueryCreationException() {
+    public ExecutionPlanCreationException() {
         super();
     }
 
-    public QueryCreationException(String message) {
+    public ExecutionPlanCreationException(String message) {
         super(message);
     }
 
-    public QueryCreationException(String message, boolean isClassLoadingIssue) {
+    public ExecutionPlanCreationException(String message, boolean isClassLoadingIssue) {
         super(message);
         classLoadingIssue = isClassLoadingIssue;
     }
 
-    public QueryCreationException(String message, Throwable throwable) {
+    public ExecutionPlanCreationException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public QueryCreationException(Throwable throwable) {
+    public ExecutionPlanCreationException(Throwable throwable) {
         super(throwable);
     }
 
-    public QueryCreationException(String message, Throwable throwable, boolean isClassLoadingIssue) {
+    public ExecutionPlanCreationException(String message, Throwable throwable, boolean isClassLoadingIssue) {
         super(message, throwable);
         classLoadingIssue = isClassLoadingIssue;
     }

@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.query.output.rateLimit;
 
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -37,13 +37,13 @@ public abstract class OutputRateLimiter implements Processor {
 
 //    public abstract void send(long timeStamp, StreamEvent currentEvent, StreamEvent expiredEvent);
 
-    protected void sendToCallBacks(StreamEventChunk streamEventChunk) {
+    protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
         if (outputCallback != null ) {
-            outputCallback.send(streamEventChunk);
+            outputCallback.send(complexEventChunk);
         }
         if (!queryCallbacks.isEmpty()) {
             for (QueryCallback callback : queryCallbacks) {
-                callback.receiveStreamEvent(streamEventChunk);
+                callback.receiveStreamEvent(complexEventChunk);
             }
         }
     }

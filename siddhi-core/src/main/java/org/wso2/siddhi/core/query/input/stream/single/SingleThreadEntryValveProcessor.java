@@ -13,10 +13,11 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.valve;
+package org.wso2.siddhi.core.query.input.stream.single;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.stream.StreamEventChunk;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.concurrent.locks.Lock;
@@ -46,7 +47,7 @@ public class SingleThreadEntryValveProcessor implements Processor {
      * @param streamEventChunk event chunk to be processed
      */
     @Override
-    public void process(StreamEventChunk streamEventChunk) {
+    public void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
         try {
             lock.lock();
             next.process(streamEventChunk);
@@ -86,7 +87,7 @@ public class SingleThreadEntryValveProcessor implements Processor {
         if (next == null) {
             this.next = processor;
         } else {
-            this.next.setNextProcessor(processor);
+            this.next.setToLast(processor);
         }
     }
 

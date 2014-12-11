@@ -22,8 +22,8 @@ public class StreamEventCloner {
     private final StreamEventPool streamEventPool;
 
     public StreamEventCloner(MetaStreamEvent metaStreamEvent,StreamEventPool streamEventPool) {
-        this.streamEventPool = streamEventPool;
 
+        this.streamEventPool = streamEventPool;
         this.beforeWindowDataSize = metaStreamEvent.getBeforeWindowData().size();
         this.onAfterWindowDataSize = metaStreamEvent.getOnAfterWindowData().size();
         this.outputDataSize = metaStreamEvent.getOutputData().size();

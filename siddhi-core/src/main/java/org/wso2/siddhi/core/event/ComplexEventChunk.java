@@ -1,80 +1,77 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.siddhi.core.event.stream;
+package org.wso2.siddhi.core.event;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class StreamEventChunk implements Iterator<StreamEvent> {
+public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E> {
 
-    protected StreamEvent first;
-    protected StreamEvent previousToLastReturned;
-    protected StreamEvent lastReturned;
-    protected StreamEvent last;
+    protected E first;
+    protected E previousToLastReturned;
+    protected E lastReturned;
+    protected E last;
 
-    public void insertBeforeCurrent(StreamEvent streamEvents) {
+    public void insertBeforeCurrent(E events) {
 
         if (lastReturned == null) {
             throw new IllegalStateException();
         }
 
-        StreamEvent currentEvent = getLastEvent(streamEvents);
+        E currentEvent = getLastEvent(events);
 
         if (previousToLastReturned != null) {
-            previousToLastReturned.setNext(streamEvents);
+            previousToLastReturned.setNext(events);
         } else {
-            first = streamEvents;
+            first = events;
         }
-        previousToLastReturned=currentEvent;
+        previousToLastReturned = currentEvent;
 
         currentEvent.setNext(lastReturned);
     }
 
-    public void insertAfterCurrent(StreamEvent streamEvents) {
+
+    public void insertAfterCurrent(E streamEvents) {
 
         if (lastReturned == null) {
             throw new IllegalStateException();
         }
 
-        StreamEvent currentEvent = getLastEvent(streamEvents);
+        E currentEvent = getLastEvent(streamEvents);
 
-        StreamEvent nextEvent = lastReturned.getNext();
+        ComplexEvent nextEvent = lastReturned.getNext();
         lastReturned.setNext(streamEvents);
         currentEvent.setNext(nextEvent);
 
     }
 
-    public void add(StreamEvent streamEvents) {
+    public void add(E complexEvents) {
         if (first == null) {
-            first = streamEvents;
+            first = complexEvents;
         } else {
-            last.setNext(streamEvents);
+            last.setNext(complexEvents);
         }
-        last = getLastEvent(streamEvents);
+        last = getLastEvent(complexEvents);
 
     }
 
-    private StreamEvent getLastEvent(StreamEvent streamEvents) {
-        StreamEvent lastEvent = streamEvents;
+    private E getLastEvent(E complexEvents) {
+        E lastEvent = complexEvents;
         while (lastEvent.getNext() != null) {
-            lastEvent = lastEvent.getNext();
+            lastEvent = (E) lastEvent.getNext();
         }
         return lastEvent;
     }
@@ -102,13 +99,13 @@ public class StreamEventChunk implements Iterator<StreamEvent> {
      * @return the next element in the iteration.
      * @throws java.util.NoSuchElementException iteration has no more elements.
      */
-    public StreamEvent next() {
-        StreamEvent returnEvent;
+    public E next() {
+        E returnEvent;
         if (lastReturned != null) {
-            returnEvent = lastReturned.getNext();
+            returnEvent = (E) lastReturned.getNext();
             previousToLastReturned = lastReturned;
         } else if (previousToLastReturned != null) {
-            returnEvent = previousToLastReturned.getNext();
+            returnEvent = (E) previousToLastReturned.getNext();
         } else {
             returnEvent = first;
         }
@@ -116,7 +113,7 @@ public class StreamEventChunk implements Iterator<StreamEvent> {
             throw new NoSuchElementException();
         }
         lastReturned = returnEvent;
-        return returnEvent;
+        return (E) returnEvent;
     }
 
     /**
@@ -140,7 +137,7 @@ public class StreamEventChunk implements Iterator<StreamEvent> {
         if (previousToLastReturned != null) {
             previousToLastReturned.setNext(lastReturned.getNext());
         } else {
-            first = lastReturned.getNext();
+            first = (E) lastReturned.getNext();
         }
         lastReturned.setNext(null);
         lastReturned = null;
@@ -158,20 +155,20 @@ public class StreamEventChunk implements Iterator<StreamEvent> {
         lastReturned = null;
     }
 
-    public StreamEvent detachAllBeforeCurrent() {
+    public E detachAllBeforeCurrent() {
 
         if (lastReturned == null) {
             throw new IllegalStateException();
         }
 
-        StreamEvent firstEvent = null;
+        E firstEvent = null;
         if (previousToLastReturned != null) {
             previousToLastReturned.setNext(null);
             firstEvent = first;
             first = lastReturned;
             previousToLastReturned = null;
         }
-        return firstEvent;
+        return (E) firstEvent;
     }
 
     public void clear() {
@@ -186,20 +183,20 @@ public class StreamEventChunk implements Iterator<StreamEvent> {
         lastReturned = null;
     }
 
-    public StreamEvent getFirst() {
-        return first;
+    public E getFirst() {
+        return (E) first;
     }
 
-    public StreamEvent getLast() {
-        return last;
+    public E getLast() {
+        return (E) last;
     }
 
-    public StreamEvent poll() {
+    public E poll() {
         if (first != null) {
-            StreamEvent firstEvent = first;
-            first = first.getNext();
+            E firstEvent = first;
+            first = (E) first.getNext();
             firstEvent.setNext(null);
-            return firstEvent;
+            return (E) firstEvent;
         } else {
             return null;
         }

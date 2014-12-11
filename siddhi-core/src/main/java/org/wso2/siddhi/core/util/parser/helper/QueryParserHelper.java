@@ -19,16 +19,20 @@
 
 package org.wso2.siddhi.core.util.parser.helper;
 
+import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
+import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
-import org.wso2.siddhi.core.query.input.stream.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -102,6 +106,20 @@ public class QueryParserHelper {
         }
     }
 
+    private static synchronized void refactorMetaStateEvent(MetaStateEvent metaStateEvent) {
+        for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
+            if (metaStateEvent.getPreOutputDataAttributes().contains(attribute)) {
+                metaStateEvent.getPreOutputDataAttributes().remove(attribute);
+            }
+        }
+        for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
+            metaStateEvent.getMetaStreamEvent(attribute.getPosition()[0]).addOutputData(attribute.getAttribute());
+        }
+        for (MetaStateEventAttribute attribute : metaStateEvent.getPreOutputDataAttributes()) {
+            metaStateEvent.getMetaStreamEvent(attribute.getPosition()[0]).addData(attribute.getAttribute());
+        }
+    }
+
     /**
      * Method to clean/refactor MetaStateEvent and update
      * VariableExpressionExecutors accordingly.
@@ -110,35 +128,71 @@ public class QueryParserHelper {
      * @param executors
      */
     public static void updateVariablePosition(MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
-        if (metaStateEvent.getEventCount() == 1) {
-            updateVariablePosition(metaStateEvent.getMetaEvent(0), executors, new int[]{-1, -1});  //int[] is used to deliver 0,1 indexes of the position array
+        if (metaStateEvent.getStreamEventCount() == 1) {
+            updateVariablePosition(metaStateEvent.getMetaStreamEvent(0), executors, new int[]{-1, -1});  //int[] is used to deliver 0,1 indexes of the position array
         } else {
+            refactorMetaStateEvent(metaStateEvent);
 
-            //TODO handle stateEvent
+            updateStateAttributePositions(executors, metaStateEvent, metaStateEvent.getPreOutputDataAttributes());
+            updateStateAttributePositions(executors, metaStateEvent, metaStateEvent.getOutputDataAttributes());
+
+        }
+    }
+
+    private static void updateStateAttributePositions(List<VariableExpressionExecutor> executors, MetaStateEvent metaStateEvent, List<MetaStateEventAttribute> metaStateEventAttributes) {
+        for (MetaStateEventAttribute metaStateEventAttribute : metaStateEventAttributes) {
+            MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(metaStateEventAttribute.getPosition()[0]);
+            if (metaStreamEvent.getOutputData().contains(metaStateEventAttribute.getAttribute())) {
+                metaStateEventAttribute.getPosition()[2] = 2;
+                metaStateEventAttribute.getPosition()[3] = metaStreamEvent.getOutputData().indexOf(metaStateEventAttribute.getAttribute());
+
+            } else if (metaStreamEvent.getOnAfterWindowData().contains(metaStateEventAttribute.getAttribute())) {
+                metaStateEventAttribute.getPosition()[2] = 1;
+                metaStateEventAttribute.getPosition()[3] = metaStreamEvent.getOnAfterWindowData().indexOf(metaStateEventAttribute.getAttribute());
+            } else if (metaStreamEvent.getBeforeWindowData().contains(metaStateEventAttribute.getAttribute())) {
+                metaStateEventAttribute.getPosition()[2] = 0;
+                metaStateEventAttribute.getPosition()[3] = metaStreamEvent.getBeforeWindowData().indexOf(metaStateEventAttribute.getAttribute());
+            }
+            updateVariablePosition(metaStreamEvent, executors, metaStateEventAttribute.getPosition());
         }
     }
 
     public static void initStreamRuntime(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
-        int index = 0;
+
         if (runtime instanceof SingleStreamRuntime) {
-            MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaEvent(index);
-            StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
-            QueryStreamReceiver queryStreamReceiver = ((SingleStreamRuntime) runtime).getQueryStreamReceiver();
-            queryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
-            queryStreamReceiver.setStreamEventPool(streamEventPool);
-            queryStreamReceiver.init();
-            Processor processor = ((SingleStreamRuntime) runtime).getProcessorChain();
-            while (processor != null) {
-                if(processor instanceof SchedulingProcessor){
-                    ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
-                }
-                if (processor instanceof WindowProcessor) {
-                    ((WindowProcessor) processor).initProcessor(metaStreamEvent, streamEventPool);
-                }
-                processor = processor.getNextProcessor();
+            MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(0);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, metaStreamEvent, null);
+        } else if (runtime instanceof JoinStreamRuntime) {
+            StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
+            for (int i = 0; i < 2; i++) {
+                MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(i);
+                initSingleStreamRuntime(runtime.getSingleStreamRuntimes().get(i),
+                        metaStreamEvent, stateEventPool);
             }
         } else {
-            //TODO JoinStreamRuntime/PatternStreamRuntime
+            //TODO PatternStreamRuntime
+        }
+    }
+
+    private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, MetaStreamEvent metaStreamEvent, StateEventPool stateEventPool) {
+        StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
+        QueryStreamReceiver queryStreamReceiver = singleStreamRuntime.getQueryStreamReceiver();
+        queryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
+        queryStreamReceiver.setStreamEventPool(streamEventPool);
+        queryStreamReceiver.init();
+        Processor processor = singleStreamRuntime.getProcessorChain();
+        while (processor != null) {
+            if (processor instanceof SchedulingProcessor) {
+                ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
+            }
+            if (processor instanceof WindowProcessor) {
+                ((WindowProcessor) processor).initProcessor(metaStreamEvent, streamEventPool);
+            }
+            if (stateEventPool != null && processor instanceof JoinProcessor) {
+                ((JoinProcessor) processor).setStateEventPool(stateEventPool);
+
+            }
+            processor = processor.getNextProcessor();
         }
     }
 }
