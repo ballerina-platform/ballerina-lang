@@ -34,6 +34,8 @@ public class SiddhiClassLoader {
             throw new CannotLoadClassException("Cannot restore class: " + name, e);
         } catch (ClassNotFoundException e) {
             throw new CannotLoadClassException("Cannot restore class: " + name, e);
+        } catch (NoClassDefFoundError e) {
+            throw new CannotLoadClassException("Cannot restore class: " + name, e);
         }
 
     }

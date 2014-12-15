@@ -20,7 +20,7 @@ package org.wso2.siddhi.core.event.stream;
 import com.lmax.disruptor.EventFactory;
 
 /**
- * Event Factory to create new InnerStreamEvents
+ * Event Factory to create new StreamEvents
  */
 public class StreamEventFactory implements EventFactory<StreamEvent> {
 

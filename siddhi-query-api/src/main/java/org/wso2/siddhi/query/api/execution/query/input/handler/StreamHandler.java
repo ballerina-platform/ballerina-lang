@@ -16,5 +16,9 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.handler;
 
+import org.wso2.siddhi.query.api.expression.Expression;
+
 public interface StreamHandler {
+
+    public Expression[] getParameters();
 }

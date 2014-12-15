@@ -19,33 +19,37 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
 public class LengthWindowProcessor extends WindowProcessor {
 
     private int length;
     private int count = 0;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
-    private StreamEventCloner streamEventCloner;
-    private MetaStreamEvent metaStreamEvent;
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
 
     @Override
-    public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
-        this.metaStreamEvent = metaStreamEvent;
-        this.streamEventCloner = streamEventCloner;
+    protected void init(ExpressionExecutor[] inputExecutors) {
         expiredEventChunk = new ComplexEventChunk<StreamEvent>();
 
-        if (parameters != null) {
-            length = ((IntConstant) parameters[0]).getValue();
+        if (inputExecutors != null) {
+            length = (Integer) ((ConstantExpressionExecutor) inputExecutors[0]).getValue();
         }
     }
 
     @Override
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
@@ -63,18 +67,9 @@ public class LengthWindowProcessor extends WindowProcessor {
     }
 
     @Override
-    public Processor cloneProcessor() {
+    protected WindowProcessor cloneWindowProcessor() {
         LengthWindowProcessor lengthWindowProcessor = new LengthWindowProcessor();
         lengthWindowProcessor.setLength(this.length);
         return lengthWindowProcessor;
     }
-
-    public int getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
 }

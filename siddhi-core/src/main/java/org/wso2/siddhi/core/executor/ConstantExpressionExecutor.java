@@ -38,4 +38,7 @@ public class ConstantExpressionExecutor implements ExpressionExecutor {
         return this;
     }
 
+    public Object getValue() {
+        return value;
+    }
 }

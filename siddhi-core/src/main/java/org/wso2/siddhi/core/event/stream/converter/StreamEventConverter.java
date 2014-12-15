@@ -1,4 +1,3 @@
-package org.wso2.siddhi.core.event.stream.converter;
 /*
  * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
  * All Rights Reserved.
@@ -17,11 +16,15 @@ package org.wso2.siddhi.core.event.stream.converter;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.siddhi.core.event.stream.converter;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+/**
+ * The converter that converts data of the events into StreamEvents
+ */
 public interface StreamEventConverter {
 
     /**

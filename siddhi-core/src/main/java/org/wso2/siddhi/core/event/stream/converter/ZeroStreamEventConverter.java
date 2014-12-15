@@ -22,6 +22,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+/**
+ * The converter that does no conversion but only copy OutputData of the events into StreamEvents
+ */
 public class ZeroStreamEventConverter implements StreamEventConverter {
 
     private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {

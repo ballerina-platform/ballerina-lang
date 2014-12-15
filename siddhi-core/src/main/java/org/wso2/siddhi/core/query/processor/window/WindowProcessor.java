@@ -18,64 +18,45 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.*;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 
-public abstract class WindowProcessor implements Processor {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final Logger log = Logger.getLogger(WindowProcessor.class);
+public abstract class WindowProcessor extends StreamProcessor {
 
-    protected Processor nextProcessor;
-    protected Expression[] parameters;
-
-
-    /**
-     * Initialization method for window processors. Should set parameters accordingly and configure processor
-     * to an executable status.
-     *
-     * @param metaStreamEvent
-     * @param streamEventCloner
-     */
-    public abstract void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner);
-
-    public Processor getNextProcessor() {
-        return nextProcessor;
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors) {
+        init(inputExecutors);
+        return new ArrayList<Attribute>(0);
     }
 
-    public void setNextProcessor(Processor processor) {
-        this.nextProcessor = processor;
-    }
+    protected abstract void init(ExpressionExecutor[] inputExecutors);
 
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk){
+    @Override
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
         streamEventChunk.reset();
         try {
-            process(streamEventChunk, nextProcessor);
-        }catch (Throwable t){    //todo improve
-            log.error(t.getMessage(),t);
+            process(streamEventChunk, nextProcessor, streamEventCloner);
+        } catch (Throwable t) {    //todo improve
+            log.error(t.getMessage(), t);
         }
     }
 
-    protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor);
+    protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                                    StreamEventCloner streamEventCloner);
 
-    public void setToLast(Processor processor) {
-        if (nextProcessor == null) {
-            this.nextProcessor = processor;
-        } else {
-            this.nextProcessor.setToLast(processor);
-        }
+    @Override
+    protected StreamProcessor cloneStreamProcessor() {
+        return cloneWindowProcessor();
     }
 
-    public void setParameters(Expression[] parameters) {
-        this.parameters = parameters;
-    }
-
-    public abstract Processor cloneProcessor();
-
-    public void initProcessor(MetaStreamEvent metaStreamEvent, StreamEventPool streamEventPool) {
-        init(metaStreamEvent, new StreamEventCloner(metaStreamEvent, streamEventPool));
-
-    }
+    protected abstract WindowProcessor cloneWindowProcessor() ;
 }

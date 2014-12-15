@@ -22,5 +22,5 @@ import org.wso2.siddhi.core.event.ComplexEvent;
  */
 public interface StateEventPopulater {
 
-    void convertToStateEvent(ComplexEvent complexEvent);
+    void populateStateEvent(ComplexEvent complexEvent);
 }

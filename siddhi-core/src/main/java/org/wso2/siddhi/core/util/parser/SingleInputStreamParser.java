@@ -20,19 +20,21 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
-import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
+import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.query.processor.stream_function.StreamFunctionProcessor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
@@ -45,10 +47,10 @@ public class SingleInputStreamParser {
     /**
      * Parse single InputStream and return SingleStreamRuntime
      *
-     * @param inputStream     single input stream to be parsed
-     * @param executionPlanContext         query to be parsed
-     * @param metaStreamEvent Meta event used to collect execution info of stream associated with query
-     * @param executors       List to hold VariableExpressionExecutors to update after query parsing
+     * @param inputStream          single input stream to be parsed
+     * @param executionPlanContext query to be parsed
+     * @param metaStreamEvent      Meta event used to collect execution info of stream associated with query
+     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
      * @return
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
@@ -58,7 +60,8 @@ public class SingleInputStreamParser {
         boolean first = true;
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                Processor currentProcessor = generateProcessor(handler, executionPlanContext, metaStreamEvent, executors);
+                Processor currentProcessor = generateProcessor(handler, executionPlanContext, metaStreamEvent,
+                        executors);
                 if (currentProcessor instanceof SchedulingProcessor) {
                     if (singleThreadValve == null) {
 
@@ -82,24 +85,36 @@ public class SingleInputStreamParser {
             }
         }
         metaStreamEvent.initializeAfterWindowData();
-        QueryStreamReceiver queryStreamReceiver = new QueryStreamReceiver((StreamDefinition) metaStreamEvent.getInputDefinition());
+        QueryStreamReceiver queryStreamReceiver = new QueryStreamReceiver(metaStreamEvent.getInputDefinition().getId());
         return new SingleStreamRuntime(queryStreamReceiver, processor);
     }
 
     private static Processor generateProcessor(StreamHandler handler, ExecutionPlanContext context, MetaStreamEvent metaStreamEvent,
                                                List<VariableExpressionExecutor> executors) {
+        ExpressionExecutor[] inputExpressions = new ExpressionExecutor[handler.getParameters().length];
+        Expression[] parameters = handler.getParameters();
+        for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
+            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], context, metaStreamEvent, executors,
+                    false);
+        }
         if (handler instanceof Filter) {
-            Expression condition = ((Filter) handler).getFilterExpression();
-            return new FilterProcessor(ExpressionParser.parseExpression(condition, context, metaStreamEvent, executors, false));  //metaStreamEvent has stream definition info
+            return new FilterProcessor(inputExpressions[0]);
+
         } else if (handler instanceof Window) {
             WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) handler).getFunction(),
                     WindowProcessor.class);
-            windowProcessor.setParameters(((Window) handler).getParameters());
+            windowProcessor.initProcessor(metaStreamEvent.getInputDefinition(), inputExpressions);
             return windowProcessor;
 
+        } else if (handler instanceof StreamFunction) {
+            StreamProcessor streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
+                    ((StreamFunction) handler).getFunction(), StreamFunctionProcessor.class);
+            metaStreamEvent.setInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getInputDefinition(),
+                    inputExpressions));
+            return streamProcessor;
+
         } else {
-            //TODO else if (window function etc)
-            throw new OperationNotSupportedException("Only filter operation is supported at the moment");
+            throw new IllegalStateException(handler.getClass().getName() + " is not supported");
         }
     }
 }

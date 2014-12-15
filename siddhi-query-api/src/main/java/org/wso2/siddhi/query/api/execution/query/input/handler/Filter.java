@@ -27,10 +27,6 @@ public class Filter implements StreamHandler {
         this.filterExpression = filterExpression;
     }
 
-    public Expression getFilterExpression() {
-        return filterExpression;
-    }
-
     @Override
     public String toString() {
         return "Filter{" +
@@ -53,5 +49,10 @@ public class Filter implements StreamHandler {
     @Override
     public int hashCode() {
         return filterExpression.hashCode();
+    }
+
+    @Override
+    public Expression[] getParameters() {
+        return new Expression[]{filterExpression};
     }
 }

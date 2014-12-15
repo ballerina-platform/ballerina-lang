@@ -24,6 +24,9 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.List;
 
+/**
+ * The converter class that only converts the OutputData of the events to StreamEvent
+ */
 public class SimpleStreamEventConverter implements StreamEventConverter {
     private List<ConversionMapping> conversionMappings;
 

@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import java.util.List;
 
 /**
- * The populater class that converts and manages events
+ * The converter class that converts the events into StreamEvent
  */
 public class SelectiveStreamEventConverter implements StreamEventConverter {
 

@@ -30,8 +30,8 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -49,7 +49,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     private PartitionRuntime partitionRuntime;
     private List<PartitionExecutor> partitionExecutors;
     private Map<String, StreamJunction> cachedStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>();
-   private ComplexEventChunk<ComplexEvent> streamEventChunk;
+    private ComplexEventChunk<ComplexEvent> streamEventChunk;
 
 
     public PartitionStreamReceiver(ExecutionPlanContext executionPlanContext, MetaStreamEvent metaStreamEvent, StreamDefinition streamDefinition,
@@ -135,7 +135,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         StreamEvent borrowedEvent = eventPool.borrowEvent();
         streamEventConverter.convertEvent(event, borrowedEvent);
         streamEventChunk.add(borrowedEvent);
-        if(endOfBatch) {
+        if (endOfBatch) {
             receive(streamEventChunk.getFirst());
             streamEventChunk.clear();
         }
@@ -144,7 +144,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     @Override
     public void receive(long timeStamp, Object[] data) {
         StreamEvent borrowedEvent = eventPool.borrowEvent();
-        streamEventConverter.convertData(timeStamp,data, borrowedEvent);
+        streamEventConverter.convertData(timeStamp, data, borrowedEvent);
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);

@@ -59,7 +59,8 @@ public class StreamPartitioner {
                         }
                     } else {
                         for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
-                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor) ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
+                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
+                                    ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
                         }
                     }
                 }

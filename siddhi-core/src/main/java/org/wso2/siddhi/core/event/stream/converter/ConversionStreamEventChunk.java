@@ -26,6 +26,9 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 
+/**
+ * A StreamEvent holder that can also convert other events into StreamEvents
+ */
 public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
 
     private StreamEventConverter streamEventConverter;
@@ -57,7 +60,7 @@ public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
 
     public void convertAndAssign(ComplexEvent complexEvent) {
         first = streamEventPool.borrowEvent();
-        last = convertAllStreamEvents(complexEvent, (StreamEvent)first);
+        last = convertAllStreamEvents(complexEvent, first);
     }
 
 //    @Override
@@ -135,7 +138,7 @@ public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
             first = lastReturned.getNext();
         }
         lastReturned.setNext(null);
-        streamEventPool.returnEvents((StreamEvent) lastReturned);
+        streamEventPool.returnEvents(lastReturned);
         lastReturned = null;
     }
 

@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -139,17 +139,19 @@ public class SelectorParser {
     private static ConditionExpressionExecutor generateHavingExecutor(Expression expression,
                                                                       MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-        MetaStreamEvent metaEvent = new MetaStreamEvent();
-        metaEvent.setInputDefinition(metaStateEvent.getOutputStreamDefinition());
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        metaStreamEvent.setInputDefinition(metaStateEvent.getOutputStreamDefinition());
+        metaStreamEvent.setInitialAttributeSize(metaStateEvent.getOutputStreamDefinition().getAttributeList().size());
         for (Attribute attribute : metaStateEvent.getOutputStreamDefinition().getAttributeList()) {
-            metaEvent.addOutputData(attribute);
+            metaStreamEvent.addOutputData(attribute);
         }
         ConditionExpressionExecutor havingConditionExecutor = null;
         if (expression != null) {
-            havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression, executionPlanContext, metaEvent, executors, false);
+            havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression,
+                    executionPlanContext, metaStreamEvent, executors, false);
 
         }
-        QueryParserHelper.updateVariablePosition(new MetaStateEvent(new MetaStreamEvent[]{metaEvent}), executors);
+        QueryParserHelper.updateVariablePosition(new MetaStateEvent(new MetaStreamEvent[]{metaStreamEvent}), executors);
         return havingConditionExecutor;
 
     }

@@ -73,6 +73,7 @@ public class PartitionParser {
             metaStreamEvent.addOutputData(attribute);
         }
         metaStreamEvent.setInputDefinition(definition);
+        metaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
         return metaStreamEvent;
     }
 }

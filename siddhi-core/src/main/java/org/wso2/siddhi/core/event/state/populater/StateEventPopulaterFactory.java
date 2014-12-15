@@ -38,15 +38,15 @@ public class StateEventPopulaterFactory {
             int outputDataSize = metaStateEvent.getOutputDataAttributes().size();
             int size = preOutputDataSize + outputDataSize;
 
-            List<MappingElement> mappingElements = getConversionElements(metaStateEvent, size);
+            List<StateMappingElement> stateMappingElements = getMappingElements(metaStateEvent, size);
 
-            return new SelectiveStateEventPopulater(mappingElements);
+            return new SelectiveStateEventPopulater(stateMappingElements);
         }
     }
 
-    private static List<MappingElement> getConversionElements(MetaStateEvent metaStateEvent, int size) {
+    private static List<StateMappingElement> getMappingElements(MetaStateEvent metaStateEvent, int size) {
 
-        List<MappingElement> mappingElements = new ArrayList<MappingElement>(size);
+        List<StateMappingElement> stateMappingElements = new ArrayList<StateMappingElement>(size);
 
         for (int j = 0; j < 2; j++) {
             List<MetaStateEventAttribute> currentDataList = null;
@@ -61,18 +61,18 @@ public class StateEventPopulaterFactory {
                     if (metaStateEventAttribute == null) {
                         i++;
                     } else {
-                        MappingElement mappingElement = new MappingElement();
-                        mappingElement.setFromPosition(metaStateEventAttribute.getPosition());
+                        StateMappingElement stateMappingElement = new StateMappingElement();
+                        stateMappingElement.setFromPosition(metaStateEventAttribute.getPosition());
                         int[] toPosition = new int[2];
                         toPosition[0] = j;
                         toPosition[1] = i;
-                        mappingElement.setToPosition(toPosition);
-                        mappingElements.add(mappingElement);
+                        stateMappingElement.setToPosition(toPosition);
+                        stateMappingElements.add(stateMappingElement);
                         i++;
                     }
                 }
             }
         }
-        return mappingElements;
+        return stateMappingElements;
     }
 }

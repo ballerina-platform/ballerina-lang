@@ -17,6 +17,9 @@
 */
 package org.wso2.siddhi.core.event;
 
+/**
+ * Event Factory to create new Events
+ */
 public class EventFactory implements com.lmax.disruptor.EventFactory<Event> {
 
     private int dataSize;

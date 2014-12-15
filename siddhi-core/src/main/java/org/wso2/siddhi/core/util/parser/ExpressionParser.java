@@ -20,8 +20,8 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexMetaEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
@@ -67,6 +67,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.Abstract
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
@@ -899,15 +900,16 @@ public class ExpressionParser {
      * @return VariableExpressionExecutor representing given variable
      */
     private static ExpressionExecutor parseVariable(Variable variable,
-                                                    ComplexMetaEvent metaEvent, List<VariableExpressionExecutor> executorList) {
+                                                    ComplexMetaEvent metaEvent, List<VariableExpressionExecutor>
+            executorList) {
         String attributeName = variable.getAttributeName();
 
         if (metaEvent instanceof MetaStreamEvent) {
             MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
-            ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, metaStreamEvent.getInputDefinition()
-                    .getAttributeType(attributeName)));
+            AbstractDefinition abstractDefinition = metaStreamEvent.getInputDefinition();
+            ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, abstractDefinition.getAttributeType(attributeName)));
             VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(attributeName,
-                    (StreamDefinition) (metaStreamEvent.getInputDefinition()));
+                    (StreamDefinition) (abstractDefinition));
             executorList.add(variableExpressionExecutor);
             return variableExpressionExecutor;
         } else {      //todo support stream index
@@ -920,9 +922,10 @@ public class ExpressionParser {
                 MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                 for (int i = 0; i < metaStreamEvents.length; i++) {
                     MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
+                    inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
                     if (type == null) {
                         try {
-                            inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+
                             type = inputStreamDefinition.getAttributeType(attributeName);
                             firstInput = "Input Stream: " + inputStreamDefinition.getId() + " with " +
                                     "reference: " + metaStreamEvent.getInputReferenceId();
@@ -932,9 +935,8 @@ public class ExpressionParser {
                         }
                     } else {
                         try {
-                            metaStreamEvent.getInputDefinition().getAttributeType(attributeName);
-                            throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + metaStreamEvent
-                                    .getInputDefinition().getId() + " with " +
+                            inputStreamDefinition.getAttributeType(attributeName);
+                            throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + inputStreamDefinition.getId() + " with " +
                                     "reference: " + metaStreamEvent.getInputReferenceId() + " contains attributes with same" +
                                     " names ");
                         } catch (AttributeNotExistException e) {
@@ -946,16 +948,15 @@ public class ExpressionParser {
                 MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                 for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
                     MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
+                    inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
                     if (metaStreamEvent.getInputReferenceId() == null) {
-                        if (metaStreamEvent.getInputDefinition().getId().equals(variable.getStreamId())) {
-                            inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                        if (inputStreamDefinition.getId().equals(variable.getStreamId())) {
                             type = inputStreamDefinition.getAttributeType(attributeName);
                             eventPosition[0] = i;
                             break;
                         }
                     } else {
                         if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
-                            inputStreamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
                             type = inputStreamDefinition.getAttributeType(attributeName);
                             eventPosition[0] = i;
                             break;

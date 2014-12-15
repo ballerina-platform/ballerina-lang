@@ -21,7 +21,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
  */
 public class SkipStateEventPopulater implements StateEventPopulater {
 
-    public void convertToStateEvent(ComplexEvent complexEvent) {
+    public void populateStateEvent(ComplexEvent complexEvent) {
         //Do nothing
     }
 }

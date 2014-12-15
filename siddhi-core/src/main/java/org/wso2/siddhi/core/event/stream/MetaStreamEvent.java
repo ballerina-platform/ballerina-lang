@@ -26,16 +26,15 @@ import java.util.List;
 
 
 /**
- * Class to hold mapping between Event
- * and StreamEvent. This will be eventually
- * used to update variable positions on Variable executors
+ * Class to hold meta info about StreamEvent.
+ * This is also used to update variable positions on executors
  */
 public class MetaStreamEvent implements ComplexMetaEvent {
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
     private List<Attribute> onAfterWindowData = null;
     private List<Attribute> outputData = null;
-    private int maxEvents = -1;
     private AbstractDefinition inputDefinition;
+    private int initialAttributeSize;
     private String inputReferenceId;
 
     public List<Attribute> getBeforeWindowData() {
@@ -106,5 +105,11 @@ public class MetaStreamEvent implements ComplexMetaEvent {
         this.inputReferenceId = inputReferenceId;
     }
 
+    public void setInitialAttributeSize(int initialAttributeSize) {
+        this.initialAttributeSize = initialAttributeSize;
+    }
 
+    public int getInitialAttributeSize() {
+        return initialAttributeSize;
+    }
 }

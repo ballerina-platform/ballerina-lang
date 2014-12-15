@@ -26,7 +26,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class QueryStreamReceiver implements StreamJunction.Receiver {
 
@@ -38,12 +37,8 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     private StreamEventPool streamEventPool;
 
 
-    public QueryStreamReceiver(StreamDefinition streamDefinition) {
-        this.streamId = streamDefinition.getId();
-    }
-
-    private QueryStreamReceiver(String id) {
-        streamId = id;
+    public QueryStreamReceiver(String streamId) {
+        this.streamId = streamId;
     }
 
     @Override

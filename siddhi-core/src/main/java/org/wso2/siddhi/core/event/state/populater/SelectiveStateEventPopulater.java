@@ -25,23 +25,23 @@ import java.util.List;
  */
 public class SelectiveStateEventPopulater implements StateEventPopulater {
 
-    private List<MappingElement> mappingElements;       //List to hold information needed for population
+    private List<StateMappingElement> stateMappingElements;       //List to hold information needed for population
 
-    public SelectiveStateEventPopulater(List<MappingElement> mappingElements) {
-        this.mappingElements = mappingElements;
+    public SelectiveStateEventPopulater(List<StateMappingElement> stateMappingElements) {
+        this.stateMappingElements = stateMappingElements;
     }
 
-    public void convertToStateEvent(ComplexEvent complexEvent) {
+    public void populateStateEvent(ComplexEvent complexEvent) {
         StateEvent stateEvent = (StateEvent) complexEvent;
-        for (MappingElement mappingElement : mappingElements) {
-            int[] toPosition = mappingElement.getToPosition();
+        for (StateMappingElement stateMappingElement : stateMappingElements) {
+            int[] toPosition = stateMappingElement.getToPosition();
             switch (toPosition[0]) {
                 case 0:
-                    stateEvent.setPreOutputData(getFromData(stateEvent, mappingElement.getFromPosition()),
+                    stateEvent.setPreOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
                             toPosition[1]);
                     break;
                 case 1:
-                    stateEvent.setOutputData(getFromData(stateEvent, mappingElement.getFromPosition()),
+                    stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
                             toPosition[1]);
                     break;
                 default:

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,28 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event;
+package org.wso2.siddhi.core.event.stream.populater;
+
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 /**
- * The interface for the internal event implementations
+ * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields
  */
-public interface ComplexEvent {
+public interface StreamEventPopulater {
 
-    public enum Type {
-        CURRENT, EXPIRED, TIMER, RESET
-    }
+    public void populateStreamEvent(StreamEvent streamEvent, Object data, int outputAttributeIndex);
 
-    ComplexEvent getNext();
-
-    void setNext(ComplexEvent events);
-
-    Object[] getOutputData();
-
-    void setOutputData(Object object, int index);
-
-    long getTimestamp();
-
-    Object getAttribute(int[] position);
-
-    Type getType();
+    public void populateStreamEvent(StreamEvent streamEvent, Object[] data);
 }

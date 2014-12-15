@@ -19,10 +19,11 @@
 
 package org.wso2.siddhi.core.util.parser.helper;
 
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
@@ -32,7 +33,7 @@ import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
+import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -185,12 +186,13 @@ public class QueryParserHelper {
             if (processor instanceof SchedulingProcessor) {
                 ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
             }
-            if (processor instanceof WindowProcessor) {
-                ((WindowProcessor) processor).initProcessor(metaStreamEvent, streamEventPool);
+            if (processor instanceof StreamProcessor) {
+                ((StreamProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,
+                        streamEventPool));
+                ((StreamProcessor) processor).constructStreamEventPopulater(metaStreamEvent);
             }
             if (stateEventPool != null && processor instanceof JoinProcessor) {
                 ((JoinProcessor) processor).setStateEventPool(stateEventPool);
-
             }
             processor = processor.getNextProcessor();
         }

@@ -17,7 +17,7 @@ package org.wso2.siddhi.core.event.state.populater;
 /**
  * Element to hold information about StateEvent population
  */
-public class MappingElement {
+public class StateMappingElement {
     private int[] fromPosition;    //position in StateEvent StreamEvent/EventIndex/(Before,OnAfter,Output)/data[]
     private int[] toPosition;      //position in StateEvent (PreOutput,Output)/data[]
 

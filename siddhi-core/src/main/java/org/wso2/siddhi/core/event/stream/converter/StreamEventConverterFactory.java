@@ -53,9 +53,10 @@ public class StreamEventConverterFactory {
         }
     }
 
-    private static List<StreamEventConverter.ConversionMapping> getConversionElements(MetaStreamEvent metaStreamEvent, int size) {
+    private static List<StreamEventConverter.ConversionMapping> getConversionElements(
+            MetaStreamEvent metaStreamEvent, int size) {
 
-        StreamDefinition defaultDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+        StreamDefinition inputDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
         List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter.ConversionMapping>(size);
 
         for (int j = 0; j < 3; j++) {
@@ -73,13 +74,16 @@ public class StreamEventConverterFactory {
                     if (attribute == null) {
                         i++;
                     } else {
-                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                        int[] position = new int[2];
-                        conversionMapping.setFromPosition(defaultDefinition.getAttributePosition(attribute.getName()));
-                        position[0] = j;
-                        position[1] = i;
-                        conversionMapping.setToPosition(position);
-                        conversionMappings.add(conversionMapping);
+                        int fromPosition=inputDefinition.getAttributePosition(attribute.getName());
+                        if(fromPosition<metaStreamEvent.getInitialAttributeSize()) {
+                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
+                            conversionMapping.setFromPosition(fromPosition);
+                            int[] toPosition = new int[2];
+                            toPosition[0] = j;
+                            toPosition[1] = i;
+                            conversionMapping.setToPosition(toPosition);
+                            conversionMappings.add(conversionMapping);
+                        }
                         i++;
                     }
                 }

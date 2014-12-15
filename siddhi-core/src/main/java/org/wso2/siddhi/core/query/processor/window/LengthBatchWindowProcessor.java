@@ -19,11 +19,11 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
 public class LengthBatchWindowProcessor extends WindowProcessor {
 
@@ -31,30 +31,19 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     private int count = 0;
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-    private MetaStreamEvent metaStreamEvent;
-    private StreamEventCloner streamEventCloner;
 
 
-    /**
-     * Initialization method for window processors. Should set parameters accordingly and configure processor
-     * to an executable status.
-     *
-     * @param metaStreamEvent
-     * @param streamEventCloner
-     */
     @Override
-    public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
-        this.metaStreamEvent = metaStreamEvent;
-        this.streamEventCloner = streamEventCloner;
-        if (parameters != null) {
-            this.setLength(((IntConstant) parameters[0]).getValue());
+    protected void init(ExpressionExecutor[] inputExecutors) {
+        if (inputExecutors != null) {
+            length = (Integer) (((ConstantExpressionExecutor) inputExecutors[0]).getValue());
         }
     }
 
     @Override
-    public void process(ComplexEventChunk<StreamEvent> complexEventChunk, Processor nextProcessor) {
-        while (complexEventChunk.hasNext()) {
-            StreamEvent streamEvent = complexEventChunk.next();
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        while (streamEventChunk.hasNext()) {
+            StreamEvent streamEvent = streamEventChunk.next();
             StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
 //            clonedStreamEvent.setExpired(true);
             currentEventChunk.add(clonedStreamEvent);
@@ -64,8 +53,8 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                     StreamEvent expiredEvent = expiredEventChunk.next();
                     expiredEvent.setTimestamp(System.currentTimeMillis());  //todo fix
                 }
-                if(expiredEventChunk.getFirst()!=null) {
-                    complexEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());
+                if (expiredEventChunk.getFirst() != null) {
+                    streamEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());
                 }
                 expiredEventChunk.clear();
                 while (currentEventChunk.hasNext()) {
@@ -74,74 +63,24 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
                     toExpireEvent.setType(StreamEvent.Type.EXPIRED);
                     expiredEventChunk.add(toExpireEvent);
                 }
-                complexEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());
+                streamEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());
                 currentEventChunk.clear();
-                count=0;
+                count = 0;
 
             }
-            complexEventChunk.remove();
+            streamEventChunk.remove();
 
         }
-        if(complexEventChunk.getFirst()!=null) {
-            nextProcessor.process(complexEventChunk);
+        if (streamEventChunk.getFirst() != null) {
+            nextProcessor.process(streamEventChunk);
         }
 
-//        StreamEvent event = complexEventChunk.getFirst();
-//        StreamEvent currentEvent;
-//        StreamEvent head = event;
-//        while (event != null) {
-//            processEvent(event);
-//            currentEvent = event;
-//            event = event.getNext();
-//            if (count == length) {
-//                currentEvent.setNext(removeEventHead);
-//                removeEventHead = null;
-//                removeEventTail.setNext(event);
-//                count = 0;
-//            }
-//        }
-//        ConvertingStreamEventChunk headStreamEventChunk = new ConvertingStreamEventChunk(null,null);
-//        headEventChunk.setEventConverter(eventChunk.getEventConverter());
-//        headEventChunk.assignConvertedEvents(head);
-//        nextProcessor.process(headStreamEventChunk);
     }
-
-//    /**
-//     * Create a copy of in event and store as remove event to emit at window expiration as expired events.
-//     *
-//     * @param event
-//     */
-//    private void processEvent(StreamEvent event) {      //can do in event or borrow from pool??
-//        StreamEvent removeEvent = removeEventFactory.newInstance();
-//        if (removeEvent.getOnAfterWindowData() != null) {
-//            System.arraycopy(event.getOnAfterWindowData(), 0, removeEvent.getOnAfterWindowData(), 0,
-//                    event.getOnAfterWindowData().length);
-//        }
-//        System.arraycopy(event.getOutputDataAttributes(), 0, removeEvent.getOutputDataAttributes(), 0, event.getOutputDataAttributes().length);
-//        removeEvent.setExpired(true);
-//        if (removeEventHead == null) {      //better if we can do it in init()
-//            removeEventHead = removeEvent;
-//            removeEventTail = removeEvent;
-//        } else {
-//            removeEventTail.setNext(removeEvent);
-//            removeEventTail = removeEvent;
-//        }
-//        count++;
-//    }
 
     @Override
-    public Processor cloneProcessor() {
+    protected WindowProcessor cloneWindowProcessor() {
         LengthBatchWindowProcessor lengthBatchWindowProcessor = new LengthBatchWindowProcessor();
-        lengthBatchWindowProcessor.setLength(this.length);
+        lengthBatchWindowProcessor.length = length;
         return lengthBatchWindowProcessor;
     }
-
-    public int getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
 }

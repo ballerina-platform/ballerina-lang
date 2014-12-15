@@ -15,42 +15,59 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.join.Finder;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
 public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
-    private StreamEventCloner streamEventCloner;
-    private MetaStreamEvent metaStreamEvent;
     private Scheduler scheduler;
 
+    public void setTimeInMilliSeconds(long timeInMilliSeconds) {
+        this.timeInMilliSeconds = timeInMilliSeconds;
+    }
+
     @Override
-    public void init(MetaStreamEvent metaStreamEvent, StreamEventCloner streamEventCloner) {
-        this.metaStreamEvent = metaStreamEvent;
-        this.streamEventCloner = streamEventCloner;
-        expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
 
-        if (parameters != null) {
-            if (parameters[0] instanceof TimeConstant) {
-                timeInMilliSeconds = ((TimeConstant) parameters[0]).getValue();
-            } else {
-                timeInMilliSeconds = ((IntConstant) parameters[0]).getValue();
+    @Override
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    @Override
+    public StreamEvent find(Finder finder) {    //todo optimize
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        expiredEventChunk.reset();
+        while (expiredEventChunk.hasNext()) {
+            StreamEvent streamEvent = expiredEventChunk.next();
+            if (finder.execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
             }
+        }
+        return returnEventChunk.getFirst();
+    }
 
+    @Override
+    protected void init(ExpressionExecutor[] inputExecutors) {
+        expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        if (inputExecutors != null) {
+            timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) inputExecutors[0]).getValue();
         }
     }
 
     @Override
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
@@ -84,36 +101,9 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     }
 
     @Override
-    public Processor cloneProcessor() {
-        TimeWindowProcessor lengthWindowProcessor = new TimeWindowProcessor();
-        lengthWindowProcessor.setTimeInMilliSeconds(this.timeInMilliSeconds);
-        return lengthWindowProcessor;
-    }
-
-    public void setTimeInMilliSeconds(long timeInMilliSeconds) {
-        this.timeInMilliSeconds = timeInMilliSeconds;
-    }
-
-    @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
-
-    @Override
-    public Scheduler getScheduler() {
-        return scheduler;
-    }
-
-    @Override
-    public StreamEvent find(Finder finder) {    //todo optimize
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
-        expiredEventChunk.reset();
-        while (expiredEventChunk.hasNext()) {
-            StreamEvent streamEvent = expiredEventChunk.next();
-            if (finder.execute(streamEvent)) {
-                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
-            }
-        }
-        return returnEventChunk.getFirst();
+    public TimeWindowProcessor cloneWindowProcessor() {
+        TimeWindowProcessor windowProcessor = new TimeWindowProcessor();
+        windowProcessor.setTimeInMilliSeconds(this.timeInMilliSeconds);
+        return windowProcessor;
     }
 }
