@@ -137,8 +137,8 @@ public class PmmlModelExecutor extends TransformProcessor {
                 elementId, false,siddhiContext);
             return (String) executor.execute(null);
         } else {
-            throw new QueryCreationException("Cannot find a pmmlDefinition definition as the " +
-                "first attribute in the query.");
+            throw new QueryCreationException("Cannot find a pmml definition as the first " +
+                "attribute in the query.");
         }
     }
     
@@ -168,7 +168,7 @@ public class PmmlModelExecutor extends TransformProcessor {
     
     /**
      * Extract the name and the data type of the output fields and predicted fields from the
-     * pmmlDefinition and initialize an output stream having attributes with same name and data
+     * pmml definition and initialize an output stream having attributes with same name and data
      * type.
      * 
      * @param pmmlModel     Pmml model to which the output stream is define
