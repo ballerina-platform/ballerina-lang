@@ -37,6 +37,7 @@
 
     <modules>
         <module>time-series</module>
+	<module>machine-learning</module>
     </modules>
 
 </project>
