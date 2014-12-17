@@ -62,9 +62,9 @@ import java.util.Map;
 @SiddhiExtension(namespace = "mlearn", function = "getModelPrediction")
 public class PmmlModelExecutor extends TransformProcessor {
 
-    static final Logger logger = Logger.getLogger(PmmlModelExecutor.class);
+    private static final Logger logger = Logger.getLogger(PmmlModelExecutor.class);
     private Map<String, Integer> parameterPositions = new HashMap<String, Integer>();
-    Map<FieldName, FieldValue> inData = new HashMap<FieldName, FieldValue>();
+    private Map<FieldName, FieldValue> inData = new HashMap<FieldName, FieldValue>();
     private List<FieldName> allFields;          // All the fields defined in the pmml definition
     private List<FieldName> predictedFields;    // Predicted fields of the pmml definition
     private List<FieldName> outputFields;       // Output fields of the pmml definition
