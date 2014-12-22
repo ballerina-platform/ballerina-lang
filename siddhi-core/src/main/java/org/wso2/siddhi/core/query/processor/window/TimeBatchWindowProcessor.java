@@ -24,8 +24,8 @@ import org.wso2.siddhi.core.event.in.InEvent;
 import org.wso2.siddhi.core.event.in.InListEvent;
 import org.wso2.siddhi.core.event.remove.RemoveEvent;
 import org.wso2.siddhi.core.event.remove.RemoveListEvent;
-import org.wso2.siddhi.core.snapshot.ThreadBarrier;
 import org.wso2.siddhi.core.query.QueryPostProcessingElement;
+import org.wso2.siddhi.core.snapshot.ThreadBarrier;
 import org.wso2.siddhi.core.util.collection.queue.scheduler.ISchedulerSiddhiQueue;
 import org.wso2.siddhi.core.util.collection.queue.scheduler.SchedulerSiddhiQueue;
 import org.wso2.siddhi.core.util.collection.queue.scheduler.SchedulerSiddhiQueueGrid;
@@ -39,12 +39,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class TimeBatchWindowProcessor extends WindowProcessor implements RunnableWindowProcessor {
 
     static final Logger log = Logger.getLogger(TimeBatchWindowProcessor.class);
     private ScheduledExecutorService eventRemoverScheduler;
+    private ScheduledFuture<?> lastSchedule;
     private long timeToKeep;
     private List<InEvent> newEventList;
     private List<RemoveEvent> oldEventList;
@@ -118,7 +120,10 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Runnabl
                         long diff = timeToKeep - (System.currentTimeMillis() - scheduledTime);
                         if (diff > 0) {
                             try {
-                                eventRemoverScheduler.schedule(this, diff, TimeUnit.MILLISECONDS);
+                                if (lastSchedule != null) {
+                                    lastSchedule.cancel(false);
+                                }
+                                lastSchedule = eventRemoverScheduler.schedule(this, diff, TimeUnit.MILLISECONDS);
                             } catch (RejectedExecutionException ex) {
                                 log.warn("scheduling cannot be accepted for execution: elementID " + elementId);
                             }
@@ -178,11 +183,18 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Runnabl
 
     @Override
     public void schedule() {
-        eventRemoverScheduler.schedule(this, timeToKeep, TimeUnit.MILLISECONDS);
+        if (lastSchedule != null) {
+            lastSchedule.cancel(false);
+        }
+        lastSchedule = eventRemoverScheduler.schedule(this, timeToKeep, TimeUnit.MILLISECONDS);
+
     }
 
     public void scheduleNow() {
-        eventRemoverScheduler.schedule(this, 0, TimeUnit.MILLISECONDS);
+        if (lastSchedule != null) {
+            lastSchedule.cancel(false);
+        }
+        lastSchedule = eventRemoverScheduler.schedule(this, 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -195,7 +207,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Runnabl
     }
 
     @Override
-    public void destroy(){
+    public void destroy() {
 
     }
 }

@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.event.in.InListEvent;
 import org.wso2.siddhi.core.event.remove.RemoveEvent;
 import org.wso2.siddhi.core.event.remove.RemoveListEvent;
 import org.wso2.siddhi.core.event.remove.RemoveStream;
-import org.wso2.siddhi.core.snapshot.ThreadBarrier;
 import org.wso2.siddhi.core.query.QueryPostProcessingElement;
+import org.wso2.siddhi.core.snapshot.ThreadBarrier;
 import org.wso2.siddhi.core.util.EventConverter;
 import org.wso2.siddhi.core.util.collection.queue.TimeStampSiddhiQueue;
 import org.wso2.siddhi.core.util.collection.queue.scheduler.timestamp.ISchedulerTimestampSiddhiQueue;
@@ -42,6 +42,7 @@ import org.wso2.siddhi.query.api.expression.constant.LongConstant;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class TimeWindowProcessor extends WindowProcessor implements RunnableWindowProcessor {
@@ -49,6 +50,7 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
     static final Logger log = Logger.getLogger(TimeWindowProcessor.class);
     private ScheduledExecutorService eventRemoverScheduler;
     private long timeToKeep;
+    private ScheduledFuture<?> lastSchedule = null;
     private long constantSchedulingInterval = -1;
     private boolean isConstantSchedulingMode = false;
     private ThreadBarrier threadBarrier;
@@ -111,25 +113,30 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
                     }
                     long timeDiff = ((RemoveStream) streamEvent).getExpiryTime() - System.currentTimeMillis();
                     try {
-                            if (timeDiff > 0) {
-                                if (!isConstantSchedulingMode){
-                                    if (siddhiContext.isDistributedProcessingEnabled()) {
-                                        //should not use sleep as it will not release the lock, hence it will fail in distributed case
-                                        eventRemoverScheduler.schedule(this, timeDiff, TimeUnit.MILLISECONDS);
-                                        break;
-                                    } else {
-                                        //this cannot be used for distributed case as it will course concurrency issues
-                                        releaseLock();
-                                        Thread.sleep(timeDiff);
-                                        acquireLock();
+                        if (timeDiff > 0) {
+                            if (!isConstantSchedulingMode) {
+                                if (siddhiContext.isDistributedProcessingEnabled()) {
+
+                                    if (lastSchedule != null) {
+                                        lastSchedule.cancel(false);
                                     }
-                                }else {
+                                    //should not use sleep as it will not release the lock, hence it will fail in distributed case
+                                    lastSchedule = eventRemoverScheduler.schedule(this, timeDiff,
+                                            TimeUnit.MILLISECONDS);
                                     break;
+                                } else {
+                                    //this cannot be used for distributed case as it will course concurrency issues
+                                    releaseLock();
+                                    Thread.sleep(timeDiff);
+                                    acquireLock();
                                 }
+                            } else {
+                                break;
                             }
+                        }
 
                         Collection<StreamEvent> resultList = window.poll(System.currentTimeMillis());
-                        if (resultList != null){
+                        if (resultList != null) {
                             for (StreamEvent event : resultList) {
                                 if (streamEvent instanceof AtomicEvent) {
                                     nextProcessor.process((AtomicEvent) event);
@@ -150,7 +157,7 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
         } finally {
             // If this is constant scheduling, reschedule after every execution since
             // arrival of events won't do any scheduling
-            if (isConstantSchedulingMode){
+            if (isConstantSchedulingMode) {
                 this.scheduleConstantTime();
             }
             releaseLock();
@@ -166,7 +173,7 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
     protected void restoreState(Object[] data) {
         window.restoreState(data);
 
-        if (!isConstantSchedulingMode){
+        if (!isConstantSchedulingMode) {
             window.reSchedule();
         }
     }
@@ -179,24 +186,24 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
             timeToKeep = ((LongConstant) parameters[0]).getValue();
         }
 
-        if (parameters.length  == 2){
+        if (parameters.length == 2) {
             constantSchedulingInterval = ((IntConstant) parameters[1]).getValue();
-            if (constantSchedulingInterval > 0){
+            if (constantSchedulingInterval > 0) {
                 isConstantSchedulingMode = true;
             }
         }
 
-        if (!isConstantSchedulingMode){
+        if (!isConstantSchedulingMode) {
             if (this.siddhiContext.isDistributedProcessingEnabled()) {
                 window = new SchedulerTimestampSiddhiQueueGrid<StreamEvent>(elementId, this, this.siddhiContext, this.async);
             } else {
                 window = new SchedulerTimestampSiddhiQueue<StreamEvent>(this);
             }
-        }else{
+        } else {
             if (this.siddhiContext.isDistributedProcessingEnabled()) {
                 throw new UnsupportedOperationException("Constant time sliding not supported for distributed processing.");
                 //TODO : Implement constant time sliding window grid for distributed case
-            }else{
+            } else {
                 window = new TimeStampSiddhiQueue<StreamEvent>(constantSchedulingInterval);
                 this.schedule();
             }
@@ -205,14 +212,22 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
     }
 
     public void scheduleNow() {
+        if (lastSchedule != null) {
+            lastSchedule.cancel(false);
+        } else {
+            lastSchedule = null;
+        }
         eventRemoverScheduler.execute(this);
     }
 
     public void schedule() {
-        eventRemoverScheduler.schedule(this, timeToKeep, TimeUnit.MILLISECONDS);
+        if (lastSchedule != null) {
+            lastSchedule.cancel(false);
+        }
+        lastSchedule= eventRemoverScheduler.schedule(this, timeToKeep, TimeUnit.MILLISECONDS);
     }
 
-    public void scheduleConstantTime(){
+    public void scheduleConstantTime() {
         eventRemoverScheduler.schedule(this, constantSchedulingInterval, TimeUnit.MILLISECONDS);
     }
 
@@ -226,7 +241,7 @@ public class TimeWindowProcessor extends WindowProcessor implements RunnableWind
     }
 
     @Override
-    public void destroy(){
+    public void destroy() {
 
     }
 }
