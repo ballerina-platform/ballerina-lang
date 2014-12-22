@@ -22,12 +22,13 @@ package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
@@ -40,6 +41,7 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
@@ -112,19 +114,33 @@ public class PartitionRuntime {
         return metaQueryRuntime;
     }
 
-    public void addPartitionReceiver(QueryRuntime queryRuntime, List<VariableExpressionExecutor> executors, MetaStreamEvent metaStreamEvent) {
+    public void addPartitionReceiver(QueryRuntime queryRuntime, List<VariableExpressionExecutor> executors, MetaStateEvent metaEvent) {
         Query query = queryRuntime.getQuery();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime && !((SingleInputStream) query.getInputStream()).isInnerStream()) {
             if (!partitionStreamReceivers.containsKey(((SingleInputStream) query.getInputStream()).getStreamId())) {
-                List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaStreamEvent,
+                List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaEvent,
                         executors, executionPlanContext).getPartitionExecutorLists();
-                addPartitionReceiver(new PartitionStreamReceiver(executionPlanContext, metaStreamEvent,
+                addPartitionReceiver(new PartitionStreamReceiver(executionPlanContext, metaEvent.getMetaStreamEvent(0),
                         (StreamDefinition) streamDefinitionMap.get(((SingleInputStream) query.getInputStream()).getStreamId()),
                         partitionExecutors.get(0), this));
             }
-        }//TODO: joins
+        } else if(queryRuntime.getStreamRuntime() instanceof JoinStreamRuntime){
+            List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaEvent,
+                        executors, executionPlanContext).getPartitionExecutorLists();
+            List<String> streamIds = query.getInputStream().getStreamIds();
+            for(int i=0;i<partitionExecutors.size();i++) {
+                if (!partitionStreamReceivers.containsKey(streamIds.get(i))) {
+                    addPartitionReceiver(new PartitionStreamReceiver(executionPlanContext, metaEvent.getMetaStreamEvent(i),
+                            (StreamDefinition) streamDefinitionMap.get(streamIds.get(i)),
+                            partitionExecutors.get(i), this));
+                }
+            }
+        }
+
+        //TODO: else  patterns
 
     }
+
 
     /**
      * clone all the queries of the partition for a given partition key if they are not available

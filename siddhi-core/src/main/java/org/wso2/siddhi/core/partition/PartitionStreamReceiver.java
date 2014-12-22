@@ -198,17 +198,33 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     public void addStreamJunction(String key, List<QueryRuntime> queryRuntimeList) {
         if (!partitionExecutors.isEmpty()) {
             for (QueryRuntime queryRuntime : queryRuntimeList) {
-                if (queryRuntime.getInputStreamId().get(0).equals(streamId)) {
-                    StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
-                    StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
-                    if (streamJunction == null) {
-                        streamJunction = new StreamJunction(streamDefinition,
-                                executionPlanContext.getExecutorService(),
-                                executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
-                        partitionRuntime.addStreamJunction(streamId + key, streamJunction);
-                        cachedStreamJunctionMap.put(streamId + key, streamJunction);
+                StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
+                if(streamRuntime instanceof SingleStreamRuntime) {
+                    if (queryRuntime.getInputStreamId().get(0).equals(streamId)) {
+                        StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
+                        if (streamJunction == null) {
+                            streamJunction = new StreamJunction(streamDefinition,
+                                    executionPlanContext.getExecutorService(),
+                                    executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                            partitionRuntime.addStreamJunction(streamId + key, streamJunction);
+                            cachedStreamJunctionMap.put(streamId + key, streamJunction);
+                        }
+                        streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver());
                     }
-                    streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver());
+                } else {
+                    for(int i=0;i<queryRuntime.getInputStreamId().size();i++) {
+                        if (queryRuntime.getInputStreamId().get(i).equals(streamId)) {
+                            StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
+                            if (streamJunction == null) {
+                                streamJunction = new StreamJunction(streamDefinition,
+                                        executionPlanContext.getExecutorService(),
+                                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                                partitionRuntime.addStreamJunction(streamId + key, streamJunction);
+                                cachedStreamJunctionMap.put(streamId + key, streamJunction);
+                            }
+                            streamJunction.subscribe((streamRuntime.getSingleStreamRuntimes().get(i)).getQueryStreamReceiver());
+                        }
+                    }
                 }
             }
 

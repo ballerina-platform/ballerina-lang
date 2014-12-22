@@ -22,6 +22,8 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
+import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,36 @@ public class JoinStreamRuntime implements StreamRuntime {
         for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
             joinStreamRuntime.addRuntime((SingleStreamRuntime) singleStreamRuntime.clone(key));
         }
+        SingleStreamRuntime leftSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(0);
+        SingleStreamRuntime rightSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(1);
+
+
+
+        Processor lastLeftProcessor = leftSingleStreamRuntime.getProcessorChain();
+
+        while (!(lastLeftProcessor instanceof JoinProcessor)) {
+            lastLeftProcessor = lastLeftProcessor.getNextProcessor();
+        }
+
+        JoinProcessor leftPreJoinProcessor = (JoinProcessor) lastLeftProcessor;
+        WindowProcessor leftWindowProcessor = (WindowProcessor) leftPreJoinProcessor.getNextProcessor();
+        JoinProcessor leftPostJoinProcessor = (JoinProcessor) leftWindowProcessor.getNextProcessor();
+
+        Processor lastRightProcessor = rightSingleStreamRuntime.getProcessorChain();
+
+        while (!(lastRightProcessor instanceof JoinProcessor)) {
+            lastRightProcessor = lastRightProcessor.getNextProcessor();
+        }
+
+        JoinProcessor rightPreJoinProcessor = (JoinProcessor) lastRightProcessor;
+        WindowProcessor rightWindowProcessor = (WindowProcessor) rightPreJoinProcessor.getNextProcessor();
+        JoinProcessor rightPostJoinProcessor = (JoinProcessor) rightWindowProcessor.getNextProcessor();
+
+        rightPostJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
+        rightPreJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
+
+        leftPreJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
+        leftPostJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
         return joinStreamRuntime;
     }
 

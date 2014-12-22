@@ -19,6 +19,8 @@
 package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexMetaEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
@@ -31,6 +33,7 @@ import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
 import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 
 import java.util.ArrayList;
@@ -43,29 +46,46 @@ public class StreamPartitioner {
 
     private List<List<PartitionExecutor>> partitionExecutorLists = new ArrayList<List<PartitionExecutor>>();
 
-    public StreamPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
+    public StreamPartitioner(InputStream inputStream, Partition partition, MetaStateEvent metaEvent,
                              List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         if (partition != null) {
-            if (inputStream instanceof SingleInputStream) {
-                List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
-                partitionExecutorLists.add(executorList);
-                for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
-                    if (partitionType instanceof ValuePartitionType) {
-                        if (partitionType.getStreamId().equals(((SingleInputStream) inputStream).getStreamId())) {
+            createExecutors(inputStream,partition,metaEvent,executors,executionPlanContext);
+        }
+    }
 
-                            executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                    executionPlanContext, metaStreamEvent, executors, false)));
+    private void createExecutors(InputStream inputStream, Partition partition, ComplexMetaEvent metaEvent,
+                                 List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
+        if(inputStream instanceof SingleInputStream){
+            if(metaEvent instanceof MetaStateEvent) {
+                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, ((MetaStateEvent) metaEvent).getMetaStreamEvent(0), executors, executionPlanContext);
+            }  else {
+                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, executionPlanContext);
+            }
+        } else if (inputStream instanceof JoinInputStream) {
+                createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext);
+        } //TODO: else stateInputStream
+    }
 
-                        }
-                    } else {
-                        for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
-                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
-                                    ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
-                        }
-                    }
+    private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
+        createExecutors(inputStream.getLeftInputStream(), partition, metaEvent.getMetaStreamEvent(0), executors, executionPlanContext);
+        createExecutors(inputStream.getRightInputStream(),partition, metaEvent.getMetaStreamEvent(1), executors, executionPlanContext);
+    }
+
+    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
+        List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
+        partitionExecutorLists.add(executorList);
+        for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
+            if (partitionType instanceof ValuePartitionType) {
+                if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
+                    executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
+                            executionPlanContext, metaEvent, executors, false)));
+                }
+            } else {
+                for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
+                    executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
+                            ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaEvent, executors, false),rangePartitionProperty.getPartitionKey()));
                 }
             }
-            //TODO: else
         }
     }
 

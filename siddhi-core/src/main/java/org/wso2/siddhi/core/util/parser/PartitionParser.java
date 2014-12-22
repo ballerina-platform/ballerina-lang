@@ -52,9 +52,9 @@ public class PartitionParser {
             } else {
                 queryRuntime = QueryParser.parse(query, executionPlanContext, streamDefinitionMap);
             }
-            MetaStreamEvent metaStreamEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
+            MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
             partitionRuntime.addQuery(queryRuntime);
-            partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStreamEvent);
+            partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);
         }
         return partitionRuntime;
 
@@ -63,17 +63,21 @@ public class PartitionParser {
     /**
      * Create metaEvent to be used by StreamPartitioner with output attributes
      *
-     * @param metaStateEvent metaStateEvent of the queryRuntime
+     * @param stateEvent metaStateEvent of the queryRuntime
      * @return metaStateEvent
      */
-    private static MetaStreamEvent createMetaEventForPartitioner(MetaStateEvent metaStateEvent) {   //TOdo : handle joins
-        AbstractDefinition definition = metaStateEvent.getMetaStreamEvent(0).getInputDefinition();
-        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        for (Attribute attribute : definition.getAttributeList()) {
-            metaStreamEvent.addOutputData(attribute);
+    private static MetaStateEvent createMetaEventForPartitioner(MetaStateEvent stateEvent) {   //TOdo : handle joins
+        MetaStateEvent metaStateEvent = new MetaStateEvent(stateEvent.getStreamEventCount());
+        for(MetaStreamEvent metaStreamEvent:stateEvent.getMetaStreamEvents()){
+            AbstractDefinition definition = metaStreamEvent.getInputDefinition();
+            MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
+            for (Attribute attribute : definition.getAttributeList()) {
+                newMetaStreamEvent.addOutputData(attribute);
+            }
+            newMetaStreamEvent.setInputDefinition(definition);
+            newMetaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
+            metaStateEvent.addEvent(newMetaStreamEvent);
         }
-        metaStreamEvent.setInputDefinition(definition);
-        metaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
-        return metaStreamEvent;
+        return metaStateEvent;
     }
 }
