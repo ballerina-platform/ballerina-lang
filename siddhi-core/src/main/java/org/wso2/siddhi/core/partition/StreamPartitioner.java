@@ -30,8 +30,8 @@ import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
 import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +46,12 @@ public class StreamPartitioner {
     public StreamPartitioner(InputStream inputStream, Partition partition, MetaStreamEvent metaStreamEvent,
                              List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         if (partition != null) {
-            if (inputStream instanceof BasicSingleInputStream) {
+            if (inputStream instanceof SingleInputStream) {
                 List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
                 partitionExecutorLists.add(executorList);
                 for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
                     if (partitionType instanceof ValuePartitionType) {
-                        if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
+                        if (partitionType.getStreamId().equals(((SingleInputStream) inputStream).getStreamId())) {
 
                             executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
                                     executionPlanContext, metaStreamEvent, executors, false)));

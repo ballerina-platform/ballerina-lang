@@ -70,7 +70,7 @@ public class QueryParser {
             selector.setEventPopulator(StateEventPopulaterFactory.constructEventPopulator(metaStateEvent));
 
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
-            validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
+//            validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
 
 
         } catch (Exception e) {

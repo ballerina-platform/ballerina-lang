@@ -70,6 +70,7 @@ public class LengthWindowProcessor extends WindowProcessor {
     protected WindowProcessor cloneWindowProcessor() {
         LengthWindowProcessor lengthWindowProcessor = new LengthWindowProcessor();
         lengthWindowProcessor.setLength(this.length);
+        lengthWindowProcessor.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
         return lengthWindowProcessor;
     }
 }

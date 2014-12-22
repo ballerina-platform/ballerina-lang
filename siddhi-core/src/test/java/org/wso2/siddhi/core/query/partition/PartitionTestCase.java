@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query;
+package org.wso2.siddhi.core.query.partition;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;

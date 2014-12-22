@@ -23,7 +23,8 @@ import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+import org.wso2.siddhi.core.query.processor.window.TimeWindowProcessor;
+import org.wso2.siddhi.core.query.selector.QuerySelector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,15 +63,27 @@ public class SingleStreamRuntime implements StreamRuntime {
     @Override
     public StreamRuntime clone(String key) {
         QueryStreamReceiver clonedQueryStreamReceiver = this.queryStreamReceiver.clone(key);
+        SingleThreadEntryValveProcessor singleThreadEntryValveProcessor = null;
+        TimeWindowProcessor windowProcessor;
         Processor clonedProcessorChain = null;
         if (processorChain != null) {
-            if (!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)) {
+            if (!(processorChain instanceof QuerySelector || processorChain instanceof OutputRateLimiter)) {
                 clonedProcessorChain = processorChain.cloneProcessor();
+                if(clonedProcessorChain instanceof SingleThreadEntryValveProcessor){
+                    singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessorChain;
+                }
             }
             Processor processor = processorChain.getNextProcessor();
             while (processor != null) {
-                if (!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)) {
-                    clonedProcessorChain.setToLast(processor.cloneProcessor());
+                if (!(processor instanceof QuerySelector || processor instanceof OutputRateLimiter)) {
+                    Processor clonedProcessor = processor.cloneProcessor();
+                    clonedProcessorChain.setToLast(clonedProcessor);
+                    if(clonedProcessor instanceof SingleThreadEntryValveProcessor){
+                        singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessor;
+                    } else if(clonedProcessor instanceof TimeWindowProcessor){
+                        windowProcessor = (TimeWindowProcessor) clonedProcessor;
+                        windowProcessor.cloneScheduler((TimeWindowProcessor) processor,singleThreadEntryValveProcessor);
+                    }
                 }
                 processor = processor.getNextProcessor();
             }

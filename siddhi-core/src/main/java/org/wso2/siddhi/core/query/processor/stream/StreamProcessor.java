@@ -81,7 +81,6 @@ public abstract class StreamProcessor implements Processor {
 
     public Processor cloneProcessor() {
         StreamProcessor streamProcessor = cloneStreamProcessor();
-        streamProcessor.nextProcessor = nextProcessor;
         streamProcessor.additionalAttributes = additionalAttributes;
         streamProcessor.streamEventPopulater = streamEventPopulater;
         streamProcessor.inputExecutors = inputExecutors;

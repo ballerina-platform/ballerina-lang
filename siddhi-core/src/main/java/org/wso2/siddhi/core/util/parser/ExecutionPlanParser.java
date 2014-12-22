@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -115,6 +116,9 @@ public class ExecutionPlanParser {
                 }
             }
         } catch (ExecutionPlanCreationException e) {
+            throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
+                    executionPlanRuntime.getName() + "\"", e);
+        } catch (DifferentDefinitionAlreadyExistException e){
             throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
                     executionPlanRuntime.getName() + "\"", e);
         }

@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.concurrent.BlockingQueue;
@@ -75,6 +76,10 @@ public class Scheduler {
     public void setStreamEventPool(StreamEventPool streamEventPool) {
         this.streamEventPool = streamEventPool;
         streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
+    }
+
+    public Scheduler cloneScheduler(SingleThreadEntryValveProcessor singleThreadEntryValve) {
+        return new Scheduler(scheduledExecutorService,singleThreadEntryValve);
     }
 
     private class EventCaller implements Runnable {
