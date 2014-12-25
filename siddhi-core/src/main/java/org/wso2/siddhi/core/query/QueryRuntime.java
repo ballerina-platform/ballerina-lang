@@ -118,8 +118,9 @@ public class QueryRuntime {
         if (query.getInputStream() instanceof SingleInputStream) {
             return ((SingleInputStream) query.getInputStream()).isInnerStream();
         } else if (query.getInputStream() instanceof JoinInputStream) {
-            //TODO for join ,pattern and sequence streams
+            return ((SingleInputStream)((JoinInputStream) query.getInputStream()).getLeftInputStream()).isInnerStream() || ((SingleInputStream)((JoinInputStream) query.getInputStream()).getRightInputStream()).isInnerStream();
         }
+        //TODO for pattern and sequence streams
         return false;
     }
 

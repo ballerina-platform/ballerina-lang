@@ -30,10 +30,10 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class PartitionParser {
@@ -44,14 +44,11 @@ public class PartitionParser {
         PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntime, partition, executionPlanContext);
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         for (Query query : partition.getQueryList()) {
-
+            ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
+            combinedStreamMap.putAll(streamDefinitionMap);
+            combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
             QueryRuntime queryRuntime;
-            if (query.getInputStream() instanceof BasicSingleInputStream && ((BasicSingleInputStream) query.getInputStream()).isInnerStream()) {
-                queryRuntime = QueryParser.parse(query, executionPlanContext,
-                        partitionRuntime.getLocalStreamDefinitionMap());
-            } else {
-                queryRuntime = QueryParser.parse(query, executionPlanContext, streamDefinitionMap);
-            }
+            queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap);
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);
@@ -66,7 +63,7 @@ public class PartitionParser {
      * @param stateEvent metaStateEvent of the queryRuntime
      * @return metaStateEvent
      */
-    private static MetaStateEvent createMetaEventForPartitioner(MetaStateEvent stateEvent) {   //TOdo : handle joins
+    private static MetaStateEvent createMetaEventForPartitioner(MetaStateEvent stateEvent) {
         MetaStateEvent metaStateEvent = new MetaStateEvent(stateEvent.getStreamEventCount());
         for(MetaStreamEvent metaStreamEvent:stateEvent.getMetaStreamEvents()){
             AbstractDefinition definition = metaStreamEvent.getInputDefinition();
