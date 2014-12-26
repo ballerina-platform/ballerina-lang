@@ -25,6 +25,8 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+
 /**
  * The StateEventPopulaterFactory that populates StreamEventPopulater according to MetaStreamEvent and to be mapped attributes
  */
@@ -32,10 +34,11 @@ public class StreamEventPopulaterFactory {
     /**
      * Constructs StreamEventPopulater according to MetaStateEvent and to be mapped attributes
      *
-     * @param metaStreamEvent info for populating the StreamEvent
+     * @param metaStreamEvent       info for populating the StreamEvent
+     * @param streamEventChainIndex
      * @return StateEventPopulater
      */
-    public static StreamEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, List<Attribute> attributes) {
+    public static StreamEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, int streamEventChainIndex, List<Attribute> attributes) {
 
         List<StreamMappingElement> streamMappingElements = new ArrayList<StreamMappingElement>();
         for (int i = 0, attributesSize = attributes.size(); i < attributesSize; i++) {
@@ -44,17 +47,17 @@ public class StreamEventPopulaterFactory {
             streamMappingElement.setFromPosition(i);
             int index = metaStreamEvent.getOutputData().indexOf(attribute);
             if (index > -1) {
-                streamMappingElement.setToPosition(new int[]{2, index});
+                streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, OUTPUT_DATA_INDEX, index});
             } else {
                 index = metaStreamEvent.getOnAfterWindowData().indexOf(attribute);
                 if (index > -1) {
                     streamMappingElement = new StreamMappingElement();
-                    streamMappingElement.setToPosition(new int[]{1, index});
+                    streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, ON_AFTER_WINDOW_DATA_INDEX, index});
                 } else {
                     index = metaStreamEvent.getBeforeWindowData().indexOf(attribute);
                     if (index > -1) {
                         streamMappingElement = new StreamMappingElement();
-                        streamMappingElement.setToPosition(new int[]{0, index});
+                        streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, BEFORE_WINDOW_DATA_INDEX, index});
                     } else {
                         throw new ExecutionPlanCreationException(attribute + " not exist in " + metaStreamEvent);
                     }

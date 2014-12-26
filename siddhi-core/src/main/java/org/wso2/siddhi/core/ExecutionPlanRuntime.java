@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
@@ -91,8 +91,8 @@ public class ExecutionPlanRuntime {
         StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
 
         for(SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()){
-            QueryStreamReceiver queryStreamReceiver = singleStreamRuntime.getQueryStreamReceiver();
-            streamJunctionMap.get(queryStreamReceiver.getStreamId()).subscribe(queryStreamReceiver);
+            ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
+            streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
         }
 
         OutputCallback outputCallback = OutputParser.constructOutputCallback(queryRuntime.getQuery().getOutputStream(),

@@ -41,7 +41,7 @@ public abstract class WindowProcessor extends StreamProcessor {
     protected abstract void init(ExpressionExecutor[] inputExecutors);
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
+    protected void process(ComplexEventChunk streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
         streamEventChunk.reset();
         try {
             process(streamEventChunk, nextProcessor, streamEventCloner);

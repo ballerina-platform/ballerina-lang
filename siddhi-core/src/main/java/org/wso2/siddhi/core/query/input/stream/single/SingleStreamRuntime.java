@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.query.input.stream.single;
 
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -31,12 +31,11 @@ import java.util.List;
 public class SingleStreamRuntime implements StreamRuntime {
 
     private Processor processorChain;
-    private QueryStreamReceiver queryStreamReceiver;
+    private ProcessStreamReceiver processStreamReceiver;
 
-    public SingleStreamRuntime(QueryStreamReceiver queryStreamReceiver, Processor processorChain) {
-        this.queryStreamReceiver = queryStreamReceiver;
+    public SingleStreamRuntime(ProcessStreamReceiver processStreamReceiver, Processor processorChain) {
+        this.processStreamReceiver = processStreamReceiver;
         this.processorChain = processorChain;
-        queryStreamReceiver.setProcessorChain(processorChain);
     }
 
     public Processor getProcessorChain() {
@@ -47,8 +46,8 @@ public class SingleStreamRuntime implements StreamRuntime {
         this.processorChain = processorChain;
     }
 
-    public QueryStreamReceiver getQueryStreamReceiver() {
-        return queryStreamReceiver;
+    public ProcessStreamReceiver getProcessStreamReceiver() {
+        return processStreamReceiver;
     }
 
     @Override
@@ -61,7 +60,7 @@ public class SingleStreamRuntime implements StreamRuntime {
 
     @Override
     public StreamRuntime clone(String key) {
-        QueryStreamReceiver clonedQueryStreamReceiver = this.queryStreamReceiver.clone(key);
+        ProcessStreamReceiver clonedProcessStreamReceiver = this.processStreamReceiver.clone(key);
         Processor clonedProcessorChain = null;
         if (processorChain != null) {
             if (!(processorChain instanceof Selector || processorChain instanceof OutputRateLimiter)) {
@@ -75,15 +74,15 @@ public class SingleStreamRuntime implements StreamRuntime {
                 processor = processor.getNextProcessor();
             }
         }
-        return new SingleStreamRuntime(clonedQueryStreamReceiver, clonedProcessorChain);
+        return new SingleStreamRuntime(clonedProcessStreamReceiver, clonedProcessorChain);
     }
 
     @Override
     public void setCommonProcessor(Processor commonProcessor) {
         if (processorChain == null) {
-            queryStreamReceiver.setNext(commonProcessor);
+            processStreamReceiver.setNext(commonProcessor);
         } else {
-            queryStreamReceiver.setNext(processorChain);
+            processStreamReceiver.setNext(processorChain);
             processorChain.setToLast(commonProcessor);
         }
     }

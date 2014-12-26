@@ -39,7 +39,7 @@ public class GroupByKeyGenerator {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                        siddhiContext, metaStateEvent.getMetaStreamEvent(0), executors, false);
+                        metaStateEvent.getMetaStreamEvent(0), -1, executors, siddhiContext, false);
             }
         }
     }

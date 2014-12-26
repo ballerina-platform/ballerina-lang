@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,10 +18,13 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -33,6 +35,7 @@ import org.wso2.siddhi.core.query.processor.stream_function.StreamFunctionProces
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
@@ -41,27 +44,38 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
+import java.util.Map;
 
 public class SingleInputStreamParser {
 
     /**
      * Parse single InputStream and return SingleStreamRuntime
      *
-     * @param inputStream          single input stream to be parsed
-     * @param executionPlanContext query to be parsed
-     * @param metaStreamEvent      Meta event used to collect execution info of stream associated with query
-     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
-     * @return
+     * @param inputStream           single input stream to be parsed
+     * @param executionPlanContext  query to be parsed
+     * @param executors             List to hold VariableExpressionExecutors to update after query parsing
+     * @param definitionMap
+     * @param metaStateEvent        @return
+     * @param processStreamReceiver
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
-                                                       MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> executors) {
+                                                       List<VariableExpressionExecutor> executors, Map<String, AbstractDefinition> definitionMap, MetaStateEvent metaStateEvent,
+                                                       boolean isSateEventProcessed,
+                                                       ProcessStreamReceiver processStreamReceiver) {
         Processor processor = null;
         Processor singleThreadValve = null;
         boolean first = true;
+        MetaStreamEvent metaStreamEvent = generateMetaStreamEvent(inputStream, definitionMap);
+        int stateIndex = metaStateEvent.getStreamEventCount();
+        metaStateEvent.addEvent(metaStreamEvent);
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                Processor currentProcessor = generateProcessor(handler, executionPlanContext, metaStreamEvent,
-                        executors);
+                Processor currentProcessor;
+                if (isSateEventProcessed) {
+                    currentProcessor = generateProcessor(handler, metaStateEvent, stateIndex, executors, executionPlanContext);
+                } else {
+                    currentProcessor = generateProcessor(handler, metaStreamEvent, -1, executors, executionPlanContext);
+                }
                 if (currentProcessor instanceof SchedulingProcessor) {
                     if (singleThreadValve == null) {
 
@@ -84,17 +98,25 @@ public class SingleInputStreamParser {
                 }
             }
         }
+
         metaStreamEvent.initializeAfterWindowData();
-        QueryStreamReceiver queryStreamReceiver = new QueryStreamReceiver(metaStreamEvent.getInputDefinition().getId());
-        return new SingleStreamRuntime(queryStreamReceiver, processor);
+        return new SingleStreamRuntime(processStreamReceiver, processor);
+
     }
 
-    private static Processor generateProcessor(StreamHandler handler, ExecutionPlanContext context, MetaStreamEvent metaStreamEvent,
-                                               List<VariableExpressionExecutor> executors) {
+
+    private static Processor generateProcessor(StreamHandler handler, MetaComplexEvent metaEvent, int stateIndex, List<VariableExpressionExecutor> executors, ExecutionPlanContext context) {
         ExpressionExecutor[] inputExpressions = new ExpressionExecutor[handler.getParameters().length];
         Expression[] parameters = handler.getParameters();
+        MetaStreamEvent metaStreamEvent;
+        if (metaEvent instanceof MetaStateEvent) {
+            metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent(stateIndex);
+        } else {
+            metaStreamEvent = (MetaStreamEvent) metaEvent;
+        }
         for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], context, metaStreamEvent, executors,
+            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, executors,
+                    context,
                     false);
         }
         if (handler instanceof Filter) {
@@ -116,5 +138,30 @@ public class SingleInputStreamParser {
         } else {
             throw new IllegalStateException(handler.getClass().getName() + " is not supported");
         }
+    }
+
+    /**
+     * Method to generate MetaStreamEvent reagent to the given input stream. Empty definition will be created and
+     * definition and reference is will be set accordingly in this method.
+     *
+     * @param inputStream
+     * @param definitionMap
+     * @return
+     */
+    private static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream, Map<String,
+            AbstractDefinition> definitionMap) {
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        if (definitionMap != null && definitionMap.containsKey(inputStream.getStreamId())) {
+            AbstractDefinition inputDefinition = definitionMap.get(inputStream.getStreamId());
+            metaStreamEvent.setInputDefinition(inputDefinition);
+            metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
+        } else {
+            throw new DefinitionNotExistException("Stream definition with stream ID " + inputStream.getStreamId() + " has not been defined");
+        }
+        if ((inputStream.getStreamReferenceId() != null) &&
+                !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided
+            metaStreamEvent.setInputReferenceId(inputStream.getStreamReferenceId());
+        }
+        return metaStreamEvent;
     }
 }

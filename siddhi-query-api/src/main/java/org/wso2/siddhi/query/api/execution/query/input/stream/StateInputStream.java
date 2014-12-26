@@ -16,13 +16,9 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.stream;
 
-import org.wso2.siddhi.query.api.execution.query.input.state.CountStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.NextStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
+import org.wso2.siddhi.query.api.execution.query.input.state.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class StateInputStream extends InputStream {
@@ -38,7 +34,7 @@ public class StateInputStream extends InputStream {
     public StateInputStream(Type stateType, StateElement stateElement) {
         this.stateType = stateType;
         this.stateElement = stateElement;
-        this.streamIdList = new ArrayList<String>(collectStreamIds(stateElement, new HashSet<String>()));
+        this.streamIdList = collectStreamIds(stateElement, new ArrayList<String>());
     }
 
     public StateElement getStateElement() {
@@ -50,26 +46,48 @@ public class StateInputStream extends InputStream {
     }
 
     @Override
-    public List<String> getStreamIds() {
+    public List<String> getAllStreamIds() {
         return streamIdList;
     }
 
-    private HashSet<String> collectStreamIds(StateElement stateElement,
-                                             HashSet<String> streamIds) {
-        if (stateElement instanceof StateInputStream) {
-            streamIds.addAll(((StateInputStream) stateElement).getStreamIds());
-        } else if (stateElement instanceof BasicSingleInputStream) {
-            streamIds.addAll(((BasicSingleInputStream) stateElement).getStreamIds());
-        } else if (stateElement instanceof LogicalStateElement) {
+    @Override
+    public List<String> getUniqueStreamIds() {
+        List<String> uniqueStreams = new ArrayList<String>();
+        for (String aStreamId : streamIdList) {
+            if (!uniqueStreams.contains(aStreamId)) {
+                uniqueStreams.add(aStreamId);
+            }
+        }
+        return uniqueStreams;
+    }
+
+    private List<String> collectStreamIds(StateElement stateElement,
+                                          List<String> streamIds) {
+        if (stateElement instanceof LogicalStateElement) {
             collectStreamIds(((LogicalStateElement) stateElement).getStreamStateElement1(), streamIds);
             collectStreamIds(((LogicalStateElement) stateElement).getStreamStateElement2(), streamIds);
         } else if (stateElement instanceof CountStateElement) {
             collectStreamIds(((CountStateElement) stateElement).getStreamStateElement(), streamIds);
+        } else if (stateElement instanceof EveryStateElement) {
+            collectStreamIds(((EveryStateElement) stateElement).getStateElement(), streamIds);
         } else if (stateElement instanceof NextStateElement) {
             collectStreamIds(((NextStateElement) stateElement).getStateElement(), streamIds);
             collectStreamIds(((NextStateElement) stateElement).getNextStateElement(), streamIds);
+        } else if (stateElement instanceof StreamStateElement) {
+            String streamId = ((StreamStateElement) stateElement).getBasicSingleInputStream().getStreamId();
+            streamIds.add(streamId);
         }
         return streamIds;
+    }
+
+    public int getStreamCount(String streamId) {
+        int count = 0;
+        for (String aStreamId : streamIdList) {
+            if (streamId.equals(aStreamId)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Override

@@ -208,7 +208,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                         partitionRuntime.addStreamJunction(streamId + key, streamJunction);
                         cachedStreamJunctionMap.put(streamId + key, streamJunction);
                     }
-                    streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getQueryStreamReceiver());
+                    streamJunction.subscribe(((SingleStreamRuntime) streamRuntime).getProcessStreamReceiver());
                 }
             }
 

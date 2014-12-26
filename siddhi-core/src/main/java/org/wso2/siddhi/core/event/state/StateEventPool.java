@@ -27,7 +27,6 @@ public class StateEventPool {
 
     public StateEventPool(MetaStateEvent metaStateEvent, int size) {
         eventFactory = new StateEventFactory(metaStateEvent.getStreamEventCount(),
-                metaStateEvent.getPreOutputDataAttributes().size(),
                 metaStateEvent.getOutputDataAttributes().size());
         this.size = size;
     }

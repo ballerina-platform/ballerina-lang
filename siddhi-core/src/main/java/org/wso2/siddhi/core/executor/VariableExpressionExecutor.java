@@ -13,43 +13,34 @@
 package org.wso2.siddhi.core.executor;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+
+import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
 public class VariableExpressionExecutor implements ExpressionExecutor {
     private Attribute attribute;
-    private Attribute.Type type;
-    private int attributePosition = -1;
-    private int[] position = new int[]{-1, -1, -1, -1};
-    //Position[state event index, event chain index, array ID, index] : Array ID -> outData = 2; afterWindowData = 1; beforeWindowData = 0;
+    private int[] position = new int[]{UNKNOWN_STATE, UNKNOWN_STATE, UNKNOWN_STATE, UNKNOWN_STATE};
+    //Position[stream event chain index, stream event index, stream attribute type index, stream attribute index]
+    //stream attribute type index -> outData = 2; onAfterWindowData = 1; beforeWindowData = 0;
 
-    public VariableExpressionExecutor(String attributeName, StreamDefinition definition) {
-        if (definition != null) {
-            type = definition.getAttributeType(attributeName);
-            attributePosition = definition.getAttributePosition(attributeName);
-            position[2] = SiddhiConstants.OUTPUT_DATA_INDEX;
-            position[3] = attributePosition;
-            attribute = new Attribute(attributeName, type);
-        } else {
-            throw new IllegalArgumentException("Stream  Definition can not be null for Executor creation");
-        }
+    public VariableExpressionExecutor(Attribute attribute) {
+        this.attribute = attribute;
     }
 
-    public VariableExpressionExecutor(String attributeName, StreamDefinition inputStreamDefinition, int eventIndex, int eventChainIndex) {
-        this(attributeName, inputStreamDefinition);
-        position[0] = eventIndex;
-        position[1] = eventChainIndex;
+    public VariableExpressionExecutor(Attribute attribute, int streamEventChainIndex, int streamEventIndex) {
+        this(attribute);
+        position[STREAM_EVENT_CHAIN_INDEX] = streamEventChainIndex;
+        position[STREAM_EVENT_INDEX] = streamEventIndex;
     }
 
     @Override
-    public Object execute(ComplexEvent event) {      //TODO handle state events
+    public Object execute(ComplexEvent event) {
         return event.getAttribute(position);
     }
 
 
     public Attribute.Type getReturnType() {
-        return type;
+        return attribute.getType();
     }
 
     @Override

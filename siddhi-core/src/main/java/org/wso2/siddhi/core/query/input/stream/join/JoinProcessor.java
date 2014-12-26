@@ -49,16 +49,16 @@ public class JoinProcessor implements Processor {
     /**
      * Process the handed StreamEvent
      *
-     * @param streamEventChunk event chunk to be processed
+     * @param complexEventChunk event chunk to be processed
      */
     @Override
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
+    public void process(ComplexEventChunk complexEventChunk) {
 
         if (trigger) {
             returnEventChunk.clear();
-            streamEventChunk.reset();
-            while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = streamEventChunk.next();
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                StreamEvent streamEvent = (StreamEvent)complexEventChunk.next();
                 if (!preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.CURRENT) {
                     continue;
                 }
@@ -90,7 +90,7 @@ public class JoinProcessor implements Processor {
 
         }
         if (preJoinProcessor) {
-            nextProcessor.process(streamEventChunk);
+            nextProcessor.process(complexEventChunk);
         }
     }
 

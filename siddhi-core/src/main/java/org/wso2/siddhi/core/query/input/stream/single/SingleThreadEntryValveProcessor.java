@@ -17,7 +17,6 @@ package org.wso2.siddhi.core.query.input.stream.single;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.concurrent.locks.Lock;
@@ -44,13 +43,13 @@ public class SingleThreadEntryValveProcessor implements Processor {
     /**
      * Process the handed StreamEvent
      *
-     * @param streamEventChunk event chunk to be processed
+     * @param complexEventChunk event chunk to be processed
      */
     @Override
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
+    public void process(ComplexEventChunk complexEventChunk) {
         try {
             lock.lock();
-            next.process(streamEventChunk);
+            next.process(complexEventChunk);
         } finally {
             lock.unlock();
         }

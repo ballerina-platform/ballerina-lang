@@ -36,6 +36,10 @@ public class StreamStateElement implements StateElement {
         this.basicSingleInputStream = basicSingleInputStream;
     }
 
+    public BasicSingleInputStream getBasicSingleInputStream() {
+        return basicSingleInputStream;
+    }
+
     @Override
     public TimeConstant getWithin() {
         return within;

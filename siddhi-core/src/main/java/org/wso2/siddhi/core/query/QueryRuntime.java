@@ -103,7 +103,7 @@ public class QueryRuntime {
     }
 
     public List<String> getInputStreamId() {
-        return query.getInputStream().getStreamIds();
+        return query.getInputStream().getAllStreamIds();
     }
 
     public boolean isToLocalStream() {

@@ -54,13 +54,15 @@ public class StreamPartitioner {
                         if (partitionType.getStreamId().equals(((BasicSingleInputStream) inputStream).getStreamId())) {
 
                             executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                    executionPlanContext, metaStreamEvent, executors, false)));
+                                    metaStreamEvent, -1, executors, executionPlanContext, false)));
 
                         }
                     } else {
                         for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
                             executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
-                                    ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaStreamEvent, executors, false),rangePartitionProperty.getPartitionKey()));
+                                    ExpressionParser.parseExpression(rangePartitionProperty.getCondition(),
+                                            metaStreamEvent, -1, executors, executionPlanContext, false),
+                                    rangePartitionProperty.getPartitionKey()));
                         }
                     }
                 }

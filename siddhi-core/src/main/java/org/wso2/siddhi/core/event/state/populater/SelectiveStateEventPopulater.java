@@ -34,20 +34,22 @@ public class SelectiveStateEventPopulater implements StateEventPopulater {
     public void populateStateEvent(ComplexEvent complexEvent) {
         StateEvent stateEvent = (StateEvent) complexEvent;
         for (StateMappingElement stateMappingElement : stateMappingElements) {
-            int[] toPosition = stateMappingElement.getToPosition();
-            switch (toPosition[0]) {
-                case 0:
-                    stateEvent.setPreOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
-                            toPosition[1]);
-                    break;
-                case 1:
-                    stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
-                            toPosition[1]);
-                    break;
-                default:
-                    //will not happen
-                    throw new IllegalStateException("To Position cannot be :" + toPosition[0]);
-            }
+            int toPosition = stateMappingElement.getToPosition();
+            stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
+                    toPosition);
+//            switch (toPosition[0]) {
+//                case 0:
+//                    stateEvent.setPreOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
+//                            toPosition[1]);
+//                    break;
+//                case 1:
+//                    stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
+//                            toPosition[1]);
+//                    break;
+//                default:
+//                    //will not happen
+//                    throw new IllegalStateException("To Position cannot be :" + toPosition[0]);
+//            }
         }
     }
 

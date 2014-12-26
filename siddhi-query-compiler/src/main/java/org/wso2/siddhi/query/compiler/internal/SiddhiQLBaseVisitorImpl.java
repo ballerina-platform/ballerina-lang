@@ -557,17 +557,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                     ((StateElement) visit(ctx.every_pattern_source_chain(1))));
         } else if (ctx.EVERY() != null) {
             if (ctx.pattern_source_chain() != null) { // EVERY '('pattern_source_chain ')' within_time?
-                StateElement stateElement = ((StateElement) visit(ctx.pattern_source_chain()));
+                EveryStateElement everyStateElement = new EveryStateElement((StateElement) visit(ctx.pattern_source_chain()));
                 if (ctx.within_time() != null) {
-                    stateElement.setWithin((TimeConstant) visit(ctx.within_time()));
+                    everyStateElement.setWithin((TimeConstant) visit(ctx.within_time()));
                 }
-                return stateElement;
+                return everyStateElement;
             } else if (ctx.pattern_source() != null) { // EVERY pattern_source within_time?
-                StateElement stateElement = ((StateElement) visit(ctx.pattern_source()));
+                EveryStateElement everyStateElement = new EveryStateElement((StateElement) visit(ctx.pattern_source()));
                 if (ctx.within_time() != null) {
-                    stateElement.setWithin((TimeConstant) visit(ctx.within_time()));
+                    everyStateElement.setWithin((TimeConstant) visit(ctx.within_time()));
                 }
-                return stateElement;
+                return everyStateElement;
             } else {
                 throw newSiddhiParserException(ctx);
             }
@@ -801,7 +801,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public BasicSingleInputStream visitStandard_stateful_source(@NotNull SiddhiQLParser.Standard_stateful_sourceContext ctx) {
+    public StreamStateElement visitStandard_stateful_source(@NotNull SiddhiQLParser.Standard_stateful_sourceContext ctx) {
 
 //        standard_stateful_source
 //        : (event '=')? basic_source
@@ -815,9 +815,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 activeStreams.remove(basicSingleInputStream.getStreamId());
             }
             activeStreams.add(ctx.getText());
-            return (BasicSingleInputStream) basicSingleInputStream.as((String) visit(ctx.event()));
+            return new StreamStateElement((BasicSingleInputStream) basicSingleInputStream.as((String) visit(ctx.event())));
         } else {
-            return basicSingleInputStream;
+            return new StreamStateElement(basicSingleInputStream);
         }
     }
 

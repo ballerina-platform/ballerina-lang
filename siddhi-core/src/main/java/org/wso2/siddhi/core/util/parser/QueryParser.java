@@ -51,7 +51,7 @@ public class QueryParser {
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext, Map<String,
             AbstractDefinition> definitionMap) {
-        MetaStateEvent metaStateEvent = new MetaStateEvent(query.getInputStream().getStreamIds().size()); //MetaStateEvent for the query
+        MetaStateEvent metaStateEvent = new MetaStateEvent(query.getInputStream().getAllStreamIds().size()); //MetaStateEvent for the query
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
@@ -64,6 +64,7 @@ public class QueryParser {
                     executionPlanContext, metaStateEvent, executors);
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
+            QueryParserHelper.reduceMetaStateEvent(metaStateEvent);
             QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
             QueryParserHelper.initStreamRuntime(streamRuntime, metaStateEvent);
 

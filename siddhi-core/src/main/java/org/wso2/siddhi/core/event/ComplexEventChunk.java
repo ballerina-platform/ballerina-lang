@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Collection used to group and manage chunk ot ComplexEvents
+ *
  * @param <E> sub types of ComplexEvent such as StreamEvent and StateEvent
  */
 public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E> {
@@ -142,6 +143,9 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E> {
             previousToLastReturned.setNext(lastReturned.getNext());
         } else {
             first = (E) lastReturned.getNext();
+            if (first == null) {
+                last = null;
+            }
         }
         lastReturned.setNext(null);
         lastReturned = null;
@@ -204,5 +208,12 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E> {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "EventChunk{" +
+                "first=" + first +
+                '}';
     }
 }

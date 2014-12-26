@@ -34,8 +34,9 @@ public class JoinInputStream extends InputStream {
     public enum Type {JOIN, INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_OUTER_JOIN}
 
     public enum EventTrigger {
-        LEFT,RIGHT,ALL
+        LEFT, RIGHT, ALL
     }
+
     public JoinInputStream(SingleInputStream leftInputStream, Type type,
                            SingleInputStream rightInputStream, Expression onCompare, Constant within,
                            EventTrigger trigger) {
@@ -43,7 +44,7 @@ public class JoinInputStream extends InputStream {
         this.type = type;
         this.rightInputStream = rightInputStream;
         this.onCompare = onCompare;
-        this.within= within;
+        this.within = within;
         this.trigger = trigger;
     }
 
@@ -72,14 +73,26 @@ public class JoinInputStream extends InputStream {
     }
 
     @Override
-    public List<String> getStreamIds() {
+    public List<String> getAllStreamIds() {
         List<String> list = new ArrayList<String>();
-        for (String streamId : leftInputStream.getStreamIds()) {
+        for (String streamId : leftInputStream.getAllStreamIds()) {
+            list.add(streamId);
+        }
+        for (String streamId : rightInputStream.getAllStreamIds()) {
+            list.add(streamId);
+        }
+        return list;
+    }
+
+    @Override
+    public List<String> getUniqueStreamIds() {
+        List<String> list = new ArrayList<String>();
+        for (String streamId : leftInputStream.getAllStreamIds()) {
             if (!list.contains(streamId)) {
                 list.add(streamId);
             }
         }
-        for (String streamId : rightInputStream.getStreamIds()) {
+        for (String streamId : rightInputStream.getAllStreamIds()) {
             if (!list.contains(streamId)) {
                 list.add(streamId);
             }

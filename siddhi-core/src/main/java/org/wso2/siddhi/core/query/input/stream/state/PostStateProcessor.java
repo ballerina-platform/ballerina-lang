@@ -16,16 +16,27 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event.stream.populater;
+package org.wso2.siddhi.core.query.input.stream.state;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.query.processor.Processor;
 
 /**
- * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields
+ * Created on 12/17/14.
  */
-public interface StreamEventPopulater {
+public interface PostStateProcessor extends Processor {
 
-    public void populateStreamEvent(ComplexEvent complexEvent, Object data, int[] toPosition);
+    void setNextStateProcessor(PreStateProcessor preStateProcessor);
 
-    public void populateStreamEvent(ComplexEvent complexEvent, Object[] data);
+    void setThisStatePreProcessor(PreStateProcessor preStateProcessor);
+
+    public PreStateProcessor getNextStatePerProcessor();
+
+    public void setNextStatePerProcessor(PreStateProcessor nextStatePerProcessor);
+
+    public PreStateProcessor getNextEveryStatePerProcessor();
+
+    public void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor);
+
+    public PreStateProcessor getThisStatePreProcessor();
+
 }

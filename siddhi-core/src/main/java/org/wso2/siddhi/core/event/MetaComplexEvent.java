@@ -18,6 +18,6 @@
  */
 package org.wso2.siddhi.core.event;
 
-public interface ComplexMetaEvent {
+public interface MetaComplexEvent {
 
 }

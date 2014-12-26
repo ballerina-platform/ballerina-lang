@@ -21,23 +21,25 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
+import org.wso2.siddhi.core.event.state.StateEventCloner;
 import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
-import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
+
+import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
 /**
  * Utility class for queryParser to help with QueryRuntime
@@ -45,53 +47,70 @@ import java.util.List;
  */
 public class QueryParserHelper {
 
-    /**
-     * Method to clean/refactor MetaStreamEvent and update
-     * VariableExpressionExecutors accordingly.
-     *
-     * @param metaStreamEvent
-     * @param variableExpressionExecutorList
-     * @param position
-     */
-    private static void updateVariablePosition(MetaStreamEvent metaStreamEvent, List<VariableExpressionExecutor> variableExpressionExecutorList, int[] position) {
-        //position[state event index, event chain index]
-        refactorMetaStreamEvent(metaStreamEvent);       //can remove this and call separately so that we can stop calling repeatedly in partition creation. But then we can't enforce refactoring.
-        for (VariableExpressionExecutor variableExpressionExecutor : variableExpressionExecutorList) {
-            if (metaStreamEvent.getOutputData().contains(variableExpressionExecutor.getAttribute())) {
-                if (position[0] != -1 || position[1] != -1) {
-                    variableExpressionExecutor.setPosition(new int[]{position[0], position[1], SiddhiConstants.OUTPUT_DATA_INDEX, metaStreamEvent.getOutputData()
-                            .indexOf(variableExpressionExecutor.getAttribute())});
-                } else {
-                    variableExpressionExecutor.setPosition(new int[]{SiddhiConstants.OUTPUT_DATA_INDEX, metaStreamEvent.getOutputData()
-                            .indexOf(variableExpressionExecutor.getAttribute())});
-                }
-            } else if (metaStreamEvent.getOnAfterWindowData().contains(variableExpressionExecutor.getAttribute())) {
-                if (position[0] != -1 || position[1] != -1) {
-                    variableExpressionExecutor.setPosition(new int[]{position[0], position[1], SiddhiConstants.AFTER_WINDOW_DATA_INDEX, metaStreamEvent
-                            .getOnAfterWindowData().indexOf(variableExpressionExecutor.getAttribute())});
-                } else {
-                    variableExpressionExecutor.setPosition(new int[]{SiddhiConstants.AFTER_WINDOW_DATA_INDEX, metaStreamEvent
-                            .getOnAfterWindowData().indexOf(variableExpressionExecutor.getAttribute())});
-                }
-            } else if (metaStreamEvent.getBeforeWindowData().contains(variableExpressionExecutor.getAttribute())) {
-                if (position[0] != -1 || position[1] != -1) {
-                    variableExpressionExecutor.setPosition(new int[]{position[0], position[1], SiddhiConstants.BEFORE_WINDOW_DATA_INDEX, metaStreamEvent
-                            .getBeforeWindowData().indexOf(variableExpressionExecutor.getAttribute())});
-                } else {
-                    variableExpressionExecutor.setPosition(new int[]{SiddhiConstants.BEFORE_WINDOW_DATA_INDEX, metaStreamEvent
-                            .getBeforeWindowData().indexOf(variableExpressionExecutor.getAttribute())});
-                }
-            }
+    public static void reduceMetaStateEvent(MetaStateEvent metaStateEvent) {
+        for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
+            metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX]).
+                    addOutputData(attribute.getAttribute());
         }
-
+        for (MetaStreamEvent metaStreamEvent : metaStateEvent.getMetaStreamEvents()) {
+            reduceStreamAttributes(metaStreamEvent);
+        }
     }
+
+//    private static void unifySameMetaStreamEvents(MetaStateEvent metaStateEvent) {
+//        MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
+//        Map<String, MetaStreamEvent> commonMetaStreamEventMap = new HashMap<String, MetaStreamEvent>();
+//        for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
+//            MetaStreamEvent commonMetaStreamEvent;
+//            if (!commonMetaStreamEventMap.containsKey(metaStreamEvent.getInputDefinition().getId())) {
+//                commonMetaStreamEvent = new MetaStreamEvent();
+//                commonMetaStreamEvent.setInputDefinition(metaStreamEvent.getInputDefinition());
+//                commonMetaStreamEvent.initializeAfterWindowData();
+//                commonMetaStreamEventMap.put(metaStreamEvent.getInputDefinition().getId(), commonMetaStreamEvent);
+//            } else {
+//                commonMetaStreamEvent = commonMetaStreamEventMap.get(metaStreamEvent.getInputDefinition().getId());
+//            }
+//
+//            for (Attribute attribute : metaStreamEvent.getBeforeWindowData()) {
+//                if (!commonMetaStreamEvent.getBeforeWindowData().contains(attribute)) {
+//                    commonMetaStreamEvent.getBeforeWindowData().add(attribute);
+//                }
+//            }
+//            for (Attribute attribute : metaStreamEvent.getOnAfterWindowData()) {
+//                if (!commonMetaStreamEvent.getOnAfterWindowData().contains(attribute)) {
+//                    commonMetaStreamEvent.getOnAfterWindowData().add(attribute);
+//                }
+//            }
+//            for (Attribute attribute : metaStreamEvent.getOutputData()) {
+//                if (attribute == null) {
+//                    commonMetaStreamEvent.addOutputData(null);
+//                } else if (!commonMetaStreamEvent.getOutputData().contains(attribute)) {
+//                    commonMetaStreamEvent.addOutputData(attribute);
+//                }
+//            }
+//        }
+//
+//        for (MetaStreamEvent metaStreamEvent : commonMetaStreamEventMap.values()) {
+//            reduceStreamAttributes(metaStreamEvent);
+//        }
+//
+//        for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
+//            MetaStreamEvent commonMetaStreamEvent = commonMetaStreamEventMap.get(metaStreamEvent.getInputDefinition().getId());
+//            metaStreamEvent.getBeforeWindowData().clear();
+//            metaStreamEvent.getBeforeWindowData().addAll(commonMetaStreamEvent.getBeforeWindowData());
+//            metaStreamEvent.getOnAfterWindowData().clear();
+//            metaStreamEvent.getOnAfterWindowData().addAll(commonMetaStreamEvent.getOnAfterWindowData());
+//            metaStreamEvent.getOutputData().clear();
+//            metaStreamEvent.getOutputData().addAll(commonMetaStreamEvent.getOutputData());
+//        }
+//    }
 
     /**
      * Helper method to clean/refactor MetaStreamEvent
      *
      * @param metaStreamEvent
      */
-    private static synchronized void refactorMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
+    private static synchronized void reduceStreamAttributes(MetaStreamEvent metaStreamEvent) {
         for (Attribute attribute : metaStreamEvent.getOutputData()) {
             if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
                 metaStreamEvent.getBeforeWindowData().remove(attribute);
@@ -107,54 +126,45 @@ public class QueryParserHelper {
         }
     }
 
-    private static synchronized void refactorMetaStateEvent(MetaStateEvent metaStateEvent) {
-        for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
-            if (metaStateEvent.getPreOutputDataAttributes().contains(attribute)) {
-                metaStateEvent.getPreOutputDataAttributes().remove(attribute);
+    public static void updateVariablePosition(MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {
+        for (VariableExpressionExecutor variableExpressionExecutor : variableExpressionExecutorList) {
+            int streamEventChainIndex = variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX];
+            if (streamEventChainIndex == HAVING_STATE) {
+                if (metaStateEvent.getStreamEventCount() == 1) {
+                    variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
+                } else {
+                    variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = STATE_OUTPUT_DATA_INDEX;
+                }
+                variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaStateEvent.
+                        getOutputStreamDefinition().getAttributeList().indexOf(variableExpressionExecutor.getAttribute());
+
+                continue;
             }
-        }
-        for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
-            metaStateEvent.getMetaStreamEvent(attribute.getPosition()[0]).addOutputData(attribute.getAttribute());
-        }
-        for (MetaStateEventAttribute attribute : metaStateEvent.getPreOutputDataAttributes()) {
-            metaStateEvent.getMetaStreamEvent(attribute.getPosition()[0]).addData(attribute.getAttribute());
-        }
-    }
 
-    /**
-     * Method to clean/refactor MetaStateEvent and update
-     * VariableExpressionExecutors accordingly.
-     *
-     * @param metaStateEvent
-     * @param executors
-     */
-    public static void updateVariablePosition(MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
-        if (metaStateEvent.getStreamEventCount() == 1) {
-            updateVariablePosition(metaStateEvent.getMetaStreamEvent(0), executors, new int[]{-1, -1});  //int[] is used to deliver 0,1 indexes of the position array
-        } else {
-            refactorMetaStateEvent(metaStateEvent);
-
-            updateStateAttributePositions(executors, metaStateEvent, metaStateEvent.getPreOutputDataAttributes());
-            updateStateAttributePositions(executors, metaStateEvent, metaStateEvent.getOutputDataAttributes());
-
-        }
-    }
-
-    private static void updateStateAttributePositions(List<VariableExpressionExecutor> executors, MetaStateEvent metaStateEvent, List<MetaStateEventAttribute> metaStateEventAttributes) {
-        for (MetaStateEventAttribute metaStateEventAttribute : metaStateEventAttributes) {
-            MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(metaStateEventAttribute.getPosition()[0]);
-            if (metaStreamEvent.getOutputData().contains(metaStateEventAttribute.getAttribute())) {
-                metaStateEventAttribute.getPosition()[2] = 2;
-                metaStateEventAttribute.getPosition()[3] = metaStreamEvent.getOutputData().indexOf(metaStateEventAttribute.getAttribute());
-
-            } else if (metaStreamEvent.getOnAfterWindowData().contains(metaStateEventAttribute.getAttribute())) {
-                metaStateEventAttribute.getPosition()[2] = 1;
-                metaStateEventAttribute.getPosition()[3] = metaStreamEvent.getOnAfterWindowData().indexOf(metaStateEventAttribute.getAttribute());
-            } else if (metaStreamEvent.getBeforeWindowData().contains(metaStateEventAttribute.getAttribute())) {
-                metaStateEventAttribute.getPosition()[2] = 0;
-                metaStateEventAttribute.getPosition()[3] = metaStreamEvent.getBeforeWindowData().indexOf(metaStateEventAttribute.getAttribute());
+            MetaStreamEvent metaStreamEvent;
+            if (streamEventChainIndex == UNKNOWN_STATE) {
+                metaStreamEvent = metaStateEvent.getMetaStreamEvent(0);
+            } else {
+                metaStreamEvent = metaStateEvent.getMetaStreamEvent(streamEventChainIndex);
             }
-            updateVariablePosition(metaStreamEvent, executors, metaStateEventAttribute.getPosition());
+
+            if (metaStreamEvent.getOutputData().contains(variableExpressionExecutor.getAttribute())) {
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] =
+                        OUTPUT_DATA_INDEX;
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] =
+                        metaStreamEvent.getOutputData().indexOf(variableExpressionExecutor.getAttribute());
+            } else if (metaStreamEvent.getOnAfterWindowData().contains(variableExpressionExecutor.getAttribute())) {
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] =
+                        ON_AFTER_WINDOW_DATA_INDEX;
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] =
+                        metaStreamEvent.getOnAfterWindowData().indexOf(variableExpressionExecutor.getAttribute());
+            } else if (metaStreamEvent.getBeforeWindowData().contains(variableExpressionExecutor.getAttribute())) {
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] =
+                        BEFORE_WINDOW_DATA_INDEX;
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] =
+                        metaStreamEvent.getBeforeWindowData().indexOf(variableExpressionExecutor.getAttribute());
+            }
         }
     }
 
@@ -162,25 +172,24 @@ public class QueryParserHelper {
 
         if (runtime instanceof SingleStreamRuntime) {
             MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(0);
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, metaStreamEvent, null);
-        } else if (runtime instanceof JoinStreamRuntime) {
-            StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
-            for (int i = 0; i < 2; i++) {
-                MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(i);
-                initSingleStreamRuntime(runtime.getSingleStreamRuntimes().get(i),
-                        metaStreamEvent, stateEventPool);
-            }
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaStateEvent, null);
         } else {
-            //TODO PatternStreamRuntime
+            StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
+            MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
+            for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
+                initSingleStreamRuntime(runtime.getSingleStreamRuntimes().get(i),
+                        i, metaStateEvent, stateEventPool);
+            }
         }
     }
 
-    private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, MetaStreamEvent metaStreamEvent, StateEventPool stateEventPool) {
+    private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex, MetaStateEvent metaStateEvent, StateEventPool stateEventPool) {
+        MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(streamEventChainIndex);
         StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
-        QueryStreamReceiver queryStreamReceiver = singleStreamRuntime.getQueryStreamReceiver();
-        queryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
-        queryStreamReceiver.setStreamEventPool(streamEventPool);
-        queryStreamReceiver.init();
+        ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
+        processStreamReceiver.setMetaStreamEvent(metaStreamEvent);
+        processStreamReceiver.setStreamEventPool(streamEventPool);
+        processStreamReceiver.init();
         Processor processor = singleStreamRuntime.getProcessorChain();
         while (processor != null) {
             if (processor instanceof SchedulingProcessor) {
@@ -189,12 +198,20 @@ public class QueryParserHelper {
             if (processor instanceof StreamProcessor) {
                 ((StreamProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,
                         streamEventPool));
-                ((StreamProcessor) processor).constructStreamEventPopulater(metaStreamEvent);
+                ((StreamProcessor) processor).constructStreamEventPopulater(metaStreamEvent, streamEventChainIndex);
             }
             if (stateEventPool != null && processor instanceof JoinProcessor) {
                 ((JoinProcessor) processor).setStateEventPool(stateEventPool);
             }
+            if (stateEventPool != null && processor instanceof PreStateProcessor) {
+                ((PreStateProcessor) processor).setStateEventPool(stateEventPool);
+                ((PreStateProcessor) processor).setStreamEventPool(streamEventPool);
+                ((PreStateProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent, streamEventPool));
+                ((PreStateProcessor) processor).setStateEventCloner(new StateEventCloner(metaStateEvent, stateEventPool));
+            }
+
             processor = processor.getNextProcessor();
         }
     }
+
 }

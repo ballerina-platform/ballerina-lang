@@ -34,9 +34,9 @@ public class StateEventPopulaterFactory {
         if (metaStateEvent.getStreamEventCount() == 1) {
             return new SkipStateEventPopulater();
         } else {
-            int preOutputDataSize = metaStateEvent.getPreOutputDataAttributes().size();
+//            int preOutputDataSize = metaStateEvent.getPreOutputDataAttributes().size();
             int outputDataSize = metaStateEvent.getOutputDataAttributes().size();
-            int size = preOutputDataSize + outputDataSize;
+            int size = outputDataSize;
 
             List<StateMappingElement> stateMappingElements = getMappingElements(metaStateEvent, size);
 
@@ -48,13 +48,14 @@ public class StateEventPopulaterFactory {
 
         List<StateMappingElement> stateMappingElements = new ArrayList<StateMappingElement>(size);
 
-        for (int j = 0; j < 2; j++) {
-            List<MetaStateEventAttribute> currentDataList = null;
-            if (j == 0) {
-                currentDataList = metaStateEvent.getPreOutputDataAttributes();
-            } else if (j == 1) {
-                currentDataList = metaStateEvent.getOutputDataAttributes();
-            }
+//        for (int j = 0; j < 2; j++) {
+//            List<MetaStateEventAttribute> currentDataList = null;
+//            if (j == 0) {
+//                currentDataList = metaStateEvent.getPreOutputDataAttributes();
+//            } else if (j == 1) {
+//                currentDataList = metaStateEvent.getOutputDataAttributes();
+//            }
+            List<MetaStateEventAttribute> currentDataList = metaStateEvent.getOutputDataAttributes();
             if (currentDataList != null) {
                 int i = 0;
                 for (MetaStateEventAttribute metaStateEventAttribute : currentDataList) {           //Only variable slots will be filled.
@@ -63,16 +64,16 @@ public class StateEventPopulaterFactory {
                     } else {
                         StateMappingElement stateMappingElement = new StateMappingElement();
                         stateMappingElement.setFromPosition(metaStateEventAttribute.getPosition());
-                        int[] toPosition = new int[2];
-                        toPosition[0] = j;
-                        toPosition[1] = i;
+                        int toPosition = i;
+//                        toPosition[0] = j;
+//                        toPosition[1] = i;
                         stateMappingElement.setToPosition(toPosition);
                         stateMappingElements.add(stateMappingElement);
                         i++;
                     }
                 }
             }
-        }
+//        }
         return stateMappingElements;
     }
 }

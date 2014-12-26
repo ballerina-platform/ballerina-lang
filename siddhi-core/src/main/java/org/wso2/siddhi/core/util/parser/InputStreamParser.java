@@ -24,13 +24,12 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
+import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.*;
 
 import java.util.List;
 import java.util.Map;
@@ -50,31 +49,35 @@ public class InputStreamParser {
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> definitionMap,
                                       MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> executors) {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
-            MetaStreamEvent metaStreamEvent = generateMetaStreamEvent((SingleInputStream) inputStream, definitionMap);
-            SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, metaStreamEvent, executors);
-            metaStateEvent.addEvent(metaStreamEvent);
-            return singleStreamRuntime;
+            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(((SingleInputStream) inputStream).getStreamId());
+            return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
+                    executionPlanContext, executors, definitionMap, metaStateEvent, false, processStreamReceiver);
         } else if (inputStream instanceof JoinInputStream) {
+            ProcessStreamReceiver leftProcessStreamReceiver;
+            ProcessStreamReceiver rightProcessStreamReceiver;
+            if (inputStream.getAllStreamIds().size() == 2) {
+                leftProcessStreamReceiver = new ProcessStreamReceiver(((SingleInputStream) ((JoinInputStream) inputStream)
+                        .getLeftInputStream()).getStreamId());
+                rightProcessStreamReceiver = new ProcessStreamReceiver(((SingleInputStream) ((JoinInputStream) inputStream)
+                        .getRightInputStream()).getStreamId());
+            } else {
+                rightProcessStreamReceiver = new MultiProcessStreamReceiver(inputStream.getAllStreamIds().get(0), 2);
+                leftProcessStreamReceiver = rightProcessStreamReceiver;
+            }
+            SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) ((JoinInputStream) inputStream).getLeftInputStream(),
+                    executionPlanContext, executors, definitionMap, metaStateEvent,false, leftProcessStreamReceiver);
 
-            SingleInputStream leftStream = (SingleInputStream) ((JoinInputStream) inputStream).getLeftInputStream();
-            MetaStreamEvent leftMetaStreamEvent = generateMetaStreamEvent(leftStream, definitionMap);
-            metaStateEvent.addEvent(leftMetaStreamEvent);
-
-            SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream(leftStream,
-                    executionPlanContext, leftMetaStreamEvent, executors);
-
-            SingleInputStream rightStream = (SingleInputStream) ((JoinInputStream) inputStream).getRightInputStream();
-            MetaStreamEvent rightMetaStreamEvent = generateMetaStreamEvent(rightStream, definitionMap);
-            metaStateEvent.addEvent(rightMetaStreamEvent);
-
-            SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream(rightStream,
-                    executionPlanContext, rightMetaStreamEvent, executors);
+            SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream((SingleInputStream) ((JoinInputStream) inputStream).getRightInputStream(),
+                    executionPlanContext, executors, definitionMap, metaStateEvent,false, rightProcessStreamReceiver);
 
             return JoinInputStreamParser.parseInputStream(leftStreamRuntime, rightStreamRuntime,
                     (JoinInputStream) inputStream, executionPlanContext, metaStateEvent, executors);
+        } else if (inputStream instanceof StateInputStream) {
+
+            return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
+                    metaStateEvent, executors, definitionMap);
+
         } else {
-            //TODO: pattern, etc
             throw new OperationNotSupportedException();
         }
     }
@@ -87,10 +90,11 @@ public class InputStreamParser {
      * @param definitionMap
      * @return
      */
-    private static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream, Map<String, AbstractDefinition> definitionMap) {
+    public static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream, Map<String,
+            AbstractDefinition> definitionMap) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         if (definitionMap != null && definitionMap.containsKey(inputStream.getStreamId())) {
-            AbstractDefinition inputDefinition=definitionMap.get(inputStream.getStreamId());
+            AbstractDefinition inputDefinition = definitionMap.get(inputStream.getStreamId());
             metaStreamEvent.setInputDefinition(inputDefinition);
             metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
         } else {
