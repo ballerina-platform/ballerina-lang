@@ -19,6 +19,8 @@
 package org.wso2.siddhi.core.query.input.stream.state;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.runtime.InnerStateRuntime;
@@ -29,10 +31,12 @@ import java.util.List;
 public class StateStreamRuntime implements StreamRuntime {
 
     private ExecutionPlanContext executionPlanContext;
+    private MetaStateEvent metaStateEvent;
     private InnerStateRuntime innerStateRuntime;
 
-    public StateStreamRuntime(ExecutionPlanContext executionPlanContext) {
+    public StateStreamRuntime(ExecutionPlanContext executionPlanContext, MetaStateEvent metaStateEvent) {
         this.executionPlanContext = executionPlanContext;
+        this.metaStateEvent = metaStateEvent;
     }
 
 
@@ -42,7 +46,7 @@ public class StateStreamRuntime implements StreamRuntime {
 
     @Override
     public StreamRuntime clone(String key) {
-        StateStreamRuntime stateStreamRuntime = new StateStreamRuntime(executionPlanContext);
+        StateStreamRuntime stateStreamRuntime = new StateStreamRuntime(executionPlanContext, metaStateEvent);
 //        for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
 //            stateStreamRuntime.addRuntime((SingleStreamRuntime) singleStreamRuntime.clone(key));
 //        }
@@ -54,6 +58,11 @@ public class StateStreamRuntime implements StreamRuntime {
         innerStateRuntime.setQuerySelector(commonProcessor);
         innerStateRuntime.setStartState();
         innerStateRuntime.init();
+    }
+
+    @Override
+    public MetaComplexEvent getMetaComplexEvent() {
+        return metaStateEvent;
     }
 
     public void setInnerStateRuntime(InnerStateRuntime innerStateRuntime) {

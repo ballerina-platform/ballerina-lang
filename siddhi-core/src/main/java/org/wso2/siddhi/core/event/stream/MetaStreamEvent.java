@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.event.stream;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private AbstractDefinition inputDefinition;
     private int initialAttributeSize;
     private String inputReferenceId;
+    private StreamDefinition outputStreamDefinition;
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;
@@ -113,15 +115,14 @@ public class MetaStreamEvent implements MetaComplexEvent {
         return initialAttributeSize;
     }
 
-//    public void setBeforeWindowData(List<Attribute> beforeWindowData) {
-//        this.beforeWindowData = beforeWindowData;
-//    }
-//
-//    public void setOnAfterWindowData(List<Attribute> onAfterWindowData) {
-//        this.onAfterWindowData = onAfterWindowData;
-//    }
-//
-//    public void setOutputData(List<Attribute> outputData) {
-//        this.outputData = outputData;
-//    }
+    @Override
+    public void setOutputDefinition(StreamDefinition streamDefinition) {
+        outputStreamDefinition = streamDefinition;
+    }
+
+    @Override
+    public StreamDefinition getOutputStreamDefinition() {
+        return outputStreamDefinition;
+    }
+
 }

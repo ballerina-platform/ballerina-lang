@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -52,12 +53,10 @@ public class PartitionParser {
             } else {
                 queryRuntime = QueryParser.parse(query, executionPlanContext, streamDefinitionMap);
             }
-            MetaStreamEvent metaStreamEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
+            MetaStreamEvent metaStreamEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStreamEvent);
-            MetaStateEvent metaStateEvent=new MetaStateEvent(1);
-            metaStateEvent.addEvent(metaStreamEvent);
-            QueryParserHelper.updateVariablePosition(metaStateEvent,executors);
+            QueryParserHelper.updateVariablePosition(metaStreamEvent,executors);
         }
         return partitionRuntime;
 
@@ -66,11 +65,16 @@ public class PartitionParser {
     /**
      * Create metaEvent to be used by StreamPartitioner with output attributes
      *
-     * @param metaStateEvent metaStateEvent of the queryRuntime
+     * @param metaComplexEvent metaStateEvent of the queryRuntime
      * @return metaStateEvent
      */
-    private static MetaStreamEvent createMetaEventForPartitioner(MetaStateEvent metaStateEvent) {   //TOdo : handle joins
-        AbstractDefinition definition = metaStateEvent.getMetaStreamEvent(0).getInputDefinition();
+    private static MetaStreamEvent createMetaEventForPartitioner(MetaComplexEvent metaComplexEvent) {   //TOdo : handle joins
+        AbstractDefinition definition;
+        if(metaComplexEvent instanceof MetaStreamEvent){
+            definition =  ((MetaStreamEvent)metaComplexEvent).getInputDefinition();
+        } else {
+            definition =  ((MetaStateEvent)metaComplexEvent).getMetaStreamEvent(0).getInputDefinition();
+        }
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         for (Attribute attribute : definition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);

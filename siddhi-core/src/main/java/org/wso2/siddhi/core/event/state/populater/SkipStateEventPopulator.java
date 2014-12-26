@@ -19,7 +19,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 /**
  * The populater class that skips populates StateEvents
  */
-public class SkipStateEventPopulater implements StateEventPopulater {
+public class SkipStateEventPopulator implements StateEventPopulator {
 
     public void populateStateEvent(ComplexEvent complexEvent) {
         //Do nothing

@@ -18,6 +18,11 @@
  */
 package org.wso2.siddhi.core.event;
 
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+
 public interface MetaComplexEvent {
 
+    void setOutputDefinition(StreamDefinition streamDefinition);
+
+    public StreamDefinition getOutputStreamDefinition();
 }

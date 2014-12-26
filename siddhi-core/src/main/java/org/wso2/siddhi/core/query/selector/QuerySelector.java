@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.populater.StateEventPopulater;
+import org.wso2.siddhi.core.event.state.populater.StateEventPopulator;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
@@ -50,7 +50,7 @@ public class QuerySelector implements Processor {
     private boolean isGroupBy = false;
     private GroupByKeyGenerator groupByKeyGenerator;
     private String id;
-    private StateEventPopulater eventPopulator;
+    private StateEventPopulator eventPopulator;
 
     public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, ExecutionPlanContext executionPlanContext) {
         this.id = id;
@@ -177,7 +177,7 @@ public class QuerySelector implements Processor {
         return clonedQuerySelector;
     }
 
-    public void setEventPopulator(StateEventPopulater eventPopulator) {
+    public void setEventPopulator(StateEventPopulator eventPopulator) {
         this.eventPopulator = eventPopulator;
     }
 

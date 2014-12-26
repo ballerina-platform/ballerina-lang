@@ -19,8 +19,7 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.populater.StateEventPopulaterFactory;
+import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
 import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -51,26 +50,25 @@ public class QueryParser {
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext, Map<String,
             AbstractDefinition> definitionMap) {
-        MetaStateEvent metaStateEvent = new MetaStateEvent(query.getInputStream().getAllStreamIds().size()); //MetaStateEvent for the query
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, definitionMap, metaStateEvent, executors);
+                    executionPlanContext, definitionMap, executors);
 
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
-                    executionPlanContext, metaStateEvent, executors);
+                    executionPlanContext, streamRuntime.getMetaComplexEvent(), executors);
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
-            QueryParserHelper.reduceMetaStateEvent(metaStateEvent);
-            QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
-            QueryParserHelper.initStreamRuntime(streamRuntime, metaStateEvent);
+            QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
+            QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);
+            QueryParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent());
 
-            selector.setEventPopulator(StateEventPopulaterFactory.constructEventPopulator(metaStateEvent));
+            selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime.getMetaComplexEvent()));
 
-            queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, metaStateEvent);
+            queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, streamRuntime.getMetaComplexEvent());
             validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
 
 

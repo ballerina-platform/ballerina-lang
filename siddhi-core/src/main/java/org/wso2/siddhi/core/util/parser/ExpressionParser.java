@@ -905,13 +905,23 @@ public class ExpressionParser {
                                                     MetaComplexEvent metaEvent, int currentState, List<VariableExpressionExecutor>
             executorList) {
         String attributeName = variable.getAttributeName();
+        int[] eventPosition = new int[2];
 
         if (metaEvent instanceof MetaStreamEvent) {
             MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
-            AbstractDefinition abstractDefinition = metaStreamEvent.getInputDefinition();
-            Attribute.Type type = abstractDefinition.getAttributeType(attributeName);
-            ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
-            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type));
+            AbstractDefinition abstractDefinition;
+            Attribute.Type type;
+            if (currentState == HAVING_STATE) {
+                abstractDefinition = metaStreamEvent.getOutputStreamDefinition();
+                type = abstractDefinition.getAttributeType(attributeName);
+                eventPosition[STREAM_EVENT_CHAIN_INDEX] = HAVING_STATE;
+            } else {
+                abstractDefinition = metaStreamEvent.getInputDefinition();
+                eventPosition[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
+                type = abstractDefinition.getAttributeType(attributeName);
+                ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
+            }
+            VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX]);
             executorList.add(variableExpressionExecutor);
             return variableExpressionExecutor;
         } else {      //todo support stream index
@@ -919,7 +929,6 @@ public class ExpressionParser {
             Attribute.Type type = null;
             StreamDefinition streamDefinition = null;
             String firstInput = null;
-            int[] eventPosition = new int[2];
             if (variable.getStreamId() == null) {
                 MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                 if (currentState == HAVING_STATE) {

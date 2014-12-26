@@ -74,7 +74,7 @@ public class JoinInputStreamParser {
             leftPostJoinProcessor.setFinder(leftFinder);
         }
 
-        JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext);
+        JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext,metaStateEvent);
         joinStreamRuntime.addRuntime(leftStreamRuntime);
         joinStreamRuntime.addRuntime(rightStreamRuntime);
         return joinStreamRuntime;

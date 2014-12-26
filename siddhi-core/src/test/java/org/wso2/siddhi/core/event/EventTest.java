@@ -241,7 +241,7 @@ public class EventTest {
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());
-        Assert.assertEquals(1, runtime.getMetaStateEvent().getStreamEventCount());
+        Assert.assertTrue(runtime.getMetaComplexEvent() instanceof MetaStreamEvent);
     }
 
     @Test

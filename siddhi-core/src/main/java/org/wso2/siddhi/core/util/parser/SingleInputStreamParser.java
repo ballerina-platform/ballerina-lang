@@ -35,6 +35,7 @@ import org.wso2.siddhi.core.query.processor.stream_function.StreamFunctionProces
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
@@ -55,27 +56,27 @@ public class SingleInputStreamParser {
      * @param executionPlanContext  query to be parsed
      * @param executors             List to hold VariableExpressionExecutors to update after query parsing
      * @param definitionMap
-     * @param metaStateEvent        @return
+     * @param metaComplexEvent      @return
      * @param processStreamReceiver
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
-                                                       List<VariableExpressionExecutor> executors, Map<String, AbstractDefinition> definitionMap, MetaStateEvent metaStateEvent,
-                                                       boolean isSateEventProcessed,
-                                                       ProcessStreamReceiver processStreamReceiver) {
+                                                       List<VariableExpressionExecutor> executors, Map<String, AbstractDefinition> definitionMap,
+                                                       MetaComplexEvent metaComplexEvent, ProcessStreamReceiver processStreamReceiver) {
         Processor processor = null;
         Processor singleThreadValve = null;
         boolean first = true;
-        MetaStreamEvent metaStreamEvent = generateMetaStreamEvent(inputStream, definitionMap);
-        int stateIndex = metaStateEvent.getStreamEventCount();
-        metaStateEvent.addEvent(metaStreamEvent);
+        MetaStreamEvent metaStreamEvent;
+        if (metaComplexEvent instanceof MetaStateEvent) {
+            metaStreamEvent = new MetaStreamEvent();
+            ((MetaStateEvent) metaComplexEvent).addEvent(metaStreamEvent);
+            initMetaStreamEvent(inputStream, definitionMap, metaStreamEvent);
+        } else {
+            metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
+            initMetaStreamEvent(inputStream, definitionMap, metaStreamEvent);
+        }
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                Processor currentProcessor;
-                if (isSateEventProcessed) {
-                    currentProcessor = generateProcessor(handler, metaStateEvent, stateIndex, executors, executionPlanContext);
-                } else {
-                    currentProcessor = generateProcessor(handler, metaStreamEvent, -1, executors, executionPlanContext);
-                }
+                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, executors, executionPlanContext);
                 if (currentProcessor instanceof SchedulingProcessor) {
                     if (singleThreadValve == null) {
 
@@ -100,24 +101,24 @@ public class SingleInputStreamParser {
         }
 
         metaStreamEvent.initializeAfterWindowData();
-        return new SingleStreamRuntime(processStreamReceiver, processor);
+        return new SingleStreamRuntime(processStreamReceiver, processor, metaComplexEvent);
 
     }
 
 
-    private static Processor generateProcessor(StreamHandler handler, MetaComplexEvent metaEvent, int stateIndex, List<VariableExpressionExecutor> executors, ExecutionPlanContext context) {
+    private static Processor generateProcessor(StreamHandler handler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext context) {
         ExpressionExecutor[] inputExpressions = new ExpressionExecutor[handler.getParameters().length];
         Expression[] parameters = handler.getParameters();
         MetaStreamEvent metaStreamEvent;
+        int stateIndex = SiddhiConstants.UNKNOWN_STATE;
         if (metaEvent instanceof MetaStateEvent) {
+            stateIndex = ((MetaStateEvent) metaEvent).getStreamEventCount() - 1;
             metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent(stateIndex);
         } else {
             metaStreamEvent = (MetaStreamEvent) metaEvent;
         }
         for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, executors,
-                    context,
-                    false);
+            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, executors, context, false);
         }
         if (handler instanceof Filter) {
             return new FilterProcessor(inputExpressions[0]);
@@ -146,11 +147,11 @@ public class SingleInputStreamParser {
      *
      * @param inputStream
      * @param definitionMap
+     * @param metaStreamEvent
      * @return
      */
-    private static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream, Map<String,
-            AbstractDefinition> definitionMap) {
-        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+    private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
+            AbstractDefinition> definitionMap, MetaStreamEvent metaStreamEvent) {
         if (definitionMap != null && definitionMap.containsKey(inputStream.getStreamId())) {
             AbstractDefinition inputDefinition = definitionMap.get(inputStream.getStreamId());
             metaStreamEvent.setInputDefinition(inputDefinition);
@@ -162,6 +163,5 @@ public class SingleInputStreamParser {
                 !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided
             metaStreamEvent.setInputReferenceId(inputStream.getStreamReferenceId());
         }
-        return metaStreamEvent;
     }
 }

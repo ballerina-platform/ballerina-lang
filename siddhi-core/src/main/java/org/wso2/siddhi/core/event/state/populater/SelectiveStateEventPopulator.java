@@ -23,11 +23,11 @@ import java.util.List;
 /**
  * The populater class that populates StateEvents
  */
-public class SelectiveStateEventPopulater implements StateEventPopulater {
+public class SelectiveStateEventPopulator implements StateEventPopulator {
 
     private List<StateMappingElement> stateMappingElements;       //List to hold information needed for population
 
-    public SelectiveStateEventPopulater(List<StateMappingElement> stateMappingElements) {
+    public SelectiveStateEventPopulator(List<StateMappingElement> stateMappingElements) {
         this.stateMappingElements = stateMappingElements;
     }
 

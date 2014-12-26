@@ -19,6 +19,7 @@
 
 package org.wso2.siddhi.core.util.parser.helper;
 
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
 import org.wso2.siddhi.core.event.state.StateEventCloner;
@@ -47,63 +48,20 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.*;
  */
 public class QueryParserHelper {
 
-    public static void reduceMetaStateEvent(MetaStateEvent metaStateEvent) {
-        for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
-            metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX]).
-                    addOutputData(attribute.getAttribute());
-        }
-        for (MetaStreamEvent metaStreamEvent : metaStateEvent.getMetaStreamEvents()) {
-            reduceStreamAttributes(metaStreamEvent);
+    public static void reduceMetaComplexEvent(MetaComplexEvent metaComplexEvent) {
+        if (metaComplexEvent instanceof MetaStateEvent) {
+            MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
+            for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
+                metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX]).
+                        addOutputData(attribute.getAttribute());
+            }
+            for (MetaStreamEvent metaStreamEvent : metaStateEvent.getMetaStreamEvents()) {
+                reduceStreamAttributes(metaStreamEvent);
+            }
+        } else {
+            reduceStreamAttributes((MetaStreamEvent) metaComplexEvent);
         }
     }
-
-//    private static void unifySameMetaStreamEvents(MetaStateEvent metaStateEvent) {
-//        MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
-//        Map<String, MetaStreamEvent> commonMetaStreamEventMap = new HashMap<String, MetaStreamEvent>();
-//        for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
-//            MetaStreamEvent commonMetaStreamEvent;
-//            if (!commonMetaStreamEventMap.containsKey(metaStreamEvent.getInputDefinition().getId())) {
-//                commonMetaStreamEvent = new MetaStreamEvent();
-//                commonMetaStreamEvent.setInputDefinition(metaStreamEvent.getInputDefinition());
-//                commonMetaStreamEvent.initializeAfterWindowData();
-//                commonMetaStreamEventMap.put(metaStreamEvent.getInputDefinition().getId(), commonMetaStreamEvent);
-//            } else {
-//                commonMetaStreamEvent = commonMetaStreamEventMap.get(metaStreamEvent.getInputDefinition().getId());
-//            }
-//
-//            for (Attribute attribute : metaStreamEvent.getBeforeWindowData()) {
-//                if (!commonMetaStreamEvent.getBeforeWindowData().contains(attribute)) {
-//                    commonMetaStreamEvent.getBeforeWindowData().add(attribute);
-//                }
-//            }
-//            for (Attribute attribute : metaStreamEvent.getOnAfterWindowData()) {
-//                if (!commonMetaStreamEvent.getOnAfterWindowData().contains(attribute)) {
-//                    commonMetaStreamEvent.getOnAfterWindowData().add(attribute);
-//                }
-//            }
-//            for (Attribute attribute : metaStreamEvent.getOutputData()) {
-//                if (attribute == null) {
-//                    commonMetaStreamEvent.addOutputData(null);
-//                } else if (!commonMetaStreamEvent.getOutputData().contains(attribute)) {
-//                    commonMetaStreamEvent.addOutputData(attribute);
-//                }
-//            }
-//        }
-//
-//        for (MetaStreamEvent metaStreamEvent : commonMetaStreamEventMap.values()) {
-//            reduceStreamAttributes(metaStreamEvent);
-//        }
-//
-//        for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
-//            MetaStreamEvent commonMetaStreamEvent = commonMetaStreamEventMap.get(metaStreamEvent.getInputDefinition().getId());
-//            metaStreamEvent.getBeforeWindowData().clear();
-//            metaStreamEvent.getBeforeWindowData().addAll(commonMetaStreamEvent.getBeforeWindowData());
-//            metaStreamEvent.getOnAfterWindowData().clear();
-//            metaStreamEvent.getOnAfterWindowData().addAll(commonMetaStreamEvent.getOnAfterWindowData());
-//            metaStreamEvent.getOutputData().clear();
-//            metaStreamEvent.getOutputData().addAll(commonMetaStreamEvent.getOutputData());
-//        }
-//    }
 
     /**
      * Helper method to clean/refactor MetaStreamEvent
@@ -126,27 +84,26 @@ public class QueryParserHelper {
         }
     }
 
-    public static void updateVariablePosition(MetaStateEvent metaStateEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {
+    public static void updateVariablePosition(MetaComplexEvent metaComplexEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {
         for (VariableExpressionExecutor variableExpressionExecutor : variableExpressionExecutorList) {
             int streamEventChainIndex = variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX];
             if (streamEventChainIndex == HAVING_STATE) {
-                if (metaStateEvent.getStreamEventCount() == 1) {
+                if (metaComplexEvent instanceof MetaStreamEvent) {
                     variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
                 } else {
                     variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = STATE_OUTPUT_DATA_INDEX;
                 }
                 variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaStateEvent.
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaComplexEvent.
                         getOutputStreamDefinition().getAttributeList().indexOf(variableExpressionExecutor.getAttribute());
-
                 continue;
             }
 
             MetaStreamEvent metaStreamEvent;
-            if (streamEventChainIndex == UNKNOWN_STATE) {
-                metaStreamEvent = metaStateEvent.getMetaStreamEvent(0);
+            if (metaComplexEvent instanceof MetaStreamEvent) {
+                metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
             } else {
-                metaStreamEvent = metaStateEvent.getMetaStreamEvent(streamEventChainIndex);
+                metaStreamEvent = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvent(streamEventChainIndex);
             }
 
             if (metaStreamEvent.getOutputData().contains(variableExpressionExecutor.getAttribute())) {
@@ -168,12 +125,12 @@ public class QueryParserHelper {
         }
     }
 
-    public static void initStreamRuntime(StreamRuntime runtime, MetaStateEvent metaStateEvent) {
+    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent) {
 
         if (runtime instanceof SingleStreamRuntime) {
-            MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(0);
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaStateEvent, null);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, (MetaStreamEvent) metaComplexEvent, null);
         } else {
+            MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
             MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
             for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
@@ -183,8 +140,15 @@ public class QueryParserHelper {
         }
     }
 
-    private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex, MetaStateEvent metaStateEvent, StateEventPool stateEventPool) {
-        MetaStreamEvent metaStreamEvent = metaStateEvent.getMetaStreamEvent(streamEventChainIndex);
+    private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex,
+                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool) {
+        MetaStreamEvent metaStreamEvent;
+
+        if (metaComplexEvent instanceof MetaStateEvent) {
+            metaStreamEvent = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvent(streamEventChainIndex);
+        } else {
+            metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
+        }
         StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
         ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
         processStreamReceiver.setMetaStreamEvent(metaStreamEvent);
@@ -207,7 +171,9 @@ public class QueryParserHelper {
                 ((PreStateProcessor) processor).setStateEventPool(stateEventPool);
                 ((PreStateProcessor) processor).setStreamEventPool(streamEventPool);
                 ((PreStateProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent, streamEventPool));
-                ((PreStateProcessor) processor).setStateEventCloner(new StateEventCloner(metaStateEvent, stateEventPool));
+                if (metaComplexEvent instanceof MetaStateEvent) {
+                    ((PreStateProcessor) processor).setStateEventCloner(new StateEventCloner(((MetaStateEvent) metaComplexEvent), stateEventPool));
+                }
             }
 
             processor = processor.getNextProcessor();

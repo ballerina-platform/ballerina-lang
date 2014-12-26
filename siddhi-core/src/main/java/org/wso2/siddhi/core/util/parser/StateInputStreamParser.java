@@ -51,7 +51,7 @@ public class StateInputStreamParser {
 
         Map<String, ProcessStreamReceiver> processStreamReceiverMap = new HashMap<String, ProcessStreamReceiver>();
 
-        StateStreamRuntime stateStreamRuntime = new StateStreamRuntime(executionPlanContext);
+        StateStreamRuntime stateStreamRuntime = new StateStreamRuntime(executionPlanContext,metaStateEvent);
 
         for (String streamId : stateInputStream.getAllStreamIds()) {
             int streamCount = stateInputStream.getStreamCount(streamId);
@@ -82,7 +82,7 @@ public class StateInputStreamParser {
 
             BasicSingleInputStream basicSingleInputStream = ((StreamStateElement) stateElement).getBasicSingleInputStream();
             SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream(basicSingleInputStream,
-                    executionPlanContext, executors, definitionMap, metaStateEvent, true,
+                    executionPlanContext, executors, definitionMap, metaStateEvent,
                     processStreamReceiverMap.get(basicSingleInputStream.getStreamId()));
 
             int stateIndex = metaStateEvent.getStreamEventCount() - 1;

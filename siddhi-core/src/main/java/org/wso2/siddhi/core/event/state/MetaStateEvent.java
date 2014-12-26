@@ -58,22 +58,12 @@ public class MetaStateEvent implements MetaComplexEvent {
         streamEventCount++;
     }
 
-//    public void putData(MetaStateEventAttribute metaStateEventAttribute) {
-//        if (!preOutputDataAttributes.contains(metaStateEventAttribute)) {
-//            preOutputDataAttributes.add(metaStateEventAttribute);
-//        }
-//    }
-
-    public void putOutputData(MetaStateEventAttribute metaStateEventAttribute) {
+    public void addOutputData(MetaStateEventAttribute metaStateEventAttribute) {
         if (outputDataAttributes == null) {
             outputDataAttributes = new ArrayList<MetaStateEventAttribute>();
         }
         outputDataAttributes.add(metaStateEventAttribute);
     }
-
-//    public List<MetaStateEventAttribute> getPreOutputDataAttributes() {
-//        return preOutputDataAttributes;
-//    }
 
     public List<MetaStateEventAttribute> getOutputDataAttributes() {
         if (outputDataAttributes != null) {
