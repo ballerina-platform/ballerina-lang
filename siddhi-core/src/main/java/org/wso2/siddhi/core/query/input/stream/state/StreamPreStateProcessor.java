@@ -32,21 +32,21 @@ import org.wso2.siddhi.core.query.processor.Processor;
  */
 public class StreamPreStateProcessor implements PreStateProcessor {
 
-    private int stateId;
-    private boolean isStartState;
-    private volatile boolean stateChanged = false;
+    protected int stateId;
+    protected boolean isStartState;
+    protected volatile boolean stateChanged = false;
 
-    private Processor nextProcessor;
+    protected Processor nextProcessor;
 
-    private ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>();
-    private ComplexEventChunk<StateEvent> pendingStateEventChunk = new ComplexEventChunk<StateEvent>();
-    private ComplexEventChunk<StateEvent> newEveryStateEventChunk = new ComplexEventChunk<StateEvent>();
+    protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>();
+    protected ComplexEventChunk<StateEvent> pendingStateEventChunk = new ComplexEventChunk<StateEvent>();
+    protected ComplexEventChunk<StateEvent> newAndEveryStateEventChunk = new ComplexEventChunk<StateEvent>();
 
-    private StateEventPool stateEventPool;
+    protected StateEventPool stateEventPool;
     //  private StreamEventPool streamEventPool;
-    private StreamEventCloner streamEventCloner;
-    private StateEventCloner stateEventCloner;
-    private StreamEventPool streamEventPool;
+    protected StreamEventCloner streamEventCloner;
+    protected StateEventCloner stateEventCloner;
+    protected StreamEventPool streamEventPool;
 
 
     /**
@@ -117,7 +117,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     public void init() {
         if (isStartState) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
-            newEveryStateEventChunk.add(stateEvent);
+            newAndEveryStateEventChunk.add(stateEvent);
         }
     }
 
@@ -134,16 +134,15 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     @Override
     public void addState(StateEvent stateEvent) {
         System.out.println("PSP: add " + stateId + " " + stateEvent);
-        newEveryStateEventChunk.add(stateEvent);
+        newAndEveryStateEventChunk.add(stateEvent);
     }
 
     @Override
     public void addEveryState(StateEvent stateEvent) {
         System.out.println("PSP: addEvery " + stateId + " " + stateEvent);
-        newEveryStateEventChunk.add(stateEventCloner.copyStateEvent(stateEvent));
+        newAndEveryStateEventChunk.add(stateEventCloner.copyStateEvent(stateEvent));
     }
 
-    @Override
     public void stateChanged() {
         stateChanged = true;
     }
@@ -156,34 +155,36 @@ public class StreamPreStateProcessor implements PreStateProcessor {
         this.stateEventPool = stateEventPool;
     }
 
-    @Override
     public void setStreamEventPool(StreamEventPool streamEventPool) {
         this.streamEventPool = streamEventPool;
     }
 
-    @Override
     public void setStreamEventCloner(StreamEventCloner streamEventCloner) {
         this.streamEventCloner = streamEventCloner;
     }
 
-    @Override
     public void setStateEventCloner(StateEventCloner stateEventCloner) {
         this.stateEventCloner = stateEventCloner;
     }
 
     @Override
     public void updateState() {
-        System.out.println("PSP: update " + stateId + " " + newEveryStateEventChunk);
-        newEveryStateEventChunk.reset();
-        while (newEveryStateEventChunk.hasNext()) {
-            StateEvent stateEvent = newEveryStateEventChunk.next();
-            newEveryStateEventChunk.remove();
+        System.out.println("PSP: update " + stateId + " " + newAndEveryStateEventChunk);
+        newAndEveryStateEventChunk.reset();
+        while (newAndEveryStateEventChunk.hasNext()) {
+            StateEvent stateEvent = newAndEveryStateEventChunk.next();
+            newAndEveryStateEventChunk.remove();
             pendingStateEventChunk.add(stateEvent);
         }
-        newEveryStateEventChunk.clear();
+        newAndEveryStateEventChunk.clear();
     }
 
     public void setStateId(int stateId) {
         this.stateId = stateId;
+    }
+
+    @Override
+    public int getStateId() {
+        return stateId;
     }
 }

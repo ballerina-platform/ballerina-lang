@@ -23,30 +23,31 @@ import org.wso2.siddhi.core.query.processor.Processor;
 /**
  * Created on 12/19/14.
  */
-public class NextInnerStateRuntime extends StreamInnerStateRuntime {
+public class LogicalInnerStateRuntime extends StreamInnerStateRuntime {
 
-    private final InnerStateRuntime currentInnerStateRuntime;
-    private final InnerStateRuntime nextInnerStateRuntime;
+    private final InnerStateRuntime innerStateRuntime1;
+    private final InnerStateRuntime innerStateRuntime2;
 
-    public NextInnerStateRuntime(InnerStateRuntime currentInnerStateRuntime, InnerStateRuntime nextInnerStateRuntime) {
-
-        this.currentInnerStateRuntime = currentInnerStateRuntime;
-        this.nextInnerStateRuntime = nextInnerStateRuntime;
+    public LogicalInnerStateRuntime(InnerStateRuntime innerStateRuntime1, InnerStateRuntime innerStateRuntime2) {
+        this.innerStateRuntime1 = innerStateRuntime1;
+        this.innerStateRuntime2 = innerStateRuntime2;
     }
 
     @Override
     public void setQuerySelector(Processor commonProcessor) {
-        nextInnerStateRuntime.setQuerySelector(commonProcessor);
+        innerStateRuntime1.setQuerySelector(commonProcessor);
+        innerStateRuntime2.setQuerySelector(commonProcessor);
     }
 
     @Override
     public void setStartState() {
-        currentInnerStateRuntime.setStartState();
+        innerStateRuntime1.setStartState();
+        innerStateRuntime2.setStartState();
     }
 
     @Override
     public void init() {
-        currentInnerStateRuntime.init();
-        nextInnerStateRuntime.init();
+        innerStateRuntime1.init();
+        innerStateRuntime2.init();
     }
 }

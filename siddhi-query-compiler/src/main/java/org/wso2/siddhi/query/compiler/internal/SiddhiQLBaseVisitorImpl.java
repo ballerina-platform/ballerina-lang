@@ -637,21 +637,21 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         if (ctx.NOT() != null) {
             if (ctx.AND() != null) {
-                BasicSingleInputStream basicSingleInputStream1 = (BasicSingleInputStream) visit(ctx.standard_stateful_source(0));
-                BasicSingleInputStream basicSingleInputStream2 = (BasicSingleInputStream) visit(ctx.standard_stateful_source(1));
-                return State.logicalNotAnd(new StreamStateElement(basicSingleInputStream1), new StreamStateElement(basicSingleInputStream2));
+                StreamStateElement streamStateElement1 = (StreamStateElement) visit(ctx.standard_stateful_source(0));
+                StreamStateElement streamStateElement2 = (StreamStateElement) visit(ctx.standard_stateful_source(1));
+                return State.logicalNotAnd(streamStateElement1, streamStateElement2);
             } else {
                 BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(ctx.standard_stateful_source(0));
                 return State.logicalNot(new StreamStateElement(basicSingleInputStream), null);
             }
         } else if (ctx.AND() != null) {
-            BasicSingleInputStream basicSingleInputStream1 = (BasicSingleInputStream) visit(ctx.standard_stateful_source(0));
-            BasicSingleInputStream basicSingleInputStream2 = (BasicSingleInputStream) visit(ctx.standard_stateful_source(1));
-            return State.logicalAnd(new StreamStateElement(basicSingleInputStream1), new StreamStateElement(basicSingleInputStream2));
+            StreamStateElement streamStateElement1 = (StreamStateElement) visit(ctx.standard_stateful_source(0));
+            StreamStateElement streamStateElement2 = (StreamStateElement) visit(ctx.standard_stateful_source(1));
+            return State.logicalAnd(streamStateElement1, streamStateElement2);
         } else if (ctx.OR() != null) {
-            BasicSingleInputStream basicSingleInputStream1 = (BasicSingleInputStream) visit(ctx.standard_stateful_source(0));
-            BasicSingleInputStream basicSingleInputStream2 = (BasicSingleInputStream) visit(ctx.standard_stateful_source(1));
-            return State.logicalOr(new StreamStateElement(basicSingleInputStream1), new StreamStateElement(basicSingleInputStream2));
+            StreamStateElement streamStateElement1 = (StreamStateElement) visit(ctx.standard_stateful_source(0));
+            StreamStateElement streamStateElement2 = (StreamStateElement) visit(ctx.standard_stateful_source(1));
+            return State.logicalOr(streamStateElement1, streamStateElement2);
         } else {
             throw newSiddhiParserException(ctx);
         }

@@ -55,6 +55,9 @@ public class SelectiveStateEventPopulator implements StateEventPopulator {
 
     private Object getFromData(StateEvent stateEvent, int[] fromPosition) {
         StreamEvent streamEvent = stateEvent.getStreamEvent(fromPosition[0]);
+        if (streamEvent == null) {
+            return null;
+        }
         if (fromPosition[1] > 0) {
             for (int i = 0, size = fromPosition[1]; i < size; i++) {
                 streamEvent = streamEvent.getNext();

@@ -31,18 +31,17 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.*;
  */
 public class StateEvent implements ComplexEvent {
 
+    private long id;
     protected StreamEvent[] streamEvents;
     protected StateEvent next;
 
     protected long timestamp = -1;
     protected Type type = Type.CURRENT;
-    //    protected Object[] preOutputData;   //Attributes that are not used in output
     protected Object[] outputData;      //Attributes to sent as output
 
 
     public StateEvent(int streamEventsSize, int outputSize) {
         streamEvents = new StreamEvent[streamEventsSize];
-//        preOutputData = new Object[preOutputSize];
         outputData = new Object[outputSize];
     }
 
@@ -66,10 +65,6 @@ public class StateEvent implements ComplexEvent {
     public void setOutputData(Object object, int index) {
         outputData[index] = object;
     }
-
-//    public void setPreOutputData(Object object, int index) {
-//        preOutputData[index] = object;
-//    }
 
     /**
      * @param position int array of 3 or 4 elements
@@ -137,9 +132,17 @@ public class StateEvent implements ComplexEvent {
                 "streamEvents=" + Arrays.toString(streamEvents) +
                 ", timestamp=" + timestamp +
                 ", type=" + type +
-//                ", preOutputData=" + Arrays.toString(preOutputData) +
                 ", outputData=" + Arrays.toString(outputData) +
                 ", next=" + next +
                 '}';
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
 }

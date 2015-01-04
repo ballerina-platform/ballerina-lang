@@ -32,7 +32,7 @@ import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
@@ -128,7 +128,7 @@ public class QueryParserHelper {
     public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent) {
 
         if (runtime instanceof SingleStreamRuntime) {
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, (MetaStreamEvent) metaComplexEvent, null);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null);
         } else {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
@@ -167,12 +167,12 @@ public class QueryParserHelper {
             if (stateEventPool != null && processor instanceof JoinProcessor) {
                 ((JoinProcessor) processor).setStateEventPool(stateEventPool);
             }
-            if (stateEventPool != null && processor instanceof PreStateProcessor) {
-                ((PreStateProcessor) processor).setStateEventPool(stateEventPool);
-                ((PreStateProcessor) processor).setStreamEventPool(streamEventPool);
-                ((PreStateProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent, streamEventPool));
+            if (stateEventPool != null && processor instanceof StreamPreStateProcessor) {
+                ((StreamPreStateProcessor) processor).setStateEventPool(stateEventPool);
+                ((StreamPreStateProcessor) processor).setStreamEventPool(streamEventPool);
+                ((StreamPreStateProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent, streamEventPool));
                 if (metaComplexEvent instanceof MetaStateEvent) {
-                    ((PreStateProcessor) processor).setStateEventCloner(new StateEventCloner(((MetaStateEvent) metaComplexEvent), stateEventPool));
+                    ((StreamPreStateProcessor) processor).setStateEventCloner(new StateEventCloner(((MetaStateEvent) metaComplexEvent), stateEventPool));
                 }
             }
 

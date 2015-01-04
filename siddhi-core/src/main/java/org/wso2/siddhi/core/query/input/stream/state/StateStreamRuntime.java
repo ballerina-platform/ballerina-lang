@@ -39,7 +39,6 @@ public class StateStreamRuntime implements StreamRuntime {
         this.metaStateEvent = metaStateEvent;
     }
 
-
     public List<SingleStreamRuntime> getSingleStreamRuntimes() {
         return innerStateRuntime.getSingleStreamRuntimeList();
     }

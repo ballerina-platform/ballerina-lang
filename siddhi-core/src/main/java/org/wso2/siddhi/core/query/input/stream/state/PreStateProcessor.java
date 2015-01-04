@@ -19,10 +19,6 @@
 package org.wso2.siddhi.core.query.input.stream.state;
 
 import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.state.StateEventCloner;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 /**
@@ -31,23 +27,17 @@ import org.wso2.siddhi.core.query.processor.Processor;
 public interface PreStateProcessor extends Processor {
 
     void addState(StateEvent stateEvent);
+
     void addEveryState(StateEvent stateEvent);
+
     public void setStateId(int stateId);
+
+    public int getStateId();
 
     public void init();
 
-    void stateChanged();
-
     void setStartState(boolean isStartState);
 
-
-    public void setStateEventPool(StateEventPool stateEventPool) ;
-
-    public void setStreamEventPool(StreamEventPool streamEventPool) ;
-
-    public void setStreamEventCloner(StreamEventCloner streamEventCloner);
-
-    public void setStateEventCloner(StateEventCloner stateEventCloner) ;
-
     void updateState();
+
 }

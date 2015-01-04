@@ -26,10 +26,10 @@ import org.wso2.siddhi.core.query.processor.Processor;
  * Created on 12/17/14.
  */
 public class StreamPostStateProcessor implements PostStateProcessor {
-    private PreStateProcessor nextStatePerProcessor;
-    private PreStateProcessor nextEveryStatePerProcessor;
-    private PreStateProcessor thisStatePreProcessor;
-    private Processor nextProcessor;
+    protected PreStateProcessor nextStatePerProcessor;
+    protected PreStateProcessor nextEveryStatePerProcessor;
+    protected StreamPreStateProcessor thisStatePreProcessor;
+    protected Processor nextProcessor;
 
     /**
      * Process the handed StreamEvent
@@ -38,12 +38,12 @@ public class StreamPostStateProcessor implements PostStateProcessor {
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        thisStatePreProcessor.stateChanged();
         complexEventChunk.reset();
         if (complexEventChunk.hasNext()) {     //one one event will be coming
-            StateEvent stateEvent=(StateEvent)complexEventChunk.next();
-            complexEventChunk.reset();
+            StateEvent stateEvent = (StateEvent) complexEventChunk.next();
+            thisStatePreProcessor.stateChanged();
             if (nextProcessor != null) {
+                complexEventChunk.reset();
                 nextProcessor.process(complexEventChunk);
             }
             if (nextStatePerProcessor != null) {
@@ -100,13 +100,11 @@ public class StreamPostStateProcessor implements PostStateProcessor {
         return null;
     }
 
-    @Override
-    public void setNextStateProcessor(PreStateProcessor preStateProcessor) {
+    public void setNextStatePreProcessor(PreStateProcessor preStateProcessor) {
         this.nextStatePerProcessor = preStateProcessor;
     }
 
-    @Override
-    public void setThisStatePreProcessor(PreStateProcessor preStateProcessor) {
+    public void setThisStatePreProcessor(StreamPreStateProcessor preStateProcessor) {
         thisStatePreProcessor = preStateProcessor;
     }
 
@@ -114,9 +112,6 @@ public class StreamPostStateProcessor implements PostStateProcessor {
         return nextStatePerProcessor;
     }
 
-    public void setNextStatePerProcessor(PreStateProcessor nextStatePerProcessor) {
-        this.nextStatePerProcessor = nextStatePerProcessor;
-    }
 
     public PreStateProcessor getNextEveryStatePerProcessor() {
         return nextEveryStatePerProcessor;
