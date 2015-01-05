@@ -25,7 +25,9 @@ import java.util.List;
 
 public abstract class InputStream {
 
-    public abstract List<String> getStreamIds();
+    public abstract List<String> getAllStreamIds();
+
+    public abstract List<String> getUniqueStreamIds();
 
     public static InputStream joinStream(SingleInputStream leftStream, JoinInputStream.Type type,
                                          SingleInputStream rightStream,

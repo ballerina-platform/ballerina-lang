@@ -23,36 +23,41 @@ import java.util.List;
 /**
  * The populater class that populates StateEvents
  */
-public class SelectiveStateEventPopulater implements StateEventPopulater {
+public class SelectiveStateEventPopulator implements StateEventPopulator {
 
     private List<StateMappingElement> stateMappingElements;       //List to hold information needed for population
 
-    public SelectiveStateEventPopulater(List<StateMappingElement> stateMappingElements) {
+    public SelectiveStateEventPopulator(List<StateMappingElement> stateMappingElements) {
         this.stateMappingElements = stateMappingElements;
     }
 
     public void populateStateEvent(ComplexEvent complexEvent) {
         StateEvent stateEvent = (StateEvent) complexEvent;
         for (StateMappingElement stateMappingElement : stateMappingElements) {
-            int[] toPosition = stateMappingElement.getToPosition();
-            switch (toPosition[0]) {
-                case 0:
-                    stateEvent.setPreOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
-                            toPosition[1]);
-                    break;
-                case 1:
-                    stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
-                            toPosition[1]);
-                    break;
-                default:
-                    //will not happen
-                    throw new IllegalStateException("To Position cannot be :" + toPosition[0]);
-            }
+            int toPosition = stateMappingElement.getToPosition();
+            stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
+                    toPosition);
+//            switch (toPosition[0]) {
+//                case 0:
+//                    stateEvent.setPreOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
+//                            toPosition[1]);
+//                    break;
+//                case 1:
+//                    stateEvent.setOutputData(getFromData(stateEvent, stateMappingElement.getFromPosition()),
+//                            toPosition[1]);
+//                    break;
+//                default:
+//                    //will not happen
+//                    throw new IllegalStateException("To Position cannot be :" + toPosition[0]);
+//            }
         }
     }
 
     private Object getFromData(StateEvent stateEvent, int[] fromPosition) {
         StreamEvent streamEvent = stateEvent.getStreamEvent(fromPosition[0]);
+        if (streamEvent == null) {
+            return null;
+        }
         if (fromPosition[1] > 0) {
             for (int i = 0, size = fromPosition[1]; i < size; i++) {
                 streamEvent = streamEvent.getNext();

@@ -20,7 +20,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 /**
  * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields
  */
-public interface StateEventPopulater {
+public interface StateEventPopulator {
 
     void populateStateEvent(ComplexEvent complexEvent);
 }

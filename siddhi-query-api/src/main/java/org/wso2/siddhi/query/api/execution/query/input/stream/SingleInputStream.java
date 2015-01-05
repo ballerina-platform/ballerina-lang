@@ -23,7 +23,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SingleInputStream extends InputStream{
+public class SingleInputStream extends InputStream {
 
     protected boolean isInnerStream =false;
     protected String streamId;
@@ -33,14 +33,15 @@ public class SingleInputStream extends InputStream{
     protected int windowPosition = -1;
 
     protected SingleInputStream(String streamId) {
-        this(streamId,false);
+        this(streamId, false);
     }
+
     protected SingleInputStream(String streamId, boolean isInnerStream) {
         this(null, streamId, isInnerStream);
     }
 
     public SingleInputStream(String streamReferenceId, String streamId) {
-        this(streamReferenceId, streamId,false);
+        this(streamReferenceId, streamId, false);
     }
 
     public SingleInputStream(String streamReferenceId, String streamId, boolean isInnerStream) {
@@ -51,7 +52,7 @@ public class SingleInputStream extends InputStream{
 
     public SingleInputStream(BasicSingleInputStream basicSingleInputStream, Window window) {
         streamId = basicSingleInputStream.getStreamId();
-        isInnerStream=basicSingleInputStream.isInnerStream();
+        isInnerStream = basicSingleInputStream.isInnerStream();
         definition = basicSingleInputStream.getDefinition();
         streamReferenceId = basicSingleInputStream.getStreamReferenceId();
         streamHandlers = basicSingleInputStream.getStreamHandlers();
@@ -75,12 +76,15 @@ public class SingleInputStream extends InputStream{
         return streamReferenceId;
     }
 
-    public List<String> getStreamIds() {
+    public List<String> getAllStreamIds() {
         List<String> streamIds = new ArrayList<String>();
         streamIds.add(streamId);
         return streamIds;
     }
 
+    public List<String> getUniqueStreamIds() {
+        return getAllStreamIds();
+    }
 
     public SingleInputStream as(String streamReferenceId) {
         this.streamReferenceId = streamReferenceId;
@@ -111,7 +115,7 @@ public class SingleInputStream extends InputStream{
     }
 
     public SingleInputStream function(String extensionName, String functionName,
-                                 Expression... parameters) {
+                                      Expression... parameters) {
         streamHandlers.add(new StreamFunctionExtension(extensionName, functionName, parameters));
         return this;
     }

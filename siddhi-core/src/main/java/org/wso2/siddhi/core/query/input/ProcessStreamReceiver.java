@@ -20,24 +20,31 @@
 package org.wso2.siddhi.core.query.input;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
+import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 
-public class QueryStreamReceiver implements StreamJunction.Receiver {
+import java.util.ArrayList;
+import java.util.List;
 
-    private String streamId;
-    private Processor processorChain;
+public class ProcessStreamReceiver implements StreamJunction.Receiver {
+
+    protected String streamId;
     private Processor next;
     private ConversionStreamEventChunk streamEventChunk;
     private MetaStreamEvent metaStreamEvent;
     private StreamEventPool streamEventPool;
+    protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
+    protected int stateProcessorsSize;
 
 
-    public QueryStreamReceiver(String streamId) {
+    public ProcessStreamReceiver(String streamId) {
         this.streamId = streamId;
     }
 
@@ -46,29 +53,29 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
         return streamId;
     }
 
-    public QueryStreamReceiver clone(String key) {
-        QueryStreamReceiver clonedQueryStreamReceiver = new QueryStreamReceiver(streamId + key);
-        clonedQueryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
-        clonedQueryStreamReceiver.setStreamEventPool(new StreamEventPool(metaStreamEvent, streamEventPool.getSize()));
-        return clonedQueryStreamReceiver;
+    public ProcessStreamReceiver clone(String key) {
+        ProcessStreamReceiver clonedProcessStreamReceiver = new ProcessStreamReceiver(streamId + key);
+        clonedProcessStreamReceiver.setMetaStreamEvent(metaStreamEvent);
+        clonedProcessStreamReceiver.setStreamEventPool(new StreamEventPool(metaStreamEvent, streamEventPool.getSize()));
+        return clonedProcessStreamReceiver;
     }
 
     @Override
     public void receive(ComplexEvent complexEvent) {
         streamEventChunk.convertAndAssign(complexEvent);
-        processAndClear();
+        processAndClear(streamEventChunk);
     }
 
     @Override
     public void receive(Event event) {
         streamEventChunk.convertAndAssign(event);
-        processAndClear();
+        processAndClear(streamEventChunk);
     }
 
     @Override
     public void receive(Event[] events) {
         streamEventChunk.convertAndAssign(events);
-        processAndClear();
+        processAndClear(streamEventChunk);
     }
 
 
@@ -76,27 +83,23 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
     public void receive(Event event, boolean endOfBatch) {
         streamEventChunk.convertAndAdd(event);
         if (endOfBatch) {
-            processAndClear();
+            processAndClear(streamEventChunk);
         }
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
         streamEventChunk.convertAndAssign(timeStamp, data);
-        processAndClear();
+        processAndClear(streamEventChunk);
     }
 
-    private void processAndClear() {
+    private void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
+        System.out.println("PSR:" + streamEventChunk);
+        if (stateProcessorsSize != 0) {
+            stateProcessors.get(0).updateState();
+        }
         next.process(streamEventChunk);
         streamEventChunk.clear();
-    }
-
-    public Processor getProcessorChain() {
-        return processorChain;
-    }
-
-    public void setProcessorChain(Processor processorChain) {
-        this.processorChain = processorChain;
     }
 
     public void setMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
@@ -117,5 +120,10 @@ public class QueryStreamReceiver implements StreamJunction.Receiver {
 
     public void init() {
         streamEventChunk = new ConversionStreamEventChunk(metaStreamEvent, streamEventPool);
+    }
+
+    public void addStatefulProcessor(PreStateProcessor stateProcessor) {
+        stateProcessors.add(stateProcessor);
+        stateProcessorsSize = stateProcessors.size();
     }
 }
