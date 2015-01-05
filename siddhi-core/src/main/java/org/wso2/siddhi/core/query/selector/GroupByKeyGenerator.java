@@ -20,7 +20,7 @@ package org.wso2.siddhi.core.query.selector;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
@@ -33,13 +33,13 @@ public class GroupByKeyGenerator {
     private VariableExpressionExecutor[] groupByExecutors = null;
 
     public GroupByKeyGenerator(List<Variable> groupByList,
-                               MetaStateEvent metaStateEvent,
+                               MetaComplexEvent metaComplexEvent,
                                List<VariableExpressionExecutor> executors, ExecutionPlanContext siddhiContext) {
         if (!groupByList.isEmpty()) {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                        siddhiContext, metaStateEvent.getMetaStreamEvent(0), executors, false);
+                        metaComplexEvent, -1, executors, siddhiContext, false);
             }
         }
     }

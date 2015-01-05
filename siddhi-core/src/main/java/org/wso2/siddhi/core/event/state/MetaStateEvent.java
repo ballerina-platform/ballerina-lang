@@ -19,7 +19,7 @@
 
 package org.wso2.siddhi.core.event.state;
 
-import org.wso2.siddhi.core.event.ComplexMetaEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -31,13 +31,13 @@ import java.util.List;
  * This consist of array of MetaStreamEvents which represent each
  * StreamEvent within StateEvent
  */
-public class MetaStateEvent implements ComplexMetaEvent {
+public class MetaStateEvent implements MetaComplexEvent {
 
     private MetaStreamEvent[] metaStreamEvents;
     private int streamEventCount = 0;
     private StreamDefinition outputStreamDefinition;
 
-    private List<MetaStateEventAttribute> metaStateEventAttributes = new ArrayList<MetaStateEventAttribute>();
+//    private List<MetaStateEventAttribute> preOutputDataAttributes = new ArrayList<MetaStateEventAttribute>();
     private List<MetaStateEventAttribute> outputDataAttributes;
 
     public MetaStateEvent(int size) {
@@ -58,25 +58,19 @@ public class MetaStateEvent implements ComplexMetaEvent {
         streamEventCount++;
     }
 
-    public void putData(MetaStateEventAttribute metaStateEventAttribute) {
-        if (!metaStateEventAttributes.contains(metaStateEventAttribute)) {
-            metaStateEventAttributes.add(metaStateEventAttribute);
-        }
-    }
-
-    public void putOutputData(MetaStateEventAttribute metaStateEventAttribute) {
+    public void addOutputData(MetaStateEventAttribute metaStateEventAttribute) {
         if (outputDataAttributes == null) {
             outputDataAttributes = new ArrayList<MetaStateEventAttribute>();
         }
         outputDataAttributes.add(metaStateEventAttribute);
     }
 
-    public List<MetaStateEventAttribute> getPreOutputDataAttributes() {
-        return metaStateEventAttributes;
-    }
-
     public List<MetaStateEventAttribute> getOutputDataAttributes() {
-        return outputDataAttributes;
+        if (outputDataAttributes != null) {
+            return outputDataAttributes;
+        } else {
+            return new ArrayList<MetaStateEventAttribute>();  //return empty arraylist to avoid NPE
+        }
     }
 
     public int getStreamEventCount() {

@@ -19,7 +19,8 @@
 
 package org.wso2.siddhi.core.query.input.stream.single;
 
-import org.wso2.siddhi.core.query.input.QueryStreamReceiver;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -32,12 +33,13 @@ import java.util.List;
 public class SingleStreamRuntime implements StreamRuntime {
 
     private Processor processorChain;
-    private QueryStreamReceiver queryStreamReceiver;
+    private MetaComplexEvent metaComplexEvent;
+    private ProcessStreamReceiver processStreamReceiver;
 
-    public SingleStreamRuntime(QueryStreamReceiver queryStreamReceiver, Processor processorChain) {
-        this.queryStreamReceiver = queryStreamReceiver;
+    public SingleStreamRuntime(ProcessStreamReceiver processStreamReceiver, Processor processorChain, MetaComplexEvent metaComplexEvent) {
+        this.processStreamReceiver = processStreamReceiver;
         this.processorChain = processorChain;
-        queryStreamReceiver.setProcessorChain(processorChain);
+        this.metaComplexEvent = metaComplexEvent;
     }
 
     public Processor getProcessorChain() {
@@ -48,8 +50,8 @@ public class SingleStreamRuntime implements StreamRuntime {
         this.processorChain = processorChain;
     }
 
-    public QueryStreamReceiver getQueryStreamReceiver() {
-        return queryStreamReceiver;
+    public ProcessStreamReceiver getProcessStreamReceiver() {
+        return processStreamReceiver;
     }
 
     @Override
@@ -62,7 +64,7 @@ public class SingleStreamRuntime implements StreamRuntime {
 
     @Override
     public StreamRuntime clone(String key) {
-        QueryStreamReceiver clonedQueryStreamReceiver = this.queryStreamReceiver.clone(key);
+        ProcessStreamReceiver clonedProcessStreamReceiver = this.processStreamReceiver.clone(key);
         SingleThreadEntryValveProcessor singleThreadEntryValveProcessor = null;
         TimeWindowProcessor windowProcessor;
         Processor clonedProcessorChain = null;
@@ -88,16 +90,20 @@ public class SingleStreamRuntime implements StreamRuntime {
                 processor = processor.getNextProcessor();
             }
         }
-        return new SingleStreamRuntime(clonedQueryStreamReceiver, clonedProcessorChain);
+        return new SingleStreamRuntime(clonedProcessStreamReceiver, clonedProcessorChain, metaComplexEvent);
     }
 
     @Override
     public void setCommonProcessor(Processor commonProcessor) {
         if (processorChain == null) {
-            queryStreamReceiver.setNext(commonProcessor);
+            processStreamReceiver.setNext(commonProcessor);
         } else {
-            queryStreamReceiver.setNext(processorChain);
+            processStreamReceiver.setNext(processorChain);
             processorChain.setToLast(commonProcessor);
         }
+    }
+
+    public MetaComplexEvent getMetaComplexEvent() {
+        return metaComplexEvent;
     }
 }

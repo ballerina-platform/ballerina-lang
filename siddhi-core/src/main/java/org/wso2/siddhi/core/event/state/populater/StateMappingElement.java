@@ -19,13 +19,13 @@ package org.wso2.siddhi.core.event.state.populater;
  */
 public class StateMappingElement {
     private int[] fromPosition;    //position in StateEvent StreamEvent/EventIndex/(Before,OnAfter,Output)/data[]
-    private int[] toPosition;      //position in StateEvent (PreOutput,Output)/data[]
+    private int toPosition;      //position in StateEvent /data[]
 
-    public int[] getToPosition() {
+    public int getToPosition() {
         return toPosition;
     }
 
-    public void setToPosition(int[] toPosition) {
+    public void setToPosition(int toPosition) {
         this.toPosition = toPosition;
     }
 

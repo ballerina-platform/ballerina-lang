@@ -57,7 +57,7 @@ public class JoinInputStreamParser {
 
         //todo fix
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(joinInputStream.getOnCompare(),
-                executionPlanContext, metaStateEvent, executors, false);
+                metaStateEvent, -1, executors, executionPlanContext, false);
         Finder leftFinder = new Finder(expressionExecutor, 1, 0);
         Finder rightFinder = new Finder(expressionExecutor, 0, 1);
 
@@ -74,7 +74,7 @@ public class JoinInputStreamParser {
             leftPostJoinProcessor.setFinder(leftFinder);
         }
 
-        JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext);
+        JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext,metaStateEvent);
         joinStreamRuntime.addRuntime(leftStreamRuntime);
         joinStreamRuntime.addRuntime(rightStreamRuntime);
         return joinStreamRuntime;

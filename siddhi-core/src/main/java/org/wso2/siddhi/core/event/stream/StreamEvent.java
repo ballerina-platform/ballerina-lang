@@ -18,9 +18,10 @@
 package org.wso2.siddhi.core.event.stream;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 
 import java.util.Arrays;
+
+import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
 /**
  * Standard processing event inside Siddhi. StreamEvent will be created
@@ -116,16 +117,16 @@ public class StreamEvent implements ComplexEvent {
      */
     @Override
     public Object getAttribute(int[] position) {
-        StreamEvent streamEvent = this;
-        switch (position[2]) {
-            case SiddhiConstants.BEFORE_WINDOW_DATA_INDEX:
-                return streamEvent.getBeforeWindowData()[position[3]];
-            case SiddhiConstants.OUTPUT_DATA_INDEX:
-                return streamEvent.getOutputData()[position[3]];
-            case SiddhiConstants.AFTER_WINDOW_DATA_INDEX:
-                return streamEvent.getOnAfterWindowData()[position[3]];
+        switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
+            case BEFORE_WINDOW_DATA_INDEX:
+                return beforeWindowData[position[STREAM_ATTRIBUTE_INDEX]];
+            case OUTPUT_DATA_INDEX:
+                return outputData[position[STREAM_ATTRIBUTE_INDEX]];
+            case ON_AFTER_WINDOW_DATA_INDEX:
+                return onAfterWindowData[position[STREAM_ATTRIBUTE_INDEX]];
             default:
-                return null;
+                throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " +
+                        position[STREAM_ATTRIBUTE_TYPE_INDEX]);
         }
 
     }

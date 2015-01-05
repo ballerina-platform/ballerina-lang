@@ -182,7 +182,7 @@ public class PartitionRuntime {
                             );
                             localStreamJunctionMap.put(streamId + key, streamJunction);
                         }
-                        streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getQueryStreamReceiver());
+                        streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getProcessStreamReceiver());
                     }
                 } else {
                     partitionedQueryRuntimeList.add(clonedQueryRuntime);

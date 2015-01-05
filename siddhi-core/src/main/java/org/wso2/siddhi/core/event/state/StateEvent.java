@@ -21,30 +21,36 @@ package org.wso2.siddhi.core.event.state;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.util.SiddhiConstants;
+
+import java.util.Arrays;
+
+import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
 /**
  * Implementation of StateEvent to be used when executing join/pattern queries
  */
 public class StateEvent implements ComplexEvent {
 
+    private long id;
     protected StreamEvent[] streamEvents;
     protected StateEvent next;
 
-    protected long timestamp=-1;
+    protected long timestamp = -1;
     protected Type type = Type.CURRENT;
-    protected Object[] preOutputData;   //Attributes that are not used in output
     protected Object[] outputData;      //Attributes to sent as output
 
 
-    public StateEvent(int streamEventsSize, int preOutputSize, int outputSize) {
+    public StateEvent(int streamEventsSize, int outputSize) {
         streamEvents = new StreamEvent[streamEventsSize];
-        preOutputData = new Object[preOutputSize];
         outputData = new Object[outputSize];
     }
 
     public StreamEvent getStreamEvent(int position) {
         return streamEvents[position];
+    }
+
+    public StreamEvent[] getStreamEvents() {
+        return streamEvents;
     }
 
     public void setNext(ComplexEvent stateEvent) {
@@ -60,10 +66,6 @@ public class StateEvent implements ComplexEvent {
         outputData[index] = object;
     }
 
-    public void setPreOutputData(Object object, int index) {
-        preOutputData[index] = object;
-    }
-
     /**
      * @param position int array of 3 or 4 elements
      *                 int array of 3 : position[0]-which element of the streamEvents array, position[1]-BeforeWindowData or OutputData or AfterWindowData,
@@ -74,41 +76,34 @@ public class StateEvent implements ComplexEvent {
      */
     @Override
     public Object getAttribute(int[] position) {
-        StreamEvent streamEvent = streamEvents[position[0]];
+        if (position[STREAM_ATTRIBUTE_TYPE_INDEX] == STATE_OUTPUT_DATA_INDEX) {
+            return outputData[position[STREAM_ATTRIBUTE_INDEX]];
+        } else {
+            StreamEvent streamEvent = streamEvents[position[STREAM_EVENT_CHAIN_INDEX]];
 
-        if (position.length == 3) { //todo remove check where this is used
-            switch (position[1]) {
-                case -1:
-                    return streamEvent.getBeforeWindowData()[position[2]];
-                case 0:
-                    return streamEvent.getOutputData()[position[2]];
-                case 1:
-                    return streamEvent.getOnAfterWindowData()[position[2]];
+            for (int i = 0; i < position[STREAM_EVENT_INDEX]; i++) {
+                streamEvent = streamEvent.getNext();
+            }
+
+            switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
+                case BEFORE_WINDOW_DATA_INDEX:
+                    return streamEvent.getBeforeWindowData()[position[STREAM_ATTRIBUTE_INDEX]];
+                case OUTPUT_DATA_INDEX:
+                    return streamEvent.getOutputData()[position[STREAM_ATTRIBUTE_INDEX]];
+                case ON_AFTER_WINDOW_DATA_INDEX:
+                    return streamEvent.getOnAfterWindowData()[position[STREAM_ATTRIBUTE_INDEX]];
                 default:
-                    return null;
+                    throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " + position[STREAM_ATTRIBUTE_TYPE_INDEX]);
             }
         }
-
-        for (int i = 0; i < position[1]; i++) {
-            streamEvent = streamEvent.getNext();
-        }
-        switch (position[2]) {
-            case SiddhiConstants.BEFORE_WINDOW_DATA_INDEX:
-                return streamEvent.getBeforeWindowData()[position[3]];
-            case SiddhiConstants.OUTPUT_DATA_INDEX:
-                return streamEvent.getOutputData()[position[3]];
-            case SiddhiConstants.AFTER_WINDOW_DATA_INDEX:
-                return streamEvent.getOnAfterWindowData()[position[3]];
-            default:
-                return null;
-        }
-
-
     }
 
     public Object[] getOutputData() {
         return outputData;
     }
+//    public Object[] getPreOutputData() {
+//        return preOutputData;
+//    }
 
     public long getTimestamp() {
         return timestamp;
@@ -130,4 +125,24 @@ public class StateEvent implements ComplexEvent {
     public void setEvent(int position, StreamEvent streamEvent) {
         streamEvents[position] = streamEvent;
     }
+
+    @Override
+    public String toString() {
+        return "StateEvent{" +
+                "streamEvents=" + Arrays.toString(streamEvents) +
+                ", timestamp=" + timestamp +
+                ", type=" + type +
+                ", outputData=" + Arrays.toString(outputData) +
+                ", next=" + next +
+                '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
 }

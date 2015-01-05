@@ -14,8 +14,8 @@
  */
 package org.wso2.siddhi.core.query.processor.stream_function;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -25,20 +25,20 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 public abstract class StreamFunctionProcessor extends StreamProcessor {
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
+    protected void process(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent complexEvent = complexEventChunk.next();
 
             Object[] inputData = new Object[inputExecutors.length];
             for (int i = 0, inputExecutorsLength = inputExecutors.length; i < inputExecutorsLength; i++) {
                 ExpressionExecutor executor = inputExecutors[i];
-                inputData[i] = executor.execute(streamEvent);
+                inputData[i] = executor.execute(complexEvent);
             }
             Object[] outputData = process(inputData);
-            streamEventPopulater.populateStreamEvent(streamEvent, outputData);
+            streamEventPopulater.populateStreamEvent(complexEvent, outputData);
 
         }
-        nextProcessor.process(streamEventChunk);
+        nextProcessor.process(complexEventChunk);
 
     }
 

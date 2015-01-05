@@ -21,11 +21,13 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -42,16 +44,23 @@ public class PartitionParser {
                                          ExecutionPlanContext executionPlanContext,
                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
         PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntime, partition, executionPlanContext);
-        List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         for (Query query : partition.getQueryList()) {
+            List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
             QueryRuntime queryRuntime;
             queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap);
-            MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaStateEvent());
+
+            MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);
+            if(queryRuntime.getMetaComplexEvent() instanceof MetaStateEvent) {
+                QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
+            } else {
+                QueryParserHelper.updateVariablePosition(metaStateEvent.getMetaStreamEvent(0), executors);
+            }
+
         }
         return partitionRuntime;
 
@@ -63,10 +72,23 @@ public class PartitionParser {
      * @param stateEvent metaStateEvent of the queryRuntime
      * @return metaStateEvent
      */
-    private static MetaStateEvent createMetaEventForPartitioner(MetaStateEvent stateEvent) {
-        MetaStateEvent metaStateEvent = new MetaStateEvent(stateEvent.getStreamEventCount());
-        for(MetaStreamEvent metaStreamEvent:stateEvent.getMetaStreamEvents()){
-            AbstractDefinition definition = metaStreamEvent.getInputDefinition();
+    private static MetaStateEvent createMetaEventForPartitioner(MetaComplexEvent stateEvent) {
+        MetaStateEvent metaStateEvent;
+        if(stateEvent instanceof MetaStateEvent) {
+            metaStateEvent = new MetaStateEvent(((MetaStateEvent)stateEvent).getStreamEventCount());
+            for(MetaStreamEvent metaStreamEvent:((MetaStateEvent)stateEvent).getMetaStreamEvents()) {
+                AbstractDefinition definition = metaStreamEvent.getInputDefinition();
+                MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
+                for (Attribute attribute : definition.getAttributeList()) {
+                    newMetaStreamEvent.addOutputData(attribute);
+                }
+                newMetaStreamEvent.setInputDefinition(definition);
+                newMetaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
+                metaStateEvent.addEvent(newMetaStreamEvent);
+            }
+        } else {
+            metaStateEvent = new MetaStateEvent(1);
+            AbstractDefinition definition = ((MetaStreamEvent)stateEvent).getInputDefinition();
             MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : definition.getAttributeList()) {
                 newMetaStreamEvent.addOutputData(attribute);
@@ -75,6 +97,7 @@ public class PartitionParser {
             newMetaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
             metaStateEvent.addEvent(newMetaStreamEvent);
         }
+
         return metaStateEvent;
     }
 }

@@ -17,9 +17,10 @@
 */
 package org.wso2.siddhi.core.event.stream;
 
-import org.wso2.siddhi.core.event.ComplexMetaEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +30,14 @@ import java.util.List;
  * Class to hold meta info about StreamEvent.
  * This is also used to update variable positions on executors
  */
-public class MetaStreamEvent implements ComplexMetaEvent {
+public class MetaStreamEvent implements MetaComplexEvent {
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
     private List<Attribute> onAfterWindowData = null;
     private List<Attribute> outputData = null;
     private AbstractDefinition inputDefinition;
     private int initialAttributeSize;
     private String inputReferenceId;
+    private StreamDefinition outputStreamDefinition;
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;
@@ -112,4 +114,15 @@ public class MetaStreamEvent implements ComplexMetaEvent {
     public int getInitialAttributeSize() {
         return initialAttributeSize;
     }
+
+    @Override
+    public void setOutputDefinition(StreamDefinition streamDefinition) {
+        outputStreamDefinition = streamDefinition;
+    }
+
+    @Override
+    public StreamDefinition getOutputStreamDefinition() {
+        return outputStreamDefinition;
+    }
+
 }

@@ -18,14 +18,14 @@
 
 package org.wso2.siddhi.core.event.stream.populater;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
 
 /**
  * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields
  */
 public interface StreamEventPopulater {
 
-    public void populateStreamEvent(StreamEvent streamEvent, Object data, int outputAttributeIndex);
+    public void populateStreamEvent(ComplexEvent complexEvent, Object data, int[] toPosition);
 
-    public void populateStreamEvent(StreamEvent streamEvent, Object[] data);
+    public void populateStreamEvent(ComplexEvent complexEvent, Object[] data);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org)
  * All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,

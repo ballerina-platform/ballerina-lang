@@ -22,17 +22,15 @@ import com.lmax.disruptor.EventFactory;
 public class StateEventFactory implements EventFactory<StateEvent> {
 
     private int eventSize;
-    private int preOutputDataSize;
     private int outputDataSize;
 
-    public StateEventFactory(int eventSize, int preOutputDataSize, int outputDataSize) {
+    public StateEventFactory(int eventSize, int outputDataSize) {
         this.eventSize = eventSize;
-        this.preOutputDataSize = preOutputDataSize;
         this.outputDataSize = outputDataSize;
     }
 
     public StateEvent newInstance() {
-        return new StateEvent(eventSize, preOutputDataSize, outputDataSize);
+        return new StateEvent(eventSize, outputDataSize);
     }
 
 }

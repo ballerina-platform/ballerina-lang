@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.query.processor.stream;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
@@ -59,16 +58,16 @@ public abstract class StreamProcessor implements Processor {
 
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors);
 
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        streamEventChunk.reset();
+    public void process(ComplexEventChunk complexEventChunk) {
+        complexEventChunk.reset();
         try {
-            process(streamEventChunk, nextProcessor, streamEventCloner, streamEventPopulater);
+            process(complexEventChunk, nextProcessor, streamEventCloner, streamEventPopulater);
         } catch (Throwable t) {    //todo improve
             log.error(t.getMessage(), t);
         }
     }
 
-    protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+    protected abstract void process(ComplexEventChunk complexEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater);
 
     public void setNextProcessor(Processor processor) {
@@ -89,10 +88,10 @@ public abstract class StreamProcessor implements Processor {
 
     protected abstract StreamProcessor cloneStreamProcessor();
 
-    public void constructStreamEventPopulater(MetaStreamEvent metaStreamEvent) {
+    public void constructStreamEventPopulater(MetaStreamEvent metaStreamEvent, int streamEventChainIndex) {
         if (this.streamEventPopulater == null) {
             this.streamEventPopulater = StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,
-                    additionalAttributes);
+                    streamEventChainIndex, additionalAttributes);
         }
     }
 

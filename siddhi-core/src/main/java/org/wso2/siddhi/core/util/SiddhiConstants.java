@@ -21,10 +21,14 @@ package org.wso2.siddhi.core.util;
 public final class SiddhiConstants {
 
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
-    public static final int AFTER_WINDOW_DATA_INDEX = 1;
+    public static final int ON_AFTER_WINDOW_DATA_INDEX = 1;
     public static final int OUTPUT_DATA_INDEX = 2;
+    public static final int STATE_OUTPUT_DATA_INDEX = 3;
 
-
+    public static final int STREAM_EVENT_CHAIN_INDEX = 0;
+    public static final int STREAM_EVENT_INDEX = 1;
+    public static final int STREAM_ATTRIBUTE_TYPE_INDEX = 2;
+    public static final int STREAM_ATTRIBUTE_INDEX = 3;
 
     public static final String ANNOTATION_ELEMENT_CALLBACK_ASYNC = "callback.async";
 
@@ -41,4 +45,6 @@ public final class SiddhiConstants {
 
     public static final int DEFAULT_EVENT_BUFFER_SIZE = 1024;
 
+    public static final int HAVING_STATE = -2;
+    public static final int UNKNOWN_STATE = -1;
 }

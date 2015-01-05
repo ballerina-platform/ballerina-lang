@@ -24,10 +24,10 @@ public class StateEventPool {
     private int size;
     private int index = 0;
     private StateEvent stateEventList;
+    private long id = 0;
 
     public StateEventPool(MetaStateEvent metaStateEvent, int size) {
         eventFactory = new StateEventFactory(metaStateEvent.getStreamEventCount(),
-                metaStateEvent.getPreOutputDataAttributes().size(),
                 metaStateEvent.getOutputDataAttributes().size());
         this.size = size;
     }
@@ -48,9 +48,12 @@ public class StateEventPool {
             stateEventList = stateEventList.getNext();
             event.setNext(null);
             index--;
+            event.setId(++id);
             return event;
         } else {
-            return eventFactory.newInstance();
+            StateEvent event = eventFactory.newInstance();
+            event.setId(++id);
+            return event;
         }
     }
 

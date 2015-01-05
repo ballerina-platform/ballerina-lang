@@ -103,6 +103,7 @@ public class SingleStreamEntryValve implements InputProcessor {
          */
         @Override
         public void onEvent(IndexedEventFactory.IndexedEvent indexedEvent, long sequence, boolean endOfBatch) throws Exception {
+            System.out.println("SSEV:" + indexedEvent);
             int streamIndex = indexedEvent.getStreamIndex();
             if (currentIndex != streamIndex) {
                 sendEvents();
@@ -117,20 +118,24 @@ public class SingleStreamEntryValve implements InputProcessor {
         }
 
         private void sendEvents() {
-            int size = eventBuffer.size();
-            switch (size) {
-                case 0: {
-                    return;
+            try {
+                int size = eventBuffer.size();
+                switch (size) {
+                    case 0: {
+                        return;
+                    }
+                    case 1: {
+                        inputProcessor.send(eventBuffer.get(0), currentIndex);
+                        eventBuffer.clear();
+                        return;
+                    }
+                    default: {
+                        inputProcessor.send(eventBuffer.toArray(new Event[size]), currentIndex);
+                        eventBuffer.clear();
+                    }
                 }
-                case 1: {
-                    inputProcessor.send(eventBuffer.get(0), currentIndex);
-                    eventBuffer.clear();
-                    return;
-                }
-                default: {
-                    inputProcessor.send(eventBuffer.toArray(new Event[size]), currentIndex);
-                    eventBuffer.clear();
-                }
+            }catch (Throwable t){
+                t.printStackTrace();    //todo fix
             }
         }
 
@@ -162,6 +167,14 @@ public class SingleStreamEntryValve implements InputProcessor {
 
             public void setStreamIndex(int streamIndex) {
                 this.streamIndex = streamIndex;
+            }
+
+            @Override
+            public String toString() {
+                return "IndexedEvent{" +
+                        "streamIndex=" + streamIndex +
+                        ", event=" + event +
+                        '}';
             }
         }
     }

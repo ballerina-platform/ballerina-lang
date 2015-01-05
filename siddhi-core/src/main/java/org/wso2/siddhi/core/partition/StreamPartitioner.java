@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexMetaEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.RangePartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.ValuePartitionExecutor;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
@@ -53,7 +54,7 @@ public class StreamPartitioner {
         }
     }
 
-    private void createExecutors(InputStream inputStream, Partition partition, ComplexMetaEvent metaEvent,
+    private void createExecutors(InputStream inputStream, Partition partition, MetaComplexEvent metaEvent,
                                  List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
         if(inputStream instanceof SingleInputStream){
             if(metaEvent instanceof MetaStateEvent) {
@@ -68,7 +69,15 @@ public class StreamPartitioner {
 
     private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         createExecutors(inputStream.getLeftInputStream(), partition, metaEvent.getMetaStreamEvent(0), executors, executionPlanContext);
+        int size = executors.size();
+        for(VariableExpressionExecutor variableExpressionExecutor:executors){
+            variableExpressionExecutor.getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX]=0;
+        }
         createExecutors(inputStream.getRightInputStream(),partition, metaEvent.getMetaStreamEvent(1), executors, executionPlanContext);
+        for(int i=size;i<executors.size();i++){
+            executors.get(i).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX]=1;
+        }
+
     }
 
     private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
@@ -78,13 +87,14 @@ public class StreamPartitioner {
             if (partitionType instanceof ValuePartitionType) {
                 if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                     executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                            executionPlanContext, metaEvent, executors, false)));
+                            metaEvent, -1,executors, executionPlanContext,false)));
                 }
             } else {
                 for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
-                                ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), executionPlanContext, metaEvent, executors, false), rangePartitionProperty.getPartitionKey()));
+                                ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent, -1,executors, executionPlanContext,false), rangePartitionProperty.getPartitionKey()));
+
                     }
                 }
             }

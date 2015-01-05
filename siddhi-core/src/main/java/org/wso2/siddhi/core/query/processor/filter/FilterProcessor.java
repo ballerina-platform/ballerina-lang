@@ -18,8 +18,8 @@
  */
 package org.wso2.siddhi.core.query.processor.filter;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -45,16 +45,16 @@ public class FilterProcessor implements Processor {
     }
 
     @Override
-    public void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        streamEventChunk.reset();
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
-            if (!(Boolean) conditionExecutor.execute(streamEvent)) {
-                streamEventChunk.remove();
+    public void process(ComplexEventChunk complexEventChunk) {
+        complexEventChunk.reset();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent complexEvent = complexEventChunk.next();
+            if (!(Boolean) conditionExecutor.execute(complexEvent)) {
+                complexEventChunk.remove();
             }
         }
-        if (streamEventChunk.getFirst() != null) {
-            this.next.process(streamEventChunk);
+        if (complexEventChunk.getFirst() != null) {
+            this.next.process(complexEventChunk);
         }
     }
 

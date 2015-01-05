@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
  * Created on 12/8/14.
  */
 public class Finder {
-    private StateEvent event = new StateEvent(2, 0, 0);
+    private StateEvent event = new StateEvent(2, 0);
     private ExpressionExecutor expressionExecutor;
     private int candidateEventPosition;
     private int currentEventPosition;
