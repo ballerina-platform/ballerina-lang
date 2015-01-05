@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SingleInputStream extends InputStream {
 
-    protected boolean isInnerStream =false;
+    protected boolean isInnerStream = false;
     protected String streamId;
     protected AbstractDefinition definition;
     protected String streamReferenceId;

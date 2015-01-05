@@ -202,7 +202,9 @@ public class StreamJunction {
 
     public synchronized void subscribe(Receiver receiver) {
         //to have reverse order at the sequence/pattern processors
-        receivers.add(0, receiver);
+        if (!receivers.contains(receiver)) {
+            receivers.add(0, receiver);
+        }
     }
 
     public String getStreamId() {
