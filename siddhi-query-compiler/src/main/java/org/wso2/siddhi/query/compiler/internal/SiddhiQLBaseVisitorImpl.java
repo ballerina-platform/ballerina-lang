@@ -669,7 +669,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public CountStateElement visitPattern_collection_stateful_source(@NotNull SiddhiQLParser.Pattern_collection_stateful_sourceContext ctx) {
 
-        BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(ctx.standard_stateful_source());
+        StreamStateElement streamStateElement = (StreamStateElement) visit(ctx.standard_stateful_source());
 
         if (ctx.collect() != null) {
             Object[] minMax = (Object[]) visit(ctx.collect());
@@ -681,7 +681,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             if (minMax[1] != null) {
                 max = (Integer) minMax[1];
             }
-            return new CountStateElement(new StreamStateElement(basicSingleInputStream), min, max);
+            return new CountStateElement(streamStateElement, min, max);
         } else {
             throw newSiddhiParserException(ctx);
         }

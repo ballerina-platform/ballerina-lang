@@ -66,8 +66,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         ComplexEvent aComplexEvent = complexEvent;
         while (aComplexEvent != null) {
             updateStates();
-            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-//            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
+//            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
+            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[i];
                 StreamEventPool aStreamEventPool = streamEventPools[i];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
@@ -81,8 +81,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     @Override
     public void receive(Event event) {
         updateStates();
-        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-//        for (int i = metaStreamEvents.length - 1; i > -1; i--) {
+//        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
+        for (int i = metaStreamEvents.length - 1; i > -1; i--) {
             StreamEventConverter aStreamEventConverter = streamEventConverters[i];
             StreamEventPool aStreamEventPool = streamEventPools[i];
             StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
@@ -95,8 +95,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     public void receive(Event[] events) {
         for (Event event : events) {
             updateStates();
-            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-//            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
+//            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
+            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[i];
                 StreamEventPool aStreamEventPool = streamEventPools[i];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
@@ -112,8 +112,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         if (endOfBatch) {
             for (Event aEvent : eventBuffer) {
                 updateStates();
-                for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-//                for (int i = metaStreamEvents.length - 1; i > -1; i--) {
+//                for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
+                for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                     StreamEventConverter aStreamEventConverter = streamEventConverters[i];
                     StreamEventPool aStreamEventPool = streamEventPools[i];
                     StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
@@ -128,8 +128,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     @Override
     public void receive(long timeStamp, Object[] data) {
         updateStates();
-        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-//        for (int i = metaStreamEvents.length - 1; i > -1; i--) {
+//        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
+        for (int i = metaStreamEvents.length - 1; i > -1; i--) {
             StreamEventConverter aStreamEventConverter = streamEventConverters[i];
             StreamEventPool aStreamEventPool = streamEventPools[i];
             StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();

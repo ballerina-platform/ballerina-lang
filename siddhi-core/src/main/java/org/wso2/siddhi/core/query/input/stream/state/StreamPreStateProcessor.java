@@ -66,6 +66,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
+            stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
             process(stateEvent, streamEvent, iterator);
             if (stateChanged) {
                 iterator.remove();
@@ -76,7 +77,6 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     }
 
     protected void process(StateEvent stateEvent, StreamEvent streamEvent, Iterator<StateEvent> iterator) {
-        stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
         currentStateEventChunk.add(stateEvent);
         currentStateEventChunk.reset();
         stateChanged = false;

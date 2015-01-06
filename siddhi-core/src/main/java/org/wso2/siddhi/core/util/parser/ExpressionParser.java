@@ -906,7 +906,11 @@ public class ExpressionParser {
             executorList) {
         String attributeName = variable.getAttributeName();
         int[] eventPosition = new int[2];
-
+        if (variable.getStreamIndex() != null) {
+            eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
+        } else {
+            eventPosition[STREAM_EVENT_INDEX] = LAST;
+        }
         if (metaEvent instanceof MetaStreamEvent) {
             MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
             AbstractDefinition abstractDefinition;

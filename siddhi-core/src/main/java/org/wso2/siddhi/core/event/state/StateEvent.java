@@ -80,9 +80,25 @@ public class StateEvent implements ComplexEvent {
             return outputData[position[STREAM_ATTRIBUTE_INDEX]];
         } else {
             StreamEvent streamEvent = streamEvents[position[STREAM_EVENT_CHAIN_INDEX]];
+            if (streamEvent == null) {
+                return null;
+            }
+            int streamEventIndex = position[STREAM_EVENT_INDEX];
 
-            for (int i = 0; i < position[STREAM_EVENT_INDEX]; i++) {
-                streamEvent = streamEvent.getNext();
+            switch (streamEventIndex) {
+                case LAST:
+                    while (streamEvent.getNext() != null) {
+                        streamEvent = streamEvent.getNext();
+                    }
+                    break;
+                default:
+                    for (int i = 1; i <= position[STREAM_EVENT_INDEX]; i++) {
+                        streamEvent = streamEvent.getNext();
+                        if (streamEvent == null) {
+                            return null;
+                        }
+                    }
+                    break;
             }
 
             switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
@@ -126,6 +142,32 @@ public class StateEvent implements ComplexEvent {
         streamEvents[position] = streamEvent;
     }
 
+    public void addEvent(int position, StreamEvent streamEvent) {
+        StreamEvent aStreamEvent = streamEvents[position];
+        if (aStreamEvent == null) {
+            setEvent(position, streamEvent);
+        } else {
+            while (aStreamEvent.getNext() != null) {
+                aStreamEvent = aStreamEvent.getNext();
+            }
+            aStreamEvent.setNext(streamEvent);
+        }
+    }
+
+    public void removeLastEvent(int position) {
+        StreamEvent aStreamEvent = streamEvents[position];
+        if (aStreamEvent != null) {
+            while (aStreamEvent.getNext() != null) {
+                if (aStreamEvent.getNext().getNext() == null) {
+                    aStreamEvent.setNext(null);
+                    return;
+                }
+                aStreamEvent = aStreamEvent.getNext();
+            }
+            streamEvents[position] = null;
+        }
+    }
+
     @Override
     public String toString() {
         return "StateEvent{" +
@@ -144,5 +186,6 @@ public class StateEvent implements ComplexEvent {
     public void setId(long id) {
         this.id = id;
     }
+
 
 }

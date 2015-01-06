@@ -35,36 +35,6 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
         this.maxCount = maxCount;
     }
 
-//
-//    /**
-//     * Process the handed StreamEvent
-//     *
-//     * @param complexEventChunk event chunk to be processed
-//     */
-//    @Override
-//    public void process(ComplexEventChunk complexEventChunk) {
-//        complexEventChunk.reset();
-//        if (complexEventChunk.hasNext()) {     //one one event will be coming
-//            StateEvent stateEvent = (StateEvent) complexEventChunk.next();
-//
-////            switch (type) {
-////                case AND:
-////                    if (stateEvent.getStreamEvent(partnerPreStateProcessor.getStateId()) != null) {
-////                        super.process(complexEventChunk);
-////                    } else {
-////                        thisStatePreProcessor.stateChanged();
-////                    }
-////                    break;
-////                case OR:
-////                    super.process(complexEventChunk);
-////                    break;
-////                case NOT:
-////                    break;
-////            }
-//        }
-//        complexEventChunk.clear();
-//    }
-
     protected void process(StateEvent stateEvent, ComplexEventChunk complexEventChunk) {
         StreamEvent streamEvent = stateEvent.getStreamEvent(stateId);
         int streamEvents = 1;

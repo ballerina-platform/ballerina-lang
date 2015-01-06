@@ -31,6 +31,7 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
     private final int minCount;
     private final int maxCount;
     protected volatile boolean successCondition = false;
+    private CountPostStateProcessor countPostStateProcessor;
 
     public CountPreStateProcessor(int minCount, int maxCount) {
 
@@ -52,18 +53,20 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
-            if (removeIfNextStateProcessed(stateEvent, iterator, minCount + 1)) {
+            if (removeIfNextStateProcessed(stateEvent, iterator, stateId + 1)) {
                 continue;
             }
-            if (removeIfNextStateProcessed(stateEvent, iterator, minCount + 2)) {
+            if (removeIfNextStateProcessed(stateEvent, iterator, stateId + 2)) {
                 continue;
             }
+            stateEvent.addEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
+            successCondition = false;
             process(stateEvent, streamEvent, iterator);
             if (stateChanged) {
                 iterator.remove();
             }
             if (!successCondition) {
-                stateEvent.setEvent(stateId, null);
+                stateEvent.removeLastEvent(stateId);
             }
         }
     }
@@ -78,5 +81,29 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
 
     public void successCondition() {
         this.successCondition = true;
+    }
+
+    public void init() {
+        if (isStartState) {
+            StateEvent stateEvent = stateEventPool.borrowEvent();
+            addState(stateEvent);
+        }
+    }
+
+    @Override
+    public void addState(StateEvent stateEvent) {
+        System.out.println("PSP: add " + stateId + " " + stateEvent);
+        newAndEveryStateEventList.add(stateEvent);
+        if (minCount == 0 && stateEvent.getStreamEvent(stateId) == null) {
+            countPostStateProcessor.getNextStatePerProcessor().addState(stateEvent);
+        }
+    }
+
+    public void setCountPostStateProcessor(CountPostStateProcessor countPostStateProcessor) {
+        this.countPostStateProcessor = countPostStateProcessor;
+    }
+
+    public CountPostStateProcessor getCountPostStateProcessor() {
+        return countPostStateProcessor;
     }
 }

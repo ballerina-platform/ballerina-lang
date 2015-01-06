@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.event.state.populater;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.List;
 
@@ -58,26 +57,27 @@ public class SelectiveStateEventPopulator implements StateEventPopulator {
     }
 
     private Object getFromData(StateEvent stateEvent, int[] fromPosition) {
-        StreamEvent streamEvent = stateEvent.getStreamEvent(fromPosition[0]);
-        if (streamEvent == null) {
-            return null;
-        }
-        if (fromPosition[1] > 0) {
-            for (int i = 0, size = fromPosition[1]; i < size; i++) {
-                streamEvent = streamEvent.getNext();
-            }
-        }
-        switch (fromPosition[2]) {
-            case 0:
-                return streamEvent.getBeforeWindowData()[fromPosition[3]];
-            case 1:
-                return streamEvent.getOnAfterWindowData()[fromPosition[3]];
-            case 2:
-                return streamEvent.getOutputData()[fromPosition[3]];
-            default:
-                //will not happen
-                throw new IllegalStateException("3rd element in from position cannot be :" + fromPosition[2]);
-        }
+        return stateEvent.getAttribute(fromPosition);
+//        StreamEvent streamEvent = stateEvent.getStreamEvent(fromPosition[0]);
+//        if (streamEvent == null) {
+//            return null;
+//        }
+//        if (fromPosition[1] > 0) {
+//            for (int i = 0, size = fromPosition[1]; i < size; i++) {
+//                streamEvent = streamEvent.getNext();
+//            }
+//        }
+//        switch (fromPosition[2]) {
+//            case 0:
+//                return streamEvent.getBeforeWindowData()[fromPosition[3]];
+//            case 1:
+//                return streamEvent.getOnAfterWindowData()[fromPosition[3]];
+//            case 2:
+//                return streamEvent.getOutputData()[fromPosition[3]];
+//            default:
+//                //will not happen
+//                throw new IllegalStateException("3rd element in from position cannot be :" + fromPosition[2]);
+//        }
     }
 
 }

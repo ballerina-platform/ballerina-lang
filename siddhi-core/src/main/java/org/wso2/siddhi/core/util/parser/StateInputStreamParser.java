@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.*;
 import org.wso2.siddhi.core.query.input.stream.state.runtime.*;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.state.*;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
@@ -166,15 +167,16 @@ public class StateInputStreamParser {
             logicalPreStateProcessor1.setPartnerStatePreProcessor(logicalPreStateProcessor2);
             logicalPreStateProcessor2.setPartnerStatePreProcessor(logicalPreStateProcessor1);
 
+            StateElement stateElement2 = ((LogicalStateElement) stateElement).getStreamStateElement2();
+            InnerStateRuntime innerStateRuntime2 = parse(stateElement2, definitionMap, metaStateEvent,
+                    executionPlanContext, executors, processStreamReceiverMap,
+                    logicalPreStateProcessor2, logicalPostStateProcessor2);
+
             StateElement stateElement1 = ((LogicalStateElement) stateElement).getStreamStateElement1();
             InnerStateRuntime innerStateRuntime1 = parse(stateElement1, definitionMap, metaStateEvent,
                     executionPlanContext, executors, processStreamReceiverMap,
                     logicalPreStateProcessor1, logicalPostStateProcessor1);
 
-            StateElement stateElement2 = ((LogicalStateElement) stateElement).getStreamStateElement2();
-            InnerStateRuntime innerStateRuntime2 = parse(stateElement2, definitionMap, metaStateEvent,
-                    executionPlanContext, executors, processStreamReceiverMap,
-                    logicalPreStateProcessor2, logicalPostStateProcessor2);
 
             LogicalInnerStateRuntime logicalInnerStateRuntime = new LogicalInnerStateRuntime(
                     innerStateRuntime1, innerStateRuntime2);
@@ -182,24 +184,31 @@ public class StateInputStreamParser {
             logicalInnerStateRuntime.setFirstProcessor(innerStateRuntime1.getFirstProcessor());
             logicalInnerStateRuntime.setLastProcessor(innerStateRuntime2.getLastProcessor());
 
-            for (SingleStreamRuntime singleStreamRuntime : innerStateRuntime1.getSingleStreamRuntimeList()) {
-                logicalInnerStateRuntime.addStreamRuntime(singleStreamRuntime);
-            }
             for (SingleStreamRuntime singleStreamRuntime : innerStateRuntime2.getSingleStreamRuntimeList()) {
                 logicalInnerStateRuntime.addStreamRuntime(singleStreamRuntime);
             }
 
+            for (SingleStreamRuntime singleStreamRuntime : innerStateRuntime1.getSingleStreamRuntimeList()) {
+                logicalInnerStateRuntime.addStreamRuntime(singleStreamRuntime);
+            }
 
             return logicalInnerStateRuntime;
 
         } else if (stateElement instanceof CountStateElement) {
 
-            CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(((CountStateElement)
-                    stateElement).getMinCount(), ((CountStateElement) stateElement).getMaxCount());
+            int minCount = ((CountStateElement) stateElement).getMinCount();
+            int maxCount = ((CountStateElement) stateElement).getMaxCount();
+            if (minCount == SiddhiConstants.ANY) {
+                minCount = 0;
+            }
+            if (maxCount == SiddhiConstants.ANY) {
+                maxCount = Integer.MAX_VALUE;
+            }
 
-            CountPostStateProcessor countPostStateProcessor = new CountPostStateProcessor(((CountStateElement)
-                    stateElement).getMinCount(), ((CountStateElement) stateElement).getMaxCount());
+            CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount);
+            CountPostStateProcessor countPostStateProcessor = new CountPostStateProcessor(minCount, maxCount);
 
+            countPreStateProcessor.setCountPostStateProcessor(countPostStateProcessor);
             StateElement currentElement = ((CountStateElement) stateElement).getStreamStateElement();
             InnerStateRuntime innerStateRuntime = parse(currentElement, definitionMap, metaStateEvent,
                     executionPlanContext, executors, processStreamReceiverMap, countPreStateProcessor, countPostStateProcessor);

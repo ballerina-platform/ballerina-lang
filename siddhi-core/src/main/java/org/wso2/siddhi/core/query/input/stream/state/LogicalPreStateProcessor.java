@@ -106,6 +106,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
                 iterator.remove();
                 continue;
             }
+            stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
             process(stateEvent, streamEvent, iterator);
             if (stateChanged) {
                 iterator.remove();
