@@ -60,7 +60,6 @@ public class StreamPreStateProcessor implements PreStateProcessor {
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        System.out.println(stateId + " " + complexEventChunk);
 
         complexEventChunk.reset();
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
@@ -137,13 +136,11 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     @Override
     public void addState(StateEvent stateEvent) {
-        System.out.println("PSP: add " + stateId + " " + stateEvent);
         newAndEveryStateEventList.add(stateEvent);
     }
 
     @Override
     public void addEveryState(StateEvent stateEvent) {
-        System.out.println("PSP: addEvery " + stateId + " " + stateEvent);
         newAndEveryStateEventList.add(stateEventCloner.copyStateEvent(stateEvent));
     }
 
@@ -173,7 +170,6 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     @Override
     public void updateState() {
-        System.out.println("PSP: update " + stateId + " " + newAndEveryStateEventList);
         pendingStateEventList.addAll(newAndEveryStateEventList);
         newAndEveryStateEventList.clear();
     }

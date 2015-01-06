@@ -53,7 +53,6 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        System.out.println("))" + complexEventChunk);
         if (trigger) {
             returnEventChunk.clear();
             complexEventChunk.reset();
@@ -85,7 +84,6 @@ public class JoinProcessor implements Processor {
                     foundStreamEvent = foundStreamEvent.getNext();
                 }
             }
-            System.out.println("RRR" + returnEventChunk);
             if (returnEventChunk.getFirst() != null) {
                 selector.process(returnEventChunk);
             }

@@ -30,7 +30,6 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        System.out.println("PSR:" + streamEventChunk);
 
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();

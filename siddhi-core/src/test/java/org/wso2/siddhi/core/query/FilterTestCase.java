@@ -76,7 +76,7 @@ public class FilterTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
-        System.out.println("Running : "+executionPlanRuntime.getName());
+        log.info("Running : "+executionPlanRuntime.getName());
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

@@ -94,7 +94,6 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        System.out.println("PSR:" + streamEventChunk);
         if (stateProcessorsSize != 0) {
             stateProcessors.get(0).updateState();
         }
