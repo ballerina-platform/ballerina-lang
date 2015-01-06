@@ -67,6 +67,11 @@ public class StreamPreStateProcessor implements PreStateProcessor {
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
             process(stateEvent, streamEvent, iterator);
+            if (stateChanged) {
+                iterator.remove();
+            } else {
+                stateEvent.setEvent(stateId, null);
+            }
         }
     }
 
@@ -76,12 +81,6 @@ public class StreamPreStateProcessor implements PreStateProcessor {
         currentStateEventChunk.reset();
         stateChanged = false;
         nextProcessor.process(currentStateEventChunk);
-
-        if (stateChanged) {
-            iterator.remove();
-        } else {
-            stateEvent.setEvent(stateId, null);
-        }
         currentStateEventChunk.reset();
     }
 

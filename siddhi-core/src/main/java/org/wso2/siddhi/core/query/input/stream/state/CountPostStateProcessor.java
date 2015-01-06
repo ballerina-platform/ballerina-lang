@@ -18,6 +18,10 @@
 
 package org.wso2.siddhi.core.query.input.stream.state;
 
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+
 /**
  * Created on 1/6/15.
  */
@@ -29,5 +33,65 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
 
         this.minCount = minCount;
         this.maxCount = maxCount;
+    }
+
+//
+//    /**
+//     * Process the handed StreamEvent
+//     *
+//     * @param complexEventChunk event chunk to be processed
+//     */
+//    @Override
+//    public void process(ComplexEventChunk complexEventChunk) {
+//        complexEventChunk.reset();
+//        if (complexEventChunk.hasNext()) {     //one one event will be coming
+//            StateEvent stateEvent = (StateEvent) complexEventChunk.next();
+//
+////            switch (type) {
+////                case AND:
+////                    if (stateEvent.getStreamEvent(partnerPreStateProcessor.getStateId()) != null) {
+////                        super.process(complexEventChunk);
+////                    } else {
+////                        thisStatePreProcessor.stateChanged();
+////                    }
+////                    break;
+////                case OR:
+////                    super.process(complexEventChunk);
+////                    break;
+////                case NOT:
+////                    break;
+////            }
+//        }
+//        complexEventChunk.clear();
+//    }
+
+    protected void process(StateEvent stateEvent, ComplexEventChunk complexEventChunk) {
+        StreamEvent streamEvent = stateEvent.getStreamEvent(stateId);
+        int streamEvents = 1;
+        while (streamEvent.getNext() != null) {
+            streamEvents++;
+            streamEvent = streamEvent.getNext();
+        }
+        ((CountPreStateProcessor)thisStatePreProcessor).successCondition();
+        if (streamEvents >= minCount) {
+            if (streamEvents == minCount) {
+
+                if (nextProcessor != null) {
+                    thisStatePreProcessor.stateChanged();
+                    complexEventChunk.reset();
+                    nextProcessor.process(complexEventChunk);
+                } else {
+                    if (nextStatePerProcessor != null) {
+                        nextStatePerProcessor.addState(stateEvent);
+                    }
+                    if (nextEveryStatePerProcessor != null) {
+                        nextEveryStatePerProcessor.addEveryState(stateEvent);
+                    }
+                }
+            }
+            if (streamEvents == maxCount) {
+                thisStatePreProcessor.stateChanged();
+            }
+        }
     }
 }

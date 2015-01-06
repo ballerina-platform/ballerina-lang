@@ -30,6 +30,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     protected PreStateProcessor nextEveryStatePerProcessor;
     protected StreamPreStateProcessor thisStatePreProcessor;
     protected Processor nextProcessor;
+    protected int stateId;
 
     /**
      * Process the handed StreamEvent
@@ -41,19 +42,23 @@ public class StreamPostStateProcessor implements PostStateProcessor {
         complexEventChunk.reset();
         if (complexEventChunk.hasNext()) {     //one one event will be coming
             StateEvent stateEvent = (StateEvent) complexEventChunk.next();
-            thisStatePreProcessor.stateChanged();
-            if (nextProcessor != null) {
-                complexEventChunk.reset();
-                nextProcessor.process(complexEventChunk);
-            }
-            if (nextStatePerProcessor != null) {
-                nextStatePerProcessor.addState(stateEvent);
-            }
-            if (nextEveryStatePerProcessor != null) {
-                nextEveryStatePerProcessor.addEveryState(stateEvent);
-            }
+            process(stateEvent, complexEventChunk);
         }
         complexEventChunk.clear();
+    }
+
+    protected void process(StateEvent stateEvent, ComplexEventChunk complexEventChunk) {
+        thisStatePreProcessor.stateChanged();
+        if (nextProcessor != null) {
+            complexEventChunk.reset();
+            nextProcessor.process(complexEventChunk);
+        }
+        if (nextStatePerProcessor != null) {
+            nextStatePerProcessor.addState(stateEvent);
+        }
+        if (nextEveryStatePerProcessor != null) {
+            nextEveryStatePerProcessor.addEveryState(stateEvent);
+        }
     }
 
     /**
@@ -123,5 +128,13 @@ public class StreamPostStateProcessor implements PostStateProcessor {
 
     public PreStateProcessor getThisStatePreProcessor() {
         return thisStatePreProcessor;
+    }
+
+    public void setStateId(int stateId) {
+        this.stateId = stateId;
+    }
+
+    public int getStateId() {
+        return stateId;
     }
 }

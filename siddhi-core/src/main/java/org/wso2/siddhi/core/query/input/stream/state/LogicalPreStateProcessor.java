@@ -107,11 +107,12 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
                 continue;
             }
             process(stateEvent, streamEvent, iterator);
+            if (stateChanged) {
+                iterator.remove();
+            } else {
+                stateEvent.setEvent(stateId, null);
+            }
         }
-    }
-
-    public void setStateId(int stateId) {
-        this.stateId = stateId;
     }
 
     public void setPartnerStatePreProcessor(LogicalPreStateProcessor partnerStatePreProcessor) {

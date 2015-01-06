@@ -94,6 +94,7 @@ public class StateInputStreamParser {
             if (streamPostStateProcessor == null) {
                 streamPostStateProcessor = new StreamPostStateProcessor();
             }
+            streamPostStateProcessor.setStateId(stateIndex);
             singleStreamRuntime.getProcessorChain().setToLast(streamPostStateProcessor);
             streamPostStateProcessor.setThisStatePreProcessor(streamPreStateProcessor);
 
