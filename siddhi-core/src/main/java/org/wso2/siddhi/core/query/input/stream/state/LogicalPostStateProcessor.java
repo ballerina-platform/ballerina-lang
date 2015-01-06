@@ -51,7 +51,6 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
             StateEvent stateEvent = (StateEvent) complexEventChunk.next();
             switch (type) {
                 case AND:
-                    partnerPreStateProcessor.partnerStateChanged(stateEvent);
                     if (stateEvent.getStreamEvent(partnerPreStateProcessor.getStateId()) != null) {
                         super.process(complexEventChunk);
                     } else {
@@ -59,7 +58,6 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
                     }
                     break;
                 case OR:
-                    partnerPreStateProcessor.partnerStateChanged(stateEvent);
                     super.process(complexEventChunk);
                     break;
                 case NOT:

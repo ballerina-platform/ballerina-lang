@@ -36,7 +36,7 @@ import java.util.List;
 public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     protected String streamId;
-    private Processor next;
+    protected Processor next;
     private ConversionStreamEventChunk streamEventChunk;
     private MetaStreamEvent metaStreamEvent;
     private StreamEventPool streamEventPool;
@@ -93,7 +93,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         processAndClear(streamEventChunk);
     }
 
-    private void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
+    protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
         System.out.println("PSR:" + streamEventChunk);
         if (stateProcessorsSize != 0) {
             stateProcessors.get(0).updateState();

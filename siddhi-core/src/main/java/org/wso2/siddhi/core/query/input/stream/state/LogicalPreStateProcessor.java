@@ -20,9 +20,11 @@ package org.wso2.siddhi.core.query.input.stream.state;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
+
+import java.util.Iterator;
 
 /**
  * Created on 12/26/14.
@@ -39,7 +41,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     public void init() {
         if (isStartState) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
-            newAndEveryStateEventChunk.add(stateEvent);
+            newAndEveryStateEventList.add(stateEvent);
         }
     }
 
@@ -56,16 +58,16 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     @Override
     public void addState(StateEvent stateEvent) {
         System.out.println("PSP: add " + stateId + " " + stateEvent);
-        newAndEveryStateEventChunk.add(stateEvent);
+        newAndEveryStateEventList.add(stateEvent);
         if (partnerStatePreProcessor != null) {
-            partnerStatePreProcessor.newAndEveryStateEventChunk.add(stateEvent);
+            partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
         }
     }
 
     @Override
     public void addEveryState(StateEvent stateEvent) {
         System.out.println("PSP: addEvery " + stateId + " " + stateEvent);
-        newAndEveryStateEventChunk.add(stateEventCloner.copyStateEvent(stateEvent));
+        newAndEveryStateEventList.add(stateEventCloner.copyStateEvent(stateEvent));
     }
 
     public void setStartState(boolean isStartState) {
@@ -77,52 +79,35 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
 
     @Override
     public void updateState() {
-        System.out.println("PSP: update " + stateId + " " + newAndEveryStateEventChunk);
-        moveNewAndEveryEventsToPendingEventChunk(newAndEveryStateEventChunk, pendingStateEventChunk);
-        moveNewAndEveryEventsToPendingEventChunk(partnerStatePreProcessor.newAndEveryStateEventChunk,
-                partnerStatePreProcessor.pendingStateEventChunk);
+        System.out.println("PSP: update " + stateId + " " + newAndEveryStateEventList);
+
+        pendingStateEventList.addAll(newAndEveryStateEventList);
+        newAndEveryStateEventList.clear();
+
+        partnerStatePreProcessor.pendingStateEventList.addAll(partnerStatePreProcessor.newAndEveryStateEventList);
+        partnerStatePreProcessor.newAndEveryStateEventList.clear();
     }
 
-    private void moveNewAndEveryEventsToPendingEventChunk(ComplexEventChunk<StateEvent> newAndEveryStateEventChunk,
-                                                          ComplexEventChunk<StateEvent> pendingStateEventChunk) {
-        newAndEveryStateEventChunk.reset();
-        while (newAndEveryStateEventChunk.hasNext()) {
-            StateEvent stateEvent = newAndEveryStateEventChunk.next();
-            newAndEveryStateEventChunk.remove();
-            pendingStateEventChunk.add(stateEvent);
-        }
-        newAndEveryStateEventChunk.clear();
-    }
+    /**
+     * Process the handed StreamEvent
+     *
+     * @param complexEventChunk event chunk to be processed
+     */
+    @Override
+    public void process(ComplexEventChunk complexEventChunk) {
+        System.out.println(stateId + " " + complexEventChunk);
 
-    public void partnerStateChanged(StateEvent partnerEvent) {
-        switch (logicalType) {
-            case AND:
-                pendingStateEventChunk.reset();
-                while (pendingStateEventChunk.hasNext()) {
-                    StateEvent stateEvent = pendingStateEventChunk.next();
-                    if (stateEvent.getId() == partnerEvent.getId()) {
-                        int partnerId = partnerStatePreProcessor.getStateId();
-                        stateEvent.setEvent(partnerId, partnerEvent.getStreamEvent(partnerId));
-                        pendingStateEventChunk.reset();
-                        return;
-                    }
-                }
-                return;
-            case OR:
-                pendingStateEventChunk.reset();
-                while (pendingStateEventChunk.hasNext()) {
-                    StateEvent stateEvent = pendingStateEventChunk.next();
-                    if (stateEvent.getId() == partnerEvent.getId()) {
-                        pendingStateEventChunk.remove();
-                        pendingStateEventChunk.reset();
-                        return;
-                    }
-                }
-                throw new IllegalStateException("OR partner should contain matching event for " + partnerEvent);
-            case NOT:
-                throw new OperationNotSupportedException();
+        complexEventChunk.reset();
+        StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
+        for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
+            StateEvent stateEvent = iterator.next();
+            if (logicalType == LogicalStateElement.Type.OR &&
+                    stateEvent.getStreamEvent(partnerStatePreProcessor.getStateId()) != null) {
+                iterator.remove();
+                continue;
+            }
+            process(stateEvent, streamEvent, iterator);
         }
-        throw new OperationNotSupportedException();
     }
 
     public void setStateId(int stateId) {

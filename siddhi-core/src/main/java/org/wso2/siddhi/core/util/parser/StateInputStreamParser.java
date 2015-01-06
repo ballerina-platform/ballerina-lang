@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
+import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.*;
 import org.wso2.siddhi.core.query.input.stream.state.runtime.*;
@@ -52,7 +53,7 @@ public class StateInputStreamParser {
         for (String streamId : stateInputStream.getAllStreamIds()) {
             int streamCount = stateInputStream.getStreamCount(streamId);
             if (streamCount == 1) {
-                processStreamReceiverMap.put(streamId, new ProcessStreamReceiver(streamId));
+                processStreamReceiverMap.put(streamId, new SingleProcessStreamReceiver(streamId));
             } else {
                 processStreamReceiverMap.put(streamId, new MultiProcessStreamReceiver(streamId, streamCount));
             }
@@ -191,7 +192,18 @@ public class StateInputStreamParser {
             return logicalInnerStateRuntime;
 
         } else if (stateElement instanceof CountStateElement) {
-            throw new OperationNotSupportedException();
+
+            CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(((CountStateElement)
+                    stateElement).getMinCount(), ((CountStateElement) stateElement).getMaxCount());
+
+            CountPostStateProcessor countPostStateProcessor = new CountPostStateProcessor(((CountStateElement)
+                    stateElement).getMinCount(), ((CountStateElement) stateElement).getMaxCount());
+
+            StateElement currentElement = ((CountStateElement) stateElement).getStreamStateElement();
+            InnerStateRuntime innerStateRuntime = parse(currentElement, definitionMap, metaStateEvent,
+                    executionPlanContext, executors, processStreamReceiverMap, countPreStateProcessor, countPostStateProcessor);
+
+            return new CountInnerStateRuntime((StreamInnerStateRuntime) innerStateRuntime);
 
         } else {
             throw new OperationNotSupportedException();

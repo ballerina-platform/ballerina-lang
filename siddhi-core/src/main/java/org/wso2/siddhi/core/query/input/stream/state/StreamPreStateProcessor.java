@@ -28,6 +28,9 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 /**
  * Created on 12/17/14.
  */
@@ -40,8 +43,8 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     protected Processor nextProcessor;
 
     protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>();
-    protected ComplexEventChunk<StateEvent> pendingStateEventChunk = new ComplexEventChunk<StateEvent>();
-    protected ComplexEventChunk<StateEvent> newAndEveryStateEventChunk = new ComplexEventChunk<StateEvent>();
+    protected LinkedList<StateEvent> pendingStateEventList = new LinkedList<StateEvent>();
+    protected LinkedList<StateEvent> newAndEveryStateEventList = new LinkedList<StateEvent>();
 
     protected StateEventPool stateEventPool;
     //  private StreamEventPool streamEventPool;
@@ -61,24 +64,25 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
         complexEventChunk.reset();
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
-        while (pendingStateEventChunk.hasNext()) {
-            StateEvent stateEvent = pendingStateEventChunk.next();
-            StateEvent clonedStateEvent = stateEventCloner.copyStateEvent(stateEvent);
-            clonedStateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
-            System.out.println("PSP:" + clonedStateEvent);
-            currentStateEventChunk.add(clonedStateEvent);
-            currentStateEventChunk.reset();
-            stateChanged = false;
-            nextProcessor.process(currentStateEventChunk);
-
-            if (stateChanged) {
-                pendingStateEventChunk.remove();
-                stateEventPool.returnEvents(stateEvent);
-            }
-            currentStateEventChunk.reset();
+        for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
+            StateEvent stateEvent = iterator.next();
+            process(stateEvent, streamEvent, iterator);
         }
-        pendingStateEventChunk.reset();
+    }
 
+    protected void process(StateEvent stateEvent, StreamEvent streamEvent, Iterator<StateEvent> iterator) {
+        stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
+        currentStateEventChunk.add(stateEvent);
+        currentStateEventChunk.reset();
+        stateChanged = false;
+        nextProcessor.process(currentStateEventChunk);
+
+        if (stateChanged) {
+            iterator.remove();
+        } else {
+            stateEvent.setEvent(stateId, null);
+        }
+        currentStateEventChunk.reset();
     }
 
     /**
@@ -118,7 +122,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     public void init() {
         if (isStartState) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
-            newAndEveryStateEventChunk.add(stateEvent);
+            newAndEveryStateEventList.add(stateEvent);
         }
     }
 
@@ -135,13 +139,13 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     @Override
     public void addState(StateEvent stateEvent) {
         System.out.println("PSP: add " + stateId + " " + stateEvent);
-        newAndEveryStateEventChunk.add(stateEvent);
+        newAndEveryStateEventList.add(stateEvent);
     }
 
     @Override
     public void addEveryState(StateEvent stateEvent) {
         System.out.println("PSP: addEvery " + stateId + " " + stateEvent);
-        newAndEveryStateEventChunk.add(stateEventCloner.copyStateEvent(stateEvent));
+        newAndEveryStateEventList.add(stateEventCloner.copyStateEvent(stateEvent));
     }
 
     public void stateChanged() {
@@ -170,14 +174,9 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     @Override
     public void updateState() {
-        System.out.println("PSP: update " + stateId + " " + newAndEveryStateEventChunk);
-        newAndEveryStateEventChunk.reset();
-        while (newAndEveryStateEventChunk.hasNext()) {
-            StateEvent stateEvent = newAndEveryStateEventChunk.next();
-            newAndEveryStateEventChunk.remove();
-            pendingStateEventChunk.add(stateEvent);
-        }
-        newAndEveryStateEventChunk.clear();
+        System.out.println("PSP: update " + stateId + " " + newAndEveryStateEventList);
+        pendingStateEventList.addAll(newAndEveryStateEventList);
+        newAndEveryStateEventList.clear();
     }
 
     public void setStateId(int stateId) {

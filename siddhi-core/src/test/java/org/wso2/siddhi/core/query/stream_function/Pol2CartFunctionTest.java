@@ -25,8 +25,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class Pol2CartFunctionTestCase {
-    private static final Logger log = Logger.getLogger(Pol2CartFunctionTestCase.class);
+public class Pol2CartFunctionTest {
+    private static final Logger log = Logger.getLogger(Pol2CartFunctionTest.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
