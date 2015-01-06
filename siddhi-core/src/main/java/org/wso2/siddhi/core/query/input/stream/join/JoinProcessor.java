@@ -53,13 +53,14 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-
+        System.out.println("))" + complexEventChunk);
         if (trigger) {
             returnEventChunk.clear();
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
-                StreamEvent streamEvent = (StreamEvent)complexEventChunk.next();
-                if (!preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.CURRENT) {
+                StreamEvent streamEvent = (StreamEvent) complexEventChunk.next();
+                if (streamEvent.getType() == ComplexEvent.Type.TIMER ||
+                        (!preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.CURRENT)) {
                     continue;
                 }
                 finder.setCurrentEvent(streamEvent);
@@ -84,6 +85,7 @@ public class JoinProcessor implements Processor {
                     foundStreamEvent = foundStreamEvent.getNext();
                 }
             }
+            System.out.println("RRR" + returnEventChunk);
             if (returnEventChunk.getFirst() != null) {
                 selector.process(returnEventChunk);
             }

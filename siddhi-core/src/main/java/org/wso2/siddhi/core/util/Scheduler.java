@@ -57,6 +57,7 @@ public class Scheduler {
                     if (!running) {
                         running = true;
                         long timeDiff = time - System.currentTimeMillis(); //todo fix
+                        System.out.println("TTTTT"+timeDiff);
                         if (timeDiff > 0) {
                             scheduledExecutorService.schedule(eventCaller, timeDiff, TimeUnit.MILLISECONDS);
                         } else {
@@ -107,6 +108,7 @@ public class Scheduler {
             long currentTime = System.currentTimeMillis();
             long timeDiff = toNotifyTime - currentTime ;
             while (toNotifyTime != null && timeDiff <= 0) {
+
                 toNotifyQueue.poll();
 
                 StreamEvent timerEvent = streamEventPool.borrowEvent();

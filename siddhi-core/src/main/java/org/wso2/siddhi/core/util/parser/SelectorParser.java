@@ -101,7 +101,8 @@ public class SelectorParser {
         for (OutputAttribute outputAttribute : selector.getSelectionList()) {
 
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
-                    metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, !(selector.getGroupByList().isEmpty()));
+                    metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext,
+                    !(selector.getGroupByList().isEmpty()), 0);
             if (expressionExecutor instanceof VariableExpressionExecutor) {   //for variables we will directly put value at conversion stage
                 VariableExpressionExecutor executor = ((VariableExpressionExecutor) expressionExecutor);
                 if (metaComplexEvent instanceof MetaStateEvent) {
@@ -135,7 +136,7 @@ public class SelectorParser {
         ConditionExpressionExecutor havingConditionExecutor = null;
         if (expression != null) {
             havingConditionExecutor = (ConditionExpressionExecutor) ExpressionParser.parseExpression(expression,
-                    metaComplexEvent, SiddhiConstants.HAVING_STATE, executors, executionPlanContext, false);
+                    metaComplexEvent, SiddhiConstants.HAVING_STATE, executors, executionPlanContext, false, 0);
 
         }
         return havingConditionExecutor;

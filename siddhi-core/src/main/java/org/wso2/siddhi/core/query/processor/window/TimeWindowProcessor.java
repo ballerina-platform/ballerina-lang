@@ -68,7 +68,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
@@ -81,18 +80,25 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 clonedEvent.setTimestamp(currentTime + timeInMilliSeconds);
             }
 
+            boolean eventForExpireExist = false;
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
                 long timeDiff = expiredEvent.getTimestamp() - currentTime;
+                System.out.println(">>>" + expiredEvent);
+                System.out.println(">>T>" + timeDiff);
                 if (timeDiff <= 0) {
+                    eventForExpireExist = true;
                     expiredEventChunk.remove();
                     streamEventChunk.insertBeforeCurrent(expiredEvent);
                 } else {
-                    scheduler.notifyAt(expiredEvent.getTimestamp());
+                    if (eventForExpireExist) {
+                        scheduler.notifyAt(expiredEvent.getTimestamp());
+                    }
                     expiredEventChunk.reset();
                     break;
                 }
             }
+            System.out.println(">>T>BREAK");
             if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
                 this.expiredEventChunk.add(clonedEvent);
             }
@@ -109,7 +115,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
         return windowProcessor;
     }
 
-    public void cloneScheduler(TimeWindowProcessor timeWindowProcessor,SingleThreadEntryValveProcessor singleThreadEntryValveProcessor){
+    public void cloneScheduler(TimeWindowProcessor timeWindowProcessor, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {
         this.scheduler = timeWindowProcessor.scheduler.cloneScheduler(singleThreadEntryValveProcessor);
     }
 }

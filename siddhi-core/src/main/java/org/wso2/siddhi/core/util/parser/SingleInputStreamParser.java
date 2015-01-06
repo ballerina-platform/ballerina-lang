@@ -118,7 +118,8 @@ public class SingleInputStreamParser {
             metaStreamEvent = (MetaStreamEvent) metaEvent;
         }
         for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, executors, context, false);
+            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, executors,
+                    context, false, SiddhiConstants.LAST);
         }
         if (handler instanceof Filter) {
             return new FilterProcessor(inputExpressions[0]);

@@ -87,13 +87,14 @@ public class StreamPartitioner {
             if (partitionType instanceof ValuePartitionType) {
                 if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                     executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                            metaEvent, -1,executors, executionPlanContext,false)));
+                            metaEvent, -1,executors, executionPlanContext,false, 0)));
                 }
             } else {
                 for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
-                                ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent, -1,executors, executionPlanContext,false), rangePartitionProperty.getPartitionKey()));
+                                ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
+                                        -1,executors, executionPlanContext,false, 0), rangePartitionProperty.getPartitionKey()));
 
                     }
                 }
