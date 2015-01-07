@@ -164,6 +164,9 @@ public class StateInputStreamParser {
             logicalPostStateProcessor1.setPartnerPreStateProcessor(logicalPreStateProcessor2);
             logicalPostStateProcessor2.setPartnerPreStateProcessor(logicalPreStateProcessor1);
 
+            logicalPostStateProcessor1.setPartnerPostStateProcessor(logicalPostStateProcessor2);
+            logicalPostStateProcessor2.setPartnerPostStateProcessor(logicalPostStateProcessor1);
+
             logicalPreStateProcessor1.setPartnerStatePreProcessor(logicalPreStateProcessor2);
             logicalPreStateProcessor2.setPartnerStatePreProcessor(logicalPreStateProcessor1);
 

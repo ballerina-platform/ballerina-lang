@@ -162,7 +162,7 @@ public class SingleInputStreamParser {
             metaStreamEvent.setInputDefinition(inputDefinition);
             metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
         } else {
-            throw new DefinitionNotExistException("Stream definition with stream ID " + inputStream.getStreamId() + " has not been defined");
+            throw new DefinitionNotExistException("Stream definition with stream ID '" + inputStream.getStreamId() + "' has not been defined");
         }
         if ((inputStream.getStreamReferenceId() != null) &&
                 !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided

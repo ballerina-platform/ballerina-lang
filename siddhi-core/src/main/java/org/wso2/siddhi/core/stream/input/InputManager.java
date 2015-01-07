@@ -16,6 +16,7 @@
 package org.wso2.siddhi.core.stream.input;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
@@ -80,6 +81,10 @@ public class InputManager {
         InputHandler inputHandler = null;
         if (singleStreamEntryValve != null) {
             inputHandler = new InputHandler(streamId, inputHandlerMap.size(), singleStreamEntryValve);
+            StreamJunction streamJunction=streamJunctionMap.get(streamId);
+            if(streamJunction==null){
+                throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");
+            }
             inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());
         } else {
             //todo handle

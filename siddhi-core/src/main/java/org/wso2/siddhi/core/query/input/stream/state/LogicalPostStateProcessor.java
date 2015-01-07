@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.query.input.stream.state;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
 
 /**
@@ -29,6 +30,7 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
 
     private LogicalStateElement.Type type;
     private LogicalPreStateProcessor partnerPreStateProcessor;
+    private LogicalPostStateProcessor partnerPostStateProcessor;
 
     public LogicalPostStateProcessor(LogicalStateElement.Type type) {
 
@@ -58,13 +60,13 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
         switch (type) {
             case AND:
                 if (stateEvent.getStreamEvent(partnerPreStateProcessor.getStateId()) != null) {
-                    super.process(stateEvent,complexEventChunk);
+                    super.process(stateEvent, complexEventChunk);
                 } else {
                     thisStatePreProcessor.stateChanged();
                 }
                 break;
             case OR:
-                super.process(stateEvent,complexEventChunk);
+                super.process(stateEvent, complexEventChunk);
                 break;
             case NOT:
                 break;
@@ -75,7 +77,52 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
         this.partnerPreStateProcessor = partnerPreStateProcessor;
     }
 
-    public LogicalPreStateProcessor getPartnerPreStateProcessor() {
-        return partnerPreStateProcessor;
+    public void setPartnerPostStateProcessor(LogicalPostStateProcessor partnerPostStateProcessor) {
+        this.partnerPostStateProcessor = partnerPostStateProcessor;
+    }
+
+    /**
+     * Set next processor element in processor chain
+     *
+     * @param nextProcessor Processor to be set as next element of processor chain
+     */
+    @Override
+    public void setNextProcessor(Processor nextProcessor) {
+        this.nextProcessor = nextProcessor;
+    }
+
+    /**
+     * Set as the last element of the processor chain
+     *
+     * @param processor Last processor in the chain
+     */
+    @Override
+    public void setToLast(Processor processor) {
+        if (nextProcessor == null) {
+            this.nextProcessor = processor;
+        } else {
+            this.nextProcessor.setToLast(processor);
+        }
+    }
+
+    /**
+     * Clone a copy of processor
+     *
+     * @return
+     */
+    @Override
+    public Processor cloneProcessor() {
+        return null;
+    }
+
+    public void setNextStatePreProcessor(PreStateProcessor preStateProcessor) {
+        this.nextStatePerProcessor = preStateProcessor;
+        partnerPostStateProcessor.nextStatePerProcessor = preStateProcessor;
+
+    }
+
+    public void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor) {
+        this.nextEveryStatePerProcessor = nextEveryStatePerProcessor;
+        partnerPostStateProcessor.nextEveryStatePerProcessor = nextEveryStatePerProcessor;
     }
 }
