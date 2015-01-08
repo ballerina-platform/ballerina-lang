@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.query.input.stream.state;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.Iterator;
 
@@ -33,8 +34,8 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
     protected volatile boolean successCondition = false;
     private CountPostStateProcessor countPostStateProcessor;
 
-    public CountPreStateProcessor(int minCount, int maxCount) {
-
+    public CountPreStateProcessor(int minCount, int maxCount, StateInputStream.Type stateType) {
+        super(stateType);
         this.minCount = minCount;
         this.maxCount = maxCount;
     }
@@ -70,7 +71,14 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
                 iterator.remove();
             }
             if (!successCondition) {
-                stateEvent.removeLastEvent(stateId);
+                switch (stateType) {
+                    case PATTERN:
+                        stateEvent.removeLastEvent(stateId);
+                        break;
+                    case SEQUENCE:
+                        iterator.remove();
+                        break;
+                }
             }
         }
     }
@@ -87,18 +95,19 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
         this.successCondition = true;
     }
 
-    public void init() {
-        if (isStartState) {
-            StateEvent stateEvent = stateEventPool.borrowEvent();
-            addState(stateEvent);
-        }
-    }
 
     @Override
     public void addState(StateEvent stateEvent) {
+        if (stateType == StateInputStream.Type.SEQUENCE) {
+            newAndEveryStateEventList.clear();
+            pendingStateEventList.clear();
+        }
         newAndEveryStateEventList.add(stateEvent);
         if (minCount == 0 && stateEvent.getStreamEvent(stateId) == null) {
-            countPostStateProcessor.getNextStatePerProcessor().addState(stateEvent);
+            currentStateEventChunk.clear();
+            currentStateEventChunk.add(stateEvent);
+            countPostStateProcessor.processMinCountReached(stateEvent, currentStateEventChunk);
+            currentStateEventChunk.clear();
         }
     }
 

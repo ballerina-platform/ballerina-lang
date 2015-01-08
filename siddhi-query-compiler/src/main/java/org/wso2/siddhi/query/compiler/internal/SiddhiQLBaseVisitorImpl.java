@@ -836,14 +836,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 //        :standard_stateful_source ('<' collect '>'|zero_or_more='*'|zero_or_one='?'|one_or_more='+')
 //        ;
 
-        BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(ctx.standard_stateful_source());
+        StreamStateElement streamStateElement = (StreamStateElement) visit(ctx.standard_stateful_source());
 
         if (ctx.one_or_more != null) {
-            return new CountStateElement(new StreamStateElement(basicSingleInputStream), 1, CountStateElement.ANY);
+            return new CountStateElement(streamStateElement, 1, CountStateElement.ANY);
         } else if (ctx.zero_or_more != null) {
-            return new CountStateElement(new StreamStateElement(basicSingleInputStream), 0, CountStateElement.ANY);
+            return new CountStateElement(streamStateElement, 0, CountStateElement.ANY);
         } else if (ctx.zero_or_one != null) {
-            return new CountStateElement(new StreamStateElement(basicSingleInputStream), 0, 1);
+            return new CountStateElement(streamStateElement, 0, 1);
         } else if (ctx.collect() != null) {
             Object[] minMax = (Object[]) visit(ctx.collect());
             int min = CountStateElement.ANY;
@@ -854,7 +854,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             if (minMax[1] != null) {
                 max = (Integer) minMax[1];
             }
-            return new CountStateElement(new StreamStateElement(basicSingleInputStream), min, max);
+            return new CountStateElement(streamStateElement, min, max);
         } else {
             throw newSiddhiParserException(ctx);
         }

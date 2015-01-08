@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.Iterator;
 
@@ -33,15 +34,9 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     private LogicalStateElement.Type logicalType;
     private LogicalPreStateProcessor partnerStatePreProcessor;
 
-    public LogicalPreStateProcessor(LogicalStateElement.Type type) {
+    public LogicalPreStateProcessor(LogicalStateElement.Type type, StateInputStream.Type stateType) {
+        super(stateType);
         this.logicalType = type;
-    }
-
-    public void init() {
-        if (isStartState) {
-            StateEvent stateEvent = stateEventPool.borrowEvent();
-            newAndEveryStateEventList.add(stateEvent);
-        }
     }
 
     /**
@@ -58,6 +53,12 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
 
     @Override
     public void addState(StateEvent stateEvent) {
+        if(stateType== StateInputStream.Type.SEQUENCE){
+            newAndEveryStateEventList.clear();
+            pendingStateEventList.clear();
+            partnerStatePreProcessor.newAndEveryStateEventList.clear();
+            partnerStatePreProcessor.pendingStateEventList.clear();
+        }
         newAndEveryStateEventList.add(stateEvent);
         if (partnerStatePreProcessor != null) {
             partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
@@ -108,7 +109,14 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
             if (stateChanged) {
                 iterator.remove();
             } else {
-                stateEvent.setEvent(stateId, null);
+                switch (stateType) {
+                    case PATTERN:
+                        stateEvent.setEvent(stateId, null);
+                        break;
+                    case SEQUENCE:
+                        iterator.remove();
+                        break;
+                }
             }
         }
     }

@@ -48,26 +48,28 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
             streamEvents++;
             streamEvent = streamEvent.getNext();
         }
-        ((CountPreStateProcessor)thisStatePreProcessor).successCondition();
+        ((CountPreStateProcessor) thisStatePreProcessor).successCondition();
         if (streamEvents >= minCount) {
             if (streamEvents == minCount) {
-
-                if (nextProcessor != null) {
-                    thisStatePreProcessor.stateChanged();
-                    complexEventChunk.reset();
-                    nextProcessor.process(complexEventChunk);
-                } else {
-                    if (nextStatePerProcessor != null) {
-                        nextStatePerProcessor.addState(stateEvent);
-                    }
-                    if (nextEveryStatePerProcessor != null) {
-                        nextEveryStatePerProcessor.addEveryState(stateEvent);
-                    }
-                }
+                processMinCountReached(stateEvent, complexEventChunk);
             }
             if (streamEvents == maxCount) {
                 thisStatePreProcessor.stateChanged();
             }
+        }
+    }
+
+    public void processMinCountReached(StateEvent stateEvent, ComplexEventChunk complexEventChunk) {
+        if (nextProcessor != null) {
+            thisStatePreProcessor.stateChanged();
+            complexEventChunk.reset();
+            nextProcessor.process(complexEventChunk);
+        }
+        if (nextStatePerProcessor != null) {
+            nextStatePerProcessor.addState(stateEvent);
+        }
+        if (nextEveryStatePerProcessor != null) {
+            nextEveryStatePerProcessor.addEveryState(stateEvent);
         }
     }
 }

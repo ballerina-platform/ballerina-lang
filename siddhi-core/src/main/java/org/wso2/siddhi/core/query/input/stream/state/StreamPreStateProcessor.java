@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,6 +40,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     protected int stateId;
     protected boolean isStartState;
     protected volatile boolean stateChanged = false;
+    protected StateInputStream.Type stateType;
 
     protected Processor nextProcessor;
 
@@ -52,6 +54,9 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     protected StateEventCloner stateEventCloner;
     protected StreamEventPool streamEventPool;
 
+    public StreamPreStateProcessor(StateInputStream.Type stateType) {
+        this.stateType = stateType;
+    }
 
     /**
      * Process the handed StreamEvent
@@ -70,7 +75,14 @@ public class StreamPreStateProcessor implements PreStateProcessor {
             if (stateChanged) {
                 iterator.remove();
             } else {
-                stateEvent.setEvent(stateId, null);
+                switch (stateType) {
+                    case PATTERN:
+                        stateEvent.setEvent(stateId, null);
+                        break;
+                    case SEQUENCE:
+                        iterator.remove();
+                        break;
+                }
             }
         }
     }
@@ -120,7 +132,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     public void init() {
         if (isStartState) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
-            newAndEveryStateEventList.add(stateEvent);
+            addState(stateEvent);
         }
     }
 
@@ -146,6 +158,10 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     @Override
     public void addState(StateEvent stateEvent) {
+        if (stateType == StateInputStream.Type.SEQUENCE) {
+            newAndEveryStateEventList.clear();
+            pendingStateEventList.clear();
+        }
         newAndEveryStateEventList.add(stateEvent);
     }
 
