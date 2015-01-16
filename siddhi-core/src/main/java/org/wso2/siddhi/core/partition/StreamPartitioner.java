@@ -33,9 +33,11 @@ import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
 import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
+import org.wso2.siddhi.query.api.execution.query.input.state.*;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +65,32 @@ public class StreamPartitioner {
                 createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, executionPlanContext);
             }
         } else if (inputStream instanceof JoinInputStream) {
-                createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext);
-        } //TODO: else stateInputStream
+            createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext);
+        } else if (inputStream instanceof StateInputStream) {
+            createStateInputStreamExecutors(((StateInputStream)inputStream).getStateElement(),partition, (MetaStateEvent) metaEvent,executors,executionPlanContext,0);
+        }
+    }
+
+    private int createStateInputStreamExecutors(StateElement stateElement, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext, int executorIndex) {
+
+        if (stateElement instanceof EveryStateElement) {
+            return createStateInputStreamExecutors(((EveryStateElement) stateElement).getStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+        } else if (stateElement instanceof NextStateElement) {
+            executorIndex = createStateInputStreamExecutors(((NextStateElement) stateElement).getStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+            return createStateInputStreamExecutors(((NextStateElement) stateElement).getNextStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+        } else if (stateElement instanceof LogicalStateElement) {
+            executorIndex = createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement1(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+            return createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement2(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+        } else if (stateElement instanceof CountStateElement) {
+            return createStateInputStreamExecutors(((CountStateElement) stateElement).getStreamStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+        } else {  //when stateElement is an instanceof StreamStateElement
+            int size = executors.size();
+            createExecutors(((StreamStateElement) stateElement).getBasicSingleInputStream(), partition, metaEvent.getMetaStreamEvent(executorIndex), executors, executionPlanContext);
+            for (int j = size; j < executors.size(); j++) {
+                executors.get(executorIndex).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = executorIndex;
+            }
+            return ++executorIndex;
+        }
     }
 
     private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {

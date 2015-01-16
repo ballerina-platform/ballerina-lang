@@ -54,6 +54,10 @@ public class SingleStreamRuntime implements StreamRuntime {
         return processStreamReceiver;
     }
 
+    public void setProcessStreamReceiver(ProcessStreamReceiver processStreamReceiver) {
+        this.processStreamReceiver = processStreamReceiver;
+    }
+
     @Override
     public List<SingleStreamRuntime> getSingleStreamRuntimes() {
         List<SingleStreamRuntime> list = new ArrayList<SingleStreamRuntime>(1);

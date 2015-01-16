@@ -39,11 +39,13 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     private StreamEventPool[] streamEventPools;
     private StreamEventConverter[] streamEventConverters;
     private ComplexEventChunk<StreamEvent> currentStreamEventChunk;
+    private int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
 
 
     public MultiProcessStreamReceiver(String streamId, int processCount) {
         super(streamId);
+        this.processCount = processCount;
         nextProcessors = new Processor[processCount];
         metaStreamEvents = new MetaStreamEvent[processCount];
         streamEventPools = new StreamEventPool[processCount];
@@ -53,12 +55,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        //todo
-//        MultiProcessQueryStreamReceiver clonedQueryStreamReceiver = new MultiProcessQueryStreamReceiver(streamId + key);
-//        clonedQueryStreamReceiver.setMetaStreamEvent(metaStreamEvent);
-//        clonedQueryStreamReceiver.setStreamEventPool(new StreamEventPool(metaStreamEvent, streamEventPool.getSize()));
-//        return clonedQueryStreamReceiver;
-        return null;
+        MultiProcessStreamReceiver clonedQueryStreamReceiver = new MultiProcessStreamReceiver(streamId + key,processCount);
+        return clonedQueryStreamReceiver;
     }
 
     @Override

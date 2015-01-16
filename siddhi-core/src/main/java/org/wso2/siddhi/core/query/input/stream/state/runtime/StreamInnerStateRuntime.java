@@ -21,6 +21,8 @@ package org.wso2.siddhi.core.query.input.stream.state.runtime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.PostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.StreamPostStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.ArrayList;
@@ -77,5 +79,28 @@ public class StreamInnerStateRuntime implements InnerStateRuntime {
         singleStreamRuntimeList.get(0).getProcessStreamReceiver().setNext(firstProcessor);
         singleStreamRuntimeList.get(0).getProcessStreamReceiver().addStatefulProcessor(firstProcessor);
         firstProcessor.init();
+    }
+
+    @Override
+    public InnerStateRuntime clone(String key) {
+        StreamInnerStateRuntime streamInnerStateRuntime = new StreamInnerStateRuntime();
+        for(SingleStreamRuntime singleStreamRuntime:singleStreamRuntimeList){
+            streamInnerStateRuntime.singleStreamRuntimeList.add((SingleStreamRuntime) singleStreamRuntime.clone(key));
+        }
+
+        Processor processor = streamInnerStateRuntime.singleStreamRuntimeList.get(0).getProcessorChain();
+        streamInnerStateRuntime.firstProcessor = (StreamPreStateProcessor) processor;
+
+        while (processor!= null){
+            if(processor instanceof StreamPostStateProcessor){
+                streamInnerStateRuntime.lastProcessor = (StreamPostStateProcessor) processor;
+                break;
+            } else {
+                processor = processor.getNextProcessor();
+            }
+        }
+
+        ((StreamPostStateProcessor)streamInnerStateRuntime.lastProcessor).setThisStatePreProcessor((StreamPreStateProcessor) streamInnerStateRuntime.firstProcessor);
+        return streamInnerStateRuntime;
     }
 }

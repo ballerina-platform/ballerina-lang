@@ -18,7 +18,12 @@
 
 package org.wso2.siddhi.core.query.input.stream.state.runtime;
 
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.state.LogicalPostStateProcessor;
+import org.wso2.siddhi.core.query.input.stream.state.LogicalPreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
+
+import java.util.List;
 
 /**
  * Created on 12/19/14.
@@ -49,5 +54,41 @@ public class LogicalInnerStateRuntime extends StreamInnerStateRuntime {
     public void init() {
         innerStateRuntime2.init();
         innerStateRuntime1.init();
+    }
+
+    @Override
+    public InnerStateRuntime clone(String key) {
+        InnerStateRuntime clonedInnerStateRuntime1 = innerStateRuntime1.clone(key);
+        InnerStateRuntime clonedInnerStateRuntime2 = innerStateRuntime2.clone(key);
+
+        LogicalPreStateProcessor logicalPreStateProcessor1 = (LogicalPreStateProcessor) clonedInnerStateRuntime1.getFirstProcessor();
+        LogicalPostStateProcessor logicalPostStateProcessor1 = (LogicalPostStateProcessor) clonedInnerStateRuntime1.getLastProcessor();
+        LogicalPreStateProcessor logicalPreStateProcessor2 = (LogicalPreStateProcessor) clonedInnerStateRuntime2.getFirstProcessor();
+        LogicalPostStateProcessor logicalPostStateProcessor2 = (LogicalPostStateProcessor) clonedInnerStateRuntime2.getLastProcessor();
+
+        logicalPostStateProcessor1.setPartnerPreStateProcessor(logicalPreStateProcessor2);
+        logicalPostStateProcessor2.setPartnerPreStateProcessor(logicalPreStateProcessor1);
+        logicalPostStateProcessor1.setPartnerPostStateProcessor(logicalPostStateProcessor2);
+        logicalPostStateProcessor2.setPartnerPostStateProcessor(logicalPostStateProcessor1);
+        logicalPreStateProcessor1.setPartnerStatePreProcessor(logicalPreStateProcessor2);
+        logicalPreStateProcessor2.setPartnerStatePreProcessor(logicalPreStateProcessor1);
+
+        LogicalInnerStateRuntime logicalInnerStateRuntime = new LogicalInnerStateRuntime(clonedInnerStateRuntime1,clonedInnerStateRuntime2);
+        logicalInnerStateRuntime.firstProcessor = clonedInnerStateRuntime1.getFirstProcessor();
+        logicalInnerStateRuntime.lastProcessor = clonedInnerStateRuntime2.getLastProcessor();
+        logicalInnerStateRuntime.getSingleStreamRuntimeList().addAll(clonedInnerStateRuntime2.getSingleStreamRuntimeList());
+        logicalInnerStateRuntime.getSingleStreamRuntimeList().addAll(clonedInnerStateRuntime1.getSingleStreamRuntimeList());
+
+
+        List<SingleStreamRuntime> runtimeList = logicalInnerStateRuntime.getSingleStreamRuntimeList();
+        for(int i = 0;i<runtimeList.size();i++){
+            String streamId = runtimeList.get(i).getProcessStreamReceiver().getStreamId();
+            for(int j = i;j<runtimeList.size();j++){
+                if(streamId.equals(runtimeList.get(j).getProcessStreamReceiver().getStreamId())){
+                    runtimeList.get(j).setProcessStreamReceiver(runtimeList.get(i).getProcessStreamReceiver());
+                }
+            }
+        }
+        return logicalInnerStateRuntime;
     }
 }

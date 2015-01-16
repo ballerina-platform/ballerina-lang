@@ -29,4 +29,6 @@ public interface PostStateProcessor extends Processor {
 
     public void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor);
 
+    public PostStateProcessor cloneProcessor();
+
 }

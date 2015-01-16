@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query.input.stream.state;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
 
 import java.util.Iterator;
@@ -48,11 +47,13 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @return
+     * @return  clone of LogicalPreStateProcessor
      */
     @Override
-    public Processor cloneProcessor() {
-        return null;
+    public PreStateProcessor cloneProcessor() {
+        LogicalPreStateProcessor logicalPreStateProcessor= new LogicalPreStateProcessor(logicalType);
+        cloneProperties(logicalPreStateProcessor);
+        return logicalPreStateProcessor;
     }
 
     @Override

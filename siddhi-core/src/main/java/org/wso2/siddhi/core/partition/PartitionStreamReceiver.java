@@ -31,7 +31,6 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -229,37 +228,36 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
      * @param queryRuntimeList queryRuntime list of the partition
      */
     public void addStreamJunction(String key, List<QueryRuntime> queryRuntimeList) {
+        StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
         if (!partitionExecutors.isEmpty()) {
-            for (QueryRuntime queryRuntime : queryRuntimeList) {
-                StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
-                for(int i=0;i<queryRuntime.getInputStreamId().size();i++) {
-                    if (queryRuntime.getInputStreamId().get(i).equals(streamId)) {
-                        StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
-                        if (streamJunction == null) {
-                            streamJunction = new StreamJunction(streamDefinition,
-                                    executionPlanContext.getExecutorService(),
-                                    executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
-                            partitionRuntime.addStreamJunction(streamId + key, streamJunction);
-                            cachedStreamJunctionMap.put(streamId + key, streamJunction);
-                        }
-                        streamJunction.subscribe((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver());
-                    }
-                }
+            if (streamJunction == null) {
+                streamJunction =createStreamJunction();
+                partitionRuntime.addStreamJunction(streamId + key, streamJunction);
+                cachedStreamJunctionMap.put(streamId + key, streamJunction);
             }
-
         } else {
-            StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
             if (streamJunction == null) {
                 streamJunction = partitionRuntime.getLocalStreamJunctionMap().get(streamId + key);
-                if(streamJunction== null){
-                    streamJunction = new StreamJunction(streamDefinition,
-                            executionPlanContext.getExecutorService(),
-                            executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                if (streamJunction == null) {
+                    streamJunction =createStreamJunction();
                     partitionRuntime.addStreamJunction(streamId + key, streamJunction);
                 }
                 cachedStreamJunctionMap.put(streamId + key, streamJunction);
             }
         }
+        for (QueryRuntime queryRuntime : queryRuntimeList) {
+            StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
+            for (int i = 0; i < queryRuntime.getInputStreamId().size(); i++) {
+                if ((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver().getStreamId().equals(streamId + key)) {
+                    streamJunction.subscribe((streamRuntime.getSingleStreamRuntimes().get(i)).getProcessStreamReceiver());
+                }
+            }
+        }
+    }
+
+    private StreamJunction createStreamJunction() {
+        return new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
+                executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
     }
 
 }

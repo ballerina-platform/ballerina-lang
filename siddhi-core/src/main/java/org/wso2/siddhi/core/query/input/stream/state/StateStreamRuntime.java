@@ -46,9 +46,7 @@ public class StateStreamRuntime implements StreamRuntime {
     @Override
     public StreamRuntime clone(String key) {
         StateStreamRuntime stateStreamRuntime = new StateStreamRuntime(executionPlanContext, metaStateEvent);
-//        for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
-//            stateStreamRuntime.addRuntime((SingleStreamRuntime) singleStreamRuntime.clone(key));
-//        }
+        stateStreamRuntime.innerStateRuntime = this.innerStateRuntime.clone(key);
         return stateStreamRuntime;
     }
 

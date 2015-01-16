@@ -98,13 +98,18 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @return
+     * @return clone of StreamPostStateProcessor
      */
     @Override
-    public Processor cloneProcessor() {
-        return null;
+    public PostStateProcessor cloneProcessor() {
+        StreamPostStateProcessor streamPostStateProcessor = new StreamPostStateProcessor();
+        cloneProperties(streamPostStateProcessor);
+        return streamPostStateProcessor;
     }
 
+    protected void cloneProperties(StreamPostStateProcessor streamPostStateProcessor){
+        streamPostStateProcessor.stateId = stateId;
+    }
     public void setNextStatePreProcessor(PreStateProcessor preStateProcessor) {
         this.nextStatePerProcessor = preStateProcessor;
     }

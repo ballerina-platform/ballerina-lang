@@ -127,11 +127,21 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @return
+     * @return clone of StreamPreStateProcessor
      */
     @Override
-    public Processor cloneProcessor() {
-        return null;
+    public PreStateProcessor cloneProcessor() {
+        StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor();
+        cloneProperties(streamPreStateProcessor);
+        return streamPreStateProcessor;
+    }
+
+    protected void cloneProperties(StreamPreStateProcessor streamPreStateProcessor){
+        streamPreStateProcessor.stateId = this.stateId;
+        streamPreStateProcessor.stateEventPool = this.stateEventPool;
+        streamPreStateProcessor.streamEventCloner = this.streamEventCloner;
+        streamPreStateProcessor.stateEventCloner = this.stateEventCloner;
+        streamPreStateProcessor.streamEventPool = this.streamEventPool;
     }
 
     @Override

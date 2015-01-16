@@ -40,6 +40,11 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
     }
 
 
+    public PreStateProcessor cloneProcessor() {
+        CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount,maxCount);
+        cloneProperties(countPreStateProcessor);
+        return countPreStateProcessor;
+    }
     /**
      * Process the handed StreamEvent
      *

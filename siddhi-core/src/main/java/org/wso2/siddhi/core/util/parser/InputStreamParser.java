@@ -84,7 +84,6 @@ public class InputStreamParser {
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
                     metaStateEvent, executors, definitionMap);
         } else {
-            //TODO: pattern, etc
             throw new OperationNotSupportedException();
         }
     }

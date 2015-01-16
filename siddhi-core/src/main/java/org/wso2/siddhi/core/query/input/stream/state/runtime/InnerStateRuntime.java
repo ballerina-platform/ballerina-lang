@@ -47,4 +47,6 @@ public interface InnerStateRuntime {
     void setStartState();
 
     void init();
+
+    public InnerStateRuntime clone(String key);
 }
