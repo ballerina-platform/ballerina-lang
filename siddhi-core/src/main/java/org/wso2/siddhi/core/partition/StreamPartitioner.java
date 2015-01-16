@@ -87,7 +87,7 @@ public class StreamPartitioner {
             int size = executors.size();
             createExecutors(((StreamStateElement) stateElement).getBasicSingleInputStream(), partition, metaEvent.getMetaStreamEvent(executorIndex), executors, executionPlanContext);
             for (int j = size; j < executors.size(); j++) {
-                executors.get(executorIndex).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = executorIndex;
+                executors.get(j).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = executorIndex;
             }
             return ++executorIndex;
         }
