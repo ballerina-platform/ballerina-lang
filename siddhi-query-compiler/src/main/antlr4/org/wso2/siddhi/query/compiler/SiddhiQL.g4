@@ -164,7 +164,7 @@ basic_source_stream_handler
     ;
 
 sequence_stream
-    :EVERY? sequence_source_chain ',' sequence_source_chain
+    :EVERY? sequence_source  within_time?  ',' sequence_source_chain
     ;
 
 sequence_source_chain
@@ -287,7 +287,7 @@ attribute_reference
     ;
 
 attribute_index
-    : INT_LITERAL| LAST ('-' INT_LITERAL)? 
+    : INT_LITERAL| LAST ('-' INT_LITERAL)?
     ;
 
 function_id

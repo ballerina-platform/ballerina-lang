@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.StreamPostStateProcessor;
 import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,11 @@ public class StreamInnerStateRuntime implements InnerStateRuntime {
     protected List<SingleStreamRuntime> singleStreamRuntimeList = new ArrayList<SingleStreamRuntime>();
     protected PreStateProcessor firstProcessor;
     protected PostStateProcessor lastProcessor;
+    protected StateInputStream.Type stateType;
+
+    public StreamInnerStateRuntime(StateInputStream.Type stateType) {
+        this.stateType = stateType;
+    }
 
     @Override
     public PreStateProcessor getFirstProcessor() {
@@ -74,25 +80,41 @@ public class StreamInnerStateRuntime implements InnerStateRuntime {
         firstProcessor.setStartState(true);
     }
 
+    public StateInputStream.Type getStateType() {
+        return stateType;
+    }
+
     @Override
     public void init() {
         singleStreamRuntimeList.get(0).getProcessStreamReceiver().setNext(firstProcessor);
         singleStreamRuntimeList.get(0).getProcessStreamReceiver().addStatefulProcessor(firstProcessor);
-        firstProcessor.init();
+        if (stateType == StateInputStream.Type.PATTERN) {
+            firstProcessor.init();
+        }
+    }
+
+    @Override
+    public void reset() {
+        firstProcessor.resetState();
+    }
+
+    @Override
+    public void update() {
+        firstProcessor.updateState();
     }
 
     @Override
     public InnerStateRuntime clone(String key) {
-        StreamInnerStateRuntime streamInnerStateRuntime = new StreamInnerStateRuntime();
-        for(SingleStreamRuntime singleStreamRuntime:singleStreamRuntimeList){
+        StreamInnerStateRuntime streamInnerStateRuntime = new StreamInnerStateRuntime(stateType);
+        for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
             streamInnerStateRuntime.singleStreamRuntimeList.add((SingleStreamRuntime) singleStreamRuntime.clone(key));
         }
 
         Processor processor = streamInnerStateRuntime.singleStreamRuntimeList.get(0).getProcessorChain();
         streamInnerStateRuntime.firstProcessor = (StreamPreStateProcessor) processor;
 
-        while (processor!= null){
-            if(processor instanceof StreamPostStateProcessor){
+        while (processor != null) {
+            if (processor instanceof StreamPostStateProcessor) {
                 streamInnerStateRuntime.lastProcessor = (StreamPostStateProcessor) processor;
                 break;
             } else {
@@ -100,7 +122,7 @@ public class StreamInnerStateRuntime implements InnerStateRuntime {
             }
         }
 
-        ((StreamPostStateProcessor)streamInnerStateRuntime.lastProcessor).setThisStatePreProcessor((StreamPreStateProcessor) streamInnerStateRuntime.firstProcessor);
+        ((StreamPostStateProcessor) streamInnerStateRuntime.lastProcessor).setThisStatePreProcessor((StreamPreStateProcessor) streamInnerStateRuntime.firstProcessor);
         return streamInnerStateRuntime;
     }
 }

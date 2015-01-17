@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.Iterator;
 
@@ -33,35 +34,39 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     private LogicalStateElement.Type logicalType;
     private LogicalPreStateProcessor partnerStatePreProcessor;
 
-    public LogicalPreStateProcessor(LogicalStateElement.Type type) {
+    public LogicalPreStateProcessor(LogicalStateElement.Type type, StateInputStream.Type stateType) {
+        super(stateType);
         this.logicalType = type;
-    }
-
-    public void init() {
-        if (isStartState) {
-            StateEvent stateEvent = stateEventPool.borrowEvent();
-            newAndEveryStateEventList.add(stateEvent);
-        }
     }
 
     /**
      * Clone a copy of processor
      *
-     * @return  clone of LogicalPreStateProcessor
+     * @return clone of LogicalPreStateProcessor
      */
     @Override
     public PreStateProcessor cloneProcessor() {
-        LogicalPreStateProcessor logicalPreStateProcessor= new LogicalPreStateProcessor(logicalType);
+        LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType);
         cloneProperties(logicalPreStateProcessor);
         return logicalPreStateProcessor;
     }
 
     @Override
     public void addState(StateEvent stateEvent) {
-        newAndEveryStateEventList.add(stateEvent);
-        if (partnerStatePreProcessor != null) {
-            partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
+        if (stateType == StateInputStream.Type.SEQUENCE) {
+            if (newAndEveryStateEventList.isEmpty()) {
+                newAndEveryStateEventList.add(stateEvent);
+            }
+            if (partnerStatePreProcessor != null && partnerStatePreProcessor.newAndEveryStateEventList.isEmpty()) {
+                partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
+            }
+        } else {
+            newAndEveryStateEventList.add(stateEvent);
+            if (partnerStatePreProcessor != null) {
+                partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
+            }
         }
+
     }
 
     @Override
@@ -77,8 +82,18 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     }
 
     @Override
-    public void updateState() {
+    public void resetState() {
+        pendingStateEventList.clear();
+        partnerStatePreProcessor.pendingStateEventList.clear();
 
+        if (isStartState && newAndEveryStateEventList.isEmpty()) {
+            //        if (isStartState && stateType == StateInputStream.Type.SEQUENCE && newAndEveryStateEventList.isEmpty()) {
+            init();
+        }
+    }
+
+    @Override
+    public void updateState() {
         pendingStateEventList.addAll(newAndEveryStateEventList);
         newAndEveryStateEventList.clear();
 
@@ -98,17 +113,24 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
-            if (logicalType == LogicalStateElement.Type.OR &&
-                    stateEvent.getStreamEvent(partnerStatePreProcessor.getStateId()) != null) {
+            if (logicalType == LogicalStateElement.Type.OR && stateEvent.getStreamEvent(partnerStatePreProcessor.getStateId()) != null) {
                 iterator.remove();
                 continue;
             }
             stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
-            process(stateEvent, streamEvent, iterator);
+            process(stateEvent);
             if (stateChanged) {
                 iterator.remove();
             } else {
-                stateEvent.setEvent(stateId, null);
+                switch (stateType) {
+                    case PATTERN:
+                        stateEvent.setEvent(stateId, null);
+                        break;
+                    case SEQUENCE:
+                        stateEvent.setEvent(stateId, null);
+                        iterator.remove();
+                        break;
+                }
             }
         }
     }

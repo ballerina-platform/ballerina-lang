@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,21 +16,21 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state;
+package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
-import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 
-/**
- * Created on 12/17/14.
- */
-public interface PostStateProcessor extends Processor {
+public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
-    public void setNextStatePreProcessor(PreStateProcessor nextStatePerProcessor);
 
-    public void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor);
+    public PatternSingleProcessStreamReceiver(String streamId) {
+        super(streamId);
+    }
 
-    public void setCallbackPreStateProcessor(CountPreStateProcessor callbackPreStateProcessor);
 
-    public PostStateProcessor cloneProcessor();
-
+    protected void stabilizeStates() {
+        if (stateProcessorsSize != 0) {
+            stateProcessors.get(0).updateState();
+        }
+    }
 }
