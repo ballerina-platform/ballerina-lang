@@ -38,7 +38,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     private StreamEventPool[] streamEventPools;
     private StreamEventConverter[] streamEventConverters;
     private ComplexEventChunk<StreamEvent> currentStreamEventChunk;
-    private int processCount;
+    protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
 
 
@@ -54,8 +54,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        MultiProcessStreamReceiver clonedQueryStreamReceiver = new MultiProcessStreamReceiver(streamId + key,processCount);
-        return clonedQueryStreamReceiver;
+        return new MultiProcessStreamReceiver(streamId + key,processCount);
     }
 
     @Override

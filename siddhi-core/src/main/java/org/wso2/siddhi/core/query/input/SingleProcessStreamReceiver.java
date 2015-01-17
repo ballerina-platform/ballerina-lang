@@ -29,6 +29,10 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
         super(streamId);
     }
 
+    public SingleProcessStreamReceiver clone(String key) {
+        return new SingleProcessStreamReceiver(streamId + key);
+    }
+
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
 
         while (streamEventChunk.hasNext()) {

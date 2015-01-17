@@ -54,10 +54,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public ProcessStreamReceiver clone(String key) {
-        ProcessStreamReceiver clonedProcessStreamReceiver = new ProcessStreamReceiver(streamId + key);
-        clonedProcessStreamReceiver.setMetaStreamEvent(metaStreamEvent);
-        clonedProcessStreamReceiver.setStreamEventPool(new StreamEventPool(metaStreamEvent, streamEventPool.getSize()));
-        return clonedProcessStreamReceiver;
+        return new ProcessStreamReceiver(streamId + key);
     }
 
     @Override

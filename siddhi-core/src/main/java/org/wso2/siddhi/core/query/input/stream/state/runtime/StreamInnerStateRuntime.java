@@ -123,6 +123,8 @@ public class StreamInnerStateRuntime implements InnerStateRuntime {
         }
 
         ((StreamPostStateProcessor) streamInnerStateRuntime.lastProcessor).setThisStatePreProcessor((StreamPreStateProcessor) streamInnerStateRuntime.firstProcessor);
+        ((StreamPreStateProcessor) streamInnerStateRuntime.firstProcessor).setThisStatePostProcessor((StreamPostStateProcessor) streamInnerStateRuntime.lastProcessor);
+
         return streamInnerStateRuntime;
     }
 }

@@ -27,6 +27,9 @@ public class PatternSingleProcessStreamReceiver extends SingleProcessStreamRecei
         super(streamId);
     }
 
+    public PatternSingleProcessStreamReceiver clone(String key) {
+        return new PatternSingleProcessStreamReceiver(streamId + key);
+    }
 
     protected void stabilizeStates() {
         if (stateProcessorsSize != 0) {

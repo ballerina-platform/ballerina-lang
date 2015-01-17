@@ -28,6 +28,10 @@ public class PatternMultiProcessStreamReceiver extends MultiProcessStreamReceive
         super(streamId, processCount);
     }
 
+    public PatternMultiProcessStreamReceiver clone(String key) {
+        return new PatternMultiProcessStreamReceiver(streamId + key,processCount);
+    }
+
     protected void stabilizeStates(){
         if (stateProcessorsSize != 0) {
             for (PreStateProcessor preStateProcessor : stateProcessors) {
