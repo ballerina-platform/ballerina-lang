@@ -78,7 +78,11 @@ public class SingleInputStream extends InputStream {
 
     public List<String> getAllStreamIds() {
         List<String> streamIds = new ArrayList<String>();
-        streamIds.add(streamId);
+        if(isInnerStream) {
+            streamIds.add("#"+streamId);
+        } else {
+            streamIds.add(streamId);
+        }
         return streamIds;
     }
 
