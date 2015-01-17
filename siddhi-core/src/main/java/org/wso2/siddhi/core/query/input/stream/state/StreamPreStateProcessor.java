@@ -41,6 +41,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     protected boolean isStartState;
     protected volatile boolean stateChanged = false;
     protected StateInputStream.Type stateType;
+    protected StreamPostStateProcessor thisStatePostProcessor;
 
     protected Processor nextProcessor;
 
@@ -58,6 +59,14 @@ public class StreamPreStateProcessor implements PreStateProcessor {
         this.stateType = stateType;
     }
 
+    public void setThisStatePostProcessor(StreamPostStateProcessor thisStatePostProcessor) {
+        this.thisStatePostProcessor = thisStatePostProcessor;
+    }
+
+    public StreamPostStateProcessor getThisStatePostProcessor() {
+        return thisStatePostProcessor;
+    }
+
     /**
      * Process the handed StreamEvent
      *
@@ -71,7 +80,7 @@ public class StreamPreStateProcessor implements PreStateProcessor {
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
             stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
-            process(stateEvent, streamEvent, iterator);
+            process(stateEvent);
             if (stateChanged) {
                 iterator.remove();
             } else {
@@ -80,14 +89,18 @@ public class StreamPreStateProcessor implements PreStateProcessor {
                         stateEvent.setEvent(stateId, null);
                         break;
                     case SEQUENCE:
+                        stateEvent.setEvent(stateId, null);
                         iterator.remove();
+                        if (thisStatePostProcessor.callbackPreStateProcessor != null) {
+                            thisStatePostProcessor.callbackPreStateProcessor.startStateReset();
+                        }
                         break;
                 }
             }
         }
     }
 
-    protected void process(StateEvent stateEvent, StreamEvent streamEvent, Iterator<StateEvent> iterator) {
+    protected void process(StateEvent stateEvent) {
         currentStateEventChunk.add(stateEvent);
         currentStateEventChunk.reset();
         stateChanged = false;
@@ -143,12 +156,12 @@ public class StreamPreStateProcessor implements PreStateProcessor {
      */
     @Override
     public PreStateProcessor cloneProcessor() {
-        StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor();
+        StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType);
         cloneProperties(streamPreStateProcessor);
         return streamPreStateProcessor;
     }
 
-    protected void cloneProperties(StreamPreStateProcessor streamPreStateProcessor){
+    protected void cloneProperties(StreamPreStateProcessor streamPreStateProcessor) {
         streamPreStateProcessor.stateId = this.stateId;
         streamPreStateProcessor.stateEventPool = this.stateEventPool;
         streamPreStateProcessor.streamEventCloner = this.streamEventCloner;
@@ -158,11 +171,18 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     @Override
     public void addState(StateEvent stateEvent) {
+        //        if (stateType == StateInputStream.Type.SEQUENCE) {
+        //            newAndEveryStateEventList.clear();
+        //            pendingStateEventList.clear();
+        //        }
         if (stateType == StateInputStream.Type.SEQUENCE) {
-            newAndEveryStateEventList.clear();
-            pendingStateEventList.clear();
+            if (newAndEveryStateEventList.isEmpty()) {
+                newAndEveryStateEventList.add(stateEvent);
+            }
+        } else {
+            newAndEveryStateEventList.add(stateEvent);
+
         }
-        newAndEveryStateEventList.add(stateEvent);
     }
 
     @Override
@@ -192,6 +212,15 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     public void setStateEventCloner(StateEventCloner stateEventCloner) {
         this.stateEventCloner = stateEventCloner;
+    }
+
+    @Override
+    public void resetState() {
+        pendingStateEventList.clear();
+        if (isStartState && newAndEveryStateEventList.isEmpty()) {
+            //        if (isStartState && stateType == StateInputStream.Type.SEQUENCE && newAndEveryStateEventList.isEmpty()) {
+            init();
+        }
     }
 
     @Override

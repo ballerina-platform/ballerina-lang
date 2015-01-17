@@ -29,6 +29,7 @@ public class CountInnerStateRuntime extends StreamInnerStateRuntime {
     protected StreamInnerStateRuntime streamInnerStateRuntime;
 
     public CountInnerStateRuntime(StreamInnerStateRuntime streamInnerStateRuntime) {
+        super(streamInnerStateRuntime.getStateType());
         this.streamInnerStateRuntime = streamInnerStateRuntime;
         singleStreamRuntimeList=streamInnerStateRuntime.singleStreamRuntimeList;
         firstProcessor=streamInnerStateRuntime.firstProcessor;

@@ -42,27 +42,31 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @return  clone of LogicalPreStateProcessor
+     * @return clone of LogicalPreStateProcessor
      */
     @Override
     public PreStateProcessor cloneProcessor() {
-        LogicalPreStateProcessor logicalPreStateProcessor= new LogicalPreStateProcessor(logicalType);
+        LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType);
         cloneProperties(logicalPreStateProcessor);
         return logicalPreStateProcessor;
     }
 
     @Override
     public void addState(StateEvent stateEvent) {
-        if(stateType== StateInputStream.Type.SEQUENCE){
-            newAndEveryStateEventList.clear();
-            pendingStateEventList.clear();
-            partnerStatePreProcessor.newAndEveryStateEventList.clear();
-            partnerStatePreProcessor.pendingStateEventList.clear();
+        if (stateType == StateInputStream.Type.SEQUENCE) {
+            if (newAndEveryStateEventList.isEmpty()) {
+                newAndEveryStateEventList.add(stateEvent);
+            }
+            if (partnerStatePreProcessor != null && partnerStatePreProcessor.newAndEveryStateEventList.isEmpty()) {
+                partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
+            }
+        } else {
+            newAndEveryStateEventList.add(stateEvent);
+            if (partnerStatePreProcessor != null) {
+                partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
+            }
         }
-        newAndEveryStateEventList.add(stateEvent);
-        if (partnerStatePreProcessor != null) {
-            partnerStatePreProcessor.newAndEveryStateEventList.add(stateEvent);
-        }
+
     }
 
     @Override
@@ -78,8 +82,18 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     }
 
     @Override
-    public void updateState() {
+    public void resetState() {
+        pendingStateEventList.clear();
+        partnerStatePreProcessor.pendingStateEventList.clear();
 
+        if (isStartState && newAndEveryStateEventList.isEmpty()) {
+            //        if (isStartState && stateType == StateInputStream.Type.SEQUENCE && newAndEveryStateEventList.isEmpty()) {
+            init();
+        }
+    }
+
+    @Override
+    public void updateState() {
         pendingStateEventList.addAll(newAndEveryStateEventList);
         newAndEveryStateEventList.clear();
 
@@ -99,13 +113,12 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
-            if (logicalType == LogicalStateElement.Type.OR &&
-                    stateEvent.getStreamEvent(partnerStatePreProcessor.getStateId()) != null) {
+            if (logicalType == LogicalStateElement.Type.OR && stateEvent.getStreamEvent(partnerStatePreProcessor.getStateId()) != null) {
                 iterator.remove();
                 continue;
             }
             stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
-            process(stateEvent, streamEvent, iterator);
+            process(stateEvent);
             if (stateChanged) {
                 iterator.remove();
             } else {
@@ -114,6 +127,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
                         stateEvent.setEvent(stateId, null);
                         break;
                     case SEQUENCE:
+                        stateEvent.setEvent(stateId, null);
                         iterator.remove();
                         break;
                 }

@@ -26,7 +26,6 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
-import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     public void receive(ComplexEvent complexEvent) {
         ComplexEvent aComplexEvent = complexEvent;
         while (aComplexEvent != null) {
-            updateStates();
+            stabilizeStates();
 //            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
             for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[i];
@@ -78,7 +77,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     @Override
     public void receive(Event event) {
-        updateStates();
+        stabilizeStates();
 //        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
         for (int i = metaStreamEvents.length - 1; i > -1; i--) {
             StreamEventConverter aStreamEventConverter = streamEventConverters[i];
@@ -92,7 +91,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     @Override
     public void receive(Event[] events) {
         for (Event event : events) {
-            updateStates();
+            stabilizeStates();
 //            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
             for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[i];
@@ -109,7 +108,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         eventBuffer.add(event);
         if (endOfBatch) {
             for (Event aEvent : eventBuffer) {
-                updateStates();
+                stabilizeStates();
 //                for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
                 for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                     StreamEventConverter aStreamEventConverter = streamEventConverters[i];
@@ -125,7 +124,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        updateStates();
+        stabilizeStates();
 //        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
         for (int i = metaStreamEvents.length - 1; i > -1; i--) {
             StreamEventConverter aStreamEventConverter = streamEventConverters[i];
@@ -142,12 +141,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         currentStreamEventChunk.clear();
     }
 
-    private void updateStates() {
-        if (stateProcessorsSize != 0) {
-            for (PreStateProcessor preStateProcessor : stateProcessors) {
-                preStateProcessor.updateState();
-            }
-        }
+    protected void stabilizeStates(){
+
     }
 
 

@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.input.stream.state.runtime;
 
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 /**
  * Created on 12/19/14.
@@ -27,7 +28,8 @@ public class EveryInnerStateRuntime extends StreamInnerStateRuntime {
 
     private final InnerStateRuntime innerStateRuntime;
 
-    public EveryInnerStateRuntime(InnerStateRuntime innerStateRuntime) {
+    public EveryInnerStateRuntime(InnerStateRuntime innerStateRuntime, StateInputStream.Type stateType) {
+        super(stateType);
         this.innerStateRuntime = innerStateRuntime;
     }
 
@@ -49,7 +51,7 @@ public class EveryInnerStateRuntime extends StreamInnerStateRuntime {
     @Override
     public InnerStateRuntime clone(String key) {
         InnerStateRuntime cloned_streamInnerStateRuntime = innerStateRuntime.clone(key);
-        EveryInnerStateRuntime everyInnerStateRuntime = new EveryInnerStateRuntime(cloned_streamInnerStateRuntime);
+        EveryInnerStateRuntime everyInnerStateRuntime = new EveryInnerStateRuntime(cloned_streamInnerStateRuntime, stateType);
 
         everyInnerStateRuntime.firstProcessor = cloned_streamInnerStateRuntime.getFirstProcessor();
         everyInnerStateRuntime.lastProcessor = cloned_streamInnerStateRuntime.getLastProcessor();

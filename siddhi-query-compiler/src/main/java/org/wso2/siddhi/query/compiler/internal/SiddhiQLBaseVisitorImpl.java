@@ -703,13 +703,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         StateElement stateElement1;
         if (ctx.EVERY() != null) {
-            stateElement1 = new EveryStateElement((StateElement) visit(ctx.sequence_source_chain(0)));
+            stateElement1 = new EveryStateElement((StateElement) visit(ctx.sequence_source()));
         } else {
-            stateElement1 = (StateElement) visit(ctx.sequence_source_chain(0));
+            stateElement1 = (StateElement) visit(ctx.sequence_source());
+        }
+        if(ctx.within_time()!=null){
+            stateElement1.setWithin((TimeConstant) visit(ctx.within_time()));
         }
         return new StateInputStream(
                 StateInputStream.Type.SEQUENCE,
-                new NextStateElement(stateElement1, ((StateElement) visit(ctx.sequence_source_chain(1)))));
+                new NextStateElement(stateElement1, ((StateElement) visit(ctx.sequence_source_chain()))));
 
     }
 

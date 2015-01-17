@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.query.input.stream.state;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 /**
  * Created on 1/6/15.
@@ -49,8 +50,17 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
             streamEvent = streamEvent.getNext();
         }
         ((CountPreStateProcessor) thisStatePreProcessor).successCondition();
+
         if (streamEvents >= minCount) {
-            if (streamEvents == minCount) {
+
+            if (thisStatePreProcessor.stateType == StateInputStream.Type.SEQUENCE) {
+                if (nextStatePerProcessor != null) {
+                    nextStatePerProcessor.addState(stateEvent);
+                }
+                if (streamEvents != maxCount) {
+                    thisStatePreProcessor.addState(stateEvent);
+                }
+            } else if (streamEvents == minCount) {
                 processMinCountReached(stateEvent, complexEventChunk);
             }
             if (streamEvents == maxCount) {
@@ -70,6 +80,16 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
         }
         if (nextEveryStatePerProcessor != null) {
             nextEveryStatePerProcessor.addEveryState(stateEvent);
+        }
+    }
+
+    public void setNextStatePreProcessor(PreStateProcessor preStateProcessor) {
+        this.nextStatePerProcessor = preStateProcessor;
+        if (thisStatePreProcessor.isStartState &&
+                thisStatePreProcessor.stateType == StateInputStream.Type.SEQUENCE &&
+                minCount == 0) {
+            preStateProcessor.getThisStatePostProcessor().setCallbackPreStateProcessor(
+                    (CountPreStateProcessor) thisStatePreProcessor);
         }
     }
 }

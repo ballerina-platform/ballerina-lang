@@ -40,6 +40,10 @@ public interface PreStateProcessor extends Processor {
 
     void updateState();
 
+    public StreamPostStateProcessor getThisStatePostProcessor();
+
+    void resetState();
+    
     public PreStateProcessor cloneProcessor();
 
 }
