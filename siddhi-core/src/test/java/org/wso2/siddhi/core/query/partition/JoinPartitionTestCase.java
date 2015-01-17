@@ -404,4 +404,52 @@ public class JoinPartitionTestCase {
         executionPlanRuntime.shutdown();
 
     }
+
+    @Test
+    public void testJoinPartition8() throws InterruptedException {
+        log.info("Join partition test8");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+                + "partition with (user of cseEventStream) begin @info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume " +
+                "insert into outputStream ;" + "" +
+                "end ";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    if(event.isExpired()){
+                        removeEventCount++;
+                    } else{
+                        inEventCount++;
+                    }
+                    eventArrived = true;
+                };
+            }
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
+
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+        twitterStreamHandler.send(new Object[]{"User2", "Hellno World", "WSO2"});
+        twitterStreamHandler.send(new Object[]{"User3", "Hellno World", "WSO2"});
+
+        Thread.sleep(2000);
+        Assert.assertEquals(3, inEventCount);
+        Assert.assertEquals(3, removeEventCount);
+        executionPlanRuntime.shutdown();
+
+    }
 }
