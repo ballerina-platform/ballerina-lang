@@ -48,17 +48,18 @@ public class InputStreamParser {
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> definitionMap,
                                       List<VariableExpressionExecutor> executors) {
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
-            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(((SingleInputStream) inputStream).getStreamId());
+            SingleInputStream singleInputStream = (SingleInputStream) inputStream;
+            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream()? "#":"")+singleInputStream.getStreamId());
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
                     executionPlanContext, executors, definitionMap, new MetaStreamEvent(), processStreamReceiver);
         } else if (inputStream instanceof JoinInputStream) {
             ProcessStreamReceiver leftProcessStreamReceiver;
             ProcessStreamReceiver rightProcessStreamReceiver;
             if (inputStream.getAllStreamIds().size() == 2) {
-                leftProcessStreamReceiver = new ProcessStreamReceiver(((SingleInputStream) ((JoinInputStream) inputStream)
-                        .getLeftInputStream()).getStreamId());
-                rightProcessStreamReceiver = new ProcessStreamReceiver(((SingleInputStream) ((JoinInputStream) inputStream)
-                        .getRightInputStream()).getStreamId());
+                SingleInputStream singleInputStream = ((SingleInputStream)((JoinInputStream) inputStream).getLeftInputStream());
+                leftProcessStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream()? "#":"")+singleInputStream.getStreamId());
+                singleInputStream = ((SingleInputStream) ((JoinInputStream) inputStream).getRightInputStream());
+                rightProcessStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream()? "#":"")+singleInputStream.getStreamId());
             } else {
                 rightProcessStreamReceiver = new MultiProcessStreamReceiver(inputStream.getAllStreamIds().get(0), 2);
                 leftProcessStreamReceiver = rightProcessStreamReceiver;

@@ -38,14 +38,27 @@ public class OutputParser {
                                                          StreamDefinition outputStreamDefinition,
                                                          ExecutionPlanContext executionPlanContext) {
         String id = outStream.getId();
+        return constructOutputCallback(id,outStream,streamJunctionMap,outputStreamDefinition,executionPlanContext);
+    }
+
+    public static OutputCallback constructLocalOutputCallback(OutputStream outStream, ConcurrentMap<String, StreamJunction> streamJunctionMap,
+                                                              StreamDefinition outputStreamDefinition,
+                                                              ExecutionPlanContext executionPlanContext) {
+        String id = "#" + outStream.getId();
+        return constructOutputCallback(id,outStream,streamJunctionMap,outputStreamDefinition,executionPlanContext);
+    }
+
+    private static OutputCallback constructOutputCallback(String streamId,OutputStream outStream,ConcurrentMap<String, StreamJunction> streamJunctionMap,
+                                                               StreamDefinition outputStreamDefinition,
+                                                               ExecutionPlanContext executionPlanContext) {
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
-            StreamJunction outputStreamJunction = streamJunctionMap.get(id);
+            StreamJunction outputStreamJunction = streamJunctionMap.get(streamId);
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
                         executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
-                streamJunctionMap.putIfAbsent(id, outputStreamJunction);
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                streamJunctionMap.putIfAbsent(streamId, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
 
@@ -58,14 +71,14 @@ public class OutputParser {
                                                          ConcurrentMap<String, StreamJunction> streamJunctionMap,
                                                          StreamDefinition outputStreamDefinition,
                                                          ExecutionPlanContext executionPlanContext) {
-        String id = outStream.getId();
+        String id = "#" + outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id + key);
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
                         executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
                 streamJunctionMap.put(id + key, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);

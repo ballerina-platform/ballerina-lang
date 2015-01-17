@@ -83,7 +83,7 @@ public class StateInputStreamParser {
             BasicSingleInputStream basicSingleInputStream = ((StreamStateElement) stateElement).getBasicSingleInputStream();
             SingleStreamRuntime singleStreamRuntime = SingleInputStreamParser.parseInputStream(basicSingleInputStream,
                     executionPlanContext, executors, definitionMap, metaStateEvent,
-                    processStreamReceiverMap.get(basicSingleInputStream.getStreamId()));
+                    processStreamReceiverMap.get(basicSingleInputStream.getUniqueStreamIds().get(0)));
 
             int stateIndex = metaStateEvent.getStreamEventCount() - 1;
             if (streamPreStateProcessor == null) {

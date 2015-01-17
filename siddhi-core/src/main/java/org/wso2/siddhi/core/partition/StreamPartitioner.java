@@ -109,19 +109,21 @@ public class StreamPartitioner {
     private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
         List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
         partitionExecutorLists.add(executorList);
-        for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
-            if (partitionType instanceof ValuePartitionType) {
-                if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
-                    executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                            metaEvent, -1,executors, executionPlanContext,false, 0)));
-                }
-            } else {
-                for(RangePartitionType.RangePartitionProperty rangePartitionProperty:((RangePartitionType)partitionType).getRangePartitionProperties()){
+        if(!inputStream.isInnerStream()) {
+            for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
+                if (partitionType instanceof ValuePartitionType) {
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
-                        executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
-                                ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
-                                        -1,executors, executionPlanContext,false, 0), rangePartitionProperty.getPartitionKey()));
+                        executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
+                                metaEvent, -1, executors, executionPlanContext, false, 0)));
+                    }
+                } else {
+                    for (RangePartitionType.RangePartitionProperty rangePartitionProperty : ((RangePartitionType) partitionType).getRangePartitionProperties()) {
+                        if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
+                            executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
+                                    ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
+                                            -1, executors, executionPlanContext, false, 0), rangePartitionProperty.getPartitionKey()));
 
+                        }
                     }
                 }
             }

@@ -229,21 +229,13 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
      */
     public void addStreamJunction(String key, List<QueryRuntime> queryRuntimeList) {
         StreamJunction streamJunction = cachedStreamJunctionMap.get(streamId + key);
-        if (!partitionExecutors.isEmpty()) {
+        if (streamJunction == null) {
+            streamJunction = partitionRuntime.getLocalStreamJunctionMap().get(streamId + key);
             if (streamJunction == null) {
-                streamJunction =createStreamJunction();
+                streamJunction = createStreamJunction();
                 partitionRuntime.addStreamJunction(streamId + key, streamJunction);
-                cachedStreamJunctionMap.put(streamId + key, streamJunction);
             }
-        } else {
-            if (streamJunction == null) {
-                streamJunction = partitionRuntime.getLocalStreamJunctionMap().get(streamId + key);
-                if (streamJunction == null) {
-                    streamJunction =createStreamJunction();
-                    partitionRuntime.addStreamJunction(streamId + key, streamJunction);
-                }
-                cachedStreamJunctionMap.put(streamId + key, streamJunction);
-            }
+            cachedStreamJunctionMap.put(streamId + key, streamJunction);
         }
         for (QueryRuntime queryRuntime : queryRuntimeList) {
             StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
