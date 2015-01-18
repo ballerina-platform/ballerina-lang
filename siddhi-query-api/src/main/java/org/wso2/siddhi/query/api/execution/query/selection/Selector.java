@@ -17,7 +17,7 @@
 */
 package org.wso2.siddhi.query.api.execution.query.selection;
 
-import org.wso2.siddhi.query.api.exception.AttributeAlreadyExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
@@ -50,7 +50,7 @@ public class Selector {
     private void checkSelection(OutputAttribute newAttribute) {
         for (OutputAttribute attribute : selectionList) {
             if (attribute.getRename().equals(newAttribute.getRename())) {
-                throw new AttributeAlreadyExistException(attribute.getRename() + " is already defined as an output attribute ");
+                throw new DuplicateAttributeException(attribute.getRename() + " is already defined as an output attribute ");
             }
         }
     }

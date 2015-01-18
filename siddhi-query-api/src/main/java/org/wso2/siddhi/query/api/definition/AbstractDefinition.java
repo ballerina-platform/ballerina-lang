@@ -17,7 +17,7 @@
 package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.exception.AttributeAlreadyExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public abstract class AbstractDefinition {
     protected void checkAttribute(String attributeName) {
         for (Attribute attribute : attributeList) {
             if (attribute.getName().equals(attributeName)) {
-                throw new AttributeAlreadyExistException(attributeName + " is already defined for with type " + attribute.getType() + " for " + id + "; " + this.toString());
+                throw new DuplicateAttributeException(attributeName + " is already defined for with type " + attribute.getType() + " for " + id + "; " + this.toString());
             }
         }
     }

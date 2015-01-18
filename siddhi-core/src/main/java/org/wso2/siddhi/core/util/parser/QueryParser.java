@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
-import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -30,7 +29,6 @@ import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -83,13 +81,6 @@ public class QueryParser {
 
         return queryRuntime;
 
-    }
-
-    private static void validateOutputStream(StreamDefinition outputStreamDefinition, Map<String, AbstractDefinition> definitionMap) {
-        if (definitionMap.containsKey(outputStreamDefinition.getId()) && !(definitionMap.get(outputStreamDefinition.getId()).equalsIgnoreAnnotations(outputStreamDefinition))) {
-            throw new DifferentDefinitionAlreadyExistException("Different stream definition same as output stream definition is already " +
-                    "exist under stream name " + outputStreamDefinition.getId());
-        }
     }
 
 

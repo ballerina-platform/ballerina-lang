@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.query;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.QueryContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -78,7 +77,7 @@ public class QueryRuntime {
 
             }
         } catch (DuplicateAnnotationException e) {
-            throw new ExecutionPlanCreationException(e.getMessage() + " for the same Query " + query.toString());
+            throw new DuplicateAnnotationException(e.getMessage() + " for the same Query " + query.toString());
         }
         if (queryId == null) {
             queryId = UUID.randomUUID().toString();

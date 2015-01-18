@@ -95,7 +95,7 @@ public class SelectorParser {
                                                                    List<VariableExpressionExecutor> executors) {
 
         List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
-        StreamDefinition temp = new StreamDefinition(id);
+        StreamDefinition temp = StreamDefinition.id(id);
 
         int i = 0;
         for (OutputAttribute outputAttribute : selector.getSelectionList()) {

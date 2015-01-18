@@ -45,7 +45,7 @@ public abstract class StreamProcessor implements Processor {
         this.inputExecutors = inputExecutors;
         additionalAttributes = init(inputDefinition, inputExecutors);
 
-        StreamDefinition outputDefinition = new StreamDefinition(inputDefinition.getId());
+        StreamDefinition outputDefinition = StreamDefinition.id(inputDefinition.getId());
         for (Attribute attribute : inputDefinition.getAttributeList()) {
             outputDefinition.attribute(attribute.getName(), attribute.getType());
         }

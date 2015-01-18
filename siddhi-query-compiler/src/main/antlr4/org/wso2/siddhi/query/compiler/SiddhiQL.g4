@@ -32,8 +32,10 @@ error
     ;
 
 execution_plan
-    :plan_annotation* (definition_stream|definition_table|execution_element|error)
-        (';'  (definition_stream|definition_table|execution_element|error))* ';'?
+    : (plan_annotation|error)*
+      ( (definition_stream|definition_table|error) (';' (definition_stream|definition_table|error))* ';'?
+      || (execution_element|error) (';' (execution_element|error))* ';'?
+      || (definition_stream|definition_table|error) (';' (definition_stream|definition_table|error))* (';' (execution_element|error))* ';'? )
     ;
 
 execution_element

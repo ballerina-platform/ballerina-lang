@@ -29,106 +29,90 @@ import org.wso2.siddhi.query.compiler.internal.SiddhiQLBaseVisitorImpl;
 
 public class SiddhiCompiler {
 
-    public static ExecutionPlan parse(String source) throws SiddhiParserException {
-        try {
+    public static ExecutionPlan parse(String source) {
 
-            ANTLRInputStream input = new ANTLRInputStream(source);
-            SiddhiQLLexer lexer = new SiddhiQLLexer(input);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            SiddhiQLParser parser = new SiddhiQLParser(tokens);
-//            parser.setErrorHandler(new BailErrorStrategy());
-            parser.removeErrorListeners();
-            parser.addErrorListener(SiddhiErrorListener.INSTANCE);
-            ParseTree tree = parser.parse();
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        //            parser.setErrorHandler(new BailErrorStrategy());
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.parse();
 
-            SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-            return (ExecutionPlan) eval.visit(tree);
-        } catch (Throwable e) {
-            throw new SiddhiParserException(e.getMessage(), e);
-        }
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (ExecutionPlan) eval.visit(tree);
     }
 
-    public static StreamDefinition parseStreamDefinition(String source) throws SiddhiParserException {
-        try {
-            ANTLRInputStream input = new ANTLRInputStream(source);
-            SiddhiQLLexer lexer = new SiddhiQLLexer(input);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
+    public static StreamDefinition parseStreamDefinition(String source) {
 
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            SiddhiQLParser parser = new SiddhiQLParser(tokens);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SiddhiErrorListener.INSTANCE);
-            ParseTree tree = parser.definition_stream_final();
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-            return (StreamDefinition) eval.visit(tree);
-        } catch (Throwable e) {
-            throw new SiddhiParserException(e.getMessage(), e);
-        }
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.definition_stream_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (StreamDefinition) eval.visit(tree);
     }
 
     public static TableDefinition parseTableDefinition(String source) throws SiddhiParserException {
-        try {
-            ANTLRInputStream input = new ANTLRInputStream(source);
-            SiddhiQLLexer lexer = new SiddhiQLLexer(input);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            SiddhiQLParser parser = new SiddhiQLParser(tokens);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SiddhiErrorListener.INSTANCE);
-            ParseTree tree = parser.definition_table_final();
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-            return (TableDefinition) eval.visit(tree);
-        } catch (Throwable e) {
-            throw new SiddhiParserException(e.getMessage(), e);
-        }
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.definition_table_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (TableDefinition) eval.visit(tree);
     }
 
     public static Partition parsePartition(String source) throws SiddhiParserException {
-        try {
-            ANTLRInputStream input = new ANTLRInputStream(source);
-            SiddhiQLLexer lexer = new SiddhiQLLexer(input);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            SiddhiQLParser parser = new SiddhiQLParser(tokens);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SiddhiErrorListener.INSTANCE);
-            ParseTree tree = parser.partition_final();
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-            return (Partition) eval.visit(tree);
-        } catch (Throwable e) {
-            throw new SiddhiParserException(e.getMessage(), e);
-        }
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.partition_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (Partition) eval.visit(tree);
     }
 
     public static Query parseQuery(String source) throws SiddhiParserException {
-        try {
-            ANTLRInputStream input = new ANTLRInputStream(source);
-            SiddhiQLLexer lexer = new SiddhiQLLexer(input);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            SiddhiQLParser parser = new SiddhiQLParser(tokens);
-            parser.removeErrorListeners();
-            parser.addErrorListener(SiddhiErrorListener.INSTANCE);
-            ParseTree tree = parser.query_final();
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
 
-            SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-            return (Query) eval.visit(tree);
-        } catch (Throwable e) {
-            throw new SiddhiParserException(e.getMessage(), e);
-        }
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.query_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (Query) eval.visit(tree);
     }
 
 }

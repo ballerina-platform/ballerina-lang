@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -29,8 +28,11 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
+import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -96,13 +98,14 @@ public class ExecutionPlanParser {
             executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5));
 
         } catch (DuplicateAnnotationException e) {
-            throw new ExecutionPlanValidationException(e.getMessage() + " for the same Execution Plan " +
+            throw new DuplicateAnnotationException(e.getMessage() + " for the same Execution Plan " +
                     executionPlan.toString());
         }
 
         ExecutionPlanRuntime executionPlanRuntime = new ExecutionPlanRuntime(executionPlanContext);
 
         defineStreamDefinitions(executionPlanRuntime, executionPlan.getStreamDefinitionMap());
+        defineTableDefinitions(executionPlanRuntime, executionPlan.getTableDefinitionMap());
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
@@ -118,8 +121,8 @@ public class ExecutionPlanParser {
         } catch (ExecutionPlanCreationException e) {
             throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
                     executionPlanRuntime.getName() + "\"", e);
-        } catch (DifferentDefinitionAlreadyExistException e){
-            throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
+        } catch (DuplicateDefinitionException e){
+            throw new DuplicateDefinitionException(e.getMessage() + " in execution plan \"" +
                     executionPlanRuntime.getName() + "\"", e);
         }
         return executionPlanRuntime;
@@ -129,6 +132,16 @@ public class ExecutionPlanParser {
         for (StreamDefinition definition : streamDefinitionMap.values()) {
             executionPlanRuntime.defineStream(definition);
         }
+    }
+
+    private static void defineTableDefinitions(ExecutionPlanRuntime executionPlanRuntime, Map<String, TableDefinition> tableDefinitionMap) {
+        for (TableDefinition definition : tableDefinitionMap.values()) {
+            executionPlanRuntime.defineTable(definition);
+        }
+    }
+
+    public void validateDefinition(AbstractDefinition definition) {
+
     }
 
 }

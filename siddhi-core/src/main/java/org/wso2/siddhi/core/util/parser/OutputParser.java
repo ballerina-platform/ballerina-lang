@@ -20,10 +20,13 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
+import org.wso2.siddhi.core.query.output.callback.InsertIntoTableCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.rateLimit.PassThroughOutputRateLimiter;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
@@ -35,23 +38,29 @@ public class OutputParser {
 
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                                         StreamDefinition outputStreamDefinition,
-                                                         ExecutionPlanContext executionPlanContext) {
+                                                         ConcurrentMap<String, EventTable> eventTableMap,
+                                                         StreamDefinition outputStreamDefinition, ExecutionPlanContext executionPlanContext) {
         String id = outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id);
-            if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(outputStreamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
-                streamJunctionMap.putIfAbsent(id, outputStreamJunction);
+            if (outputStreamJunction != null) {
+                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, outputStreamJunction.getStreamDefinition());
+                return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
+            } else {
+                EventTable eventTable = eventTableMap.get(id);
+                if (eventTable != null) {
+                    DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
+                    return new InsertIntoTableCallback(eventTable, outputStreamDefinition);
+                } else {
+                    DefinitionParserHelper.addStreamJunction(outputStreamDefinition, streamJunctionMap, executionPlanContext);
+                    return new InsertIntoStreamCallback(streamJunctionMap.get(id), outputStreamDefinition);
+                }
             }
-            return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
-
         } else {
             throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");
         }
+
     }
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, String key,
@@ -65,7 +74,7 @@ public class OutputParser {
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
                         executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
                 streamJunctionMap.put(id + key, outputStreamJunction);
             }
             return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);

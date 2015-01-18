@@ -12,7 +12,7 @@ import java.util.List;
 public class AnnotationHelper {
 
 
-    public static Annotation getAnnotation(String annotationName, List<Annotation> annotationList) throws DuplicateAnnotationException {
+    public static Annotation getAnnotation(String annotationName, List<Annotation> annotationList) {
         Annotation annotation = null;
         for (Annotation aAnnotation : annotationList) {
             if (annotationName.equalsIgnoreCase(aAnnotation.getName())) {
@@ -26,7 +26,7 @@ public class AnnotationHelper {
         return annotation;
     }
 
-    public static Element getAnnotationElement(String annotationName, String elementName, List<Annotation> annotationList) throws DuplicateAnnotationException {
+    public static Element getAnnotationElement(String annotationName, String elementName, List<Annotation> annotationList) {
         Annotation annotation = getAnnotation(annotationName,annotationList);
         if (annotation != null) {
             Element element = null;

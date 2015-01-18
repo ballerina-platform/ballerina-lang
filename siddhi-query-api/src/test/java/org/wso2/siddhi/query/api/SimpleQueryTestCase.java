@@ -18,7 +18,7 @@ package org.wso2.siddhi.query.api;
 
 
 import org.junit.Test;
-import org.wso2.siddhi.query.api.exception.AttributeAlreadyExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
@@ -182,7 +182,7 @@ public class SimpleQueryTestCase {
 
     }
 
-    @Test(expected = AttributeAlreadyExistException.class)
+    @Test(expected = DuplicateAttributeException.class)
     public void testCreatingFilterQueryWithDuplicateOutputAttribute() {
         Query query = Query.query();
         query.from(

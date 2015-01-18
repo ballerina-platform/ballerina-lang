@@ -17,17 +17,17 @@
 */
 package org.wso2.siddhi.query.api.exception;
 
-public class AttributeAlreadyExistException extends ExecutionPlanValidationException {
+public class DuplicateAttributeException extends ExecutionPlanValidationException {
 
-    public AttributeAlreadyExistException(String message) {
+    public DuplicateAttributeException(String message) {
         super(message);
     }
 
-    public AttributeAlreadyExistException(String message, Throwable throwable) {
+    public DuplicateAttributeException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public AttributeAlreadyExistException(Throwable throwable) {
+    public DuplicateAttributeException(Throwable throwable) {
         super(throwable);
     }
 }

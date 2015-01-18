@@ -57,7 +57,7 @@ public class FunctionTestCase {
         log.info("function test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).
                 annotation(Annotation.annotation("config").element("async", "true"));
 
         Query query = new Query();
