@@ -69,9 +69,7 @@ public class QueryParser {
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, streamRuntime.getMetaComplexEvent());
 //            validateOutputStream(queryRuntime.getOutputStreamDefinition(), definitionMap);
 
-
-
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             if (element != null) {
                 throw new ExecutionPlanCreationException(e.getMessage() + " when creating query " + element.getValue(), e);
             } else {
