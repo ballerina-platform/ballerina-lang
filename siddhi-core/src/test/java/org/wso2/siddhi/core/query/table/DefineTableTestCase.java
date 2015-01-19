@@ -32,8 +32,8 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 /**
  * Created on 1/17/15.
  */
-public class TableDefinitionTestCase {
-    static final Logger log = Logger.getLogger(TableDefinitionTestCase.class);
+public class DefineTableTestCase {
+    static final Logger log = Logger.getLogger(DefineTableTestCase.class);
 
     @Test
     public void testQuery1() throws InterruptedException {
@@ -181,56 +181,53 @@ public class TableDefinitionTestCase {
         executionPlanRuntime.shutdown();
     }
 
-//    Todo fix
-//    @Test
-//    public void testQuery12() throws InterruptedException {
-//        log.info("testTableDefinition9 - OUT 0");
-//
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String executionPlan = "" +
-//                "define stream StockStream(symbol string, price int, volume float);" +
-//                "define table OutputStream (symbol string, price int, volume float); " +
-//                "" +
-//                "from StockStream " +
-//                "select * " +
-//                "insert into OutputStream;";
-//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-//        executionPlanRuntime.shutdown();
-//    }
+    @Test
+    public void testQuery12() throws InterruptedException {
+        log.info("testTableDefinition9 - OUT 0");
 
-//    Todo fix exception expected
-//    @Test
-//    public void testQuery13() throws InterruptedException {
-//        log.info("testTableDefinition9 - OUT 0");
-//
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String executionPlan = "" +
-//                "define stream StockStream(symbol string, price int, volume float);" +
-//                "define table OutputStream (symbol string, price int, volume float, time long); " +
-//                "" +
-//                "from StockStream " +
-//                "select * " +
-//                "insert into OutputStream;";
-//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-//        executionPlanRuntime.shutdown();
-//    }
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String executionPlan = "" +
+                "define stream StockStream(symbol string, price int, volume float);" +
+                "define table OutputStream (symbol string, price int, volume float); " +
+                "" +
+                "from StockStream " +
+                "select * " +
+                "insert into OutputStream;";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        executionPlanRuntime.shutdown();
+    }
 
-//    Todo fix exception expected
-//    @Test
-//    public void testQuery14() throws InterruptedException {
-//        log.info("testTableDefinition9 - OUT 0");
-//
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String executionPlan = "" +
-//                "define stream StockStream(symbol string, price int, volume float);" +
-//                "define table OutputStream (symbol string, price int, volume int); " +
-//                "" +
-//                "from StockStream " +
-//                "select * " +
-//                "insert into OutputStream;";
-//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-//        executionPlanRuntime.shutdown();
-//    }
+    @Test(expected = DuplicateDefinitionException.class)
+    public void testQuery13() throws InterruptedException {
+        log.info("testTableDefinition9 - OUT 0");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String executionPlan = "" +
+                "define stream StockStream(symbol string, price int, volume float);" +
+                "define table OutputStream (symbol string, price int, volume float, time long); " +
+                "" +
+                "from StockStream " +
+                "select * " +
+                "insert into OutputStream;";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expected = DuplicateDefinitionException.class)
+    public void testQuery14() throws InterruptedException {
+        log.info("testTableDefinition9 - OUT 0");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String executionPlan = "" +
+                "define stream StockStream(symbol string, price int, volume float);" +
+                "define table OutputStream (symbol string, price int, volume int); " +
+                "" +
+                "from StockStream " +
+                "select * " +
+                "insert into OutputStream;";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        executionPlanRuntime.shutdown();
+    }
 
     @Test(expected = ExecutionPlanValidationException.class)
     public void testQuery15() throws InterruptedException {
