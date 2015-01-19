@@ -17,9 +17,8 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.stream.join.Finder;
+import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
 import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
@@ -56,10 +55,17 @@ public class JoinInputStreamParser {
         rightPostJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
 
         //todo fix
-        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(joinInputStream.getOnCompare(),
-                metaStateEvent, -1, executors, executionPlanContext, false, 0);
-        Finder leftFinder = new Finder(expressionExecutor, 1, 0);
-        Finder rightFinder = new Finder(expressionExecutor, 0, 1);
+//        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(joinInputStream.getOnCompare(),
+//                metaStateEvent, -1, executors, executionPlanContext, false, 0);
+
+        Finder leftFinder = ((FindableProcessor) rightWindowProcessor).constructFinder(joinInputStream.getOnCompare(), metaStateEvent, executionPlanContext, executors);
+        Finder rightFinder = ((FindableProcessor) leftWindowProcessor).constructFinder(joinInputStream.getOnCompare(), metaStateEvent, executionPlanContext, executors);
+
+
+//        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(joinInputStream.getOnCompare(),
+//                metaStateEvent, -1, executors, executionPlanContext, false, 0);
+//        Finder leftFinder = new SimpleFinder(expressionExecutor, 1, 0);
+//        Finder rightFinder = new SimpleFinder(expressionExecutor, 0, 1);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(true);
@@ -74,7 +80,7 @@ public class JoinInputStreamParser {
             leftPostJoinProcessor.setFinder(leftFinder);
         }
 
-        JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext,metaStateEvent);
+        JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext, metaStateEvent);
         joinStreamRuntime.addRuntime(leftStreamRuntime);
         joinStreamRuntime.addRuntime(rightStreamRuntime);
         return joinStreamRuntime;

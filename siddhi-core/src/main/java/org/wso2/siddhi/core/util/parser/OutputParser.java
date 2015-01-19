@@ -18,19 +18,24 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoTableCallback;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.rateLimit.PassThroughOutputRateLimiter;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
+import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -57,10 +62,63 @@ public class OutputParser {
                     return new InsertIntoStreamCallback(streamJunctionMap.get(id), outputStreamDefinition);
                 }
             }
+        } else if (outStream instanceof DeleteStream) {
+            EventTable eventTable = eventTableMap.get(id);
+            if (eventTable != null) {
+
+
+                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
+
+//                List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
+
+                MetaStateEvent metaStateEvent = createMetaStateEvent(outputStreamDefinition, eventTable);
+
+//                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent,
+//                        SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0);
+                Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent, executionPlanContext, null);
+                return new DeleteTableCallback(eventTable, finder);
+            } else {
+                throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
+            }
+        } else if (outStream instanceof UpdateStream) {
+            EventTable eventTable = eventTableMap.get(id);
+            if (eventTable != null) {
+                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
+
+//                List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
+
+                MetaStateEvent metaStateEvent = createMetaStateEvent(outputStreamDefinition, eventTable);
+
+//                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent,
+//                        SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0);
+                Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent, executionPlanContext, null);
+                return new UpdateTableCallback(eventTable, finder, outputStreamDefinition);
+            } else {
+                throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
+            }
         } else {
             throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");
         }
 
+    }
+
+    private static MetaStateEvent createMetaStateEvent(StreamDefinition outputStreamDefinition, EventTable eventTable) {
+        MetaStateEvent metaStateEvent = new MetaStateEvent(2);
+
+        MetaStreamEvent matchingMetaStreamEvent = new MetaStreamEvent();
+        matchingMetaStreamEvent.setInputDefinition(outputStreamDefinition);
+        for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
+            matchingMetaStreamEvent.addOutputData(attribute);
+        }
+        metaStateEvent.addEvent(matchingMetaStreamEvent);
+
+        MetaStreamEvent candidateMetaStreamEvent = new MetaStreamEvent();
+        candidateMetaStreamEvent.setInputDefinition(eventTable.getTableDefinition());
+        for (Attribute attribute : eventTable.getTableDefinition().getAttributeList()) {
+            candidateMetaStreamEvent.addOutputData(attribute);
+        }
+        metaStateEvent.addEvent(candidateMetaStreamEvent);
+        return metaStateEvent;
     }
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, String key,

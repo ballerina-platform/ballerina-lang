@@ -15,29 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-public class InsertIntoTableCallback implements OutputCallback {
+public class DeleteTableCallback implements OutputCallback {
     private EventTable eventTable;
-    private StreamDefinition outputStreamDefinition;
+    private Finder finder;
 
-    public InsertIntoTableCallback(EventTable eventTable, StreamDefinition outputStreamDefinition) {
+    public DeleteTableCallback(EventTable eventTable, Finder finder) {
         this.eventTable = eventTable;
-        this.outputStreamDefinition = outputStreamDefinition;
+        this.finder = finder;
     }
 
     @Override
     public void send(ComplexEventChunk<StreamEvent> complexEventChunk) {
-        eventTable.add(complexEventChunk);
-    }
-
-    public StreamDefinition getOutputStreamDefinition() {
-        return outputStreamDefinition;
+        eventTable.delete(complexEventChunk, finder);
     }
 
 }

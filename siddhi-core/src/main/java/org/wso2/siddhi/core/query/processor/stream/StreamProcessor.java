@@ -39,9 +39,11 @@ public abstract class StreamProcessor implements Processor {
     protected List<Attribute> additionalAttributes;
     protected StreamEventPopulater streamEventPopulater;
     protected StreamEventCloner streamEventCloner;
+    protected AbstractDefinition inputDefinition;
     protected ExpressionExecutor[] inputExecutors;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors) {
+        this.inputDefinition = inputDefinition;
         this.inputExecutors = inputExecutors;
         additionalAttributes = init(inputDefinition, inputExecutors);
 

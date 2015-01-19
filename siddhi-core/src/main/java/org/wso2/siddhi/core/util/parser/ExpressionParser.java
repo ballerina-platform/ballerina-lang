@@ -929,7 +929,9 @@ public class ExpressionParser {
                 ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
             }
             VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX]);
-            executorList.add(variableExpressionExecutor);
+            if(executorList!=null) {
+                executorList.add(variableExpressionExecutor);
+            }
             return variableExpressionExecutor;
         } else {      //todo support stream index
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaEvent;
@@ -1012,7 +1014,9 @@ public class ExpressionParser {
             if (currentState != HAVING_STATE) {
                 ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));
             }
-            executorList.add(variableExpressionExecutor);
+            if(executorList!=null) {
+                executorList.add(variableExpressionExecutor);
+            }
             return variableExpressionExecutor;
         }
     }

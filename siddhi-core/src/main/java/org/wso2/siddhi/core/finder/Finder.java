@@ -16,26 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table;
+package org.wso2.siddhi.core.finder;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.finder.Finder;
-import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 /**
- * Created on 1/18/15.
+ * Created on 1/19/15.
  */
-public interface EventTable extends FindableProcessor {
-    AbstractDefinition getTableDefinition();
+public interface Finder {
+    boolean execute(StreamEvent candidateEvent);
 
-    void add(ComplexEventChunk<StreamEvent> addingEventChunk) ;
+    void  setMatchingEvent(StreamEvent matchingEvent);
 
-    void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder);
-
-    void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition);
-
-    boolean contains(StreamEvent matchingEvent, Finder finder);
-
+    Finder cloneFinder();
 }

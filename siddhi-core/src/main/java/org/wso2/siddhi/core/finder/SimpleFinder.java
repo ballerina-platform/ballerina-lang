@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.join;
+package org.wso2.siddhi.core.finder;
 
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -22,30 +22,31 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 /**
  * Created on 12/8/14.
  */
-public class Finder {
+public class SimpleFinder implements Finder {
     private StateEvent event = new StateEvent(2, 0);
     private ExpressionExecutor expressionExecutor;
     private int candidateEventPosition;
-    private int currentEventPosition;
+    private int matchingEventPosition;
 
-    public Finder(ExpressionExecutor expressionExecutor, int candidateEventPosition, int currentEventPosition) {
+    public SimpleFinder(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition) {
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
-        this.currentEventPosition = currentEventPosition;
+        this.matchingEventPosition = matchingEventPosition;
     }
 
-    public void setCurrentEvent(StreamEvent currentEvent) {
-        this.event.setEvent(currentEventPosition, currentEvent);
-    }
-
-    public boolean execute(StreamEvent streamEvent) {
-        event.setEvent(candidateEventPosition, streamEvent);
+    public boolean execute(StreamEvent candidateEvent) {
+        event.setEvent(candidateEventPosition, candidateEvent);
         boolean result = (Boolean) expressionExecutor.execute(event);
         event.setEvent(candidateEventPosition, null);
         return result;
     }
 
+    @Override
+    public void setMatchingEvent(StreamEvent matchingEvent) {
+        this.event.setEvent(matchingEventPosition, matchingEvent);
+    }
+
     public Finder cloneFinder() {
-        return new Finder(expressionExecutor, candidateEventPosition, currentEventPosition);
+        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingEventPosition);
     }
 }
