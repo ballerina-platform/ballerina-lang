@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,24 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.exception;
+package org.wso2.siddhi.query.api.exception;
 
-public class DifferentDefinitionAlreadyExistException extends RuntimeException {
+public class DuplicateDefinitionException extends ExecutionPlanValidationException {
 
-    public DifferentDefinitionAlreadyExistException() {
-        super();
-    }
-
-    public DifferentDefinitionAlreadyExistException(String message) {
+    public DuplicateDefinitionException(String message) {
         super(message);
     }
 
-    public DifferentDefinitionAlreadyExistException(String message,
-                                                    Throwable throwable) {
+    public DuplicateDefinitionException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public DifferentDefinitionAlreadyExistException(Throwable throwable) {
+    public DuplicateDefinitionException(Throwable throwable) {
         super(throwable);
     }
 }

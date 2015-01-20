@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.exception.AttributeAlreadyExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 
 public class DefineTableTestCase {
 
@@ -31,7 +31,7 @@ public class DefineTableTestCase {
         ExecutionPlan.executionPlan("test").defineTable(TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT));
     }
 
-    @Test(expected = AttributeAlreadyExistException.class)
+    @Test(expected = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
         TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
     }

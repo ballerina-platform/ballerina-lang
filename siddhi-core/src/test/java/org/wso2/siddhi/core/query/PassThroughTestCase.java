@@ -55,7 +55,7 @@ public class PassThroughTestCase {
         log.info("pass through test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("config").element("async", "true"));
 
         Query query = new Query();
@@ -100,9 +100,9 @@ public class PassThroughTestCase {
         log.info("pass through test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("config").element("async", "true"));
-        StreamDefinition cseEventStream1 = new StreamDefinition("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("config").element("async", "true"));
 
         Query query = new Query();
@@ -147,9 +147,9 @@ public class PassThroughTestCase {
         log.info("pass through test3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = new StreamDefinition("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("config").element("async", "true"));
-        StreamDefinition cseEventStream1 = new StreamDefinition("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
+        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("config").element("async", "true"));
 
         Query query = new Query();

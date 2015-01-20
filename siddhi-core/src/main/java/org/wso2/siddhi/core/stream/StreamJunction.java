@@ -34,7 +34,6 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.List;
@@ -68,7 +67,7 @@ public class StreamJunction {
             }
 
         } catch (DuplicateAnnotationException e) {
-            throw new ExecutionPlanValidationException(e.getMessage() + " for the same Stream " +
+            throw new DuplicateAnnotationException(e.getMessage() + " for the same Stream " +
                     streamDefinition.getId());
         }
 
@@ -209,6 +208,10 @@ public class StreamJunction {
 
     public String getStreamId() {
         return streamJunctionContext.getStreamDefinition().getId();
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamJunctionContext.getStreamDefinition();
     }
 
     public interface Receiver {

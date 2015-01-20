@@ -1,0 +1,121 @@
+/*
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.siddhi.core.table;
+
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.expression.Expression;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created on 1/18/15.
+ */
+public class InMemoryEventTable implements EventTable {
+    private final TableDefinition tableDefinition;
+    private final ExecutionPlanContext executionPlanContext;
+    private final LinkedList<StreamEvent> list = new LinkedList<StreamEvent>();
+    private final StreamEventCloner streamEventCloner;
+    private final StreamEventPool streamEventPool;
+
+
+    public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
+
+        this.tableDefinition = tableDefinition;
+        this.executionPlanContext = executionPlanContext;
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        metaStreamEvent.setInputDefinition(tableDefinition);
+        streamEventPool = new StreamEventPool(metaStreamEvent, 10);
+        streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
+    }
+
+    @Override
+    public AbstractDefinition getTableDefinition() {
+        return tableDefinition;
+    }
+
+    public synchronized void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
+        addingEventChunk.reset();
+        while (addingEventChunk.hasNext()) {
+            StreamEvent streamEvent = addingEventChunk.next();
+            list.add(streamEventCloner.copyStreamEvent(streamEvent));
+        }
+    }
+
+//    public synchronized void add(StreamEvent addStreamEvent) {
+//        list.add(streamEventCloner.copyStreamEvent(addStreamEvent));
+//    }
+
+    public synchronized void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder) {
+        Iterator<StreamEvent> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            StreamEvent streamEvent = iterator.next();
+            if (finder.execute(streamEvent)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public synchronized void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition) {
+
+        for (StreamEvent streamEvent : list) {
+            if (finder.execute(streamEvent)) {
+//                streamEventPopulater.populateStreamEvent(streamEvent, updateStreamEvent.getOutputData());
+            }
+        }
+    }
+
+
+    public synchronized boolean contains(StreamEvent matchingEvent, Finder finder) {
+        for (StreamEvent streamEvent : list) {
+            if (finder.execute(streamEvent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public synchronized StreamEvent find(StreamEvent matchingEvent, Finder finder) {    //todo optimize
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        for (StreamEvent streamEvent : list) {
+            if (finder.execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        return returnEventChunk.getFirst();
+    }
+
+    @Override
+    public Finder constructFinder(Expression expression, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executors) {
+        return SimpleFinderParser.parse(expression, metaStateEvent, executionPlanContext, executors, tableDefinition);
+    }
+
+}

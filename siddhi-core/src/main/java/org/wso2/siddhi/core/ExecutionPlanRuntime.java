@@ -20,8 +20,6 @@
 package org.wso2.siddhi.core;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.DifferentDefinitionAlreadyExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -35,9 +33,12 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.OutputParser;
+import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -48,9 +49,11 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ExecutionPlanRuntime {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
+    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
     private InputManager inputManager;
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
+    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ExecutionPlanContext executionPlanContext;
 
@@ -60,26 +63,19 @@ public class ExecutionPlanRuntime {
     }
 
     public void defineStream(StreamDefinition streamDefinition) {
-        validateStreamDefinition(streamDefinition);
-        streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
-        StreamJunction streamJunction = streamJunctionMap.get(streamDefinition.getId());
-        if (streamJunction == null) {
-            streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
-            SiddhiContext siddhiContext = executionPlanContext.getSiddhiContext();
-            streamJunction = new StreamJunction(streamDefinition,
-                    executionPlanContext.getExecutorService(),
-                    siddhiContext.getEventBufferSize(), executionPlanContext);
-            streamJunctionMap.put(streamDefinition.getId(), streamJunction);
-
+        DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap);
+        if (!streamDefinitionMap.containsKey(streamDefinition.getId())) {
+            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
         }
+        DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
     }
 
-    private void validateStreamDefinition(StreamDefinition streamDefinition) {
-        if (streamDefinitionMap.containsKey(streamDefinition.getId()) && !(streamDefinitionMap.get(streamDefinition.getId())
-                .equalsIgnoreAnnotations(streamDefinition))) {
-            throw new DifferentDefinitionAlreadyExistException("Different stream definition same as output stream definition is already " +
-                    "exist under stream name " + streamDefinition.getId());
+    public void defineTable(TableDefinition tableDefinition) {
+        DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap);
+        if (!tableDefinitionMap.containsKey(tableDefinition.getId())) {
+            tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         }
+        DefinitionParserHelper.addEventTable(tableDefinition, eventTableMap, executionPlanContext);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
@@ -90,17 +86,21 @@ public class ExecutionPlanRuntime {
         queryProcessorMap.put(queryRuntime.getQueryId(), queryRuntime);
         StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
 
-        for(SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()){
+        for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {
             ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
             streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
         }
 
         OutputCallback outputCallback = OutputParser.constructOutputCallback(queryRuntime.getQuery().getOutputStream(),
-                streamJunctionMap, queryRuntime.getOutputStreamDefinition(), executionPlanContext);
+                streamJunctionMap, eventTableMap, queryRuntime.getOutputStreamDefinition(), executionPlanContext);
         queryRuntime.setOutputCallback(outputCallback);
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            defineStream(((InsertIntoStreamCallback) outputCallback).getOutputStreamDefinition());
+            StreamDefinition streamDefinition = (((InsertIntoStreamCallback) outputCallback).getOutputStreamDefinition());
+            if (!streamDefinitionMap.containsKey(streamDefinition.getId())) {
+                streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
+            }
         }
+
         return queryRuntime.getQueryId();
     }
 
@@ -139,6 +139,10 @@ public class ExecutionPlanRuntime {
 
     public ConcurrentMap<String, StreamJunction> getStreamJunctions() {
         return streamJunctionMap;
+    }
+
+    public ConcurrentMap<String, EventTable> getEventTableMap() {
+        return eventTableMap;
     }
 
     public ConcurrentMap<String, AbstractDefinition> getStreamDefinitionMap() {

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,29 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.table.EventTable;
 
-public class InsertIntoStreamCallback  implements OutputCallback {
-    private StreamDefinition outputStreamDefinition;
-    private StreamJunction.Publisher publisher;
+public class DeleteTableCallback implements OutputCallback {
+    private EventTable eventTable;
+    private Finder finder;
 
-    public InsertIntoStreamCallback(StreamJunction outputStreamJunction, StreamDefinition outputStreamDefinition) {
-        this.outputStreamDefinition = outputStreamDefinition;
-        this.publisher = outputStreamJunction.constructPublisher();
+    public DeleteTableCallback(EventTable eventTable, Finder finder) {
+        this.eventTable = eventTable;
+        this.finder = finder;
     }
 
     @Override
     public void send(ComplexEventChunk<StreamEvent> complexEventChunk) {
-        publisher.send(complexEventChunk.getFirst());
-    }
-
-    public StreamDefinition getOutputStreamDefinition() {
-        return outputStreamDefinition;
+        eventTable.delete(complexEventChunk, finder);
     }
 
 }

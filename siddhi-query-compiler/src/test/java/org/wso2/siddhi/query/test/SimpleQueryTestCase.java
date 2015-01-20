@@ -2,6 +2,7 @@ package org.wso2.siddhi.query.test;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
@@ -316,7 +317,7 @@ public class SimpleQueryTestCase {
         Assert.assertEquals(api, query);
     }
 
-    @Test(expected = SiddhiParserException.class)
+    @Test(expected = DuplicateAttributeException.class)
     public void testCreatingFilterQueryWithDuplicateOutputAttribute() {
         SiddhiCompiler.parseQuery("from  StockStream[7*9.5 > price and 100 >= volume]#window.length(50) " +
                         "select symbol, avg(price) as price, price as price " +

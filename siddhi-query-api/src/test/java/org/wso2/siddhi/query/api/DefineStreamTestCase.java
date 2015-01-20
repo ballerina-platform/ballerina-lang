@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.AttributeAlreadyExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 
 public class DefineStreamTestCase {
 
@@ -34,7 +34,7 @@ public class DefineStreamTestCase {
 
     }
 
-    @Test(expected = AttributeAlreadyExistException.class)
+    @Test(expected = DuplicateAttributeException.class)
     public void testCreatingStreamWithDuplicateAttribute() {
         StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("symbol", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT);
 

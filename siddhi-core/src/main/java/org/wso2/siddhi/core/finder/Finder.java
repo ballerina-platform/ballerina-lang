@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,12 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.callback;
+package org.wso2.siddhi.core.finder;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public interface OutputCallback {
+/**
+ * Created on 1/19/15.
+ */
+public interface Finder {
+    boolean execute(StreamEvent candidateEvent);
 
-    void send(ComplexEventChunk<StreamEvent> streamEventChunk);
+    void  setMatchingEvent(StreamEvent matchingEvent);
+
+    Finder cloneFinder();
 }

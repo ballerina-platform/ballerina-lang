@@ -30,11 +30,15 @@ import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,10 +99,38 @@ public class SelectorParser {
                                                                    List<VariableExpressionExecutor> executors) {
 
         List<AttributeProcessor> attributeProcessorList = new ArrayList<AttributeProcessor>();
-        StreamDefinition temp = new StreamDefinition(id);
+        StreamDefinition outputDefinition = StreamDefinition.id(id);
+
+        List<OutputAttribute> outputAttributes = selector.getSelectionList();
+        if (selector.getSelectionList().size() == 0) {
+            if (metaComplexEvent instanceof MetaStreamEvent) {
+
+                List<Attribute> attributeList = ((MetaStreamEvent) metaComplexEvent).getInputDefinition().getAttributeList();
+                for (Attribute attribute : attributeList) {
+                    outputAttributes.add(new OutputAttribute(new Variable(attribute.getName())));
+                }
+            } else {
+                for (MetaStreamEvent metaStreamEvent : ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents()) {
+                    List<Attribute> attributeList = metaStreamEvent.getInputDefinition().getAttributeList();
+                    for (Attribute attribute : attributeList) {
+                        OutputAttribute outputAttribute = new OutputAttribute(new Variable(attribute.getName()));
+                        if (!outputAttributes.contains(outputAttribute)) {
+                            outputAttributes.add(outputAttribute);
+                        } else {
+                            List<AbstractDefinition> definitions = new ArrayList<AbstractDefinition>();
+                            for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents()) {
+                                definitions.add(aMetaStreamEvent.getInputDefinition());
+                            }
+                            throw new DuplicateAttributeException("Duplicate attribute exist in streams " + definitions);
+                        }
+                    }
+                }
+
+            }
+        }
 
         int i = 0;
-        for (OutputAttribute outputAttribute : selector.getSelectionList()) {
+        for (OutputAttribute outputAttribute :outputAttributes) {
 
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(outputAttribute.getExpression(),
                     metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext,
@@ -110,7 +142,7 @@ public class SelectorParser {
                 } else {
                     ((MetaStreamEvent) metaComplexEvent).addOutputData(executor.getAttribute());
                 }
-                temp.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) expressionExecutor).getAttribute().getType());
+                outputDefinition.attribute(outputAttribute.getRename(), ((VariableExpressionExecutor) expressionExecutor).getAttribute().getType());
             } else {
                 //To maintain output variable positions
                 if (metaComplexEvent instanceof MetaStateEvent) {
@@ -121,11 +153,11 @@ public class SelectorParser {
                 AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor);
                 attributeProcessor.setOutputPosition(i);
                 attributeProcessorList.add(attributeProcessor);
-                temp.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
+                outputDefinition.attribute(outputAttribute.getRename(), attributeProcessor.getOutputType());
             }
             i++;
         }
-        metaComplexEvent.setOutputDefinition(temp);
+        metaComplexEvent.setOutputDefinition(outputDefinition);
         return attributeProcessorList;
     }
 

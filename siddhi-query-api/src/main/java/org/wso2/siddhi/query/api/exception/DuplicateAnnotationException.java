@@ -17,11 +17,7 @@
 */
 package org.wso2.siddhi.query.api.exception;
 
-public class DuplicateAnnotationException extends Exception {
-
-    public DuplicateAnnotationException() {
-        super();
-    }
+public class DuplicateAnnotationException extends ExecutionPlanValidationException {
 
     public DuplicateAnnotationException(String message) {
         super(message);
