@@ -38,7 +38,6 @@ import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -69,7 +68,6 @@ public class PartitionRuntime {
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
     private List<PartitionInstanceRuntime> partitionInstanceRuntimeList = new ArrayList<PartitionInstanceRuntime>();
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
-    private ExecutionPlanRuntime executionPlanRuntime;
     private ExecutionPlanContext executionPlanContext;
 
     public PartitionRuntime(ExecutionPlanRuntime executionPlanRuntime, Partition partition, ExecutionPlanContext executionPlanContext) {
@@ -89,7 +87,6 @@ public class PartitionRuntime {
         this.streamDefinitionMap = executionPlanRuntime.getStreamDefinitionMap();
         this.streamJunctionMap = executionPlanRuntime.getStreamJunctions();
         this.eventTableMap = executionPlanRuntime.getEventTableMap();
-        this.executionPlanRuntime = executionPlanRuntime;
     }
 
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {
@@ -226,10 +223,10 @@ public class PartitionRuntime {
     }
 
     public PartitionInstanceRuntime getPartitionInstanceRuntime(String key) {
-        for(PartitionInstanceRuntime partitionInstanceRuntime:partitionInstanceRuntimeList) {
-             if(key.equals(partitionInstanceRuntime.getKey())){
-                 return partitionInstanceRuntime;
-             }
+        for (PartitionInstanceRuntime partitionInstanceRuntime : partitionInstanceRuntimeList) {
+            if (key.equals(partitionInstanceRuntime.getKey())) {
+                return partitionInstanceRuntime;
+            }
         }
         return null;
     }
