@@ -20,7 +20,6 @@ package org.wso2.siddhi.query.api.execution.partition;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -39,7 +38,7 @@ import java.util.Map;
  */
 public class Partition implements ExecutionElement {
 
-    private Map<String,PartitionType> partitionTypeMap = new HashMap<String,PartitionType>();
+    private Map<String, PartitionType> partitionTypeMap = new HashMap<String, PartitionType>();
     private List<Query> queryList = new ArrayList<Query>();
     private List<String> queryNameList = new ArrayList<String>();
     private List<Annotation> annotations = new ArrayList<Annotation>();
@@ -48,7 +47,7 @@ public class Partition implements ExecutionElement {
         return new Partition();
     }
 
-    public Map<String,PartitionType> getPartitionTypeMap() {
+    public Map<String, PartitionType> getPartitionTypeMap() {
         return partitionTypeMap;
     }
 
@@ -74,17 +73,12 @@ public class Partition implements ExecutionElement {
             throw new ExecutionPlanValidationException("Query should not be null");
         }
         String name = null;
-        try {
-            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO,
-                    SiddhiConstants.ANNOTATION_ELEMENT_NAME, query.getAnnotations());
-            if (element != null) {
-                name = element.getValue();
-            }
-        } catch (DuplicateAnnotationException e) {
-            throw new ExecutionPlanValidationException(e.getMessage(), e);
+        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants.ANNOTATION_ELEMENT_NAME, query.getAnnotations());
+        if (element != null) {
+            name = element.getValue();
         }
         if (name != null && queryNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Query as another Execution Element already uses its name=" + name +" within the same Partition");
+            throw new ExecutionPlanValidationException("Cannot add Query as another Execution Element already uses its name=" + name + " within the same Partition");
         }
         queryNameList.add(name);
         this.queryList.add(query);
@@ -92,14 +86,14 @@ public class Partition implements ExecutionElement {
     }
 
     private void addPartitionType(PartitionType partitionType) {
-        String partitionedStream =   partitionType.getStreamId();
-        if(partitionTypeMap.containsKey(partitionedStream)) {
-            throw new ExecutionPlanValidationException("Duplicate partition for Stream "+partitionedStream+"!, "+partitionType.toString()+" cannot be added as "+partitionTypeMap.get(partitionType.getStreamId())+" already exist.");
+        String partitionedStream = partitionType.getStreamId();
+        if (partitionTypeMap.containsKey(partitionedStream)) {
+            throw new ExecutionPlanValidationException("Duplicate partition for Stream " + partitionedStream + "!, " + partitionType.toString() + " cannot be added as " + partitionTypeMap.get(partitionType.getStreamId()) + " already exist.");
         }
-        partitionTypeMap.put(partitionType.getStreamId(),partitionType);
+        partitionTypeMap.put(partitionType.getStreamId(), partitionType);
     }
 
-    public List<Query> getQueryList(){
+    public List<Query> getQueryList() {
         return queryList;
     }
 
@@ -127,16 +121,24 @@ public class Partition implements ExecutionElement {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Partition)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Partition)) {
+            return false;
+        }
 
         Partition partition = (Partition) o;
 
-        if (annotations != null ? !annotations.equals(partition.annotations) : partition.annotations != null)
+        if (annotations != null ? !annotations.equals(partition.annotations) : partition.annotations != null) {
             return false;
-        if (partitionTypeMap != null ? !partitionTypeMap.equals(partition.partitionTypeMap) : partition.partitionTypeMap != null)
+        }
+        if (partitionTypeMap != null ? !partitionTypeMap.equals(partition.partitionTypeMap) : partition.partitionTypeMap != null) {
             return false;
-        if (queryList != null ? !queryList.equals(partition.queryList) : partition.queryList != null) return false;
+        }
+        if (queryList != null ? !queryList.equals(partition.queryList) : partition.queryList != null) {
+            return false;
+        }
 
         return true;
     }

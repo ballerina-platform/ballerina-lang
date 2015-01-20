@@ -199,7 +199,7 @@ public class PartitionRuntime {
                         StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
                         if (streamJunction == null) {
                             streamJunction = new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
-                                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                                    executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
                             localStreamJunctionMap.put(streamId + key, streamJunction);
                         }
                         streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getProcessStreamReceiver());
@@ -249,7 +249,5 @@ public class PartitionRuntime {
     public ConcurrentMap<String, StreamJunction> getLocalStreamJunctionMap() {
         return localStreamJunctionMap;
     }
-
-
 
 }
