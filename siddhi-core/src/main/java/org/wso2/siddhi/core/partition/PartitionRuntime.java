@@ -38,6 +38,7 @@ import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -189,15 +190,16 @@ public class PartitionRuntime {
                 if (queryRuntime.isFromLocalStream()) {
                     for (int i = 0; i < clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().size(); i++) {
                         String streamId = queryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getProcessStreamReceiver().getStreamId();
+                        StreamDefinition streamDefinition;
+                        if(streamId.startsWith("#")) {
+                            streamDefinition = (StreamDefinition) localStreamDefinitionMap.get(streamId);
+                        } else {
+                            streamDefinition = (StreamDefinition) streamDefinitionMap.get(streamId);
+                        }
                         StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
                         if (streamJunction == null) {
-                            StreamDefinition streamDefinition = (StreamDefinition) localStreamDefinitionMap.get("#" + streamId);
-                            if (streamDefinition == null) {
-                                streamDefinition = (StreamDefinition) streamDefinitionMap.get(streamId);
-                            }
-                            streamJunction = new StreamJunction(streamDefinition,executionPlanContext.getExecutorService(),
-                                    executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext
-                            );
+                            streamJunction = new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
+                                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
                             localStreamJunctionMap.put(streamId + key, streamJunction);
                         }
                         streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getProcessStreamReceiver());
@@ -248,38 +250,6 @@ public class PartitionRuntime {
         return localStreamJunctionMap;
     }
 
-    /**
-     * define inner stream
-     *
-     * @param streamDefinition definition of an inner stream
-     */
-    public void defineLocalStream(StreamDefinition streamDefinition) {
-        if (!checkEventStreamExist(streamDefinition, localStreamDefinitionMap)) {
-            localStreamDefinitionMap.put("#"+streamDefinition.getId(), streamDefinition);
-            StreamJunction streamJunction = localStreamJunctionMap.get(streamDefinition.getId());
-            if (streamJunction == null) {
-                streamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),executionPlanContext);
-                localStreamJunctionMap.putIfAbsent(streamDefinition.getId(), streamJunction);
-            }
-        }
-    }
 
-    private boolean checkEventStreamExist(StreamDefinition newStreamDefinition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
-        AbstractDefinition definition = streamDefinitionMap.get(newStreamDefinition.getId());
-        if (definition != null) {
-            if (definition instanceof TableDefinition) {
-                throw new DifferentDefinitionAlreadyExistException("Table " + newStreamDefinition.getId() + " is already defined as "
-                        + definition + ", hence cannot define " + newStreamDefinition);
-            } else if (!definition.getAttributeList().equals(newStreamDefinition.getAttributeList())) {
-                throw new DifferentDefinitionAlreadyExistException("Stream " + newStreamDefinition.getId() + " is already defined as "
-                        + definition + ", hence cannot define " + newStreamDefinition);
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }
