@@ -15,28 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.siddhi.core.table;
+package org.wso2.siddhi.core.executor.condition;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
-import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.core.table.EventTable;
 
-/**
- * Created on 1/18/15.
- */
-public interface EventTable extends FindableProcessor {
-    AbstractDefinition getTableDefinition();
+public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
 
-    void add(ComplexEventChunk<StreamEvent> addingEventChunk) ;
+    private EventTable eventTable;
+    private final Finder finder;
 
-    void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder);
 
-    void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition);
+    public InConditionExpressionExecutor(EventTable eventTable, Finder finder) {
 
-    boolean contains(ComplexEvent matchingEvent, Finder finder);
+        this.eventTable = eventTable;
+        this.finder = finder;
+    }
+
+    public Boolean execute(ComplexEvent event) {
+        return eventTable.contains(event, finder);
+    }
+
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        return new InConditionExpressionExecutor(eventTable, finder.cloneFinder());
+    }
+
 
 }

@@ -54,8 +54,8 @@ public class JoinInputStreamParser {
         rightPreJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
         rightPostJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
 
-        Finder leftFinder = ((FindableProcessor) rightWindowProcessor).constructFinder(joinInputStream.getOnCompare(), metaStateEvent, executionPlanContext, executors);
-        Finder rightFinder = ((FindableProcessor) leftWindowProcessor).constructFinder(joinInputStream.getOnCompare(), metaStateEvent, executionPlanContext, executors);
+        Finder leftFinder = ((FindableProcessor) rightWindowProcessor).constructFinder(joinInputStream.getOnCompare(), metaStateEvent, executionPlanContext, executors, 0);
+        Finder rightFinder = ((FindableProcessor) leftWindowProcessor).constructFinder(joinInputStream.getOnCompare(), metaStateEvent, executionPlanContext, executors, 1);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(true);

@@ -19,8 +19,9 @@
 package org.wso2.siddhi.core.table;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -29,6 +30,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -53,6 +55,9 @@ public class InMemoryEventTable implements EventTable {
         this.executionPlanContext = executionPlanContext;
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.setInputDefinition(tableDefinition);
+        for(Attribute attribute:tableDefinition.getAttributeList()){
+            metaStreamEvent.addOutputData(attribute);
+        }
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
     }
@@ -94,28 +99,37 @@ public class InMemoryEventTable implements EventTable {
     }
 
 
-    public synchronized boolean contains(StreamEvent matchingEvent, Finder finder) {
+    public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
+        finder.setMatchingEvent(matchingEvent);
         for (StreamEvent streamEvent : list) {
             if (finder.execute(streamEvent)) {
                 return true;
             }
         }
+        finder.setMatchingEvent(null);
         return false;
     }
 
-    public synchronized StreamEvent find(StreamEvent matchingEvent, Finder finder) {    //todo optimize
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {    //todo optimize
+        finder.setMatchingEvent(matchingEvent);
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         for (StreamEvent streamEvent : list) {
             if (finder.execute(streamEvent)) {
                 returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
             }
         }
+        finder.setMatchingEvent(null);
         return returnEventChunk.getFirst();
     }
 
-    @Override
-    public Finder constructFinder(Expression expression, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executors) {
-        return SimpleFinderParser.parse(expression, metaStateEvent, executionPlanContext, executors, tableDefinition);
+//    @Override
+//    public Finder constructFinder(Expression expression, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executors) {
+//        return SimpleFinderParser.parse(expression, metaStateEvent, executionPlanContext, executors, tableDefinition);
+//    }
+
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex){
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, executorList, matchingStreamIndex, tableDefinition);
+
     }
 
 }

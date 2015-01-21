@@ -59,6 +59,7 @@ public class ExecutionPlanRuntime {
 
     public ExecutionPlanRuntime(ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
+        executionPlanContext.setEventTableMap(eventTableMap);
         this.inputManager = new InputManager(executionPlanContext, streamDefinitionMap, streamJunctionMap);
     }
 

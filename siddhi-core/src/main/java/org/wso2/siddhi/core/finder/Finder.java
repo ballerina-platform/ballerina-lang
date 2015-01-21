@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.finder;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 /**
@@ -26,7 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 public interface Finder {
     boolean execute(StreamEvent candidateEvent);
 
-    void  setMatchingEvent(StreamEvent matchingEvent);
+    void  setMatchingEvent(ComplexEvent matchingEvent);
 
     Finder cloneFinder();
 }

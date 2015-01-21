@@ -26,10 +26,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.AndConditionExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.NotConditionExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.OrConditionExpressionExecutor;
+import org.wso2.siddhi.core.executor.condition.*;
 import org.wso2.siddhi.core.executor.condition.compare.contains.ContainsCompareConditionExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.compare.equal.*;
 import org.wso2.siddhi.core.executor.condition.compare.greater_than.*;
@@ -60,22 +57,20 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
 import org.wso2.siddhi.core.extension.holder.ExecutorExtensionHolder;
 import org.wso2.siddhi.core.extension.holder.OutputAttributeExtensionHolder;
+import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.And;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.api.expression.condition.Not;
-import org.wso2.siddhi.query.api.expression.condition.Or;
+import org.wso2.siddhi.query.api.expression.condition.*;
 import org.wso2.siddhi.query.api.expression.constant.*;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
@@ -316,6 +311,16 @@ public class ExpressionParser {
                 return functionExecutor;
 
             }
+        } else if (expression instanceof In) {
+
+
+            EventTable eventTable = executionPlanContext.getEventTableMap().get(((In) expression).getSourceId());
+
+            Finder finder = eventTable.constructFinder(((In) expression).getExpression(), metaEvent, executionPlanContext, executorList, defaultStreamEventIndex);
+
+
+            return new InConditionExpressionExecutor(eventTable, finder);
+
         }
 
         //TODO else if parts
@@ -929,21 +934,21 @@ public class ExpressionParser {
                 ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
             }
             VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX]);
-            if(executorList!=null) {
+            if (executorList != null) {
                 executorList.add(variableExpressionExecutor);
             }
             return variableExpressionExecutor;
         } else {      //todo support stream index
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaEvent;
             Attribute.Type type = null;
-            StreamDefinition streamDefinition = null;
+            AbstractDefinition definition = null;
             String firstInput = null;
             if (variable.getStreamId() == null) {
                 MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                 if (currentState == HAVING_STATE) {
-                    streamDefinition = metaStateEvent.getOutputStreamDefinition();
+                    definition = metaStateEvent.getOutputStreamDefinition();
                     try {
-                        type = streamDefinition.getAttributeType(attributeName);
+                        type = definition.getAttributeType(attributeName);
                         eventPosition[STREAM_EVENT_CHAIN_INDEX] = HAVING_STATE;
                     } catch (AttributeNotExistException e) {
                         currentState = UNKNOWN_STATE;
@@ -952,12 +957,12 @@ public class ExpressionParser {
                 if (currentState == UNKNOWN_STATE) {
                     for (int i = 0; i < metaStreamEvents.length; i++) {
                         MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
-                        streamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                        definition = metaStreamEvent.getInputDefinition();
                         if (type == null) {
                             try {
 
-                                type = streamDefinition.getAttributeType(attributeName);
-                                firstInput = "Input Stream: " + streamDefinition.getId() + " with " +
+                                type = definition.getAttributeType(attributeName);
+                                firstInput = "Input Stream: " + definition.getId() + " with " +
                                         "reference: " + metaStreamEvent.getInputReferenceId();
                                 eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
                             } catch (AttributeNotExistException e) {
@@ -965,8 +970,8 @@ public class ExpressionParser {
                             }
                         } else {
                             try {
-                                streamDefinition.getAttributeType(attributeName);
-                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + streamDefinition.getId() + " with " +
+                                definition.getAttributeType(attributeName);
+                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + definition.getId() + " with " +
                                         "reference: " + metaStreamEvent.getInputReferenceId() + " contains attributes with same" +
                                         " names ");
                             } catch (AttributeNotExistException e) {
@@ -976,29 +981,29 @@ public class ExpressionParser {
                     }
                 } else if (currentState >= 0) {
                     MetaStreamEvent metaStreamEvent = metaStreamEvents[currentState];
-                    streamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                    definition = metaStreamEvent.getInputDefinition();
                     try {
-                        type = streamDefinition.getAttributeType(attributeName);
+                        type = definition.getAttributeType(attributeName);
                         eventPosition[STREAM_EVENT_CHAIN_INDEX] = currentState;
                     } catch (AttributeNotExistException e) {
                         throw new ExecutionPlanValidationException(e.getMessage() + " Input Stream: " +
-                                streamDefinition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
+                                definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
                     }
                 }
             } else {
                 MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                 for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
                     MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
-                    streamDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+                    definition = metaStreamEvent.getInputDefinition();
                     if (metaStreamEvent.getInputReferenceId() == null) {
-                        if (streamDefinition.getId().equals(variable.getStreamId())) {
-                            type = streamDefinition.getAttributeType(attributeName);
+                        if (definition.getId().equals(variable.getStreamId())) {
+                            type = definition.getAttributeType(attributeName);
                             eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
                             break;
                         }
                     } else {
                         if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
-                            type = streamDefinition.getAttributeType(attributeName);
+                            type = definition.getAttributeType(attributeName);
                             eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
                             break;
                         }
@@ -1014,7 +1019,7 @@ public class ExpressionParser {
             if (currentState != HAVING_STATE) {
                 ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));
             }
-            if(executorList!=null) {
+            if (executorList != null) {
                 executorList.add(variableExpressionExecutor);
             }
             return variableExpressionExecutor;

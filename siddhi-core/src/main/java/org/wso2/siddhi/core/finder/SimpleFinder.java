@@ -15,20 +15,26 @@
 
 package org.wso2.siddhi.core.finder;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+
+import java.util.Arrays;
 
 /**
  * Created on 12/8/14.
  */
 public class SimpleFinder implements Finder {
-    private StateEvent event = new StateEvent(2, 0);
+    private StateEvent event;
     private ExpressionExecutor expressionExecutor;
     private int candidateEventPosition;
     private int matchingEventPosition;
+    private int size;
 
-    public SimpleFinder(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition) {
+    public SimpleFinder(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int size) {
+        this.size = size;
+        this.event = new StateEvent(size, 0);
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
         this.matchingEventPosition = matchingEventPosition;
@@ -42,11 +48,19 @@ public class SimpleFinder implements Finder {
     }
 
     @Override
-    public void setMatchingEvent(StreamEvent matchingEvent) {
-        this.event.setEvent(matchingEventPosition, matchingEvent);
+    public void setMatchingEvent(ComplexEvent matchingEvent) {
+        if (matchingEvent == null) {
+            Arrays.fill(event.getStreamEvents(), null);
+        } else {
+            if (matchingEvent instanceof StreamEvent) {
+                this.event.setEvent(matchingEventPosition, ((StreamEvent) matchingEvent));
+            } else {
+                System.arraycopy(((StateEvent) matchingEvent).getStreamEvents(), 0, event.getStreamEvents(), 0, size - 1);
+            }
+        }
     }
 
     public Finder cloneFinder() {
-        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingEventPosition);
+        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingEventPosition, size);
     }
 }

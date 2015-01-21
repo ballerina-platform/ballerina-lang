@@ -95,7 +95,7 @@ public class OutputParser {
 
 //                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent,
 //                        SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0);
-                Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent, executionPlanContext, null);
+                Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent, executionPlanContext, null,0);
                 return new DeleteTableCallback(eventTable, finder);
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
@@ -111,7 +111,7 @@ public class OutputParser {
 
 //                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent,
 //                        SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0);
-                Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent, executionPlanContext, null);
+                Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent, executionPlanContext, null,0);
                 return new UpdateTableCallback(eventTable, finder, outputStreamDefinition);
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");

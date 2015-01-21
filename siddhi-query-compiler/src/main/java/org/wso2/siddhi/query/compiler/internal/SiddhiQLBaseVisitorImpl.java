@@ -1331,6 +1331,19 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
+    public Object visitIn_math_operation(@NotNull SiddhiQLParser.In_math_operationContext ctx) {
+        return Expression.in((Expression) visit(ctx.math_operation()),(String) visit(ctx.name()));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
     public Object visitBasic_math_operation(@NotNull SiddhiQLParser.Basic_math_operationContext ctx) {
         if (ctx.math_operation() != null) {
             return visit(ctx.math_operation());

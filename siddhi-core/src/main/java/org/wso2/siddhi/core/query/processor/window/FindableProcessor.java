@@ -16,7 +16,8 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
@@ -29,8 +30,8 @@ import java.util.List;
  */
 public interface FindableProcessor {
 
-    public StreamEvent find(StreamEvent matchingEvent, Finder finder);
+    public StreamEvent find(ComplexEvent matchingEvent, Finder finder);
 
-    public Finder constructFinder(Expression expression, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executors);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex);
 
 }

@@ -15,8 +15,9 @@
 package org.wso2.siddhi.core.query.processor.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -50,26 +51,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     public Scheduler getScheduler() {
         return scheduler;
-    }
-
-    @Override
-    public StreamEvent find(StreamEvent matchingEvent, Finder finder) {
-        finder.setMatchingEvent(matchingEvent);
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
-        expiredEventChunk.reset();
-        while (expiredEventChunk.hasNext()) {
-            StreamEvent streamEvent = expiredEventChunk.next();
-            if (finder.execute(streamEvent)) {
-                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
-            }
-        }
-        finder.setMatchingEvent(null);
-        return returnEventChunk.getFirst();
-    }
-
-    @Override
-    public Finder constructFinder(Expression expression, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executors) {
-        return SimpleFinderParser.parse(expression, metaStateEvent, executionPlanContext, executors, inputDefinition);
     }
 
     @Override
@@ -124,5 +105,26 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     public void cloneScheduler(TimeWindowProcessor timeWindowProcessor, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {
         this.scheduler = timeWindowProcessor.scheduler.cloneScheduler(singleThreadEntryValveProcessor);
+    }
+
+    @Override
+    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        finder.setMatchingEvent(matchingEvent);
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        expiredEventChunk.reset();
+        while (expiredEventChunk.hasNext()) {
+            StreamEvent streamEvent = expiredEventChunk.next();
+            if (finder.execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        finder.setMatchingEvent(null);
+        return returnEventChunk.getFirst();
+    }
+
+    @Override
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
+        return SimpleFinderParser.parse(expression, metaEvent, executionPlanContext, executorList , matchingStreamIndex, inputDefinition);
+
     }
 }
