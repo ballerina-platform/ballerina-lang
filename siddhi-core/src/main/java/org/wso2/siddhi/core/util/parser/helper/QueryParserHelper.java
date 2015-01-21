@@ -85,6 +85,7 @@ public class QueryParserHelper {
     }
 
     public static void updateVariablePosition(MetaComplexEvent metaComplexEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {
+
         for (VariableExpressionExecutor variableExpressionExecutor : variableExpressionExecutorList) {
             int streamEventChainIndex = variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX];
             if (streamEventChainIndex == HAVING_STATE) {
@@ -96,6 +97,10 @@ public class QueryParserHelper {
                 variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaComplexEvent.
                         getOutputStreamDefinition().getAttributeList().indexOf(variableExpressionExecutor.getAttribute());
+                continue;
+            } else if (metaComplexEvent instanceof MetaStreamEvent && streamEventChainIndex >= 1) { //for VariableExpressionExecutor on Event table
+                continue;
+            } else if (metaComplexEvent instanceof MetaStateEvent && streamEventChainIndex >= ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents().length) { //for VariableExpressionExecutor on Event table
                 continue;
             }
 

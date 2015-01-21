@@ -43,8 +43,8 @@ public class SimpleFinderParser {
         int candidateEventPosition = 0;
         int size = 0;
 
-
         MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
+        eventTableStreamEvent.setTableEvent(true);
         eventTableStreamEvent.setInputDefinition(candidateDefinition);
         for (Attribute attribute : candidateDefinition.getAttributeList()) {
             eventTableStreamEvent.addOutputData(attribute);

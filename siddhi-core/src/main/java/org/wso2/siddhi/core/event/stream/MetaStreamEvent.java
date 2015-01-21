@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.event.stream;
 
 import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -38,6 +39,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private int initialAttributeSize;
     private String inputReferenceId;
     private StreamDefinition outputStreamDefinition;
+    private boolean tableEvent=false;
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;
@@ -72,16 +74,19 @@ public class MetaStreamEvent implements MetaComplexEvent {
      *
      * @param attribute
      */
-    public void addData(Attribute attribute) {
+    public int addData(Attribute attribute) {
         if (onAfterWindowData != null) {
             if (!onAfterWindowData.contains(attribute)) {
                 onAfterWindowData.add(attribute);
+                return SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
             }
         } else {
             if (!beforeWindowData.contains(attribute)) {
                 beforeWindowData.add(attribute);
+                return SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
             }
         }
+        return SiddhiConstants.UNKNOWN_STATE;
     }
 
     public void addOutputData(Attribute attribute) {
@@ -125,4 +130,11 @@ public class MetaStreamEvent implements MetaComplexEvent {
         return outputStreamDefinition;
     }
 
+    public boolean isTableEvent() {
+        return tableEvent;
+    }
+
+    public void setTableEvent(boolean tableEvent) {
+        this.tableEvent = tableEvent;
+    }
 }
