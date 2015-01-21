@@ -24,10 +24,18 @@ import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 public class SequenceMultiProcessStreamReceiver extends MultiProcessStreamReceiver {
 
 
-    private final StateStreamRuntime stateStreamRuntime;
+    private StateStreamRuntime stateStreamRuntime;
 
     public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime) {
         super(streamId, processCount);
+        this.stateStreamRuntime = stateStreamRuntime;
+    }
+
+    public SequenceMultiProcessStreamReceiver clone(String key) {
+        return new SequenceMultiProcessStreamReceiver(streamId + key,processCount,null);
+    }
+
+    public void setStateStreamRuntime(StateStreamRuntime stateStreamRuntime){
         this.stateStreamRuntime = stateStreamRuntime;
     }
 

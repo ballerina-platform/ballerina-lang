@@ -24,13 +24,20 @@ import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
 
-    private final StateStreamRuntime stateStreamRuntime;
+    private StateStreamRuntime stateStreamRuntime;
 
     public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime) {
         super(streamId);
         this.stateStreamRuntime = stateStreamRuntime;
     }
 
+    public void setStateStreamRuntime(StateStreamRuntime stateStreamRuntime){
+        this.stateStreamRuntime = stateStreamRuntime;
+    }
+
+    public SequenceSingleProcessStreamReceiver clone(String key) {
+        return new SequenceSingleProcessStreamReceiver(streamId + key,null);
+    }
 
     protected void stabilizeStates() {
         stateStreamRuntime.resetAndUpdate();
