@@ -99,7 +99,7 @@ public class PartitionRuntime {
                 metaQueryRuntime.setToLocalStream(true);
                 String id = "#" + streamDefinition.getId();
                 localStreamDefinitionMap.putIfAbsent(id, streamDefinition);
-                DefinitionParserHelper.validateOutputStream(streamDefinition, localStreamDefinitionMap.get(streamDefinition.getId()));
+                DefinitionParserHelper.validateOutputStream(streamDefinition, localStreamDefinitionMap.get(id));
 
                 StreamJunction outputStreamJunction = localStreamJunctionMap.get(id);
 
@@ -113,7 +113,7 @@ public class PartitionRuntime {
             } else {
                 String id =  streamDefinition.getId();
                 streamDefinitionMap.putIfAbsent(id, streamDefinition);
-                DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
+                DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(id));
                 StreamJunction outputStreamJunction = streamJunctionMap.get(id);
 
                 if (outputStreamJunction == null) {
