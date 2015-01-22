@@ -1,0 +1,25 @@
+Copy the following jar files to the "<CEP_HOME>/repository/components/lib" folder.
+
+	commons-beanutils-1.7.0.jar
+	commons-lang-2.2.jar
+	commons-logging-1.1.1.jar
+	commons-math3-3.2.jar
+	commons-math3-3.3.jar
+	guava-15.0.jar
+	javaparser-1.0.8.jar
+	jaxb2-basics-0.6.4.jar
+	jaxb2-basics-runtime-0.6.4.jar
+	jaxb2-basics-tools-0.6.4.jar
+	jaxb-impl-2.2.6.jar
+	jaxb-xjc-2.2.6.jar
+	joda-convert-1.2.jar
+	joda-time-2.2.jar
+	junit-3.8.2.jar
+	junit-4.4.jar
+	log4j-1.2.17.jar
+	pmml-evaluator-1.0.22.jar
+	pmml-manager-1.0.22.jar
+	pmml-model-1.0.22.jar
+	pmml-schema-1.0.22.jar
+	super-csv-2.2.0.jar
+	xjc-1.0.22.jar
