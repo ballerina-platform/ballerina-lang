@@ -98,6 +98,7 @@ public class ExecutionPlanRuntime {
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
 
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
+            DefinitionParserHelper.validateOutputStream(streamDefinition,streamDefinitionMap.get(streamDefinition.getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
 
             if (outputStreamJunction == null) {

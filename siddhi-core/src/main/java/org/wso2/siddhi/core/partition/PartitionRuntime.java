@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -98,6 +99,8 @@ public class PartitionRuntime {
                 metaQueryRuntime.setToLocalStream(true);
                 String id = "#" + streamDefinition.getId();
                 localStreamDefinitionMap.putIfAbsent(id, streamDefinition);
+                DefinitionParserHelper.validateOutputStream(streamDefinition, localStreamDefinitionMap.get(streamDefinition.getId()));
+
                 StreamJunction outputStreamJunction = localStreamJunctionMap.get(id);
 
                 if (outputStreamJunction == null) {
@@ -110,6 +113,7 @@ public class PartitionRuntime {
             } else {
                 String id =  streamDefinition.getId();
                 streamDefinitionMap.putIfAbsent(id, streamDefinition);
+                DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
                 StreamJunction outputStreamJunction = streamJunctionMap.get(id);
 
                 if (outputStreamJunction == null) {
