@@ -56,30 +56,32 @@ public class OutputParser {
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition);
             }
-        } else if (outStream instanceof DeleteStream) {
+        } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream) {
             EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
             if (eventTable != null) {
-                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
+
+                TableDefinition eventTableDefinition = eventTable.getTableDefinition();
+                for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
+                    if (!eventTableDefinition.getAttributeList().contains(attribute)) {
+                        throw new ExecutionPlanCreationException("Attribute " + attribute + " does not exist on Event Table " + eventTableDefinition);
+                    }
+                }
+
                 MetaStreamEvent matchingMetaStreamEvent = new MetaStreamEvent();
                 matchingMetaStreamEvent.setTableEvent(true);
-                TableDefinition tableDefinition = TableDefinition.id("");
+                TableDefinition matchingTableDefinition = TableDefinition.id("");
                 for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                     matchingMetaStreamEvent.addOutputData(attribute);
-                    tableDefinition.attribute(attribute.getName(), attribute.getType());
+                    matchingTableDefinition.attribute(attribute.getName(), attribute.getType());
                 }
-                matchingMetaStreamEvent.setInputDefinition(tableDefinition);
-                Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, 0);
-                return new DeleteTableCallback(eventTable, finder);
-            } else {
-                throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
-            }
-        } else if (outStream instanceof UpdateStream) {
-            EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
-            if (eventTable != null) {
-                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
-                MetaStateEvent metaStateEvent = createMetaStateEvent(outputStreamDefinition, eventTable);
-                Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent, executionPlanContext, null, 0);
-                return new UpdateTableCallback(eventTable, finder, outputStreamDefinition);
+                matchingMetaStreamEvent.setInputDefinition(matchingTableDefinition);
+                if (outStream instanceof DeleteStream) {
+                    Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, 0);
+                    return new DeleteTableCallback(eventTable, finder);
+                } else {
+                    Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, 0);
+                    return new UpdateTableCallback(eventTable, finder, matchingTableDefinition);
+                }
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
             }

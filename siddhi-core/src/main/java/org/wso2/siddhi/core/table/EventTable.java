@@ -23,13 +23,13 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 /**
  * Created on 1/18/15.
  */
 public interface EventTable extends FindableProcessor {
-    AbstractDefinition getTableDefinition();
+    TableDefinition getTableDefinition();
 
     void add(ComplexEventChunk<StreamEvent> addingEventChunk) ;
 

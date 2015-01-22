@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -42,6 +41,7 @@ import java.util.List;
  * Created on 1/18/15.
  */
 public class InMemoryEventTable implements EventTable {
+
     private final TableDefinition tableDefinition;
     private final ExecutionPlanContext executionPlanContext;
     private final LinkedList<StreamEvent> list = new LinkedList<StreamEvent>();
@@ -55,7 +55,7 @@ public class InMemoryEventTable implements EventTable {
         this.executionPlanContext = executionPlanContext;
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.setInputDefinition(tableDefinition);
-        for(Attribute attribute:tableDefinition.getAttributeList()){
+        for (Attribute attribute : tableDefinition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);
         }
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
@@ -63,7 +63,7 @@ public class InMemoryEventTable implements EventTable {
     }
 
     @Override
-    public AbstractDefinition getTableDefinition() {
+    public TableDefinition getTableDefinition() {
         return tableDefinition;
     }
 
@@ -74,10 +74,6 @@ public class InMemoryEventTable implements EventTable {
             list.add(streamEventCloner.copyStreamEvent(streamEvent));
         }
     }
-
-//    public synchronized void add(StreamEvent addStreamEvent) {
-//        list.add(streamEventCloner.copyStreamEvent(addStreamEvent));
-//    }
 
     public synchronized void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder) {
 
@@ -100,11 +96,22 @@ public class InMemoryEventTable implements EventTable {
 
     public synchronized void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition) {
 
-        for (StreamEvent streamEvent : list) {
-            if (finder.execute(streamEvent)) {
-//                streamEventPopulater.populateStreamEvent(streamEvent, updateStreamEvent.getOutputData());
+        updatingEventChunk.reset();
+        while (updatingEventChunk.hasNext()) {
+            StreamEvent matchStreamEvent = updatingEventChunk.next();
+            finder.setMatchingEvent(matchStreamEvent);
+            Iterator<StreamEvent> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                StreamEvent streamEvent = iterator.next();
+                if (finder.execute(streamEvent)) {
+                    for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                        streamEvent.setOutputData(matchStreamEvent.getOutputData()[i], mappingPosition[i]);
+                    }
+                }
             }
+            finder.setMatchingEvent(null);
         }
+
     }
 
 
@@ -131,12 +138,7 @@ public class InMemoryEventTable implements EventTable {
         return returnEventChunk.getFirst();
     }
 
-//    @Override
-//    public Finder constructFinder(Expression expression, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executors) {
-//        return SimpleFinderParser.parse(expression, metaStateEvent, executionPlanContext, executors, tableDefinition);
-//    }
-
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex){
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
         return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, executorList, matchingStreamIndex, tableDefinition);
 
     }

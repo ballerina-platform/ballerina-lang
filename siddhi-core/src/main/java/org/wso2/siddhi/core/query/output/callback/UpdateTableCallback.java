@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class UpdateTableCallback implements OutputCallback {
     private Finder finder;
     private int[] mappingPosition;
 
-    public UpdateTableCallback(EventTable eventTable, Finder finder, StreamDefinition updatingStreamDefinition) {
+    public UpdateTableCallback(EventTable eventTable, Finder finder, AbstractDefinition updatingStreamDefinition) {
         this.eventTable = eventTable;
         this.finder = finder;
         validateUpdateTable(eventTable.getTableDefinition(), updatingStreamDefinition.getAttributeList());
