@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
@@ -42,76 +43,42 @@ import java.util.concurrent.ConcurrentMap;
 public class OutputParser {
 
 
-    public static OutputCallback constructOutputCallback(OutputStream outStream, ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                                         ConcurrentMap<String, EventTable> eventTableMap, StreamDefinition outputStreamDefinition,
+    public static OutputCallback constructOutputCallback(OutputStream outStream, StreamDefinition outputStreamDefinition,
                                                          ExecutionPlanContext executionPlanContext) {
         String id = outStream.getId();
-        return constructOutputCallback(id, outStream, streamJunctionMap, eventTableMap, outputStreamDefinition, executionPlanContext);
-    }
 
-    public static OutputCallback constructLocalOutputCallback(OutputStream outStream, ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                                              ConcurrentMap<String, EventTable> eventTableMap, StreamDefinition outputStreamDefinition,
-                                                              ExecutionPlanContext executionPlanContext) {
-        String id = "#" + outStream.getId();
-        StreamJunction outputStreamJunction = streamJunctionMap.get(id);
-        if (outputStreamJunction == null) {
-            outputStreamJunction = new StreamJunction(outputStreamDefinition,
-                    executionPlanContext.getExecutorService(),
-                    executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
-            streamJunctionMap.putIfAbsent(id, outputStreamJunction);
-        }
-        return constructOutputCallback(id, outStream, streamJunctionMap, eventTableMap, outputStreamDefinition, executionPlanContext);
-    }
-
-    private static OutputCallback constructOutputCallback(String id, OutputStream outStream, ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                                          ConcurrentMap<String, EventTable> eventTableMap, StreamDefinition outputStreamDefinition,
-                                                          ExecutionPlanContext executionPlanContext) {
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
-            StreamJunction outputStreamJunction = streamJunctionMap.get(id);
-            if (outputStreamJunction != null) {
-                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, outputStreamJunction.getStreamDefinition());
-                return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
+            EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
+            if (eventTable != null) {
+                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
+                return new InsertIntoTableCallback(eventTable, outputStreamDefinition);
             } else {
-                EventTable eventTable = eventTableMap.get(id);
-                if (eventTable != null) {
-                    DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
-                    return new InsertIntoTableCallback(eventTable, outputStreamDefinition);
-                } else {
-                    DefinitionParserHelper.addStreamJunction(outputStreamDefinition, streamJunctionMap, executionPlanContext);
-                    return new InsertIntoStreamCallback(streamJunctionMap.get(id), outputStreamDefinition);
-                }
+                return new InsertIntoStreamCallback(outputStreamDefinition);
             }
         } else if (outStream instanceof DeleteStream) {
-            EventTable eventTable = eventTableMap.get(id);
+            EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
             if (eventTable != null) {
-
-
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
-
-//                List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-
-                MetaStateEvent metaStateEvent = createMetaStateEvent(outputStreamDefinition, eventTable);
-
-//                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent,
-//                        SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0);
-                Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), metaStateEvent, executionPlanContext, null,0);
+                MetaStreamEvent matchingMetaStreamEvent = new MetaStreamEvent();
+                matchingMetaStreamEvent.setTableEvent(true);
+                TableDefinition tableDefinition = TableDefinition.id("");
+                for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
+                    matchingMetaStreamEvent.addOutputData(attribute);
+                    tableDefinition.attribute(attribute.getName(), attribute.getType());
+                }
+                matchingMetaStreamEvent.setInputDefinition(tableDefinition);
+                Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, 0);
                 return new DeleteTableCallback(eventTable, finder);
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
             }
         } else if (outStream instanceof UpdateStream) {
-            EventTable eventTable = eventTableMap.get(id);
+            EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
             if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
-
-//                List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-
                 MetaStateEvent metaStateEvent = createMetaStateEvent(outputStreamDefinition, eventTable);
-
-//                ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent,
-//                        SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0);
-                Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent, executionPlanContext, null,0);
+                Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), metaStateEvent, executionPlanContext, null, 0);
                 return new UpdateTableCallback(eventTable, finder, outputStreamDefinition);
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
@@ -153,9 +120,11 @@ public class OutputParser {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
                         executionPlanContext.getExecutorService(),
                         executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
-                streamJunctionMap.put(id + key, outputStreamJunction);
+                streamJunctionMap.putIfAbsent(id + key, outputStreamJunction);
             }
-            return new InsertIntoStreamCallback(outputStreamJunction, outputStreamDefinition);
+            InsertIntoStreamCallback insertIntoStreamCallback = new InsertIntoStreamCallback(outputStreamDefinition);
+            insertIntoStreamCallback.init(streamJunctionMap.get(id + key));
+            return insertIntoStreamCallback;
 
         } else {
             throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");

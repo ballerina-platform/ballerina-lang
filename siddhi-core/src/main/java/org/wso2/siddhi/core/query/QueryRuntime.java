@@ -56,11 +56,13 @@ public class QueryRuntime {
     private MetaComplexEvent metaComplexEvent;
 
     public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
-                        OutputRateLimiter outputRateLimiter, MetaComplexEvent metaComplexEvent) {
+                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent metaComplexEvent) {
         this.query = query;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
+        this.outputCallback = outputCallback;
 
+        outputRateLimiter.setOutputCallback(outputCallback);
         this.queryContext = new QueryContext();
         queryContext.setExecutionPlanContext(executionPlanContext);
 
@@ -137,7 +139,7 @@ public class QueryRuntime {
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
 
         QueryRuntime queryRuntime = new QueryRuntime(query, queryContext.getExecutionPlanContext(), clonedStreamRuntime, clonedSelector,
-                clonedOutputRateLimiter, this.metaComplexEvent);
+                clonedOutputRateLimiter, outputCallback, this.metaComplexEvent);
         QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent);
 
         queryRuntime.queryId = this.queryId + key;
@@ -178,9 +180,8 @@ public class QueryRuntime {
         return query;
     }
 
-    public void setOutputCallback(OutputCallback outputCallback) {
-        this.outputCallback = outputCallback;
-        outputRateLimiter.setOutputCallback(outputCallback);
+    public OutputCallback getOutputCallback() {
+        return outputCallback;
     }
 
     public void init() {

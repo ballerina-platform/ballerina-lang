@@ -21,7 +21,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.DefinitionNotExistException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -162,7 +162,7 @@ public class SingleInputStreamParser {
             metaStreamEvent.setInputDefinition(inputDefinition);
             metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
         } else {
-            throw new DefinitionNotExistException("Stream definition with stream ID '" + inputStream.getStreamId() + "' has not been defined");
+            throw new ExecutionPlanCreationException("Stream definition with stream ID '" + inputStream.getStreamId() + "' has not been defined");
         }
         if ((inputStream.getStreamReferenceId() != null) &&
                 !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided

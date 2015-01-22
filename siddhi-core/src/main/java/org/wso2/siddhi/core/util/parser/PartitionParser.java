@@ -49,13 +49,12 @@ public class PartitionParser {
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
-            QueryRuntime queryRuntime;
-            queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap);
+            QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap);
 
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);
-            if(queryRuntime.getMetaComplexEvent() instanceof MetaStateEvent) {
+            if (queryRuntime.getMetaComplexEvent() instanceof MetaStateEvent) {
                 QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
             } else {
                 QueryParserHelper.updateVariablePosition(metaStateEvent.getMetaStreamEvent(0), executors);
@@ -74,9 +73,9 @@ public class PartitionParser {
      */
     private static MetaStateEvent createMetaEventForPartitioner(MetaComplexEvent stateEvent) {
         MetaStateEvent metaStateEvent;
-        if(stateEvent instanceof MetaStateEvent) {
-            metaStateEvent = new MetaStateEvent(((MetaStateEvent)stateEvent).getStreamEventCount());
-            for(MetaStreamEvent metaStreamEvent:((MetaStateEvent)stateEvent).getMetaStreamEvents()) {
+        if (stateEvent instanceof MetaStateEvent) {
+            metaStateEvent = new MetaStateEvent(((MetaStateEvent) stateEvent).getStreamEventCount());
+            for (MetaStreamEvent metaStreamEvent : ((MetaStateEvent) stateEvent).getMetaStreamEvents()) {
                 AbstractDefinition definition = metaStreamEvent.getInputDefinition();
                 MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
                 for (Attribute attribute : definition.getAttributeList()) {
@@ -88,7 +87,7 @@ public class PartitionParser {
             }
         } else {
             metaStateEvent = new MetaStateEvent(1);
-            AbstractDefinition definition = ((MetaStreamEvent)stateEvent).getInputDefinition();
+            AbstractDefinition definition = ((MetaStreamEvent) stateEvent).getInputDefinition();
             MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : definition.getAttributeList()) {
                 newMetaStreamEvent.addOutputData(attribute);

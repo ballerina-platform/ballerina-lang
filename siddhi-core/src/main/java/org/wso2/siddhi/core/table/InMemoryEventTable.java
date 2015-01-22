@@ -80,13 +80,22 @@ public class InMemoryEventTable implements EventTable {
 //    }
 
     public synchronized void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder) {
-        Iterator<StreamEvent> iterator = list.iterator();
-        while (iterator.hasNext()) {
-            StreamEvent streamEvent = iterator.next();
-            if (finder.execute(streamEvent)) {
-                iterator.remove();
+
+        deletingEventChunk.reset();
+        while (deletingEventChunk.hasNext()) {
+            StreamEvent matchStreamEvent = deletingEventChunk.next();
+            finder.setMatchingEvent(matchStreamEvent);
+            Iterator<StreamEvent> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                StreamEvent streamEvent = iterator.next();
+                if (finder.execute(streamEvent)) {
+                    iterator.remove();
+                }
             }
+            finder.setMatchingEvent(null);
         }
+
+
     }
 
     public synchronized void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition) {

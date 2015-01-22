@@ -31,10 +31,8 @@ import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -91,26 +89,40 @@ public class PartitionRuntime {
 
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {
         Query query = metaQueryRuntime.getQuery();
-        OutputCallback outputCallback;
-        if (query.getOutputStream() instanceof InsertIntoStream && ((InsertIntoStream) query.getOutputStream()).isInnerStream()) {
-            metaQueryRuntime.setToLocalStream(true);
-            outputCallback = OutputParser.constructLocalOutputCallback(query.getOutputStream(), localStreamJunctionMap, eventTableMap,
-                    metaQueryRuntime.getOutputStreamDefinition(), executionPlanContext);
-        } else {
-            outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), streamJunctionMap, eventTableMap,
-                    metaQueryRuntime.getOutputStreamDefinition(), executionPlanContext);
-        }
-        metaQueryRuntime.setOutputCallback(outputCallback);
 
-        metaQueryRuntimeMap.put(metaQueryRuntime.getQueryId(), metaQueryRuntime);
-        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            StreamDefinition streamDefinition = ((InsertIntoStreamCallback) outputCallback).getOutputStreamDefinition();
-            if (metaQueryRuntime.isToLocalStream()) {
-                localStreamDefinitionMap.putIfAbsent("#" + streamDefinition.getId(), streamDefinition);
+        if (query.getOutputStream() instanceof InsertIntoStream) {
+            InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) metaQueryRuntime.getOutputCallback();
+            StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
+
+            if (((InsertIntoStream) query.getOutputStream()).isInnerStream()) {
+                metaQueryRuntime.setToLocalStream(true);
+                String id = "#" + streamDefinition.getId();
+                localStreamDefinitionMap.putIfAbsent(id, streamDefinition);
+                StreamJunction outputStreamJunction = localStreamJunctionMap.get(id);
+
+                if (outputStreamJunction == null) {
+                    outputStreamJunction = new StreamJunction(streamDefinition,
+                            executionPlanContext.getExecutorService(),
+                            executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                    localStreamJunctionMap.putIfAbsent(id, outputStreamJunction);
+                }
+                insertIntoStreamCallback.init(localStreamJunctionMap.get(id));
             } else {
-                streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
+                String id =  streamDefinition.getId();
+                streamDefinitionMap.putIfAbsent(id, streamDefinition);
+                StreamJunction outputStreamJunction = streamJunctionMap.get(id);
+
+                if (outputStreamJunction == null) {
+                    outputStreamJunction = new StreamJunction(streamDefinition,
+                            executionPlanContext.getExecutorService(),
+                            executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                    streamJunctionMap.putIfAbsent(id, outputStreamJunction);
+                }
+                insertIntoStreamCallback.init(streamJunctionMap.get(id));
             }
         }
+        metaQueryRuntimeMap.put(metaQueryRuntime.getQueryId(), metaQueryRuntime);
+
         return metaQueryRuntime;
     }
 
@@ -188,7 +200,7 @@ public class PartitionRuntime {
                     for (int i = 0; i < clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().size(); i++) {
                         String streamId = queryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getProcessStreamReceiver().getStreamId();
                         StreamDefinition streamDefinition;
-                        if(streamId.startsWith("#")) {
+                        if (streamId.startsWith("#")) {
                             streamDefinition = (StreamDefinition) localStreamDefinitionMap.get(streamId);
                         } else {
                             streamDefinition = (StreamDefinition) streamDefinitionMap.get(streamId);

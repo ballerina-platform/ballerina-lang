@@ -23,12 +23,15 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-public class InsertIntoStreamCallback  implements OutputCallback {
+public class InsertIntoStreamCallback implements OutputCallback {
     private StreamDefinition outputStreamDefinition;
     private StreamJunction.Publisher publisher;
 
-    public InsertIntoStreamCallback(StreamJunction outputStreamJunction, StreamDefinition outputStreamDefinition) {
+    public InsertIntoStreamCallback(StreamDefinition outputStreamDefinition) {
         this.outputStreamDefinition = outputStreamDefinition;
+    }
+
+    public void init(StreamJunction outputStreamJunction) {
         this.publisher = outputStreamJunction.constructPublisher();
     }
 
