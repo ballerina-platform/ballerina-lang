@@ -14,7 +14,7 @@ package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -31,20 +31,24 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeSize != 2) {
-            throw new OperationNotSupportedException("IsMatch has to have 2 expressions regex and the attribute, " +
-                    "currently " + attributeSize + " expressions provided");
+        if (attributeExpressionExecutors.size() != 2) {
+            throw new ExecutionPlanCreationException("IsMatch has to have 2 expressions regex and the attribute, " +
+                    "currently " + attributeExpressionExecutors.size() + " expressions provided");
         }
         ExpressionExecutor regexExecutor = attributeExpressionExecutors.get(0);
         if (regexExecutor.getReturnType() != Attribute.Type.STRING &&
                 regexExecutor instanceof ConstantExpressionExecutor) {
-            throw new OperationNotSupportedException("IsMatch expects regex string input expression but found " +
+            throw new ExecutionPlanCreationException("IsMatch expects regex string input expression but found " +
                     regexExecutor.getReturnType());
         }
         expressionExecutor = attributeExpressionExecutors.get(1);
-
         pattern = Pattern.compile((String) regexExecutor.execute(null));
 
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return Attribute.Type.BOOL;
     }
 
     /**
@@ -62,16 +66,6 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
     protected Object execute(Object data) {
         Matcher matcher = pattern.matcher(data.toString());
         return matcher.matches();
-    }
-
-    @Override
-    public Attribute.Type getReturnType() {
-        return Attribute.Type.BOOL;
-    }
-
-    @Override
-    public ExpressionExecutor cloneExecutor() {
-        return this;
     }
 
     @Override

@@ -33,12 +33,6 @@ public class IsNullFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return this;
-    }
-
-
-    @Override
     public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
     }
 

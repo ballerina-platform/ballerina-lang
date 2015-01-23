@@ -13,37 +13,35 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
 
 public class CoalesceFunctionExecutor extends FunctionExecutor {
 
-    Attribute.Type returnType;
+    private Attribute.Type returnType;
+
+    @Override
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.isEmpty()) {
+            throw new ExecutionPlanValidationException("Coalesce must have at least one parameter");
+        }
+        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
+        for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
+            if (type != expressionExecutor.getReturnType()) {
+                throw new ExecutionPlanValidationException("Coalesce cannot have parameters with different type");
+            }
+        }
+        returnType = type;
+    }
 
     @Override
     public Attribute.Type getReturnType() {
         return returnType;
     }
 
-    @Override
-    public ExpressionExecutor cloneExecutor() {
-        return this;
-    }
-
-
-    @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
-        for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
-            if (type != expressionExecutor.getReturnType()) {
-                throw new OperationNotSupportedException("Coalesce cannot have parameters with different type");
-            }
-        }
-        returnType = type;
-    }
 
     protected Object execute(Object[] obj) {
         for (Object aObj : obj) {

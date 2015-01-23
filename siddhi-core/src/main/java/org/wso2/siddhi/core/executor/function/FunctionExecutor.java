@@ -14,16 +14,18 @@ package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder {
 
     protected List<ExpressionExecutor> attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
-    protected int attributeSize;
+    private int attributeSize;
 
     public void setExecutionPlanContext(ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
@@ -38,10 +40,30 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
         init(attributeExpressionExecutors, executionPlanContext);
     }
 
+    @Override
+    public ExpressionExecutor cloneExecutor() {
+        try {
+            FunctionExecutor functionExecutor = this.getClass().newInstance();
+            List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
+            for (ExpressionExecutor attributeExecutor : this.attributeExpressionExecutors) {
+                innerExpressionExecutors.add(attributeExecutor.cloneExecutor());
+            }
+            executionPlanContext.addEternalReferencedHolder(functionExecutor);
+            functionExecutor.setExecutionPlanContext(executionPlanContext);
+            functionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
+            functionExecutor.init();
+            functionExecutor.start();
+            return functionExecutor;
+        } catch (Exception e) {
+            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+        }
+    }
+
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param executionPlanContext                SiddhiContext
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param executionPlanContext         SiddhiContext
      */
     public abstract void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 

@@ -20,7 +20,11 @@ import java.util.List;
 
 public class ConcatFunctionExecutor extends FunctionExecutor {
 
-    Attribute.Type returnType = Attribute.Type.STRING;
+    private Attribute.Type returnType = Attribute.Type.STRING;
+
+    @Override
+    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    }
 
     @Override
     public Attribute.Type getReturnType() {
@@ -28,15 +32,6 @@ public class ConcatFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return this;
-    }
-
-
-    @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-    }
-
     protected Object execute(Object[] obj) {
         StringBuilder sb = new StringBuilder();
         for (Object aObj : obj) {

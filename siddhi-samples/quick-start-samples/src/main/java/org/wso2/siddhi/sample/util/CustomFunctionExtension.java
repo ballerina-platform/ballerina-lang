@@ -50,11 +50,6 @@ public class CustomFunctionExtension extends FunctionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return this;
-    }
-
-    @Override
     public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         for(ExpressionExecutor expressionExecutor: attributeExpressionExecutors){
         Attribute.Type attributeType = expressionExecutor.getReturnType();

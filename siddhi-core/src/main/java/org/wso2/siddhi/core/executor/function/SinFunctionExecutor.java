@@ -25,10 +25,15 @@ public class SinFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeSize != 1) {
+        if (attributeExpressionExecutors.size() != 1) {
             throw new OperationNotSupportedException("Sin function has to have exactly 1 parameter, currently " +
-                    attributeSize + " parameters provided");
+                    attributeExpressionExecutors.size() + " parameters provided");
         }
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return Attribute.Type.DOUBLE;
     }
 
     /**
@@ -45,16 +50,6 @@ public class SinFunctionExecutor extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         return Math.sin(Double.parseDouble(data.toString()));
-    }
-
-    @Override
-    public Attribute.Type getReturnType() {
-        return Attribute.Type.DOUBLE;
-    }
-
-    @Override
-    public ExpressionExecutor cloneExecutor() {
-        return this;
     }
 
     @Override
