@@ -16,7 +16,6 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.stream;
 
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.handler.*;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -27,7 +26,6 @@ public class SingleInputStream extends InputStream {
 
     protected boolean isInnerStream = false;
     protected String streamId;
-    protected AbstractDefinition definition;
     protected String streamReferenceId;
     protected List<StreamHandler> streamHandlers = new ArrayList<StreamHandler>();
     protected int windowPosition = -1;
@@ -53,19 +51,10 @@ public class SingleInputStream extends InputStream {
     public SingleInputStream(BasicSingleInputStream basicSingleInputStream, Window window) {
         streamId = basicSingleInputStream.getStreamId();
         isInnerStream = basicSingleInputStream.isInnerStream();
-        definition = basicSingleInputStream.getDefinition();
         streamReferenceId = basicSingleInputStream.getStreamReferenceId();
         streamHandlers = basicSingleInputStream.getStreamHandlers();
         windowPosition = basicSingleInputStream.getStreamHandlers().size();
         streamHandlers.add(window);
-    }
-
-    public AbstractDefinition getDefinition() {
-        return definition;
-    }
-
-    public void setDefinition(AbstractDefinition definition) {
-        this.definition = definition;
     }
 
     public String getStreamId() {
@@ -138,7 +127,6 @@ public class SingleInputStream extends InputStream {
         return "SingleInputStream{" +
                 "isInnerStream=" + isInnerStream +
                 ", id='" + streamId + '\'' +
-                ", definition=" + definition +
                 ", streamReferenceId='" + streamReferenceId + '\'' +
                 ", streamHandlers=" + streamHandlers +
                 ", windowPosition=" + windowPosition +
@@ -154,7 +142,6 @@ public class SingleInputStream extends InputStream {
 
         if (isInnerStream != that.isInnerStream) return false;
         if (windowPosition != that.windowPosition) return false;
-        if (definition != null ? !definition.equals(that.definition) : that.definition != null) return false;
         if (streamHandlers != null ? !streamHandlers.equals(that.streamHandlers) : that.streamHandlers != null)
             return false;
         if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) return false;
@@ -168,7 +155,6 @@ public class SingleInputStream extends InputStream {
     public int hashCode() {
         int result = (isInnerStream ? 1 : 0);
         result = 31 * result + (streamId != null ? streamId.hashCode() : 0);
-        result = 31 * result + (definition != null ? definition.hashCode() : 0);
         result = 31 * result + (streamReferenceId != null ? streamReferenceId.hashCode() : 0);
         result = 31 * result + (streamHandlers != null ? streamHandlers.hashCode() : 0);
         result = 31 * result + windowPosition;

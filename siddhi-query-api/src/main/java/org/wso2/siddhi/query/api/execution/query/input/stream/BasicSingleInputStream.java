@@ -16,9 +16,8 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.stream;
 
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.execution.query.input.handler.*;
+import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
 
@@ -39,14 +38,6 @@ public class BasicSingleInputStream extends SingleInputStream {
 
     public BasicSingleInputStream(String streamReferenceId, String streamId, boolean isInnerStream) {
         super(streamReferenceId, streamId, isInnerStream);
-    }
-
-    public AbstractDefinition getDefinition() {
-        return definition;
-    }
-
-    public void setDefinition(AbstractDefinition definition) {
-        this.definition = definition;
     }
 
     public String getStreamId() {

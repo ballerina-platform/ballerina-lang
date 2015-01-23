@@ -53,14 +53,13 @@ public class JoinStreamRuntime implements StreamRuntime {
 
     @Override
     public StreamRuntime clone(String key) {
+
         JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext, metaStateEvent);
         for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
             joinStreamRuntime.addRuntime((SingleStreamRuntime) singleStreamRuntime.clone(key));
         }
         SingleStreamRuntime leftSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(0);
         SingleStreamRuntime rightSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(1);
-
-
 
         Processor lastLeftProcessor = leftSingleStreamRuntime.getProcessorChain();
 

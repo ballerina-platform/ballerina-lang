@@ -45,18 +45,20 @@ public class QueryParser {
      *
      * @param query                query to be parsed
      * @param executionPlanContext associated Execution Plan context
-     * @param definitionMap        map containing user given stream definitions
+     * @param streamDefinitionMap        map containing user given stream definitions
+     * @param tableDefinitionMap
      * @return queryRuntime
      */
-    public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext, Map<String,
-            AbstractDefinition> definitionMap) {
+    public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
+                                     Map<String, AbstractDefinition> streamDefinitionMap,
+                                     Map<String, AbstractDefinition> tableDefinitionMap) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, definitionMap, executors);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, executors);
 
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), executors);

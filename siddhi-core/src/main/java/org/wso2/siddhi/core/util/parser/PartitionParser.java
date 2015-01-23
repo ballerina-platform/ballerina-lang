@@ -49,7 +49,7 @@ public class PartitionParser {
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
-            QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap);
+            QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap, executionPlanRuntime.getTableDefinitionMap());
 
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);

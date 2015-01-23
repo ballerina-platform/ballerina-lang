@@ -24,10 +24,9 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.*;
 
@@ -41,49 +40,26 @@ public class InputStreamParser {
      *
      * @param inputStream          input stream to be parsed
      * @param executionPlanContext associated siddhi executionPlanContext
-     * @param definitionMap        map containing user given stream definitions
-     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
-     * @return
+     * @param streamDefinitionMap  map containing user given stream definitions
+     * @param tableDefinitionMap
+     * @param executors            List to hold VariableExpressionExecutors to update after query parsing  @return
      */
-    public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> definitionMap,
+    public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,
+                                      Map<String, AbstractDefinition> streamDefinitionMap,
+                                      Map<String, AbstractDefinition> tableDefinitionMap,
                                       List<VariableExpressionExecutor> executors) {
+
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
-            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream()? "#":"")+singleInputStream.getStreamId());
+            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream() ? SiddhiConstants.INNER_STREAM_FLAG : "") + singleInputStream.getStreamId());
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, executors, definitionMap, new MetaStreamEvent(), processStreamReceiver);
+                    executionPlanContext, executors, streamDefinitionMap, null, new MetaStreamEvent(), processStreamReceiver);
         } else if (inputStream instanceof JoinInputStream) {
-            ProcessStreamReceiver leftProcessStreamReceiver;
-            ProcessStreamReceiver rightProcessStreamReceiver;
-            if (inputStream.getAllStreamIds().size() == 2) {
-                SingleInputStream singleInputStream = ((SingleInputStream)((JoinInputStream) inputStream).getLeftInputStream());
-                leftProcessStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream()? "#":"")+singleInputStream.getStreamId());
-                singleInputStream = ((SingleInputStream) ((JoinInputStream) inputStream).getRightInputStream());
-                rightProcessStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream()? "#":"")+singleInputStream.getStreamId());
-            } else {
-                rightProcessStreamReceiver = new MultiProcessStreamReceiver(inputStream.getAllStreamIds().get(0), 2);
-                leftProcessStreamReceiver = rightProcessStreamReceiver;
-            }
-            MetaStateEvent metaStateEvent = new MetaStateEvent(2);
-            metaStateEvent.addEvent(new MetaStreamEvent());
-            metaStateEvent.addEvent(new MetaStreamEvent());
-
-            SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream(
-                    (SingleInputStream) ((JoinInputStream) inputStream).getLeftInputStream(),
-                    executionPlanContext, executors, definitionMap,
-                    metaStateEvent.getMetaStreamEvent(0), leftProcessStreamReceiver);
-
-            SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream(
-                    (SingleInputStream) ((JoinInputStream) inputStream).getRightInputStream(),
-                    executionPlanContext, executors, definitionMap,
-                    metaStateEvent.getMetaStreamEvent(1), rightProcessStreamReceiver);
-
-            return JoinInputStreamParser.parseInputStream(leftStreamRuntime, rightStreamRuntime,
-                    (JoinInputStream) inputStream, executionPlanContext, metaStateEvent, executors);
+            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, executors);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
-                    metaStateEvent, executors, definitionMap);
+                    metaStateEvent, streamDefinitionMap, null, executors);
         } else {
             throw new OperationNotSupportedException();
         }
@@ -97,12 +73,12 @@ public class InputStreamParser {
      * @param definitionMap
      * @return
      */
-    public static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream, Map<String,
-            AbstractDefinition> definitionMap) {
+    public static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream,
+                                                          Map<String, AbstractDefinition> definitionMap) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         String streamId = inputStream.getStreamId();
-        if(inputStream.isInnerStream()){
-            streamId = "#".concat(streamId);
+        if (inputStream.isInnerStream()) {
+            streamId = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
         }
         if (definitionMap != null && definitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = definitionMap.get(streamId);

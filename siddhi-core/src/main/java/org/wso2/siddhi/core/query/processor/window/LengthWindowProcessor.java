@@ -18,14 +18,23 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
+import org.wso2.siddhi.query.api.expression.Expression;
 
-public class LengthWindowProcessor extends WindowProcessor {
+import java.util.List;
+
+public class LengthWindowProcessor extends WindowProcessor implements FindableProcessor{
 
     private int length;
     private int count = 0;
@@ -72,5 +81,25 @@ public class LengthWindowProcessor extends WindowProcessor {
         lengthWindowProcessor.setLength(this.length);
         lengthWindowProcessor.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
         return lengthWindowProcessor;
+    }
+
+    @Override
+    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        finder.setMatchingEvent(matchingEvent);
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        expiredEventChunk.reset();
+        while (expiredEventChunk.hasNext()) {
+            StreamEvent streamEvent = expiredEventChunk.next();
+            if (finder.execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        finder.setMatchingEvent(null);
+        return returnEventChunk.getFirst();
+    }
+
+    @Override
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
+        return SimpleFinderParser.parse(expression, metaEvent, executionPlanContext, executorList, matchingStreamIndex, inputDefinition);
     }
 }

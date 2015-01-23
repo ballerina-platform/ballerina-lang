@@ -19,8 +19,8 @@
 package org.wso2.siddhi.core.event.stream.converter;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class StreamEventConverterFactory {
     private static List<StreamEventConverter.ConversionMapping> getConversionElements(
             MetaStreamEvent metaStreamEvent, int size) {
 
-        StreamDefinition inputDefinition = (StreamDefinition) metaStreamEvent.getInputDefinition();
+        AbstractDefinition inputDefinition = metaStreamEvent.getInputDefinition();
         List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter.ConversionMapping>(size);
 
         for (int j = 0; j < 3; j++) {

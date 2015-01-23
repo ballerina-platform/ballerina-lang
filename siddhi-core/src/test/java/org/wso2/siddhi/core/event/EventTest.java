@@ -231,13 +231,14 @@ public class EventTest {
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.NOT_EQUAL, Expression.value(50))));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
         query.insertInto("outputStream");
-        Map<String, AbstractDefinition> definitionMap = new HashMap<String, AbstractDefinition>();
-        definitionMap.put("cseEventStream", streamDefinition);
-        definitionMap.put("outputStream", outStreamDefinition);
+        Map<String, AbstractDefinition> tableDefinitionMap = new HashMap<String, AbstractDefinition>();
+        Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
+        streamDefinitionMap.put("cseEventStream", streamDefinition);
+        streamDefinitionMap.put("outputStream", outStreamDefinition);
         SiddhiContext siddhicontext = new SiddhiContext();
         ExecutionPlanContext context = new ExecutionPlanContext();
         context.setSiddhiContext(siddhicontext);
-        QueryRuntime runtime = QueryParser.parse(query, context, definitionMap);
+        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap);
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());

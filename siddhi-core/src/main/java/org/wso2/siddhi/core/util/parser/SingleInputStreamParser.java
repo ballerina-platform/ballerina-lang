@@ -55,13 +55,14 @@ public class SingleInputStreamParser {
      * @param inputStream           single input stream to be parsed
      * @param executionPlanContext  query to be parsed
      * @param executors             List to hold VariableExpressionExecutors to update after query parsing
-     * @param definitionMap
+     * @param streamDefinitionMap
+     * @param tableDefinitionMap
      * @param metaComplexEvent      @return
      * @param processStreamReceiver
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
-                                                       List<VariableExpressionExecutor> executors, Map<String, AbstractDefinition> definitionMap,
-                                                       MetaComplexEvent metaComplexEvent, ProcessStreamReceiver processStreamReceiver) {
+                                                       List<VariableExpressionExecutor> executors, Map<String, AbstractDefinition> streamDefinitionMap,
+                                                       Map<String, AbstractDefinition> tableDefinitionMap, MetaComplexEvent metaComplexEvent, ProcessStreamReceiver processStreamReceiver) {
         Processor processor = null;
         Processor singleThreadValve = null;
         boolean first = true;
@@ -69,10 +70,10 @@ public class SingleInputStreamParser {
         if (metaComplexEvent instanceof MetaStateEvent) {
             metaStreamEvent = new MetaStreamEvent();
             ((MetaStateEvent) metaComplexEvent).addEvent(metaStreamEvent);
-            initMetaStreamEvent(inputStream, definitionMap, metaStreamEvent);
+            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, metaStreamEvent);
         } else {
             metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
-            initMetaStreamEvent(inputStream, definitionMap, metaStreamEvent);
+            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, metaStreamEvent);
         }
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
@@ -147,23 +148,30 @@ public class SingleInputStreamParser {
      * definition and reference is will be set accordingly in this method.
      *
      * @param inputStream
-     * @param definitionMap
-     * @param metaStreamEvent
-     * @return
+     * @param streamDefinitionMap
+     * @param tableDefinitionMap
+     * @param metaStreamEvent     @return
      */
     private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
-            AbstractDefinition> definitionMap, MetaStreamEvent metaStreamEvent) {
+            AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, MetaStreamEvent metaStreamEvent) {
+
         String streamId = inputStream.getStreamId();
-        if(inputStream.isInnerStream()){
-            streamId = "#".concat(streamId);
+        if (inputStream.isInnerStream()) {
+            streamId = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
         }
-        if (definitionMap != null && definitionMap.containsKey(streamId)) {
-            AbstractDefinition inputDefinition = definitionMap.get(streamId);
+
+        if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
+            AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);
+            metaStreamEvent.setInputDefinition(inputDefinition);
+            metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
+        } else if (!inputStream.isInnerStream() && tableDefinitionMap != null && tableDefinitionMap.containsKey(streamId)) {
+            AbstractDefinition inputDefinition = tableDefinitionMap.get(streamId);
             metaStreamEvent.setInputDefinition(inputDefinition);
             metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
         } else {
-            throw new ExecutionPlanCreationException("Stream definition with stream ID '" + inputStream.getStreamId() + "' has not been defined");
+            throw new ExecutionPlanCreationException("Stream/table definition with ID '" + inputStream.getStreamId() + "' has not been defined");
         }
+
         if ((inputStream.getStreamReferenceId() != null) &&
                 !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided
             metaStreamEvent.setInputReferenceId(inputStream.getStreamReferenceId());

@@ -88,17 +88,19 @@ public class ExecutionPlanRuntime {
 
         for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {
             ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
-            streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
+            if (!processStreamReceiver.getMetaStreamEvent().isTableEvent()) {
+                streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
+            }
         }
 
-        OutputCallback outputCallback=  queryRuntime.getOutputCallback();
+        OutputCallback outputCallback = queryRuntime.getOutputCallback();
 
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
 
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition,streamDefinitionMap.get(streamDefinition.getId()));
+            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
 
             if (outputStreamJunction == null) {
@@ -156,6 +158,10 @@ public class ExecutionPlanRuntime {
 
     public ConcurrentMap<String, AbstractDefinition> getStreamDefinitionMap() {
         return streamDefinitionMap;
+    }
+
+    public ConcurrentMap<String, AbstractDefinition> getTableDefinitionMap() {
+        return tableDefinitionMap;
     }
 
     public void shutdown() {
