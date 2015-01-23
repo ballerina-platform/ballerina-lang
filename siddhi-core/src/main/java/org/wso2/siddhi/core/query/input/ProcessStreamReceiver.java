@@ -102,8 +102,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         this.metaStreamEvent = metaStreamEvent;
     }
 
-    public MetaStreamEvent getMetaStreamEvent() {
-        return metaStreamEvent;
+    public boolean toTable() {
+        return metaStreamEvent.isTableEvent();
     }
 
     public void setNext(Processor next) {

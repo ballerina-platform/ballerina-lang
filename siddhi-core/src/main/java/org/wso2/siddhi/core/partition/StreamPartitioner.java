@@ -52,22 +52,22 @@ public class StreamPartitioner {
     public StreamPartitioner(InputStream inputStream, Partition partition, MetaStateEvent metaEvent,
                              List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         if (partition != null) {
-            createExecutors(inputStream,partition,metaEvent,executors,executionPlanContext);
+            createExecutors(inputStream, partition, metaEvent, executors, executionPlanContext);
         }
     }
 
     private void createExecutors(InputStream inputStream, Partition partition, MetaComplexEvent metaEvent,
-                                 List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
-        if(inputStream instanceof SingleInputStream){
-            if(metaEvent instanceof MetaStateEvent) {
+                                 List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
+        if (inputStream instanceof SingleInputStream) {
+            if (metaEvent instanceof MetaStateEvent) {
                 createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, ((MetaStateEvent) metaEvent).getMetaStreamEvent(0), executors, executionPlanContext);
-            }  else {
+            } else {
                 createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, executionPlanContext);
             }
         } else if (inputStream instanceof JoinInputStream) {
             createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext);
         } else if (inputStream instanceof StateInputStream) {
-            createStateInputStreamExecutors(((StateInputStream)inputStream).getStateElement(),partition, (MetaStateEvent) metaEvent,executors,executionPlanContext,0);
+            createStateInputStreamExecutors(((StateInputStream) inputStream).getStateElement(), partition, (MetaStateEvent) metaEvent, executors, executionPlanContext, 0);
         }
     }
 
@@ -96,32 +96,33 @@ public class StreamPartitioner {
     private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         createExecutors(inputStream.getLeftInputStream(), partition, metaEvent.getMetaStreamEvent(0), executors, executionPlanContext);
         int size = executors.size();
-        for(VariableExpressionExecutor variableExpressionExecutor:executors){
-            variableExpressionExecutor.getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX]=0;
+        for (VariableExpressionExecutor variableExpressionExecutor : executors) {
+            variableExpressionExecutor.getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = 0;
         }
-        createExecutors(inputStream.getRightInputStream(),partition, metaEvent.getMetaStreamEvent(1), executors, executionPlanContext);
-        for(int i=size;i<executors.size();i++){
-            executors.get(i).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX]=1;
+        createExecutors(inputStream.getRightInputStream(), partition, metaEvent.getMetaStreamEvent(1), executors, executionPlanContext);
+        for (int i = size; i < executors.size(); i++) {
+            executors.get(i).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = 1;
         }
 
     }
 
-    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext){
+    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
         partitionExecutorLists.add(executorList);
-        if(!inputStream.isInnerStream()) {
+        if (!inputStream.isInnerStream()) {
             for (PartitionType partitionType : partition.getPartitionTypeMap().values()) {
                 if (partitionType instanceof ValuePartitionType) {
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                metaEvent, -1, executors, executionPlanContext, false, 0)));
+                                metaEvent, SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0)));
                     }
                 } else {
                     for (RangePartitionType.RangePartitionProperty rangePartitionProperty : ((RangePartitionType) partitionType).getRangePartitionProperties()) {
                         if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                             executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
                                     ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
-                                            -1, executors, executionPlanContext, false, 0), rangePartitionProperty.getPartitionKey()));
+                                            SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0),
+                                    rangePartitionProperty.getPartitionKey()));
 
                         }
                     }

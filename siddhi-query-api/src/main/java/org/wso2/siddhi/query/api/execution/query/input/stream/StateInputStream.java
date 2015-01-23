@@ -75,8 +75,7 @@ public class StateInputStream extends InputStream {
             collectStreamIds(((NextStateElement) stateElement).getNextStateElement(), streamIds);
         } else if (stateElement instanceof StreamStateElement) {
             BasicSingleInputStream basicSingleInputStream = ((StreamStateElement) stateElement).getBasicSingleInputStream();
-            String streamId = basicSingleInputStream.isInnerStream ? "#"+basicSingleInputStream.getStreamId():basicSingleInputStream.getStreamId();
-            streamIds.add(streamId);
+            streamIds.add(basicSingleInputStream.getStreamId());
         }
         return streamIds;
     }

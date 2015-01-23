@@ -30,8 +30,6 @@ public final class SiddhiConstants {
     public static final int STREAM_ATTRIBUTE_TYPE_INDEX = 2;
     public static final int STREAM_ATTRIBUTE_INDEX = 3;
 
-    public static final String INNER_STREAM_FLAG = "#";
-
     public static final String ANNOTATION_ELEMENT_CALLBACK_ASYNC = "callback.async";
 
     public static final String ANNOTATION_NAME = "Name";

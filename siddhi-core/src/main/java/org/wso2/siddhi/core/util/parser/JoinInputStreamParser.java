@@ -30,7 +30,6 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
 import org.wso2.siddhi.core.query.processor.window.TableWindowProcessor;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
@@ -50,45 +49,45 @@ public class JoinInputStreamParser {
         MetaStreamEvent leftMetaStreamEvent = new MetaStreamEvent();
         MetaStreamEvent rightMetaStreamEvent = new MetaStreamEvent();
 
-        SingleInputStream leftInputStream = ((SingleInputStream) joinInputStream.getLeftInputStream());
-        SingleInputStream rightInputStream = ((SingleInputStream) joinInputStream.getRightInputStream());
+        String leftInputStreamId = ((SingleInputStream) joinInputStream.getLeftInputStream()).getStreamId();
+        String rightInputStreamId = ((SingleInputStream) joinInputStream.getRightInputStream()).getStreamId();
 
         if (joinInputStream.getAllStreamIds().size() == 2) {
-            if (!streamDefinitionMap.containsKey(leftInputStream.getStreamId())) {
+            if (!streamDefinitionMap.containsKey(leftInputStreamId)) {
                 leftMetaStreamEvent.setTableEvent(true);
             }
-            if (!streamDefinitionMap.containsKey(rightInputStream.getStreamId())) {
+            if (!streamDefinitionMap.containsKey(rightInputStreamId)) {
                 rightMetaStreamEvent.setTableEvent(true);
             }
-            leftProcessStreamReceiver = new ProcessStreamReceiver((leftInputStream.isInnerStream() ? SiddhiConstants.INNER_STREAM_FLAG : "") + leftInputStream.getStreamId());
-            rightProcessStreamReceiver = new ProcessStreamReceiver((rightInputStream.isInnerStream() ? SiddhiConstants.INNER_STREAM_FLAG : "") + rightInputStream.getStreamId());
+            leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId);
+            rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId);
             if (leftMetaStreamEvent.isTableEvent() && rightMetaStreamEvent.isTableEvent()) {
-                throw new ExecutionPlanCreationException("Both inputs of join are from static sources " + leftInputStream.getStreamId() + " and " + rightInputStream.getStreamId());
+                throw new ExecutionPlanCreationException("Both inputs of join are from static sources " + leftInputStreamId + " and " + rightInputStreamId);
             }
         } else {
             if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
                 rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), 2);
                 leftProcessStreamReceiver = rightProcessStreamReceiver;
             } else {
-                throw new ExecutionPlanCreationException("Input of join is from static source " + leftInputStream.getStreamId() + " and " + rightInputStream.getStreamId());
+                throw new ExecutionPlanCreationException("Input of join is from static source " + leftInputStreamId + " and " + rightInputStreamId);
             }
         }
 
         SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream(
-                leftInputStream, executionPlanContext, executors, streamDefinitionMap,
+                (SingleInputStream) joinInputStream.getLeftInputStream(), executionPlanContext, executors, streamDefinitionMap,
                 !leftMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, leftMetaStreamEvent, leftProcessStreamReceiver);
 
         SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream(
-                rightInputStream, executionPlanContext, executors, streamDefinitionMap,
+                (SingleInputStream) joinInputStream.getRightInputStream(), executionPlanContext, executors, streamDefinitionMap,
                 !rightMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, rightMetaStreamEvent, rightProcessStreamReceiver);
 
         if (leftMetaStreamEvent.isTableEvent()) {
-            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(executionPlanContext.getEventTableMap().get(leftInputStream.getStreamId()));
+            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(executionPlanContext.getEventTableMap().get(leftInputStreamId));
             tableWindowProcessor.initProcessor(leftMetaStreamEvent.getInputDefinition(), null);
             leftStreamRuntime.setProcessorChain(tableWindowProcessor);
         }
         if (rightMetaStreamEvent.isTableEvent()) {
-            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(executionPlanContext.getEventTableMap().get(rightInputStream.getStreamId()));
+            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(executionPlanContext.getEventTableMap().get(rightInputStreamId));
             tableWindowProcessor.initProcessor(rightMetaStreamEvent.getInputDefinition(), null);
             rightStreamRuntime.setProcessorChain(tableWindowProcessor);
         }

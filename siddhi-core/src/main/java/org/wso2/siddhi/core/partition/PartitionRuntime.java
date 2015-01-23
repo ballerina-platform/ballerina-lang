@@ -94,10 +94,10 @@ public class PartitionRuntime {
         if (query.getOutputStream() instanceof InsertIntoStream) {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) metaQueryRuntime.getOutputCallback();
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
+            String id =  streamDefinition.getId();
 
             if (((InsertIntoStream) query.getOutputStream()).isInnerStream()) {
                 metaQueryRuntime.setToLocalStream(true);
-                String id = "#" + streamDefinition.getId();
                 localStreamDefinitionMap.putIfAbsent(id, streamDefinition);
                 DefinitionParserHelper.validateOutputStream(streamDefinition, localStreamDefinitionMap.get(id));
 
@@ -111,7 +111,6 @@ public class PartitionRuntime {
                 }
                 insertIntoStreamCallback.init(localStreamJunctionMap.get(id));
             } else {
-                String id =  streamDefinition.getId();
                 streamDefinitionMap.putIfAbsent(id, streamDefinition);
                 DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(id));
                 StreamJunction outputStreamJunction = streamJunctionMap.get(id);

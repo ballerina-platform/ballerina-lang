@@ -18,6 +18,7 @@ package org.wso2.siddhi.query.api.execution.query.input.stream;
 
 import org.wso2.siddhi.query.api.execution.query.input.handler.*;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.util.SiddhiConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +44,13 @@ public class SingleInputStream extends InputStream {
     }
 
     public SingleInputStream(String streamReferenceId, String streamId, boolean isInnerStream) {
-        this.streamId = streamId;
         this.streamReferenceId = streamReferenceId;
         this.isInnerStream = isInnerStream;
+        if (isInnerStream) {
+            this.streamId = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
+        } else {
+            this.streamId = streamId;
+        }
     }
 
     public SingleInputStream(BasicSingleInputStream basicSingleInputStream, Window window) {
@@ -67,11 +72,7 @@ public class SingleInputStream extends InputStream {
 
     public List<String> getAllStreamIds() {
         List<String> streamIds = new ArrayList<String>();
-        if(isInnerStream) {
-            streamIds.add("#"+streamId);
-        } else {
-            streamIds.add(streamId);
-        }
+        streamIds.add(streamId);
         return streamIds;
     }
 

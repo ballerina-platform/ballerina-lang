@@ -156,9 +156,6 @@ public class SingleInputStreamParser {
             AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, MetaStreamEvent metaStreamEvent) {
 
         String streamId = inputStream.getStreamId();
-        if (inputStream.isInnerStream()) {
-            streamId = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
-        }
 
         if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);

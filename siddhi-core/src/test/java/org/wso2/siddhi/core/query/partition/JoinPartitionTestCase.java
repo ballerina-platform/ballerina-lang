@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -66,13 +65,13 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if(event.isExpired()){
+                    if (event.isExpired()) {
                         removeEventCount++;
-                    } else{
+                    } else {
                         inEventCount++;
                     }
                     eventArrived = true;
-                };
+                }
             }
         });
 
@@ -113,13 +112,13 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if(event.isExpired()){
+                    if (event.isExpired()) {
                         removeEventCount++;
-                    } else{
+                    } else {
                         inEventCount++;
                     }
                     eventArrived = true;
-                };
+                }
             }
         });
 
@@ -154,7 +153,7 @@ public class JoinPartitionTestCase {
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
                 "insert into #outputStream ;" +
-                "@info(name = 'query2') from #outputStream select symbol,user insert into outStream;"+
+                "@info(name = 'query2') from #outputStream select symbol,user insert into outStream;" +
                 "end ";
 
 
@@ -165,13 +164,13 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if(event.isExpired()){
+                    if (event.isExpired()) {
                         removeEventCount++;
-                    } else{
+                    } else {
                         inEventCount++;
                     }
                     eventArrived = true;
-                };
+                }
             }
         });
 
@@ -207,7 +206,7 @@ public class JoinPartitionTestCase {
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
                 "insert into #outputStream ;" +
-                "@info(name = 'query2') from #outputStream select symbol,user insert into outputStream;"+
+                "@info(name = 'query2') from #outputStream select symbol,user insert into outputStream;" +
                 "end ";
 
 
@@ -218,13 +217,13 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if(event.isExpired()){
+                    if (event.isExpired()) {
                         removeEventCount++;
-                    } else{
+                    } else {
                         inEventCount++;
                     }
                     eventArrived = true;
-                };
+                }
             }
         });
 
@@ -259,9 +258,14 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
-                + "partition with (user of cseEventStream) begin "+
-                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert into #cseInnerStream;"+
+        String executionPlan = "" +
+                "@config(async = 'true') " +
+                "define stream cseEventStream (symbol string, user string,volume int); " +
+                "@config(async = 'true')" +
+                "define stream twitterStream (user string, tweet string, company string);" +
+                " " +
+                "partition with (user of cseEventStream) begin " +
+                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert into #cseInnerStream;" +
                 "@info(name = 'query1') from #cseInnerStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on twitterStream.company== #cseInnerStream.symbol " +
                 "select #cseInnerStream.user as user,twitterStream.tweet as tweet, twitterStream.company, #cseInnerStream.volume ,  #cseInnerStream.symbol " +
@@ -312,8 +316,8 @@ public class JoinPartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
-                + "partition with (user of cseEventStream) begin "+
-                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert into #cseEventStream;"+
+                + "partition with (user of cseEventStream) begin " +
+                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert into #cseEventStream;" +
                 "@info(name = 'query1') from #cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on twitterStream.company== #cseEventStream.symbol " +
                 "select #cseEventStream.user as user,twitterStream.tweet as tweet, twitterStream.company, #cseEventStream.volume ,  #cseEventStream.symbol " +
@@ -327,7 +331,7 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                inEventCount= events.length+inEventCount;
+                inEventCount = events.length + inEventCount;
                 eventArrived = true;
             }
         });
@@ -361,7 +365,7 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.user== twitterStream.user " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume,twitterStream.company " +
-                "insert into outputStream;"+
+                "insert into outputStream;" +
                 "end ";
 
 
@@ -389,12 +393,12 @@ public class JoinPartitionTestCase {
         executionPlanRuntime.start();
 
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 200});
-        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2",200});
-        twitterStreamHandler.send(new Object[]{"User1", "World", "WSO2",200});
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2", 200});
+        twitterStreamHandler.send(new Object[]{"User1", "World", "WSO2", 200});
 
         cseEventStreamHandler.send(new Object[]{"IBM", "User1", 10});
-        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2",10});
-        twitterStreamHandler.send(new Object[]{"User1", "World", "IBM",10});
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2", 10});
+        twitterStreamHandler.send(new Object[]{"User1", "World", "IBM", 10});
 
         Thread.sleep(1000);
 
@@ -427,13 +431,13 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if(event.isExpired()){
+                    if (event.isExpired()) {
                         removeEventCount++;
-                    } else{
+                    } else {
                         inEventCount++;
                     }
                     eventArrived = true;
-                };
+                }
             }
         });
 

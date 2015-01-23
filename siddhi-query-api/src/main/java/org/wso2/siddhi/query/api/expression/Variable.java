@@ -16,6 +16,8 @@
  */
 package org.wso2.siddhi.query.api.expression;
 
+import org.wso2.siddhi.query.api.util.SiddhiConstants;
+
 public class Variable extends Expression {
 
     public static final int LAST = -1;
@@ -61,8 +63,14 @@ public class Variable extends Expression {
         this.streamId = streamId;
     }
 
-    public void setInnerStream(boolean isInnerStream) {
+    public void setStreamId(boolean isInnerStream, String streamId) {
         this.isInnerStream = isInnerStream;
+        if (isInnerStream) {
+            this.streamId = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
+        } else {
+            this.streamId = streamId;
+
+        }
     }
 
     public void setStreamIndex(Integer streamIndex) {
@@ -83,27 +91,27 @@ public class Variable extends Expression {
 
     public Variable ofStream(String streamId) {
         this.streamId = streamId;
-        this.isInnerStream=false;
+        this.isInnerStream = false;
         return this;
     }
 
     public Variable ofInnerStream(String streamId) {
         this.streamId = streamId;
-        this.isInnerStream=false;
+        this.isInnerStream = false;
         return this;
     }
 
     public Variable ofStream(String streamId, int streamIndex) {
         this.streamId = streamId;
         this.streamIndex = streamIndex;
-        this.isInnerStream=false;
+        this.isInnerStream = false;
         return this;
     }
 
     public Variable ofInnerStream(String streamId, int streamIndex) {
         this.streamId = streamId;
         this.streamIndex = streamIndex;
-        this.isInnerStream=true;
+        this.isInnerStream = true;
         return this;
     }
 
@@ -112,7 +120,7 @@ public class Variable extends Expression {
         return this;
     }
 
-    public Variable ofFunction(String functionId,int functionIndex) {
+    public Variable ofFunction(String functionId, int functionIndex) {
         this.functionId = functionId;
         this.functionIndex = functionIndex;
         return this;

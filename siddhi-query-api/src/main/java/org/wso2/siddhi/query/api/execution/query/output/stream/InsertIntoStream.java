@@ -16,6 +16,8 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.stream;
 
+import org.wso2.siddhi.query.api.util.SiddhiConstants;
+
 public class InsertIntoStream extends OutputStream {
 
     private boolean isInnerStream;
@@ -34,7 +36,11 @@ public class InsertIntoStream extends OutputStream {
 
     public InsertIntoStream(String streamId, boolean isInnerStream, OutputEventType outputEventType) {
         this.isInnerStream = isInnerStream;
-        this.id = streamId;
+        if (isInnerStream) {
+            this.id = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
+        } else {
+            this.id = streamId;
+        }
         this.outputEventType = outputEventType;
     }
 

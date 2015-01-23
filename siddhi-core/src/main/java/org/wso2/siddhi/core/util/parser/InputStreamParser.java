@@ -26,7 +26,6 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.*;
 
@@ -51,7 +50,7 @@ public class InputStreamParser {
 
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
-            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver((singleInputStream.isInnerStream() ? SiddhiConstants.INNER_STREAM_FLAG : "") + singleInputStream.getStreamId());
+            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId());
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
                     executionPlanContext, executors, streamDefinitionMap, null, new MetaStreamEvent(), processStreamReceiver);
         } else if (inputStream instanceof JoinInputStream) {
@@ -77,9 +76,6 @@ public class InputStreamParser {
                                                           Map<String, AbstractDefinition> definitionMap) {
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         String streamId = inputStream.getStreamId();
-        if (inputStream.isInnerStream()) {
-            streamId = SiddhiConstants.INNER_STREAM_FLAG.concat(streamId);
-        }
         if (definitionMap != null && definitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = definitionMap.get(streamId);
             metaStreamEvent.setInputDefinition(inputDefinition);

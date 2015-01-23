@@ -88,7 +88,7 @@ public class ExecutionPlanRuntime {
 
         for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {
             ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
-            if (!processStreamReceiver.getMetaStreamEvent().isTableEvent()) {
+            if (!processStreamReceiver.toTable()) {
                 streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
             }
         }

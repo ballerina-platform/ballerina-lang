@@ -24,6 +24,5 @@ public class SiddhiConstants {
     public static final String ANNOTATION_INFO = "info";
     public static final String ANNOTATION_ELEMENT_NAME = "name";
 
-
-
+    public static final String INNER_STREAM_FLAG = "#";
 }

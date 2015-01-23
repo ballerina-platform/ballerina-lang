@@ -707,7 +707,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } else {
             stateElement1 = (StateElement) visit(ctx.sequence_source());
         }
-        if(ctx.within_time()!=null){
+        if (ctx.within_time() != null) {
             stateElement1.setWithin((TimeConstant) visit(ctx.within_time()));
         }
         return new StateInputStream(
@@ -1332,7 +1332,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitIn_math_operation(@NotNull SiddhiQLParser.In_math_operationContext ctx) {
-        return Expression.in((Expression) visit(ctx.math_operation()),(String) visit(ctx.name()));
+        return Expression.in((Expression) visit(ctx.math_operation()), (String) visit(ctx.name()));
     }
 
     /**
@@ -1479,10 +1479,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         Variable variable = Expression.variable((String) visit(ctx.attribute_name()));
 
         if (ctx.name1 != null && ctx.name2 != null) { //Stream and Function
-            variable.setStreamId((String) visit(ctx.name1));
-            if (ctx.hash1 != null) {
-                variable.setInnerStream(true);
-            }
+            variable.setStreamId(ctx.hash1 != null, (String) visit(ctx.name1));
             if (ctx.attribute_index1 != null) {
                 variable.setStreamIndex((Integer) visit(ctx.attribute_index1));
             }
@@ -1501,8 +1498,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 String name = (String) visit(ctx.name1);
 
                 if (activeStreams.contains("#" + name)) { //InnerStream
-                    variable.setStreamId(name);
-                    variable.setInnerStream(true);
+                    variable.setStreamId(true, name);
                     if (ctx.attribute_index1 != null) {
                         variable.setStreamIndex((Integer) visit(ctx.attribute_index1));
                     }

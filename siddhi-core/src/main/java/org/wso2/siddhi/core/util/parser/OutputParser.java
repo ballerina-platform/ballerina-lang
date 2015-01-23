@@ -114,7 +114,7 @@ public class OutputParser {
                                                          ConcurrentMap<String, StreamJunction> streamJunctionMap,
                                                          StreamDefinition outputStreamDefinition,
                                                          ExecutionPlanContext executionPlanContext) {
-        String id = "#" + outStream.getId();
+        String id = outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
             StreamJunction outputStreamJunction = streamJunctionMap.get(id + key);

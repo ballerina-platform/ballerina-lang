@@ -54,7 +54,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        return new MultiProcessStreamReceiver(streamId + key,processCount);
+        return new MultiProcessStreamReceiver(streamId + key, processCount);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         currentStreamEventChunk.clear();
     }
 
-    protected void stabilizeStates(){
+    protected void stabilizeStates() {
 
     }
 
@@ -163,6 +163,11 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean toTable() {
+        return metaStreamEvents[0].isTableEvent();
     }
 
     public void setStreamEventPool(StreamEventPool streamEventPool) {
