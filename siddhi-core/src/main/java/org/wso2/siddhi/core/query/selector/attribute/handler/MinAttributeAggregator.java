@@ -1,36 +1,48 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package org.wso2.siddhi.core.query.selector.attribute.handler;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
-public class MinAttributeAggregator implements AttributeAggregator {
+public class MinAttributeAggregator extends AttributeAggregator {
 
     private MinAttributeAggregator minOutputAttributeAggregator;
 
     public void init(Attribute.Type type) {
+
+
+    }
+
+    /**
+     * The initialization method for FunctionExecutor
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param executionPlanContext         Execution plan runtime context
+     */
+    @Override
+    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.size() != 1) {
+            throw new OperationNotSupportedException("Min aggregator has to have exactly 1 parameter, currently " +
+                    attributeExpressionExecutors.size() + " parameters provided");
+        }
+        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
         switch (type) {
             case FLOAT:
                 minOutputAttributeAggregator = new MinAttributeAggregatorFloat();
@@ -47,7 +59,6 @@ public class MinAttributeAggregator implements AttributeAggregator {
             default:
                 throw new OperationNotSupportedException("Min not supported for " + type);
         }
-
     }
 
     public Attribute.Type getReturnType() {
@@ -55,23 +66,30 @@ public class MinAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
-    public Object processAdd(Object obj) {
-        return minOutputAttributeAggregator.processAdd(obj);
+    public Object processAdd(Object data) {
+        return minOutputAttributeAggregator.processAdd(data);
     }
 
     @Override
-    public Object processRemove(Object obj) {
-        return minOutputAttributeAggregator.processRemove(obj);
+    public Object processAdd(Object[] data) {
+        // will not occur
+        return new IllegalStateException("Min cannot process data array, but found " + Arrays.deepToString(data));
     }
 
     @Override
-    public void reset() {
-        minOutputAttributeAggregator.reset();
+    public Object processRemove(Object data) {
+        return minOutputAttributeAggregator.processRemove(data);
     }
 
     @Override
-    public AttributeAggregator newInstance() {
-        return minOutputAttributeAggregator.newInstance();
+    public Object processRemove(Object[] data) {
+        // will not occur
+        return new IllegalStateException("Min cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    @Override
+    public Object reset() {
+        return minOutputAttributeAggregator.reset();
     }
 
     @Override
@@ -95,8 +113,8 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Double value = (Double) obj;
+        public synchronized Object processAdd(Object data) {
+            Double value = (Double) data;
             for (Iterator<Double> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
 
                 if (iterator.next() > value) {
@@ -113,21 +131,17 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            minDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            minDeque.removeFirstOccurrence(data);
             minValue = minDeque.peekFirst();
             return minValue;
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             minDeque.clear();
             minValue = null;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MinAttributeAggregatorDouble();
+            return null;
         }
 
     }
@@ -143,8 +157,8 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Float value = (Float) obj;
+        public synchronized Object processAdd(Object data) {
+            Float value = (Float) data;
             for (Iterator<Float> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
 
                 if (iterator.next() > value) {
@@ -161,21 +175,17 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            minDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            minDeque.removeFirstOccurrence(data);
             minValue = minDeque.peekFirst();
             return minValue;
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             minDeque.clear();
             minValue = null;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MinAttributeAggregatorFloat();
+            return null;
         }
 
     }
@@ -191,8 +201,8 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Integer value = (Integer) obj;
+        public synchronized Object processAdd(Object data) {
+            Integer value = (Integer) data;
             for (Iterator<Integer> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
 
                 if (iterator.next() > value) {
@@ -209,21 +219,17 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             minDeque.clear();
             minValue = null;
+            return null;
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            minDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            minDeque.removeFirstOccurrence(data);
             minValue = minDeque.peekFirst();
             return minValue;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MinAttributeAggregatorInt();
         }
 
     }
@@ -239,8 +245,8 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Long value = (Long) obj;
+        public synchronized Object processAdd(Object data) {
+            Long value = (Long) data;
             for (Iterator<Long> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
 
                 if (iterator.next() > value) {
@@ -257,21 +263,17 @@ public class MinAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             minDeque.clear();
             minValue = null;
+            return null;
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            minDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            minDeque.removeFirstOccurrence(data);
             minValue = minDeque.peekFirst();
             return minValue;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MinAttributeAggregatorLong();
         }
 
     }

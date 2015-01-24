@@ -1,22 +1,17 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
@@ -73,9 +68,9 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     @Override
     public void receive(ComplexEvent complexEvent) {
 
-        if(partitionExecutors.size()==0){
+        if (partitionExecutors.size() == 0) {
             send(complexEvent);
-        }  else {
+        } else {
             if (complexEvent.getNext() == null) {
                 for (PartitionExecutor partitionExecutor : partitionExecutors) {
                     String key = partitionExecutor.execute(complexEvent);
@@ -130,7 +125,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         for (PartitionExecutor partitionExecutor : partitionExecutors) {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);
-        } if(partitionExecutors.size()==0){
+        }
+        if (partitionExecutors.size() == 0) {
             send(borrowedEvent);
         }
         eventPool.returnEvents(borrowedEvent);
@@ -155,7 +151,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             String key = partitionExecutor.execute(borrowedEvent);
             send(key, borrowedEvent);
         }
-        if(partitionExecutors.size()==0){
+        if (partitionExecutors.size() == 0) {
             send(borrowedEvent);
         }
         eventPool.returnEvents(borrowedEvent);
@@ -163,12 +159,12 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event[] events) {
-        if(partitionExecutors.size()== 0){
+        if (partitionExecutors.size() == 0) {
             StreamEvent currentEvent;
             StreamEvent firstEvent = eventPool.borrowEvent();
             streamEventConverter.convertEvent(events[0], firstEvent);
             currentEvent = firstEvent;
-            for(int i=1;i<events.length;i++){
+            for (int i = 1; i < events.length; i++) {
                 StreamEvent nextEvent = eventPool.borrowEvent();
                 streamEventConverter.convertEvent(events[i], nextEvent);
                 currentEvent.setNext(nextEvent);
@@ -177,7 +173,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             send(firstEvent);
             eventPool.returnEvents(firstEvent);
 
-        }   else {
+        } else {
             String key = null;
             StreamEvent firstEvent = null;
             StreamEvent currentEvent = null;
@@ -215,8 +211,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         }
     }
 
-    private void send(ComplexEvent event){
-        for(StreamJunction streamJunction:cachedStreamJunctionMap.values()){
+    private void send(ComplexEvent event) {
+        for (StreamJunction streamJunction : cachedStreamJunctionMap.values()) {
             streamJunction.sendEvent(event);
         }
     }

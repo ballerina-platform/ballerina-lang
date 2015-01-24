@@ -1,25 +1,20 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package org.wso2.siddhi.core.query;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.config.QueryContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
@@ -44,11 +39,11 @@ import java.util.concurrent.ConcurrentMap;
 
 public class QueryRuntime {
 
+    private final ExecutionPlanContext executionPlanContext;
     private StreamRuntime streamRuntime;
     private OutputRateLimiter outputRateLimiter;
     private String queryId;
     private Query query;
-    private QueryContext queryContext;
     private OutputCallback outputCallback;
     private StreamDefinition outputStreamDefinition;
     private boolean toLocalStream;
@@ -58,14 +53,12 @@ public class QueryRuntime {
     public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
                         OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent metaComplexEvent) {
         this.query = query;
+        this.executionPlanContext = executionPlanContext;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
         this.outputCallback = outputCallback;
 
         outputRateLimiter.setOutputCallback(outputCallback);
-        this.queryContext = new QueryContext();
-        queryContext.setExecutionPlanContext(executionPlanContext);
-
         setOutputRateLimiter(outputRateLimiter);
         setMetaComplexEvent(metaComplexEvent);
         setId();
@@ -120,10 +113,10 @@ public class QueryRuntime {
         if (query.getInputStream() instanceof SingleInputStream) {
             return ((SingleInputStream) query.getInputStream()).isInnerStream();
         } else if (query.getInputStream() instanceof JoinInputStream) {
-            return ((SingleInputStream)((JoinInputStream) query.getInputStream()).getLeftInputStream()).isInnerStream() || ((SingleInputStream)((JoinInputStream) query.getInputStream()).getRightInputStream()).isInnerStream();
-        } else if(query.getInputStream() instanceof StateInputStream){
-            for(String streamId :query.getInputStream().getAllStreamIds()) {
-                if(streamId.startsWith("#")){
+            return ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getLeftInputStream()).isInnerStream() || ((SingleInputStream) ((JoinInputStream) query.getInputStream()).getRightInputStream()).isInnerStream();
+        } else if (query.getInputStream() instanceof StateInputStream) {
+            for (String streamId : query.getInputStream().getAllStreamIds()) {
+                if (streamId.startsWith("#")) {
                     return true;
                 }
             }
@@ -138,7 +131,7 @@ public class QueryRuntime {
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
 
-        QueryRuntime queryRuntime = new QueryRuntime(query, queryContext.getExecutionPlanContext(), clonedStreamRuntime, clonedSelector,
+        QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
                 clonedOutputRateLimiter, outputCallback, this.metaComplexEvent);
         QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent);
 
@@ -150,7 +143,7 @@ public class QueryRuntime {
             queryRuntime.outputCallback = this.outputCallback;
         } else {
             OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), key,
-                    localStreamJunctionMap, outputStreamDefinition, queryContext.getExecutionPlanContext());
+                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;
         }

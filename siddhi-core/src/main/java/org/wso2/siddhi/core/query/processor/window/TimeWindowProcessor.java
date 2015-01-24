@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -124,7 +124,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaEvent, executionPlanContext, executorList , matchingStreamIndex, inputDefinition);
+        return SimpleFinderParser.parse(expression, metaEvent, executionPlanContext, executorList, matchingStreamIndex, inputDefinition);
 
     }
 }

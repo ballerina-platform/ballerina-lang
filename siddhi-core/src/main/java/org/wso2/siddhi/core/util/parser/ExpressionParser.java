@@ -1,19 +1,16 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -253,10 +250,7 @@ public class ExpressionParser {
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
                     innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
                 }
-                executionPlanContext.addEternalReferencedHolder(expressionExecutor);
-                expressionExecutor.setExecutionPlanContext(executionPlanContext);
-                expressionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
-                expressionExecutor.init();
+                expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
                 return expressionExecutor;
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
@@ -264,7 +258,7 @@ public class ExpressionParser {
                 for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
                     innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
                 }
-                (attributeAggregator).init(innerExpressionExecutors.get(0).getReturnType());
+                attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
                     aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(attributeAggregator, innerExpressionExecutors, executionPlanContext);
@@ -289,8 +283,10 @@ public class ExpressionParser {
                     throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
                 }
                 List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-                innerExpressionExecutors.add(parseExpression(((AttributeFunction) expression).getParameters()[0], metaEvent, currentState, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
-                ((AttributeAggregator) executor).init(innerExpressionExecutors.get(0).getReturnType());
+                for (Expression innerExpression : ((AttributeFunction) expression).getParameters()) {
+                    innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+                }
+                ((AttributeAggregator) executor).initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
                     aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor((AttributeAggregator) executor, innerExpressionExecutors, executionPlanContext);
@@ -304,10 +300,7 @@ public class ExpressionParser {
                 for (Expression innerExpression : ((AttributeFunction) expression).getParameters()) {
                     innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
                 }
-                executionPlanContext.addEternalReferencedHolder(functionExecutor);
-                functionExecutor.setExecutionPlanContext(executionPlanContext);
-                functionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
-                functionExecutor.init();
+                functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
                 return functionExecutor;
 
             }

@@ -1,22 +1,17 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
@@ -33,13 +28,10 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
-    public GroupByAggregationAttributeExecutor(AttributeAggregator aggregator,
-                                               List<ExpressionExecutor> expressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
-        this.expressionExecutors = expressionExecutors;
-        this.attributeAggregator = aggregator;
-        executionPlanContext.addEternalReferencedHolder(attributeAggregator);
-        size = expressionExecutors.size();
+    public GroupByAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
+                                               List<ExpressionExecutor> expressionExecutors,
+                                               ExecutionPlanContext executionPlanContext) {
+        super(attributeAggregator, expressionExecutors, executionPlanContext);
     }
 
     @Override
@@ -47,15 +39,16 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         String key = QuerySelector.getThreadLocalGroupByKey();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
-            currentAttributeAggregator = attributeAggregator.newInstance();
-            executionPlanContext.addEternalReferencedHolder(currentAttributeAggregator);
+            currentAttributeAggregator = attributeAggregator.cloneAggregator();
+            currentAttributeAggregator.initAggregator(expressionExecutors, executionPlanContext);
+            currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
         }
-        return process(event, currentAttributeAggregator);
+        return currentAttributeAggregator.process(event);
     }
 
     public ExpressionExecutor cloneExecutor() {
-        return new GroupByAggregationAttributeExecutor(attributeAggregator.newInstance(), expressionExecutors, executionPlanContext);
+        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(), expressionExecutors, executionPlanContext);
     }
 
 

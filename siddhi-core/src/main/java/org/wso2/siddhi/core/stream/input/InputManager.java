@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -81,8 +81,8 @@ public class InputManager {
         InputHandler inputHandler = null;
         if (singleStreamEntryValve != null) {
             inputHandler = new InputHandler(streamId, inputHandlerMap.size(), singleStreamEntryValve);
-            StreamJunction streamJunction=streamJunctionMap.get(streamId);
-            if(streamJunction==null){
+            StreamJunction streamJunction = streamJunctionMap.get(streamId);
+            if (streamJunction == null) {
                 throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");
             }
             inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());

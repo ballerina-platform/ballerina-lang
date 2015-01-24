@@ -1,19 +1,16 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.wso2.siddhi.core.stream.junciton;
 
@@ -47,8 +44,8 @@ public class JunctionTestCase {
         count = 0;
         eventArrived = false;
         executorService = Executors.newCachedThreadPool();
-        SiddhiContext siddhiContext=new SiddhiContext();
-        executionPlanContext=new ExecutionPlanContext();
+        SiddhiContext siddhiContext = new SiddhiContext();
+        executionPlanContext = new ExecutionPlanContext();
         executionPlanContext.setSiddhiContext(siddhiContext);
     }
 
@@ -59,7 +56,7 @@ public class JunctionTestCase {
 
         StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
         StreamCallback streamCallback = new StreamCallback() {
@@ -89,13 +86,13 @@ public class JunctionTestCase {
         StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
 
-        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
         StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
 
-        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB = streamJunctionB.constructPublisher();
 
 
@@ -155,12 +152,12 @@ public class JunctionTestCase {
 
         StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
         StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB_1 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_2 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_3 = streamJunctionB.constructPublisher();
@@ -247,19 +244,19 @@ public class JunctionTestCase {
 
         StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
         StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB_1 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_2 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_3 = streamJunctionB.constructPublisher();
 
         StreamDefinition streamC = StreamDefinition.id("streamC").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionC = new StreamJunction(streamC, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionC = new StreamJunction(streamC, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherC_1 = streamJunctionC.constructPublisher();
         final StreamJunction.Publisher streamPublisherC_2 = streamJunctionC.constructPublisher();
 
@@ -421,19 +418,19 @@ public class JunctionTestCase {
 
         StreamDefinition streamA = StreamDefinition.id("streamA").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionA = new StreamJunction(streamA, executorService, 1024, executionPlanContext);
         StreamJunction.Publisher streamPublisherA = streamJunctionA.constructPublisher();
 
         StreamDefinition streamB = StreamDefinition.id("streamB").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionB = new StreamJunction(streamB, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherB_1 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_2 = streamJunctionB.constructPublisher();
         final StreamJunction.Publisher streamPublisherB_3 = streamJunctionB.constructPublisher();
 
         StreamDefinition streamC = StreamDefinition.id("streamC").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).
                 annotation(Annotation.annotation("parallel"));
-        StreamJunction streamJunctionC = new StreamJunction(streamC, executorService, 1024,executionPlanContext);
+        StreamJunction streamJunctionC = new StreamJunction(streamC, executorService, 1024, executionPlanContext);
         final StreamJunction.Publisher streamPublisherC_1 = streamJunctionC.constructPublisher();
         final StreamJunction.Publisher streamPublisherC_2 = streamJunctionC.constructPublisher();
 

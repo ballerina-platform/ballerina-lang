@@ -1,32 +1,44 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package org.wso2.siddhi.core.query.selector.attribute.handler;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-public class AvgAttributeAggregator implements AttributeAggregator {
+import java.util.Arrays;
+import java.util.List;
+
+public class AvgAttributeAggregator extends AttributeAggregator {
 
     private AvgAttributeAggregator avgOutputAttributeAggregator;
 
-    public void init(Attribute.Type type) {
+    /**
+     * The initialization method for FunctionExecutor
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param executionPlanContext         Execution plan runtime context
+     */
+    @Override
+    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.size() != 1) {
+            throw new OperationNotSupportedException("Avg aggregator has to have exactly 1 parameter, currently " +
+                    attributeExpressionExecutors.size() + " parameters provided");
+        }
+        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
         switch (type) {
             case FLOAT:
                 avgOutputAttributeAggregator = new AvgAttributeAggregatorFloat();
@@ -43,7 +55,6 @@ public class AvgAttributeAggregator implements AttributeAggregator {
             default:
                 throw new OperationNotSupportedException("Avg not supported for " + type);
         }
-
     }
 
     public Attribute.Type getReturnType() {
@@ -51,23 +62,30 @@ public class AvgAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
-    public Object processAdd(Object obj) {
-        return avgOutputAttributeAggregator.processAdd(obj);
+    public Object processAdd(Object data) {
+        return avgOutputAttributeAggregator.processAdd(data);
     }
 
     @Override
-    public Object processRemove(Object obj) {
-        return avgOutputAttributeAggregator.processRemove(obj);
+    public Object processAdd(Object[] data) {
+        // will not occur
+        return new IllegalStateException("Avg cannot process data array, but found " + Arrays.deepToString(data));
     }
 
     @Override
-    public void reset() {
-        avgOutputAttributeAggregator.reset();
+    public Object processRemove(Object data) {
+        return avgOutputAttributeAggregator.processRemove(data);
     }
 
     @Override
-    public AttributeAggregator newInstance() {
-        return avgOutputAttributeAggregator.newInstance();
+    public Object processRemove(Object[] data) {
+        // will not occur
+        return new IllegalStateException("Avg cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    @Override
+    public Object reset() {
+        return avgOutputAttributeAggregator.reset();
     }
 
     @Override
@@ -91,9 +109,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public Object processAdd(Object obj) {
+        public Object processAdd(Object data) {
             count++;
-            value += (Double) obj;
+            value += (Double) data;
             if (count == 0) {
                 return 0;
             }
@@ -111,16 +129,12 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public void reset() {
-            value=0.0;
-            count=0;
+        public Object reset() {
+            value = 0.0;
+            count = 0;
+            return 0.0;
         }
 
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new AvgAttributeAggregatorDouble();
-        }
 
     }
 
@@ -135,9 +149,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public Object processAdd(Object obj) {
+        public Object processAdd(Object data) {
             count++;
-            value += (Float) obj;
+            value += (Float) data;
             if (count == 0) {
                 return 0;
             }
@@ -155,15 +169,10 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public void reset() {
-            value=0.0;
-            count=0;
-        }
-
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new AvgAttributeAggregatorFloat();
+        public Object reset() {
+            value = 0.0;
+            count = 0;
+            return 0.0;
         }
 
 
@@ -180,9 +189,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public Object processAdd(Object obj) {
+        public Object processAdd(Object data) {
             count++;
-            value += (Integer) obj;
+            value += (Integer) data;
             if (count == 0) {
                 return 0;
             }
@@ -200,15 +209,12 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public void reset() {
-            value=0.0;
-            count=0;
+        public Object reset() {
+            value = 0.0;
+            count = 0;
+            return 0.0;
         }
 
-        @Override
-        public AttributeAggregator newInstance() {
-            return new AvgAttributeAggregatorInt();
-        }
     }
 
     class AvgAttributeAggregatorLong extends AvgAttributeAggregator {
@@ -222,9 +228,9 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public Object processAdd(Object obj) {
+        public Object processAdd(Object data) {
             count++;
-            value += (Long) obj;
+            value += (Long) data;
             if (count == 0) {
                 return 0;
             }
@@ -242,14 +248,10 @@ public class AvgAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public void reset() {
-            value=0.0;
-            count=0;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new AvgAttributeAggregatorLong();
+        public Object reset() {
+            value = 0.0;
+            count = 0;
+            return 0.0;
         }
 
     }

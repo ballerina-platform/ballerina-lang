@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -57,8 +57,8 @@ public class Pol2CartFunctionTest {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
-                    Assert.assertEquals(12,Math.round((Double)inEvents[0].getData(0)));
-                    Assert.assertEquals(5,Math.round((Double)inEvents[0].getData(1)));
+                    Assert.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
+                    Assert.assertEquals(5, Math.round((Double) inEvents[0].getData(1)));
 
                 }
                 eventArrived = true;

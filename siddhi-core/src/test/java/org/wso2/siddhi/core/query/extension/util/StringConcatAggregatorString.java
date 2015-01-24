@@ -1,34 +1,40 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package org.wso2.siddhi.core.query.extension.util;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute.Type;
 
+import java.util.List;
 
-public class StringConcatAggregatorString implements AttributeAggregator {
+
+public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
     private String aggregatedStringValue = "";
 
+    /**
+     * The initialization method for FunctionExecutor
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param executionPlanContext         SiddhiContext
+     */
     @Override
-    public void init(Type type) {
+    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
 
     }
 
@@ -39,34 +45,40 @@ public class StringConcatAggregatorString implements AttributeAggregator {
 
 
     @Override
-    public Object processAdd(Object obj) {
-        if (obj instanceof String) {
-            String sender = (String) obj;
-            aggregatedStringValue = aggregatedStringValue + sender;
+    public Object processAdd(Object data) {
+        aggregatedStringValue = aggregatedStringValue + data;
+        return aggregatedStringValue;
+    }
+
+    @Override
+    public Object processAdd(Object[] data) {
+        for (Object aData : data) {
+            aggregatedStringValue = aggregatedStringValue + aData;
         }
         return aggregatedStringValue;
     }
 
 
     @Override
-    public Object processRemove(Object obj) {
-        if (obj instanceof String) {
-            String sender = (String) obj;
-            aggregatedStringValue = aggregatedStringValue.replace(sender, "");
+    public Object processRemove(Object data) {
+        aggregatedStringValue = aggregatedStringValue.replaceFirst(data.toString(), "");
+        return aggregatedStringValue;
+    }
+
+    @Override
+    public Object processRemove(Object[] data) {
+        for (Object aData : data) {
+            aggregatedStringValue = aggregatedStringValue.replaceFirst(aData.toString(), "");
         }
         return aggregatedStringValue;
     }
 
     @Override
-    public void reset() {
+    public Object reset() {
         aggregatedStringValue = "";
+        return aggregatedStringValue;
     }
 
-
-    @Override
-    public AttributeAggregator newInstance() {
-        return new StringConcatAggregatorString();
-    }
 
     @Override
     public void start() {

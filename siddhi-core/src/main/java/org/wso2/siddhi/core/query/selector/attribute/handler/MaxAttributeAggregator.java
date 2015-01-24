@@ -1,36 +1,43 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org)
- * All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
-
 package org.wso2.siddhi.core.query.selector.attribute.handler;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
-public class MaxAttributeAggregator implements AttributeAggregator {
+public class MaxAttributeAggregator extends AttributeAggregator {
 
     private MaxAttributeAggregator maxOutputAttributeAggregator;
 
-    public void init(Attribute.Type type) {
+    /**
+     * The initialization method for FunctionExecutor
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param executionPlanContext         Execution plan runtime context
+     */
+    @Override
+    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.size() != 1) {
+            throw new OperationNotSupportedException("Max aggregator has to have exactly 1 parameter, currently " +
+                    attributeExpressionExecutors.size() + " parameters provided");
+        }
+        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
         switch (type) {
             case FLOAT:
                 maxOutputAttributeAggregator = new MaxAttributeAggregatorFloat();
@@ -47,7 +54,6 @@ public class MaxAttributeAggregator implements AttributeAggregator {
             default:
                 throw new OperationNotSupportedException("Max not supported for " + type);
         }
-
     }
 
     public Attribute.Type getReturnType() {
@@ -55,23 +61,30 @@ public class MaxAttributeAggregator implements AttributeAggregator {
     }
 
     @Override
-    public Object processAdd(Object obj) {
-        return maxOutputAttributeAggregator.processAdd(obj);
+    public Object processAdd(Object data) {
+        return maxOutputAttributeAggregator.processAdd(data);
     }
 
     @Override
-    public Object processRemove(Object obj) {
-        return maxOutputAttributeAggregator.processRemove(obj);
+    public Object processAdd(Object[] data) {
+        // will not occur
+        return new IllegalStateException("Max cannot process data array, but found " + Arrays.deepToString(data));
     }
 
     @Override
-    public void reset() {
-        maxOutputAttributeAggregator.reset();
+    public Object processRemove(Object data) {
+        return maxOutputAttributeAggregator.processRemove(data);
     }
 
     @Override
-    public AttributeAggregator newInstance() {
-        return maxOutputAttributeAggregator.newInstance();
+    public Object processRemove(Object[] data) {
+        // will not occur
+        return new IllegalStateException("Max cannot process data array, but found " + Arrays.deepToString(data));
+    }
+
+    @Override
+    public Object reset() {
+        return maxOutputAttributeAggregator.reset();
     }
 
     @Override
@@ -95,8 +108,8 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Double value = (Double) obj;
+        public synchronized Object processAdd(Object data) {
+            Double value = (Double) data;
             for (Iterator<Double> iterator = maxDeque.descendingIterator(); iterator.hasNext(); ) {
                 if (iterator.next() < value) {
                     iterator.remove();
@@ -114,22 +127,19 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            maxDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            maxDeque.removeFirstOccurrence(data);
             maxValue = maxDeque.peekFirst();
             return maxValue;
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             maxDeque.clear();
             maxValue = null;
+            return null;
         }
 
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MaxAttributeAggregatorDouble();
-        }
     }
 
     class MaxAttributeAggregatorFloat extends MaxAttributeAggregator {
@@ -143,8 +153,8 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Float value = (Float) obj;
+        public synchronized Object processAdd(Object data) {
+            Float value = (Float) data;
             for (Iterator<Float> iterator = maxDeque.descendingIterator(); iterator.hasNext(); ) {
 
                 if (iterator.next() < value) {
@@ -163,21 +173,17 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            maxDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            maxDeque.removeFirstOccurrence(data);
             maxValue = maxDeque.peekFirst();
             return maxValue;
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             maxDeque.clear();
             maxValue = null;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MaxAttributeAggregatorFloat();
+            return null;
         }
 
     }
@@ -193,8 +199,8 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Integer value = (Integer) obj;
+        public synchronized Object processAdd(Object data) {
+            Integer value = (Integer) data;
             for (Iterator<Integer> iterator = maxDeque.descendingIterator(); iterator.hasNext(); ) {
                 if (iterator.next() < value) {
                     iterator.remove();
@@ -212,21 +218,17 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            maxDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            maxDeque.removeFirstOccurrence(data);
             maxValue = maxDeque.peekFirst();
             return maxValue;
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             maxDeque.clear();
             maxValue = null;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MaxAttributeAggregatorInt();
+            return null;
         }
 
     }
@@ -242,8 +244,8 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processAdd(Object obj) {
-            Long value = (Long) obj;
+        public synchronized Object processAdd(Object data) {
+            Long value = (Long) data;
             for (Iterator<Long> iterator = maxDeque.descendingIterator(); iterator.hasNext(); ) {
                 if (iterator.next() < value) {
                     iterator.remove();
@@ -261,21 +263,17 @@ public class MaxAttributeAggregator implements AttributeAggregator {
         }
 
         @Override
-        public synchronized Object processRemove(Object obj) {
-            maxDeque.removeFirstOccurrence(obj);
+        public synchronized Object processRemove(Object data) {
+            maxDeque.removeFirstOccurrence(data);
             maxValue = maxDeque.peekFirst();
             return maxValue;
         }
 
         @Override
-        public void reset() {
+        public Object reset() {
             maxDeque.clear();
             maxValue = null;
-        }
-
-        @Override
-        public AttributeAggregator newInstance() {
-            return new MaxAttributeAggregatorLong();
+            return null;
         }
 
     }

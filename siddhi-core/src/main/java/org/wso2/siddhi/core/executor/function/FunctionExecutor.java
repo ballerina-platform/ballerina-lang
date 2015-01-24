@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.wso2.siddhi.core.executor.function;
 
@@ -27,16 +29,11 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     protected ExecutionPlanContext executionPlanContext;
     private int attributeSize;
 
-    public void setExecutionPlanContext(ExecutionPlanContext executionPlanContext) {
+    public void initExecutor(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-    }
-
-    public void setAttributeExpressionExecutors(List<ExpressionExecutor> attributeExpressionExecutors) {
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         attributeSize = attributeExpressionExecutors.size();
-    }
-
-    public void init() {
+        executionPlanContext.addEternalReferencedHolder(this);
         init(attributeExpressionExecutors, executionPlanContext);
     }
 
@@ -48,10 +45,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
             for (ExpressionExecutor attributeExecutor : this.attributeExpressionExecutors) {
                 innerExpressionExecutors.add(attributeExecutor.cloneExecutor());
             }
-            executionPlanContext.addEternalReferencedHolder(functionExecutor);
-            functionExecutor.setExecutionPlanContext(executionPlanContext);
-            functionExecutor.setAttributeExpressionExecutors(innerExpressionExecutors);
-            functionExecutor.init();
+            functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
             functionExecutor.start();
             return functionExecutor;
         } catch (Exception e) {
@@ -65,15 +59,15 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         SiddhiContext
      */
-    public abstract void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
 
     @Override
     public Object execute(ComplexEvent event) {
 
         if (attributeSize > 1) {
-            Object[] data = new Object[attributeExpressionExecutors.size()];
-            for (int i = 0, size = data.length; i < size; i++) {
+            Object[] data = new Object[attributeSize];
+            for (int i = 0; i < attributeSize; i++) {
                 data[i] = attributeExpressionExecutors.get(i).execute(event);
             }
             return execute(data);

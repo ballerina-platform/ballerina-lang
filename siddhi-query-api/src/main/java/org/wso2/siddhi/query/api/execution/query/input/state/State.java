@@ -1,23 +1,21 @@
 /*
- * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights
- * Reserved.
+ * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy
+ * of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package org.wso2.siddhi.query.api.execution.query.input.state;
 
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
 public class State {
 
@@ -31,38 +29,38 @@ public class State {
     }
 
     public static StateElement logicalAnd(StreamStateElement streamStateElement1,
-                                            StreamStateElement streamStateElement2) {
+                                          StreamStateElement streamStateElement2) {
         return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND, streamStateElement2);
     }
 
     public static StateElement logicalOr(StreamStateElement streamStateElement1,
-                                           StreamStateElement streamStateElement2) {
+                                         StreamStateElement streamStateElement2) {
         return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.OR, streamStateElement2);
     }
 
     public static StateElement logicalAnd(StreamStateElement streamStateElement1,
-                                            StreamStateElement streamStateElement2, TimeConstant time) {
+                                          StreamStateElement streamStateElement2, TimeConstant time) {
         return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.AND, streamStateElement2, time);
     }
 
     public static StateElement logicalOr(StreamStateElement streamStateElement1,
-                                           StreamStateElement streamStateElement2, TimeConstant time) {
+                                         StreamStateElement streamStateElement2, TimeConstant time) {
         return new LogicalStateElement(streamStateElement1, LogicalStateElement.Type.OR, streamStateElement2, time);
     }
 
     public static StateElement logicalNot(StreamStateElement notStreamStateElement,
-                                            TimeConstant time) {
+                                          TimeConstant time) {
         return new LogicalStateElement(null, LogicalStateElement.Type.NOT, notStreamStateElement, time);
     }
 
     public static StateElement logicalNotAnd(StreamStateElement notStreamStateElement,
-                                               StreamStateElement andStreamStateElement,
-                                               TimeConstant time) {
+                                             StreamStateElement andStreamStateElement,
+                                             TimeConstant time) {
         return new LogicalStateElement(andStreamStateElement, LogicalStateElement.Type.NOT, notStreamStateElement, time);
     }
 
     public static StateElement logicalNotAnd(StreamStateElement notStreamStateElement,
-                                               StreamStateElement andStreamStateElement) {
+                                             StreamStateElement andStreamStateElement) {
         return new LogicalStateElement(andStreamStateElement, LogicalStateElement.Type.NOT, notStreamStateElement);
     }
 
@@ -104,7 +102,7 @@ public class State {
         return new StreamStateElement(basicSingleInputStream);
     }
 
-    public static StreamStateElement stream(BasicSingleInputStream basicSingleInputStream,TimeConstant time) {
+    public static StreamStateElement stream(BasicSingleInputStream basicSingleInputStream, TimeConstant time) {
         return new StreamStateElement(basicSingleInputStream, time);
     }
 
