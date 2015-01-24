@@ -17,7 +17,6 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -58,31 +57,5 @@ public class InputStreamParser {
         } else {
             throw new OperationNotSupportedException();
         }
-    }
-
-    /**
-     * Method to generate MetaStreamEvent reagent to the given input stream. Empty definition will be created and
-     * definition and reference is will be set accordingly in this method.
-     *
-     * @param inputStream
-     * @param definitionMap
-     * @return
-     */
-    public static MetaStreamEvent generateMetaStreamEvent(SingleInputStream inputStream,
-                                                          Map<String, AbstractDefinition> definitionMap) {
-        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        String streamId = inputStream.getStreamId();
-        if (definitionMap != null && definitionMap.containsKey(streamId)) {
-            AbstractDefinition inputDefinition = definitionMap.get(streamId);
-            metaStreamEvent.setInputDefinition(inputDefinition);
-            metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
-        } else {
-            throw new DefinitionNotExistException("Stream definition with stream ID " + inputStream.getStreamId() + " has not been defined");
-        }
-        if ((inputStream.getStreamReferenceId() != null) &&
-                !(inputStream.getStreamId()).equals(inputStream.getStreamReferenceId())) { //if ref id is provided
-            metaStreamEvent.setInputReferenceId(inputStream.getStreamReferenceId());
-        }
-        return metaStreamEvent;
     }
 }

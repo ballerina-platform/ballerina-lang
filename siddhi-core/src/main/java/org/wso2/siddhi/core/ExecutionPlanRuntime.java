@@ -15,6 +15,7 @@
 package org.wso2.siddhi.core;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
@@ -112,16 +113,12 @@ public class ExecutionPlanRuntime {
 
     public void addCallback(String streamId, StreamCallback streamCallback) {
         streamCallback.setStreamId(streamId);
-        streamCallback.setStreamDefinition(streamDefinitionMap.get(streamId));
-        streamCallback.setContext(executionPlanContext);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
-            streamJunction = new StreamJunction((StreamDefinition) streamDefinitionMap.get(streamId),
-                    executionPlanContext.getExecutorService(),
-                    executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                    executionPlanContext);
-            streamJunctionMap.put(streamId, streamJunction);
+            throw new DefinitionNotExistException("No stream fund with name: " + streamId);
         }
+        streamCallback.setStreamDefinition(streamDefinitionMap.get(streamId));
+        streamCallback.setContext(executionPlanContext);
         streamJunction.subscribe(streamCallback);
     }
 
@@ -129,7 +126,7 @@ public class ExecutionPlanRuntime {
         callback.setContext(executionPlanContext);
         QueryRuntime queryRuntime = queryProcessorMap.get(queryName);
         if (queryRuntime == null) {
-            throw new QueryNotExistException("No query fund for " + queryName);
+            throw new QueryNotExistException("No query fund with name: " + queryName);
         }
         callback.setQuery(queryRuntime.getQuery());
         queryRuntime.addCallback(callback);

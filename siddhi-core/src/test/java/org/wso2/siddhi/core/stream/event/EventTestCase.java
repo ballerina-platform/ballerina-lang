@@ -12,12 +12,14 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.event;
+package org.wso2.siddhi.core.stream.event;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.event.EventFactory;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -50,7 +52,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventTest {
+public class EventTestCase {
 
     @Test
     public void testEventCreation() {
