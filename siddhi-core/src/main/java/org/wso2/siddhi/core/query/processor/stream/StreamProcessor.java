@@ -79,8 +79,8 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
         complexEventChunk.reset();
         try {
             process(complexEventChunk, nextProcessor, streamEventCloner, streamEventPopulater);
-        } catch (Throwable t) {
-            log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass().getCanonicalName() + ", " + t.getMessage(), t);
+        } catch (RuntimeException e) {
+            log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass().getCanonicalName() + ", " + e.getMessage(), e);
         }
     }
 

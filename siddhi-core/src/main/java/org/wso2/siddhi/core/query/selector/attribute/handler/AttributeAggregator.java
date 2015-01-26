@@ -23,7 +23,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.io.Serializable;
 
-public abstract class AttributeAggregator implements Serializable, EternalReferencedHolder {
+public abstract class AttributeAggregator implements EternalReferencedHolder {
 
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
