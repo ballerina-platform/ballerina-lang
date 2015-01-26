@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream_function.StreamFunctionProcessor;
 import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -48,18 +49,18 @@ public class SingleInputStreamParser {
 
     /**
      * Parse single InputStream and return SingleStreamRuntime
-     *
-     * @param inputStream           single input stream to be parsed
+     *  @param inputStream           single input stream to be parsed
      * @param executionPlanContext  query to be parsed
-     * @param executors             List to hold VariableExpressionExecutors to update after query parsing
+     * @param variableExpressionExecutors             List to hold VariableExpressionExecutors to update after query parsing
      * @param streamDefinitionMap
      * @param tableDefinitionMap
+     * @param eventTableMap
      * @param metaComplexEvent      @return
      * @param processStreamReceiver
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
-                                                       List<VariableExpressionExecutor> executors, Map<String, AbstractDefinition> streamDefinitionMap,
-                                                       Map<String, AbstractDefinition> tableDefinitionMap, MetaComplexEvent metaComplexEvent, ProcessStreamReceiver processStreamReceiver) {
+                                                       List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
+                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent, ProcessStreamReceiver processStreamReceiver) {
         Processor processor = null;
         Processor singleThreadValve = null;
         boolean first = true;
@@ -74,7 +75,7 @@ public class SingleInputStreamParser {
         }
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, executors, executionPlanContext);
+                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap);
                 if (currentProcessor instanceof SchedulingProcessor) {
                     if (singleThreadValve == null) {
 
@@ -104,9 +105,9 @@ public class SingleInputStreamParser {
     }
 
 
-    private static Processor generateProcessor(StreamHandler handler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext context) {
-        ExpressionExecutor[] inputExpressions = new ExpressionExecutor[handler.getParameters().length];
-        Expression[] parameters = handler.getParameters();
+    private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap) {
+        ExpressionExecutor[] inputExpressions = new ExpressionExecutor[streamHandler.getParameters().length];
+        Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
         int stateIndex = SiddhiConstants.UNKNOWN_STATE;
         if (metaEvent instanceof MetaStateEvent) {
@@ -116,27 +117,27 @@ public class SingleInputStreamParser {
             metaStreamEvent = (MetaStreamEvent) metaEvent;
         }
         for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, executors,
-                    context, false, SiddhiConstants.LAST);
+            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
+                    executionPlanContext, false, SiddhiConstants.LAST);
         }
-        if (handler instanceof Filter) {
+        if (streamHandler instanceof Filter) {
             return new FilterProcessor(inputExpressions[0]);
 
-        } else if (handler instanceof Window) {
-            WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) handler).getFunction(),
+        } else if (streamHandler instanceof Window) {
+            WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
                     WindowProcessor.class);
             windowProcessor.initProcessor(metaStreamEvent.getInputDefinition(), inputExpressions);
             return windowProcessor;
 
-        } else if (handler instanceof StreamFunction) {
+        } else if (streamHandler instanceof StreamFunction) {
             StreamProcessor streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                    ((StreamFunction) handler).getFunction(), StreamFunctionProcessor.class);
+                    ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
             metaStreamEvent.setInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getInputDefinition(),
                     inputExpressions));
             return streamProcessor;
 
         } else {
-            throw new IllegalStateException(handler.getClass().getName() + " is not supported");
+            throw new IllegalStateException(streamHandler.getClass().getName() + " is not supported");
         }
     }
 
@@ -157,11 +158,9 @@ public class SingleInputStreamParser {
         if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);
             metaStreamEvent.setInputDefinition(inputDefinition);
-            metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
         } else if (!inputStream.isInnerStream() && tableDefinitionMap != null && tableDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = tableDefinitionMap.get(streamId);
             metaStreamEvent.setInputDefinition(inputDefinition);
-            metaStreamEvent.setInitialAttributeSize(inputDefinition.getAttributeList().size());
         } else {
             throw new ExecutionPlanCreationException("Stream/table definition with ID '" + inputStream.getStreamId() + "' has not been defined");
         }

@@ -16,11 +16,9 @@
 package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
-import org.wso2.siddhi.core.table.EventTable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
@@ -38,7 +36,6 @@ public class ExecutionPlanContext {
     private List<EternalReferencedHolder> eternalReferencedHolders;
 
     private Lock sharedLock = null;
-    private Map<String, EventTable> eventTableMap;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -112,11 +109,4 @@ public class ExecutionPlanContext {
         return executorService;
     }
 
-    public void setEventTableMap(Map<String, EventTable> eventTableMap) {
-        this.eventTableMap = eventTableMap;
-    }
-
-    public Map<String, EventTable> getEventTableMap() {
-        return eventTableMap;
-    }
 }

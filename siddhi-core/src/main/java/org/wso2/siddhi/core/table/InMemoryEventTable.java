@@ -33,6 +33,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 1/18/15.
@@ -135,8 +136,8 @@ public class InMemoryEventTable implements EventTable {
         return returnEventChunk.getFirst();
     }
 
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, executorList, matchingStreamIndex, tableDefinition);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition);
 
     }
 

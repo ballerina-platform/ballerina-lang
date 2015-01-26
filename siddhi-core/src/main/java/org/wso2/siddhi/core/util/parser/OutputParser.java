@@ -35,18 +35,19 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 public class OutputParser {
 
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, StreamDefinition outputStreamDefinition,
-                                                         ExecutionPlanContext executionPlanContext) {
+                                                         Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
         String id = outStream.getId();
 
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
-            EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
+            EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                 return new InsertIntoTableCallback(eventTable, outputStreamDefinition);
@@ -54,7 +55,7 @@ public class OutputParser {
                 return new InsertIntoStreamCallback(outputStreamDefinition);
             }
         } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream) {
-            EventTable eventTable = executionPlanContext.getEventTableMap().get(id);
+            EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
 
                 TableDefinition eventTableDefinition = eventTable.getTableDefinition();
@@ -73,10 +74,10 @@ public class OutputParser {
                 }
                 matchingMetaStreamEvent.setInputDefinition(matchingTableDefinition);
                 if (outStream instanceof DeleteStream) {
-                    Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, 0);
+                    Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0);
                     return new DeleteTableCallback(eventTable, finder);
                 } else {
-                    Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, 0);
+                    Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0);
                     return new UpdateTableCallback(eventTable, finder, matchingTableDefinition);
                 }
             } else {

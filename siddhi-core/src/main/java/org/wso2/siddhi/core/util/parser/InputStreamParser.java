@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.*;
 
@@ -31,29 +32,29 @@ public class InputStreamParser {
 
     /**
      * Parse an InputStream returning corresponding StreamRuntime
-     *
-     * @param inputStream          input stream to be parsed
+     *  @param inputStream          input stream to be parsed
      * @param executionPlanContext associated siddhi executionPlanContext
      * @param streamDefinitionMap  map containing user given stream definitions
      * @param tableDefinitionMap
+     * @param eventTableMap
      * @param executors            List to hold VariableExpressionExecutors to update after query parsing  @return
      */
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,
                                       Map<String, AbstractDefinition> streamDefinitionMap,
                                       Map<String, AbstractDefinition> tableDefinitionMap,
-                                      List<VariableExpressionExecutor> executors) {
+                                      Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executors) {
 
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
             ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId());
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, executors, streamDefinitionMap, null, new MetaStreamEvent(), processStreamReceiver);
+                    executionPlanContext, executors, streamDefinitionMap, null, eventTableMap, new MetaStreamEvent(), processStreamReceiver);
         } else if (inputStream instanceof JoinInputStream) {
-            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, executors);
+            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
-                    metaStateEvent, streamDefinitionMap, null, executors);
+                    metaStateEvent, streamDefinitionMap, null, eventTableMap, executors);
         } else {
             throw new OperationNotSupportedException();
         }

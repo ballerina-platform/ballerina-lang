@@ -106,7 +106,7 @@ public class ExecutionPlanParser {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
                     QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, executionPlanContext,
-                            executionPlanRuntime.getStreamDefinitionMap(), executionPlanRuntime.getTableDefinitionMap());
+                            executionPlanRuntime.getStreamDefinitionMap(), executionPlanRuntime.getTableDefinitionMap(), executionPlanRuntime.getEventTableMap());
                     executionPlanRuntime.addQuery(queryRuntime);
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime,

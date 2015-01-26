@@ -27,11 +27,13 @@ import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
+import java.util.Map;
 
 public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
@@ -123,8 +125,8 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaEvent, executionPlanContext, executorList, matchingStreamIndex, inputDefinition);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition);
 
     }
 }

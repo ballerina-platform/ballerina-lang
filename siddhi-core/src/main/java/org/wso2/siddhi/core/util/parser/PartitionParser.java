@@ -44,8 +44,8 @@ public class PartitionParser {
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
-            QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap, executionPlanRuntime.getTableDefinitionMap());
-
+            QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap,
+                    executionPlanRuntime.getTableDefinitionMap(), executionPlanRuntime.getEventTableMap());
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);
@@ -77,7 +77,6 @@ public class PartitionParser {
                     newMetaStreamEvent.addOutputData(attribute);
                 }
                 newMetaStreamEvent.setInputDefinition(definition);
-                newMetaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
                 metaStateEvent.addEvent(newMetaStreamEvent);
             }
         } else {
@@ -88,7 +87,6 @@ public class PartitionParser {
                 newMetaStreamEvent.addOutputData(attribute);
             }
             newMetaStreamEvent.setInputDefinition(definition);
-            newMetaStreamEvent.setInitialAttributeSize(definition.getAttributeList().size());
             metaStateEvent.addEvent(newMetaStreamEvent);
         }
 

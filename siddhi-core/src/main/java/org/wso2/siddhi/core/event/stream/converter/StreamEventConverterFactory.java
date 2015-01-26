@@ -71,15 +71,13 @@ public class StreamEventConverterFactory {
                         i++;
                     } else {
                         int fromPosition = inputDefinition.getAttributePosition(attribute.getName());
-                        if (fromPosition < metaStreamEvent.getInitialAttributeSize()) {
-                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                            conversionMapping.setFromPosition(fromPosition);
-                            int[] toPosition = new int[2];
-                            toPosition[0] = j;
-                            toPosition[1] = i;
-                            conversionMapping.setToPosition(toPosition);
-                            conversionMappings.add(conversionMapping);
-                        }
+                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
+                        conversionMapping.setFromPosition(fromPosition);
+                        int[] toPosition = new int[2];
+                        toPosition[0] = j;
+                        toPosition[1] = i;
+                        conversionMapping.setToPosition(toPosition);
+                        conversionMappings.add(conversionMapping);
                         i++;
                     }
                 }

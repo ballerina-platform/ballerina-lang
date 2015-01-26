@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
+import java.util.Map;
 
 public class TableWindowProcessor extends WindowProcessor implements FindableProcessor {
 
@@ -60,8 +61,8 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaEvent, executionPlanContext, executorList, matchingStreamIndex, inputDefinition);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition);
 
     }
 

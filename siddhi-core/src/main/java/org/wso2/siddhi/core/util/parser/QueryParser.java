@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -47,21 +48,22 @@ public class QueryParser {
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
                                      Map<String, AbstractDefinition> streamDefinitionMap,
-                                     Map<String, AbstractDefinition> tableDefinitionMap) {
+                                     Map<String, AbstractDefinition> tableDefinitionMap,
+                                     Map<String, EventTable> eventTableMap) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, executors);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors);
 
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
-                    executionPlanContext, streamRuntime.getMetaComplexEvent(), executors);
+                    executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), executionPlanContext);
+                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, executionPlanContext);
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);

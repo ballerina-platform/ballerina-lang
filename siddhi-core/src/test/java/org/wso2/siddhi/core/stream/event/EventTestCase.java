@@ -36,6 +36,8 @@ import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompare
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.QueryParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -52,7 +54,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventTest {
+public class EventTestCase {
 
     @Test
     public void testEventCreation() {
@@ -88,9 +90,9 @@ public class EventTest {
 
     @Test
     public void testPassThroughStreamEventConverter() {
+        Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
         Attribute price = new Attribute("price", Attribute.Type.DOUBLE);
         Attribute volume = new Attribute("volume", Attribute.Type.INT);
-        Attribute symbol = new Attribute("symbol", Attribute.Type.STRING);
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addOutputData(symbol);
@@ -99,9 +101,10 @@ public class EventTest {
 
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
-        Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
+        Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200.0, 50});
 
         metaStreamEvent.setInputDefinition(streamDefinition);
+
         StreamEventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent, 5);
 
@@ -111,8 +114,8 @@ public class EventTest {
         Assert.assertTrue(converter instanceof ZeroStreamEventConverter);
         Assert.assertEquals(3, borrowedEvent.getOutputData().length);
 
-        Assert.assertEquals(200, borrowedEvent.getOutputData()[1]);
         Assert.assertEquals("WSO2", borrowedEvent.getOutputData()[0]);
+        Assert.assertEquals(200.0, borrowedEvent.getOutputData()[1]);
         Assert.assertEquals(50, borrowedEvent.getOutputData()[2]);
     }
 
@@ -135,8 +138,8 @@ public class EventTest {
         converter.convertEvent(event, borrowedEvent);
 
         Assert.assertTrue(converter instanceof SimpleStreamEventConverter);
-        Assert.assertEquals(0, borrowedEvent.getBeforeWindowData().length);
-        Assert.assertEquals(0, borrowedEvent.getOnAfterWindowData().length);
+        Assert.assertNull(borrowedEvent.getBeforeWindowData());
+        Assert.assertNull(borrowedEvent.getOnAfterWindowData());
         Assert.assertEquals(2, borrowedEvent.getOutputData().length);
 
         Assert.assertEquals(200, borrowedEvent.getOutputData()[1]);
@@ -178,9 +181,11 @@ public class EventTest {
 
     @Test
     public void testExpressionExecutors() {
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+//        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
-        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.FLOAT));
+        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.FLOAT),0,0);
+        priceVariableExpressionExecutor.setPosition(new int[]{0, SiddhiConstants.UNKNOWN_STATE, SiddhiConstants.OUTPUT_DATA_INDEX, 1});
+
         ExpressionExecutor addExecutor = new AddExpressionExecutorFloat(new ConstantExpressionExecutor(10f, Attribute.Type.FLOAT), priceVariableExpressionExecutor);
 
         StreamEvent event = new StreamEvent(0, 0, 3);
@@ -191,10 +196,14 @@ public class EventTest {
 
     @Test
     public void testConditionExpressionExecutors() {
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+//        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
-        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.FLOAT));
-        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.INT));
+        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.FLOAT),0,0);
+        priceVariableExpressionExecutor.setPosition(new int[]{0, SiddhiConstants.UNKNOWN_STATE, SiddhiConstants.OUTPUT_DATA_INDEX, 1});
+
+        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("volume", Attribute.Type.INT),0,0);
+        volumeVariableExpressionExecutor.setPosition(new int[]{0, SiddhiConstants.UNKNOWN_STATE, SiddhiConstants.OUTPUT_DATA_INDEX, 2});
+
         ExpressionExecutor compareLessThanExecutor = new LessThanCompareConditionExpressionExecutorFloatFloat(new ConstantExpressionExecutor(10f, Attribute.Type.FLOAT), priceVariableExpressionExecutor);
         ExpressionExecutor compareGreaterThanExecutor = new GreaterThanCompareConditionExpressionExecutorIntInt(new ConstantExpressionExecutor(10, Attribute.Type.INT), volumeVariableExpressionExecutor);
         ExpressionExecutor andExecutor = new AndConditionExpressionExecutor(compareLessThanExecutor, compareGreaterThanExecutor);
@@ -213,9 +222,11 @@ public class EventTest {
 
     @Test(expected = OperationNotSupportedException.class)
     public void testConditionExpressionExecutorValidation() {
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+//        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
-        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("volume", Attribute.Type.INT));
+        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("volume", Attribute.Type.INT),0,0);
+        volumeVariableExpressionExecutor.setPosition(new int[]{0, SiddhiConstants.UNKNOWN_STATE, SiddhiConstants.OUTPUT_DATA_INDEX, 2});
+
         ConstantExpressionExecutor constantExpressionExecutor = new ConstantExpressionExecutor(10f, Attribute.Type.FLOAT);
         ExpressionExecutor compareGreaterThanExecutor = new GreaterThanCompareConditionExpressionExecutorIntInt(new ConstantExpressionExecutor(10, Attribute.Type.INT), volumeVariableExpressionExecutor);
         ExpressionExecutor andExecutor = new AndConditionExpressionExecutor(constantExpressionExecutor, compareGreaterThanExecutor);
@@ -231,13 +242,14 @@ public class EventTest {
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
         query.insertInto("outputStream");
         Map<String, AbstractDefinition> tableDefinitionMap = new HashMap<String, AbstractDefinition>();
+        Map<String, EventTable> eventTableMap = new HashMap<String, EventTable>();
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
         streamDefinitionMap.put("cseEventStream", streamDefinition);
         streamDefinitionMap.put("outputStream", outStreamDefinition);
         SiddhiContext siddhicontext = new SiddhiContext();
         ExecutionPlanContext context = new ExecutionPlanContext();
         context.setSiddhiContext(siddhicontext);
-        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap);
+        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap, eventTableMap);
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());
@@ -263,17 +275,18 @@ public class EventTest {
         MetaStateEvent metaStateEvent = new MetaStateEvent(1);
         metaStateEvent.addEvent(metaStreamEvent);
 
-        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.FLOAT));
-        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("volume", Attribute.Type.INT));
-        VariableExpressionExecutor symbolVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("symbol", Attribute.Type.STRING));
+        VariableExpressionExecutor priceVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("price", Attribute.Type.FLOAT),0,0);
+        VariableExpressionExecutor volumeVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("volume", Attribute.Type.INT),0,0);
+        VariableExpressionExecutor symbolVariableExpressionExecutor = new VariableExpressionExecutor(new Attribute("symbol", Attribute.Type.STRING),0,0);
 
+        QueryParserHelper.reduceMetaComplexEvent(metaStateEvent);
         QueryParserHelper.updateVariablePosition(metaStateEvent, Arrays.asList(priceVariableExpressionExecutor, volumeVariableExpressionExecutor, symbolVariableExpressionExecutor));
 
         Assert.assertEquals(1, metaStreamEvent.getBeforeWindowData().size());
         Assert.assertEquals(1, metaStreamEvent.getOnAfterWindowData().size());
         Assert.assertEquals(2, metaStreamEvent.getOutputData().size());
-        Assert.assertArrayEquals(new int[]{-1, -1, 1, 0}, priceVariableExpressionExecutor.getPosition());
-        Assert.assertArrayEquals(new int[]{-1, -1, 0, 0}, volumeVariableExpressionExecutor.getPosition());
-        Assert.assertArrayEquals(new int[]{-1, -1, 2, 0}, symbolVariableExpressionExecutor.getPosition());
+        Assert.assertArrayEquals(new int[]{0, 0, 1, 0}, priceVariableExpressionExecutor.getPosition());
+        Assert.assertArrayEquals(new int[]{0, 0, 0, 0}, volumeVariableExpressionExecutor.getPosition());
+        Assert.assertArrayEquals(new int[]{0, 0, 2, 0}, symbolVariableExpressionExecutor.getPosition());
     }
 }

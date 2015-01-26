@@ -21,9 +21,11 @@ import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 12/8/14.
@@ -32,6 +34,6 @@ public interface FindableProcessor {
 
     public StreamEvent find(ComplexEvent matchingEvent, Finder finder);
 
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList, int matchingStreamIndex);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex);
 
 }

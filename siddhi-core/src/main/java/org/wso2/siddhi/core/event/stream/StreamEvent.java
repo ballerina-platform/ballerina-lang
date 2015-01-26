@@ -171,7 +171,7 @@ public class StreamEvent implements ComplexEvent {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("StreamEvent{");
+        final StringBuilder sb = new StringBuilder("StreamEvent{");
         sb.append("timestamp=").append(timestamp);
         sb.append(", beforeWindowData=").append(beforeWindowData == null ? "null" : Arrays.asList(beforeWindowData).toString());
         sb.append(", onAfterWindowData=").append(onAfterWindowData == null ? "null" : Arrays.asList(onAfterWindowData).toString());

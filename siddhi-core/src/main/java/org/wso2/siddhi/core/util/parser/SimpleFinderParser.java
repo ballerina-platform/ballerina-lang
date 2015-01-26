@@ -22,19 +22,21 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
 import org.wso2.siddhi.core.finder.SimpleFinder;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 1/19/15.
  */
 public class SimpleFinderParser {
 
-    public static Finder parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> executorList,
-                               int matchingStreamIndex, AbstractDefinition candidateDefinition) {
+    public static Finder parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
+                               Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition) {
 
         int candidateEventPosition = 0;
         int size = 0;
@@ -80,7 +82,7 @@ public class SimpleFinderParser {
         }
 
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                metaStateEvent, matchingStreamIndex, executorList, executionPlanContext, false, 0);
+                metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
         return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingStreamIndex, size);
     }
 }

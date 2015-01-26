@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
 import org.wso2.siddhi.core.query.processor.window.TableWindowProcessor;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
@@ -41,7 +42,7 @@ import java.util.Map;
 public class JoinInputStreamParser {
 
 
-    public static StreamRuntime parseInputStream(JoinInputStream joinInputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, List<VariableExpressionExecutor> executors) {
+    public static StreamRuntime parseInputStream(JoinInputStream joinInputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executors) {
 
         ProcessStreamReceiver leftProcessStreamReceiver;
         ProcessStreamReceiver rightProcessStreamReceiver;
@@ -75,19 +76,19 @@ public class JoinInputStreamParser {
 
         SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream(
                 (SingleInputStream) joinInputStream.getLeftInputStream(), executionPlanContext, executors, streamDefinitionMap,
-                !leftMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, leftMetaStreamEvent, leftProcessStreamReceiver);
+                !leftMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, eventTableMap, leftMetaStreamEvent, leftProcessStreamReceiver);
 
         SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream(
                 (SingleInputStream) joinInputStream.getRightInputStream(), executionPlanContext, executors, streamDefinitionMap,
-                !rightMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, rightMetaStreamEvent, rightProcessStreamReceiver);
+                !rightMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, eventTableMap, rightMetaStreamEvent, rightProcessStreamReceiver);
 
         if (leftMetaStreamEvent.isTableEvent()) {
-            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(executionPlanContext.getEventTableMap().get(leftInputStreamId));
+            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(eventTableMap.get(leftInputStreamId));
             tableWindowProcessor.initProcessor(leftMetaStreamEvent.getInputDefinition(), null);
             leftStreamRuntime.setProcessorChain(tableWindowProcessor);
         }
         if (rightMetaStreamEvent.isTableEvent()) {
-            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(executionPlanContext.getEventTableMap().get(rightInputStreamId));
+            TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(eventTableMap.get(rightInputStreamId));
             tableWindowProcessor.initProcessor(rightMetaStreamEvent.getInputDefinition(), null);
             rightStreamRuntime.setProcessorChain(tableWindowProcessor);
         }
@@ -117,8 +118,8 @@ public class JoinInputStreamParser {
             compareCondition = Expression.value(true);
         }
 
-        Finder leftFinder = rightFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, 0);
-        Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, 1);
+        Finder leftFinder = rightFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 0);
+        Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 1);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(true);

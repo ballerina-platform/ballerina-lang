@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.RangePartitionExecutor;
 import org.wso2.siddhi.core.partition.executor.ValuePartitionExecutor;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -37,6 +38,7 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * create PartitionExecutors to be used to get partitioning key
@@ -56,9 +58,9 @@ public class StreamPartitioner {
                                  List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
         if (inputStream instanceof SingleInputStream) {
             if (metaEvent instanceof MetaStateEvent) {
-                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, ((MetaStateEvent) metaEvent).getMetaStreamEvent(0), executors, executionPlanContext);
+                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, ((MetaStateEvent) metaEvent).getMetaStreamEvent(0), executors, null, executionPlanContext);
             } else {
-                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, executionPlanContext);
+                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, null, executionPlanContext);
             }
         } else if (inputStream instanceof JoinInputStream) {
             createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext);
@@ -102,7 +104,7 @@ public class StreamPartitioner {
 
     }
 
-    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
+    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
         List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
         partitionExecutorLists.add(executorList);
         if (!inputStream.isInnerStream()) {
@@ -110,14 +112,14 @@ public class StreamPartitioner {
                 if (partitionType instanceof ValuePartitionType) {
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                metaEvent, SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0)));
+                                metaEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0)));
                     }
                 } else {
                     for (RangePartitionType.RangePartitionProperty rangePartitionProperty : ((RangePartitionType) partitionType).getRangePartitionProperties()) {
                         if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                             executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
                                     ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
-                                            SiddhiConstants.UNKNOWN_STATE, executors, executionPlanContext, false, 0),
+                                            SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0),
                                     rangePartitionProperty.getPartitionKey()));
 
                         }

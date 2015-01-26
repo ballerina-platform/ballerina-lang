@@ -33,7 +33,6 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private List<Attribute> onAfterWindowData = null;
     private List<Attribute> outputData = null;
     private AbstractDefinition inputDefinition;
-    private int initialAttributeSize;
     private String inputReferenceId;
     private StreamDefinition outputStreamDefinition;
     private boolean tableEvent = false;
@@ -107,14 +106,6 @@ public class MetaStreamEvent implements MetaComplexEvent {
 
     public void setInputReferenceId(String inputReferenceId) {
         this.inputReferenceId = inputReferenceId;
-    }
-
-    public void setInitialAttributeSize(int initialAttributeSize) {
-        this.initialAttributeSize = initialAttributeSize;
-    }
-
-    public int getInitialAttributeSize() {
-        return initialAttributeSize;
     }
 
     @Override
