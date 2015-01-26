@@ -21,7 +21,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
  */
 public interface StreamEventPopulater {
 
-    public void populateStreamEvent(ComplexEvent complexEvent, Object data, int[] toPosition);
+    public void populateStreamEvent(ComplexEvent complexEvent, Object data);
 
     public void populateStreamEvent(ComplexEvent complexEvent, Object[] data);
 }

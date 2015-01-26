@@ -19,21 +19,19 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.List;
-
 public abstract class AbstractAggregationAttributeExecutor implements ExpressionExecutor {
     protected AttributeAggregator attributeAggregator;
-    protected List<ExpressionExecutor> expressionExecutors;
+    protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected int size;
 
     public AbstractAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                                List<ExpressionExecutor> expressionExecutors,
+                                                ExpressionExecutor[] attributeExpressionExecutors,
                                                 ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        this.expressionExecutors = expressionExecutors;
+        this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.attributeAggregator = attributeAggregator;
-        this.size = expressionExecutors.size();
+        this.size = attributeExpressionExecutors.length;
     }
 
     @Override

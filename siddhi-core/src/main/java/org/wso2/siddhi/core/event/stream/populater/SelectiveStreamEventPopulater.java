@@ -34,13 +34,18 @@ public class SelectiveStreamEventPopulater implements StreamEventPopulater {
         this.streamMappingElements = streamMappingElements;
     }
 
+    @Override
+    public void populateStreamEvent(ComplexEvent complexEvent, Object data) {
+        populateStreamEvent(complexEvent, data, streamMappingElements.get(0).getToPosition());
+    }
+
     public void populateStreamEvent(ComplexEvent complexEvent, Object[] data) {
         for (StreamMappingElement mappingElement : streamMappingElements) {
             populateStreamEvent(complexEvent, data[mappingElement.getFromPosition()], mappingElement.getToPosition());
         }
     }
 
-    public void populateStreamEvent(ComplexEvent complexEvent, Object data, int[] toPosition) {
+    private void populateStreamEvent(ComplexEvent complexEvent, Object data, int[] toPosition) {
         StreamEvent streamEvent;
         if (complexEvent instanceof StreamEvent) {
             streamEvent = (StreamEvent) complexEvent;

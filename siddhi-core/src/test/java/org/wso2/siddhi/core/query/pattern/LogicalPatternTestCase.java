@@ -83,9 +83,9 @@ public class LogicalPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -134,9 +134,9 @@ public class LogicalPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 10.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -185,11 +185,11 @@ public class LogicalPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -238,11 +238,11 @@ public class LogicalPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 4.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -291,11 +291,11 @@ public class LogicalPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -344,11 +344,11 @@ public class LogicalPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);

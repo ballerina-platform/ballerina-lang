@@ -69,7 +69,7 @@ public class Pol2CartFunctionTest {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("PolarStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{22.6, 13.0});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(1, inEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();

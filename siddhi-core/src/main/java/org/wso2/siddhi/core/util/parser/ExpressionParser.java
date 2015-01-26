@@ -73,7 +73,6 @@ import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.expression.math.*;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +85,7 @@ public class ExpressionParser {
 
     /**
      * Parse the given expression and create the appropriate Executor by recursively traversing the expression
+     *
      * @param expression              Expression to be parsed
      * @param metaEvent
      * @param currentState
@@ -247,17 +247,19 @@ public class ExpressionParser {
             }
             if (executor instanceof FunctionExecutor) {
                 FunctionExecutor expressionExecutor = (FunctionExecutor) executor;
-                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-                for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
-                    innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+                Expression[] innerExpressions = ((AttributeFunctionExtension) expression).getParameters();
+                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
+                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
+                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
                 return expressionExecutor;
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
-                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-                for (Expression innerExpression : ((AttributeFunctionExtension) expression).getParameters()) {
-                    innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+                Expression[] innerExpressions = ((AttributeFunctionExtension) expression).getParameters();
+                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
+                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
+                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
@@ -283,9 +285,10 @@ public class ExpressionParser {
                 if (((AttributeFunction) expression).getParameters().length > 1) {
                     throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
                 }
-                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-                for (Expression innerExpression : ((AttributeFunction) expression).getParameters()) {
-                    innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+                Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
+                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
+                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
+                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 ((AttributeAggregator) executor).initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
@@ -297,9 +300,10 @@ public class ExpressionParser {
                 return aggregationAttributeProcessor;
             } else {
                 FunctionExecutor functionExecutor = (FunctionExecutor) executor;
-                List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-                for (Expression innerExpression : ((AttributeFunction) expression).getParameters()) {
-                    innerExpressionExecutors.add(parseExpression(innerExpression, metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+                Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
+                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
+                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
+                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
                 return functionExecutor;

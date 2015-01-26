@@ -66,4 +66,13 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
 
     }
 
+    @Override
+    public void start() {
+        //Do nothing
+    }
+
+    @Override
+    public void stop() {
+        //Do nothing
+    }
 }

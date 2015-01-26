@@ -21,7 +21,6 @@ import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
@@ -29,9 +28,9 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
     public GroupByAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                               List<ExpressionExecutor> expressionExecutors,
+                                               ExpressionExecutor[] attributeExpressionExecutors,
                                                ExecutionPlanContext executionPlanContext) {
-        super(attributeAggregator, expressionExecutors, executionPlanContext);
+        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator();
-            currentAttributeAggregator.initAggregator(expressionExecutors, executionPlanContext);
+            currentAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
             currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
         }
@@ -48,7 +47,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     }
 
     public ExpressionExecutor cloneExecutor() {
-        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(), expressionExecutors, executionPlanContext);
+        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(), attributeExpressionExecutors, executionPlanContext);
     }
 
 

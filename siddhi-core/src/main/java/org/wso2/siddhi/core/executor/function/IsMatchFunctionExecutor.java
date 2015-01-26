@@ -22,7 +22,6 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,18 +31,18 @@ public class IsMatchFunctionExecutor extends FunctionExecutor {
     private ExpressionExecutor expressionExecutor;
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.size() != 2) {
+    public void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanCreationException("IsMatch has to have 2 expressions regex and the attribute, " +
-                    "currently " + attributeExpressionExecutors.size() + " expressions provided");
+                    "currently " + attributeExpressionExecutors.length + " expressions provided");
         }
-        ExpressionExecutor regexExecutor = attributeExpressionExecutors.get(0);
+        ExpressionExecutor regexExecutor = attributeExpressionExecutors[0];
         if (regexExecutor.getReturnType() != Attribute.Type.STRING &&
                 regexExecutor instanceof ConstantExpressionExecutor) {
             throw new ExecutionPlanCreationException("IsMatch expects regex string input expression but found " +
                     regexExecutor.getReturnType());
         }
-        expressionExecutor = attributeExpressionExecutors.get(1);
+        expressionExecutor = attributeExpressionExecutors[1];
         pattern = Pattern.compile((String) regexExecutor.execute(null));
 
     }

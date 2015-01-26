@@ -102,7 +102,7 @@ public class FilterTestCase {
 
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        Thread.sleep(300);
+        Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
 
@@ -136,7 +136,7 @@ public class FilterTestCase {
 
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        Thread.sleep(500);
+        Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -171,7 +171,7 @@ public class FilterTestCase {
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 200});
-        Thread.sleep(500);
+        Thread.sleep(100);
         Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
     }
@@ -203,7 +203,7 @@ public class FilterTestCase {
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
-        Thread.sleep(200);
+        Thread.sleep(100);
         Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
     }
@@ -234,7 +234,7 @@ public class FilterTestCase {
         inputHandler.send(new Object[]{"WSO2", 50f, 60l});
         inputHandler.send(new Object[]{"WSO2", 70f, 40l});
         inputHandler.send(new Object[]{"WSO2", 44f, 200l});
-        Thread.sleep(200);
+        Thread.sleep(100);
         Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
 

@@ -127,6 +127,15 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
         return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition);
+    }
 
+    @Override
+    public void start() {
+        //Do nothing
+    }
+
+    @Override
+    public void stop() {
+        //Do nothing
     }
 }

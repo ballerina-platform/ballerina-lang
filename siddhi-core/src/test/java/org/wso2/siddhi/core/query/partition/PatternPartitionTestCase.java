@@ -86,9 +86,9 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -144,11 +144,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -219,17 +219,17 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 55.6f, 150});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 55.6f, 150});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 150});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 4, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -284,11 +284,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -353,15 +353,15 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 53f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -426,17 +426,17 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"MSFT", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 53f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -496,13 +496,13 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"MSFT", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -559,9 +559,9 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"MSFT", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -613,29 +613,29 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 25.6f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 13.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 13.7f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -686,17 +686,17 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 13.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -747,13 +747,13 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -803,9 +803,9 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 0, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -856,23 +856,23 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 23.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 24.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 25.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 27.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -923,13 +923,13 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -979,7 +979,7 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1029,11 +1029,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 7.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1088,10 +1088,10 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105, 5});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 81, 5});
         eventStream.send(new Object[]{"WSO2", 176.6f, 65, 5});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1146,10 +1146,10 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105, 2});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 61, 2});
         eventStream.send(new Object[]{"WSO2", 21f, 61, 2});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1204,10 +1204,10 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105, 4});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 61, 4});
         eventStream.send(new Object[]{"WSO2", 21f, 61, 4});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1262,11 +1262,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105, 1});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 91, 1});
         eventStream.send(new Object[]{"FB", 21f, 81, 1});
         eventStream.send(new Object[]{"WSO2", 21f, 61, 1});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1316,11 +1316,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 59.6f, 200});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1370,9 +1370,9 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 10.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1422,11 +1422,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1484,17 +1484,17 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 4.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 55.6f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 72.7f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 4.7f, 10});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1544,11 +1544,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 72.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1598,11 +1598,11 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 72.7f, 100});
-        Thread.sleep(5000);
+        Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1663,17 +1663,17 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 55f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 59.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1729,13 +1729,13 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 57f, 100});
-        Thread.sleep(2000);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1797,7 +1797,7 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105, 1});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 39.8f, 91, 1});
         stream1.send(new Object[]{"FB", 35f, 81, 1});
         stream1.send(new Object[]{"WSO2", 21f, 61, 1});
@@ -1811,7 +1811,7 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"QQQ", 24.6f, 45, 1});
         stream1.send(new Object[]{"CSCO", 181.6f, 40, 1});
         stream1.send(new Object[]{"WSO2", 53.7f, 200, 1});
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 3, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1871,7 +1871,7 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105, 1});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 21f, 81, 1});
         stream2.send(new Object[]{"WSO2", 176.6f, 65, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
@@ -1881,7 +1881,7 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 60, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
         stream2.send(new Object[]{"DOX", 16.2f, 25, 1});
-        Thread.sleep(2000);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1940,7 +1940,7 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105, 1});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 21f, 81, 1});
         stream2.send(new Object[]{"WSO2", 176.6f, 65, 1});
         stream1.send(new Object[]{"BIRT", 21f, 81, 1});
@@ -1951,7 +1951,7 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 60, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
         stream2.send(new Object[]{"DOX", 16.2f, 25, 1});
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -2011,7 +2011,7 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105, 1});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 21f, 51, 1});
         stream2.send(new Object[]{"FBX", 21f, 81, 1});
         stream2.send(new Object[]{"WSO2", 176.6f, 65, 1});
@@ -2023,7 +2023,7 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 90, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
         stream2.send(new Object[]{"DOX", 16.2f, 25, 1});
-        Thread.sleep(1000);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -2083,9 +2083,9 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);

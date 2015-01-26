@@ -14,6 +14,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -29,8 +30,8 @@ import java.util.List;
 
 public abstract class WindowProcessor extends StreamProcessor {
 
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors) {
-        init(inputExecutors);
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        init(attributeExpressionExecutors);
         return new ArrayList<Attribute>(0);
     }
 
@@ -39,20 +40,11 @@ public abstract class WindowProcessor extends StreamProcessor {
     @Override
     protected void process(ComplexEventChunk streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
         streamEventChunk.reset();
-        try {
-            process(streamEventChunk, nextProcessor, streamEventCloner);
-        } catch (Throwable t) {    //todo improve
-            log.error(t.getMessage(), t);
-        }
+        process(streamEventChunk, nextProcessor, streamEventCloner);
     }
 
     protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner);
-
-    @Override
-    protected StreamProcessor cloneStreamProcessor() {
-        return cloneWindowProcessor();
-    }
 
     protected abstract WindowProcessor cloneWindowProcessor();
 }

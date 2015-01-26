@@ -19,18 +19,16 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.List;
-
 public class CoalesceFunctionExecutor extends FunctionExecutor {
 
     private Attribute.Type returnType;
 
     @Override
-    public void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.isEmpty()) {
+    public void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.length==0) {
             throw new ExecutionPlanValidationException("Coalesce must have at least one parameter");
         }
-        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
+        Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             if (type != expressionExecutor.getReturnType()) {
                 throw new ExecutionPlanValidationException("Coalesce cannot have parameters with different type");

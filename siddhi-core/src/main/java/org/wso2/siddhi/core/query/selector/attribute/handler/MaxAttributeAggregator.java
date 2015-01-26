@@ -27,17 +27,16 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     *  @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.size() != 1) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Max aggregator has to have exactly 1 parameter, currently " +
-                    attributeExpressionExecutors.size() + " parameters provided");
+                    attributeExpressionExecutors.length + " parameters provided");
         }
-        Attribute.Type type = attributeExpressionExecutors.get(0).getReturnType();
+        Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
         switch (type) {
             case FLOAT:
                 maxOutputAttributeAggregator = new MaxAttributeAggregatorFloat();

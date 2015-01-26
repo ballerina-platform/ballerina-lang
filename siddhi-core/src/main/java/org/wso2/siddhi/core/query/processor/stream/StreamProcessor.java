@@ -15,12 +15,15 @@
 package org.wso2.siddhi.core.query.processor.stream;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -28,21 +31,28 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 
-public abstract class StreamProcessor implements Processor {
+public abstract class StreamProcessor implements Processor, EternalReferencedHolder {
 
     protected static final Logger log = Logger.getLogger(StreamProcessor.class);
 
     protected Processor nextProcessor;
+
     protected List<Attribute> additionalAttributes;
-    protected StreamEventPopulater streamEventPopulater;
     protected StreamEventCloner streamEventCloner;
     protected AbstractDefinition inputDefinition;
-    protected ExpressionExecutor[] inputExecutors;
+    protected ExpressionExecutor[] attributeExpressionExecutors;
+    protected ExecutionPlanContext executionPlanContext;
+    protected int attributeExpressionLength;
+    protected StreamEventPopulater streamEventPopulater;
 
-    public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors) {
+    public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.inputDefinition = inputDefinition;
-        this.inputExecutors = inputExecutors;
-        additionalAttributes = init(inputDefinition, inputExecutors);
+        this.attributeExpressionExecutors = attributeExpressionExecutors;
+        this.executionPlanContext = executionPlanContext;
+        this.attributeExpressionLength = attributeExpressionExecutors.length;
+        this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+
+        executionPlanContext.addEternalReferencedHolder(this);
 
         StreamDefinition outputDefinition = StreamDefinition.id(inputDefinition.getId());
         for (Attribute attribute : inputDefinition.getAttributeList()) {
@@ -58,18 +68,19 @@ public abstract class StreamProcessor implements Processor {
     /**
      * The init method of the StreamFunction
      *
-     * @param inputDefinition the incoming stream definition
-     * @param inputExecutors  the executors for the function parameters
+     * @param inputDefinition              the incoming stream definition
+     * @param attributeExpressionExecutors the executors for the function parameters
+     * @param executionPlanContext         the execution plan context
      * @return the additional output attributes introduced by the function
      */
-    protected abstract List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors);
+    protected abstract List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         try {
             process(complexEventChunk, nextProcessor, streamEventCloner, streamEventPopulater);
-        } catch (Throwable t) {    //todo improve
-            log.error(t.getMessage(), t);
+        } catch (Throwable t) {
+            log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass().getCanonicalName() + ", " + t.getMessage(), t);
         }
     }
 
@@ -84,15 +95,28 @@ public abstract class StreamProcessor implements Processor {
         return nextProcessor;
     }
 
+    @Override
     public Processor cloneProcessor() {
-        StreamProcessor streamProcessor = cloneStreamProcessor();
-        streamProcessor.additionalAttributes = additionalAttributes;
-        streamProcessor.streamEventPopulater = streamEventPopulater;
-        streamProcessor.inputExecutors = inputExecutors;
-        return streamProcessor;
-    }
+        try {
+            StreamProcessor streamProcessor = this.getClass().newInstance();
+            streamProcessor.inputDefinition = inputDefinition;
+            ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
+            ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;
+            for (int i = 0; i < attributeExpressionLength; i++) {
+                innerExpressionExecutors[i] = attributeExpressionExecutors1[i].cloneExecutor();
+            }
+            streamProcessor.attributeExpressionExecutors = innerExpressionExecutors;
+            streamProcessor.attributeExpressionLength = attributeExpressionLength;
+            streamProcessor.additionalAttributes = additionalAttributes;
+            streamProcessor.streamEventPopulater = streamEventPopulater;
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+            streamProcessor.start();
+            return streamProcessor;
 
-    protected abstract StreamProcessor cloneStreamProcessor();
+        } catch (Exception e) {
+            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+        }
+    }
 
     public void constructStreamEventPopulater(MetaStreamEvent metaStreamEvent, int streamEventChainIndex) {
         if (this.streamEventPopulater == null) {

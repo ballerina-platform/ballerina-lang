@@ -79,4 +79,14 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
         lengthBatchWindowProcessor.length = length;
         return lengthBatchWindowProcessor;
     }
+
+    @Override
+    public void start() {
+        //Do nothing
+    }
+
+    @Override
+    public void stop() {
+        //Do nothing
+    }
 }

@@ -94,17 +94,17 @@ public class ComplexPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 55f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 59.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -160,13 +160,13 @@ public class ComplexPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 54f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 57f, 100});
-        Thread.sleep(2000);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -227,7 +227,7 @@ public class ComplexPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 39.8f, 91});
         stream1.send(new Object[]{"FB", 35f, 81});
         stream1.send(new Object[]{"WSO2", 21f, 61});
@@ -241,7 +241,7 @@ public class ComplexPatternTestCase {
         stream1.send(new Object[]{"QQQ", 24.6f, 45});
         stream1.send(new Object[]{"CSCO", 181.6f, 40});
         stream1.send(new Object[]{"WSO2", 53.7f, 200});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 3, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -301,7 +301,7 @@ public class ComplexPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 21f, 81});
         stream2.send(new Object[]{"WSO2", 176.6f, 65});
         stream1.send(new Object[]{"BIRT", 21f, 81});
@@ -312,7 +312,7 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 60});
         stream1.send(new Object[]{"AMBA", 126.6f, 165});
         stream2.send(new Object[]{"DOX", 16.2f, 25});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -369,7 +369,7 @@ public class ComplexPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 21f, 81});
         stream2.send(new Object[]{"WSO2", 176.6f, 65});
         stream1.send(new Object[]{"BIRT", 21f, 81});
@@ -380,7 +380,7 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 60});
         stream1.send(new Object[]{"AMBA", 126.6f, 165});
         stream2.send(new Object[]{"DOX", 16.2f, 25});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -439,7 +439,7 @@ public class ComplexPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 21f, 51});
         stream2.send(new Object[]{"FBX", 21f, 81});
         stream2.send(new Object[]{"WSO2", 176.6f, 65});
@@ -451,7 +451,7 @@ public class ComplexPatternTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 90});
         stream1.send(new Object[]{"AMBA", 126.6f, 165});
         stream2.send(new Object[]{"DOX", 16.2f, 25});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);

@@ -124,7 +124,7 @@ public class JunctionTestCase {
         streamJunctionB.subscribe(streamCallbackB);
         streamJunctionB.startProcessing();
 
-//        Thread.sleep(1000);
+//        Thread.sleep(100);
 
         StreamEvent streamEvent1 = new StreamEvent(2, 2, 2);
         streamEvent1.setTimestamp(System.currentTimeMillis());
@@ -392,7 +392,7 @@ public class JunctionTestCase {
 
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertTrue(eventArrived);
         Assert.assertEquals(12, count);
         for (boolean arrived : eventsArrived) {
@@ -567,7 +567,7 @@ public class JunctionTestCase {
 
         streamPublisherA.send(streamEvent1);
         streamPublisherA.send(streamEvent2);
-        Thread.sleep(200);
+        Thread.sleep(100);
         Assert.assertTrue(eventArrived);
         Assert.assertEquals(12, count);
         for (boolean arrived : eventsArrived) {

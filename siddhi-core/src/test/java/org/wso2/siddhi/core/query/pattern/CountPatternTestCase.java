@@ -83,17 +83,17 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 13.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -142,17 +142,17 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 13.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -201,13 +201,13 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -256,9 +256,9 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 0, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -307,23 +307,23 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 23.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 24.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 25.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 27.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -371,13 +371,13 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -425,7 +425,7 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -473,11 +473,11 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 7.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -532,10 +532,10 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 81});
         eventStream.send(new Object[]{"WSO2", 176.6f, 65});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -590,10 +590,10 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 61});
         eventStream.send(new Object[]{"WSO2", 21f, 61});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -648,10 +648,10 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 61});
         eventStream.send(new Object[]{"WSO2", 21f, 61});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -706,11 +706,11 @@ public class CountPatternTestCase {
         executionPlanRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 91});
         eventStream.send(new Object[]{"FB", 21f, 81});
         eventStream.send(new Object[]{"WSO2", 21f, 61});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);

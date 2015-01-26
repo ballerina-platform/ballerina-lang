@@ -100,4 +100,14 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
         return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, null, matchingStreamIndex, inputDefinition);
     }
+
+    @Override
+    public void start() {
+        //Do nothing
+    }
+
+    @Override
+    public void stop() {
+        //Do nothing
+    }
 }

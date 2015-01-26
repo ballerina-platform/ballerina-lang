@@ -20,8 +20,6 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute.Type;
 
-import java.util.List;
-
 
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
@@ -29,12 +27,11 @@ public class StringConcatAggregatorString extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     *  @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         SiddhiContext
      */
     @Override
-    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
 
     }
 

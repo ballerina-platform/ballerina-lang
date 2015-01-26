@@ -77,7 +77,7 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
-        Thread.sleep(500);
+        Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -124,7 +124,7 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{"IBM", 700l, 100l});
         inputHandler.send(new Object[]{"WSO2", 605l, 200l});
         inputHandler.send(new Object[]{"ABC", 60l, 200l});
-        Thread.sleep(500);
+        Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();

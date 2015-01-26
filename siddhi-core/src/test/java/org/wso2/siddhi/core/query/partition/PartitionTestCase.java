@@ -76,7 +76,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -120,7 +120,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 70005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(3, count);
         executionRuntime.shutdown();
 
@@ -153,7 +153,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -219,7 +219,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
 
@@ -331,7 +331,7 @@ public class PartitionTestCase {
         inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE", 75.6f, 100});
 
-        Thread.sleep(2000);
+        Thread.sleep(100);
         Assert.assertEquals(8, count);
 
         executionRuntime.shutdown();
@@ -488,10 +488,10 @@ public class PartitionTestCase {
         inputHandler3.send(new Object[]{"KLM", 75.6f, 100});
         inputHandler3.send(new Object[]{"ABC", 75.6f, 100});
 
-        Thread.sleep(5000);
+        Thread.sleep(100);
 
         Assert.assertEquals(16, count);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(8, stockStreamEventCount);
         executionRuntime.shutdown();
 
@@ -536,7 +536,7 @@ public class PartitionTestCase {
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE1", 75.6f, 100});
 
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(8, count);
 
         executionRuntime.shutdown();
@@ -584,7 +584,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -629,7 +629,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -674,7 +674,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -719,7 +719,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -764,7 +764,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -824,10 +824,10 @@ public class PartitionTestCase {
         inputHandler3.send(new Object[]{"KLM", 75.6d, 100});
         inputHandler3.send(new Object[]{"ABC", 75.6d, 100});
 
-        Thread.sleep(5000);
+        Thread.sleep(100);
 
         Assert.assertEquals(16, count);
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(8, stockStreamEventCount);
         executionRuntime.shutdown();
     }
@@ -858,7 +858,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -937,7 +937,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 600});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 50});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
 
@@ -984,7 +984,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 50f, 100});
         inputHandler.send(new Object[]{"ORACLE", 25f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
 
@@ -1035,7 +1035,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 50f, 100});
         inputHandler.send(new Object[]{"ORACLE", 25f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(6, count);
         executionRuntime.shutdown();
 
@@ -1109,7 +1109,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 50f, 100});
         inputHandler.send(new Object[]{"ORACLE", 25f, 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(6, count);
         executionRuntime.shutdown();
 

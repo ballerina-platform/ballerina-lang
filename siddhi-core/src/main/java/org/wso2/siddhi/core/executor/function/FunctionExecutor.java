@@ -20,19 +20,16 @@ import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder {
 
-    protected List<ExpressionExecutor> attributeExpressionExecutors;
+    protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     private int attributeSize;
 
-    public void initExecutor(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         this.attributeExpressionExecutors = attributeExpressionExecutors;
-        attributeSize = attributeExpressionExecutors.size();
+        attributeSize = attributeExpressionExecutors.length;
         executionPlanContext.addEternalReferencedHolder(this);
         init(attributeExpressionExecutors, executionPlanContext);
     }
@@ -41,9 +38,9 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     public ExpressionExecutor cloneExecutor() {
         try {
             FunctionExecutor functionExecutor = this.getClass().newInstance();
-            List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-            for (ExpressionExecutor attributeExecutor : this.attributeExpressionExecutors) {
-                innerExpressionExecutors.add(attributeExecutor.cloneExecutor());
+            ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeSize];
+            for (int i = 0; i < attributeSize; i++) {
+                innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor();
             }
             functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
             functionExecutor.start();
@@ -59,7 +56,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         SiddhiContext
      */
-    protected abstract void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
 
     @Override
@@ -68,11 +65,11 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
         if (attributeSize > 1) {
             Object[] data = new Object[attributeSize];
             for (int i = 0; i < attributeSize; i++) {
-                data[i] = attributeExpressionExecutors.get(i).execute(event);
+                data[i] = attributeExpressionExecutors[i].execute(event);
             }
             return execute(data);
         } else {
-            return execute(attributeExpressionExecutors.get(0).execute(event));
+            return execute(attributeExpressionExecutors[0].execute(event));
         }
     }
 

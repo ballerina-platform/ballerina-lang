@@ -18,8 +18,6 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.List;
-
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;
@@ -27,12 +25,11 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     *  @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
 
     }
 

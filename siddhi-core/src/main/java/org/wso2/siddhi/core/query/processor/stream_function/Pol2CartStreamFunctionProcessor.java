@@ -15,6 +15,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream_function;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -34,26 +35,27 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     /**
      * The init method of the StreamFunction
      *
-     * @param inputDefinition the incoming stream definition
-     * @param inputExecutors  the executors for the function parameters
+     * @param inputDefinition              the incoming stream definition
+     * @param attributeExpressionExecutors the executors for the function parameters
+     * @param executionPlanContext
      * @return the additional output attributes introduced by the function
      */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors) {
-        inputExecutorLength = inputExecutors.length;
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        inputExecutorLength = attributeExpressionExecutors.length;
 
         if (inputExecutorLength < 2 || inputExecutorLength > 3) {
             throw new ExecutionPlanValidationException("Input parameters for poleCart can either be 'theta,rho' or 'theta,rho,z', but " +
-                    inputExecutors.length + " attributes found");
+                    attributeExpressionExecutors.length + " attributes found");
         }
         for (int i = 0; i < inputExecutorLength; i++) {
-            ExpressionExecutor expressionExecutor = inputExecutors[i];
+            ExpressionExecutor expressionExecutor = attributeExpressionExecutors[i];
             if (expressionExecutor.getReturnType() != Attribute.Type.DOUBLE) {
                 throw new ExecutionPlanValidationException("Input attribute " + i + " is expected to return Double, but its returning " + expressionExecutor.getReturnType());
             }
 
         }
-        if (inputExecutors.length == 2) {
+        if (attributeExpressionExecutors.length == 2) {
             for (Attribute attribute : inputDefinition.getAttributeList()) {
                 if (attribute.getName().equals("x") || attribute.getName().equals("y")) {
                     throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should not contain attributes with name 'x' or 'y', but found " + attribute);
@@ -71,22 +73,43 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     }
 
     /**
-     * The process method of the StreamFunction
+     * The process method of the StreamFunction, used when multiple function parameters are provided
      *
-     * @param inputData the data values for the function parameters
+     * @param data the data values for the function parameters
      * @return the date for additional output attributes introduced by the function
      */
     @Override
-    protected Object[] process(Object[] inputData) {
+    protected Object[] process(Object[] data) {
 
-        double theta = (Double) inputData[0];
-        double rho = (Double) inputData[1];
+        double theta = (Double) data[0];
+        double rho = (Double) data[1];
         Object[] output = new Object[inputExecutorLength];
         output[0] = rho * Math.cos(Math.toRadians(theta));
         output[1] = rho * Math.sin(Math.toRadians(theta));
         if (inputExecutorLength == 3) {
-            output[2] = inputData[2];
+            output[2] = data[2];
         }
         return output;
+    }
+
+    /**
+     * The process method of the StreamFunction, used when single function parameter is provided
+     *
+     * @param data the data value for the function parameter
+     * @return the date for additional output attribute introduced by the function
+     */
+    @Override
+    protected Object process(Object data) {
+        throw new IllegalStateException("pol2Cart cannot execute for single data " + data);
+    }
+
+    @Override
+    public void start() {
+        //Do nothing
+    }
+
+    @Override
+    public void stop() {
+        //Do nothing
     }
 }

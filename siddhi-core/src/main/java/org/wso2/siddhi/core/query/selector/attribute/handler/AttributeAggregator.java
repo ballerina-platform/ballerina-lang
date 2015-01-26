@@ -22,19 +22,17 @@ import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
 public abstract class AttributeAggregator implements Serializable, EternalReferencedHolder {
 
-    protected List<ExpressionExecutor> attributeExpressionExecutors;
+    protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     private int attributeSize;
 
-    public void initAggregator(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         this.attributeExpressionExecutors = attributeExpressionExecutors;
-        this.attributeSize = attributeExpressionExecutors.size();
+        this.attributeSize = attributeExpressionExecutors.length;
         executionPlanContext.addEternalReferencedHolder(this);
         init(attributeExpressionExecutors, executionPlanContext);
     }
@@ -42,9 +40,9 @@ public abstract class AttributeAggregator implements Serializable, EternalRefere
     public AttributeAggregator cloneAggregator() {
         try {
             AttributeAggregator attributeAggregator = this.getClass().newInstance();
-            List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-            for (ExpressionExecutor attributeExecutor : this.attributeExpressionExecutors) {
-                innerExpressionExecutors.add(attributeExecutor.cloneExecutor());
+            ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeSize];
+            for (int i = 0; i < attributeSize; i++) {
+                innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor();
             }
             attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
             attributeAggregator.start();
@@ -58,7 +56,7 @@ public abstract class AttributeAggregator implements Serializable, EternalRefere
         if (attributeSize > 1) {
             Object[] data = new Object[attributeSize];
             for (int i = 0; i < attributeSize; i++) {
-                data[i] = attributeExpressionExecutors.get(i).execute(event);
+                data[i] = attributeExpressionExecutors[i].execute(event);
             }
             switch (event.getType()) {
                 case CURRENT:
@@ -71,9 +69,9 @@ public abstract class AttributeAggregator implements Serializable, EternalRefere
         } else {
             switch (event.getType()) {
                 case CURRENT:
-                    return processAdd(attributeExpressionExecutors.get(0).execute(event));
+                    return processAdd(attributeExpressionExecutors[0].execute(event));
                 case EXPIRED:
-                    return processRemove(attributeExpressionExecutors.get(0).execute(event));
+                    return processRemove(attributeExpressionExecutors[0].execute(event));
                 case RESET:
                     return reset();
             }
@@ -87,7 +85,7 @@ public abstract class AttributeAggregator implements Serializable, EternalRefere
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
-    protected abstract void init(List<ExpressionExecutor> attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
     public abstract Attribute.Type getReturnType();
 

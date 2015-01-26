@@ -49,13 +49,14 @@ public class SingleInputStreamParser {
 
     /**
      * Parse single InputStream and return SingleStreamRuntime
-     *  @param inputStream           single input stream to be parsed
-     * @param executionPlanContext  query to be parsed
-     * @param variableExpressionExecutors             List to hold VariableExpressionExecutors to update after query parsing
+     *
+     * @param inputStream                 single input stream to be parsed
+     * @param executionPlanContext        query to be parsed
+     * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
      * @param streamDefinitionMap
      * @param tableDefinitionMap
      * @param eventTableMap
-     * @param metaComplexEvent      @return
+     * @param metaComplexEvent
      * @param processStreamReceiver
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
@@ -106,7 +107,7 @@ public class SingleInputStreamParser {
 
 
     private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap) {
-        ExpressionExecutor[] inputExpressions = new ExpressionExecutor[streamHandler.getParameters().length];
+        ExpressionExecutor[] attributeExpressionExecutors = new ExpressionExecutor[streamHandler.getParameters().length];
         Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
         int stateIndex = SiddhiConstants.UNKNOWN_STATE;
@@ -117,23 +118,23 @@ public class SingleInputStreamParser {
             metaStreamEvent = (MetaStreamEvent) metaEvent;
         }
         for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            inputExpressions[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
+            attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
                     executionPlanContext, false, SiddhiConstants.LAST);
         }
         if (streamHandler instanceof Filter) {
-            return new FilterProcessor(inputExpressions[0]);
+            return new FilterProcessor(attributeExpressionExecutors[0]);
 
         } else if (streamHandler instanceof Window) {
             WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
                     WindowProcessor.class);
-            windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), inputExpressions);
+            windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors, executionPlanContext);
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {
             StreamProcessor streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
                     ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
             metaStreamEvent.addInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
-                    inputExpressions));
+                    attributeExpressionExecutors, executionPlanContext));
             return streamProcessor;
 
         } else {

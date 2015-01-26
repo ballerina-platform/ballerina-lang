@@ -83,9 +83,9 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -134,11 +134,11 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 65.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -199,9 +199,9 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -258,13 +258,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -322,13 +322,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.0f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -385,13 +385,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -451,13 +451,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -517,13 +517,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.0f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -583,13 +583,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -646,11 +646,11 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream2.send(new Object[]{"WSO2", 55.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -709,13 +709,13 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 29.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 35.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 47.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -774,12 +774,12 @@ public class SequenceTestCase {
         stockStream.send(new Object[]{"IBM", 75.6f, 105});
         stockStream.send(new Object[]{"GOOG", 51f, 101});
         stockStream.send(new Object[]{"IBM", 76.6f, 111});
-        Thread.sleep(500);
+        Thread.sleep(100);
         twitterStream.send(new Object[]{"IBM", 20});
         stockStream.send(new Object[]{"WSO2", 45.6f, 100});
-        Thread.sleep(500);
+        Thread.sleep(100);
         twitterStream.send(new Object[]{"GOOG", 20});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -837,10 +837,10 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stockStream.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stockStream.send(new Object[]{"GOOG", 21f, 81});
         stockStream.send(new Object[]{"WSO2", 176.6f, 65});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -903,7 +903,7 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stockStream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stockStream2.send(new Object[]{"GOOG", 21f, 81});
         stockStream2.send(new Object[]{"WSO2", 176.6f, 65});
         stockStream1.send(new Object[]{"BIRT", 21f, 81});
@@ -914,7 +914,7 @@ public class SequenceTestCase {
         stockStream2.send(new Object[]{"WSO2", 176.6f, 60});
         stockStream1.send(new Object[]{"AMBA", 126.6f, 165});
         stockStream2.send(new Object[]{"DOX", 16.2f, 25});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 3, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -974,7 +974,7 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stockStream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stockStream2.send(new Object[]{"GOOG", 21f, 81});
         stockStream2.send(new Object[]{"WSO2", 176.6f, 65});
         stockStream1.send(new Object[]{"BIRT", 21f, 81});
@@ -985,7 +985,7 @@ public class SequenceTestCase {
         stockStream2.send(new Object[]{"WSO2", 176.6f, 60});
         stockStream1.send(new Object[]{"AMBA", 126.6f, 165});
         stockStream2.send(new Object[]{"DOX", 16.2f, 25});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1045,7 +1045,7 @@ public class SequenceTestCase {
         executionPlanRuntime.start();
 
         stockStream1.send(new Object[]{"IBM", 75.6f, 105});
-        Thread.sleep(500);
+        Thread.sleep(100);
         stockStream2.send(new Object[]{"GOOG", 21f, 81});
         stockStream2.send(new Object[]{"WSO2", 176.6f, 65});
         stockStream1.send(new Object[]{"BIRT", 21f, 81});
@@ -1056,7 +1056,7 @@ public class SequenceTestCase {
         stockStream2.send(new Object[]{"WSO2", 176.6f, 60});
         stockStream1.send(new Object[]{"AMBA", 126.6f, 165});
         stockStream2.send(new Object[]{"DOX", 16.2f, 25});
-        Thread.sleep(500);
+        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 2, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -1090,14 +1090,14 @@ public class SequenceTestCase {
     //
     //        for (int i = 0; i < 5; i++) {
     //            i1.send(new Object[]{System.currentTimeMillis(), "abc", "123"});
-    //            Thread.sleep(1);
+    //            Thread.sleep(100);
     //        }
     //
-    //        Thread.sleep(1000);
+    //        Thread.sleep(100);
     //
     //        for (int i = 0; i < 8; i++) {
     //            i1.send(new Object[] { System.currentTimeMillis(), "abc", "123" });
-    //            Thread.sleep(1);
+    //            Thread.sleep(100);
     //        }
     //
     //        assertTrue("Did not receive event in stream increased_reclamations", increaseEventReceived.await(1000, TimeUnit.MILLISECONDS));

@@ -85,7 +85,7 @@ public class PassThroughTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 100});
         inputHandler.send(new Object[]{"WSO2", 100});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();

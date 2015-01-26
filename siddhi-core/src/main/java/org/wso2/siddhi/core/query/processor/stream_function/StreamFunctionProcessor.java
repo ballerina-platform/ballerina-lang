@@ -18,13 +18,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public abstract class StreamFunctionProcessor extends StreamProcessor {
 
@@ -33,13 +28,18 @@ public abstract class StreamFunctionProcessor extends StreamProcessor {
         while (complexEventChunk.hasNext()) {
             ComplexEvent complexEvent = complexEventChunk.next();
 
-            Object[] inputData = new Object[inputExecutors.length];
-            for (int i = 0, inputExecutorsLength = inputExecutors.length; i < inputExecutorsLength; i++) {
-                ExpressionExecutor executor = inputExecutors[i];
-                inputData[i] = executor.execute(complexEvent);
+            if (attributeExpressionLength > 1) {
+                Object[] inputData = new Object[attributeExpressionLength];
+                for (int i = 0; i < attributeExpressionLength; i++) {
+                    inputData[i] = attributeExpressionExecutors[i].execute(complexEvent);
+                }
+                Object[] outputData = process(inputData);
+                streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+            } else {
+                Object outputData = process(attributeExpressionExecutors[0].execute(complexEvent));
+                streamEventPopulater.populateStreamEvent(complexEvent, outputData);
             }
-            Object[] outputData = process(inputData);
-            streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+
 
         }
         nextProcessor.process(complexEventChunk);
@@ -47,30 +47,21 @@ public abstract class StreamFunctionProcessor extends StreamProcessor {
     }
 
     /**
-     * The process method of the StreamFunction
+     * The process method of the StreamFunction, used when multiple function parameters are provided
      *
-     * @param inputData the data values for the function parameters
+     * @param data the data values for the function parameters
      * @return the date for additional output attributes introduced by the function
      */
-    protected abstract Object[] process(Object[] inputData);
+    protected abstract Object[] process(Object[] data);
 
-    @Override
-    protected StreamProcessor cloneStreamProcessor() {
-        //todo fix
-        try {
-            StreamFunctionProcessor streamFunctionProcessor = this.getClass().newInstance();
-            List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
-            for (ExpressionExecutor attributeExecutor : this.inputExecutors) {
-                innerExpressionExecutors.add(attributeExecutor.cloneExecutor());
-            }
-//            streamFunctionProcessor.initExecutor(innerExpressionExecutors, executionPlanContext);
-//            streamFunctionProcessor.start();
-            return streamFunctionProcessor;
-        } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
-        }
-//        return cloneStreamFunctionProcessor();
-    }
 
-//    protected abstract StreamFunctionProcessor cloneStreamFunctionProcessor();
+    /**
+     * The process method of the StreamFunction, used when single function parameter is provided
+     *
+     * @param data the data value for the function parameter
+     * @return the date for additional output attribute introduced by the function
+     */
+    protected abstract Object process(Object data);
+
+
 }
