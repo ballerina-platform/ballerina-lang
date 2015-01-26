@@ -52,7 +52,7 @@ public class InMemoryEventTable implements EventTable {
         this.tableDefinition = tableDefinition;
         this.executionPlanContext = executionPlanContext;
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.setInputDefinition(tableDefinition);
+        metaStreamEvent.addInputDefinition(tableDefinition);
         for (Attribute attribute : tableDefinition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);
         }

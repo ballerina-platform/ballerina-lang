@@ -39,13 +39,13 @@ public class Pol2CartFunctionTest {
     }
 
     @Test
-    public void pol2CartFunctionTest1() throws InterruptedException {
+    public void pol2CartFunctionTest() throws InterruptedException {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String polarStream = "define stream PolarStream (theta double, rho double);";
         String query = "@info(name = 'query1') " +
-                "from PolarStream#pol2cart(theta, rho) " +
+                "from PolarStream#pol2Cart(theta, rho) " +
                 "select x, y " +
                 "insert into outputStream ;";
 

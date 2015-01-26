@@ -55,6 +55,13 @@ public abstract class StreamProcessor implements Processor {
         return outputDefinition;
     }
 
+    /**
+     * The init method of the StreamFunction
+     *
+     * @param inputDefinition the incoming stream definition
+     * @param inputExecutors  the executors for the function parameters
+     * @return the additional output attributes introduced by the function
+     */
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] inputExecutors);
 
     public void process(ComplexEventChunk complexEventChunk) {

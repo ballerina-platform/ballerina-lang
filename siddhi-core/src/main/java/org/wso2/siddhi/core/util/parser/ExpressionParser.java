@@ -922,7 +922,7 @@ public class ExpressionParser {
                 type = abstractDefinition.getAttributeType(attributeName);
                 eventPosition[STREAM_EVENT_CHAIN_INDEX] = HAVING_STATE;
             } else {
-                abstractDefinition = metaStreamEvent.getInputDefinition();
+                abstractDefinition = metaStreamEvent.getLastInputDefinition();
                 eventPosition[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
                 type = abstractDefinition.getAttributeType(attributeName);
                 ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
@@ -955,7 +955,7 @@ public class ExpressionParser {
                 if (currentState == UNKNOWN_STATE) {
                     for (int i = 0; i < metaStreamEvents.length; i++) {
                         MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
-                        definition = metaStreamEvent.getInputDefinition();
+                        definition = metaStreamEvent.getLastInputDefinition();
                         if (type == null) {
                             try {
 
@@ -979,7 +979,7 @@ public class ExpressionParser {
                     }
                 } else if (currentState >= 0) {
                     MetaStreamEvent metaStreamEvent = metaStreamEvents[currentState];
-                    definition = metaStreamEvent.getInputDefinition();
+                    definition = metaStreamEvent.getLastInputDefinition();
                     try {
                         type = definition.getAttributeType(attributeName);
                         eventPosition[STREAM_EVENT_CHAIN_INDEX] = currentState;
@@ -992,7 +992,7 @@ public class ExpressionParser {
                 MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                 for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
                     MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
-                    definition = metaStreamEvent.getInputDefinition();
+                    definition = metaStreamEvent.getLastInputDefinition();
                     if (metaStreamEvent.getInputReferenceId() == null) {
                         if (definition.getId().equals(variable.getStreamId())) {
                             type = definition.getAttributeType(attributeName);
@@ -1013,7 +1013,7 @@ public class ExpressionParser {
             MetaStreamEvent metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]);
             if (metaStreamEvent.isTableEvent()) {
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaStreamEvent.getInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute().getName());
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaStreamEvent.getLastInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute().getName());
             }
             if (currentState != HAVING_STATE) {
                 ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));

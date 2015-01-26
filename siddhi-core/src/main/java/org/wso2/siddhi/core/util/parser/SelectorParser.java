@@ -102,13 +102,13 @@ public class SelectorParser {
         if (selector.getSelectionList().size() == 0) {
             if (metaComplexEvent instanceof MetaStreamEvent) {
 
-                List<Attribute> attributeList = ((MetaStreamEvent) metaComplexEvent).getInputDefinition().getAttributeList();
+                List<Attribute> attributeList = ((MetaStreamEvent) metaComplexEvent).getLastInputDefinition().getAttributeList();
                 for (Attribute attribute : attributeList) {
                     outputAttributes.add(new OutputAttribute(new Variable(attribute.getName())));
                 }
             } else {
                 for (MetaStreamEvent metaStreamEvent : ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents()) {
-                    List<Attribute> attributeList = metaStreamEvent.getInputDefinition().getAttributeList();
+                    List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
                     for (Attribute attribute : attributeList) {
                         OutputAttribute outputAttribute = new OutputAttribute(new Variable(attribute.getName()));
                         if (!outputAttributes.contains(outputAttribute)) {
@@ -116,7 +116,7 @@ public class SelectorParser {
                         } else {
                             List<AbstractDefinition> definitions = new ArrayList<AbstractDefinition>();
                             for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents()) {
-                                definitions.add(aMetaStreamEvent.getInputDefinition());
+                                definitions.add(aMetaStreamEvent.getLastInputDefinition());
                             }
                             throw new DuplicateAttributeException("Duplicate attribute exist in streams " + definitions);
                         }

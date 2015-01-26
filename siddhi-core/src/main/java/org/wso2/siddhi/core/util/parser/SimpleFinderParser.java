@@ -43,7 +43,7 @@ public class SimpleFinderParser {
 
         MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
         eventTableStreamEvent.setTableEvent(true);
-        eventTableStreamEvent.setInputDefinition(candidateDefinition);
+        eventTableStreamEvent.addInputDefinition(candidateDefinition);
         for (Attribute attribute : candidateDefinition.getAttributeList()) {
             eventTableStreamEvent.addOutputData(attribute);
         }
@@ -63,7 +63,7 @@ public class SimpleFinderParser {
             //for join
             for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
-                if (metaStreamEvent.getInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
+                if (metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) metaComplexEvent);
                     size = metaStreamEvents.length;
                     break;

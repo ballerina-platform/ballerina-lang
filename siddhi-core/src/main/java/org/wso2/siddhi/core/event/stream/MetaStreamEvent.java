@@ -32,7 +32,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
     private List<Attribute> onAfterWindowData = null;
     private List<Attribute> outputData = null;
-    private AbstractDefinition inputDefinition;
+    private List<AbstractDefinition> inputDefinitions=new ArrayList<AbstractDefinition>();
     private String inputReferenceId;
     private StreamDefinition outputStreamDefinition;
     private boolean tableEvent = false;
@@ -92,12 +92,12 @@ public class MetaStreamEvent implements MetaComplexEvent {
         outputData.add(attribute);
     }
 
-    public AbstractDefinition getInputDefinition() {
-        return inputDefinition;
+    public List<AbstractDefinition> getInputDefinitions() {
+        return inputDefinitions;
     }
 
-    public void setInputDefinition(AbstractDefinition inputDefinition) {
-        this.inputDefinition = inputDefinition;
+    public void addInputDefinition(AbstractDefinition inputDefinition) {
+        this.inputDefinitions.add(inputDefinition);
     }
 
     public String getInputReferenceId() {
@@ -124,5 +124,9 @@ public class MetaStreamEvent implements MetaComplexEvent {
 
     public void setTableEvent(boolean tableEvent) {
         this.tableEvent = tableEvent;
+    }
+
+    public AbstractDefinition getLastInputDefinition() {
+        return inputDefinitions.get(inputDefinitions.size() - 1);
     }
 }

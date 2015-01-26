@@ -126,13 +126,13 @@ public class SingleInputStreamParser {
         } else if (streamHandler instanceof Window) {
             WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
                     WindowProcessor.class);
-            windowProcessor.initProcessor(metaStreamEvent.getInputDefinition(), inputExpressions);
+            windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), inputExpressions);
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {
             StreamProcessor streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
                     ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
-            metaStreamEvent.setInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getInputDefinition(),
+            metaStreamEvent.addInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                     inputExpressions));
             return streamProcessor;
 
@@ -157,10 +157,10 @@ public class SingleInputStreamParser {
 
         if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);
-            metaStreamEvent.setInputDefinition(inputDefinition);
+            metaStreamEvent.addInputDefinition(inputDefinition);
         } else if (!inputStream.isInnerStream() && tableDefinitionMap != null && tableDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = tableDefinitionMap.get(streamId);
-            metaStreamEvent.setInputDefinition(inputDefinition);
+            metaStreamEvent.addInputDefinition(inputDefinition);
         } else {
             throw new ExecutionPlanCreationException("Stream/table definition with ID '" + inputStream.getStreamId() + "' has not been defined");
         }

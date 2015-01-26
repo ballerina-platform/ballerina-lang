@@ -71,22 +71,22 @@ public class PartitionParser {
         if (stateEvent instanceof MetaStateEvent) {
             metaStateEvent = new MetaStateEvent(((MetaStateEvent) stateEvent).getStreamEventCount());
             for (MetaStreamEvent metaStreamEvent : ((MetaStateEvent) stateEvent).getMetaStreamEvents()) {
-                AbstractDefinition definition = metaStreamEvent.getInputDefinition();
+                AbstractDefinition definition = metaStreamEvent.getLastInputDefinition();
                 MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
                 for (Attribute attribute : definition.getAttributeList()) {
                     newMetaStreamEvent.addOutputData(attribute);
                 }
-                newMetaStreamEvent.setInputDefinition(definition);
+                newMetaStreamEvent.addInputDefinition(definition);
                 metaStateEvent.addEvent(newMetaStreamEvent);
             }
         } else {
             metaStateEvent = new MetaStateEvent(1);
-            AbstractDefinition definition = ((MetaStreamEvent) stateEvent).getInputDefinition();
+            AbstractDefinition definition = ((MetaStreamEvent) stateEvent).getLastInputDefinition();
             MetaStreamEvent newMetaStreamEvent = new MetaStreamEvent();
             for (Attribute attribute : definition.getAttributeList()) {
                 newMetaStreamEvent.addOutputData(attribute);
             }
-            newMetaStreamEvent.setInputDefinition(definition);
+            newMetaStreamEvent.addInputDefinition(definition);
             metaStateEvent.addEvent(newMetaStreamEvent);
         }
 

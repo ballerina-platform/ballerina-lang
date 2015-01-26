@@ -84,12 +84,12 @@ public class JoinInputStreamParser {
 
         if (leftMetaStreamEvent.isTableEvent()) {
             TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(eventTableMap.get(leftInputStreamId));
-            tableWindowProcessor.initProcessor(leftMetaStreamEvent.getInputDefinition(), null);
+            tableWindowProcessor.initProcessor(leftMetaStreamEvent.getLastInputDefinition(), null);
             leftStreamRuntime.setProcessorChain(tableWindowProcessor);
         }
         if (rightMetaStreamEvent.isTableEvent()) {
             TableWindowProcessor tableWindowProcessor = new TableWindowProcessor(eventTableMap.get(rightInputStreamId));
-            tableWindowProcessor.initProcessor(rightMetaStreamEvent.getInputDefinition(), null);
+            tableWindowProcessor.initProcessor(rightMetaStreamEvent.getLastInputDefinition(), null);
             rightStreamRuntime.setProcessorChain(tableWindowProcessor);
         }
 
@@ -163,7 +163,7 @@ public class JoinInputStreamParser {
             lastProcessor.setNextProcessor(postJoinProcessor);
             return (FindableProcessor) lastProcessor;
         } else {
-            throw new OperationNotSupportedException("Stream " + ((MetaStreamEvent) streamRuntime.getMetaComplexEvent()).getInputDefinition().getId() +
+            throw new OperationNotSupportedException("Stream " + ((MetaStreamEvent) streamRuntime.getMetaComplexEvent()).getLastInputDefinition().getId() +
                     "'s last processor  " + (lastProcessor != null ? lastProcessor.getClass().getCanonicalName() : null) + " is not an instance of " +
                     FindableProcessor.class.getCanonicalName() + " hence join cannot be proceed");
         }

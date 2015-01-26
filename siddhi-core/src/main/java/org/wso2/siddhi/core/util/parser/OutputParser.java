@@ -72,7 +72,7 @@ public class OutputParser {
                     matchingMetaStreamEvent.addOutputData(attribute);
                     matchingTableDefinition.attribute(attribute.getName(), attribute.getType());
                 }
-                matchingMetaStreamEvent.setInputDefinition(matchingTableDefinition);
+                matchingMetaStreamEvent.addInputDefinition(matchingTableDefinition);
                 if (outStream instanceof DeleteStream) {
                     Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0);
                     return new DeleteTableCallback(eventTable, finder);
@@ -93,14 +93,14 @@ public class OutputParser {
         MetaStateEvent metaStateEvent = new MetaStateEvent(2);
 
         MetaStreamEvent matchingMetaStreamEvent = new MetaStreamEvent();
-        matchingMetaStreamEvent.setInputDefinition(outputStreamDefinition);
+        matchingMetaStreamEvent.addInputDefinition(outputStreamDefinition);
         for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
             matchingMetaStreamEvent.addOutputData(attribute);
         }
         metaStateEvent.addEvent(matchingMetaStreamEvent);
 
         MetaStreamEvent candidateMetaStreamEvent = new MetaStreamEvent();
-        candidateMetaStreamEvent.setInputDefinition(eventTable.getTableDefinition());
+        candidateMetaStreamEvent.addInputDefinition(eventTable.getTableDefinition());
         for (Attribute attribute : eventTable.getTableDefinition().getAttributeList()) {
             candidateMetaStreamEvent.addOutputData(attribute);
         }

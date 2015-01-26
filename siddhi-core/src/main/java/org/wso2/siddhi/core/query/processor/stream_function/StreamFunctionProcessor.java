@@ -18,9 +18,13 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public abstract class StreamFunctionProcessor extends StreamProcessor {
 
@@ -42,12 +46,31 @@ public abstract class StreamFunctionProcessor extends StreamProcessor {
 
     }
 
+    /**
+     * The process method of the StreamFunction
+     *
+     * @param inputData the data values for the function parameters
+     * @return the date for additional output attributes introduced by the function
+     */
     protected abstract Object[] process(Object[] inputData);
 
     @Override
     protected StreamProcessor cloneStreamProcessor() {
-        return cloneStreamFunctionProcessor();
+        //todo fix
+        try {
+            StreamFunctionProcessor streamFunctionProcessor = this.getClass().newInstance();
+            List<ExpressionExecutor> innerExpressionExecutors = new LinkedList<ExpressionExecutor>();
+            for (ExpressionExecutor attributeExecutor : this.inputExecutors) {
+                innerExpressionExecutors.add(attributeExecutor.cloneExecutor());
+            }
+//            streamFunctionProcessor.initExecutor(innerExpressionExecutors, executionPlanContext);
+//            streamFunctionProcessor.start();
+            return streamFunctionProcessor;
+        } catch (Exception e) {
+            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+        }
+//        return cloneStreamFunctionProcessor();
     }
 
-    protected abstract StreamFunctionProcessor cloneStreamFunctionProcessor();
+//    protected abstract StreamFunctionProcessor cloneStreamFunctionProcessor();
 }

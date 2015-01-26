@@ -103,7 +103,7 @@ public class EventTestCase {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200.0, 50});
 
-        metaStreamEvent.setInputDefinition(streamDefinition);
+        metaStreamEvent.addInputDefinition(streamDefinition);
 
         StreamEventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent, 5);
@@ -131,7 +131,7 @@ public class EventTestCase {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
-        metaStreamEvent.setInputDefinition(streamDefinition);
+        metaStreamEvent.addInputDefinition(streamDefinition);
         StreamEventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent, 5);
         StreamEvent borrowedEvent = eventPool.borrowEvent();
@@ -162,7 +162,7 @@ public class EventTestCase {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.DOUBLE).attribute("volume", Attribute.Type.INT);
         Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", 200, 50});
 
-        metaStreamEvent.setInputDefinition(streamDefinition);
+        metaStreamEvent.addInputDefinition(streamDefinition);
         StreamEventConverter converter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         StreamEventPool eventPool = new StreamEventPool(metaStreamEvent, 5);
 

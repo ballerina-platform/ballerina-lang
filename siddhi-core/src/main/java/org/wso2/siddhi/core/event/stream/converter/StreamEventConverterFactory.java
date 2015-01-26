@@ -34,7 +34,7 @@ public class StreamEventConverterFactory {
         if (beforeWindowDataSize + onAfterWindowDataSize > 0) {
             return new SelectiveStreamEventConverter(conversionMappings);
         } else {
-            if (metaStreamEvent.getInputDefinition().getAttributeList().size() == conversionMappings.size()) {
+            if (metaStreamEvent.getLastInputDefinition().getAttributeList().size() == conversionMappings.size()) {
                 Boolean isPassThrough = true;
                 for (StreamEventConverter.ConversionMapping conversionMapping : conversionMappings) {
                     if (!(conversionMapping.getFromPosition() == conversionMapping.getToPosition()[1])) {
@@ -52,7 +52,7 @@ public class StreamEventConverterFactory {
     private static List<StreamEventConverter.ConversionMapping> getConversionElements(
             MetaStreamEvent metaStreamEvent, int size) {
 
-        AbstractDefinition inputDefinition = metaStreamEvent.getInputDefinition();
+        AbstractDefinition inputDefinition = metaStreamEvent.getInputDefinitions().get(0);
         List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter.ConversionMapping>(size);
 
         for (int j = 0; j < 3; j++) {
@@ -69,7 +69,9 @@ public class StreamEventConverterFactory {
                 for (Attribute attribute : currentDataList) {           //Only variable slots will be filled.
                     if (attribute == null) {
                         i++;
-                    } else {
+                    } else if(!inputDefinition.getAttributeList().contains(attribute)) {
+                        i++;
+                    }else {
                         int fromPosition = inputDefinition.getAttributePosition(attribute.getName());
                         StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
                         conversionMapping.setFromPosition(fromPosition);
