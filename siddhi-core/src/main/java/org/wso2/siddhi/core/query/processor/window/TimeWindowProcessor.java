@@ -56,10 +56,10 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     }
 
     @Override
-    protected void init(ExpressionExecutor[] inputExecutors) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        if (inputExecutors != null) {
-            timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) inputExecutors[0]).getValue();
+        if (attributeExpressionExecutors != null) {
+            timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
         }
     }
 
@@ -95,14 +95,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
             expiredEventChunk.reset();
         }
         nextProcessor.process(streamEventChunk);
-    }
-
-    @Override
-    public TimeWindowProcessor cloneWindowProcessor() {
-        TimeWindowProcessor windowProcessor = new TimeWindowProcessor();
-        windowProcessor.setTimeInMilliSeconds(this.timeInMilliSeconds);
-        windowProcessor.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        return windowProcessor;
     }
 
     public void cloneScheduler(TimeWindowProcessor timeWindowProcessor, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {

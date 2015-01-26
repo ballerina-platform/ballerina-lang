@@ -47,11 +47,11 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
     }
 
     @Override
-    protected void init(ExpressionExecutor[] inputExecutors) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         expiredEventChunk = new ComplexEventChunk<StreamEvent>();
 
-        if (inputExecutors != null) {
-            length = (Integer) ((ConstantExpressionExecutor) inputExecutors[0]).getValue();
+        if (attributeExpressionExecutors != null) {
+            length = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
         }
     }
 
@@ -71,14 +71,6 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
             }
         }
         nextProcessor.process(streamEventChunk);
-    }
-
-    @Override
-    protected WindowProcessor cloneWindowProcessor() {
-        LengthWindowProcessor lengthWindowProcessor = new LengthWindowProcessor();
-        lengthWindowProcessor.setLength(this.length);
-        lengthWindowProcessor.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        return lengthWindowProcessor;
     }
 
     @Override

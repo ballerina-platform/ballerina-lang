@@ -20,6 +20,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.finder.Finder;
@@ -41,18 +42,13 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
 
 
     @Override
-    protected void init(ExpressionExecutor[] inputExecutors) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         // nothing to be done
     }
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         // nothing to be done
-    }
-
-    @Override
-    public TableWindowProcessor cloneWindowProcessor() {
-        return new TableWindowProcessor(eventTable);
     }
 
     @Override
@@ -74,5 +70,28 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     @Override
     public void stop() {
         //Do nothing
+    }
+
+    @Override
+    public Processor cloneProcessor() {
+        try {
+            TableWindowProcessor streamProcessor = new TableWindowProcessor(eventTable);
+            streamProcessor.inputDefinition = inputDefinition;
+            ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
+            ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;
+            for (int i = 0; i < attributeExpressionLength; i++) {
+                innerExpressionExecutors[i] = attributeExpressionExecutors1[i].cloneExecutor();
+            }
+            streamProcessor.attributeExpressionExecutors = innerExpressionExecutors;
+            streamProcessor.attributeExpressionLength = attributeExpressionLength;
+            streamProcessor.additionalAttributes = additionalAttributes;
+            streamProcessor.streamEventPopulater = streamEventPopulater;
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+            streamProcessor.start();
+            return streamProcessor;
+
+        } catch (Exception e) {
+            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+        }
     }
 }

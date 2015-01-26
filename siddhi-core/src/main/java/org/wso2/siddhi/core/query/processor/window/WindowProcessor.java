@@ -31,11 +31,11 @@ import java.util.List;
 public abstract class WindowProcessor extends StreamProcessor {
 
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        init(attributeExpressionExecutors);
+        init(attributeExpressionExecutors, executionPlanContext);
         return new ArrayList<Attribute>(0);
     }
 
-    protected abstract void init(ExpressionExecutor[] inputExecutors);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
     @Override
     protected void process(ComplexEventChunk streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
@@ -46,5 +46,4 @@ public abstract class WindowProcessor extends StreamProcessor {
     protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner);
 
-    protected abstract WindowProcessor cloneWindowProcessor();
 }

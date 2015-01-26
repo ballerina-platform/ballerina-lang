@@ -14,6 +14,7 @@
  */
 package org.wso2.siddhi.core.query.processor.window;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -30,9 +31,9 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
 
 
     @Override
-    protected void init(ExpressionExecutor[] inputExecutors) {
-        if (inputExecutors != null) {
-            length = (Integer) (((ConstantExpressionExecutor) inputExecutors[0]).getValue());
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        if (attributeExpressionExecutors != null) {
+            length = (Integer) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());
         }
     }
 
@@ -71,13 +72,6 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
             nextProcessor.process(streamEventChunk);
         }
 
-    }
-
-    @Override
-    protected WindowProcessor cloneWindowProcessor() {
-        LengthBatchWindowProcessor lengthBatchWindowProcessor = new LengthBatchWindowProcessor();
-        lengthBatchWindowProcessor.length = length;
-        return lengthBatchWindowProcessor;
     }
 
     @Override
