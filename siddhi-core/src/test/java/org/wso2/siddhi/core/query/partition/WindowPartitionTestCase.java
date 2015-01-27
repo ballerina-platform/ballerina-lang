@@ -30,13 +30,14 @@ public class WindowPartitionTestCase {
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
-
+    private boolean firstEvent;
 
     @Before
     public void init() {
         inEventCount = 0;
         removeEventCount = 0;
         eventArrived = false;
+        firstEvent = true;
     }
 
 
@@ -159,23 +160,35 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.time(1 sec)  select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
+        String executionPlan = "" +
+                "@config(async = 'true')" +
+                "define stream cseEventStream (symbol string, price float,volume int);" +
+                "" +
+                "partition with (symbol of cseEventStream) " +
+                "begin " +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec)  " +
+                "select symbol,sum(price) as price,volume " +
+                "insert into OutStockStream ;  " +
+                "end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
                         removeEventCount++;
-                        if (removeEventCount == 1) {
+                        if ("IBM".equals(event.getData()[0]) && firstEvent) {
+                            firstEvent = false;
                             Assert.assertEquals(100.0, event.getData()[1]);
-                        } else if (removeEventCount == 2 || removeEventCount == 3) {
+                        } else {
                             Assert.assertEquals(0.0, event.getData()[1]);
                         }
                     } else {
@@ -210,7 +223,7 @@ public class WindowPartitionTestCase {
 
         Thread.sleep(2000);
         Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
+        Assert.assertEquals(5, removeEventCount);
         executionRuntime.shutdown();
 
     }

@@ -70,9 +70,11 @@ public class QuerySelector implements Processor {
 
         while (complexEventChunk.hasNext()) {       //todo optimize
             ComplexEvent event = complexEventChunk.next();
-            eventPopulator.populateStateEvent(event);
 
             if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
+
+                eventPopulator.populateStateEvent(event);
+
                 if (isGroupBy) {
                     keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
                 }

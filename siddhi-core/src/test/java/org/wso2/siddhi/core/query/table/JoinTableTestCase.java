@@ -242,7 +242,6 @@ public class JoinTableTestCase {
 
     }
 
-    //Todo fix for all events
     @Test
     public void testTableJoinQuery4() throws InterruptedException {
         log.info("testTableJoinQuery4 - OUT 2");
@@ -259,7 +258,7 @@ public class JoinTableTestCase {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from CheckStockStream#window.length(1) join StockTable " +
+                "from CheckStockStream#window.time(1 sec) join StockTable " +
                 " on CheckStockStream.symbol!=StockTable.symbol " +
                 "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
                 "insert all events into OutputStream ;";
@@ -281,10 +280,18 @@ public class JoinTableTestCase {
                                 Assert.assertSame(1, inEventCount);
                         }
                     }
-                    eventArrived = true;
                 }
                 if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
+                    for (Event event : removeEvents) {
+                        removeEventCount++;
+                        switch (removeEventCount) {
+                            case 1:
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 75.6f}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(1, removeEventCount);
+                        }
+                    }
                 }
                 eventArrived = true;
             }
@@ -300,10 +307,10 @@ public class JoinTableTestCase {
         stockStream.send(new Object[]{"IBM", 75.6f, 100l});
         checkStockStream.send(new Object[]{"WSO2"});
 
-        Thread.sleep(500);
+        Thread.sleep(1500);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of remove events", 1, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();

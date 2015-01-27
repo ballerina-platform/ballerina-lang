@@ -23,13 +23,15 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.util.finder.Finder ;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -59,9 +61,22 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        if (attributeExpressionExecutors != null) {
-            timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        if (attributeExpressionExecutors.length == 1) {
+            if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
+                if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
+                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+
+                } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
+                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                } else {
+                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                }
+            } else {
+                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+            }
+        } else {
+            throw new ExecutionPlanValidationException("Time window should only have one parameter (timeInterval int), but found " + attributeExpressionExecutors.length + " input attributes");
         }
     }
 
@@ -79,6 +94,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 clonedEvent.setTimestamp(currentTime + timeInMilliSeconds);
             }
 
+            boolean eventScheduled = false;
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
                 long timeDiff = expiredEvent.getTimestamp() - currentTime;
@@ -88,11 +104,16 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 } else {
                     scheduler.notifyAt(expiredEvent.getTimestamp());
                     expiredEventChunk.reset();
+                    eventScheduled = true;
                     break;
                 }
             }
+
             if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
                 this.expiredEventChunk.add(clonedEvent);
+                if (!eventScheduled) {
+                    scheduler.notifyAt(clonedEvent.getTimestamp());
+                }
             }
             expiredEventChunk.reset();
         }

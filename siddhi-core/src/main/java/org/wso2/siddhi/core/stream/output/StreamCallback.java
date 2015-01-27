@@ -19,6 +19,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
@@ -26,9 +27,12 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class StreamCallback implements StreamJunction.Receiver {
+
+    private static final Logger log = Logger.getLogger(StreamCallback.class);
 
     private String streamId;
     private AbstractDefinition streamDefinition;
@@ -65,18 +69,17 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
             complexEvent = complexEvent.getNext();
         }
         if (disruptor == null) {
-            receive(eventBuffer.toArray(new Event[eventBuffer.size()]));
+            receiveSync(eventBuffer.toArray(new Event[eventBuffer.size()]));
         } else {
             receiveAsync(eventBuffer.toArray(new Event[eventBuffer.size()]));
         }
         eventBuffer.clear();
-
     }
 
     @Override
     public void receive(Event event) {
         if (disruptor == null) {
-            receive(new Event[]{event});
+            receiveSync(new Event[]{event});
         } else {
             receiveAsync(new Event[]{event});
         }
@@ -86,16 +89,24 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
     public void receive(Event event, boolean endOfBatch) {
         eventBuffer.add(event);
         if (endOfBatch) {
-            receive(eventBuffer.toArray(new Event[eventBuffer.size()]));
+            receiveSync(eventBuffer.toArray(new Event[eventBuffer.size()]));
             eventBuffer.clear();
         }
     }
 
     public void receive(long timeStamp, Object[] data) {
         if (disruptor == null) {
-            receive(new Event[]{new Event(timeStamp, data)});
+            receiveSync(new Event[]{new Event(timeStamp, data)});
         } else {
             receiveAsync(new Event[]{new Event(timeStamp, data)});
+        }
+    }
+
+    public void receiveSync(Event[] events) {
+        try {
+            receive(events);
+        } catch (RuntimeException e) {
+            log.error("Error on sending events" + Arrays.deepToString(events), e);
         }
     }
 

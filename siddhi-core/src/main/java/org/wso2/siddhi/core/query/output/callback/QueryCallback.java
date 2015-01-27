@@ -20,6 +20,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -28,9 +29,12 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.execution.query.Query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class QueryCallback {
+
+    private static final Logger log = Logger.getLogger(QueryCallback.class);
 
     private ExecutionPlanContext executionPlanContext;
     private Query query;
@@ -108,8 +112,11 @@ public abstract class QueryCallback {
 //    }
 
     private void send(long timeStamp, Event[] currentEvents, Event[] expiredEvents) {
-
-        receive(timeStamp, currentEvents, expiredEvents);
+        try {
+            receive(timeStamp, currentEvents, expiredEvents);
+        } catch (RuntimeException e) {
+            log.error("Error on sending events" + Arrays.deepToString(currentEvents) + ", " + Arrays.deepToString(expiredEvents), e);
+        }
     }
 
     private void bufferEvent(ComplexEvent complexEvent, List<Event> eventBuffer) {
