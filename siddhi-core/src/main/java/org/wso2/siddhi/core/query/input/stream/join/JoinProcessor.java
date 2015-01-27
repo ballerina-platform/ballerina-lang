@@ -77,8 +77,8 @@ public class JoinProcessor implements Processor {
                         returnEvent.setType(ComplexEvent.Type.CURRENT);
                     } else {
                         returnEvent.setType(ComplexEvent.Type.EXPIRED);
-
                     }
+                    returnEvent.setTimestamp(streamEvent.getTimestamp());
                     returnEventChunk.add(returnEvent);
                     foundStreamEvent = foundStreamEvent.getNext();
                 }

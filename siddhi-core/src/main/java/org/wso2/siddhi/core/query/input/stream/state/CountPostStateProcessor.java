@@ -47,6 +47,7 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
             streamEvent = streamEvent.getNext();
         }
         ((CountPreStateProcessor) thisStatePreProcessor).successCondition();
+        stateEvent.setTimestamp(streamEvent.getTimestamp());
 
         if (streamEvents >= minCount) {
 
