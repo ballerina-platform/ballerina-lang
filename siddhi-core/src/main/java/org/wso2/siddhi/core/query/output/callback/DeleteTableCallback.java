@@ -17,7 +17,7 @@ package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.table.EventTable;
 
 public class DeleteTableCallback implements OutputCallback {

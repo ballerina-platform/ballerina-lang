@@ -28,10 +28,12 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     private int count = 0;
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+    private ExecutionPlanContext executionPlanContext;
 
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
         if (attributeExpressionExecutors != null) {
             length = (Integer) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());
         }
@@ -48,7 +50,7 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
             if (count == length) {
                 while (expiredEventChunk.hasNext()) {
                     StreamEvent expiredEvent = expiredEventChunk.next();
-                    expiredEvent.setTimestamp(System.currentTimeMillis());  //todo fix
+                    expiredEvent.setTimestamp(executionPlanContext.getTimestampGenerator().currentTime());
                 }
                 if (expiredEventChunk.getFirst() != null) {
                     streamEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());

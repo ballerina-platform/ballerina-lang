@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -92,6 +93,7 @@ public class ExecutionPlanParser {
                     new LinkedBlockingDeque<Runnable>()));
 
             executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5));
+            executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
 
         } catch (DuplicateAnnotationException e) {
             throw new DuplicateAnnotationException(e.getMessage() + " for the same Execution Plan " +

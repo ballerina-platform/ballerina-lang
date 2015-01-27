@@ -19,7 +19,7 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.rateLimit.PassThroughOutputRateLimiter;

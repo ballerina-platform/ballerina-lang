@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.util.finder.Finder ;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
@@ -40,6 +40,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     private long timeInMilliSeconds;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private Scheduler scheduler;
+    private ExecutionPlanContext executionPlanContext;
 
     public void setTimeInMilliSeconds(long timeInMilliSeconds) {
         this.timeInMilliSeconds = timeInMilliSeconds;
@@ -57,6 +58,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
         expiredEventChunk = new ComplexEventChunk<StreamEvent>();
         if (attributeExpressionExecutors != null) {
             timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
@@ -68,7 +70,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
-            long currentTime = System.currentTimeMillis();  //todo fix
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
             StreamEvent clonedEvent = null;
             if (streamEvent.getType() == StreamEvent.Type.CURRENT) {

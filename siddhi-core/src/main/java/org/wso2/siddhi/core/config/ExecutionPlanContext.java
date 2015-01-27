@@ -16,6 +16,7 @@
 package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ public class ExecutionPlanContext {
     private List<EternalReferencedHolder> eternalReferencedHolders;
 
     private Lock sharedLock = null;
+    private TimestampGenerator timestampGenerator=null;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -109,4 +111,11 @@ public class ExecutionPlanContext {
         return executorService;
     }
 
+    public TimestampGenerator getTimestampGenerator() {
+        return timestampGenerator;
+    }
+
+    public void setTimestampGenerator(TimestampGenerator timestampGenerator) {
+        this.timestampGenerator = timestampGenerator;
+    }
 }

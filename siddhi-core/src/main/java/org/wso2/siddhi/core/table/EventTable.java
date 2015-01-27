@@ -18,7 +18,7 @@ package org.wso2.siddhi.core.table;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.finder.Finder;
+import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.processor.window.FindableProcessor;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 
