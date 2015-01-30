@@ -15,7 +15,9 @@
 
 package org.wso2.siddhi.core.config;
 
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
+import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
 import java.util.Map;
 
@@ -23,9 +25,11 @@ public class SiddhiContext {
 
     private int eventBufferSize;
     private Map<String, Class> siddhiExtensions;
+    private PersistenceStore persistenceStore = null;
 
     public SiddhiContext() {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
+        eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
     }
 
     public int getEventBufferSize() {
@@ -42,5 +46,13 @@ public class SiddhiContext {
 
     public void setEventBufferSize(int eventBufferSize) {
         this.eventBufferSize = eventBufferSize;
+    }
+
+    public PersistenceStore getPersistenceStore() {
+        return persistenceStore;
+    }
+
+    public void setPersistenceStore(PersistenceStore persistenceStore) {
+        this.persistenceStore = persistenceStore;
     }
 }

@@ -15,19 +15,25 @@
 package org.wso2.siddhi.core.util.persistence;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.NoPersistenceStoreAssignedException;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
+import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+
+import java.util.concurrent.locks.Lock;
 
 public class PersistenceService {
 
     static final Logger log = Logger.getLogger(PersistenceService.class);
-    private String queryPlanIdentifier;
+    private String executionPlanName;
     private PersistenceStore persistenceStore;
-    private SiddhiContext siddhiContext;
+    private SnapshotService snapshotService;
+    private Lock sharedLock;
 
-    public PersistenceService(SiddhiContext siddhiContext) {
-        this.queryPlanIdentifier = siddhiContext.getQueryPlanIdentifier();
-        this.siddhiContext = siddhiContext;
+    public PersistenceService(ExecutionPlanContext executionPlanContext) {
+        this.snapshotService = executionPlanContext.getSnapshotService();
+        this.persistenceStore = executionPlanContext.getSiddhiContext().getPersistenceStore();
+        this.executionPlanName = executionPlanContext.getName();
+        this.sharedLock = executionPlanContext.getSharedLock();
     }
 
 
@@ -37,15 +43,15 @@ public class PersistenceService {
             if (log.isDebugEnabled()) {
                 log.debug("Persisting...");
             }
-            byte[] snapshot = siddhiContext.getSnapshotService().snapshot();
-            String revision = System.currentTimeMillis() + "_" + queryPlanIdentifier;
-            persistenceStore.save(queryPlanIdentifier, revision, snapshot);
+            byte[] snapshot = snapshotService.snapshot();
+            String revision = System.currentTimeMillis() + "_" + executionPlanName;
+            persistenceStore.save(executionPlanName, revision, snapshot);
             if (log.isDebugEnabled()) {
                 log.debug("Persisted.");
             }
             return revision;
         } else {
-            throw new NoPersistenceStoreAssignedException("No persistence store assigned for execution plan " + queryPlanIdentifier);
+            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
         }
 
     }
@@ -56,39 +62,30 @@ public class PersistenceService {
             if (log.isDebugEnabled()) {
                 log.debug("Restoring revision: " + revision + " ...");
             }
-            byte[] snapshot = persistenceStore.load(queryPlanIdentifier, revision);
-            siddhiContext.getSnapshotService().restore(snapshot);
+            byte[] snapshot = persistenceStore.load(executionPlanName, revision);
+            snapshotService.restore(snapshot);
             if (log.isDebugEnabled()) {
                 log.debug("Restored revision: " + revision);
             }
         } else {
-            throw new NoPersistenceStoreAssignedException("No persistence store assigned for execution plan " + queryPlanIdentifier);
+            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
         }
 
     }
 
-//    public PersistenceStore getPersistenceStore() {
-//        return persistenceStore;
-//    }
-
-    public void setPersistenceStore(PersistenceStore persistenceStore) {
-        this.persistenceStore = persistenceStore;
-    }
-
-
     public void restoreLastRevision() {
         try {
-            this.siddhiContext.getThreadBarrier().close();
+            this.sharedLock.lock();
             if (persistenceStore != null) {
-                String revision = persistenceStore.getLastRevision(queryPlanIdentifier);
+                String revision = persistenceStore.getLastRevision(executionPlanName);
                 if (revision != null) {
                     restoreRevision(revision);
                 }
             } else {
-                throw new NoPersistenceStoreAssignedException("No persistence store assigned for execution plan " + queryPlanIdentifier);
+                throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
             }
         } finally {
-            siddhiContext.getThreadBarrier().open();
+            sharedLock.unlock();
         }
     }
 }

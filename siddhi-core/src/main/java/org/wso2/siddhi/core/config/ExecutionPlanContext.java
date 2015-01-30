@@ -16,6 +16,8 @@
 package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.persistence.PersistenceService;
+import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
@@ -35,9 +37,12 @@ public class ExecutionPlanContext {
     private ThreadPoolExecutor executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
+    private SnapshotService snapshotService;
+
 
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;
+    private PersistenceService persistenceService;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -117,5 +122,21 @@ public class ExecutionPlanContext {
 
     public void setTimestampGenerator(TimestampGenerator timestampGenerator) {
         this.timestampGenerator = timestampGenerator;
+    }
+
+    public SnapshotService getSnapshotService() {
+        return snapshotService;
+    }
+
+    public void setSnapshotService(SnapshotService snapshotService) {
+        this.snapshotService = snapshotService;
+    }
+
+    public void setPersistenceService(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
+    }
+
+    public PersistenceService getPersistenceService() {
+        return persistenceService;
     }
 }

@@ -15,7 +15,7 @@
 package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.util.ByteSerializer;
 
 import java.util.ArrayList;
@@ -24,13 +24,12 @@ import java.util.List;
 
 public class SnapshotService {
 
-    static final Logger log = Logger.getLogger(SnapshotService.class);
+    private static final Logger log = Logger.getLogger(SnapshotService.class);
     private List<Snapshotable> snapshotableList = new ArrayList<Snapshotable>();
-    private SiddhiContext siddhiContext;
+    private ExecutionPlanContext executionPlanContext;
 
-    public SnapshotService(
-            SiddhiContext siddhiContext) {
-        this.siddhiContext = siddhiContext;
+    public SnapshotService(ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
     }
 
     public void addSnapshotable(Snapshotable snapshotable) {
@@ -44,12 +43,12 @@ public class SnapshotService {
             log.debug("Taking snapshot ...");
         }
         try {
-            siddhiContext.getThreadBarrier().close();
+            executionPlanContext.getSharedLock().lock();
             for (Snapshotable snapshotable : snapshotableList) {
                 snapshots.put(snapshotable.getElementId(), snapshotable.snapshot());
             }
         } finally {
-            siddhiContext.getThreadBarrier().open();
+            executionPlanContext.getSharedLock().unlock();
         }
         if (log.isDebugEnabled()) {
             log.debug("Taking snapshot finished.");
@@ -62,12 +61,12 @@ public class SnapshotService {
     public void restore(byte[] snapshot) {
         HashMap<String, SnapshotObject> snapshots = (HashMap<String, SnapshotObject>) ByteSerializer.BToO(snapshot);
         try {
-            this.siddhiContext.getThreadBarrier().close();
+            this.executionPlanContext.getSharedLock().lock();
             for (Snapshotable snapshotable : snapshotableList) {
                 snapshotable.restore(snapshots.get(snapshotable.getElementId()));
             }
         } finally {
-            siddhiContext.getThreadBarrier().open();
+            executionPlanContext.getSharedLock().unlock();
         }
     }
 

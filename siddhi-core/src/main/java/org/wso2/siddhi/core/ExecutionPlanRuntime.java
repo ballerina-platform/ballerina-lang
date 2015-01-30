@@ -169,4 +169,27 @@ public class ExecutionPlanRuntime {
     public void start() {
         inputManager.startProcessing();
     }
+
+
+    public String persist() {
+        return executionPlanContext.getPersistenceService().persist();
+    }
+
+    public void restoreRevision(String revision) {
+        executionPlanContext.getPersistenceService().restoreRevision(revision);
+    }
+
+    public void restoreLastRevision() {
+        executionPlanContext.getPersistenceService().restoreLastRevision();
+    }
+
+    public byte[] snapshot() {
+        return executionPlanContext.getSnapshotService().snapshot();
+    }
+
+    public void restore(byte[] snapshot) {
+        executionPlanContext.getSnapshotService().restore(snapshot);
+    }
+
+
 }

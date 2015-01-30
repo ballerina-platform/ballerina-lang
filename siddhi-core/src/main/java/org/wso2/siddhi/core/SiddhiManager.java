@@ -33,7 +33,6 @@ public class SiddhiManager {
 
     public SiddhiManager() {
         siddhiContext = new SiddhiContext();
-        siddhiContext.setEventBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
 
     }
 
