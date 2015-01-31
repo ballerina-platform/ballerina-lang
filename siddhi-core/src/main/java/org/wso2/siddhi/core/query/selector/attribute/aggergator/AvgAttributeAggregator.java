@@ -12,7 +12,7 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
+package org.wso2.siddhi.core.query.selector.attribute.aggergator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
@@ -99,12 +99,12 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{avgOutputAttributeAggregator};
+        return avgOutputAttributeAggregator.currentState();
     }
 
     @Override
     public void restoreState(Object[] state) {
-        avgOutputAttributeAggregator = (AvgAttributeAggregator) state[0];
+        avgOutputAttributeAggregator.restoreState(state);
     }
 
     class AvgAttributeAggregatorDouble extends AvgAttributeAggregator {
@@ -144,7 +144,16 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             return 0.0;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value, count};
+        }
 
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Double) state[0];
+            count = (Long) state[1];
+        }
     }
 
     class AvgAttributeAggregatorFloat extends AvgAttributeAggregator {
@@ -184,7 +193,16 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             return 0.0;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value, count};
+        }
 
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Double) state[0];
+            count = (Long) state[1];
+        }
     }
 
     class AvgAttributeAggregatorInt extends AvgAttributeAggregator {
@@ -224,6 +242,17 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             return 0.0;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value, count};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Double) state[0];
+            count = (Long) state[1];
+        }
+
     }
 
     class AvgAttributeAggregatorLong extends AvgAttributeAggregator {
@@ -261,6 +290,17 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             value = 0.0;
             count = 0;
             return 0.0;
+        }
+
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value, count};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Double) state[0];
+            count = (Long) state[1];
         }
 
     }

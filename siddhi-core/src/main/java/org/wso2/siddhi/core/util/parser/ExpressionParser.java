@@ -55,7 +55,7 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLon
 import org.wso2.siddhi.core.extension.holder.ExecutorExtensionHolder;
 import org.wso2.siddhi.core.extension.holder.OutputAttributeExtensionHolder;
 import org.wso2.siddhi.core.util.finder.Finder;
-import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;

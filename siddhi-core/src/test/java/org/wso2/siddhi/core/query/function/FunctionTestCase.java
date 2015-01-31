@@ -49,8 +49,8 @@ public class FunctionTestCase {
     //Coalesce
 
     @Test
-    public void FunctionTest1() throws InterruptedException {
-        log.info("function test1");
+    public void functionTest1() throws InterruptedException {
+        log.info("function test 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).
@@ -109,8 +109,8 @@ public class FunctionTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void FunctionTest2() throws InterruptedException {
-        log.info("function test2");
+    public void functionTest2() throws InterruptedException {
+        log.info("function test 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 double, price2 float, volume long , quantity int);";
@@ -150,8 +150,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery3() throws InterruptedException {
-        log.info("Function test3");
+    public void functionTest3() throws InterruptedException {
+        log.info("function test 3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -193,8 +193,8 @@ public class FunctionTestCase {
     //isMatch
 
     @Test
-    public void testFunctionQuery4() throws InterruptedException {
-        log.info("Function test4");
+    public void functionTest4() throws InterruptedException {
+        log.info("function test 4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -236,8 +236,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery5() throws InterruptedException {
-        log.info("Function test5");
+    public void functionTest5() throws InterruptedException {
+        log.info("function test 5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -279,8 +279,8 @@ public class FunctionTestCase {
 
 
     @Test
-    public void testFunctionQuery6() throws InterruptedException {
-        log.info("Function test6");
+    public void functionTest6() throws InterruptedException {
+        log.info("function test 6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -321,8 +321,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery7() throws InterruptedException {
-        log.info("Function test7");
+    public void functionTest7() throws InterruptedException {
+        log.info("function test 7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -363,8 +363,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery8() throws InterruptedException {
-        log.info("Function test8");
+    public void functionTest8() throws InterruptedException {
+        log.info("function test 8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -396,8 +396,8 @@ public class FunctionTestCase {
     //Concat
 
     @Test
-    public void testFunctionQuery9() throws InterruptedException {
-        log.info("Function test9");
+    public void functionTest9() throws InterruptedException {
+        log.info("function test 9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -425,8 +425,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery10() throws InterruptedException {
-        log.info("Function test10");
+    public void functionTest10() throws InterruptedException {
+        log.info("function test 10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -455,8 +455,8 @@ public class FunctionTestCase {
     //sin
 
     @Test
-    public void testFunctionQuery11() throws InterruptedException {
-        log.info("Function test11");
+    public void functionTest11() throws InterruptedException {
+        log.info("function test 11");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -484,8 +484,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery12() throws InterruptedException {
-        log.info("Function test12");
+    public void functionTest12() throws InterruptedException {
+        log.info("function test 12");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -513,8 +513,8 @@ public class FunctionTestCase {
     }
 
     @Test
-    public void testFunctionQuery13() throws InterruptedException {
-        log.info("Function test13");
+    public void functionTest13() throws InterruptedException {
+        log.info("function test 13");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -543,8 +543,8 @@ public class FunctionTestCase {
 
 
     @Test
-    public void testFunctionQuery14() throws InterruptedException {
-        log.info("Function test14");
+    public void functionTest14() throws InterruptedException {
+        log.info("function test 14");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -572,8 +572,8 @@ public class FunctionTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testFunctionQuery15() throws InterruptedException {
-        log.info("Function test15");
+    public void functionTest15() throws InterruptedException {
+        log.info("function test 15");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -601,8 +601,8 @@ public class FunctionTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testFunctionQuery16() throws InterruptedException {
-        log.info("Function test16");
+    public void functionTest16() throws InterruptedException {
+        log.info("function test 16");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -643,8 +643,8 @@ public class FunctionTestCase {
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testFunctionQuery17() throws InterruptedException {
-        log.info("Function test17");
+    public void functionTest17() throws InterruptedException {
+        log.info("function test 17");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 

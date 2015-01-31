@@ -14,6 +14,7 @@
  */
 package org.wso2.siddhi.core.event;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -22,7 +23,7 @@ import java.util.NoSuchElementException;
  *
  * @param <E> sub types of ComplexEvent such as StreamEvent and StateEvent
  */
-public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E> {
+public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, Serializable {
 
     protected E first;
     protected E previousToLastReturned;

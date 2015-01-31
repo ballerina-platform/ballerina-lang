@@ -15,7 +15,7 @@
 package org.wso2.siddhi.core.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
 
 public class OutputAttributeExtensionHolder extends AbstractExtensionHolder {
     private static OutputAttributeExtensionHolder instance;

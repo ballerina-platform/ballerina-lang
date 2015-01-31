@@ -12,14 +12,17 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
+package org.wso2.siddhi.core.query.selector.attribute.aggergator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class MinAttributeAggregator extends AttributeAggregator {
 
@@ -32,7 +35,8 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
@@ -103,15 +107,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{minOutputAttributeAggregator};
+        return minOutputAttributeAggregator.currentState();
     }
 
     @Override
     public void restoreState(Object[] state) {
-        minOutputAttributeAggregator = (MinAttributeAggregator) state[0];
+        minOutputAttributeAggregator.restoreState(state);
     }
 
-    class MinAttributeAggregatorDouble extends MinAttributeAggregator {
+    class MinAttributeAggregatorDouble extends MinAttributeAggregator  {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private Deque<Double> minDeque = new LinkedList<Double>();
@@ -153,9 +157,20 @@ public class MinAttributeAggregator extends AttributeAggregator {
             return null;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{minDeque, minValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            minDeque = (Deque<Double>) state[0];
+            minValue = (Double) state[1];
+        }
+
     }
 
-    class MinAttributeAggregatorFloat extends MinAttributeAggregator {
+    class MinAttributeAggregatorFloat extends MinAttributeAggregator  {
 
         private final Attribute.Type type = Attribute.Type.FLOAT;
         private Deque<Float> minDeque = new LinkedList<Float>();
@@ -197,9 +212,20 @@ public class MinAttributeAggregator extends AttributeAggregator {
             return null;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{minDeque, minValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            minDeque = (Deque<Float>) state[0];
+            minValue = (Float) state[1];
+        }
+
     }
 
-    class MinAttributeAggregatorInt extends MinAttributeAggregator {
+    class MinAttributeAggregatorInt extends MinAttributeAggregator  {
 
         private final Attribute.Type type = Attribute.Type.INT;
         private Deque<Integer> minDeque = new LinkedList<Integer>();
@@ -241,9 +267,20 @@ public class MinAttributeAggregator extends AttributeAggregator {
             return minValue;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{minDeque, minValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            minDeque = (Deque<Integer>) state[0];
+            minValue = (Integer) state[1];
+        }
+
     }
 
-    class MinAttributeAggregatorLong extends MinAttributeAggregator {
+    class MinAttributeAggregatorLong extends MinAttributeAggregator  {
 
         private final Attribute.Type type = Attribute.Type.LONG;
         private Deque<Long> minDeque = new LinkedList<Long>();
@@ -283,6 +320,17 @@ public class MinAttributeAggregator extends AttributeAggregator {
             minDeque.removeFirstOccurrence(data);
             minValue = minDeque.peekFirst();
             return minValue;
+        }
+
+        @Override
+        public Object[] currentState() {
+            return new Object[]{minDeque, minValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            minDeque = (Deque<Long>) state[0];
+            minValue = (Long) state[1];
         }
 
     }

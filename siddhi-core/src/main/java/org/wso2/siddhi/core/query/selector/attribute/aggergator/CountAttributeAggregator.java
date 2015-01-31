@@ -12,7 +12,7 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
+package org.wso2.siddhi.core.query.selector.attribute.aggergator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -25,7 +25,8 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override

@@ -12,7 +12,7 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
+package org.wso2.siddhi.core.query.selector.attribute.aggergator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
@@ -100,12 +100,12 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{sumOutputAttributeAggregator};
+        return sumOutputAttributeAggregator.currentState();
     }
 
     @Override
     public void restoreState(Object[] state) {
-        sumOutputAttributeAggregator = (SumAttributeAggregator) state[0];
+        sumOutputAttributeAggregator.restoreState(state);
     }
 
     class SumAttributeAggregatorDouble extends SumAttributeAggregator {
@@ -133,6 +133,16 @@ public class SumAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             value = 0.0;
             return value;
+        }
+
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Double) state[0];
         }
 
     }
@@ -163,6 +173,16 @@ public class SumAttributeAggregator extends AttributeAggregator {
             return value;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Double) state[0];
+        }
+
     }
 
     class SumAttributeAggregatorInt extends SumAttributeAggregator {
@@ -191,6 +211,16 @@ public class SumAttributeAggregator extends AttributeAggregator {
             return value;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Long) state[0];
+        }
+
     }
 
     class SumAttributeAggregatorLong extends SumAttributeAggregator {
@@ -217,6 +247,16 @@ public class SumAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             value = 0L;
             return value;
+        }
+
+        @Override
+        public Object[] currentState() {
+            return new Object[]{value};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            value = (Long) state[0];
         }
 
     }

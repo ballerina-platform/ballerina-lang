@@ -12,14 +12,17 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.handler;
+package org.wso2.siddhi.core.query.selector.attribute.aggergator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class MaxAttributeAggregator extends AttributeAggregator {
 
@@ -27,7 +30,8 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
@@ -98,12 +102,12 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{maxOutputAttributeAggregator};
+        return maxOutputAttributeAggregator.currentState();
     }
 
     @Override
     public void restoreState(Object[] state) {
-        maxOutputAttributeAggregator = (MaxAttributeAggregator) state[0];
+        maxOutputAttributeAggregator.restoreState(state);
     }
 
     class MaxAttributeAggregatorDouble extends MaxAttributeAggregator {
@@ -147,6 +151,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxDeque.clear();
             maxValue = null;
             return null;
+        }
+
+        @Override
+        public Object[] currentState() {
+            return new Object[]{maxDeque, maxValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            maxDeque = (Deque<Double>) state[0];
+            maxValue = (Double) state[1];
         }
 
     }
@@ -195,6 +210,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             return null;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{maxDeque, maxValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            maxDeque = (Deque<Float>) state[0];
+            maxValue = (Float) state[1];
+        }
+
     }
 
     class MaxAttributeAggregatorInt extends MaxAttributeAggregator {
@@ -240,6 +266,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             return null;
         }
 
+        @Override
+        public Object[] currentState() {
+            return new Object[]{maxDeque, maxValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            maxDeque = (Deque<Integer>) state[0];
+            maxValue = (Integer) state[1];
+        }
+
     }
 
     class MaxAttributeAggregatorLong extends MaxAttributeAggregator {
@@ -283,6 +320,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
             maxDeque.clear();
             maxValue = null;
             return null;
+        }
+
+        @Override
+        public Object[] currentState() {
+            return new Object[]{maxDeque, maxValue};
+        }
+
+        @Override
+        public void restoreState(Object[] state) {
+            maxDeque = (Deque<Long>) state[0];
+            maxValue = (Long) state[1];
         }
 
     }

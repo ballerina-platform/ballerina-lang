@@ -16,6 +16,7 @@ package org.wso2.siddhi.core.event.stream;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
@@ -24,7 +25,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.*;
  * Standard processing event inside Siddhi. StreamEvent will be created
  * from StreamEvent before sending to relevant Queries.
  */
-public class StreamEvent implements ComplexEvent {
+public class StreamEvent implements ComplexEvent, Serializable {
 
     protected long timestamp = -1;
     private Object[] beforeWindowData;          //Attributes before window execution

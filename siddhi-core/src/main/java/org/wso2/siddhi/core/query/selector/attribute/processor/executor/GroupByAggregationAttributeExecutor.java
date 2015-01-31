@@ -18,7 +18,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.query.selector.attribute.handler.AttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
 
 import java.util.HashMap;
 import java.util.Map;
