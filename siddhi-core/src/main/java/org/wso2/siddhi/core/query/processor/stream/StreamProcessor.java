@@ -109,7 +109,7 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
             ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;
             for (int i = 0; i < attributeExpressionLength; i++) {
-                innerExpressionExecutors[i] = attributeExpressionExecutors1[i].cloneExecutor();
+                innerExpressionExecutors[i] = attributeExpressionExecutors1[i].cloneExecutor(key);
             }
             streamProcessor.attributeExpressionExecutors = innerExpressionExecutors;
             streamProcessor.attributeExpressionLength = attributeExpressionLength;

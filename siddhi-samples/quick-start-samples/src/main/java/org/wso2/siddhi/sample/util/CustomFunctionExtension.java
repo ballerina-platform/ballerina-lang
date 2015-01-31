@@ -99,4 +99,15 @@ public class CustomFunctionExtension extends FunctionExecutor {
             return total;
         }
     }
+
+    @Override
+    public Object[] currentState() {
+        //No state
+        return null;
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Nothing to be done
+    }
 }

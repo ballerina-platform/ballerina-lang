@@ -37,7 +37,7 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
+    public ExpressionExecutor cloneExecutor(String key) {
         return new InConditionExpressionExecutor(eventTable, finder.cloneFinder());
     }
 

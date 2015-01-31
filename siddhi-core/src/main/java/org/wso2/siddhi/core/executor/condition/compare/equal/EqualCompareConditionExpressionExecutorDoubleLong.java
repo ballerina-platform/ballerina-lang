@@ -34,7 +34,7 @@ public class EqualCompareConditionExpressionExecutorDoubleLong extends
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return new EqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new EqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
     }
 }

@@ -38,7 +38,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         String key = QuerySelector.getThreadLocalGroupByKey();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
-            currentAttributeAggregator = attributeAggregator.cloneAggregator();
+            currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
             currentAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
             currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
@@ -46,8 +46,8 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         return currentAttributeAggregator.process(event);
     }
 
-    public ExpressionExecutor cloneExecutor() {
-        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(), attributeExpressionExecutors, executionPlanContext);
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext);
     }
 
 

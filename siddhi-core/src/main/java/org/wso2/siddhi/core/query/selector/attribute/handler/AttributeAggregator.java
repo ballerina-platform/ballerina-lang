@@ -41,13 +41,14 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
         init(attributeExpressionExecutors, executionPlanContext);
     }
 
-    public AttributeAggregator cloneAggregator() {
+    public AttributeAggregator cloneAggregator(String key) {
         try {
             AttributeAggregator attributeAggregator = this.getClass().newInstance();
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeSize];
             for (int i = 0; i < attributeSize; i++) {
-                innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor();
+                innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
+            attributeAggregator.elementId = elementId + "-" + key;
             attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
             attributeAggregator.start();
             return attributeAggregator;
@@ -105,6 +106,6 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
 
     @Override
     public String getElementId() {
-        return null;
+        return elementId;
     }
 }

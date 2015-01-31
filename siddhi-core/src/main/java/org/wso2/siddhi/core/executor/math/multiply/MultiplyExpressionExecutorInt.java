@@ -41,8 +41,8 @@ public class MultiplyExpressionExecutorInt implements ExpressionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return new MultiplyExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new MultiplyExpressionExecutorInt(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
     }
 
 }

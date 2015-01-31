@@ -53,8 +53,8 @@ public class AndConditionExpressionExecutor extends ConditionExpressionExecutor 
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return new AndConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(), rightConditionExecutor.cloneExecutor());
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new AndConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(key), rightConditionExecutor.cloneExecutor(key));
     }
 
 }

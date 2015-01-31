@@ -40,8 +40,8 @@ public class DivideExpressionExecutorLong implements ExpressionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return new DivideExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(), rightExpressionExecutor.cloneExecutor());
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new DivideExpressionExecutorLong(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
     }
 
 }

@@ -80,7 +80,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
             ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;
             for (int i = 0; i < attributeExpressionLength; i++) {
-                innerExpressionExecutors[i] = attributeExpressionExecutors1[i].cloneExecutor();
+                innerExpressionExecutors[i] = attributeExpressionExecutors1[i].cloneExecutor(key);
             }
             streamProcessor.attributeExpressionExecutors = innerExpressionExecutors;
             streamProcessor.attributeExpressionLength = attributeExpressionLength;

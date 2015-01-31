@@ -33,8 +33,8 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
         return attributeAggregator.process(event);
     }
 
-    public ExpressionExecutor cloneExecutor() {
-        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(), attributeExpressionExecutors, executionPlanContext);
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext);
     }
 
 }

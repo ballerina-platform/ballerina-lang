@@ -24,6 +24,6 @@ public interface ExpressionExecutor {
 
     public Attribute.Type getReturnType();
 
-    public ExpressionExecutor cloneExecutor();
+    public ExpressionExecutor cloneExecutor(String key);
 
 }

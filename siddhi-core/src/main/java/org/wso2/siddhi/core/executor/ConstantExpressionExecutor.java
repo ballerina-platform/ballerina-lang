@@ -37,7 +37,7 @@ public class ConstantExpressionExecutor implements ExpressionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
+    public ExpressionExecutor cloneExecutor(String key) {
         return this;
     }
 

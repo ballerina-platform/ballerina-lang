@@ -43,7 +43,7 @@ public class VariableExpressionExecutor implements ExpressionExecutor {
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
+    public ExpressionExecutor cloneExecutor(String key) {
         return this;
     }
 

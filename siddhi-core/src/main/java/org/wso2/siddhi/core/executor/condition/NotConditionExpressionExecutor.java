@@ -38,8 +38,8 @@ public class NotConditionExpressionExecutor extends ConditionExpressionExecutor 
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
-        return new NotConditionExpressionExecutor(conditionExecutor.cloneExecutor());
+    public ExpressionExecutor cloneExecutor(String key) {
+        return new NotConditionExpressionExecutor(conditionExecutor.cloneExecutor(key));
     }
 
 

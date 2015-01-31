@@ -164,7 +164,7 @@ public class QuerySelector implements Processor {
         QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn, executionPlanContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
-            clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor());
+            clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor(key));
         }
         clonedQuerySelector.attributeProcessorList = clonedAttributeProcessorList;
         clonedQuerySelector.isGroupBy = isGroupBy;

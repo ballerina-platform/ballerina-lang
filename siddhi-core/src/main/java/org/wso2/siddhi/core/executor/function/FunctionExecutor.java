@@ -41,13 +41,14 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     }
 
     @Override
-    public ExpressionExecutor cloneExecutor() {
+    public ExpressionExecutor cloneExecutor(String key) {
         try {
             FunctionExecutor functionExecutor = this.getClass().newInstance();
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeSize];
             for (int i = 0; i < attributeSize; i++) {
-                innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor();
+                innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
+            functionExecutor.elementId = elementId + "-" + key;
             functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
             functionExecutor.start();
             return functionExecutor;

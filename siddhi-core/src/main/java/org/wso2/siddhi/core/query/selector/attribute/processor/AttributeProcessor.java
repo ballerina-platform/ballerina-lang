@@ -35,8 +35,8 @@ public class AttributeProcessor {
         event.setOutputData(expressionExecutor.execute(event), outputPosition);
     }
 
-    public AttributeProcessor cloneProcessor() {
-        AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor.cloneExecutor());
+    public AttributeProcessor cloneProcessor(String key) {
+        AttributeProcessor attributeProcessor = new AttributeProcessor(expressionExecutor.cloneExecutor(key));
         attributeProcessor.setOutputPosition(this.outputPosition);
         return attributeProcessor;
 
