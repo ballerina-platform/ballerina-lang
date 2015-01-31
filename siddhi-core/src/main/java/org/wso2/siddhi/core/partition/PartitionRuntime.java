@@ -26,8 +26,8 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -48,16 +48,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class PartitionRuntime {
+public class PartitionRuntime implements Snapshotable {
 
 
     private String partitionId;
+    private String elementId;
     private Partition partition;
     private ConcurrentMap<String, StreamJunction> localStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains definition
     private ConcurrentMap<String, AbstractDefinition> localStreamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap;
     private ConcurrentMap<String, StreamJunction> streamJunctionMap;
-    private ConcurrentMap<String, EventTable> eventTableMap;
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
     private List<PartitionInstanceRuntime> partitionInstanceRuntimeList = new ArrayList<PartitionInstanceRuntime>();
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
@@ -76,10 +76,10 @@ public class PartitionRuntime {
         if (partitionId == null) {
             this.partitionId = UUID.randomUUID().toString();
         }
+        elementId = executionPlanContext.getElementIdGenerator().createNewId();
         this.partition = partition;
         this.streamDefinitionMap = executionPlanRuntime.getStreamDefinitionMap();
         this.streamJunctionMap = executionPlanRuntime.getStreamJunctions();
-        this.eventTableMap = executionPlanRuntime.getEventTableMap();
     }
 
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {
@@ -256,4 +256,25 @@ public class PartitionRuntime {
         return localStreamJunctionMap;
     }
 
+    @Override
+    public Object[] currentState() {
+        List<String> partitionKeys = new ArrayList<String>();
+        for (PartitionInstanceRuntime partitionInstanceRuntime : partitionInstanceRuntimeList) {
+            partitionKeys.add(partitionInstanceRuntime.getKey());
+        }
+        return new Object[]{partitionKeys};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        List<String> partitionKeys = (List<String>) state[0];
+        for (String key : partitionKeys) {
+            clonePartition(key);
+        }
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
+    }
 }
