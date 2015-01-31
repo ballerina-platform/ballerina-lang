@@ -85,4 +85,16 @@ public class LengthBatchWindowProcessor extends WindowProcessor {
     public void stop() {
         //Do nothing
     }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{currentEventChunk, expiredEventChunk, count};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        currentEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[1];
+        count = (Integer)state[2];
+    }
 }

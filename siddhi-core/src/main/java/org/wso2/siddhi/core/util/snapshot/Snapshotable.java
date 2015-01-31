@@ -16,9 +16,9 @@ package org.wso2.siddhi.core.util.snapshot;
 
 public interface Snapshotable {
 
-    public SnapshotObject snapshot();
+    public Object[] currentState();
 
-    public void restore(SnapshotObject snapshotObject);
+    public void restoreState(Object[] state);
 
     public String getElementId();
 }

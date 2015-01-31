@@ -28,6 +28,6 @@ public interface PostStateProcessor extends Processor {
 
     public void setCallbackPreStateProcessor(CountPreStateProcessor callbackPreStateProcessor);
 
-    public PostStateProcessor cloneProcessor();
+    public PostStateProcessor cloneProcessor(String key);
 
 }

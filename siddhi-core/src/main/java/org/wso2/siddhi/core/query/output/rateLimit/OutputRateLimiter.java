@@ -65,7 +65,7 @@ public abstract class OutputRateLimiter implements Processor {
 
     public abstract OutputRateLimiter clone(String key);
 
-    public abstract Processor cloneProcessor();
+    public abstract Processor cloneProcessor(String key);
 
 }
 

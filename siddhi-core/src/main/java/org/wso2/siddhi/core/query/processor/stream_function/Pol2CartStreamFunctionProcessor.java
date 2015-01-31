@@ -112,4 +112,16 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     public void stop() {
         //Do nothing
     }
+
+
+    @Override
+    public Object[] currentState() {
+        //No state
+        return null;
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Nothing to be done
+    }
 }

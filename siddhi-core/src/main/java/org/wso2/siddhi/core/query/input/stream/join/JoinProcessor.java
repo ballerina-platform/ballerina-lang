@@ -134,9 +134,10 @@ public class JoinProcessor implements Processor {
      * Clone a copy of processor
      *
      * @return
+     * @param key
      */
     @Override
-    public Processor cloneProcessor() {
+    public Processor cloneProcessor(String key) {
         JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor);
         joinProcessor.setTrigger(trigger);
         joinProcessor.setFinder(finder.cloneFinder());

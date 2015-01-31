@@ -153,4 +153,14 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     public void stop() {
         //Do nothing
     }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{expiredEventChunk};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+    }
 }

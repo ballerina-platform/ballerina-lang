@@ -139,7 +139,7 @@ public class QuerySelector implements Processor {
     }
 
     @Override
-    public Processor cloneProcessor() {
+    public Processor cloneProcessor(String key) {
         return null;
     }
 

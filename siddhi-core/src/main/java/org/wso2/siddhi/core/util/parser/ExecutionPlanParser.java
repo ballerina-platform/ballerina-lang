@@ -20,6 +20,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
@@ -98,6 +99,7 @@ public class ExecutionPlanParser {
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
             executionPlanContext.setSnapshotService(new SnapshotService(executionPlanContext));
             executionPlanContext.setPersistenceService(new PersistenceService(executionPlanContext));
+            executionPlanContext.setElementIdGenerator(new ElementIdGenerator(executionPlanContext.getName()));
 
         } catch (DuplicateAnnotationException e) {
             throw new DuplicateAnnotationException(e.getMessage() + " for the same Execution Plan " +

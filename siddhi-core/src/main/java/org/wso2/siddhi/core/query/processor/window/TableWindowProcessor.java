@@ -23,9 +23,9 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -73,7 +73,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public Processor cloneProcessor() {
+    public Processor cloneProcessor(String key) {
         try {
             TableWindowProcessor streamProcessor = new TableWindowProcessor(eventTable);
             streamProcessor.inputDefinition = inputDefinition;
@@ -93,5 +93,16 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
         } catch (Exception e) {
             throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
         }
+    }
+
+    @Override
+    public Object[] currentState() {
+        //No state
+        return null;
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Nothing to be done
     }
 }

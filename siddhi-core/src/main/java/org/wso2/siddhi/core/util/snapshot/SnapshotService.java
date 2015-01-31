@@ -16,11 +16,11 @@ package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.util.ByteSerializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class SnapshotService {
 
@@ -37,7 +37,7 @@ public class SnapshotService {
     }
 
     public byte[] snapshot() {
-        HashMap<String, SnapshotObject> snapshots = new HashMap<String, SnapshotObject>(snapshotableList.size());
+        HashMap<String, Object[]> snapshots = new HashMap<String, Object[]>(snapshotableList.size());
 
         if (log.isDebugEnabled()) {
             log.debug("Taking snapshot ...");
@@ -45,7 +45,7 @@ public class SnapshotService {
         try {
             executionPlanContext.getSharedLock().lock();
             for (Snapshotable snapshotable : snapshotableList) {
-                snapshots.put(snapshotable.getElementId(), snapshotable.snapshot());
+                snapshots.put(snapshotable.getElementId(), snapshotable.currentState());
             }
         } finally {
             executionPlanContext.getSharedLock().unlock();
@@ -59,11 +59,11 @@ public class SnapshotService {
     }
 
     public void restore(byte[] snapshot) {
-        HashMap<String, SnapshotObject> snapshots = (HashMap<String, SnapshotObject>) ByteSerializer.BToO(snapshot);
+        HashMap<String, Object[]> snapshots = (HashMap<String, Object[]>) ByteSerializer.BToO(snapshot);
         try {
             this.executionPlanContext.getSharedLock().lock();
             for (Snapshotable snapshotable : snapshotableList) {
-                snapshotable.restore(snapshots.get(snapshotable.getElementId()));
+                snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
             }
         } finally {
             executionPlanContext.getSharedLock().unlock();

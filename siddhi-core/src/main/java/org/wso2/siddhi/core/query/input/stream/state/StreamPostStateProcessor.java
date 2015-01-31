@@ -105,9 +105,10 @@ public class StreamPostStateProcessor implements PostStateProcessor {
      * Clone a copy of processor
      *
      * @return clone of StreamPostStateProcessor
+     * @param key
      */
     @Override
-    public PostStateProcessor cloneProcessor() {
+    public PostStateProcessor cloneProcessor(String key) {
         StreamPostStateProcessor streamPostStateProcessor = new StreamPostStateProcessor();
         cloneProperties(streamPostStateProcessor);
         return streamPostStateProcessor;

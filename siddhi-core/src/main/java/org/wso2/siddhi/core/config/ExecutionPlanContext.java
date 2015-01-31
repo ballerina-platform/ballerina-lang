@@ -16,6 +16,7 @@
 package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
@@ -43,6 +44,7 @@ public class ExecutionPlanContext {
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;
     private PersistenceService persistenceService;
+    private ElementIdGenerator elementIdGenerator;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -138,5 +140,13 @@ public class ExecutionPlanContext {
 
     public PersistenceService getPersistenceService() {
         return persistenceService;
+    }
+
+    public void setElementIdGenerator(ElementIdGenerator elementIdGenerator) {
+        this.elementIdGenerator = elementIdGenerator;
+    }
+
+    public ElementIdGenerator getElementIdGenerator() {
+        return elementIdGenerator;
     }
 }

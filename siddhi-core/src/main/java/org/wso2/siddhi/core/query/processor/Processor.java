@@ -50,7 +50,8 @@ public interface Processor {
      * Clone a copy of processor
      *
      * @return
+     * @param key
      */
-    public Processor cloneProcessor();
+    public Processor cloneProcessor(String key);
 
 }

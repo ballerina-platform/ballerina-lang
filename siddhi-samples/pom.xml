@@ -54,7 +54,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>log4j</groupId>
+                                    <groupId>org.apache.log4j.wso2</groupId>
                                     <artifactId>log4j</artifactId>
                                     <version>${log4j.version}</version>
                                     <overWrite>false</overWrite>

@@ -41,6 +41,6 @@ public interface PreStateProcessor extends Processor {
 
     void resetState();
 
-    public PreStateProcessor cloneProcessor();
+    public PreStateProcessor cloneProcessor(String key);
 
 }

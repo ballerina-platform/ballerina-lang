@@ -148,9 +148,10 @@ public class StreamPreStateProcessor implements PreStateProcessor {
      * Clone a copy of processor
      *
      * @return clone of StreamPreStateProcessor
+     * @param key
      */
     @Override
-    public PreStateProcessor cloneProcessor() {
+    public PreStateProcessor cloneProcessor(String key) {
         StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType);
         cloneProperties(streamPreStateProcessor);
         return streamPreStateProcessor;

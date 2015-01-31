@@ -23,9 +23,9 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -101,5 +101,16 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     public void stop() {
         //Do nothing
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{expiredEventChunk, count};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        count = (Integer) state[1];
     }
 }

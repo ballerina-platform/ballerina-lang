@@ -106,9 +106,10 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
      * Clone a copy of processor
      *
      * @return clone of PostStateProcessor
+     * @param key
      */
     @Override
-    public PostStateProcessor cloneProcessor() {
+    public PostStateProcessor cloneProcessor(String key) {
         LogicalPostStateProcessor logicalPostStateProcessor = new LogicalPostStateProcessor(type);
         cloneProperties(logicalPostStateProcessor);
         return logicalPostStateProcessor;

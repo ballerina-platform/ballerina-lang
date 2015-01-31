@@ -73,9 +73,10 @@ public class JoinStreamProcessor implements Processor {
      * Clone a copy of processor
      *
      * @return
+     * @param key
      */
     @Override
-    public Processor cloneProcessor() {
+    public Processor cloneProcessor(String key) {
         return null;
     }
 }

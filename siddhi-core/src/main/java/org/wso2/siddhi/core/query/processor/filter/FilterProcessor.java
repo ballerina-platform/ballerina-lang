@@ -36,7 +36,7 @@ public class FilterProcessor implements Processor {
         }
     }
 
-    public FilterProcessor cloneProcessor() {
+    public FilterProcessor cloneProcessor(String key) {
         return new FilterProcessor(conditionExecutor.cloneExecutor());
     }
 

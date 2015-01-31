@@ -40,9 +40,10 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
      * Clone a copy of processor
      *
      * @return clone of LogicalPreStateProcessor
+     * @param key
      */
     @Override
-    public PreStateProcessor cloneProcessor() {
+    public PreStateProcessor cloneProcessor(String key) {
         LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType);
         cloneProperties(logicalPreStateProcessor);
         return logicalPreStateProcessor;

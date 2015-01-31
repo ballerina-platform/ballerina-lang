@@ -12,23 +12,21 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.util.snapshot;
 
-import java.io.Serializable;
+package org.wso2.siddhi.core.util;
 
-public class SnapshotObject implements Serializable {
+import java.util.concurrent.atomic.AtomicLong;
 
-    private Object[] data;
+public class ElementIdGenerator {
 
-    public SnapshotObject(Object... data) {
-        this.data = data;
+    private String executionPlanName;
+    private AtomicLong id = new AtomicLong(0);
+
+    public ElementIdGenerator(String executionPlanName) {
+        this.executionPlanName = executionPlanName;
     }
 
-    public Object[] getData() {
-        return data;
-    }
-
-    public void setData(Object[] data) {
-        this.data = data;
+    public String createNewId() {
+        return executionPlanName + "-" + id.incrementAndGet();
     }
 }

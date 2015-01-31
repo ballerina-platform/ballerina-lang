@@ -69,7 +69,7 @@ public class SingleStreamRuntime implements StreamRuntime {
         Processor clonedProcessorChain = null;
         if (processorChain != null) {
             if (!(processorChain instanceof QuerySelector || processorChain instanceof OutputRateLimiter)) {
-                clonedProcessorChain = processorChain.cloneProcessor();
+                clonedProcessorChain = processorChain.cloneProcessor(key);
                 if (clonedProcessorChain instanceof SingleThreadEntryValveProcessor) {
                     singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessorChain;
                 }
@@ -77,7 +77,7 @@ public class SingleStreamRuntime implements StreamRuntime {
             Processor processor = processorChain.getNextProcessor();
             while (processor != null) {
                 if (!(processor instanceof QuerySelector || processor instanceof OutputRateLimiter)) {
-                    Processor clonedProcessor = processor.cloneProcessor();
+                    Processor clonedProcessor = processor.cloneProcessor(key);
                     clonedProcessorChain.setToLast(clonedProcessor);
                     if (clonedProcessor instanceof SingleThreadEntryValveProcessor) {
                         singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessor;

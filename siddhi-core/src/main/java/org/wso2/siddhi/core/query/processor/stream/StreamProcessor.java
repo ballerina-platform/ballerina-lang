@@ -25,13 +25,14 @@ import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 
-public abstract class StreamProcessor implements Processor, EternalReferencedHolder {
+public abstract class StreamProcessor implements Processor, EternalReferencedHolder, Snapshotable {
 
     protected static final Logger log = Logger.getLogger(StreamProcessor.class);
 
@@ -44,12 +45,17 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
     protected ExecutionPlanContext executionPlanContext;
     protected int attributeExpressionLength;
     protected StreamEventPopulater streamEventPopulater;
+    protected String elementId= null;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.inputDefinition = inputDefinition;
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.executionPlanContext = executionPlanContext;
         this.attributeExpressionLength = attributeExpressionExecutors.length;
+        if(elementId==null) {
+            elementId=executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
         this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
 
         executionPlanContext.addEternalReferencedHolder(this);
@@ -96,7 +102,7 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
     }
 
     @Override
-    public Processor cloneProcessor() {
+    public Processor cloneProcessor(String key) {
         try {
             StreamProcessor streamProcessor = this.getClass().newInstance();
             streamProcessor.inputDefinition = inputDefinition;
@@ -109,6 +115,7 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
             streamProcessor.streamEventPopulater = streamEventPopulater;
+            streamProcessor.elementId = elementId + "-" + key;
             streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
             streamProcessor.start();
             return streamProcessor;
@@ -135,5 +142,10 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
         } else {
             this.nextProcessor.setToLast(processor);
         }
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }
