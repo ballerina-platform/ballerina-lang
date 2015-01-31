@@ -76,4 +76,14 @@ public class CountAttributeAggregator extends AttributeAggregator {
     public void stop() {
         //nothing to stop
     }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{value};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        value = (Long) state[0];
+    }
 }

@@ -100,4 +100,15 @@ public class CustomFunctionExtension extends FunctionExecutor {
     public void stop() {
         //Nothing to stop
     }
+
+    @Override
+    public Object[] currentState() {
+        //No state
+        return null;
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Nothing to be done
+    }
 }

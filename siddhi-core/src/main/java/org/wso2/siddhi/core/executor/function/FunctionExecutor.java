@@ -19,11 +19,13 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
-public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder {
+public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder, Snapshotable {
 
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
+    protected String elementId;
     private int attributeSize;
 
     public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -31,6 +33,10 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         attributeSize = attributeExpressionExecutors.length;
         executionPlanContext.addEternalReferencedHolder(this);
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
         init(attributeExpressionExecutors, executionPlanContext);
     }
 
@@ -84,4 +90,8 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
     protected abstract Object execute(Object data);
 
+    @Override
+    public String getElementId() {
+        return elementId;
+    }
 }

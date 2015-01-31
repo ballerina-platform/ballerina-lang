@@ -27,7 +27,8 @@ public class StringConcatAggregatorString extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         SiddhiContext
      */
     @Override
@@ -85,5 +86,15 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public void stop() {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{aggregatedStringValue};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        aggregatedStringValue = (String) state[0];
     }
 }

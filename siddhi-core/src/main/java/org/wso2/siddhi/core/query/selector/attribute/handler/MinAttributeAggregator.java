@@ -101,6 +101,16 @@ public class MinAttributeAggregator extends AttributeAggregator {
         //nothing to stop
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{minOutputAttributeAggregator};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        minOutputAttributeAggregator = (MinAttributeAggregator) state[0];
+    }
+
     class MinAttributeAggregatorDouble extends MinAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;

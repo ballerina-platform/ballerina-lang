@@ -27,14 +27,15 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Avg aggregator has to have exactly 1 parameter, currently " +
-                    attributeExpressionExecutors.length+ " parameters provided");
+                    attributeExpressionExecutors.length + " parameters provided");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
         switch (type) {
@@ -94,6 +95,16 @@ public class AvgAttributeAggregator extends AttributeAggregator {
     @Override
     public void stop() {
         //nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{avgOutputAttributeAggregator};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        avgOutputAttributeAggregator = (AvgAttributeAggregator) state[0];
     }
 
     class AvgAttributeAggregatorDouble extends AvgAttributeAggregator {

@@ -62,4 +62,15 @@ public class SinFunctionExecutor extends FunctionExecutor {
     public void stop() {
         //nothing to stop
     }
+
+    @Override
+    public Object[] currentState() {
+        //No states
+        return null;
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Nothing to be done
+    }
 }

@@ -19,14 +19,14 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.io.Serializable;
-
-public abstract class AttributeAggregator implements EternalReferencedHolder {
+public abstract class AttributeAggregator implements EternalReferencedHolder, Snapshotable {
 
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
+    protected String elementId;
     private int attributeSize;
 
     public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -34,6 +34,10 @@ public abstract class AttributeAggregator implements EternalReferencedHolder {
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.attributeSize = attributeExpressionExecutors.length;
         executionPlanContext.addEternalReferencedHolder(this);
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
         init(attributeExpressionExecutors, executionPlanContext);
     }
 
@@ -98,4 +102,9 @@ public abstract class AttributeAggregator implements EternalReferencedHolder {
     public abstract Object processRemove(Object[] data);
 
     public abstract Object reset();
+
+    @Override
+    public String getElementId() {
+        return null;
+    }
 }

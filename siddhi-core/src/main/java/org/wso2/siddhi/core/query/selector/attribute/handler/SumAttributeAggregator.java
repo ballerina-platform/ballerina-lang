@@ -27,7 +27,8 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
@@ -95,6 +96,16 @@ public class SumAttributeAggregator extends AttributeAggregator {
     @Override
     public void stop() {
         //Nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{sumOutputAttributeAggregator};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        sumOutputAttributeAggregator = (SumAttributeAggregator) state[0];
     }
 
     class SumAttributeAggregatorDouble extends SumAttributeAggregator {

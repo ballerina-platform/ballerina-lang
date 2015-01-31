@@ -96,6 +96,16 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         //nothing to stop
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{maxOutputAttributeAggregator};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        maxOutputAttributeAggregator = (MaxAttributeAggregator) state[0];
+    }
+
     class MaxAttributeAggregatorDouble extends MaxAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;

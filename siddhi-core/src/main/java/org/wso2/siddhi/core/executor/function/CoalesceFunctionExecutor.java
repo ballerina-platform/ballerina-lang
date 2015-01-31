@@ -25,7 +25,7 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.length==0) {
+        if (attributeExpressionExecutors.length == 0) {
             throw new ExecutionPlanValidationException("Coalesce must have at least one parameter");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
@@ -65,5 +65,16 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
     @Override
     public void stop() {
         //nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        //No states
+        return null;
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Nothing to be done
     }
 }
