@@ -89,6 +89,7 @@ public class SingleInputStreamParser {
                         }
                     }
                     Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), singleThreadValve);
+                    scheduler.init(executionPlanContext);
                     ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
                 }
                 if (first) {

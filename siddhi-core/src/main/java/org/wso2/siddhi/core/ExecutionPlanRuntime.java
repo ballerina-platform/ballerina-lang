@@ -157,6 +157,7 @@ public class ExecutionPlanRuntime {
 
     public void shutdown() {
         inputManager.stopProcessing();
+        executionPlanContext.getScheduledExecutorService().shutdownNow();
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.stopProcessing();
         }

@@ -16,6 +16,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -23,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created on 12/3/14.
  */
-public class Scheduler {
+public class Scheduler implements Snapshotable {
 
     private static final Logger log = Logger.getLogger(Scheduler.class);
     private final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
@@ -41,6 +43,8 @@ public class Scheduler {
     private volatile boolean running = false;
     private StreamEventPool streamEventPool;
     private ComplexEventChunk<StreamEvent> streamEventChunk;
+    private ExecutionPlanContext executionPlanContext;
+    private String elementId;
 
 
     public Scheduler(ScheduledExecutorService scheduledExecutorService, Processor singleThreadEntryValve) {
@@ -78,8 +82,37 @@ public class Scheduler {
         streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
-    public Scheduler cloneScheduler(SingleThreadEntryValveProcessor singleThreadEntryValve) {
-        return new Scheduler(scheduledExecutorService, singleThreadEntryValve);
+    public void init(ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{toNotifyQueue};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        BlockingQueue<Long> restoreToNotifyQueue = (BlockingQueue<Long>) state[0];
+        for (Long time : restoreToNotifyQueue) {
+            notifyAt(time);
+        }
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
+    }
+
+    public Scheduler clone(String key, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {
+        Scheduler scheduler = new Scheduler(scheduledExecutorService, singleThreadEntryValveProcessor);
+        scheduler.elementId = elementId + "-" + key;
+        scheduler.init(executionPlanContext);
+        return scheduler;
     }
 
     private class EventCaller implements Runnable {

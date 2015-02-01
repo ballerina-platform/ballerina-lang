@@ -83,7 +83,7 @@ public class SingleStreamRuntime implements StreamRuntime {
                         singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessor;
                     } else if (clonedProcessor instanceof TimeWindowProcessor) {
                         windowProcessor = (TimeWindowProcessor) clonedProcessor;
-                        windowProcessor.cloneScheduler((TimeWindowProcessor) processor, singleThreadEntryValveProcessor);
+                        windowProcessor.setScheduler(((TimeWindowProcessor) processor).getScheduler().clone(key, singleThreadEntryValveProcessor));
                     }
                 }
                 processor = processor.getNextProcessor();

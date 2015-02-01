@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
@@ -118,10 +117,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
             expiredEventChunk.reset();
         }
         nextProcessor.process(streamEventChunk);
-    }
-
-    public void cloneScheduler(TimeWindowProcessor timeWindowProcessor, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {
-        this.scheduler = timeWindowProcessor.scheduler.cloneScheduler(singleThreadEntryValveProcessor);
     }
 
     @Override
