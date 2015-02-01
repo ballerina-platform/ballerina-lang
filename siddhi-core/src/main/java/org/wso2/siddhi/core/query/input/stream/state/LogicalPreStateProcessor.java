@@ -39,13 +39,14 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @return clone of LogicalPreStateProcessor
      * @param key
+     * @return clone of LogicalPreStateProcessor
      */
     @Override
     public PreStateProcessor cloneProcessor(String key) {
         LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType);
-        cloneProperties(logicalPreStateProcessor);
+        cloneProperties(logicalPreStateProcessor, key);
+        logicalPreStateProcessor.init(executionPlanContext);
         return logicalPreStateProcessor;
     }
 

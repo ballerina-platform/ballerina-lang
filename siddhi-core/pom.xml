@@ -49,9 +49,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.lmax</groupId>
+            <groupId>com.lmax.wso2</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.2.1</version>
+            <version>3.2.1.wso2v1</version>
         </dependency>
 
         <dependency>

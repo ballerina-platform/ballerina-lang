@@ -14,10 +14,12 @@
  */
 package org.wso2.siddhi.core.event;
 
+import java.io.Serializable;
+
 /**
  * The interface for the internal event implementations
  */
-public interface ComplexEvent {
+public interface ComplexEvent extends Serializable {
 
     public enum Type {
         CURRENT, EXPIRED, TIMER, RESET

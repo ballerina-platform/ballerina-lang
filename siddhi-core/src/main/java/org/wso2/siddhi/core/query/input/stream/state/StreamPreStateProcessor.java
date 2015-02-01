@@ -14,6 +14,7 @@
  */
 package org.wso2.siddhi.core.query.input.stream.state;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.state.StateEventCloner;
@@ -22,6 +23,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.Iterator;
@@ -30,12 +32,14 @@ import java.util.LinkedList;
 /**
  * Created on 12/17/14.
  */
-public class StreamPreStateProcessor implements PreStateProcessor {
+public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable {
 
     protected int stateId;
     protected boolean isStartState;
     protected volatile boolean stateChanged = false;
     protected StateInputStream.Type stateType;
+    protected ExecutionPlanContext executionPlanContext;
+    protected String elementId;
     protected StreamPostStateProcessor thisStatePostProcessor;
 
     protected Processor nextProcessor;
@@ -52,6 +56,14 @@ public class StreamPreStateProcessor implements PreStateProcessor {
 
     public StreamPreStateProcessor(StateInputStream.Type stateType) {
         this.stateType = stateType;
+    }
+
+    public void init(ExecutionPlanContext executionPlanContext) {
+        this.executionPlanContext = executionPlanContext;
+        if (elementId == null) {
+            this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
     }
 
     public void setThisStatePostProcessor(StreamPostStateProcessor thisStatePostProcessor) {
@@ -147,18 +159,20 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @return clone of StreamPreStateProcessor
      * @param key
+     * @return clone of StreamPreStateProcessor
      */
     @Override
     public PreStateProcessor cloneProcessor(String key) {
         StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType);
-        cloneProperties(streamPreStateProcessor);
+        cloneProperties(streamPreStateProcessor, key);
+        streamPreStateProcessor.init(executionPlanContext);
         return streamPreStateProcessor;
     }
 
-    protected void cloneProperties(StreamPreStateProcessor streamPreStateProcessor) {
+    protected void cloneProperties(StreamPreStateProcessor streamPreStateProcessor, String key) {
         streamPreStateProcessor.stateId = this.stateId;
+        streamPreStateProcessor.elementId = this.elementId + "-" + key;
         streamPreStateProcessor.stateEventPool = this.stateEventPool;
         streamPreStateProcessor.streamEventCloner = this.streamEventCloner;
         streamPreStateProcessor.stateEventCloner = this.stateEventCloner;
@@ -232,5 +246,22 @@ public class StreamPreStateProcessor implements PreStateProcessor {
     @Override
     public int getStateId() {
         return stateId;
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{currentStateEventChunk, pendingStateEventList, newAndEveryStateEventList};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        currentStateEventChunk = (ComplexEventChunk<StateEvent>) state[0];
+        pendingStateEventList = (LinkedList<StateEvent>) state[1];
+        newAndEveryStateEventList = (LinkedList<StateEvent>) state[2];
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }

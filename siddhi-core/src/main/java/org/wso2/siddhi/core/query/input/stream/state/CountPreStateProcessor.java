@@ -41,7 +41,8 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
 
     public PreStateProcessor cloneProcessor(String key) {
         CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType);
-        cloneProperties(countPreStateProcessor);
+        cloneProperties(countPreStateProcessor, key);
+        countPreStateProcessor.init(executionPlanContext);
         return countPreStateProcessor;
     }
 

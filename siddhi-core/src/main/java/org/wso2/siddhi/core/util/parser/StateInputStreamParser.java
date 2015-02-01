@@ -79,7 +79,8 @@ public class StateInputStreamParser {
     }
 
     private static InnerStateRuntime parse(StateElement stateElement, Map<String, AbstractDefinition> streamDefinitionMap,
-                                           Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext,
+                                           Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap,
+                                           MetaStateEvent metaStateEvent, ExecutionPlanContext executionPlanContext,
                                            List<VariableExpressionExecutor> variableExpressionExecutors,
                                            Map<String, ProcessStreamReceiver> processStreamReceiverMap,
                                            StreamPreStateProcessor streamPreStateProcessor,
@@ -96,6 +97,7 @@ public class StateInputStreamParser {
             int stateIndex = metaStateEvent.getStreamEventCount() - 1;
             if (streamPreStateProcessor == null) {
                 streamPreStateProcessor = new StreamPreStateProcessor(stateType);
+                streamPreStateProcessor.init(executionPlanContext);
             }
             streamPreStateProcessor.setStateId(stateIndex);
             streamPreStateProcessor.setNextProcessor(singleStreamRuntime.getProcessorChain());
@@ -166,9 +168,11 @@ public class StateInputStreamParser {
             LogicalStateElement.Type type = ((LogicalStateElement) stateElement).getType();
 
             LogicalPreStateProcessor logicalPreStateProcessor1 = new LogicalPreStateProcessor(type, stateType);
+            logicalPreStateProcessor1.init(executionPlanContext);
             LogicalPostStateProcessor logicalPostStateProcessor1 = new LogicalPostStateProcessor(type);
 
             LogicalPreStateProcessor logicalPreStateProcessor2 = new LogicalPreStateProcessor(type, stateType);
+            logicalPreStateProcessor2.init(executionPlanContext);
             LogicalPostStateProcessor logicalPostStateProcessor2 = new LogicalPostStateProcessor(type);
 
             logicalPostStateProcessor1.setPartnerPreStateProcessor(logicalPreStateProcessor2);
@@ -219,6 +223,7 @@ public class StateInputStreamParser {
             }
 
             CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType);
+            countPreStateProcessor.init(executionPlanContext);
             CountPostStateProcessor countPostStateProcessor = new CountPostStateProcessor(minCount, maxCount);
 
             countPreStateProcessor.setCountPostStateProcessor(countPostStateProcessor);
