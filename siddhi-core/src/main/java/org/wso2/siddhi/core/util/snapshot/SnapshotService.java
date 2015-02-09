@@ -20,9 +20,9 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class SnapshotService {
+
 
     private static final Logger log = Logger.getLogger(SnapshotService.class);
     private List<Snapshotable> snapshotableList = new ArrayList<Snapshotable>();
