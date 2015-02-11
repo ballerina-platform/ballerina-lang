@@ -119,7 +119,7 @@ public class TimeWindowTestCase {
         Thread.sleep(1100);
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
-        Thread.sleep(3000);
+        Thread.sleep(4000);
         Assert.assertEquals(6, inEventCount);
         Assert.assertEquals(6, removeEventCount);
         Assert.assertTrue(eventArrived);
