@@ -33,17 +33,6 @@
     <artifactId>siddhi-extensions</artifactId>
     <name>Siddhi Extensions</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.wso2.siddhi</groupId>
-            <artifactId>siddhi-query-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.siddhi</groupId>
-            <artifactId>siddhi-core</artifactId>
-        </dependency>
-    </dependencies>
-
     <modules>
         <module>string-functions</module>
     </modules>
