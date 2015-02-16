@@ -17,10 +17,12 @@ package org.wso2.siddhi.query.api;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.FunctionAlreadyExistException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -39,6 +41,12 @@ public class ExecutionPlan {
     private List<ExecutionElement> executionElementList = new ArrayList<ExecutionElement>();
     private List<String> executionElementNameList = new ArrayList<String>();
     private List<Annotation> annotations = new ArrayList<Annotation>();
+
+    public Map<String, FunctionDefinition> getFunctionDefinitionMap() {
+        return functionDefinitionMap;
+    }
+
+    private Map<String, FunctionDefinition> functionDefinitionMap = new HashMap<String, FunctionDefinition>();
 
     public ExecutionPlan(String name) {
         annotations.add(Annotation.annotation("info").element("name", name));
@@ -208,5 +216,21 @@ public class ExecutionPlan {
         result = 31 * result + (executionElementNameList != null ? executionElementNameList.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
+    }
+
+    public void defineFunction(FunctionDefinition functionDefinition) {
+        if (functionDefinition == null) {
+            throw new ExecutionPlanValidationException("Function Definition should not be null");
+        } else if (functionDefinition.getFunctionID() == null) {
+            throw new ExecutionPlanValidationException("Function Id should not be null for Function Definition");
+        }
+        checkDuplicateFunctionExist(functionDefinition);
+        this.functionDefinitionMap.put(functionDefinition.getFunctionID(), functionDefinition);
+    }
+
+    private void checkDuplicateFunctionExist(FunctionDefinition functionDefinition) {
+        if(this.functionDefinitionMap.get(functionDefinition.getFunctionID()) != null ) {
+            throw new FunctionAlreadyExistException("The function definition with the same functionID exists " + functionDefinition.getFunctionID());
+        }
     }
 }
