@@ -35,6 +35,7 @@
 
     <modules>
         <module>string-functions</module>
+        <module>math-functions</module>
     </modules>
 
 </project>

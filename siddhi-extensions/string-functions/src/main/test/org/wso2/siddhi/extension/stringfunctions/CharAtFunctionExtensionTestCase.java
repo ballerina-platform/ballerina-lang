@@ -41,7 +41,7 @@ public class CharAtFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCharAtFunctionExtension() throws InterruptedException{
+    public void testCharAtFunctionExtension() throws InterruptedException {
         log.info("CharAtFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -56,15 +56,15 @@ public class CharAtFunctionExtensionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 1) {
-                    Assert.assertEquals('B',inEvents[0].getData(1));
+                    Assert.assertEquals('B', inEvents[0].getData(1));
                     eventArrived = true;
                 }
                 if (count == 2) {
-                    Assert.assertEquals('S',inEvents[1].getData(1));
+                    Assert.assertEquals('S', inEvents[1].getData(1));
                     eventArrived = true;
                 }
                 if (count == 3) {
-                    Assert.assertEquals('Y',inEvents[2].getData(1));
+                    Assert.assertEquals('Y', inEvents[2].getData(1));
                     eventArrived = true;
                 }
             }
@@ -82,12 +82,12 @@ public class CharAtFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCharAtFunctionExtensionVariableIndex() throws InterruptedException{
+    public void testCharAtFunctionExtensionVariableIndex() throws InterruptedException {
         log.info("CharAtFunctionExtension Test Case for Variable Index scenario");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long, index int);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , str:charat(symbol,index,true) as charAt, index " +
+        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long, times int);";
+        String query = ("@info(name = 'query1') from inputStream select symbol , str:charat(symbol,times) as charAt, times " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -97,15 +97,15 @@ public class CharAtFunctionExtensionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 1) {
-                    Assert.assertEquals('B',inEvents[0].getData(1));
+                    Assert.assertEquals('B', inEvents[0].getData(1));
                     eventArrived = true;
                 }
                 if (count == 2) {
-                    Assert.assertEquals('W',inEvents[1].getData(1));
+                    Assert.assertEquals('W', inEvents[1].getData(1));
                     eventArrived = true;
                 }
                 if (count == 3) {
-                    Assert.assertEquals('Z',inEvents[2].getData(1));
+                    Assert.assertEquals('Z', inEvents[2].getData(1));
                     eventArrived = true;
                 }
             }
