@@ -34,7 +34,7 @@
     <name>Siddhi Extensions</name>
 
     <modules>
-        <module>string-functions</module>
+        <module>string</module>
         <module>math-functions</module>
     </modules>
 

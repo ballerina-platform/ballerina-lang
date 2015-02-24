@@ -30,8 +30,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>string-functions</artifactId>
-    <name>Siddhi String Functions Extensions</name>
+    <artifactId>string</artifactId>
+    <name>Siddhi String Function Extensions</name>
 
 
     <dependencies>
@@ -66,7 +66,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.stringfunctions*
+                            org.wso2.siddhi.extension.string*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
