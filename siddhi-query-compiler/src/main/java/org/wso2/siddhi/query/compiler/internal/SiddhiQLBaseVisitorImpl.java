@@ -14,7 +14,6 @@
  */
 package org.wso2.siddhi.query.compiler.internal;
 
-import com.sun.tracing.dtrace.FunctionName;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.ExecutionPlan;
