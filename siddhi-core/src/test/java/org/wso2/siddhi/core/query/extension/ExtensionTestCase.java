@@ -46,16 +46,9 @@ public class ExtensionTestCase {
     public void extensionTest1() throws InterruptedException {
         log.info("extension test1");
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("custom:plus", CustomFunctionExtension.class);
-        classList.put("email:getAll", StringConcatAggregatorString.class);
-        siddhiContext.setSiddhiExtensions(classList);
-
 
         String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
-        String query = ("@info(name = 'query1') from cseEventStream select price , email:getAll(symbol) as toConcat " +
+        String query = ("@info(name = 'query1') from cseEventStream select price , custom:getAll(symbol) as toConcat " +
                 "group by volume insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -77,7 +70,7 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
-        Thread.sleep(100);
+        Thread.sleep(1000000);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -93,7 +86,6 @@ public class ExtensionTestCase {
         classList.put("custom:plus", CustomFunctionExtension.class);
         classList.put("email:getAll", StringConcatAggregatorString.class);
         siddhiContext.setSiddhiExtensions(classList);
-
 
         String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as totalCount " +

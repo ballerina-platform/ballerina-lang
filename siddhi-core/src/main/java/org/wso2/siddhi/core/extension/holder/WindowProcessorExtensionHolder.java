@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -15,18 +15,18 @@
 package org.wso2.siddhi.core.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
 
-public class ExecutorExtensionHolder extends AbstractExtensionHolder {
-    private static ExecutorExtensionHolder instance;
+public class WindowProcessorExtensionHolder extends AbstractExtensionHolder {
+    private static WindowProcessorExtensionHolder instance;
 
-    private ExecutorExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(FunctionExecutor.class, executionPlanContext);
+    private WindowProcessorExtensionHolder(ExecutionPlanContext executionPlanContext) {
+        super(WindowProcessor.class, executionPlanContext);
     }
 
-    public static ExecutorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
+    public static WindowProcessorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
         if (instance == null) {
-            instance = new ExecutorExtensionHolder(executionPlanContext);
+            instance = new WindowProcessorExtensionHolder(executionPlanContext);
         }
         return instance;
     }

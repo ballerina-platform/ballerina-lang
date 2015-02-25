@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.extension.holder.StreamFunctionProcessorExtensionHolder;
+import org.wso2.siddhi.core.extension.holder.StreamProcessorExtensionHolder;
+import org.wso2.siddhi.core.extension.holder.WindowProcessorExtensionHolder;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
@@ -41,6 +44,7 @@ import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.List;
 import java.util.Map;
@@ -126,14 +130,30 @@ public class SingleInputStreamParser {
             return new FilterProcessor(attributeExpressionExecutors[0]);
 
         } else if (streamHandler instanceof Window) {
-            WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
-                    WindowProcessor.class);
+            WindowProcessor windowProcessor;
+            if (streamHandler instanceof Extension) {
+                windowProcessor = (WindowProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                        WindowProcessorExtensionHolder.getInstance(executionPlanContext));
+            } else {
+                windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
+                        WindowProcessor.class);
+            }
             windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors, executionPlanContext);
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {
-            StreamProcessor streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                    ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
+            StreamProcessor streamProcessor;
+            if (streamHandler instanceof Extension) {
+                streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                        StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
+                if (streamProcessor == null) {
+                    streamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                            StreamProcessorExtensionHolder.getInstance(executionPlanContext));
+                }
+            } else {
+                streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
+                        ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
+            }
             metaStreamEvent.addInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                     attributeExpressionExecutors, executionPlanContext));
             return streamProcessor;

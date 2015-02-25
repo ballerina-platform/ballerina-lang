@@ -53,8 +53,8 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
-import org.wso2.siddhi.core.extension.holder.ExecutorExtensionHolder;
-import org.wso2.siddhi.core.extension.holder.OutputAttributeExtensionHolder;
+import org.wso2.siddhi.core.extension.holder.FunctionExecutorExtensionHolder;
+import org.wso2.siddhi.core.extension.holder.AttributeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
@@ -238,10 +238,10 @@ public class ExpressionParser {
             //extensions
             Object executor;
             try {
-                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, ExecutorExtensionHolder.getInstance(executionPlanContext));
+                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, FunctionExecutorExtensionHolder.getInstance(executionPlanContext));
             } catch (ExecutionPlanCreationException ex) {
                 try {
-                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, OutputAttributeExtensionHolder.getInstance(executionPlanContext));
+                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
                 } catch (ExecutionPlanCreationException e) {
                     throw new ExecutionPlanCreationException(((AttributeFunctionExtension) expression).getFunction() + " is neither a function extension nor an aggregated attribute extension");
                 }

@@ -26,6 +26,7 @@ import java.util.zip.ZipFile;
 public class SiddhiExtensionLoader {
 
     private static final String CLASS_PATH = "java.class.path";
+    private static final String CLASS_EXT = "[^#]\\S+=\\S+";
     private static final String SIDDHI_EXT = ".*\\.siddhiext";
     private static final String JAR = ".*\\.jar";
     private static final Logger log = Logger.getLogger(SiddhiExtensionLoader.class);
@@ -46,11 +47,13 @@ public class SiddhiExtensionLoader {
         Map<String, Class> classMap = new HashMap<String, Class>();
 
         for (String extension : extensionsList) {
-            String[] info = extension.split("=");
-            try {
-                classMap.put(info[0].trim(), Class.forName(info[1].trim()));
-            } catch (ClassNotFoundException e) {
-                log.error("Cannot load Siddhi extension " + info[1].trim(), e);
+            if(extension.matches(CLASS_EXT)) {
+                String[] info = extension.split("=");
+                try {
+                    classMap.put(info[0].trim(), Class.forName(info[1].trim()));
+                } catch (ClassNotFoundException e) {
+                    log.error("Cannot load Siddhi extension " + info[1].trim(), e);
+                }
             }
         }
         return classMap;

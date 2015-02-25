@@ -5,10 +5,7 @@ import org.wso2.siddhi.extension.evalscript.exceptions.FunctionEvaluationExcepti
 import org.wso2.siddhi.extension.evalscript.exceptions.FunctionInitializationException;
 import org.wso2.siddhi.extension.evalscript.exceptions.FunctionReturnTypeNotPresent;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.extension.annotation.SiddhiExtension;
 import scala.Function1;
-
-@SiddhiExtension(namespace = "evalscript", function = "scala")
 
 public class EvalScala implements EvalScript {
 
