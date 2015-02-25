@@ -62,8 +62,6 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
             StreamEvent oldEvent = map.put(generateKey(clonedEvent), clonedEvent);
             if (oldEvent != null) {
                 complexEventChunk.add(oldEvent);
-                nextProcessor.process(complexEventChunk);
-                complexEventChunk.clear();
             }
             StreamEvent next = streamEvent.getNext();
             streamEvent.setNext(null);

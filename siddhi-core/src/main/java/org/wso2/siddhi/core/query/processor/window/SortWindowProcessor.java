@@ -119,17 +119,16 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
             clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
+            StreamEvent next = streamEvent.getNext();
+            streamEvent.setNext(null);
+            complexEventChunk.add(streamEvent);
+
             sortedWindow.add(clonedEvent);
             if (sortedWindow.size() > lengthToKeep) {
                 Collections.sort(sortedWindow, eventComparator);
                 complexEventChunk.add(sortedWindow.remove(sortedWindow.size()-1));
-                nextProcessor.process(complexEventChunk);
-                complexEventChunk.clear();
             }
 
-            StreamEvent next = streamEvent.getNext();
-            streamEvent.setNext(null);
-            complexEventChunk.add(streamEvent);
             streamEvent = next;
         }
         nextProcessor.process(complexEventChunk);

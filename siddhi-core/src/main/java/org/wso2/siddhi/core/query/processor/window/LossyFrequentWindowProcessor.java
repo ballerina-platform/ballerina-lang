@@ -33,11 +33,8 @@ import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -125,8 +122,6 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
                         log.info("Removing the Event: " + key + " from the window");
                         countMap.remove(key);
                         complexEventChunk.add(map.remove(key));
-                        nextProcessor.process(complexEventChunk);
-                        complexEventChunk.clear();
                     }
                 }
             }

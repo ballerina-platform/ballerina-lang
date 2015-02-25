@@ -86,8 +86,6 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
                         if (count == 0) {
                             countMap.remove(keys.get(i));
                             complexEventChunk.add(map.remove(keys.get(i)));
-                            nextProcessor.process(complexEventChunk);
-                            complexEventChunk.clear();
                         } else {
                             countMap.put(keys.get(i), count);
                         }
