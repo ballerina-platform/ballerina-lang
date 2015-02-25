@@ -14,6 +14,7 @@
  */
 package org.wso2.siddhi.core.stream.output;
 
+import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
@@ -26,6 +27,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -125,16 +127,29 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
     public synchronized void startProcessing() {
         Boolean asyncEnabled = null;
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
-
-            disruptor = new Disruptor<EventHolder>(new com.lmax.disruptor.EventFactory<EventHolder>() {
-                @Override
-                public EventHolder newInstance() {
-                    return new EventHolder();
+            for (Constructor constructor : Disruptor.class.getConstructors()) {
+                if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
+                    disruptor = new Disruptor<EventHolder>(new EventFactory<EventHolder>() {
+                        @Override
+                        public EventHolder newInstance() {
+                            return new EventHolder();
+                        }
+                    },
+                            executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                            executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
+                    break;
                 }
-            },
-                    executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                    executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
-
+            }
+            if (disruptor == null) {
+                disruptor = new Disruptor<EventHolder>(new EventFactory<EventHolder>() {
+                    @Override
+                    public EventHolder newInstance() {
+                        return new EventHolder();
+                    }
+                },
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                        executionPlanContext.getExecutorService());
+            }
             asyncEventHandler = new AsyncEventHandler(this);
             disruptor.handleEventsWith(asyncEventHandler);
             ringBuffer = disruptor.start();

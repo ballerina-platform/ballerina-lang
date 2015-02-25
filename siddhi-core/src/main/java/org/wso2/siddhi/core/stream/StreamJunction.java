@@ -31,6 +31,7 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -162,15 +163,23 @@ public class StreamJunction {
                 parallel = executionPlanContext.isParallel();
             }
             if (parallel) {
+                for(Constructor constructor:Disruptor.class.getConstructors()) {
+                    if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
+                        ProducerType producerType = ProducerType.SINGLE;
 
-                ProducerType producerType = ProducerType.SINGLE;
-                if (publishers.size() > 1) {
-                    producerType = ProducerType.MULTI;
+                        if (publishers.size() > 1) {
+                            producerType = ProducerType.MULTI;
+                        }
+
+                        disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
+                                bufferSize, executorService, producerType, new SleepingWaitStrategy());
+                        break;
+                    }
                 }
-
-                disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                        bufferSize, executorService, producerType, new SleepingWaitStrategy());
-
+                if(disruptor == null) {
+                    disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
+                            bufferSize, executorService);
+                }
                 for (Receiver receiver : receivers) {
                     disruptor.handleEventsWith(new StreamHandler(receiver));
                 }
