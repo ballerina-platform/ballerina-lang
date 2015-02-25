@@ -20,6 +20,7 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
@@ -48,10 +49,7 @@ import org.wso2.siddhi.query.compiler.SiddhiQLBaseVisitor;
 import org.wso2.siddhi.query.compiler.SiddhiQLParser;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
@@ -89,6 +87,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         }
         for (SiddhiQLParser.Definition_tableContext tableContext : ctx.definition_table()) {
             executionPlan.defineTable((TableDefinition) visit(tableContext));
+        }
+        for(SiddhiQLParser.Definition_functionContext functionContext: ctx.definition_function()) {
+            executionPlan.defineFunction((FunctionDefinition) visit(functionContext));
         }
         for (SiddhiQLParser.Execution_elementContext executionElementContext : ctx.execution_element()) {
             ExecutionElement executionElement = (ExecutionElement) visit(executionElementContext);
@@ -145,6 +146,26 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             streamDefinition.annotation((Annotation) visit(annotationContext));
         }
         return streamDefinition;
+    }
+
+    @Override
+    public Object visitDefinition_function_final(@NotNull SiddhiQLParser.Definition_function_finalContext ctx) {
+          return visit(ctx.definition_function());
+    }
+
+    @Override
+    public FunctionDefinition visitDefinition_function(@NotNull SiddhiQLParser.Definition_functionContext ctx) {
+        SiddhiQLParser.Function_nameContext  functionName  = ctx.function_name();
+        SiddhiQLParser.Language_nameContext  languageName  = ctx.language_name();
+        SiddhiQLParser.Attribute_typeContext attributeType = ctx.attribute_type();
+        SiddhiQLParser.Function_bodyContext  functionBody  = ctx.function_body();
+
+        FunctionDefinition functionDefinition = new FunctionDefinition();
+        String bodyBlock = functionBody.getText();
+        String body = bodyBlock.substring(1,bodyBlock.length()-2);
+        functionDefinition.functionID(functionName.getText()).language(languageName.getText()).
+                type((Attribute.Type)visit(attributeType)).body(body);
+        return functionDefinition;
     }
 
     /**

@@ -16,8 +16,21 @@ package org.wso2.siddhi.core.util.snapshot;
 
 public interface Snapshotable {
 
+    /**
+     * Used to collect the serializable state of the processing element, that need to be
+     * persisted for the reconstructing the element to the same state on a different point of time
+     *
+     * @return stateful objects of the processing element as an array
+     */
     public Object[] currentState();
 
+    /**
+     * Used to restore serialized state of the processing element, for reconstructing
+     * the element to the same state as if was on a previous point of time.
+     *
+     * @param state the stateful objects of the element as an array on
+     *              the same order provided by currentState().
+     */
     public void restoreState(Object[] state);
 
     public String getElementId();

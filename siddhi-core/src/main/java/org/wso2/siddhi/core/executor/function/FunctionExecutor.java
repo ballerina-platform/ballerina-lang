@@ -58,37 +58,55 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     }
 
     /**
-     * The initialization method for FunctionExecutor
+     * The initialization method for FunctionExecutor, this method will be called before the other methods
      *
-     * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param executionPlanContext         SiddhiContext
+     * @param attributeExpressionExecutors are the executors of each function parameters
+     * @param executionPlanContext         the context of the execution plan
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
 
+    /**
+     * The main execution method which will be called upon event arrival
+     *
+     * @param event the event to be executed
+     * @return the execution result
+     */
     @Override
     public Object execute(ComplexEvent event) {
 
-        if (attributeSize > 1) {
-            Object[] data = new Object[attributeSize];
-            for (int i = 0; i < attributeSize; i++) {
-                data[i] = attributeExpressionExecutors[i].execute(event);
-            }
-            return execute(data);
-        } else {
-            return execute(attributeExpressionExecutors[0].execute(event));
+        switch (attributeSize) {
+            case 0:
+                return execute((Object) null);
+            case 1:
+                return execute(attributeExpressionExecutors[0].execute(event));
+            default:
+                Object[] data = new Object[attributeSize];
+                for (int i = 0; i < attributeSize; i++) {
+                    data[i] = attributeExpressionExecutors[i].execute(event);
+                }
+                return execute(data);
         }
     }
 
 
     /**
-     * The main executions method which will be called upon event arrival
+     * The main execution method which will be called upon event arrival
+     * when there are more then one function parameter
      *
-     * @param data the runtime values of the attributeExpressionExecutors
-     * @return the processed object
+     * @param data the runtime values of function parameters
+     * @return the function result
      */
     protected abstract Object execute(Object[] data);
 
+    /**
+     * The main execution method which will be called upon event arrival
+     * when there are zero or one function parameter
+     *
+     * @param data null if the function parameter count is zero or
+     *             runtime data value of the function parameter
+     * @return the function result
+     */
     protected abstract Object execute(Object data);
 
     @Override

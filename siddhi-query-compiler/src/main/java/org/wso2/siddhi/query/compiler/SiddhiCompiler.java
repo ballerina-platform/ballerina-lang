@@ -34,6 +34,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
@@ -129,5 +130,22 @@ public class SiddhiCompiler {
         SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
         return (Query) eval.visit(tree);
     }
+
+    public static FunctionDefinition parseFunctionDefinition(String source) throws SiddhiParserException {
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.definition_function_final();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (FunctionDefinition) eval.visit(tree);
+    }
+
 
 }

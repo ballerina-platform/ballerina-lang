@@ -27,41 +27,43 @@ public abstract class StreamFunctionProcessor extends StreamProcessor {
     protected void process(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
         while (complexEventChunk.hasNext()) {
             ComplexEvent complexEvent = complexEventChunk.next();
-
-            if (attributeExpressionLength > 1) {
-                Object[] inputData = new Object[attributeExpressionLength];
-                for (int i = 0; i < attributeExpressionLength; i++) {
-                    inputData[i] = attributeExpressionExecutors[i].execute(complexEvent);
-                }
-                Object[] outputData = process(inputData);
-                streamEventPopulater.populateStreamEvent(complexEvent, outputData);
-            } else {
-                Object outputData = process(attributeExpressionExecutors[0].execute(complexEvent));
-                streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+            Object[] outputData;
+            switch (attributeExpressionLength) {
+                case 0:
+                    outputData = process((Object) null);
+                    streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+                case 1:
+                    outputData = process(attributeExpressionExecutors[0].execute(complexEvent));
+                    streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+                default:
+                    Object[] inputData = new Object[attributeExpressionLength];
+                    for (int i = 0; i < attributeExpressionLength; i++) {
+                        inputData[i] = attributeExpressionExecutors[i].execute(complexEvent);
+                    }
+                    outputData = process(inputData);
+                    streamEventPopulater.populateStreamEvent(complexEvent, outputData);
             }
-
-
         }
         nextProcessor.process(complexEventChunk);
 
     }
 
     /**
-     * The process method of the StreamFunction, used when multiple function parameters are provided
+     * The process method of the StreamFunction, used when more then one function parameters are provided
      *
      * @param data the data values for the function parameters
-     * @return the date for additional output attributes introduced by the function
+     * @return the data for additional output attributes introduced by the function
      */
     protected abstract Object[] process(Object[] data);
 
 
     /**
-     * The process method of the StreamFunction, used when single function parameter is provided
+     * The process method of the StreamFunction, used when zero or one function parameter is provided
      *
-     * @param data the data value for the function parameter
-     * @return the date for additional output attribute introduced by the function
+     * @param data null if the function parameter count is zero or runtime data value of the function parameter
+     * @return the data for additional output attribute introduced by the function
      */
-    protected abstract Object process(Object data);
+    protected abstract Object[] process(Object data);
 
 
 }

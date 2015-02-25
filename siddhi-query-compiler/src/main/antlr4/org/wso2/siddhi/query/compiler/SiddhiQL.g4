@@ -33,9 +33,9 @@ error
 
 execution_plan
     : (plan_annotation|error)*
-      ( (definition_stream|definition_table|error) (';' (definition_stream|definition_table|error))* ';'?
+      ( (definition_stream|definition_table|error|definition_function) (';' (definition_stream|definition_table|error|definition_function))* ';'?
       || (execution_element|error) (';' (execution_element|error))* ';'?
-      || (definition_stream|definition_table|error) (';' (definition_stream|definition_table|error))* (';' (execution_element|error))* ';'? )
+      || (definition_stream|definition_table|error|definition_function) (';' (definition_stream|definition_table|error|definition_function))* (';' (execution_element|error))* ';'? )
     ;
 
 execution_element
@@ -56,6 +56,26 @@ definition_table_final
 
 definition_table
     : annotation* DEFINE TABLE source '(' attribute_name attribute_type (',' attribute_name attribute_type )* ')'
+    ;
+
+definition_function_final
+    : definition_function ';'? EOF
+    ;
+
+definition_function
+    : DEFINE FUNCTION function_name '[' language_name ']' RETURN attribute_type function_body
+    ;
+
+function_name
+    : id
+    ;
+
+language_name
+    : id
+    ;
+
+function_body
+    : SCRIPT
     ;
 
 annotation
@@ -549,6 +569,7 @@ HASH:'#';
 
 STREAM:   S T R E A M;
 DEFINE:   D E F I N E;
+FUNCTION: F U N C T I O N;
 TABLE:    T A B L E;
 PLAN:     P L A N;
 FROM:     F R O M;
@@ -639,6 +660,17 @@ SPACES
 UNEXPECTED_CHAR
  : .
  ;
+
+SCRIPT
+ : '{' SCRIPT_ATOM* '}'
+ ;
+
+ fragment SCRIPT_ATOM
+  : ~[{}]
+  | '"' ~["]* '"'
+  | '//' ~[\r\n]*
+  | SCRIPT
+  ;
 
 fragment DIGIT : [0-9];
 
