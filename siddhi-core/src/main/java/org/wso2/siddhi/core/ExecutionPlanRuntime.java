@@ -30,10 +30,13 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.parser.FunctionParser;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -192,5 +195,7 @@ public class ExecutionPlanRuntime {
         executionPlanContext.getSnapshotService().restore(snapshot);
     }
 
-
+    public void defineFunction(FunctionDefinition functionDefinition) {
+        FunctionParser.addFunction(executionPlanContext.getSiddhiContext(), functionDefinition);
+    }
 }
