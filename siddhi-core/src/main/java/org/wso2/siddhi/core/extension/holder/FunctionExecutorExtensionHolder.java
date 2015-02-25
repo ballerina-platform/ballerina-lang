@@ -15,18 +15,18 @@
 package org.wso2.siddhi.core.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 
-public class OutputAttributeExtensionHolder extends AbstractExtensionHolder {
-    private static OutputAttributeExtensionHolder instance;
+public class FunctionExecutorExtensionHolder extends AbstractExtensionHolder {
+    private static FunctionExecutorExtensionHolder instance;
 
-    private OutputAttributeExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(AttributeAggregator.class, executionPlanContext);
+    private FunctionExecutorExtensionHolder(ExecutionPlanContext executionPlanContext) {
+        super(FunctionExecutor.class, executionPlanContext);
     }
 
-    public static OutputAttributeExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
+    public static FunctionExecutorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
         if (instance == null) {
-            instance = new OutputAttributeExtensionHolder(executionPlanContext);
+            instance = new FunctionExecutorExtensionHolder(executionPlanContext);
         }
         return instance;
     }

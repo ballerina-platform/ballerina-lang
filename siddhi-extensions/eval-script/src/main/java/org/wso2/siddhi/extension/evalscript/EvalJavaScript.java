@@ -5,13 +5,10 @@ import org.wso2.siddhi.extension.evalscript.exceptions.FunctionEvaluationExcepti
 import org.wso2.siddhi.extension.evalscript.exceptions.FunctionInitializationException;
 import org.wso2.siddhi.extension.evalscript.exceptions.FunctionReturnTypeNotPresent;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.extension.annotation.SiddhiExtension;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-@SiddhiExtension(namespace = "evalscript", function = "javascript")
 
 public class EvalJavaScript implements EvalScript {
 
