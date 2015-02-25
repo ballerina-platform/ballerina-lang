@@ -19,45 +19,51 @@
 package org.wso2.siddhi.extension.string;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-/**
- * lower(string)
- * Coverts the capital letters in the input string to the equivalent simple letters.
- * Accept Type(s): STRING
- * Return Type(s): STRING
- */
-public class LowerFunctionExtension extends FunctionExecutor {
+/*
+* concat(string1, string2, ..., stringN)
+* Returns a string that is the result of concatenating two or more string values.
+* Accept Type(s): STRING. There should be at least two arguments.
+* Return Type(s): STRING
+* */
+public class ConcatFunctionExtension extends FunctionExecutor{
 
-    Attribute.Type returnType = Attribute.Type.STRING;
+    private Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:lower() function, required 1, " +
-                    "but found " + attributeExpressionExecutors.length);
+        int attributeCount = 0;
+        if (attributeExpressionExecutors.length < 2) {
+            throw new ExecutionPlanValidationException("str:charat() function requires at least two arguments, " +
+                    "but found only " + attributeExpressionExecutors.length);
         }
-        if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for str:lower() function, required "
-                    +Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
+        for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
+            attributeCount++;
+            if (returnType != expressionExecutor.getReturnType()) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the "+attributeCount+"'th argument of str:concat() function, " +
+                        "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[attributeCount-1].getReturnType().toString());
+            }
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;   //Since the lower function takes in only 1 parameter, this method does not get called. Hence, not implemented.
+        StringBuilder sb = new StringBuilder();
+        for (Object aData : data) {
+            if(aData != null){
+                sb.append(aData);
+            }
+        }
+        return sb.toString();
     }
 
     @Override
     protected Object execute(Object data) {
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:lower() function. The argument cannot be null");
-        }
-        return data.toString().toLowerCase();
+        return data;
     }
 
     @Override
@@ -67,7 +73,7 @@ public class LowerFunctionExtension extends FunctionExecutor {
 
     @Override
     public void stop() {
-        //Nothing to stop
+        //nothing to stop
     }
 
     @Override
@@ -77,11 +83,11 @@ public class LowerFunctionExtension extends FunctionExecutor {
 
     @Override
     public Object[] currentState() {
-        return null;    //No need to maintain a state.
+        return null;    //No states
     }
 
     @Override
     public void restoreState(Object[] state) {
-        //Since there's no need to maintain a state, nothing needs to be done here.
+        //Nothing to be done
     }
 }

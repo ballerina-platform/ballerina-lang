@@ -19,11 +19,11 @@
 package org.wso2.siddhi.extension.string;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * replace_first(string, regex, replacement)
@@ -38,16 +38,20 @@ public class ReplaceFirstFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanCreationException("Invalid no of arguments passed to str:replace_first() function, required 3, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:replace_first() function, required 3, " +
+                    "but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanCreationException("Invalid parameter type found for the first argument of str:replace_first() function, required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:replace_first() function, " +
+                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanCreationException("Invalid parameter type found for the second argument of str:replace_first() function, required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:replace_first() function, " +
+                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanCreationException("Invalid parameter type found for the third argument of str:replace_first() function, required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[2].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:replace_first() function, " +
+                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[2].getReturnType().toString());
         }
     }
 

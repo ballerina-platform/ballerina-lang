@@ -19,12 +19,12 @@
 package org.wso2.siddhi.extension.string;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,7 +59,8 @@ public class SubstrFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanCreationException("Invalid parameter type found for the first argument of str:substr() function, required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:substr() function, " +
+                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors.length == 2) {
             if(attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT){
@@ -72,11 +73,13 @@ public class SubstrFunctionExtension extends FunctionExecutor {
                     patternConstant = Pattern.compile(regexConstant);
                 }
             } else {
-                throw new ExecutionPlanCreationException("Invalid parameter type found for the second argument of str:substr() function, required "+Attribute.Type.STRING+" or "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:substr() function, " +
+                        "required "+Attribute.Type.STRING+" or "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 3) {
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.INT) {
-                throw new ExecutionPlanCreationException("Invalid parameter type found for the third argument of str:substr() function, required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[2].getReturnType().toString());
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:substr() function, " +
+                        "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[2].getReturnType().toString());
             }
             if(attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT){
                 substrType = SubstrType.TWO;
@@ -88,10 +91,12 @@ public class SubstrFunctionExtension extends FunctionExecutor {
                     patternConstant = Pattern.compile(regexConstant);
                 }
             } else {
-                throw new ExecutionPlanCreationException("Invalid parameter type found for the second argument of str:substr() function, required "+Attribute.Type.STRING+" or "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:substr() function, " +
+                        "required "+Attribute.Type.STRING+" or "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
             }
         } else {
-            throw new ExecutionPlanCreationException("Invalid no of Arguments passed to str:substr() function, required 2 or 3, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of Arguments passed to str:substr() function, required 2 or 3, but found "
+                    + attributeExpressionExecutors.length);
         }
     }
 

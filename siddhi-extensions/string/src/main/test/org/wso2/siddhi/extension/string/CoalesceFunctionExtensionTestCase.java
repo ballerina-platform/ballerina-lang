@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class RegexpFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(RegexpFunctionExtensionTestCase.class);
+public class CoalesceFunctionExtensionTestCase {
+    static final Logger log = Logger.getLogger(CoalesceFunctionExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -41,12 +41,12 @@ public class RegexpFunctionExtensionTestCase {
     }
 
     @Test
-    public void testRegexpFunctionExtension() throws InterruptedException {
-        log.info("RegexpFunctionExtension TestCase");
+    public void testCoalesceFunctionExtension() throws InterruptedException {
+        log.info("CoalesceFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , str:regexp(symbol, regex) as beginsWithWSO2 " +
+        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol1 string, symbol2 string, symbol3 string);";
+        String query = ("@info(name = 'query1') from inputStream select symbol1 , str:coalesce(symbol1,symbol2,symbol3) as coalescedString " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -56,15 +56,15 @@ public class RegexpFunctionExtensionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 1) {
-                    Assert.assertEquals(false, inEvents[0].getData(1));
+                    Assert.assertEquals("BBB", inEvents[0].getData(1));
                     eventArrived = true;
                 }
                 if (count == 2) {
-                    Assert.assertEquals(true, inEvents[1].getData(1));
+                    Assert.assertEquals("123", inEvents[1].getData(1));
                     eventArrived = true;
                 }
                 if (count == 3) {
-                    Assert.assertEquals(false, inEvents[2].getData(1));
+                    Assert.assertEquals("XYZ", inEvents[2].getData(1));
                     eventArrived = true;
                 }
             }
@@ -72,9 +72,9 @@ public class RegexpFunctionExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"hello hi hello", 700f, "^WSO2(.*)"});
-        inputHandler.send(new Object[]{"WSO2 abcdh", 60.5f, "WSO(.*h)"});
-        inputHandler.send(new Object[]{"aaWSO2 hi hello", 60.5f, "^WSO2(.*)"});
+        inputHandler.send(new Object[]{null, "BBB", "CCC"});
+        inputHandler.send(new Object[]{"123", null, "789"});
+        inputHandler.send(new Object[]{null, null, "XYZ"});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

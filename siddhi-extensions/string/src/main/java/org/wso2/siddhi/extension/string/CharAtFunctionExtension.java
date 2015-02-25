@@ -19,11 +19,11 @@
 package org.wso2.siddhi.extension.string;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * charat(string , index)
@@ -38,13 +38,16 @@ public class CharAtFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
-            throw new ExecutionPlanCreationException("Invalid no of arguments passed to str:charat() function, required 2, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:charat() function, " +
+                    "required 2, but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanCreationException("Invalid parameter type found for the first argument of str:charat() function, required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:charat() function, " +
+                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
-            throw new ExecutionPlanCreationException("Invalid parameter type found for the second argument of str:charat() function, required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:charat() function, " +
+                    "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
     }
 
@@ -61,7 +64,9 @@ public class CharAtFunctionExtension extends FunctionExecutor {
         try {
             return source.charAt(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new ExecutionPlanRuntimeException("Index argument "+index+" is negative or not less than the length of the given string "+source, e);
+            throw new ExecutionPlanRuntimeException("Index argument "+index+
+
+                    " is negative or not less than the length of the given string "+source, e);
         }
     }
 

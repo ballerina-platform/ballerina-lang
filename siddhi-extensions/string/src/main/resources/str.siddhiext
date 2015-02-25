@@ -1,4 +1,6 @@
 charat=org.wso2.siddhi.extension.string.CharAtFunctionExtension
+coalesce=org.wso2.siddhi.extension.string.CoalesceFunctionExtension
+concat=org.wso2.siddhi.extension.string.ConcatFunctionExtension
 length=org.wso2.siddhi.extension.string.LengthFunctionExtension
 lower=org.wso2.siddhi.extension.string.LowerFunctionExtension
 regexp=org.wso2.siddhi.extension.string.RegexpFunctionExtension
