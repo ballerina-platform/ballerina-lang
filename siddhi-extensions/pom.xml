@@ -14,29 +14,9 @@
     <artifactId>siddhi-extensions</artifactId>
     <name>Siddhi Extensions</name>
 
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-compiler</artifactId>
-                <version>3.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-api</artifactId>
-                <version>3.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-core</artifactId>
-                <version>3.0.0-SNAPSHOT</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <modules>
         <module>eval-script</module>
+        <module>string</module>
     </modules>
 
 </project>
