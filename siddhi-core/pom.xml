@@ -30,36 +30,27 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-query-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-query-compiler</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.log4j.wso2</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.lmax.wso2</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.2.1.wso2v1</version>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -67,7 +58,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.3.7</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -82,7 +72,6 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>scope=runtime;inline=true</Embed-Dependency>
                         <DynamicImport-Package>*</DynamicImport-Package>
-                        <!--<SPI-Consumer>*</SPI-Consumer>-->
                     </instructions>
                 </configuration>
             </plugin>
