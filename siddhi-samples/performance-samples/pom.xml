@@ -32,19 +32,16 @@
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-query-api</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-query-compiler</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-core</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -58,9 +55,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.lmax</groupId>
+            <groupId>com.lmax.wso2</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.2.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
