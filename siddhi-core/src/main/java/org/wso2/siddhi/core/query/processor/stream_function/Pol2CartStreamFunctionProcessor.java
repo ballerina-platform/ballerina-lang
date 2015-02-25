@@ -99,7 +99,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
      * @return the date for additional output attribute introduced by the function
      */
     @Override
-    protected Object process(Object data) {
+    protected Object[] process(Object data) {
         throw new IllegalStateException("pol2Cart cannot execute for single data " + data);
     }
 

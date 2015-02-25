@@ -29,6 +29,7 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
@@ -110,6 +111,7 @@ public class ExecutionPlanParser {
 
         defineStreamDefinitions(executionPlanRuntime, executionPlan.getStreamDefinitionMap());
         defineTableDefinitions(executionPlanRuntime, executionPlan.getTableDefinitionMap());
+        defineFunctionDefinitions(executionPlanRuntime, executionPlan.getFunctionDefinitionMap());
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
@@ -130,6 +132,12 @@ public class ExecutionPlanParser {
                     executionPlanRuntime.getName() + "\"", e);
         }
         return executionPlanRuntime;
+    }
+
+    private static void defineFunctionDefinitions(ExecutionPlanRuntime executionPlanRuntime, Map<String, FunctionDefinition> functionDefinitionMap) {
+        for (FunctionDefinition definition : functionDefinitionMap.values()) {
+            executionPlanRuntime.defineFunction(definition);
+        }
     }
 
     private static void defineStreamDefinitions(ExecutionPlanRuntime executionPlanRuntime, Map<String, StreamDefinition> streamDefinitionMap) {

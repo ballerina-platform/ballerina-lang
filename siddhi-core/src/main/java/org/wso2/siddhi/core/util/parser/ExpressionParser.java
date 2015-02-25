@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.executor.condition.compare.less_than.*;
 import org.wso2.siddhi.core.executor.condition.compare.less_than_equal.*;
 import org.wso2.siddhi.core.executor.condition.compare.not_equal.*;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.executor.function.ScriptFunctionExecutor;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorInt;
@@ -276,11 +277,20 @@ public class ExpressionParser {
                 executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), AttributeAggregator.class);
             } catch (ExecutionPlanCreationException ex) {
                 try {
-                    executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
+                    if(executionPlanContext.getSiddhiContext().isFunctionExist(((AttributeFunction) expression).getFunction())) {
+                        executor = new ScriptFunctionExecutor(((AttributeFunction) expression).getFunction());
+                    } else {
+                        try {
+                            executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
+                        } catch (ExecutionPlanCreationException e) {
+                            throw new ExecutionPlanCreationException(e.getMessage(), e);
+                        }
+                    }
                 } catch (ExecutionPlanCreationException e) {
                     throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " is neither a function nor an aggregated attribute");
                 }
             }
+
             if (executor instanceof AttributeAggregator) {
                 if (((AttributeFunction) expression).getParameters().length > 1) {
                     throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");

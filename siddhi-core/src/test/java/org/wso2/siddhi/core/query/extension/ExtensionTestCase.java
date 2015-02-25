@@ -43,7 +43,7 @@ public class ExtensionTestCase {
     }
 
     @Test
-    public void ExtensionTest1() throws InterruptedException {
+    public void extensionTest1() throws InterruptedException {
         log.info("extension test1");
         SiddhiManager siddhiManager = new SiddhiManager();
         SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
@@ -84,7 +84,7 @@ public class ExtensionTestCase {
     }
 
     @Test
-    public void ExtensionTest2() throws InterruptedException, ClassNotFoundException {
+    public void extensionTest2() throws InterruptedException, ClassNotFoundException {
         log.info("extension test2");
         SiddhiManager siddhiManager = new SiddhiManager();
         SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();

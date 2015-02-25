@@ -45,15 +45,15 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
     protected ExecutionPlanContext executionPlanContext;
     protected int attributeExpressionLength;
     protected StreamEventPopulater streamEventPopulater;
-    protected String elementId= null;
+    protected String elementId = null;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.inputDefinition = inputDefinition;
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.executionPlanContext = executionPlanContext;
         this.attributeExpressionLength = attributeExpressionExecutors.length;
-        if(elementId==null) {
-            elementId=executionPlanContext.getElementIdGenerator().createNewId();
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(this);
         this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
@@ -72,11 +72,11 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
     }
 
     /**
-     * The init method of the StreamFunction
+     * The init method of the StreamProcessor, this method will be called before other methods
      *
      * @param inputDefinition              the incoming stream definition
-     * @param attributeExpressionExecutors the executors for the function parameters
-     * @param executionPlanContext         the execution plan context
+     * @param attributeExpressionExecutors the executors of each function parameters
+     * @param executionPlanContext         the context of the execution plan
      * @return the additional output attributes introduced by the function
      */
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
@@ -90,6 +90,14 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
         }
     }
 
+    /**
+     * The main processing method that will be called upon event arrival
+     *
+     * @param complexEventChunk    the event chunk that need to be processed
+     * @param nextProcessor        the next processor to which the success events need to be passed
+     * @param streamEventCloner    helps to clone the incoming event for local storage or modification
+     * @param streamEventPopulater helps to populate the events with the resultant attributes
+     */
     protected abstract void process(ComplexEventChunk complexEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater);
 

@@ -15,10 +15,12 @@
 
 package org.wso2.siddhi.core.config;
 
+import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class SiddhiContext {
@@ -26,10 +28,12 @@ public class SiddhiContext {
     private int eventBufferSize;
     private Map<String, Class> siddhiExtensions;
     private PersistenceStore persistenceStore = null;
+    private Map<String, EvalScript> scriptFunctionMap;
 
     public SiddhiContext() {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
         eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
+        this.scriptFunctionMap = new HashMap<String, EvalScript>();
     }
 
     public int getEventBufferSize() {
@@ -55,4 +59,17 @@ public class SiddhiContext {
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.persistenceStore = persistenceStore;
     }
+
+    public EvalScript getEvalScript(String name) {
+        return scriptFunctionMap.get(name);
+    }
+
+    public boolean isFunctionExist(String name) {
+        return scriptFunctionMap.get(name) != null;
+    }
+
+    public Map<String, EvalScript> getScriptFunctionMap() {
+        return scriptFunctionMap;
+    }
+
 }

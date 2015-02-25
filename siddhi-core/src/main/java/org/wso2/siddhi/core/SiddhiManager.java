@@ -17,8 +17,10 @@ package org.wso2.siddhi.core;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
+import org.wso2.siddhi.core.util.parser.FunctionParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,4 +70,14 @@ public class SiddhiManager {
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.siddhiContext.setPersistenceStore(persistenceStore);
     }
+
+    public void defineFunction(String functionDefinition) {
+        defineFunction(SiddhiCompiler.parseFunctionDefinition(functionDefinition));
+    }
+
+    public void defineFunction(FunctionDefinition functionDefinition) {
+        FunctionParser.addFunction(siddhiContext, functionDefinition);
+
+    }
+
 }
