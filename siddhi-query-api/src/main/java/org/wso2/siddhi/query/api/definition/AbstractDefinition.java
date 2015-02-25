@@ -18,10 +18,11 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDefinition {
+public abstract class AbstractDefinition implements Serializable{
 
     protected String id;
     protected List<Attribute> attributeList = new ArrayList<Attribute>();
