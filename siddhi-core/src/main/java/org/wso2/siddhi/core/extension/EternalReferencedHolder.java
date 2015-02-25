@@ -16,8 +16,16 @@ package org.wso2.siddhi.core.extension;
 
 public interface EternalReferencedHolder {
 
+    /**
+     * This will be called only once, to acquire required resources
+     * after initializing the system and before processing the events.
+     */
     public void start();
 
+    /**
+     * This will be called only once, to release the acquired resources
+     * before shutting down the system.
+     */
     public void stop();
 
 }

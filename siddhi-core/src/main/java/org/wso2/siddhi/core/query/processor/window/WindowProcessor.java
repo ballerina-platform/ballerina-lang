@@ -35,6 +35,12 @@ public abstract class WindowProcessor extends StreamProcessor {
         return new ArrayList<Attribute>(0);
     }
 
+    /**
+     * The init method of the WindowProcessor, this method will be called before other methods
+     *
+     * @param attributeExpressionExecutors the executors of each function parameters
+     * @param executionPlanContext         the context of the execution plan
+     */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
     @Override
@@ -43,6 +49,13 @@ public abstract class WindowProcessor extends StreamProcessor {
         process(streamEventChunk, nextProcessor, streamEventCloner);
     }
 
+    /**
+     * The main processing method that will be called upon event arrival
+     *
+     * @param streamEventChunk     the stream event chunk that need to be processed
+     * @param nextProcessor        the next processor to which the success events need to be passed
+     * @param streamEventCloner    helps to clone the incoming event for local storage or modification
+     */
     protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner);
 
