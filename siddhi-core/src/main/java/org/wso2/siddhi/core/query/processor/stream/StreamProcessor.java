@@ -96,7 +96,7 @@ public abstract class StreamProcessor implements Processor, EternalReferencedHol
      * @param complexEventChunk    the event chunk that need to be processed
      * @param nextProcessor        the next processor to which the success events need to be passed
      * @param streamEventCloner    helps to clone the incoming event for local storage or modification
-     * @param streamEventPopulater helps to populate the incoming events with the resultant attributes
+     * @param streamEventPopulater helps to populate the events with the resultant attributes
      */
     protected abstract void process(ComplexEventChunk complexEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater);

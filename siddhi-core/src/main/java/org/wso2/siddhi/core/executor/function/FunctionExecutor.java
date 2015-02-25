@@ -92,7 +92,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
     /**
      * The main execution method which will be called upon event arrival
-     * which has more then one function parameter
+     * when there are more then one function parameter
      *
      * @param data the runtime values of function parameters
      * @return the function result
@@ -101,7 +101,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
     /**
      * The main execution method which will be called upon event arrival
-     * which has zero or one function parameter
+     * when there are zero or one function parameter
      *
      * @param data null if the function parameter count is zero or
      *             runtime data value of the function parameter
