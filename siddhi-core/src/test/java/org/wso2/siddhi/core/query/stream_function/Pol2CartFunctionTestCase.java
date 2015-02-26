@@ -25,8 +25,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class Pol2CartFunctionTest {
-    private static final Logger log = Logger.getLogger(Pol2CartFunctionTest.class);
+public class Pol2CartFunctionTestCase {
+    private static final Logger log = Logger.getLogger(Pol2CartFunctionTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
@@ -75,5 +75,41 @@ public class Pol2CartFunctionTest {
         executionPlanRuntime.shutdown();
 
     }
+    @Test
+    public void pol2CartFunctionTest2() throws InterruptedException {
 
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String polarStream = "define stream PolarStream (theta double, rho double, elevation double);";
+        String query = "@info(name = 'query1') " +
+                "from PolarStream#pol2Cart(theta, rho, elevation) " +
+                "select x, z " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(polarStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                    Assert.assertEquals(12, Math.round((Double) inEvents[0].getData(0)));
+                    Assert.assertEquals(7, Math.round((Double) inEvents[0].getData(1)));
+
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("PolarStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{22.6, 13.0, 7.0});
+        Thread.sleep(100);
+        Assert.assertEquals(1, inEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
 }

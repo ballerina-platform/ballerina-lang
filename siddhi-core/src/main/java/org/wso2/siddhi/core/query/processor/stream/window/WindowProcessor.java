@@ -12,7 +12,7 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.query.processor.window;
+package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -21,14 +21,14 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WindowProcessor extends StreamProcessor {
+public abstract class WindowProcessor extends AbstractStreamProcessor {
 
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         init(attributeExpressionExecutors, executionPlanContext);

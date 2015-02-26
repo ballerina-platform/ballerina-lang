@@ -17,77 +17,58 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.window;
+package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.apache.log4j.Logger;
+
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor{
-    static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
-    private long timeToKeep;
-    private ComplexEventChunk<StreamEvent> expiredEventChunk;
-    private VariableExpressionExecutor timeStampVariableExpressionExecutor;
+public class UniqueWindowProcessor extends WindowProcessor implements FindableProcessor{
+    private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
+    private VariableExpressionExecutor[] variableExpressionExecutors;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-            timeToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
-        } else {
-            timeToKeep = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+        variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length];
+        for (int i = 0; i < attributeExpressionExecutors.length; i++) {
+            variableExpressionExecutors[i] =(VariableExpressionExecutor) attributeExpressionExecutors[i];
         }
-        timeStampVariableExpressionExecutor = ((VariableExpressionExecutor) attributeExpressionExecutors[0]);
     }
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        while (streamEventChunk.hasNext()) {
+        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
 
-            StreamEvent streamEvent = streamEventChunk.next();
-            long currentTime = (Long) streamEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
+        StreamEvent streamEvent = streamEventChunk.getFirst();
+        while (streamEvent != null) {
+            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            StreamEvent clonedEvent = null;
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                clonedEvent.setType(StreamEvent.Type.EXPIRED);
-                clonedEvent.setTimestamp(currentTime + timeToKeep);
+            StreamEvent oldEvent = map.put(generateKey(clonedEvent), clonedEvent);
+            if (oldEvent != null) {
+                complexEventChunk.add(oldEvent);
             }
-
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = expiredEventChunk.next();
-                long timeDiff = expiredEvent.getTimestamp() - currentTime;
-                if (timeDiff <= 0) {
-                    expiredEventChunk.remove();
-                    streamEventChunk.insertBeforeCurrent(expiredEvent);
-                } else {
-                    expiredEventChunk.reset();
-                    break;
-                }
-            }
-
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                this.expiredEventChunk.add(clonedEvent);
-            }
-            expiredEventChunk.reset();
+            StreamEvent next = streamEvent.getNext();
+            streamEvent.setNext(null);
+            complexEventChunk.add(streamEvent);
+            streamEvent = next;
         }
-        nextProcessor.process(streamEventChunk);
+        nextProcessor.process(complexEventChunk);
     }
 
     @Override
@@ -102,21 +83,27 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
 
     @Override
     public Object[] currentState() {
-        return new Object[]{expiredEventChunk};
+        return new Object[]{map};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        map = (ConcurrentHashMap<String, StreamEvent>) state[0];
+    }
+
+    private String generateKey(StreamEvent event) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (VariableExpressionExecutor executor : variableExpressionExecutors) {
+            stringBuilder.append(event.getAttribute(executor.getPosition()));
+        }
+        return stringBuilder.toString();
     }
 
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         finder.setMatchingEvent(matchingEvent);
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
-        expiredEventChunk.reset();
-        while (expiredEventChunk.hasNext()) {
-            StreamEvent streamEvent = expiredEventChunk.next();
+        for(StreamEvent streamEvent:map.values()){
             if (finder.execute(streamEvent)) {
                 returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
             }

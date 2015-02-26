@@ -56,7 +56,8 @@ public class StreamEventPopulaterFactory {
                         streamMappingElement = new StreamMappingElement();
                         streamMappingElement.setToPosition(new int[]{streamEventChainIndex, 0, BEFORE_WINDOW_DATA_INDEX, index});
                     } else {
-                        throw new ExecutionPlanCreationException(attribute + " not exist in " + metaStreamEvent);
+                        streamMappingElement = new StreamMappingElement();
+                        streamMappingElement.setToPosition(null);
                     }
                 }
             }
