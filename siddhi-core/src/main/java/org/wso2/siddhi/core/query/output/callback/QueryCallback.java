@@ -149,7 +149,7 @@ public abstract class QueryCallback {
 //        }
 
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
-            for(Constructor constructor:Disruptor.class.getConstructors()) {
+            for (Constructor constructor : Disruptor.class.getConstructors()) {
                 if (constructor.getParameterTypes().length == 5) {      //if new disruptor implementation available
                     disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
                             executionPlanContext.getSiddhiContext().getEventBufferSize(),
@@ -157,7 +157,7 @@ public abstract class QueryCallback {
                     break;
                 }
             }
-            if(disruptor == null) {
+            if (disruptor == null) {
                 disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),
                         executionPlanContext.getExecutorService());

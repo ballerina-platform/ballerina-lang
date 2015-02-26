@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDefinition implements Serializable{
+public abstract class AbstractDefinition implements Serializable {
 
     protected String id;
     protected List<Attribute> attributeList = new ArrayList<Attribute>();

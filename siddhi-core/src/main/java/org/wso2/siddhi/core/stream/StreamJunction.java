@@ -163,7 +163,7 @@ public class StreamJunction {
                 parallel = executionPlanContext.isParallel();
             }
             if (parallel) {
-                for(Constructor constructor:Disruptor.class.getConstructors()) {
+                for (Constructor constructor : Disruptor.class.getConstructors()) {
                     if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
                         ProducerType producerType = ProducerType.SINGLE;
 
@@ -176,7 +176,7 @@ public class StreamJunction {
                         break;
                     }
                 }
-                if(disruptor == null) {
+                if (disruptor == null) {
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
                             bufferSize, executorService);
                 }
