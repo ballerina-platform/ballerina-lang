@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.stream_function;
+package org.wso2.siddhi.core.query.processor.stream.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;

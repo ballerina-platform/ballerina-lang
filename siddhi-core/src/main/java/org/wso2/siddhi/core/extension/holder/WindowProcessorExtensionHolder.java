@@ -15,7 +15,7 @@
 package org.wso2.siddhi.core.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 
 public class WindowProcessorExtensionHolder extends AbstractExtensionHolder {
     private static WindowProcessorExtensionHolder instance;

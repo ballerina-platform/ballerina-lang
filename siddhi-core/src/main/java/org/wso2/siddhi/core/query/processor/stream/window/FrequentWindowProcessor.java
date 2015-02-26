@@ -17,8 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.window;
-
+package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -26,6 +25,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -34,19 +34,28 @@ import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class UniqueWindowProcessor extends WindowProcessor implements FindableProcessor{
+/**
+ * This is the implementation of a counting algorithm based on
+ * Misra-Gries counting algorithm
+ */
+public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor{
+    private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
 
+    private int mostFrequentCount;
+
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length];
-        for (int i = 0; i < attributeExpressionExecutors.length; i++) {
-            variableExpressionExecutors[i] =(VariableExpressionExecutor) attributeExpressionExecutors[i];
+        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)attributeExpressionExecutors[0]).getValue()));
+        variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
+        for (int i = 1; i < attributeExpressionExecutors.length; i++) {
+            variableExpressionExecutors[i - 1] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
         }
     }
 
@@ -55,20 +64,56 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
+
         while (streamEvent != null) {
+            StreamEvent next = streamEvent.getNext();
+            streamEvent.setNext(null);
+
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
             clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            StreamEvent oldEvent = map.put(generateKey(clonedEvent), clonedEvent);
+            StreamEvent oldEvent = map.put(generateKey(streamEvent), clonedEvent);
             if (oldEvent != null) {
-                complexEventChunk.add(oldEvent);
+                countMap.put(generateKey(streamEvent), countMap.get(generateKey(streamEvent)) + 1);
+                complexEventChunk.add(streamEvent);
+            } else {
+                //  This is a new event
+                if (map.size() > mostFrequentCount) {
+                    List<String> keys = new ArrayList<String>();
+                    keys.addAll(countMap.keySet());
+                    for (int i = 0; i < mostFrequentCount; i++) {
+                        int count = countMap.get(keys.get(i)) - 1;
+                        if (count == 0) {
+                            countMap.remove(keys.get(i));
+                            complexEventChunk.add(map.remove(keys.get(i)));
+                        } else {
+                            countMap.put(keys.get(i), count);
+                        }
+                    }
+                    // now we have tried to remove one for newly added item
+                    if (map.size() > mostFrequentCount) {
+                        //nothing happend by the attempt to remove one from the
+                        // map so we are ignoring this event
+                        map.remove(generateKey(streamEvent));
+                        // Here we do nothing just drop the message
+                    } else {
+                        // we got some space, event is already there in map object
+                        // we just have to add it to the countMap
+                        countMap.put(generateKey(streamEvent), 1);
+                        complexEventChunk.add(streamEvent);
+                    }
+
+                } else {
+                    countMap.put(generateKey(streamEvent), 1);
+                    complexEventChunk.add(streamEvent);
+                }
+
             }
-            StreamEvent next = streamEvent.getNext();
-            streamEvent.setNext(null);
-            complexEventChunk.add(streamEvent);
+
             streamEvent = next;
         }
         nextProcessor.process(complexEventChunk);
+
     }
 
     @Override
@@ -83,18 +128,24 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
 
     @Override
     public Object[] currentState() {
-        return new Object[]{map};
+        return new Object[]{countMap};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        map = (ConcurrentHashMap<String, StreamEvent>) state[0];
+        countMap = (ConcurrentHashMap<String, Integer>) state[0];
     }
 
-    private String generateKey(StreamEvent event) {
+    private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
         StringBuilder stringBuilder = new StringBuilder();
-        for (VariableExpressionExecutor executor : variableExpressionExecutors) {
-            stringBuilder.append(event.getAttribute(executor.getPosition()));
+        if (variableExpressionExecutors.length == 0) {
+            for (Object data : event.getOutputData()) {
+                stringBuilder.append(data);
+            }
+        } else {
+            for (VariableExpressionExecutor executor : variableExpressionExecutors) {
+                stringBuilder.append(event.getAttribute(executor.getPosition()));
+            }
         }
         return stringBuilder.toString();
     }
