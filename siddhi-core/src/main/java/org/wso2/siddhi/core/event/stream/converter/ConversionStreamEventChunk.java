@@ -137,7 +137,6 @@ public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
             }
         }
         lastReturned.setNext(null);
-        streamEventPool.returnEvents(lastReturned);
         lastReturned = null;
     }
 

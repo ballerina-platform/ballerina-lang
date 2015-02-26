@@ -19,6 +19,9 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.query.output.rateLimit.event.*;
+import org.wso2.siddhi.core.query.output.rateLimit.snapshot.WrappedSnapshotOutputRateLimiter;
+import org.wso2.siddhi.core.query.output.rateLimit.time.*;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
@@ -29,7 +32,10 @@ import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.TimeOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
@@ -37,6 +43,7 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class OutputParser {
 
@@ -131,11 +138,53 @@ public class OutputParser {
         }
     }
 
-    public static OutputRateLimiter constructOutputRateLimiter(String id, OutputRate outputRate) {
+    public static OutputRateLimiter constructOutputRateLimiter(String id, OutputRate outputRate, boolean isGroupBy, boolean isWindow, ScheduledExecutorService scheduledExecutorService) {
         if (outputRate == null) {
             return new PassThroughOutputRateLimiter(id);
+        } else if (outputRate instanceof EventOutputRate) {
+            switch (((EventOutputRate) outputRate).getType()) {
+                case ALL:
+                    return new AllPerEventOutputRateLimiter(id, ((EventOutputRate) outputRate).getValue());
+                case FIRST:
+                    if (isGroupBy) {
+                        return new FirstGroupByPerEventOutputRateLimiter(id, ((EventOutputRate) outputRate).getValue());
+                    } else {
+                        return new FirstPerEventOutputRateLimiter(id, ((EventOutputRate) outputRate).getValue());
+                    }
+                case LAST:
+                    if (isGroupBy) {
+                        return new LastGroupByPerEventOutputRateLimiter(id, ((EventOutputRate) outputRate).getValue());
+                    } else {
+                        return new LastPerEventOutputRateLimiter(id, ((EventOutputRate) outputRate).getValue());
+                    }
+            }
+            //never happens
+            return null;
+        } else if (outputRate instanceof TimeOutputRate) {
+            switch (((TimeOutputRate) outputRate).getType()) {
+                case ALL:
+                    return new AllPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                case FIRST:
+                    if (isGroupBy) {
+                        return new FirstGroupByPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                    } else {
+                        return new FirstPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                    }
+                case LAST:
+                    if (isGroupBy) {
+                        return new LastGroupByPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                    } else {
+                        return new LastPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                    }
+            }
+            //never happens
+            return null;
+        } else {
+            return new WrappedSnapshotOutputRateLimiter(id, ((SnapshotOutputRate) outputRate).getValue(), scheduledExecutorService, isGroupBy, isWindow);
         }
-        //TODO: else
-        return null;
+
     }
-}
+
+
+
+    }

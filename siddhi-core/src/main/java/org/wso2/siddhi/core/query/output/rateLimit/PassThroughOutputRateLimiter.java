@@ -16,56 +16,41 @@ package org.wso2.siddhi.core.query.output.rateLimit;
 
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.query.processor.Processor;
 
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     private static final Logger log = Logger.getLogger(PassThroughOutputRateLimiter.class);
     private String id;
+    private ComplexEventChunk<ComplexEvent> eventChunk;
 
     public PassThroughOutputRateLimiter(String id) {
         this.id = id;
+        eventChunk = new ComplexEventChunk<ComplexEvent>();
     }
 
     public PassThroughOutputRateLimiter clone(String key) {
         return new PassThroughOutputRateLimiter(id + key);
     }
 
-
-//    @Override
-//    public void send(long timeStamp, StreamEvent currentEvent, StreamEvent expiredEvent) {
-//        if (log.isTraceEnabled()) {
-//            log.trace("event is sent through outputRateLimiter "+ id+ this);
-//        }
-//        sendToCallBacks(timeStamp, currentEvent, expiredEvent, currentEvent != null ? currentEvent : expiredEvent);
-//    }
-
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        complexEventChunk.reset();
-        sendToCallBacks(complexEventChunk);
-
-        //this method will not be used since no processing is done by rateLimiters
+        sendToCallBacks(eventChunk);
+        eventChunk.clear();
     }
 
     @Override
-    public Processor getNextProcessor() {
-        return null;
+    public void add(ComplexEvent complexEvent) {
+        eventChunk.add(complexEvent);
     }
 
     @Override
-    public void setNextProcessor(Processor processor) {
-        //this method will not be used as there is no processors after an outputRateLimiter
+    public void start() {
+        //Nothing to start
     }
 
     @Override
-    public void setToLast(Processor processor) {
-        throw new IllegalStateException(" ");
-        //this method will not be used as there is no processors after an outputRateLimiter
-    }
-
-    @Override
-    public Processor cloneProcessor(String key) {
-        return null;
+    public void stop() {
+        //Nothing to stop
     }
 }

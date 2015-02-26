@@ -49,4 +49,8 @@ public class AttributeProcessor {
     public void setOutputPosition(int position) {
         this.outputPosition = position;
     }
+
+    public ExpressionExecutor getExpressionExecutor() {
+        return expressionExecutor;
+    }
 }

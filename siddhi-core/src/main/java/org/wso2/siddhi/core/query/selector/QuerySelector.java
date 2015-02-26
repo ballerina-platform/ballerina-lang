@@ -61,7 +61,7 @@ public class QuerySelector implements Processor {
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-
+        boolean eventSent = false;
         complexEventChunk.reset();
 
         if (log.isTraceEnabled()) {
@@ -83,21 +83,20 @@ public class QuerySelector implements Processor {
                 for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                     attributeProcessor.process(event);
                 }
+                complexEventChunk.remove();
+
+                if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                    outputRateLimiter.add(event);
+                    eventSent = true;
+                }
 
                 if (isGroupBy) {
                     keyThreadLocal.remove();
                 }
-
-                if (havingConditionExecutor != null && !havingConditionExecutor.execute(event)) {
-                    complexEventChunk.remove();
-                }
-            } else {
-                complexEventChunk.remove();
             }
-
         }
 
-        if (complexEventChunk.getFirst() != null) {
+        if (eventSent) {
             outputRateLimiter.process(complexEventChunk);
         }
     }
@@ -114,16 +113,18 @@ public class QuerySelector implements Processor {
 
     @Override
     public Processor getNextProcessor() {
-        return outputRateLimiter;
+        return null;    //since there is no processors after a query selector
     }
 
     @Override
     public void setNextProcessor(Processor processor) {
-        if (!(processor instanceof OutputRateLimiter)) {
-            throw new ExecutionPlanCreationException("processor is not an instance of OutputRateLimiter");
-        }
-        if (outputRateLimiter == null) {
-            this.outputRateLimiter = (OutputRateLimiter) processor;
+        //this method will not be used as there is no processors after a query selector
+    }
+
+
+    public void setNextProcessor(OutputRateLimiter outputRateLimiter) {
+        if (this.outputRateLimiter == null) {
+            this.outputRateLimiter = outputRateLimiter;
         } else {
             throw new ExecutionPlanCreationException("outputRateLimiter is already assigned");
         }
