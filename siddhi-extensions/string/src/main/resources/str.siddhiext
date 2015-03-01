@@ -12,3 +12,5 @@ strcmp=org.wso2.siddhi.extension.string.StrcmpFunctionExtension
 substr=org.wso2.siddhi.extension.string.SubstrFunctionExtension
 trim=org.wso2.siddhi.extension.string.TrimFunctionExtension
 upper=org.wso2.siddhi.extension.string.UpperFunctionExtension
+hex=org.wso2.siddhi.extension.string.HexFunctionExtension
+unhex=org.wso2.siddhi.extension.string.UnhexFunctionExtension

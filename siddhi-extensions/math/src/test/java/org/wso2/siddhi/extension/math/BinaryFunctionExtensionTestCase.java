@@ -37,7 +37,7 @@ public class BinaryFunctionExtensionTestCase {
         logger.info("BinaryFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue int);";
+        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue long);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:bin(inValue) as binValue "
@@ -59,8 +59,8 @@ public class BinaryFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Integer[]{10});
-        Thread.sleep(1000);
+        inputHandler.send(new Object[]{10l});
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

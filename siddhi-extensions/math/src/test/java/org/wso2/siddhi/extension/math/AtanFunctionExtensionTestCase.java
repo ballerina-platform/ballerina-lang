@@ -59,7 +59,7 @@ public class AtanFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{6d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 
@@ -91,7 +91,7 @@ public class AtanFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{12d, 5d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

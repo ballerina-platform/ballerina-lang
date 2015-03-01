@@ -60,7 +60,7 @@ public class Log10FunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{19.234});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

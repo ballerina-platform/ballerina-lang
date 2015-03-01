@@ -60,7 +60,7 @@ public class SinFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{6d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

@@ -60,7 +60,7 @@ public class AcosFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{0.123d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 
@@ -91,7 +91,7 @@ public class AcosFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{12d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 
@@ -122,7 +122,7 @@ public class AcosFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{Double.NaN});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 
@@ -153,7 +153,7 @@ public class AcosFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Float[]{0.123f});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

@@ -18,13 +18,12 @@
 
 package org.wso2.siddhi.extension.math;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
 * asin(a);
@@ -33,32 +32,18 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 * Return Type(s): DOUBLE
 */
 public class AsinFunctionExtension extends FunctionExecutor {
-
-    private static final Logger log = Logger.getLogger(AsinFunctionExtension.class);
-    private boolean isDebugMode = false;
-    Attribute.Type returnType = Attribute.Type.DOUBLE;
-
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
         if (attributeExpressionExecutors.length != 1) {
-            String errMsg = "Invalid no of Arguments Passed. Attribute Length is - "
-                    + attributeExpressionExecutors.length;
-            throw new ExecutionPlanCreationException(errMsg);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:asin() function, " +
+                    "required 1, but found " + attributeExpressionExecutors.length);
         }
-        for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
-            Attribute.Type attributeType = expressionExecutor.getReturnType();
-            if (isDebugMode) {
-                log.debug("Attribute Type - " + attributeType.toString());
-            }
-            if (!((attributeType == Attribute.Type.DOUBLE)
-                    || (attributeType == Attribute.Type.FLOAT))) {
-                String errMsg = "Invalid parameters type found - "
-                        + expressionExecutor.getReturnType().toString();
-                throw new ExecutionPlanCreationException(errMsg);
-            }
+        Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
+        if (!((attributeType == Attribute.Type.FLOAT)
+                || (attributeType == Attribute.Type.DOUBLE))) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:asin() function, " +
+                    "required " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
+                    " but found " + attributeType.toString());
         }
     }
 
@@ -69,26 +54,19 @@ public class AsinFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        double inputValue = 0d;
-        double outputValue = 0d;
-
         if (data != null) {
             //type-conversion
             if (data instanceof Float) {
-                float inputLong = (Float) data;
-                inputValue = (double) inputLong;
+                float inputFloat = (Float) data;
+                return Math.asin((double) inputFloat);
             } else if (data instanceof Double) {
-                inputValue = (Double) data;
-            }
-
-            outputValue = Math.asin(inputValue);
-            if (isDebugMode) {
-                log.debug("Input Value = " + inputValue + ", Output Value = " + outputValue);
+                double inputValue = (Double) data;
+                return Math.asin(inputValue);
             }
         } else {
-            throw new OperationNotSupportedException("Input to the math:asin() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:asin() function cannot be null");
         }
-        return outputValue;
+        return null;
     }
 
     @Override
@@ -103,7 +81,7 @@ public class AsinFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        return returnType;
+        return Attribute.Type.DOUBLE;
     }
 
     @Override
@@ -113,8 +91,6 @@ public class AsinFunctionExtension extends FunctionExecutor {
 
     @Override
     public void restoreState(Object[] state) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
+        //Since there's no need to maintain a state, nothing needs to be done here.
     }
 }

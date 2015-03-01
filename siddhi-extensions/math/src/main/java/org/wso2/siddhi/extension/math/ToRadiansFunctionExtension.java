@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
- * toRadians(a)
+ * to_radians(a)
  * Converts a from degrees to radians.
  * 1 degrees = π/180º = 0.005555556π = 0.0174532925 radians
  * Accept Type(s) :DOUBLE/INT/FLOAT/LONG
@@ -36,7 +36,7 @@ public class ToRadiansFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:toRadians() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:to_radians() function, " +
                     "required 1, but found " + attributeExpressionExecutors.length);
         }
         Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
@@ -44,7 +44,7 @@ public class ToRadiansFunctionExtension extends FunctionExecutor {
                 || (attributeType == Attribute.Type.INT)
                 || (attributeType == Attribute.Type.FLOAT)
                 || (attributeType == Attribute.Type.LONG))) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:toRadians() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:to_radians() function, " +
                     "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
                     " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
                     ", but found " + attributeType.toString());
@@ -53,7 +53,7 @@ public class ToRadiansFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null;  //Since the toRadians function takes in only 1 parameter, this method does not get called. Hence, not implemented.
+        return null;  //Since the to_radians function takes in only 1 parameter, this method does not get called. Hence, not implemented.
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ToRadiansFunctionExtension extends FunctionExecutor {
                 return Math.toRadians((Double) data);
             }
         } else {
-            throw new ExecutionPlanRuntimeException("Input to the math:toRadians() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:to_radians() function cannot be null");
         }
         return null;
     }

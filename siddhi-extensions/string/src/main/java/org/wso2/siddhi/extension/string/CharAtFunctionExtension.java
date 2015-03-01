@@ -65,7 +65,6 @@ public class CharAtFunctionExtension extends FunctionExecutor {
             return source.charAt(index);
         } catch (IndexOutOfBoundsException e) {
             throw new ExecutionPlanRuntimeException("Index argument "+index+
-
                     " is negative or not less than the length of the given string "+source, e);
         }
     }

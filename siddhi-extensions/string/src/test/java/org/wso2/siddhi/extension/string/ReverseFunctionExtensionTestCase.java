@@ -73,7 +73,7 @@ public class ReverseFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"AbCDefghiJ KLMN", 700f, 100l});
-        inputHandler.send(new Object[]{" 12345678", 60.5f, 200l});
+        inputHandler.send(new Object[]{"12345678", 60.5f, 200l});
         inputHandler.send(new Object[]{"Hello World", 60.5f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);

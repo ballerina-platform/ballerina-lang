@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
-* toDegrees(a);
+* to_degrees(a);
 * Converts the given parameter from radians to degrees. 1 radian = 180º/π =
 * 57.295779513 degrees
 * Accept Type(s) :DOUBLE/INT/FLOAT/LONG
@@ -36,7 +36,7 @@ public class ToDegreesFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:toDegrees() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:to_degrees() function, " +
                     "required 1, but found " + attributeExpressionExecutors.length);
         }
         Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
@@ -44,7 +44,7 @@ public class ToDegreesFunctionExtension extends FunctionExecutor {
                 || (attributeType == Attribute.Type.INT)
                 || (attributeType == Attribute.Type.FLOAT)
                 || (attributeType == Attribute.Type.LONG))) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:toDegrees() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:to_degrees() function, " +
                     "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
                     " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
                     ", but found " + attributeType.toString());
@@ -53,7 +53,7 @@ public class ToDegreesFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null;  //Since the toDegrees function takes in only 1 parameter, this method does not get called. Hence, not implemented.
+        return null;  //Since the to_degrees function takes in only 1 parameter, this method does not get called. Hence, not implemented.
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ToDegreesFunctionExtension extends FunctionExecutor {
                 return Math.toDegrees((Double) data);
             }
         } else {
-            throw new ExecutionPlanRuntimeException("Input to the math:toDegrees() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:to_degrees() function cannot be null");
         }
         return null;
     }

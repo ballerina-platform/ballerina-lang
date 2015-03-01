@@ -59,8 +59,8 @@ public class AsinFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{null});
-        Thread.sleep(1000);
+        inputHandler.send(new Object[]{0.6d});
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

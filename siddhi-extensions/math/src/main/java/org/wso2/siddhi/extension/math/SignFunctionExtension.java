@@ -18,50 +18,38 @@
 
 package org.wso2.siddhi.extension.math;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * signum(a);
- * <p/>
  * Returns the sign of a as '1.0' (if a is positive) or '-1.0' (if a is
  * negative), '0.0' otherwise.
- * <p/>
  * Accept Type(s) :DOUBLE/INT/FLOAT/LONG
  * Return Type(s): INT
  * Returning an INT rather than a DOUBLE because an INT is *sufficient* to represent -1,0 and 1
  */
 public class SignFunctionExtension extends FunctionExecutor {
-    private static final Logger log = Logger.getLogger(SignFunctionExtension.class);
-    private boolean isDebugMode = false;
-    Attribute.Type returnType = Attribute.Type.INT;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
         if (attributeExpressionExecutors.length != 1) {
-            String errMsg = "Invalid no of Arguments Passed. Required 1. Found " + attributeExpressionExecutors.length;
-            throw new ExecutionPlanCreationException(errMsg);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:signum() function, " +
+                    "required 1, but found " + attributeExpressionExecutors.length);
         }
-        for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
-            Attribute.Type attributeType = expressionExecutor.getReturnType();
-            if (isDebugMode) {
-                log.debug("Attribute Type - " + attributeType.toString());
-            }
-            if (!((attributeType == Attribute.Type.DOUBLE)
-                    || (attributeType == Attribute.Type.INT)
-                    || (attributeType == Attribute.Type.FLOAT)
-                    || (attributeType == Attribute.Type.LONG))) {
-                String errMsg = "Invalid parameter type found - " + attributeType.toString();
-                throw new ExecutionPlanCreationException(errMsg);
-            }
+        Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
+        if (!((attributeType == Attribute.Type.DOUBLE)
+                || (attributeType == Attribute.Type.INT)
+                || (attributeType == Attribute.Type.FLOAT)
+                || (attributeType == Attribute.Type.LONG))) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:signum() function, " +
+                    "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
+                    " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
+                    ", but found " + attributeType.toString());
         }
     }
 
@@ -79,25 +67,20 @@ public class SignFunctionExtension extends FunctionExecutor {
             //type-conversion
             if (data instanceof Integer) {
                 int inputInt = (Integer) data;
-                inputValue = (double) inputInt;
+                return (int)Math.signum((double) inputInt);
             } else if (data instanceof Long) {
                 long inputLong = (Long) data;
-                inputValue = (double) inputLong;
+                return (int)Math.signum((double) inputLong);
             } else if (data instanceof Float) {
-                float inputLong = (Float) data;
-                inputValue = (double) inputLong;
+                float inputFloat = (Float) data;
+                return (int)Math.signum((double) inputFloat);
             } else if (data instanceof Double) {
-                inputValue = (Double) data;
-            }
-
-            returnValue = Math.signum(inputValue);
-            if (isDebugMode) {
-                log.debug("Input Value = " + inputValue + ", Output Value =" + returnValue);
+                return (int)Math.signum((Double) data);
             }
         } else {
-            throw new OperationNotSupportedException("Input to the math:signum() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:signum() function cannot be null");
         }
-        return (int) returnValue;
+        return null;
     }
 
     @Override
@@ -112,7 +95,7 @@ public class SignFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        return returnType;
+        return Attribute.Type.INT;
     }
 
     @Override
@@ -122,8 +105,6 @@ public class SignFunctionExtension extends FunctionExecutor {
 
     @Override
     public void restoreState(Object[] state) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
+        //Since there's no need to maintain a state, nothing needs to be done here.
     }
 }

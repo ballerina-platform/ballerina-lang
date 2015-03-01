@@ -18,13 +18,12 @@
 
 package org.wso2.siddhi.extension.math;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * conv(a,fromBase,toBase)
@@ -34,44 +33,42 @@ import org.wso2.siddhi.query.api.definition.Attribute;
  */
 public class ConvertFunctionExtension extends FunctionExecutor {
 
-    private static final Logger log = Logger.getLogger(ConvertFunctionExtension.class);
-    private boolean isDebugMode = false;
-    Attribute.Type returnType = Attribute.Type.STRING;
-
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanCreationException("Invalid no of Arguments Passed. Required 3. Found " + attributeExpressionExecutors.length);
-        } else {
-            if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING || attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT || attributeExpressionExecutors[2].getReturnType() != Attribute.Type.INT) {
-                throw new ExecutionPlanCreationException(
-                        "Invalid parameter types found in math:conv() function");
-            } else {
-                if (log.isDebugEnabled()) {
-                    isDebugMode = true;
-                }
-            }
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:conv() function, " +
+                    "required 3, but found " + attributeExpressionExecutors.length);
+        }
+        if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of math:conv() function, " +
+                    "required " + Attribute.Type.STRING + ", but found " + attributeExpressionExecutors[0].getReturnType().toString());
+        }
+        if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of math:conv() function, " +
+                    "required " + Attribute.Type.INT + ", but found " + attributeExpressionExecutors[1].getReturnType().toString());
+        }
+        if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.INT) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of math:conv() function, " +
+                    "required " + Attribute.Type.INT + ", but found " + attributeExpressionExecutors[2].getReturnType().toString());
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        if (data[0] == null || data[1] == null || data[2] == null) {
-            throw new OperationNotSupportedException("Input to the math:conv() function cannot be null");
+        if (data[0] == null) {
+            throw new ExecutionPlanRuntimeException("Invalid input given to math:conv() function. First argument cannot be null");
+        }
+        if (data[1] == null) {
+            throw new ExecutionPlanRuntimeException("Invalid input given to math:conv() function. Second argument cannot be null");
+        }
+        if (data[2] == null) {
+            throw new ExecutionPlanRuntimeException("Invalid input given to math:conv() function. Third argument cannot be null");
         }
         String nValue = (String) data[0];
         int fromBase = (Integer) data[1];
         int toBase = (Integer) data[2];
-        String result = Integer.toString(
-                Integer.parseInt(nValue, fromBase), toBase);   // Call Java API parseInt(radix) to convert a value from one base to other base.
-
-        if (isDebugMode) {
-            log.debug("Input values are , Value:" + nValue
-                    + ", From Base: " + fromBase + ", To Base:"
-                    + toBase + ", Converted String is " + result);
-        }
-        data = null;  // removing the pointer of paramObj, hence this would be garbage collected soon.
-        return result;
+        return Integer.toString(
+                Integer.parseInt(nValue, fromBase), toBase);
     }
 
     @Override
@@ -91,7 +88,7 @@ public class ConvertFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        return returnType;
+        return Attribute.Type.STRING;
     }
 
     @Override
@@ -101,8 +98,6 @@ public class ConvertFunctionExtension extends FunctionExecutor {
 
     @Override
     public void restoreState(Object[] state) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
+        //Since there's no need to maintain a state, nothing needs to be done here.
     }
 }

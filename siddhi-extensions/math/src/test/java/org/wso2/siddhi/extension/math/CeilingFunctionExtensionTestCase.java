@@ -59,8 +59,8 @@ public class CeilingFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Double[]{423.187});
-        Thread.sleep(1000);
+        inputHandler.send(new Object[]{423.187d});
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

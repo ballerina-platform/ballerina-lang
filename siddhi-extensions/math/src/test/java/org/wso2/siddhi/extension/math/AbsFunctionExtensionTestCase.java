@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class AbsFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(AbsFunctionExtensionTestCase.class);
+    private static Logger logger = Logger.getLogger(ParseDoubleFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test
@@ -60,7 +60,7 @@ public class AbsFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{6d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }

@@ -18,40 +18,33 @@
 
 package org.wso2.siddhi.extension.math;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * bin(a)
- * A Class which is used to do binary conversion.
- * Accept Type(s):INT
+ * This class wraps the java.lang.Integer.toBinaryString and java.lang.Long.toBinaryString methods,
+ *      which returns a string representation of the integer/long argument as an unsigned integer in base 2.
+ * Accept Type(s):INT, LONG        //todo: also support LONG
  * Return Type(s): STRING
  */
 public class BinaryFunctionExtension extends FunctionExecutor {
 
-    private static final Logger log = Logger.getLogger(BinaryFunctionExtension.class);
-    private boolean isDebugMode = false;
-    Attribute.Type returnType = Attribute.Type.STRING;
-
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanCreationException("Invalid no of Arguments Passed. Required 1. Found " + attributeExpressionExecutors.length);
-        } else {
-            Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
-            if (attributeType != Attribute.Type.INT) {
-                throw new ExecutionPlanCreationException(
-                        "math:bin() function can have only an int parameter");
-            } else {
-                if (log.isDebugEnabled()) {
-                    isDebugMode = true;
-                }
-            }
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:bin() function, " +
+                    "required 1, but found " + attributeExpressionExecutors.length);
+        }
+        Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
+        if (attributeType != Attribute.Type.INT && attributeType != Attribute.Type.LONG) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:bin() function, " +
+                    "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
+                    ", but found " + attributeType.toString());
         }
     }
 
@@ -62,17 +55,14 @@ public class BinaryFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        String output;
-        int input;
         if (data != null) {
-            input = (Integer) data;
-            output = Integer.toBinaryString(input);
-            if (isDebugMode) {
-                log.debug("Input value is " + input + ", Binary result is " + output);
+            if (data instanceof Integer) {
+                return Integer.toBinaryString((Integer) data);
+            } else {
+                return Long.toBinaryString((Long) data);
             }
-            return output;
         } else {
-            throw new OperationNotSupportedException("Input to the math:bin() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:bin() function cannot be null");
         }
     }
 
@@ -88,7 +78,7 @@ public class BinaryFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        return returnType;
+        return Attribute.Type.STRING;
     }
 
     @Override
@@ -98,8 +88,6 @@ public class BinaryFunctionExtension extends FunctionExecutor {
 
     @Override
     public void restoreState(Object[] state) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
+        //Since there's no need to maintain a state, nothing needs to be done here.
     }
 }

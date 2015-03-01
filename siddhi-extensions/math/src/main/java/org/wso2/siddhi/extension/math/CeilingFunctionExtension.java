@@ -18,40 +18,34 @@
 
 package org.wso2.siddhi.extension.math;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * ceil(a)
- * A Class which is used to calculate ceiling function.
- * Accept Type(s): DOUBLE
+ * Wraps java.lang.Math.ceil()
+ *  Returns the smallest (closest to negative infinity) double value that is greater
+ *  than or equal to the argument and is equal to a mathematical integer.
+ * Accept Type(s): FLOAT/DOUBLE
  * Return Type(s): DOUBLE
  */
 public class CeilingFunctionExtension extends FunctionExecutor {
 
-    private static final Logger log = Logger.getLogger(CeilingFunctionExtension.class);
-    private boolean isDebugMode = false;
-    Attribute.Type returnType = Attribute.Type.DOUBLE;
-
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanCreationException("Invalid no of Arguments Passed. Required 1. Found " + attributeExpressionExecutors.length);
-        } else {
-            Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
-            if (attributeType != Attribute.Type.DOUBLE) {
-                throw new ExecutionPlanCreationException(
-                        "math:ceil() function can have only a double parameter");
-            } else {
-                if (log.isDebugEnabled()) {
-                    isDebugMode = true;
-                }
-            }
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:ceil() function, " +
+                    "required 1, but found " + attributeExpressionExecutors.length);
+        }
+        Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
+        if (attributeType != Attribute.Type.DOUBLE && attributeType != Attribute.Type.FLOAT) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:ceil() function, " +
+                    "required " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
+                    ", but found " + attributeType.toString());
         }
     }
 
@@ -62,17 +56,14 @@ public class CeilingFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        Double output;
-        Double input;
         if (data != null) {
-            input = (Double) data;
-            output = Math.ceil(input);
-            if (isDebugMode) {
-                log.debug("Input value is " + input + ", Ceiling result is " + output);
+            if (data instanceof Float) {
+                return Math.ceil((Float) data);
+            } else {
+                return Math.ceil((Double) data);
             }
-            return output;
         } else {
-            throw new OperationNotSupportedException("Input to the math:ceil() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:ceil() function cannot be null");
         }
     }
 
@@ -88,7 +79,7 @@ public class CeilingFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        return returnType;
+        return Attribute.Type.DOUBLE;
     }
 
     @Override
@@ -98,8 +89,6 @@ public class CeilingFunctionExtension extends FunctionExecutor {
 
     @Override
     public void restoreState(Object[] state) {
-        if (log.isDebugEnabled()) {
-            isDebugMode = true;
-        }
+        //Since there's no need to maintain a state, nothing needs to be done here.
     }
 }

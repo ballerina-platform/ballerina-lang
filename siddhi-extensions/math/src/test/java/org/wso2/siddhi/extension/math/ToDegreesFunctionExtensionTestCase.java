@@ -40,7 +40,7 @@ public class ToDegreesFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:toDegrees(inValue) as degreesValue "
+                + "select math:to_degrees(inValue) as degreesValue "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 
@@ -60,7 +60,7 @@ public class ToDegreesFunctionExtensionTestCase {
                 .getInputHandler("InValueStream");
         executionPlanRuntime.start();
         inputHandler.send(new Double[]{6d});
-        Thread.sleep(1000);
+        Thread.sleep(100);
         executionPlanRuntime.shutdown();
     }
 }
