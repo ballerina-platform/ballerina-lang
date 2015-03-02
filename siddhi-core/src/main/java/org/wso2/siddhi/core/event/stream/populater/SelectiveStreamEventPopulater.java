@@ -41,6 +41,10 @@ public class SelectiveStreamEventPopulater implements StreamEventPopulater {
     }
 
     private void populateStreamEvent(ComplexEvent complexEvent, Object data, int[] toPosition) {
+        if (toPosition == null) {
+            // This happens when this data is not used by the query.
+            return;
+        }
         StreamEvent streamEvent;
         if (complexEvent instanceof StreamEvent) {
             streamEvent = (StreamEvent) complexEvent;

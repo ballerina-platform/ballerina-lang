@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,11 +43,21 @@ public class SingleStreamEntryValve implements InputProcessor {
         this.executionPlanContext = executionPlanContext;
         this.inputProcessor = inputProcessor;
         SingleEntryValveHandler singleEntryValveHandler = new SingleEntryValveHandler();
-        singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
-                executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                executionPlanContext.getExecutorService(),
-                ProducerType.MULTI,
-                new SleepingWaitStrategy());
+        for (Constructor constructor : Disruptor.class.getConstructors()) {
+            if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
+                singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                        executionPlanContext.getExecutorService(),
+                        ProducerType.MULTI,
+                        new SleepingWaitStrategy());
+                break;
+            }
+        }
+        if (singleEntryDisruptor == null) {
+            singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
+                    executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                    executionPlanContext.getExecutorService());
+        }
         singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
     }
 

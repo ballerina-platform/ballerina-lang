@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.execution.query.Query;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -148,11 +149,19 @@ public abstract class QueryCallback {
 //        }
 
         if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
-
-            disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
-                    executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                    executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
-
+            for (Constructor constructor : Disruptor.class.getConstructors()) {
+                if (constructor.getParameterTypes().length == 5) {      //if new disruptor implementation available
+                    disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
+                            executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                            executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
+                    break;
+                }
+            }
+            if (disruptor == null) {
+                disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
+                        executionPlanContext.getSiddhiContext().getEventBufferSize(),
+                        executionPlanContext.getExecutorService());
+            }
             asyncEventHandler = new AsyncEventHandler(this);
             disruptor.handleEventsWith(asyncEventHandler);
             ringBuffer = disruptor.start();

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.window;
+package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -39,24 +39,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This is the implementation of a counting algorithm based on
- * Misra-Gries counting algorithm
- */
-public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor{
-    private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
+public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor{
+
+    private ConcurrentHashMap<String, LossyCount> countMap = new ConcurrentHashMap<String, LossyCount>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
 
-    private int mostFrequentCount;
+    private int totalCount = 0;
+    private double currentBucketId=1;
+    private double support;           // these will be initialize during init
+    private double error;             // these will be initialize during init
+    private double windowWidth;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)attributeExpressionExecutors[0]).getValue()));
-        variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
-        for (int i = 1; i < attributeExpressionExecutors.length; i++) {
-            variableExpressionExecutors[i - 1] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
+        support = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
+        if (attributeExpressionExecutors.length > 1) {
+            error =  Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+        } else {
+            error = support / 10; // recommended error is 10% of 20$ of support value;
         }
+        if ((support > 1 || support < 0) || (error > 1 || error < 0)) {
+            log.error("Wrong argument has provided, Error executing the window");
+        }
+        variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 2];
+        if (attributeExpressionExecutors.length > 2) {  // by-default all the attributes will be compared
+            for (int i = 2; i < attributeExpressionExecutors.length; i++) {
+                variableExpressionExecutors[i - 2] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
+            }
+        }
+        windowWidth = Math.ceil(1 / error);
+        currentBucketId = 1;
     }
 
     @Override
@@ -72,48 +85,50 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
             clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
+            totalCount++;
+            if (totalCount != 1) {
+                currentBucketId = Math.ceil(totalCount / windowWidth);
+            }
+
             StreamEvent oldEvent = map.put(generateKey(streamEvent), clonedEvent);
-            if (oldEvent != null) {
-                countMap.put(generateKey(streamEvent), countMap.get(generateKey(streamEvent)) + 1);
-                complexEventChunk.add(streamEvent);
+            if (oldEvent != null) {    // this event is already in the store
+                countMap.put(generateKey(streamEvent), countMap.get(generateKey(streamEvent)).incrementCount());
             } else {
                 //  This is a new event
-                if (map.size() > mostFrequentCount) {
-                    List<String> keys = new ArrayList<String>();
-                    keys.addAll(countMap.keySet());
-                    for (int i = 0; i < mostFrequentCount; i++) {
-                        int count = countMap.get(keys.get(i)) - 1;
-                        if (count == 0) {
-                            countMap.remove(keys.get(i));
-                            complexEventChunk.add(map.remove(keys.get(i)));
-                        } else {
-                            countMap.put(keys.get(i), count);
-                        }
+                LossyCount lCount;
+                lCount = new LossyCount(1, (int)currentBucketId - 1 );
+                countMap.put(generateKey(streamEvent), lCount);
+            }
+            // calculating all the events in the system which match the
+            // requirement provided by the user
+            List<String> keys = new ArrayList<String>();
+            keys.addAll(countMap.keySet());
+            for (String key : keys) {
+                LossyCount lossyCount = countMap.get(key);
+                if (lossyCount.getCount() >= ((support - error) * totalCount)) {
+                    // among the selected events, if the newly arrive event is there we mark it as an inEvent
+                    if(key.equals(generateKey(streamEvent))) {
+                       complexEventChunk.add(streamEvent);
                     }
-                    // now we have tried to remove one for newly added item
-                    if (map.size() > mostFrequentCount) {
-                        //nothing happend by the attempt to remove one from the
-                        // map so we are ignoring this event
-                        map.remove(generateKey(streamEvent));
-                        // Here we do nothing just drop the message
-                    } else {
-                        // we got some space, event is already there in map object
-                        // we just have to add it to the countMap
-                        countMap.put(generateKey(streamEvent), 1);
-                        complexEventChunk.add(streamEvent);
-                    }
-
-                } else {
-                    countMap.put(generateKey(streamEvent), 1);
-                    complexEventChunk.add(streamEvent);
                 }
-
+            }
+            if (totalCount % windowWidth == 0) {
+                // its time to run the data-structure prune code
+                keys = new ArrayList<String>();
+                keys.addAll(countMap.keySet());
+                for (String key : keys) {
+                    LossyCount lossyCount = countMap.get(key);
+                    if (lossyCount.getCount() + lossyCount.getBucketId() <= currentBucketId) {
+                        log.info("Removing the Event: " + key + " from the window");
+                        countMap.remove(key);
+                        complexEventChunk.add(map.remove(key));
+                    }
+                }
             }
 
             streamEvent = next;
         }
         nextProcessor.process(complexEventChunk);
-
     }
 
     @Override
@@ -133,7 +148,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
 
     @Override
     public void restoreState(Object[] state) {
-        countMap = (ConcurrentHashMap<String, Integer>) state[0];
+        countMap = (ConcurrentHashMap<String, LossyCount>) state[0];
     }
 
     private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
@@ -166,5 +181,36 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
         return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition);
+    }
+
+    public class LossyCount {
+        int count;
+        int bucketId;
+
+        public LossyCount(int count, int bucketId) {
+            this.count = count;
+            this.bucketId = bucketId;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public int getBucketId() {
+            return bucketId;
+        }
+
+        public void setBucketId(int bucketId) {
+            this.bucketId = bucketId;
+        }
+
+        public LossyCount incrementCount(){
+            this.count++;
+            return this;
+        }
     }
 }

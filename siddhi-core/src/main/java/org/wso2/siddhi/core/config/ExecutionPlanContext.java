@@ -102,6 +102,10 @@ public class ExecutionPlanContext {
         eternalReferencedHolders.add(eternalReferencedHolder);
     }
 
+    public List<EternalReferencedHolder> getEternalReferencedHolders() {
+        return eternalReferencedHolders;
+    }
+
     public Lock getSharedLock() {
         return sharedLock;
     }

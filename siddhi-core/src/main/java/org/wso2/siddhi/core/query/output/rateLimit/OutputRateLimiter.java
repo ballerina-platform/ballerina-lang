@@ -14,26 +14,24 @@
  */
 package org.wso2.siddhi.core.query.output.rateLimit;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.query.processor.Processor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class OutputRateLimiter implements Processor {
+public abstract class OutputRateLimiter implements EternalReferencedHolder{
 
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();
     protected OutputCallback outputCallback = null;
     private boolean hasCallBack = false;
 
-
-//    public abstract void send(long timeStamp, StreamEvent currentEvent, StreamEvent expiredEvent);
-
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
-        if (outputCallback != null) {
+        if (outputCallback != null && complexEventChunk.getFirst()!=null) {
             outputCallback.send(complexEventChunk);
         }
         if (!queryCallbacks.isEmpty()) {
@@ -55,6 +53,10 @@ public abstract class OutputRateLimiter implements Processor {
         }
     }
 
+    public abstract void process(ComplexEventChunk complexEventChunk);
+
+    public abstract void add(ComplexEvent complexEvent);
+
     public OutputCallback getOutputCallback() {
         return outputCallback;
     }
@@ -64,8 +66,6 @@ public abstract class OutputRateLimiter implements Processor {
     }
 
     public abstract OutputRateLimiter clone(String key);
-
-    public abstract Processor cloneProcessor(String key);
 
 }
 

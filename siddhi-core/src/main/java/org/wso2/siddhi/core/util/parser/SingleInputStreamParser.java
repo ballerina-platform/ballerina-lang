@@ -21,7 +21,6 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.extension.holder.StreamFunctionProcessorExtensionHolder;
 import org.wso2.siddhi.core.extension.holder.StreamProcessorExtensionHolder;
 import org.wso2.siddhi.core.extension.holder.WindowProcessorExtensionHolder;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -31,8 +30,8 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.query.processor.stream_function.StreamFunctionProcessor;
-import org.wso2.siddhi.core.query.processor.window.WindowProcessor;
+import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
@@ -145,14 +144,15 @@ public class SingleInputStreamParser {
             StreamProcessor streamProcessor;
             if (streamHandler instanceof Extension) {
                 streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                        StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
-                if (streamProcessor == null) {
-                    streamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                            StreamProcessorExtensionHolder.getInstance(executionPlanContext));
-                }
+                        StreamProcessorExtensionHolder.getInstance(executionPlanContext));
             } else {
-                streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                        ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
+                try {
+                    streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
+                            ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
+                } catch (ExecutionPlanCreationException e) {
+                    streamProcessor = (StreamProcessor) SiddhiClassLoader.loadSiddhiImplementation(
+                            ((StreamFunction) streamHandler).getFunction(), StreamProcessor.class);
+                }
             }
             metaStreamEvent.addInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                     attributeExpressionExecutors, executionPlanContext));

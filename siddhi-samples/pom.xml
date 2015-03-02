@@ -25,9 +25,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>siddhi-samples</artifactId>
-    <name>Siddhi Sample</name>
+    <name>Siddhi Samples</name>
     <packaging>pom</packaging>
-
 
     <modules>
         <module>performance-samples</module>

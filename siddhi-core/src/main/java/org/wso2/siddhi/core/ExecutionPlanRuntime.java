@@ -17,6 +17,7 @@ package org.wso2.siddhi.core;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
+import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -159,6 +160,9 @@ public class ExecutionPlanRuntime {
     }
 
     public void shutdown() {
+        for (EternalReferencedHolder eternalReferencedHolder :executionPlanContext.getEternalReferencedHolders()){
+            eternalReferencedHolder.stop();
+        }
         inputManager.stopProcessing();
         executionPlanContext.getScheduledExecutorService().shutdownNow();
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
@@ -171,6 +175,9 @@ public class ExecutionPlanRuntime {
     }
 
     public void start() {
+        for (EternalReferencedHolder eternalReferencedHolder :executionPlanContext.getEternalReferencedHolders()){
+            eternalReferencedHolder.start();
+        }
         inputManager.startProcessing();
     }
 

@@ -86,6 +86,9 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
+                        <Private-Package>
+                            org.antlr.v4.*
+                        </Private-Package>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>scope=runtime;inline=true</Embed-Dependency>
                         <DynamicImport-Package>*</DynamicImport-Package>

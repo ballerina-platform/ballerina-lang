@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
+import org.wso2.siddhi.core.query.output.rateLimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
@@ -29,6 +30,10 @@ import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
+import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
@@ -43,7 +48,7 @@ public class QueryParser {
      * @param query                query to be parsed
      * @param executionPlanContext associated Execution Plan context
      * @param streamDefinitionMap  map containing user given stream definitions
-     * @param tableDefinitionMap
+     * @param tableDefinitionMap   map containing table definitions
      * @return queryRuntime
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
@@ -60,7 +65,21 @@ public class QueryParser {
 
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
-            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(), query.getOutputRate());
+
+            boolean isWindow = query.getInputStream() instanceof JoinInputStream;
+
+            if(!isWindow && query.getInputStream() instanceof  SingleInputStream) {
+                for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {
+                    if (streamHandler instanceof Window) {
+                        isWindow = true;
+                        break;
+                    }
+                }
+            }
+
+            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
+                    query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow, executionPlanContext.getScheduledExecutorService());
+            executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
                     streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, executionPlanContext);
@@ -72,6 +91,10 @@ public class QueryParser {
             selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime.getMetaComplexEvent()));
 
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, outputCallback, streamRuntime.getMetaComplexEvent());
+
+            if(outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter){
+               ((WrappedSnapshotOutputRateLimiter) outputRateLimiter).init(streamRuntime.getMetaComplexEvent().getOutputStreamDefinition().getAttributeList().size(),selector.getAttributeProcessorList(),streamRuntime.getMetaComplexEvent());
+            }
 
         } catch (DuplicateDefinitionException e) {
             if (element != null) {

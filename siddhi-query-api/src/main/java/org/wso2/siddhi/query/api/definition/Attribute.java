@@ -14,7 +14,9 @@
  */
 package org.wso2.siddhi.query.api.definition;
 
-public class Attribute {
+import java.io.Serializable;
+
+public class Attribute implements Serializable {
 
     private String name;
     private Type type;
