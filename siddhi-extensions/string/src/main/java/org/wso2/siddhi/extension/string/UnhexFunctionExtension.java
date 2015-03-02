@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-/*    //Todo: shouldn't this go under string extensions? Also the hex(string) version of math:hex()?
+/*
 * unhex(str);
 * This is the equivalent of 'unhex' function in mysql 5.0
 *   unhex(str) interprets each pair of characters in the argument as a hexadecimal number
