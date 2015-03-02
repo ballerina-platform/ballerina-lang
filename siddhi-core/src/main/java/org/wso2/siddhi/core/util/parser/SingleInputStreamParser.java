@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.extension.holder.StreamFunctionProcessorExtensionHolder;
 import org.wso2.siddhi.core.extension.holder.StreamProcessorExtensionHolder;
 import org.wso2.siddhi.core.extension.holder.WindowProcessorExtensionHolder;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -29,6 +30,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProc
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
+import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
@@ -64,7 +66,8 @@ public class SingleInputStreamParser {
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
-                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent, ProcessStreamReceiver processStreamReceiver) {
+                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
+                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing) {
         Processor processor = null;
         Processor singleThreadValve = null;
         boolean first = true;
@@ -79,7 +82,7 @@ public class SingleInputStreamParser {
         }
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap);
+                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap, supportsBatchProcessing);
                 if (currentProcessor instanceof SchedulingProcessor) {
                     if (singleThreadValve == null) {
 
@@ -110,7 +113,7 @@ public class SingleInputStreamParser {
     }
 
 
-    private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap) {
+    private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap, boolean supportsBatchProcessing) {
         ExpressionExecutor[] attributeExpressionExecutors = new ExpressionExecutor[streamHandler.getParameters().length];
         Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
@@ -141,23 +144,33 @@ public class SingleInputStreamParser {
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {
-            StreamProcessor streamProcessor;
-            if (streamHandler instanceof Extension) {
-                streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                        StreamProcessorExtensionHolder.getInstance(executionPlanContext));
-            } else {
+            AbstractStreamProcessor abstractStreamProcessor;
+            if(supportsBatchProcessing) {
                 try {
-                    streamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                            ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
-                } catch (ExecutionPlanCreationException e) {
-                    streamProcessor = (StreamProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                            ((StreamFunction) streamHandler).getFunction(), StreamProcessor.class);
+                    if (streamHandler instanceof Extension) {
+                        abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                                StreamProcessorExtensionHolder.getInstance(executionPlanContext));
+                    } else {
+                        abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadSiddhiImplementation(
+                                ((StreamFunction) streamHandler).getFunction(), StreamProcessor.class);
+                    }
+                    metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
+                            attributeExpressionExecutors, executionPlanContext));
+                    return abstractStreamProcessor;
+                } catch (ExecutionPlanCreationException e){
+
                 }
             }
-            metaStreamEvent.addInputDefinition(streamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
+            if (streamHandler instanceof Extension) {
+                abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                        StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
+            } else {
+                abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
+                        ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
+            }
+            metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                     attributeExpressionExecutors, executionPlanContext));
-            return streamProcessor;
-
+            return abstractStreamProcessor;
         } else {
             throw new IllegalStateException(streamHandler.getClass().getName() + " is not supported");
         }

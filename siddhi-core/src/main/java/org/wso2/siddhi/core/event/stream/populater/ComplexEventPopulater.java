@@ -19,7 +19,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 /**
  * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields
  */
-public interface StreamEventPopulater {
+public interface ComplexEventPopulater {
 
-    public void populateStreamEvent(ComplexEvent complexEvent, Object[] data);
+    public void populateComplexEvent(ComplexEvent complexEvent, Object[] data);
 }

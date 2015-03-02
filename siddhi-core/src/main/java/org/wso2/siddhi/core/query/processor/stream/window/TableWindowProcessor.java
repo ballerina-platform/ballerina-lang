@@ -85,7 +85,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
             streamProcessor.attributeExpressionExecutors = innerExpressionExecutors;
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
-            streamProcessor.streamEventPopulater = streamEventPopulater;
+            streamProcessor.complexEventPopulater = complexEventPopulater;
             streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
             streamProcessor.start();
             return streamProcessor;
