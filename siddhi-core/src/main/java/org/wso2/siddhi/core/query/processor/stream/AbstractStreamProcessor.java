@@ -19,7 +19,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -44,7 +44,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected int attributeExpressionLength;
-    protected StreamEventPopulater streamEventPopulater;
+    protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -84,7 +84,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         try {
-            process(complexEventChunk, nextProcessor, streamEventCloner, streamEventPopulater);
+            processEventChunk(complexEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
         } catch (RuntimeException e) {
             log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass().getCanonicalName() + ", " + e.getMessage(), e);
         }
@@ -96,10 +96,10 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param complexEventChunk    the event chunk that need to be processed
      * @param nextProcessor        the next processor to which the success events need to be passed
      * @param streamEventCloner    helps to clone the incoming event for local storage or modification
-     * @param streamEventPopulater helps to populate the events with the resultant attributes
+     * @param complexEventPopulater helps to populate the events with the resultant attributes
      */
-    protected abstract void process(ComplexEventChunk complexEventChunk, Processor nextProcessor,
-                                    StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater);
+    protected abstract void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor,
+                                              StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
 
     public void setNextProcessor(Processor processor) {
         this.nextProcessor = processor;
@@ -122,7 +122,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             abstractStreamProcessor.attributeExpressionExecutors = innerExpressionExecutors;
             abstractStreamProcessor.attributeExpressionLength = attributeExpressionLength;
             abstractStreamProcessor.additionalAttributes = additionalAttributes;
-            abstractStreamProcessor.streamEventPopulater = streamEventPopulater;
+            abstractStreamProcessor.complexEventPopulater = complexEventPopulater;
             abstractStreamProcessor.elementId = elementId + "-" + key;
             abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
             abstractStreamProcessor.start();
@@ -134,8 +134,8 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     }
 
     public void constructStreamEventPopulater(MetaStreamEvent metaStreamEvent, int streamEventChainIndex) {
-        if (this.streamEventPopulater == null) {
-            this.streamEventPopulater = StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,
+        if (this.complexEventPopulater == null) {
+            this.complexEventPopulater = StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,
                     streamEventChainIndex, additionalAttributes);
         }
     }

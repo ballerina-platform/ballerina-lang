@@ -16,7 +16,6 @@
 package org.wso2.siddhi.core.event.stream.populater;
 
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class StreamEventPopulaterFactory {
      * @param streamEventChainIndex
      * @return StateEventPopulater
      */
-    public static StreamEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, int streamEventChainIndex, List<Attribute> attributes) {
+    public static ComplexEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, int streamEventChainIndex, List<Attribute> attributes) {
 
         List<StreamMappingElement> streamMappingElements = new ArrayList<StreamMappingElement>();
         for (int i = 0, attributesSize = attributes.size(); i < attributesSize; i++) {
@@ -64,7 +63,7 @@ public class StreamEventPopulaterFactory {
             streamMappingElements.add(streamMappingElement);
         }
 
-        return new SelectiveStreamEventPopulater(streamMappingElements);
+        return new SelectiveComplexEventPopulater(streamMappingElements);
 
     }
 

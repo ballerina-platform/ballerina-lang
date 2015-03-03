@@ -17,32 +17,31 @@ package org.wso2.siddhi.core.query.processor.stream.function;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulater;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 
-public abstract class StreamFunctionProcessor extends StreamProcessor {
+public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
 
     @Override
-    protected void process(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, StreamEventPopulater streamEventPopulater) {
+    protected void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         while (complexEventChunk.hasNext()) {
             ComplexEvent complexEvent = complexEventChunk.next();
             Object[] outputData;
             switch (attributeExpressionLength) {
                 case 0:
                     outputData = process((Object) null);
-                    streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
                 case 1:
                     outputData = process(attributeExpressionExecutors[0].execute(complexEvent));
-                    streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
                 default:
                     Object[] inputData = new Object[attributeExpressionLength];
                     for (int i = 0; i < attributeExpressionLength; i++) {
                         inputData[i] = attributeExpressionExecutors[i].execute(complexEvent);
                     }
                     outputData = process(inputData);
-                    streamEventPopulater.populateStreamEvent(complexEvent, outputData);
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
             }
         }
         nextProcessor.process(complexEventChunk);

@@ -26,15 +26,15 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 /**
  * The populater class that populates StateEvents
  */
-public class SelectiveStreamEventPopulater implements StreamEventPopulater {
+public class SelectiveComplexEventPopulater implements ComplexEventPopulater {
 
     private List<StreamMappingElement> streamMappingElements;       //List to hold information needed for population
 
-    public SelectiveStreamEventPopulater(List<StreamMappingElement> streamMappingElements) {
+    public SelectiveComplexEventPopulater(List<StreamMappingElement> streamMappingElements) {
         this.streamMappingElements = streamMappingElements;
     }
 
-    public void populateStreamEvent(ComplexEvent complexEvent, Object[] data) {
+    public void populateComplexEvent(ComplexEvent complexEvent, Object[] data) {
         for (StreamMappingElement mappingElement : streamMappingElements) {
             populateStreamEvent(complexEvent, data[mappingElement.getFromPosition()], mappingElement.getToPosition());
         }

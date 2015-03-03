@@ -14,10 +14,35 @@
  */
 package org.wso2.siddhi.core.query.processor.stream;
 
+import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.query.processor.Processor;
+
 /*
  * For Siddhi extensions, extend this class to use the functionality of
- * AbstractStreamProcessor. This class exists to differentiate the functionality
- * of WindowProcessors and other processors that process streams
+ * AbstractStreamProcessor. This class processes only StreamEvents. Use
+ * StreamFunctionProcessor to process StateEvents.
  */
 public abstract class StreamProcessor extends AbstractStreamProcessor {
+
+    @Override
+    protected void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+        complexEventChunk.reset();
+        process(complexEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
+    }
+
+
+    /**
+     * The main processing method that will be called upon event arrival
+     *
+     * @param streamEventChunk      the event chunk that need to be processed
+     * @param nextProcessor         the next processor to which the success events need to be passed
+     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
+     * @param complexEventPopulater helps to populate the events with the resultant attributes
+     */
+    protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                                    StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
+
 }
