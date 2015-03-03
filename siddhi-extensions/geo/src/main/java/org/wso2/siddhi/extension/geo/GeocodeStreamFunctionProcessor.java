@@ -25,6 +25,7 @@ import com.google.code.geocoder.model.GeocoderRequest;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -89,7 +90,7 @@ public class GeocodeStreamFunctionProcessor extends StreamFunctionProcessor {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("Error in connection to Google Maps API.");
+            throw new ExecutionPlanRuntimeException("Error in connection to Google Maps API.", e);
         }
 
         if (debugModeOn) {

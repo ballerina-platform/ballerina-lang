@@ -12,4 +12,4 @@
 # CONDITIONS OF ANY KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations under the License.
 #
-geocode=org.wso2.siddhi.extension.geo.GeoCodeStreamFunctionProcessor
+geocode=org.wso2.siddhi.extension.geo.GeocodeStreamFunctionProcessor
