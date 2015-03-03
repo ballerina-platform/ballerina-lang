@@ -22,24 +22,31 @@ package org.wso2.siddhi.core.query.output.rateLimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
+import org.wso2.siddhi.core.util.Scheduler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private String id;
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;
     Map<String, LastEventHolder> groupByKeyEvents = new LinkedHashMap<String, LastEventHolder>();
+    private Scheduler scheduler;
+    private long scheduledTime;
+    private Lock lock;
 
     public AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
         super(wrappedSnapshotOutputRateLimiter);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
+        lock = new ReentrantLock();
     }
 
     @Override
@@ -48,35 +55,67 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     }
 
     @Override
-    public void send(ComplexEventChunk complexEventChunk) {
+    public void process(ComplexEventChunk complexEventChunk) {
+        ComplexEvent firstEvent = complexEventChunk.getFirst();
+        try {
+            lock.lock();
+            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+                if (firstEvent.getTimestamp() >= scheduledTime) {
+                    sendEvents();
+                    scheduledTime = scheduledTime + value;
+                    scheduler.notifyAt(scheduledTime);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void add(ComplexEvent complexEvent) {
-        String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-        LastEventHolder lastEventHolder = groupByKeyEvents.get(groupByKey);
-        if (lastEventHolder == null) {
-            lastEventHolder = new LastEventHolder();
-            groupByKeyEvents.put(groupByKey, lastEventHolder);
-        }
-        if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-            lastEventHolder.addLastInEvent(complexEvent);
-        } else if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-            lastEventHolder.removeLastInEvent();
-            if (lastEventHolder.lastEvent == null) {
-                groupByKeyEvents.remove(groupByKey);
+        try {
+            lock.lock();
+            String groupByKey = QuerySelector.getThreadLocalGroupByKey();
+            LastEventHolder lastEventHolder = groupByKeyEvents.get(groupByKey);
+            if (lastEventHolder == null) {
+                lastEventHolder = new LastEventHolder();
+                groupByKeyEvents.put(groupByKey, lastEventHolder);
             }
+            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
+                lastEventHolder.addLastInEvent(complexEvent);
+            } else if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                lastEventHolder.removeLastInEvent();
+                if (lastEventHolder.lastEvent == null) {
+                    groupByKeyEvents.remove(groupByKey);
+                }
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(new EventSender(), 0, value, TimeUnit.MILLISECONDS);
+        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        long currentTime = System.currentTimeMillis();
+        scheduler.notifyAt(currentTime);
+        scheduledTime = currentTime;
     }
 
     @Override
     public void stop() {
         //Nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{groupByKeyEvents};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        groupByKeyEvents = (Map<String, LastEventHolder>) state[0];
     }
 
     public synchronized void sendEvents() {
@@ -95,17 +134,6 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
             }
         }
 
-    }
-
-    private class EventSender implements Runnable {
-        @Override
-        public void run() {
-            try {
-                sendEvents();
-            } catch (Throwable t) {
-                log.error(t.getMessage(), t);
-            }
-        }
     }
 
     private class LastEventHolder {

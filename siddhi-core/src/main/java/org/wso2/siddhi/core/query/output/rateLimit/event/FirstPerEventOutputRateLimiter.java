@@ -65,4 +65,14 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
         //Nothing to stop
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{counter};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        counter = (Integer) state[0];
+    }
+
 }

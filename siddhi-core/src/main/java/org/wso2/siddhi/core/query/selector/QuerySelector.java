@@ -97,6 +97,7 @@ public class QuerySelector implements Processor {
         }
 
         if (eventSent) {
+            complexEventChunk.clear();
             outputRateLimiter.process(complexEventChunk);
         }
     }

@@ -73,4 +73,15 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
         counter = 0;
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{allComplexEventChunk, counter};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
+        counter = (Integer) state[1];
+    }
+
 }

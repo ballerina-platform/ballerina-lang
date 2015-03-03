@@ -69,7 +69,7 @@ public class SingleInputStreamParser {
                                                        Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
                                                        ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing) {
         Processor processor = null;
-        Processor singleThreadValve = null;
+        SingleThreadEntryValveProcessor singleThreadValve = null;
         boolean first = true;
         MetaStreamEvent metaStreamEvent;
         if (metaComplexEvent instanceof MetaStateEvent) {

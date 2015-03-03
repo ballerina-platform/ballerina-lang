@@ -23,29 +23,26 @@ package org.wso2.siddhi.core.query.output.rateLimit.time;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.state.StateEventCloner;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
+import org.wso2.siddhi.core.util.Schedulable;
+import org.wso2.siddhi.core.util.Scheduler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter {
+public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable{
     private String id;
     private final Long value;
     private Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();
     private ScheduledExecutorService scheduledExecutorService;
+    private Scheduler scheduler;
+    private long scheduledTime;
+    private Lock lock;
 
     static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
 
@@ -53,6 +50,7 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter {
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
+        lock = new ReentrantLock();
     }
 
     @Override
@@ -62,11 +60,28 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
+        ComplexEvent firstEvent = complexEventChunk.getFirst();
+        try {
+            lock.lock();
+            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+                if (firstEvent.getTimestamp() >= scheduledTime) {
+                    sendEvents();
+                    scheduledTime = scheduledTime + value;
+                    scheduler.notifyAt(scheduledTime);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(new EventSender(), 0, value, TimeUnit.MILLISECONDS);
+        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        long currentTime = System.currentTimeMillis();
+        scheduler.notifyAt(currentTime);
+        scheduledTime = currentTime;
     }
 
     @Override
@@ -75,9 +90,24 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter {
     }
 
     @Override
+    public Object[] currentState() {
+        return new Object[]{allGroupByKeyEvents};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        allGroupByKeyEvents = (Map<String, ComplexEvent>) state[0];
+    }
+
+
+    @Override
     public void add(ComplexEvent complexEvent) {
-        String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-        allGroupByKeyEvents.put(groupByKey + complexEvent.getType(), complexEvent);
+        try {
+            lock.lock();String groupByKey = QuerySelector.getThreadLocalGroupByKey();
+            allGroupByKeyEvents.put(groupByKey + complexEvent.getType(), complexEvent);
+        } finally {
+            lock.unlock();
+        }
     }
 
     private synchronized void sendEvents() {

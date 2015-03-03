@@ -32,7 +32,6 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
     private List<ComplexEvent> complexEventList;
-
     private volatile int counter = 0;
     List<String> groupByKeys = new ArrayList<String>();
 
@@ -79,6 +78,18 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void stop() {
         //Nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{complexEventList, groupByKeys, counter};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        complexEventList = (List<ComplexEvent>) state[0];
+        groupByKeys = (List<String>) state[1];
+        counter = (Integer) state[2];
     }
 
 }

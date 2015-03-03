@@ -79,6 +79,7 @@ public class QueryParser {
 
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
                     query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow, executionPlanContext.getScheduledExecutorService());
+            outputRateLimiter.init(executionPlanContext);
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),

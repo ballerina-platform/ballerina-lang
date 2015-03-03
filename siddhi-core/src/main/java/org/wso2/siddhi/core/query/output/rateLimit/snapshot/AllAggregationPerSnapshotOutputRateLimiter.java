@@ -21,9 +21,12 @@ package org.wso2.siddhi.core.query.output.rateLimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.util.Scheduler;
 
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private String id;
@@ -31,27 +34,50 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     private ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
     private final ScheduledExecutorService scheduledExecutorService;
     private boolean endOfChunk = false;
+    private Scheduler scheduler;
+    private long scheduledTime;
+    private Lock lock;
 
     public AllAggregationPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
         super(wrappedSnapshotOutputRateLimiter);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
+        lock = new ReentrantLock();
     }
 
     @Override
-    public void send(ComplexEventChunk complexEventChunk) {
-        endOfChunk = true;
+    public void process(ComplexEventChunk complexEventChunk) {
+        ComplexEvent firstEvent = complexEventChunk.getFirst();
+        try {
+            lock.lock();
+            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+                if (firstEvent.getTimestamp() >= scheduledTime) {
+                    sendEvents();
+                    scheduledTime = scheduledTime + value;
+                    scheduler.notifyAt(scheduledTime);
+                }
+            } else {
+                endOfChunk = true;
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void add(ComplexEvent complexEvent) {
-        if (endOfChunk) {
-            eventChunk.clear();
-            endOfChunk = false;
-        }
-        if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-            eventChunk.add(complexEvent);
+        try {
+            lock.lock();
+                if (endOfChunk) {
+                eventChunk.clear();
+                endOfChunk = false;
+            }
+            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
+                eventChunk.add(complexEvent);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -62,7 +88,11 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
 
     @Override
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(new EventSender(), 0, value, TimeUnit.MILLISECONDS);
+        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        long currentTime = System.currentTimeMillis();
+        scheduler.notifyAt(currentTime);
+        scheduledTime = currentTime;
     }
 
     @Override
@@ -70,20 +100,20 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
         //Nothing to stop
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{eventChunk, endOfChunk};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        eventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
+        endOfChunk = (Boolean) state[1];
+    }
+
     public synchronized void sendEvents() {
         eventChunk.reset();
         sendToCallBacks(eventChunk);
     }
 
-
-    private class EventSender implements Runnable {
-        @Override
-        public void run() {
-            try {
-                sendEvents();
-            } catch (Throwable t) {
-                log.error(t.getMessage(), t);
-            }
-        }
-    }
 }

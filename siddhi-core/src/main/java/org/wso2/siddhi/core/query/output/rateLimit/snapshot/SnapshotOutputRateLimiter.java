@@ -24,8 +24,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.util.Schedulable;
 
-public abstract class SnapshotOutputRateLimiter {
+public abstract class SnapshotOutputRateLimiter implements Schedulable{
     static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
     private WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter;
     protected StreamEventCloner streamEventCloner;
@@ -35,7 +36,7 @@ public abstract class SnapshotOutputRateLimiter {
         this.wrappedSnapshotOutputRateLimiter = wrappedSnapshotOutputRateLimiter;
     }
 
-    public abstract void send(ComplexEventChunk complexEventChunk);
+    public abstract void process(ComplexEventChunk complexEventChunk);
 
     public abstract void add(ComplexEvent complexEvent);
 
@@ -56,4 +57,8 @@ public abstract class SnapshotOutputRateLimiter {
     public abstract void start();
 
     public abstract void stop();
+
+    public abstract Object[] currentState();
+
+    public abstract void restoreState(Object[] state);
 }

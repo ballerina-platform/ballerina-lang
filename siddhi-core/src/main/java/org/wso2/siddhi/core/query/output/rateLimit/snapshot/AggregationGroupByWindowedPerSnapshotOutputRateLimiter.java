@@ -24,14 +24,14 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends AggregationWindowedPerSnapshotOutputRateLimiter {
-    private final Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
-    String currentKey = null;
-    ComplexEventChunk<ComplexEvent> eventChunk;
+    private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
+    private String currentKey = null;
 
     protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
         super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter);
@@ -39,37 +39,55 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
         eventChunk = new ComplexEventChunk<ComplexEvent>();
     }
 
-    public synchronized void send(ComplexEventChunk complexEventChunk) {
-        Map<Integer, Object> aggregateAttributeValueMap = groupByAggregateAttributeValueMap.get(currentKey);
-        if (aggregateAttributeValueMap == null) {
-            aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
-            groupByAggregateAttributeValueMap.put(currentKey, aggregateAttributeValueMap);
+    public void process(ComplexEventChunk complexEventChunk) {
+        ComplexEvent firstEvent = complexEventChunk.getFirst();
+        try {
+            lock.lock();
+            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+                if (firstEvent.getTimestamp() >= scheduledTime) {
+                    sendEvents();
+                    scheduledTime = scheduledTime + value;
+                    scheduler.notifyAt(scheduledTime);
+                }
+            } else {
+                Map<Integer, Object> aggregateAttributeValueMap = groupByAggregateAttributeValueMap.get(currentKey);
+                if (aggregateAttributeValueMap == null) {
+                    aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
+                    groupByAggregateAttributeValueMap.put(currentKey, aggregateAttributeValueMap);
+                }
+                eventChunk.reset();
+                processAndSend(eventChunk, aggregateAttributeValueMap, currentKey);
+
+                currentKey = null;
+                eventChunk.clear();
+
+            }
+        } finally {
+            lock.unlock();
         }
-        eventChunk.reset();
-        processAndSend(eventChunk, aggregateAttributeValueMap, currentKey);
-
-        currentKey = null;
-        eventChunk.clear();
-
     }
 
-    public synchronized void add(ComplexEvent complexEvent) {
-        String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-        if (currentKey == null) {
-            currentKey = groupByKey;
-            eventChunk.add(complexEvent);
-        } else if (!currentKey.equals(groupByKey)) {
-            Map<Integer, Object> aggregateAttributeValueMap = groupByAggregateAttributeValueMap.get(currentKey);
-            if (aggregateAttributeValueMap == null) {
-                aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
-                groupByAggregateAttributeValueMap.put(currentKey, aggregateAttributeValueMap);
+    public void add(ComplexEvent complexEvent) {
+        try {
+            lock.lock();
+            String groupByKey = QuerySelector.getThreadLocalGroupByKey();
+            if (currentKey == null) {
+                currentKey = groupByKey;
+                eventChunk.add(complexEvent);
+            } else if (!currentKey.equals(groupByKey)) {
+                Map<Integer, Object> aggregateAttributeValueMap = groupByAggregateAttributeValueMap.get(currentKey);
+                if (aggregateAttributeValueMap == null) {
+                    aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
+                    groupByAggregateAttributeValueMap.put(currentKey, aggregateAttributeValueMap);
+                }
+                processAndSend(eventChunk, aggregateAttributeValueMap, currentKey);
+                eventChunk.clear();
+                eventChunk.add(complexEvent);
+                currentKey = groupByKey;
             }
-            processAndSend(eventChunk, aggregateAttributeValueMap, currentKey);
-            eventChunk.clear();
-            eventChunk.add(complexEvent);
-            currentKey = groupByKey;
+        } finally {
+            lock.unlock();
         }
-
     }
 
     protected ComplexEvent constructSendEvent(Object originalEventObject) {
@@ -84,6 +102,19 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
 
     protected void addEventToList(ComplexEvent event, String groupByKey) {
         eventList.add(new GroupedEvent(event, groupByKey));
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{eventList,groupByAggregateAttributeValueMap, eventChunk, currentKey};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        eventList = (LinkedList<Object>) state[0];
+        groupByAggregateAttributeValueMap = (Map<String, Map<Integer, Object>>) state[1];
+        eventChunk = (ComplexEventChunk<ComplexEvent>) state[2];
+        currentKey = (String) state[3];
     }
 
     @Override

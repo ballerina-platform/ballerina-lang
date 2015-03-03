@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
-import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
 import java.util.concurrent.BlockingQueue;
@@ -47,7 +46,7 @@ public class Scheduler implements Snapshotable {
     private String elementId;
 
 
-    public Scheduler(ScheduledExecutorService scheduledExecutorService, Processor singleThreadEntryValve) {
+    public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve) {
         this.scheduledExecutorService = scheduledExecutorService;
         eventCaller = new EventCaller(singleThreadEntryValve);
     }
@@ -116,9 +115,9 @@ public class Scheduler implements Snapshotable {
     }
 
     private class EventCaller implements Runnable {
-        private Processor singleThreadEntryValve;
+        private Schedulable singleThreadEntryValve;
 
-        public EventCaller(Processor singleThreadEntryValve) {
+        public EventCaller(Schedulable singleThreadEntryValve) {
 
             this.singleThreadEntryValve = singleThreadEntryValve;
         }
@@ -138,8 +137,7 @@ public class Scheduler implements Snapshotable {
         public void run() {
             Long toNotifyTime = toNotifyQueue.peek();
             long currentTime = System.currentTimeMillis();
-            long timeDiff = toNotifyTime - currentTime;
-            while (toNotifyTime != null && timeDiff <= 0) {
+            while (toNotifyTime != null && toNotifyTime - currentTime <= 0) {
 
                 toNotifyQueue.poll();
 

@@ -83,4 +83,14 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
         //Nothing to stop
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{allGroupByKeyEvents, counter};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        allGroupByKeyEvents = (Map<String, ComplexEvent>) state[0];
+        counter = (Integer) state[1];
+    }
 }

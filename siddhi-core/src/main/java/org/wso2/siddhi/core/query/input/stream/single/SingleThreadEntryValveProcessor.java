@@ -18,6 +18,7 @@ package org.wso2.siddhi.core.query.input.stream.single;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.Schedulable;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,7 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created on 12/3/14.
  */
-public class SingleThreadEntryValveProcessor implements Processor {
+public class SingleThreadEntryValveProcessor implements Processor, Schedulable {
 
     private Processor next;
     private Lock lock;

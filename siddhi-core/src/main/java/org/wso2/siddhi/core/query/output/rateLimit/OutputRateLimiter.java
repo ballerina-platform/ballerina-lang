@@ -14,21 +14,31 @@
  */
 package org.wso2.siddhi.core.query.output.rateLimit;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.extension.EternalReferencedHolder;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class OutputRateLimiter implements EternalReferencedHolder{
+public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable{
 
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();
     protected OutputCallback outputCallback = null;
     private boolean hasCallBack = false;
+    private String elementId;
+
+    public void init(ExecutionPlanContext executionPlanContext){
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
+    }
 
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
         if (outputCallback != null && complexEventChunk.getFirst()!=null) {
@@ -67,5 +77,8 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder{
 
     public abstract OutputRateLimiter clone(String key);
 
+    public String getElementId() {
+        return elementId;
+    }
 }
 

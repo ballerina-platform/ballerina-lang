@@ -26,7 +26,6 @@ import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
 public class LastPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
-
     private volatile int counter = 0;
 
     public LastPerEventOutputRateLimiter(String id, Integer value) {
@@ -62,6 +61,16 @@ public class LastPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void stop() {
         //Nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{counter};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        counter = (Integer) state[0];
     }
 
 }

@@ -23,10 +23,13 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.util.Scheduler;
 
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     protected String id;
@@ -36,7 +39,10 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     protected final ScheduledExecutorService scheduledExecutorService;
     protected List<Integer> aggregateAttributePositionList;
     private Map<Integer, Object> aggregateAttributeValueMap;
-    private ComplexEventChunk<ComplexEvent> eventChunk;
+    protected ComplexEventChunk<ComplexEvent> eventChunk;
+    protected Scheduler scheduler;
+    protected long scheduledTime;
+    protected Lock lock;
 
     protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
         super(wrappedSnapshotOutputRateLimiter);
@@ -46,6 +52,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
         this.eventList = new LinkedList<Object>();
         this.aggregateAttributePositionList = aggregateAttributePositionList;
         Collections.sort(aggregateAttributePositionList);
+        lock = new ReentrantLock();
         aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
         eventChunk = new ComplexEventChunk<ComplexEvent>();
         this.comparator = new Comparator<ComplexEvent>() {
@@ -78,14 +85,34 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     }
 
     @Override
-    public void send(ComplexEventChunk complexEventChunk) {
-        processAndSend(eventChunk, aggregateAttributeValueMap, "");
-        eventChunk.clear();
+    public void process(ComplexEventChunk complexEventChunk) {
+        ComplexEvent firstEvent = complexEventChunk.getFirst();
+        try {
+            lock.lock();
+            if (firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+                if (firstEvent.getTimestamp() >= scheduledTime) {
+                    sendEvents();
+                    scheduledTime = scheduledTime + value;
+                    scheduler.notifyAt(scheduledTime);
+                }
+            } else {
+                processAndSend(eventChunk, aggregateAttributeValueMap, "");
+                eventChunk.clear();
+            }
+
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void add(ComplexEvent complexEvent) {
-        eventChunk.add(complexEvent);
+        try {
+            lock.lock();
+            eventChunk.add(complexEvent);
+        } finally {
+            lock.unlock();
+        }
     }
 
     protected void processAndSend(ComplexEventChunk complexEventChunk, Map<Integer, Object> aggregateAttributeValueMap, String groupByKey) {
@@ -120,12 +147,28 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(new EventSender(), 0, value, TimeUnit.MILLISECONDS);
+        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        long currentTime = System.currentTimeMillis();
+        scheduler.notifyAt(currentTime);
+        scheduledTime = currentTime;
     }
 
     @Override
     public void stop() {
         //Nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{eventList, aggregateAttributeValueMap, eventChunk};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        eventList = (LinkedList<Object>) state[0];
+        aggregateAttributeValueMap = (Map<Integer, Object>) state[1];
+        eventChunk = (ComplexEventChunk<ComplexEvent>) state[2];
     }
 
     protected synchronized void sendEvents() {
@@ -181,15 +224,4 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
         eventList.add(event);
     }
 
-    private class EventSender implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                sendEvents();
-            } catch (Throwable t) {
-                log.error(t.getMessage(), t);
-            }
-        }
-    }
 }

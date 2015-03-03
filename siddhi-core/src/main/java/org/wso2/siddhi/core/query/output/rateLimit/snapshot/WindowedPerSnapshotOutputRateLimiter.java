@@ -21,10 +21,13 @@ package org.wso2.siddhi.core.query.output.rateLimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.util.Scheduler;
 
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private String id;
@@ -32,6 +35,9 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     private final ScheduledExecutorService scheduledExecutorService;
     private LinkedList<ComplexEvent> eventList;
     private Comparator comparator;
+    private Scheduler scheduler;
+    private long scheduledTime;
+    private Lock lock;
 
     public WindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
         super(wrappedSnapshotOutputRateLimiter);
@@ -39,6 +45,7 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventList = new LinkedList<ComplexEvent>();
+        lock = new ReentrantLock();
         this.comparator = new Comparator<ComplexEvent>() {
 
             @Override
@@ -53,23 +60,41 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
         };
     }
 
-    @Override
-    public void send(ComplexEventChunk complexEventChunk) {
 
+    @Override
+    public void process(ComplexEventChunk complexEventChunk) {
+        ComplexEvent firstEvent = complexEventChunk.getFirst();
+        try {
+            lock.lock();
+            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+                if (firstEvent.getTimestamp() >= scheduledTime) {
+                    sendEvents();
+                    scheduledTime = scheduledTime + value;
+                    scheduler.notifyAt(scheduledTime);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void add(ComplexEvent complexEvent) {
-        if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-            eventList.add(complexEvent);
-        } else if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-            for (Iterator<ComplexEvent> iterator = eventList.iterator(); iterator.hasNext(); ) {
-                ComplexEvent event = iterator.next();
-                if (comparator.compare(event, complexEvent) == 0) {
-                    iterator.remove();
-                    break;
+        try {
+            lock.lock();
+            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
+                eventList.add(complexEvent);
+            } else if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                for (Iterator<ComplexEvent> iterator = eventList.iterator(); iterator.hasNext(); ) {
+                    ComplexEvent event = iterator.next();
+                    if (comparator.compare(event, complexEvent) == 0) {
+                        iterator.remove();
+                        break;
+                    }
                 }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -80,12 +105,26 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
 
     @Override
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(new EventSender(), 0, value, TimeUnit.MILLISECONDS);
+        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        long currentTime = System.currentTimeMillis();
+        scheduler.notifyAt(currentTime);
+        scheduledTime = currentTime;
     }
 
     @Override
     public void stop() {
         //Nothing to stop
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{eventList};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        eventList = (LinkedList<ComplexEvent>) state[0];
     }
 
     private synchronized void sendEvents() {
@@ -109,15 +148,4 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
         sendToCallBacks(complexEventChunk);
     }
 
-    private class EventSender implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                sendEvents();
-            } catch (Throwable t) {
-                log.error(t.getMessage(), t);
-            }
-        }
-    }
 }

@@ -53,4 +53,15 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     public void stop() {
         //Nothing to stop
     }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{eventChunk};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        eventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
+    }
+
 }
