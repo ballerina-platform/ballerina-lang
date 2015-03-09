@@ -91,7 +91,7 @@ annotation_element
     ;
 
 partition
-    : PARTITION WITH '('partition_with_stream (','partition_with_stream)* ')' BEGIN (query|error) (';' (query|error))* ';'? END 
+    : annotation* PARTITION WITH '('partition_with_stream (','partition_with_stream)* ')' BEGIN (query|error) (';' (query|error))* ';'? END
     ;
 
 partition_final

@@ -235,6 +235,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public Partition visitPartition(@NotNull SiddhiQLParser.PartitionContext ctx) {
         Partition partition = Partition.partition();
+        for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
+            partition.annotation((Annotation) visit(annotationContext));
+        }
         for (SiddhiQLParser.Partition_with_streamContext with_streamContext : ctx.partition_with_stream()) {
             partition.with((PartitionType) visit(with_streamContext));
         }

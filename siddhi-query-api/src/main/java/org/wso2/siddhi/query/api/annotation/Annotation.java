@@ -63,6 +63,15 @@ public class Annotation {
         return new Annotation(name);
     }
 
+    public String getElement(String key){
+        for(Element element : elements){
+            if(element.getKey().equals(key)){
+                return element.getValue();
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Annotation{" +
