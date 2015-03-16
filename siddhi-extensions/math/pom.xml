@@ -31,7 +31,7 @@
     <packaging>bundle</packaging>
 
     <artifactId>math</artifactId>
-    <name>Siddhi Math Functions Extensions</name>
+    <name>Siddhi Extension - Math</name>
 
 
     <dependencies>

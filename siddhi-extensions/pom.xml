@@ -18,6 +18,7 @@
         <module>eval-script</module>
         <module>string</module>
         <module>geo</module>
+        <module>math</module>
     </modules>
 
 </project>

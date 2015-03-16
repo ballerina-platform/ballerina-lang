@@ -12,21 +12,21 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.extension.holder;
+package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 
-public class StreamFunctionProcessorExtensionHolder extends AbstractExtensionHolder {
-    private static StreamFunctionProcessorExtensionHolder instance;
+public class WindowProcessorExtensionHolder extends AbstractExtensionHolder {
+    private static WindowProcessorExtensionHolder instance;
 
-    private StreamFunctionProcessorExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(StreamFunctionProcessor.class, executionPlanContext);
+    private WindowProcessorExtensionHolder(ExecutionPlanContext executionPlanContext) {
+        super(WindowProcessor.class, executionPlanContext);
     }
 
-    public static StreamFunctionProcessorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
+    public static WindowProcessorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
         if (instance == null) {
-            instance = new StreamFunctionProcessorExtensionHolder(executionPlanContext);
+            instance = new WindowProcessorExtensionHolder(executionPlanContext);
         }
         return instance;
     }

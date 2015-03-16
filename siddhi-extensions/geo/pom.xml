@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <artifactId>geo</artifactId>
-    <name>Siddhi Extensions - Geo</name>
+    <name>Siddhi Extension - Geo</name>
 
     <dependencies>
         <dependency>

@@ -3,7 +3,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.extension.holder.EvalScriptExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.EvalScriptExtensionHolder;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;

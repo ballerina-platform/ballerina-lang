@@ -2,7 +2,6 @@ package org.wso2.siddhi.core.executor.function;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.query.api.definition.Attribute;
