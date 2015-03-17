@@ -102,18 +102,13 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         finder.setMatchingEvent(matchingEvent);
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
-        for(StreamEvent streamEvent:map.values()){
-            if (finder.execute(streamEvent)) {
-                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
-            }
-        }
+        StreamEvent returnEvent = finder.execute(map.values(), streamEventCloner);
         finder.setMatchingEvent(null);
-        return returnEventChunk.getFirst();
+        return returnEvent;
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }

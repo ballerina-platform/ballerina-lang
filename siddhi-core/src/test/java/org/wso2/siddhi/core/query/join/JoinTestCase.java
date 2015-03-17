@@ -75,7 +75,6 @@ public class JoinTestCase {
         executionPlanRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
-//        Thread.sleep(70000);
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(500);
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
@@ -124,7 +123,6 @@ public class JoinTestCase {
         executionPlanRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
-//        Thread.sleep(70000);
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(500);
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
@@ -227,8 +225,8 @@ public class JoinTestCase {
         Thread.sleep(1300);
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(4000);
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
+        Assert.assertEquals(1, inEventCount);
+        Assert.assertEquals(1, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 

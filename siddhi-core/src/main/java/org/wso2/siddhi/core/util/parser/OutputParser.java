@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.ratelimit.event.*;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.time.*;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
@@ -81,10 +82,10 @@ public class OutputParser {
                 }
                 matchingMetaStreamEvent.addInputDefinition(matchingTableDefinition);
                 if (outStream instanceof DeleteStream) {
-                    Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0);
+                    Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
                     return new DeleteTableCallback(eventTable, finder);
                 } else {
-                    Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0);
+                    Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
                     return new UpdateTableCallback(eventTable, finder, matchingTableDefinition);
                 }
             } else {

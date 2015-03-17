@@ -16,11 +16,14 @@
 package org.wso2.siddhi.core.util.finder;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
@@ -33,9 +36,11 @@ public class SimpleFinder implements Finder {
     private int candidateEventPosition;
     private int matchingEventPosition;
     private int size;
+    private final long withinTime;
 
-    public SimpleFinder(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int size) {
+    public SimpleFinder(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int size, long withinTime) {
         this.size = size;
+        this.withinTime = withinTime;
         this.event = new FinderStateEvent(size, 0);
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
@@ -44,6 +49,12 @@ public class SimpleFinder implements Finder {
 
     public boolean execute(StreamEvent candidateEvent) {
         event.setEvent(candidateEventPosition, candidateEvent);
+        if (withinTime != ANY) {
+            long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - candidateEvent.getTimestamp());
+            if (timeDifference > withinTime) {
+                return false;
+            }
+        }
         boolean result = (Boolean) expressionExecutor.execute(event);
         event.setEvent(candidateEventPosition, null);
         return result;
@@ -59,7 +70,43 @@ public class SimpleFinder implements Finder {
     }
 
     public Finder cloneFinder() {
-        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingEventPosition, size);
+        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingEventPosition, size, withinTime);
+    }
+
+    @Override
+    public StreamEvent execute(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner) {
+        candidateEventChunk.reset();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        return returnEventChunk.getFirst();
+    }
+
+    @Override
+    public StreamEvent execute(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        return returnEventChunk.getFirst();
     }
 
     private class FinderStateEvent extends StateEvent {

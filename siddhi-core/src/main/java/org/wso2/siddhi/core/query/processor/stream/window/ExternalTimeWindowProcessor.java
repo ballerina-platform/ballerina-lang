@@ -39,7 +39,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
-public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor{
+public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {
     static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
     private long timeToKeep;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
@@ -123,10 +123,15 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
         }
         finder.setMatchingEvent(null);
         return returnEventChunk.getFirst();
+
+//        finder.setMatchingEvent(matchingEvent);
+//        StreamEvent returnEvent = finder.execute(expiredEventChunk, streamEventCloner);
+//        finder.setMatchingEvent(null);
+//        return returnEvent;
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }

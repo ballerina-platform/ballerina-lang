@@ -126,18 +126,14 @@ public class InMemoryEventTable implements EventTable {
 
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {    //todo optimize
         finder.setMatchingEvent(matchingEvent);
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
-        for (StreamEvent streamEvent : list) {
-            if (finder.execute(streamEvent)) {
-                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
-            }
-        }
+        StreamEvent returnEvent = finder.execute(list, streamEventCloner);
         finder.setMatchingEvent(null);
-        return returnEventChunk.getFirst();
+        return returnEvent;
+
     }
 
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex) {
-        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime);
 
     }
 

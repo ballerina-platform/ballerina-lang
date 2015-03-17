@@ -53,6 +53,7 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.FunctionExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.AttributeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.finder.Finder;
@@ -324,7 +325,7 @@ public class ExpressionParser {
 
             EventTable eventTable = eventTableMap.get(((In) expression).getSourceId());
 
-            Finder finder = eventTable.constructFinder(((In) expression).getExpression(), metaEvent, executionPlanContext, executorList, eventTableMap, defaultStreamEventIndex);
+            Finder finder = eventTable.constructFinder(((In) expression).getExpression(), metaEvent, executionPlanContext, executorList, eventTableMap, defaultStreamEventIndex, SiddhiConstants.ANY);
 
 
             return new InConditionExpressionExecutor(eventTable, finder);

@@ -36,7 +36,7 @@ import java.util.Map;
 public class SimpleFinderParser {
 
     public static Finder parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                               Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition) {
+                               Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
 
         int candidateEventPosition = 0;
         int size = 0;
@@ -83,6 +83,6 @@ public class SimpleFinderParser {
 
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingStreamIndex, size);
+        return new SimpleFinder(expressionExecutor, candidateEventPosition, matchingStreamIndex, size, withinTime);
     }
 }
