@@ -17,11 +17,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.rateLimit.event;
+package org.wso2.siddhi.core.query.output.ratelimit.event;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.query.output.rateLimit.OutputRateLimiter;
+import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 
 import java.util.ArrayList;

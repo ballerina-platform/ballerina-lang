@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.rateLimit.snapshot;
+package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
