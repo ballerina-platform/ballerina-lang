@@ -19,6 +19,7 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
@@ -29,11 +30,14 @@ import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.LengthWindowProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.TableWindowProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -103,12 +107,12 @@ public class JoinInputStreamParser {
         JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true);
         JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false);
 
-        FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime);
+        FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime, executionPlanContext);
 
         JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true);
         JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false);
 
-        FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime);
+        FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime, executionPlanContext);
 
         leftPreJoinProcessor.setFindableProcessor(rightFindableProcessor);
         leftPostJoinProcessor.setFindableProcessor(rightFindableProcessor);
@@ -127,7 +131,7 @@ public class JoinInputStreamParser {
         }
 
         Finder leftFinder = rightFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 0, withinTime);
-        Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 1,withinTime );
+        Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 1, withinTime);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(true);
@@ -150,7 +154,7 @@ public class JoinInputStreamParser {
 
     private static FindableProcessor insertJoinProcessorsAndGetFindable(JoinProcessor preJoinProcessor,
                                                                         JoinProcessor postJoinProcessor,
-                                                                        SingleStreamRuntime streamRuntime) {
+                                                                        SingleStreamRuntime streamRuntime, ExecutionPlanContext executionPlanContext) {
 
         Processor lastProcessor = streamRuntime.getProcessorChain();
         Processor prevLastProcessor = null;
@@ -161,6 +165,14 @@ public class JoinInputStreamParser {
             }
         }
 
+        if (lastProcessor == null) {
+            WindowProcessor windowProcessor = new LengthWindowProcessor();
+            ExpressionExecutor[] expressionExecutors = new ExpressionExecutor[1];
+            expressionExecutors[0] = new ConstantExpressionExecutor(1, Attribute.Type.INT);
+            windowProcessor.initProcessor(((MetaStreamEvent) streamRuntime.getMetaComplexEvent()).getLastInputDefinition(),
+                    expressionExecutors, executionPlanContext);
+            lastProcessor = windowProcessor;
+        }
         if (lastProcessor instanceof FindableProcessor) {
             if (prevLastProcessor != null) {
                 prevLastProcessor.setNextProcessor(preJoinProcessor);
@@ -172,7 +184,7 @@ public class JoinInputStreamParser {
             return (FindableProcessor) lastProcessor;
         } else {
             throw new OperationNotSupportedException("Stream " + ((MetaStreamEvent) streamRuntime.getMetaComplexEvent()).getLastInputDefinition().getId() +
-                    "'s last processor  " + (lastProcessor != null ? lastProcessor.getClass().getCanonicalName() : null) + " is not an instance of " +
+                    "'s last processor " + lastProcessor.getClass().getCanonicalName() + " is not an instance of " +
                     FindableProcessor.class.getCanonicalName() + " hence join cannot be proceed");
         }
 

@@ -985,8 +985,8 @@ public class ExpressionParser {
                             try {
                                 definition.getAttributeType(attributeName);
                                 throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + definition.getId() + " with " +
-                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attributes with same" +
-                                        " names ");
+                                        "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute with same" +
+                                        " name '"+attributeName+"'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
                             }
