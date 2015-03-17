@@ -109,7 +109,7 @@ public class LossyFrequentWindowTestCase {
                 "@info(name = 'query1') " +
                 "from purchase[price >= 30]#window.lossyFrequent(0.3,0.05) " +
                 "select cardNo, price " +
-                "insert into PotentialFraud ;";
+                "insert all events into PotentialFraud ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -158,7 +158,7 @@ public class LossyFrequentWindowTestCase {
                 "@info(name = 'query1') " +
                 "from purchase[price >= 30]#window.lossyFrequent(0.3,0.05,cardNo) " +
                 "select cardNo, price " +
-                "insert into PotentialFraud ;";
+                "insert all events into PotentialFraud ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

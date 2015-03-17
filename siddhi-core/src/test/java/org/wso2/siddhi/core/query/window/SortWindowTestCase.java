@@ -56,7 +56,7 @@ public class SortWindowTestCase {
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.sort(2,volume, 'asc') " +
                 "select volume " +
-                "insert into outputStream ;";
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -106,7 +106,7 @@ public class SortWindowTestCase {
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.sort(2,volume, 'asc', price, 'desc') " +
                 "select price, volume " +
-                "insert into outputStream ;";
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

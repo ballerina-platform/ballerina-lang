@@ -49,7 +49,7 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume " +
-                "insert into outputStream ;" + "" +
+                "insert all events into outputStream ;" + "" +
                 "end ";
 
 
@@ -96,7 +96,7 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
-                "insert into outputStream ;" + "" +
+                "insert all events into outputStream ;" + "" +
                 "end ";
 
 
@@ -147,8 +147,8 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
-                "insert into #outputStream ;" +
-                "@info(name = 'query2') from #outputStream select symbol,user insert into outStream;" +
+                "insert all events into #outputStream ;" +
+                "@info(name = 'query2') from #outputStream select symbol,user insert all events into outStream;" +
                 "end ";
 
 
@@ -200,8 +200,8 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume " +
-                "insert into #outputStream ;" +
-                "@info(name = 'query2') from #outputStream select symbol,user insert into outputStream;" +
+                "insert all events into #outputStream ;" +
+                "@info(name = 'query2') from #outputStream select symbol,user insert all events into outputStream;" +
                 "end ";
 
 
@@ -260,11 +260,11 @@ public class JoinPartitionTestCase {
                 "define stream twitterStream (user string, tweet string, company string);" +
                 " " +
                 "partition with (user of cseEventStream) begin " +
-                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert into #cseInnerStream;" +
+                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all events into #cseInnerStream;" +
                 "@info(name = 'query1') from #cseInnerStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on twitterStream.company== #cseInnerStream.symbol " +
                 "select #cseInnerStream.user as user,twitterStream.tweet as tweet, twitterStream.company, #cseInnerStream.volume ,  #cseInnerStream.symbol " +
-                "insert into outputStream ;" +
+                "insert all events into outputStream ;" +
                 "end ";
 
 
@@ -312,11 +312,11 @@ public class JoinPartitionTestCase {
 
         String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin " +
-                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert into #cseEventStream;" +
+                "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all events into #cseEventStream;" +
                 "@info(name = 'query1') from #cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on twitterStream.company== #cseEventStream.symbol " +
                 "select #cseEventStream.user as user,twitterStream.tweet as tweet, twitterStream.company, #cseEventStream.volume ,  #cseEventStream.symbol " +
-                "insert into outputStream ;" +
+                "insert all events into outputStream ;" +
                 "end ";
 
 
@@ -360,7 +360,7 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.user== twitterStream.user " +
                 "select cseEventStream.symbol as symbol, cseEventStream.user as user,twitterStream.tweet, cseEventStream.volume,twitterStream.company " +
-                "insert into outputStream;" +
+                "insert all events into outputStream;" +
                 "end ";
 
 
@@ -415,7 +415,7 @@ public class JoinPartitionTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume " +
-                "insert into outputStream ;" + "" +
+                "insert all events into outputStream ;" + "" +
                 "end ";
 
 

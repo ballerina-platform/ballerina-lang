@@ -49,7 +49,7 @@ public class TimeWindowTestCase {
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.time(2 sec) " +
                 "select symbol,price,volume " +
-                "insert into outputStream ;";
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -93,7 +93,7 @@ public class TimeWindowTestCase {
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream#window.time(1 sec) select symbol,price," +
-                "volume insert into outputStream ;";
+                "volume insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
