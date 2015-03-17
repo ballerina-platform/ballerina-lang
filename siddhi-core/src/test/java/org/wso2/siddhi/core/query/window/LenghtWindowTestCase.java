@@ -46,7 +46,7 @@ public class LenghtWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.length(4) select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.length(4) select symbol,price,volume insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -81,7 +81,7 @@ public class LenghtWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.length(" + length + ") select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.length(" + length + ") select symbol,price,volume insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -129,7 +129,7 @@ public class LenghtWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.length(" + length + ") select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.length(" + length + ") select symbol,price,volume insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

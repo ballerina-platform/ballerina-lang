@@ -59,7 +59,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents " +
                 "select ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -113,7 +113,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents " +
                 "select ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -168,7 +168,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents " +
                 "select ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -227,7 +227,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select ip " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -286,7 +286,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select ip,  sum(calls) as totalCalls " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -349,7 +349,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select sum(calls) as totalCalls " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -406,7 +406,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select sum(calls) as totalCalls " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -462,7 +462,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select sum(calls) as totalCalls " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -518,7 +518,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(5 sec) " +
                 "select sum(calls) as totalCalls " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -576,7 +576,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select  ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -630,7 +630,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select  ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -684,7 +684,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select  ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -731,7 +731,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(5 sec) " +
                 "select  ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -784,7 +784,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select  ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -837,7 +837,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select  ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -893,7 +893,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select  ip " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -951,7 +951,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select  ip " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -1005,7 +1005,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(1 sec) " +
                 "select  ip, sum(calls) as totalCalls " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -1062,7 +1062,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "from LoginEvents#window.time(5 sec) " +
                 "select  ip, sum(calls) as totalCalls " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -1120,7 +1120,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select  ip, sum(calls) as totalCalls " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -1180,7 +1180,7 @@ public class SnapshotOutputRateLimitTestCase {
                 "select  ip, sum(calls) as totalCalls " +
                 "group by ip " +
                 "output snapshot every 1 sec " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);

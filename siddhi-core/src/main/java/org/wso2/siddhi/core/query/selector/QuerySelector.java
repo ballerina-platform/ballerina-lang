@@ -85,9 +85,11 @@ public class QuerySelector implements Processor {
                 }
                 complexEventChunk.remove();
 
-                if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
-                    outputRateLimiter.add(event);
-                    eventSent = true;
+                if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
+                    if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                        outputRateLimiter.add(event);
+                        eventSent = true;
+                    }
                 }
 
                 if (isGroupBy) {

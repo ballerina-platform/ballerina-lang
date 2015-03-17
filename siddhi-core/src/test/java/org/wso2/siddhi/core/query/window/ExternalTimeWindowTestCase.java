@@ -55,7 +55,7 @@ public class ExternalTimeWindowTestCase {
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.externalTime(timeStamp,5 sec) " +
                 "select timeStamp, ip  " +
-                "insert into uniqueIps ;";
+                "insert all events into uniqueIps ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

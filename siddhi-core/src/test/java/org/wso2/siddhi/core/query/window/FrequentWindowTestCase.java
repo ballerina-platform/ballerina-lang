@@ -56,7 +56,7 @@ public class FrequentWindowTestCase {
                 "@info(name = 'query1') " +
                 "from purchase[price >= 30]#window.frequent(2) " +
                 "select cardNo, price " +
-                "insert into PotentialFraud ;";
+                "insert all events into PotentialFraud ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -105,7 +105,7 @@ public class FrequentWindowTestCase {
                 "@info(name = 'query1') " +
                 "from purchase[price >= 30]#window.frequent(2,cardNo) " +
                 "select cardNo, price " +
-                "insert into PotentialFraud ;";
+                "insert all events into PotentialFraud ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

@@ -51,7 +51,7 @@ public class JoinTestCase {
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
-                "insert into outputStream ;";
+                "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
