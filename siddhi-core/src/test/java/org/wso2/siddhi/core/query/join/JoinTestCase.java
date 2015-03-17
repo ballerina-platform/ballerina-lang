@@ -87,6 +87,98 @@ public class JoinTestCase {
 
     }
 
+    @Test
+    public void joinTest2() throws InterruptedException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec) as a join twitterStream#window.time(1 sec) as b " +
+                "on a.symbol== b.company " +
+                "select a.symbol as symbol, b.tweet, a.price " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+//        Thread.sleep(70000);
+        cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
+        Thread.sleep(500);
+        cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
+        Thread.sleep(2000);
+        Assert.assertEquals(2, inEventCount);
+        Assert.assertEquals(2, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void joinTest3() throws InterruptedException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " ;
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(500 milliseconds) as a join cseEventStream#window.time(500 milliseconds) as b " +
+                "on a.symbol== b.symbol " +
+                "select a.symbol as symbol, a.price as priceA, b.price as priceB " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
+        cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
+        Thread.sleep(2000);
+        Assert.assertEquals(2, inEventCount);
+        Assert.assertEquals(2, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
 
 //    @Test
 //    public void timeWindowTest2() throws InterruptedException {

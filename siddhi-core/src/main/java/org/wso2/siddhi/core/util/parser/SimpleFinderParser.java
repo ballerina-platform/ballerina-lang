@@ -20,9 +20,9 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.util.finder.SimpleFinder;
-import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -63,7 +63,7 @@ public class SimpleFinderParser {
             //for join
             for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
-                if (metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
+                if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) metaComplexEvent);
                     size = metaStreamEvents.length;
                     break;

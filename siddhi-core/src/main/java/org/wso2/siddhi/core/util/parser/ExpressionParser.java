@@ -927,6 +927,7 @@ public class ExpressionParser {
         } else {
             eventPosition[STREAM_EVENT_INDEX] = defaultStreamEventIndex;
         }
+        eventPosition[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
         if (metaEvent instanceof MetaStreamEvent) {
             MetaStreamEvent metaStreamEvent = (MetaStreamEvent) metaEvent;
             AbstractDefinition abstractDefinition;
@@ -937,7 +938,6 @@ public class ExpressionParser {
                 eventPosition[STREAM_EVENT_CHAIN_INDEX] = HAVING_STATE;
             } else {
                 abstractDefinition = metaStreamEvent.getLastInputDefinition();
-                eventPosition[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
                 type = abstractDefinition.getAttributeType(attributeName);
                 ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
             }
@@ -1021,6 +1021,11 @@ public class ExpressionParser {
                         }
                     }
                 }
+            }
+            if(eventPosition[STREAM_EVENT_CHAIN_INDEX]==UNKNOWN_STATE){
+                throw new ExecutionPlanValidationException("Stream with reference : " +
+                        variable.getStreamId() +" not found");
+
             }
 
             VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX]);
