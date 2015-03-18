@@ -48,8 +48,10 @@ public class QueryParserHelper {
         if (metaComplexEvent instanceof MetaStateEvent) {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
-                metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX]).
-                        addOutputData(attribute.getAttribute());
+                if(attribute != null) {
+                    metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX]).
+                            addOutputData(attribute.getAttribute());
+                }
             }
             for (MetaStreamEvent metaStreamEvent : metaStateEvent.getMetaStreamEvents()) {
                 reduceStreamAttributes(metaStreamEvent);
