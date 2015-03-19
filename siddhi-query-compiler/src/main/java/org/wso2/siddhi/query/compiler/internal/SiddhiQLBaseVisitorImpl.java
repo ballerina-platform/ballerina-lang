@@ -1121,9 +1121,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             }
         } else if (ctx.EXPIRED() != null) {
             if (ctx.RAW() != null) {
-                return OutputStream.OutputEventType.EXPIRED_EVENTS;
-            } else {
                 return OutputStream.OutputEventType.EXPIRED_RAW_EVENTS;
+            } else {
+                return OutputStream.OutputEventType.EXPIRED_EVENTS;
             }
         } else {
             return OutputStream.OutputEventType.CURRENT_EVENTS;
