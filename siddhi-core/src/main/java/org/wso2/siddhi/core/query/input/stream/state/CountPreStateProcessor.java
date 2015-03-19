@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created on 1/6/15.
@@ -32,15 +35,15 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
     private CountPostStateProcessor countPostStateProcessor;
     private volatile boolean startStateReset = false;
 
-    public CountPreStateProcessor(int minCount, int maxCount, StateInputStream.Type stateType) {
-        super(stateType);
+    public CountPreStateProcessor(int minCount, int maxCount, StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
+        super(stateType, withinStates);
         this.minCount = minCount;
         this.maxCount = maxCount;
     }
 
 
     public PreStateProcessor cloneProcessor(String key) {
-        CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType);
+        CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType, withinStates);
         cloneProperties(countPreStateProcessor, key);
         countPreStateProcessor.init(executionPlanContext);
         return countPreStateProcessor;

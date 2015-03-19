@@ -21,7 +21,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created on 12/26/14.
@@ -31,8 +31,8 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     private LogicalStateElement.Type logicalType;
     private LogicalPreStateProcessor partnerStatePreProcessor;
 
-    public LogicalPreStateProcessor(LogicalStateElement.Type type, StateInputStream.Type stateType) {
-        super(stateType);
+    public LogicalPreStateProcessor(LogicalStateElement.Type type, StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
+        super(stateType, withinStates);
         this.logicalType = type;
     }
 
@@ -44,7 +44,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
      */
     @Override
     public PreStateProcessor cloneProcessor(String key) {
-        LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType);
+        LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType, withinStates);
         cloneProperties(logicalPreStateProcessor, key);
         logicalPreStateProcessor.init(executionPlanContext);
         return logicalPreStateProcessor;

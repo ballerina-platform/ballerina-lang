@@ -23,11 +23,11 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Created on 12/17/14.
@@ -38,6 +38,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected boolean isStartState;
     protected volatile boolean stateChanged = false;
     protected StateInputStream.Type stateType;
+    protected List<Map.Entry<Long, Set<Integer>>> withinStates;
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
     protected StreamPostStateProcessor thisStatePostProcessor;
@@ -54,8 +55,9 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected StateEventCloner stateEventCloner;
     protected StreamEventPool streamEventPool;
 
-    public StreamPreStateProcessor(StateInputStream.Type stateType) {
+    public StreamPreStateProcessor(StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
         this.stateType = stateType;
+        this.withinStates = withinStates;
     }
 
     public void init(ExecutionPlanContext executionPlanContext) {
@@ -86,6 +88,29 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
             StateEvent stateEvent = iterator.next();
+            if (withinStates.size() > 0) {
+                if (isExpired(stateEvent, streamEvent)) {
+                    iterator.remove();
+                    continue;
+                }
+            }
+//                if (Math.abs(stateEvent.getTimestamp() - streamEvent.getTimestamp()) > withinStates) {
+//                    iterator.remove();
+////                    switch (stateType) {
+////                        case PATTERN:
+////                            stateEvent.setEvent(stateId, null);
+////                            break;
+////                        case SEQUENCE:
+////                            stateEvent.setEvent(stateId, null);
+////                            iterator.remove();
+////                            if (thisStatePostProcessor.callbackPreStateProcessor != null) {
+////                                thisStatePostProcessor.callbackPreStateProcessor.startStateReset();
+////                            }
+////                            break;
+////                    }
+//                    continue;
+//                }
+//            }
             stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
             process(stateEvent);
             if (stateChanged) {
@@ -105,6 +130,25 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
                 }
             }
         }
+    }
+
+    private boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
+        for (Map.Entry<Long, Set<Integer>> withinEntry : withinStates) {
+            for (Integer withinStateId : withinEntry.getValue()) {
+                if (withinStateId == SiddhiConstants.LAST) {
+                    if (Math.abs(pendingStateEvent.getTimestamp() - incomingStreamEvent.getTimestamp()) > withinEntry.getKey()) {
+                        return true;
+                    }
+                } else {
+                    if (Math.abs(pendingStateEvent.getStreamEvent(withinStateId).getTimestamp() - incomingStreamEvent.getTimestamp()) > withinEntry.getKey()) {
+                        return true;
+
+                    }
+                }
+            }
+        }
+        return false;
+
     }
 
     protected void process(StateEvent stateEvent) {
@@ -164,7 +208,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
      */
     @Override
     public PreStateProcessor cloneProcessor(String key) {
-        StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType);
+        StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType, withinStates);
         cloneProperties(streamPreStateProcessor, key);
         streamPreStateProcessor.init(executionPlanContext);
         return streamPreStateProcessor;
