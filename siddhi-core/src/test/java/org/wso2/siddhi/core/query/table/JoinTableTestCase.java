@@ -70,10 +70,10 @@ public class JoinTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 55.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2",100l}, event.getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 75.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 10l}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(2, inEventCount);
@@ -95,7 +95,7 @@ public class JoinTableTestCase {
         executionPlanRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+        stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
@@ -140,7 +140,7 @@ public class JoinTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 55.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(1, inEventCount);
@@ -162,7 +162,7 @@ public class JoinTableTestCase {
         executionPlanRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+        stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
@@ -207,7 +207,7 @@ public class JoinTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 75.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 10l}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(1, inEventCount);
@@ -229,7 +229,7 @@ public class JoinTableTestCase {
         executionPlanRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+        stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
@@ -274,7 +274,7 @@ public class JoinTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 75.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 200l}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(1, inEventCount);
@@ -286,7 +286,7 @@ public class JoinTableTestCase {
                         removeEventCount++;
                         switch (removeEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 75.6f}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 200l}, event.getData());
                                 break;
                             default:
                                 Assert.assertSame(1, removeEventCount);
@@ -304,7 +304,7 @@ public class JoinTableTestCase {
         executionPlanRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+        stockStream.send(new Object[]{"IBM", 75.6f, 200l});
         checkStockStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(1500);
