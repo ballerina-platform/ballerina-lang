@@ -30,15 +30,15 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.finder.Finder;
-import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FirstUniqueWindowProcessor extends WindowProcessor implements FindableProcessor{
+public class FirstUniqueWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
 
@@ -47,7 +47,7 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length];
         for (int i = 0; i < attributeExpressionExecutors.length; i++) {
-            variableExpressionExecutors[i] =(VariableExpressionExecutor) attributeExpressionExecutors[i];
+            variableExpressionExecutors[i] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
         }
 
     }
@@ -98,15 +98,11 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
 
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        finder.setMatchingEvent(matchingEvent);
-        StreamEvent returnEvent = finder.execute(map.values(), streamEventCloner);
-        finder.setMatchingEvent(null);
-        return returnEvent;
-
+        return finder.find(matchingEvent, map.values(),streamEventCloner);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }

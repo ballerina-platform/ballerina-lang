@@ -56,7 +56,7 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLon
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.FunctionExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.AttributeAggregatorExtensionHolder;
-import org.wso2.siddhi.core.util.finder.Finder;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
@@ -716,7 +716,7 @@ public class ExpressionParser {
                     case LONG:
                         return new EqualCompareConditionExpressionExecutorIntLong(leftExpressionExecutor, rightExpressionExecutor);
                     case FLOAT:
-                        return new EqualCompareConditionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor, rightExpressionExecutor);
                     case DOUBLE:
                         return new EqualCompareConditionExpressionExecutorIntDouble(leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:
@@ -767,7 +767,7 @@ public class ExpressionParser {
                     case LONG:
                         return new EqualCompareConditionExpressionExecutorDoubleLong(leftExpressionExecutor, rightExpressionExecutor);
                     case FLOAT:
-                        return new EqualCompareConditionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
+                        return new EqualCompareConditionExpressionExecutorDoubleFloat(leftExpressionExecutor, rightExpressionExecutor);
                     case DOUBLE:
                         return new EqualCompareConditionExpressionExecutorDoubleDouble(leftExpressionExecutor, rightExpressionExecutor);
                     case BOOL:

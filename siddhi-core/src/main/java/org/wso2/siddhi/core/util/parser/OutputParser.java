@@ -19,16 +19,16 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.query.output.ratelimit.event.*;
-import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.time.*;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.finder.Finder;
 import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.PassThroughOutputRateLimiter;
+import org.wso2.siddhi.core.query.output.ratelimit.event.*;
+import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
+import org.wso2.siddhi.core.query.output.ratelimit.time.*;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -82,11 +82,11 @@ public class OutputParser {
                 }
                 matchingMetaStreamEvent.addInputDefinition(matchingTableDefinition);
                 if (outStream instanceof DeleteStream) {
-                    Finder finder = eventTable.constructFinder(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                    return new DeleteTableCallback(eventTable, finder);
+                    Operator operator = eventTable.constructOperator(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
+                    return new DeleteTableCallback(eventTable, operator);
                 } else {
-                    Finder finder = eventTable.constructFinder(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                    return new UpdateTableCallback(eventTable, finder, matchingTableDefinition);
+                    Operator operator = eventTable.constructOperator(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
+                    return new UpdateTableCallback(eventTable, operator, matchingTableDefinition);
                 }
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");

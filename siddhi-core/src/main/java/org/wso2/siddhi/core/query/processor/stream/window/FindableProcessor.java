@@ -20,7 +20,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.util.finder.Finder;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.query.api.expression.Expression;
 

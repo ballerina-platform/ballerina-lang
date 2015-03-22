@@ -13,26 +13,21 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.siddhi.core.util.finder;
+package org.wso2.siddhi.core.util.collection.operator;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-
-import java.util.Collection;
 
 /**
  * Created on 1/19/15.
  */
 public interface Finder {
-    boolean execute(StreamEvent candidateEvent);
-
-    void setMatchingEvent(ComplexEvent matchingEvent);
 
     Finder cloneFinder();
 
-    StreamEvent execute(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner);
+    StreamEvent  find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner);
 
-    StreamEvent execute(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner);
+    boolean contains(ComplexEvent matchingEvent, Object candidateEvents);
+
 }

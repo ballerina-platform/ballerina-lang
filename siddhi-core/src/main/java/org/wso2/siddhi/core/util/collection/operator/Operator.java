@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 - 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005 - 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
@@ -13,25 +13,18 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.output.callback;
+package org.wso2.siddhi.core.util.collection.operator;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
 
-public class DeleteTableCallback implements OutputCallback {
-    private EventTable eventTable;
-    private Operator operator;
+/**
+ * Created on 3/22/15.
+ */
+public interface Operator extends Finder {
 
-    public DeleteTableCallback(EventTable eventTable, Operator operator) {
-        this.eventTable = eventTable;
-        this.operator = operator;
-    }
+    void delete(ComplexEventChunk<StreamEvent> deletingEvent, Object candidateEvents);
 
-    @Override
-    public void send(ComplexEventChunk<StreamEvent> complexEventChunk) {
-        eventTable.delete(complexEventChunk, operator);
-    }
+    void update(ComplexEventChunk<StreamEvent> updatingEvent, Object candidateEvents, int[] mappingPosition);
 
 }

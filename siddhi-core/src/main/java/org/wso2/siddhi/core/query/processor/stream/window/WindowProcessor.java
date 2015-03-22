@@ -52,9 +52,9 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
     /**
      * The main processing method that will be called upon event arrival
      *
-     * @param streamEventChunk     the stream event chunk that need to be processed
-     * @param nextProcessor        the next processor to which the success events need to be passed
-     * @param streamEventCloner    helps to clone the incoming event for local storage or modification
+     * @param streamEventChunk  the stream event chunk that need to be processed
+     * @param nextProcessor     the next processor to which the success events need to be passed
+     * @param streamEventCloner helps to clone the incoming event for local storage or modification
      */
     protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner);

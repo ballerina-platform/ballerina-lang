@@ -15,25 +15,37 @@
 
 package org.wso2.siddhi.core.table;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.util.finder.Finder;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.expression.Expression;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 1/18/15.
  */
 public interface EventTable extends FindableProcessor {
+
     TableDefinition getTableDefinition();
 
     void add(ComplexEventChunk<StreamEvent> addingEventChunk);
 
-    void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder);
+    void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator);
 
-    void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition);
+    void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition);
 
     boolean contains(ComplexEvent matchingEvent, Finder finder);
+
+    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
+
 
 }

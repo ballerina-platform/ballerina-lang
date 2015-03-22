@@ -17,7 +17,7 @@ package org.wso2.siddhi.core.executor.condition;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.finder.Finder;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.table.EventTable;
 
 public class InConditionExpressionExecutor extends ConditionExpressionExecutor {

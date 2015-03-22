@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.finder.Finder;
-import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -36,7 +36,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
-public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor {
+public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
     private long lastSentTime;
@@ -150,5 +150,15 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     public void restoreState(Object[] state) {
         expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+    }
+
+    @Override
+    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
+    }
+
+    @Override
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }

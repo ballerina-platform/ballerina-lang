@@ -17,11 +17,11 @@ package org.wso2.siddhi.core.executor.condition.compare.equal;
 
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
-public class EqualCompareConditionExecutorIntFloat extends
+public class EqualCompareConditionExpressionExecutorIntFloat extends
         EqualCompareConditionExpressionExecutor {
 
 
-    public EqualCompareConditionExecutorIntFloat(
+    public EqualCompareConditionExpressionExecutorIntFloat(
             ExpressionExecutor leftExpressionExecutor,
             ExpressionExecutor rightExpressionExecutor) {
         super(leftExpressionExecutor, rightExpressionExecutor);
@@ -35,6 +35,6 @@ public class EqualCompareConditionExecutorIntFloat extends
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new EqualCompareConditionExecutorIntFloat(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
+        return new EqualCompareConditionExpressionExecutorIntFloat(leftExpressionExecutor.cloneExecutor(key), rightExpressionExecutor.cloneExecutor(key));
     }
 }

@@ -23,17 +23,23 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.util.finder.Finder;
-import org.wso2.siddhi.core.util.parser.SimpleFinderParser;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created on 1/18/15.
@@ -43,6 +49,9 @@ public class InMemoryEventTable implements EventTable {
     private final TableDefinition tableDefinition;
     private final ExecutionPlanContext executionPlanContext;
     private final LinkedList<StreamEvent> list = new LinkedList<StreamEvent>();
+    private final TreeMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
+    private String indexAttribute = null;
+    private int indexPosition;
     private final StreamEventCloner streamEventCloner;
     private final StreamEventPool streamEventPool;
 
@@ -56,6 +65,21 @@ public class InMemoryEventTable implements EventTable {
         for (Attribute attribute : tableDefinition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);
         }
+
+        //Adding indexes
+        Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
+                tableDefinition.getAnnotations());
+        if (annotation != null) {
+            if (annotation.getElements().size() > 1) {
+                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " + annotation.getElements().size() + " elements, Siddhi in-memory table only supports indexing based on a single attribute");
+            }
+            if (annotation.getElements().size() == 0) {
+                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " + annotation.getElements().size() + " element");
+            }
+            indexAttribute = annotation.getElements().get(0).getValue();
+            indexPosition = tableDefinition.getAttributePosition(indexAttribute);
+        }
+
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
     }
@@ -69,72 +93,56 @@ public class InMemoryEventTable implements EventTable {
         addingEventChunk.reset();
         while (addingEventChunk.hasNext()) {
             StreamEvent streamEvent = addingEventChunk.next();
-            list.add(streamEventCloner.copyStreamEvent(streamEvent));
+            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            if (indexAttribute != null) {
+                treeMap.put(clonedEvent.getOutputData()[indexPosition], streamEvent);
+            } else {
+                list.add(streamEvent);
+            }
         }
     }
 
-    public synchronized void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Finder finder) {
-
-        deletingEventChunk.reset();
-        while (deletingEventChunk.hasNext()) {
-            StreamEvent matchStreamEvent = deletingEventChunk.next();
-            finder.setMatchingEvent(matchStreamEvent);
-            Iterator<StreamEvent> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                StreamEvent streamEvent = iterator.next();
-                if (finder.execute(streamEvent)) {
-                    iterator.remove();
-                }
-            }
-            finder.setMatchingEvent(null);
+    public synchronized void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator) {
+        if (indexAttribute != null) {
+            operator.delete(deletingEventChunk, treeMap);
+        } else {
+            operator.delete(deletingEventChunk, list);
         }
-
 
     }
 
-    public synchronized void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Finder finder, int[] mappingPosition) {
-
-        updatingEventChunk.reset();
-        while (updatingEventChunk.hasNext()) {
-            StreamEvent matchStreamEvent = updatingEventChunk.next();
-            finder.setMatchingEvent(matchStreamEvent);
-            Iterator<StreamEvent> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                StreamEvent streamEvent = iterator.next();
-                if (finder.execute(streamEvent)) {
-                    for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                        streamEvent.setOutputData(matchStreamEvent.getOutputData()[i], mappingPosition[i]);
-                    }
-                }
-            }
-            finder.setMatchingEvent(null);
+    public synchronized void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition) {
+        if (indexAttribute != null) {
+            operator.update(updatingEventChunk, treeMap, mappingPosition);
+        } else {
+            operator.update(updatingEventChunk, list, mappingPosition);
         }
-
     }
 
 
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
-        finder.setMatchingEvent(matchingEvent);
-        for (StreamEvent streamEvent : list) {
-            if (finder.execute(streamEvent)) {
-                return true;
-            }
+        if (indexAttribute != null) {
+            return finder.contains(matchingEvent, treeMap);
+        } else {
+            return finder.contains(matchingEvent, list);
         }
-        finder.setMatchingEvent(null);
-        return false;
     }
 
-    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {    //todo optimize
-        finder.setMatchingEvent(matchingEvent);
-        StreamEvent returnEvent = finder.execute(list, streamEventCloner);
-        finder.setMatchingEvent(null);
-        return returnEvent;
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        if (indexAttribute != null) {
+            return finder.find(matchingEvent, treeMap, streamEventCloner);
+        } else {
+            return finder.find(matchingEvent, list, streamEventCloner);
+        }
 
     }
 
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return SimpleFinderParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime);
-
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
     }
 
+    @Override
+    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
+    }
 }
