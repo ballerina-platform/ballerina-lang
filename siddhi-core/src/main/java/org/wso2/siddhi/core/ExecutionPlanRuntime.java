@@ -178,6 +178,9 @@ public class ExecutionPlanRuntime {
             eternalReferencedHolder.start();
         }
         inputManager.startProcessing();
+        for(StreamJunction streamJunction :streamJunctionMap.values()){
+            streamJunction.startProcessing();
+        }
     }
 
 
