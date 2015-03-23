@@ -92,7 +92,7 @@ public class ExecutionPlanParser {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
 
-            executionPlanContext.setExecutorService(new ThreadPoolExecutor(5, Integer.MAX_VALUE,
+            executionPlanContext.setExecutorService(new ThreadPoolExecutor(25, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
                     new LinkedBlockingDeque<Runnable>()));
 
