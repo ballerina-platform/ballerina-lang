@@ -48,7 +48,7 @@ import java.util.*;
 * The arguements following the size of the window are optional.
 * If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
 * */
-public class SortWindowProcessor extends WindowProcessor implements FindableProcessor{
+public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
     private int lengthToKeep;
     private ArrayList<StreamEvent> sortedWindow = new ArrayList<StreamEvent>();
     private ArrayList<Object[]> parameterInfo;
@@ -61,13 +61,13 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
         @Override
         public int compare(StreamEvent e1, StreamEvent e2) {
             int comparisonResult;
-            for (Object[] listItem: parameterInfo){
-                int[] variablePosition = ((VariableExpressionExecutor)listItem[0]).getPosition();
-                Comparable comparableVariable1 = (Comparable)e1.getAttribute(variablePosition);
-                Comparable comparableVariable2 = (Comparable)e2.getAttribute(variablePosition);
+            for (Object[] listItem : parameterInfo) {
+                int[] variablePosition = ((VariableExpressionExecutor) listItem[0]).getPosition();
+                Comparable comparableVariable1 = (Comparable) e1.getAttribute(variablePosition);
+                Comparable comparableVariable2 = (Comparable) e2.getAttribute(variablePosition);
                 comparisonResult = comparableVariable1.compareTo(comparableVariable2);
-                if(comparisonResult != 0){
-                    return ((Integer)listItem[1])*comparisonResult;
+                if (comparisonResult != 0) {
+                    return ((Integer) listItem[1]) * comparisonResult;
                 }
             }
             return 0;
@@ -76,26 +76,26 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT){
+        if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
             lengthToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
         } else {
             throw new UnsupportedOperationException("The first parameter should be an integer");
         }
         parameterInfo = new ArrayList<Object[]>();
         eventComparator = new EventComparator();
-        for (int i = 1, parametersLength = attributeExpressionExecutors.length  ; i < parametersLength; i++) {
-            if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)){
+        for (int i = 1, parametersLength = attributeExpressionExecutors.length; i < parametersLength; i++) {
+            if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
                 throw new UnsupportedOperationException("Required a variable, but found a string parameter");
-            } else{
+            } else {
                 ExpressionExecutor variableExpressionExecutor = attributeExpressionExecutors[i];
                 int order;
                 String nextParameter;
-                if(i+1 < parametersLength && attributeExpressionExecutors[i+1].getReturnType() == Attribute.Type.STRING){
-                    nextParameter = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[i+1]).getValue();
-                    if (nextParameter.equalsIgnoreCase(DESC)){
+                if (i + 1 < parametersLength && attributeExpressionExecutors[i + 1].getReturnType() == Attribute.Type.STRING) {
+                    nextParameter = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[i + 1]).getValue();
+                    if (nextParameter.equalsIgnoreCase(DESC)) {
                         order = -1;
                         i++;
-                    } else if (nextParameter.equalsIgnoreCase(ASC)){
+                    } else if (nextParameter.equalsIgnoreCase(ASC)) {
                         order = 1;
                         i++;
                     } else {
@@ -111,7 +111,7 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
@@ -126,7 +126,7 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
             sortedWindow.add(clonedEvent);
             if (sortedWindow.size() > lengthToKeep) {
                 Collections.sort(sortedWindow, eventComparator);
-                complexEventChunk.add(sortedWindow.remove(sortedWindow.size()-1));
+                complexEventChunk.add(sortedWindow.remove(sortedWindow.size() - 1));
             }
 
             streamEvent = next;
@@ -157,13 +157,13 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, sortedWindow,streamEventCloner);
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        return finder.find(matchingEvent, sortedWindow, streamEventCloner);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
 
     }
 }

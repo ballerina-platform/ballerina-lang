@@ -88,7 +88,7 @@ public class CronWindowProcessor extends WindowProcessor {
             dataMap.put("windowProcessor", this);
 
             jobName = "EventRemoverJob_" + elementId;
-            JobDetail job = org.quartz.JobBuilder.newJob(EventRemoverJob.class)
+            JobDetail job = org.quartz.JobBuilder.newJob(CronWindowEventRemoverJob.class)
                     .withIdentity(jobName, jobGroup)
                     .usingJobData(dataMap)
                     .build();

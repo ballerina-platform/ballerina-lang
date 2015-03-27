@@ -57,7 +57,7 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
@@ -111,7 +111,7 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
     }
 
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
     }
 

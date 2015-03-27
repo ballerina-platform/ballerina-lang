@@ -60,7 +60,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
@@ -151,7 +151,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         return finder.find(matchingEvent, map.values(),streamEventCloner);
     }
 

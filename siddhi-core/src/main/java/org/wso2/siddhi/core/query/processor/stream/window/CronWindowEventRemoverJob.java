@@ -24,9 +24,9 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public class EventRemoverJob implements Job {
+public class CronWindowEventRemoverJob implements Job {
 
-    static final Logger log = Logger.getLogger(EventRemoverJob.class);
+    static final Logger log = Logger.getLogger(CronWindowEventRemoverJob.class);
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
