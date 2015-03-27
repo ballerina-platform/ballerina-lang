@@ -183,6 +183,9 @@ public class ExecutionPlanRuntime {
         }
     }
 
+    public void enableStatistics(){
+        ExecutionPlanContext.statEnable = true;
+    }
 
     public String persist() {
         return executionPlanContext.getPersistenceService().persist();
