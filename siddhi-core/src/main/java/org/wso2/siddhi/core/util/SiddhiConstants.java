@@ -49,5 +49,13 @@ public final class SiddhiConstants {
     public static final int LAST = -1;
     public static final int ANY = -1;
 
+    public static final String ANNOTATION_FROM = "from";
+    public static final String ANNOTATION_ELEMENT_DATASOURCE_ID = "datasource.id";
+    public static final String ANNOTATION_ELEMENT_TABLE_NAME = "table.name";
+    public static final String ANNOTATION_ELEMENT_CACHE = "cache";
+    public static final String ANNOTATION_ELEMENT_CACHE_SIZE = "cache.size";
+    public static final String RDBMS_TABLE_CONFIG_FILE = "rdbms-table-config.xml";
+
+
 
 }

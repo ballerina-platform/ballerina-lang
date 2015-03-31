@@ -17,13 +17,19 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.EventTableConnectionException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
+import org.wso2.siddhi.core.table.RDBMSEventTable;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -69,9 +75,23 @@ public class DefinitionParserHelper {
 
 
     public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
-        if (!eventTableMap.containsKey(tableDefinition.getId())) {
-            EventTable eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
-            eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+
+        try {
+            if (!eventTableMap.containsKey(tableDefinition.getId())) {
+                EventTable eventTable;
+                Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+                        tableDefinition.getAnnotations());
+                if (annotation != null) {
+                    eventTable = new RDBMSEventTable(tableDefinition, executionPlanContext);
+                } else {
+                    eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
+                }
+                eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+            }
+        } catch (EventTableConnectionException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (CannotLoadConfigurationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 }

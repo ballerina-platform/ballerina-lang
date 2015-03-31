@@ -20,8 +20,10 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SiddhiContext {
 
@@ -29,11 +31,13 @@ public class SiddhiContext {
     private Map<String, Class> siddhiExtensions;
     private PersistenceStore persistenceStore = null;
     private Map<String, EvalScript> scriptFunctionMap;
+    private ConcurrentHashMap<String, DataSource> siddhiDataSources;
 
     public SiddhiContext() {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
         eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
         this.scriptFunctionMap = new HashMap<String, EvalScript>();
+        this.siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
     }
 
     public int getEventBufferSize() {
@@ -72,4 +76,11 @@ public class SiddhiContext {
         return scriptFunctionMap;
     }
 
+    public DataSource getSiddhiDataSource(String dataSourceName) {
+        return siddhiDataSources.get(dataSourceName);
+    }
+
+    public void addSiddhiDataSource(String dataSourceName, DataSource dataSource) {
+        this.siddhiDataSources.put(dataSourceName,dataSource);
+    }
 }
