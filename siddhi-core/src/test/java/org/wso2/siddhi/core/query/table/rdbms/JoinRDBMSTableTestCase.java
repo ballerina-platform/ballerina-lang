@@ -197,6 +197,7 @@ public class JoinRDBMSTableTestCase {
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
+            //Ignore the test case
 
         }
 
@@ -270,6 +271,237 @@ public class JoinRDBMSTableTestCase {
 
     }
 
+    @Test
+    public void testTableJoinQuery4() throws InterruptedException {
+        log.info("testTableJoinQuery4 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+
+        try {
+            if (dataSource.getConnection() != null) {
+                clearDatabaseTable();
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream CheckStockStream (symbol string); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from CheckStockStream#window.length(1) join StockTable " +
+                        " on CheckStockStream.symbol==symbol " +
+                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        "insert into OutputStream ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                    @Override
+                    public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        if (inEvents != null) {
+                            for (Event event : inEvents) {
+                                inEventCount++;
+                                switch (inEventCount) {
+                                    case 1:
+                                        Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
+                                        break;
+                                    default:
+                                        Assert.assertSame(1, inEventCount);
+                                }
+                            }
+                            eventArrived = true;
+                        }
+                        if (removeEvents != null) {
+                            removeEventCount = removeEventCount + removeEvents.length;
+                        }
+                        eventArrived = true;
+                    }
+
+                });
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 10l});
+                checkStockStream.send(new Object[]{"WSO2"});
+
+                Thread.sleep(2000);
+
+                Assert.assertEquals("Number of success events", 1, inEventCount);
+                Assert.assertEquals("Number of remove events", 0, removeEventCount);
+                Assert.assertEquals("Event arrived", true, eventArrived);
+
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the test case
+
+        }
+
+    }
+
+
+    @Test
+    public void testTableJoinQuery5() throws InterruptedException {
+        log.info("testTableJoinQuery5 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+
+        try {
+            if (dataSource.getConnection() != null) {
+                clearDatabaseTable();
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream CheckStockStream (symbol string); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from CheckStockStream#window.length(1) as c join StockTable as s " +
+                        " on c.symbol==s.symbol " +
+                        "select c.symbol as checkSymbol, s.symbol as symbol, s.volume as volume  " +
+                        "insert into OutputStream ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                    @Override
+                    public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        if (inEvents != null) {
+                            for (Event event : inEvents) {
+                                inEventCount++;
+                                switch (inEventCount) {
+                                    case 1:
+                                        Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
+                                        break;
+                                    default:
+                                        Assert.assertSame(1, inEventCount);
+                                }
+                            }
+                            eventArrived = true;
+                        }
+                        if (removeEvents != null) {
+                            removeEventCount = removeEventCount + removeEvents.length;
+                        }
+                        eventArrived = true;
+                    }
+
+                });
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 10l});
+                checkStockStream.send(new Object[]{"WSO2"});
+
+                Thread.sleep(2000);
+
+                Assert.assertEquals("Number of success events", 1, inEventCount);
+                Assert.assertEquals("Number of remove events", 0, removeEventCount);
+                Assert.assertEquals("Event arrived", true, eventArrived);
+
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the test case
+
+        }
+
+    }
+
+    @Test
+    public void testTableJoinQuery6() throws InterruptedException {
+        log.info("testTableJoinQuery6 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+
+        try {
+            if (dataSource.getConnection() != null) {
+                clearDatabaseTable();
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream CheckStockStream (symbol string); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from CheckStockStream#window.length(1) join StockTable as s " +
+                        " on CheckStockStream.symbol==s.symbol " +
+                        "select CheckStockStream.symbol as checkSymbol, s.symbol as symbol, s.volume as volume  " +
+                        "insert into OutputStream ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                    @Override
+                    public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        if (inEvents != null) {
+                            for (Event event : inEvents) {
+                                inEventCount++;
+                                switch (inEventCount) {
+                                    case 1:
+                                        Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
+                                        break;
+                                    default:
+                                        Assert.assertSame(1, inEventCount);
+                                }
+                            }
+                            eventArrived = true;
+                        }
+                        if (removeEvents != null) {
+                            removeEventCount = removeEventCount + removeEvents.length;
+                        }
+                        eventArrived = true;
+                    }
+
+                });
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 10l});
+                checkStockStream.send(new Object[]{"WSO2"});
+
+                Thread.sleep(2000);
+
+                Assert.assertEquals("Number of success events", 1, inEventCount);
+                Assert.assertEquals("Number of remove events", 0, removeEventCount);
+                Assert.assertEquals("Event arrived", true, eventArrived);
+
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the test case
+
+        }
+
+    }
 
     private void clearDatabaseTable() {
         PreparedStatement stmt = null;
@@ -277,7 +509,7 @@ public class JoinRDBMSTableTestCase {
         try {
             con = dataSource.getConnection();
             stmt = con.prepareStatement("DELETE FROM table1");
-            int deletedRows = stmt.executeUpdate();
+            stmt.executeUpdate();
 
         } catch (SQLException e) {
             log.error("Error while deleting the event", e);

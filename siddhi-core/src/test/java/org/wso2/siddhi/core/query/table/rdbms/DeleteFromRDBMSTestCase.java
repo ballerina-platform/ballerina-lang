@@ -77,12 +77,335 @@ public class DeleteFromRDBMSTestCase {
                 stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
                 deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
 
-                Thread.sleep(5000);
+                Thread.sleep(2000);
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
             //Ignore the tests
         }
+
+    }
+
+
+    @Test
+    public void deleteFromRDBMSTableTest2() throws InterruptedException {
+
+        log.info("deleteFromTableTest2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1')  define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on symbol == StockTable.symbol ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(2000);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the tests
+        }
+
+    }
+
+
+    @Test
+    public void deleteFromRDBMSTableTest3() throws InterruptedException {
+
+        log.info("deleteFromTableTest3");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1')  define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on StockTable.symbol == 'IBM'  ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(2000);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the tests
+        }
+
+    }
+
+    @Test
+    public void deleteFromRDBMSTableTest4() throws InterruptedException {
+
+        log.info("deleteFromTableTest4");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1')  define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on 'IBM' == StockTable.symbol  ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(2000);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the tests
+        }
+
+    }
+
+    @Test
+    public void deleteFromRDBMSTableTest5() throws InterruptedException {
+
+        log.info("deleteFromTableTest5");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1')  define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on 'IBM' == symbol  ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(2000);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the tests
+        }
+
+    }
+
+    @Test
+    public void deleteFromRDBMSTableTest6() throws InterruptedException {
+
+        log.info("deleteFromTableTest6");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1')  define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on symbol == 'IBM'  ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(2000);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Ignore the tests
+        }
+
+    }
+
+
+    @Test
+    public void deleteFromTableTest7() throws InterruptedException {
+        log.info("deleteFromTableTest7");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on StockTable.symbol==symbol and StockTable.price > price and  StockTable.volume == volume  ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(500);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Test ignored
+        }
+
+    }
+
+    @Test
+    public void deleteFromTableTest8() throws InterruptedException {
+        log.info("deleteFromTableTest8");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+
+        try {
+            if (dataSource.getConnection() != null) {
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from DeleteStockStream " +
+                        "delete StockTable " +
+                        "   on StockTable.symbol=='IBM' and StockTable.price > 50 and  StockTable.volume == volume  ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+
+                Thread.sleep(500);
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            //Test ignored
+        }
+
 
     }
 
