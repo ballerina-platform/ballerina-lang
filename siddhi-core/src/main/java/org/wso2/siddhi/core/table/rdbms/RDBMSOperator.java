@@ -27,13 +27,15 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
+import java.util.List;
+
 public class RDBMSOperator implements Operator {
 
-    private ExpressionExecutor expressionExecutor;
+    private List<ExpressionExecutor> expressionExecutorList;
     private DBConfiguration dbConfiguration;
 
-    public RDBMSOperator(ExpressionExecutor expressionExecutor, DBConfiguration dbConfiguration) {
-        this.expressionExecutor = expressionExecutor;
+    public RDBMSOperator(List<ExpressionExecutor> expressionExecutorList, DBConfiguration dbConfiguration) {
+        this.expressionExecutorList = expressionExecutorList;
         this.dbConfiguration = dbConfiguration;
     }
 
@@ -41,9 +43,20 @@ public class RDBMSOperator implements Operator {
     public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
+            Object[] obj;
             StreamEvent deletingEvent = deletingEventChunk.next();
-            Object value = expressionExecutor.execute(deletingEvent);
-            Object[] obj = new Object[]{value};
+            if (expressionExecutorList != null) {
+                obj = new Object[expressionExecutorList.size()];
+                int count = 0;
+                for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
+                    Object value = expressionExecutor.execute(deletingEvent);
+                    obj[count] = value;
+                    count++;
+                }
+            } else {
+                obj = new Object[]{};
+            }
+
             dbConfiguration.deleteEvent(obj);
         }
     }
@@ -54,26 +67,35 @@ public class RDBMSOperator implements Operator {
         while (updatingEventChunk.hasNext()) {
             StreamEvent updatingEvent = updatingEventChunk.next();
             Object[] incomingEvent = updatingEvent.getOutputData();
-            Object[] obj = new Object[incomingEvent.length + 1];
-            Object value = expressionExecutor.execute(updatingEvent);
+            Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
             System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
-            obj[incomingEvent.length] = value;
+            int count = incomingEvent.length;
+            for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
+                Object value = expressionExecutor.execute(updatingEvent);
+                obj[count] = value;
+                count++;
+            }
             dbConfiguration.updateEvent(obj);
         }
     }
 
     @Override
     public Finder cloneFinder() {
-        return new RDBMSOperator(expressionExecutor, dbConfiguration);
+        return new RDBMSOperator(expressionExecutorList, dbConfiguration);
     }
 
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
 
         Object[] obj;
-        if (expressionExecutor != null) {
-            Object value = expressionExecutor.execute(matchingEvent);
-            obj = new Object[]{value};
+        if (expressionExecutorList != null) {
+            obj = new Object[expressionExecutorList.size()];
+            int count = 0;
+            for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
+                Object value = expressionExecutor.execute(matchingEvent);
+                obj[count] = value;
+                count++;
+            }
         } else {
             obj = new Object[]{};
         }
@@ -83,9 +105,14 @@ public class RDBMSOperator implements Operator {
     @Override
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
         Object[] obj;
-        if (expressionExecutor != null) {
-            Object value = expressionExecutor.execute(matchingEvent);
-            obj = new Object[]{value};
+        if (expressionExecutorList != null) {
+            obj = new Object[expressionExecutorList.size()];
+            int count = 0;
+            for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
+                Object value = expressionExecutor.execute(matchingEvent);
+                obj[count] = value;
+                count++;
+            }
         } else {
             obj = new Object[]{};
         }

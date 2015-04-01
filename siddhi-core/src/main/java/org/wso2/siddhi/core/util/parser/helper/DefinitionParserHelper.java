@@ -15,9 +15,11 @@
 
 package org.wso2.siddhi.core.util.parser.helper;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.EventTableConfigurationException;
 import org.wso2.siddhi.core.exception.EventTableConnectionException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
@@ -76,6 +78,8 @@ public class DefinitionParserHelper {
 
     public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
 
+        Logger log = Logger.getLogger(DefinitionParserHelper.class);
+
         try {
             if (!eventTableMap.containsKey(tableDefinition.getId())) {
                 EventTable eventTable;
@@ -89,9 +93,11 @@ public class DefinitionParserHelper {
                 eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
             }
         } catch (EventTableConnectionException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.error("Error while initiating a database connection", e);
         } catch (CannotLoadConfigurationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.error("Error while loading the database configuration from rdbms-table-config.xml", e);
+        } catch (EventTableConfigurationException e) {
+            log.error("Event table parameters are not specified/available", e);
         }
     }
 }

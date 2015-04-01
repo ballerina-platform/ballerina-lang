@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.table.rdbms;
 
 
-public final class RDBMSEventAdaptorConstants {
+public interface RDBMSEventAdaptorConstants {
 
     public static final String EVENT_TABLE_RDBMS_ATTRIBUTE_TABLE_NAME = "$TABLE_NAME";
     public static final String EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMN_TYPES = "$COLUMN_TYPES";
@@ -38,17 +38,19 @@ public final class RDBMSEventAdaptorConstants {
     public static final String EVENT_TABLE_RDBMS_CREATE_TABLE = "createTable";
     public static final String EVENT_TABLE_RDBMS_INSERT_DATA = "insertDataToTable";
     public static final String EVENT_TABLE_RDBMS_TABLE_EXIST = "isTableExist";
-    public static final String ADAPTOR_GENERIC_RDBMS_EQUAL = "equal";
-    public static final String ADAPTOR_GENERIC_RDBMS_GREATER_THAN = "greaterThan";
-    public static final String ADAPTOR_GENERIC_RDBMS_GREATER_THAN_EQUAL = "greaterThanEqual";
-    public static final String ADAPTOR_GENERIC_RDBMS_LESS_THAN = "lessThan";
-    public static final String ADAPTOR_GENERIC_RDBMS_LESS_THAN_EQUAL = "lessThanEqual";
-    public static final String ADAPTOR_GENERIC_RDBMS_NOT_EQUAL = "notEqual";
-    public static final String ADAPTOR_GENERIC_RDBMS_AND = "and";
-    public static final String ADAPTOR_GENERIC_RDBMS_UPDATE_TABLE = "updateTableRow";
-    public static final String ADAPTOR_GENERIC_RDBMS_DELETE_TABLE = "deleteTableRow";
-    public static final String ADAPTOR_GENERIC_RDBMS_SELECT_TABLE = "selectTableRow";
-    public static final String ADAPTOR_GENERIC_RDBMS_TABLE_ROW_EXIST = "isTableRowExist";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_EQUAL = "equal";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN = "greaterThan";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN_EQUAL = "greaterThanEqual";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_LESS_THAN = "lessThan";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_LESS_THAN_EQUAL = "lessThanEqual";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_NOT_EQUAL = "notEqual";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_AND = "and";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_OR = "or";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE = "updateTableRow";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE = "deleteTableRow";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE = "selectTableRow";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST = "isTableRowExist";
+    public static final String EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER = " ";
 
 
 

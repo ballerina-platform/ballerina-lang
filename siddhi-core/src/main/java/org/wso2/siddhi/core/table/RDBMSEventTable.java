@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.EventTableConfigurationException;
 import org.wso2.siddhi.core.exception.EventTableConnectionException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
@@ -48,24 +49,20 @@ public class RDBMSEventTable implements EventTable {
 
     private final TableDefinition tableDefinition;
     private DBConfiguration dbConfiguration;
-    private final String dataSourceName;
     private CachingTable cachedTable;
 
-    private Logger log = Logger.getLogger(RDBMSEventTable.class);
-
-    public RDBMSEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) throws CannotLoadConfigurationException, EventTableConnectionException {
+    public RDBMSEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) throws CannotLoadConfigurationException, EventTableConnectionException, EventTableConfigurationException {
         this.tableDefinition = tableDefinition;
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                 tableDefinition.getAnnotations());
-        dataSourceName = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_DATASOURCE_ID);
+        String dataSourceName = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_DATASOURCE_ID);
         String tableName = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TABLE_NAME);
         DataSource dataSource = executionPlanContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
         if (dataSourceName == null || tableName == null) {
-            log.error("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
-            return;
+            throw  new EventTableConfigurationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
         }
 
         String cacheType = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_CACHE);
@@ -117,7 +114,7 @@ public class RDBMSEventTable implements EventTable {
 
     @Override
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime);
+        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition);
     }
 
 
@@ -128,7 +125,7 @@ public class RDBMSEventTable implements EventTable {
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime);
+        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition);
     }
 
 

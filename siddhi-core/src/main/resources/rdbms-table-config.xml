@@ -60,6 +60,7 @@
                 <element key="greaterThanEqual">&gt;=</element>
                 <element key="notEqual">!=</element>
                 <element key="and">AND</element>
+                <element key="or">OR</element>
                 <element key="selectAllColumnsDataTypeInTable">SELECT COLUMN_NAME, DATA_TYPE FROM
                     INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$TABLE_NAME'
                 </element>
