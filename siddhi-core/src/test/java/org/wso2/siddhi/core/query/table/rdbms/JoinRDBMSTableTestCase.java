@@ -27,8 +27,6 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class JoinRDBMSTableTestCase {
@@ -36,7 +34,6 @@ public class JoinRDBMSTableTestCase {
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
-    private static String dataSourceName = "cepDataSource";
     private DataSource dataSource = new BasicDataSource();
 
     @Before
@@ -52,16 +49,16 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery1 - OUT 2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if ((dataSource.getConnection()) != null) {
-                clearDatabaseTable();
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
                         "from StockStream " +
@@ -111,7 +108,7 @@ public class JoinRDBMSTableTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
                 checkStockStream.send(new Object[]{"WSO2"});
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 2, inEventCount);
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -120,7 +117,7 @@ public class JoinRDBMSTableTestCase {
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
-            //Ignore the tests
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
     }
@@ -131,16 +128,16 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery2 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
-                clearDatabaseTable();
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
                         "from StockStream " +
@@ -188,7 +185,7 @@ public class JoinRDBMSTableTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
                 checkStockStream.send(new Object[]{"WSO2"});
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 1, inEventCount);
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -197,8 +194,7 @@ public class JoinRDBMSTableTestCase {
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
-            //Ignore the test case
-
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
     }
@@ -209,16 +205,16 @@ public class JoinRDBMSTableTestCase {
         log.info("updateFromTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
-                clearDatabaseTable();
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -257,7 +253,7 @@ public class JoinRDBMSTableTestCase {
                 checkStockStream.send(new Object[]{"WSO2", 100l});
                 checkStockStream.send(new Object[]{"IBM", 100l});
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 3, inEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
@@ -266,7 +262,7 @@ public class JoinRDBMSTableTestCase {
 
             }
         } catch (SQLException e) {
-            //Ignore the test-case
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
     }
@@ -276,16 +272,16 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery4 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
-                clearDatabaseTable();
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
                         "from StockStream " +
@@ -333,7 +329,7 @@ public class JoinRDBMSTableTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
                 checkStockStream.send(new Object[]{"WSO2"});
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 1, inEventCount);
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -342,8 +338,7 @@ public class JoinRDBMSTableTestCase {
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
-            //Ignore the test case
-
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
     }
@@ -354,16 +349,17 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery5 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
-                clearDatabaseTable();
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
+                ;
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
                         "from StockStream " +
@@ -411,7 +407,7 @@ public class JoinRDBMSTableTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
                 checkStockStream.send(new Object[]{"WSO2"});
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 1, inEventCount);
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -420,8 +416,7 @@ public class JoinRDBMSTableTestCase {
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
-            //Ignore the test case
-
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
     }
@@ -431,16 +426,16 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery6 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
-                clearDatabaseTable();
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1') define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
                         "from StockStream " +
@@ -488,7 +483,7 @@ public class JoinRDBMSTableTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
                 checkStockStream.send(new Object[]{"WSO2"});
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 1, inEventCount);
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
@@ -497,39 +492,9 @@ public class JoinRDBMSTableTestCase {
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
-            //Ignore the test case
-
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
-    }
-
-    private void clearDatabaseTable() {
-        PreparedStatement stmt = null;
-        Connection con = null;
-        try {
-            con = dataSource.getConnection();
-            stmt = con.prepareStatement("DELETE FROM table1");
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            log.error("Error while deleting the event", e);
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    log.error("unable to release statement", e);
-                }
-            }
-
-            if (con != null) {
-                try {
-                    con.close();
-                } catch (SQLException e) {
-                    log.error("unable to release connection", e);
-                }
-            }
-        }
     }
 
 }

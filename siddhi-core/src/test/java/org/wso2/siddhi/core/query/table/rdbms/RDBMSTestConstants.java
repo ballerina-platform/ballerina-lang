@@ -17,12 +17,14 @@
 */
 package org.wso2.siddhi.core.query.table.rdbms;
 
-public class RDBMSTestConstants {
+public interface RDBMSTestConstants {
 
     public static final String MYSQL_DRIVER_CLASS = "com.mysql.jdbc.Driver";
-    public static final String H2_DRIVER_CLASS = "org.h2.Driver";
     public static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/cepdb";
     public static final String H2_CONNECTION_URL = "jdbc:h2:~";
+    public static final String H2_DRIVER_CLASS = "org.h2.Driver";
     public static final String USERNAME = "root";
-    public static final String PASSWORD = "admin";
+    public static final String PASSWORD = "root";
+    public static final String TABLE_NAME = "table1";
+    public static String DATA_SOURCE_NAME = "cepDataSource";
 }

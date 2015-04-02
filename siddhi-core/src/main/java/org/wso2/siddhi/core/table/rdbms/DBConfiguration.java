@@ -31,7 +31,6 @@ import java.util.Map;
 
 public class DBConfiguration {
 
-    private String databaseName;
     private String fullTableName;
     private String tableName;
     private Map<String, String> elementMappings;
@@ -52,8 +51,7 @@ public class DBConfiguration {
             if (executionInfo == null) {
                 executionInfo = new ExecutionInfo();
                 con = dataSource.getConnection();
-                databaseName = con.getCatalog();
-                fullTableName = databaseName + "." + tableName;
+                fullTableName = con.getCatalog() + "." + tableName;
                 initializeDatabaseExecutionInfo();
             }
             initializeConnection();

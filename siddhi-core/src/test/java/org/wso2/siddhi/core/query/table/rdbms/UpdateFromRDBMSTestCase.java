@@ -14,8 +14,8 @@
  */
 package org.wso2.siddhi.core.query.table.rdbms;
 
+import junit.framework.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -26,18 +26,7 @@ import java.sql.SQLException;
 
 public class UpdateFromRDBMSTestCase {
     private static final Logger log = Logger.getLogger(UpdateFromRDBMSTestCase.class);
-    private int inEventCount;
-    private int removeEventCount;
-    private boolean eventArrived;
-    private static String dataSourceName = "cepDataSource";
     private DataSource dataSource = new BasicDataSource();
-
-    @Before
-    public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
-        eventArrived = false;
-    }
 
     @Test
     public void updateFromRDBMSTableTest1() throws InterruptedException {
@@ -45,16 +34,16 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(dataSourceName, dataSource);
+        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
 
-
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@from(datasource.id = 'cepDataSource' , table.name = 'table1')  define table StockTable (symbol string, price float, volume long); ";
+                        "@from(datasource.id = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
                         "@info(name = 'query1') " +
@@ -78,11 +67,13 @@ public class UpdateFromRDBMSTestCase {
                 stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
                 updateStockStream.send(new Object[]{"IBM", 57.6f, 100l});
 
-                Thread.sleep(500);
+                Thread.sleep(1000);
+                long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
+                Assert.assertEquals("Update failed", 3, totalRowsInTable);
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {
-            //Ignore the tests
+            log.info("Test case ignored due to DB connection unavailability");
         }
 
     }
