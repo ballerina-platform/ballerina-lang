@@ -12,7 +12,8 @@
  * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.wso2.siddhi.core.util.parser;
+
+package org.wso2.siddhi.core.table.rdbms;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
@@ -20,12 +21,10 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.*;
-import org.wso2.siddhi.core.table.rdbms.DBConfiguration;
-import org.wso2.siddhi.core.table.rdbms.ExecutionInfo;
-import org.wso2.siddhi.core.table.rdbms.RDBMSEventAdaptorConstants;
-import org.wso2.siddhi.core.table.rdbms.RDBMSOperator;
+import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.cache.CachingTable;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -44,8 +43,11 @@ import java.util.Map;
 
 public class RDBMSOperatorParser {
 
+    private RDBMSOperatorParser() {
+    }
+
     public static Operator parse(DBConfiguration dbConfiguration, Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition) {
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
 
 
         ExecutionInfo executionInfo = dbConfiguration.getExecutionInfo();
@@ -58,7 +60,7 @@ public class RDBMSOperatorParser {
         int candidateEventPosition = 0;
         List<ExpressionExecutor> expressionExecutorList = new ArrayList<ExpressionExecutor>();
 
-        StringBuilder conditionBuilder = new StringBuilder(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+        StringBuilder conditionBuilder = new StringBuilder(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
 
         MetaStateEvent metaStateEvent = null;
         if (metaComplexEvent instanceof MetaStreamEvent) {
@@ -115,28 +117,28 @@ public class RDBMSOperatorParser {
         buildConditionQuery(isTableStreamMap, expression, conditionBuilder, updateConditionAttributeList, conditionAttributeList, expressionExecutorList, dbConfiguration, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
 
         //Constructing query to delete a table row
-        String deleteTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
+        String deleteTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
         executionInfo.setPreparedDeleteStatement(deleteTableRowQuery);
         executionInfo.setDeleteQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to update a table row
         StringBuilder updateColumnValues = getUpdateQueryAttributes(executionInfo, dbConfiguration.getElementMappings());
-        String updateTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE), null, null, null, updateColumnValues, conditionBuilder);
+        String updateTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE), null, null, null, updateColumnValues, conditionBuilder);
         executionInfo.setPreparedUpdateStatement(updateTableRowQuery);
         executionInfo.setUpdateQueryColumnOrder(updateConditionAttributeList);
 
         //Constructing query to select table rows
-        String selectTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, conditionBuilder);
+        String selectTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, conditionBuilder);
         executionInfo.setPreparedSelectTableStatement(selectTableRowQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to check for existence
-        String isTableRowExistentQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null, conditionBuilder);
+        String isTableRowExistentQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null, conditionBuilder);
         executionInfo.setPreparedTableRowExistenceCheckStatement(isTableRowExistentQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
-
-        return new RDBMSOperator(expressionExecutorList, dbConfiguration);
+        Operator inMemoryEventTableOperator = parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime, cachingTable);
+        return new RDBMSOperator(expressionExecutorList, dbConfiguration, inMemoryEventTableOperator);
     }
 
 
@@ -153,18 +155,18 @@ public class RDBMSOperatorParser {
     private static StringBuilder getUpdateQueryAttributes(ExecutionInfo executionInfo, Map<String, String> elementMappings) {
 
         //Constructing (eg: information = ?  , latitude = ?) type values : column_values
-        StringBuilder columnValues = new StringBuilder(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+        StringBuilder columnValues = new StringBuilder(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
         boolean appendComma = false;
         for (Attribute at : executionInfo.getInsertQueryColumnOrder()) {
             if (appendComma) {
-                columnValues.append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventAdaptorConstants
-                        .EVENT_TABLE_RDBMS_COMMA)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                columnValues.append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventTableConstants
+                        .EVENT_TABLE_RDBMS_COMMA)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             }
             columnValues.append(at.getName());
-            columnValues.append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventAdaptorConstants
-                    .EVENT_TABLE_GENERIC_RDBMS_EQUAL)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER)
-                    .append(elementMappings.get(RDBMSEventAdaptorConstants
-                            .EVENT_TABLE_RDBMS_QUESTION_MARK)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+            columnValues.append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventTableConstants
+                    .EVENT_TABLE_GENERIC_RDBMS_EQUAL)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER)
+                    .append(elementMappings.get(RDBMSEventTableConstants
+                            .EVENT_TABLE_RDBMS_QUESTION_MARK)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             appendComma = true;
         }
         return columnValues;
@@ -179,13 +181,13 @@ public class RDBMSOperatorParser {
         if (expression instanceof And) {
             Expression leftExpression = ((And) expression).getLeftExpression();
             buildConditionQuery(isTableStreamMap, leftExpression, conditionBuilder, conditionAttributeList, updateConditionAttributeList, expressionExecutorList, dbConfiguration, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
-            conditionBuilder.append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_AND)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+            conditionBuilder.append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_AND)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             Expression rightExpression = ((And) expression).getRightExpression();
             buildConditionQuery(isTableStreamMap, rightExpression, conditionBuilder, conditionAttributeList, updateConditionAttributeList, expressionExecutorList, dbConfiguration, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
         } else if (expression instanceof Or) {
             Expression leftExpression = ((Or) expression).getLeftExpression();
             buildConditionQuery(isTableStreamMap, leftExpression, conditionBuilder, conditionAttributeList, updateConditionAttributeList, expressionExecutorList, dbConfiguration, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
-            conditionBuilder.append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_OR)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+            conditionBuilder.append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_OR)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             Expression rightExpression = ((Or) expression).getRightExpression();
             buildConditionQuery(isTableStreamMap, rightExpression, conditionBuilder, conditionAttributeList, updateConditionAttributeList, expressionExecutorList, dbConfiguration, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
         } else if (expression instanceof Compare) {
@@ -221,17 +223,17 @@ public class RDBMSOperatorParser {
             }
 
             if (((Compare) expression).getOperator().equals(Compare.Operator.EQUAL)) {
-                conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_EQUAL)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_EQUAL)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             } else if (((Compare) expression).getOperator().equals(Compare.Operator.GREATER_THAN)) {
-                conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             } else if (((Compare) expression).getOperator().equals(Compare.Operator.LESS_THAN)) {
-                conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_LESS_THAN)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_LESS_THAN)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             } else if (((Compare) expression).getOperator().equals(Compare.Operator.GREATER_THAN_EQUAL)) {
-                conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN_EQUAL)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_GREATER_THAN_EQUAL)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             } else if (((Compare) expression).getOperator().equals(Compare.Operator.LESS_THAN_EQUAL)) {
-                conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_LESS_THAN_EQUAL)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_LESS_THAN_EQUAL)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             } else if (((Compare) expression).getOperator().equals(Compare.Operator.NOT_EQUAL)) {
-                conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants.EVENT_TABLE_GENERIC_RDBMS_NOT_EQUAL)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_NOT_EQUAL)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             }
 
             if (isLeftExpressionEventTable) {
@@ -249,7 +251,7 @@ public class RDBMSOperatorParser {
 
     private static void setEventTableVariableAttribute(Expression expression, StringBuilder conditionBuilder) {
         String attributeName = ((Variable) expression).getAttributeName();
-        conditionBuilder.append(attributeName).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+        conditionBuilder.append(attributeName).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
     }
 
     private static void setExpressionExecutor(Expression expression, StringBuilder conditionBuilder, List<Attribute> conditionAttributeList, List<Attribute> updateConditionAttributeList, List<ExpressionExecutor> expressionExecutorList, DBConfiguration dbConfiguration, Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int matchingStreamIndex,
@@ -257,8 +259,8 @@ public class RDBMSOperatorParser {
                                               ExecutionPlanContext executionPlanContext) {
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-        conditionBuilder.append(elementMappings.get(RDBMSEventAdaptorConstants
-                .EVENT_TABLE_RDBMS_QUESTION_MARK)).append(RDBMSEventAdaptorConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+        conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants
+                .EVENT_TABLE_RDBMS_QUESTION_MARK)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
         String attributeName = ((Variable) expression).getAttributeName();
         conditionAttributeList.add(getAttribute(dbConfiguration, attributeName));
         updateConditionAttributeList.add(getAttribute(dbConfiguration, attributeName));
@@ -285,6 +287,59 @@ public class RDBMSOperatorParser {
             boolean value = ((BoolConstant) expression).getValue();
             conditionBuilder.append('"').append(value).append('"');
         }
+    }
+
+
+    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
+
+        int candidateEventPosition = 0;
+        int size = 0;
+
+        MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
+        eventTableStreamEvent.setTableEvent(true);
+        eventTableStreamEvent.addInputDefinition(candidateDefinition);
+        for (Attribute attribute : candidateDefinition.getAttributeList()) {
+            eventTableStreamEvent.addOutputData(attribute);
+        }
+
+        MetaStateEvent metaStateEvent = null;
+        if (metaComplexEvent instanceof MetaStreamEvent) {
+            metaStateEvent = new MetaStateEvent(2);
+            metaStateEvent.addEvent(((MetaStreamEvent) metaComplexEvent));
+            metaStateEvent.addEvent(eventTableStreamEvent);
+            candidateEventPosition = 1;
+            matchingStreamIndex = 0;
+            size = 2;
+        } else {
+
+            MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
+
+            //for join
+            for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
+                MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
+                if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
+                    metaStateEvent = ((MetaStateEvent) metaComplexEvent);
+                    size = metaStreamEvents.length;
+                    break;
+                }
+            }
+
+            if (metaStateEvent == null) {
+                metaStateEvent = new MetaStateEvent(metaStreamEvents.length + 1);
+                for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
+                    metaStateEvent.addEvent(metaStreamEvent);
+                }
+                metaStateEvent.addEvent(eventTableStreamEvent);
+                candidateEventPosition = metaStreamEvents.length;
+                size = metaStreamEvents.length + 1;
+            }
+        }
+
+        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
+                metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+
+        return new CacheInMemoryOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, size, withinTime, cachingTable);
     }
 
 

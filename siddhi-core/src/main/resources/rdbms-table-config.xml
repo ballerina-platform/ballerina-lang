@@ -61,10 +61,6 @@
                 <element key="notEqual">!=</element>
                 <element key="and">AND</element>
                 <element key="or">OR</element>
-                <element key="selectAllColumnsDataTypeInTable">SELECT COLUMN_NAME, DATA_TYPE FROM
-                    INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$TABLE_NAME'
-                </element>
-                <element key="selectFromTable">SELECT $COLUMNS FROM $TABLE_NAME</element>
             </elements>
         </mapping>
         <mapping db='mysql'>
@@ -77,25 +73,18 @@
                 <element key="long">CLOB</element>
                 <element key="double">BINARY_DOUBLE</element>
                 <element key="isTableExist">SELECT * FROM $TABLE_NAME WHERE ROWNUM = 1</element>
-                <element key="selectAllColumnsDataTypeInTable">SELECT COLUMN_NAME, DATA_TYPE FROM USER_TAB_COLS WHERE
-                    TABLE_NAME = '$TABLE_NAME'
-                </element>
             </elements>
         </mapping>
         <mapping db='mssql'>
             <elements>
                 <element key="string">varchar2(255)</element>
                 <element key="isTableExist">SELECT TOP 1 * FROM $TABLE_NAME</element>
-                <element key="selectAllColumnsDataTypeInTable">SELECT COLUMN_NAME, DATA_TYPE FROM
-                    INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$TABLE_NAME'
-                </element>
             </elements>
         </mapping>
         <mapping db='h2'>
             <elements>
                 <element key="integer">varchar2(255)</element>
                 <element key="long">REAL</element>
-                <element key="selectAllColumnsDataTypeInTable">SHOW COLUMNS FROM $TABLE_NAME</element>
             </elements>
         </mapping>
     </mappings>

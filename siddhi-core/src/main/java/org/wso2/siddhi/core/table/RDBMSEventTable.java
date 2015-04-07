@@ -26,14 +26,14 @@ import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.exception.EventTableConfigurationException;
 import org.wso2.siddhi.core.exception.EventTableConnectionException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.cache.CachingTable;
 import org.wso2.siddhi.core.table.rdbms.DBConfiguration;
 import org.wso2.siddhi.core.table.rdbms.DBQueryHelper;
+import org.wso2.siddhi.core.table.rdbms.RDBMSOperator;
+import org.wso2.siddhi.core.table.rdbms.RDBMSOperatorParser;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.parser.RDBMSOperatorParser;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -41,6 +41,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +51,13 @@ public class RDBMSEventTable implements EventTable {
     private final TableDefinition tableDefinition;
     private DBConfiguration dbConfiguration;
     private CachingTable cachedTable;
+    private boolean isCachingEnabled;
 
     public RDBMSEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) throws CannotLoadConfigurationException, EventTableConnectionException, EventTableConfigurationException {
         this.tableDefinition = tableDefinition;
+        Connection con = null;
+        int bloomFilterSize = SiddhiConstants.BLOOM_FILTER_SIZE;
+        int bloomFilterHashFunctions = SiddhiConstants.BLOOM_FILTER_HASH_FUNCTIONS;
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                 tableDefinition.getAnnotations());
@@ -62,28 +67,51 @@ public class RDBMSEventTable implements EventTable {
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
         if (dataSourceName == null || tableName == null) {
-            throw  new EventTableConfigurationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
+            throw new EventTableConfigurationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
         }
 
         String cacheType = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_CACHE);
         String cacheSizeInString = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
-
-        if (cacheType != null && cacheSizeInString != null) {
-            cachedTable = new CachingTable(tableName, cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
-        }
+        String bloomsEnabled = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
 
         try {
             DBQueryHelper.loadConfiguration();
-            this.dbConfiguration = new DBConfiguration(dataSource, tableName, attributeList);
+            this.dbConfiguration = new DBConfiguration(dataSource, tableName, attributeList, tableDefinition);
 
-            if (dataSource.getConnection() == null) {
+            if ((con = dataSource.getConnection()) == null) {
                 throw new EventTableConnectionException("Error while making connection to database");
+            }
+
+            if (cacheType != null) {
+                cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
+                isCachingEnabled = true;
+            } else if (bloomsEnabled != null && bloomsEnabled.equalsIgnoreCase("true")) {
+                String bloomsFilterSize = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
+                String bloomsFilterHash = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
+                if (bloomsFilterSize != null) {
+                    bloomFilterSize = Integer.parseInt(bloomsFilterSize);
+                }
+                if (bloomsFilterHash != null) {
+                    bloomFilterHashFunctions = Integer.parseInt(bloomsFilterHash);
+                }
+
+                dbConfiguration.setBloomFilterProperties(bloomFilterSize, bloomFilterHashFunctions);
+                dbConfiguration.buildBloomFilters();
             }
 
         } catch (CannotLoadConfigurationException e) {
             throw new CannotLoadConfigurationException("Error while loading the rdbms configuration file", e);
         } catch (SQLException e) {
             throw new EventTableConnectionException("Error while making connection to database", e);
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    Logger log = Logger.getLogger(RDBMSEventTable.class);
+                    log.error("unable to release connection", e);
+                }
+            }
         }
     }
 
@@ -94,27 +122,36 @@ public class RDBMSEventTable implements EventTable {
 
     @Override
     public void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
-        dbConfiguration.addEvent(addingEventChunk);
+        dbConfiguration.addEvent(addingEventChunk, cachedTable);
     }
 
     @Override
     public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator) {
         operator.delete(deletingEventChunk, null);
+        if (operator instanceof RDBMSOperator && isCachingEnabled) {
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
+        }
     }
 
     @Override
     public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition) {
         operator.update(updatingEventChunk, null, null);
+        if (operator instanceof RDBMSOperator && isCachingEnabled) {
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), mappingPosition);
+        }
     }
 
     @Override
     public boolean contains(ComplexEvent matchingEvent, Finder finder) {
+        if (finder instanceof RDBMSOperator && isCachingEnabled) {
+            return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
+        }
         return finder.contains(matchingEvent, null);
     }
 
     @Override
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition);
+        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);
     }
 
 
@@ -125,7 +162,7 @@ public class RDBMSEventTable implements EventTable {
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition);
+        return RDBMSOperatorParser.parse(dbConfiguration, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);
     }
 
 
