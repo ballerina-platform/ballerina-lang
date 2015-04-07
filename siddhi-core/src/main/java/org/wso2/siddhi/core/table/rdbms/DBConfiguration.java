@@ -30,7 +30,6 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 import javax.sql.DataSource;
-import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,6 @@ import java.util.Map;
 
 public class DBConfiguration {
 
-    private String fullTableName;
     private String tableName;
     private Map<String, String> elementMappings;
     private final ExecutionInfo executionInfo;
@@ -73,7 +71,6 @@ public class DBConfiguration {
 
         try {
             con = dataSource.getConnection();
-            fullTableName = con.getCatalog() + "." + tableName;
             initializeDatabaseExecutionInfo();
             initializeConnection();
 
@@ -94,8 +91,8 @@ public class DBConfiguration {
         return elementMappings;
     }
 
-    public String getFullTableName() {
-        return fullTableName;
+    public String getTableName() {
+        return tableName;
     }
 
     public List<Attribute> getAttributeList() {
@@ -129,9 +126,11 @@ public class DBConfiguration {
             Connection con = null;
             try {
                 con = dataSource.getConnection();
+                con.setAutoCommit(false);
                 stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
                 populateStatement(streamEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
                 stmt.executeUpdate();
+                con.commit();
 
                 if (isBloomFilterEnabled) {
                     StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
@@ -165,11 +164,13 @@ public class DBConfiguration {
         try {
 
             con = dataSource.getConnection();
+            con.setAutoCommit(false);
             stmt = con.prepareStatement(executionInfo.getPreparedDeleteStatement());
             populateStatement(obj, stmt, executionInfo.getDeleteQueryColumnOrder());
             int deletedRows = stmt.executeUpdate();
+            con.commit();
             if (log.isDebugEnabled()) {
-                log.debug(deletedRows + " rows deleted in table " + fullTableName);
+                log.debug(deletedRows + " rows deleted in table " + tableName);
             }
 
             if (isBloomFilterEnabled && deletedRows > 0) {
@@ -196,11 +197,13 @@ public class DBConfiguration {
         try {
 
             con = dataSource.getConnection();
+            con.setAutoCommit(false);
             stmt = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
             populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
             updatedRows = stmt.executeUpdate();
+            con.commit();
             if (log.isDebugEnabled()) {
-                log.debug(updatedRows + " updated deleted in table " + fullTableName);
+                log.debug(updatedRows + " updated deleted in table " + tableName);
             }
         } catch (SQLException e) {
             log.error("Error while updating the event", e);
@@ -510,7 +513,7 @@ public class DBConfiguration {
         try {
             con = dataSource.getConnection();
             stmt = con.createStatement();
-            String selectTableRowQuery = constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, null);
+            String selectTableRowQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, null);
             ResultSet results = stmt.executeQuery(selectTableRowQuery);
             while (results.next()) {
                 for (int i = 0; i < bloomFilters.length; i++) {

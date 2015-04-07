@@ -52,7 +52,7 @@ public class RDBMSOperatorParser {
 
         ExecutionInfo executionInfo = dbConfiguration.getExecutionInfo();
         Map<String, String> elementMappings = dbConfiguration.getElementMappings();
-        String fullTableName = dbConfiguration.getFullTableName();
+        String tableName = dbConfiguration.getTableName();
         List<Attribute> conditionAttributeList = new ArrayList<Attribute>();
         List<Attribute> updateConditionAttributeList = new ArrayList<Attribute>();
         updateConditionAttributeList.addAll(executionInfo.getInsertQueryColumnOrder());
@@ -117,23 +117,23 @@ public class RDBMSOperatorParser {
         buildConditionQuery(isTableStreamMap, expression, conditionBuilder, updateConditionAttributeList, conditionAttributeList, expressionExecutorList, dbConfiguration, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
 
         //Constructing query to delete a table row
-        String deleteTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
+        String deleteTableRowQuery = dbConfiguration.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
         executionInfo.setPreparedDeleteStatement(deleteTableRowQuery);
         executionInfo.setDeleteQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to update a table row
         StringBuilder updateColumnValues = getUpdateQueryAttributes(executionInfo, dbConfiguration.getElementMappings());
-        String updateTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE), null, null, null, updateColumnValues, conditionBuilder);
+        String updateTableRowQuery = dbConfiguration.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE), null, null, null, updateColumnValues, conditionBuilder);
         executionInfo.setPreparedUpdateStatement(updateTableRowQuery);
         executionInfo.setUpdateQueryColumnOrder(updateConditionAttributeList);
 
         //Constructing query to select table rows
-        String selectTableRowQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, conditionBuilder);
+        String selectTableRowQuery = dbConfiguration.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, conditionBuilder);
         executionInfo.setPreparedSelectTableStatement(selectTableRowQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to check for existence
-        String isTableRowExistentQuery = dbConfiguration.constructQuery(fullTableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null, conditionBuilder);
+        String isTableRowExistentQuery = dbConfiguration.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null, conditionBuilder);
         executionInfo.setPreparedTableRowExistenceCheckStatement(isTableRowExistentQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 

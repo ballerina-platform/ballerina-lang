@@ -50,7 +50,7 @@
                 <element key="updateTableRow">UPDATE $TABLE_NAME SET $COLUMN_VALUES WHERE $CONDITION</element>
                 <element key="deleteTableRow">DELETE FROM $TABLE_NAME WHERE $CONDITION</element>
                 <element key="selectTableRow">SELECT * FROM $TABLE_NAME WHERE $CONDITION</element>
-                <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION limit 1;</element>
+                <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION limit 1</element>
                 <element key="comma">,</element>
                 <element key="questionMark">?</element>
                 <element key="equal">=</element>
@@ -73,6 +73,7 @@
                 <element key="long">CLOB</element>
                 <element key="double">BINARY_DOUBLE</element>
                 <element key="isTableExist">SELECT * FROM $TABLE_NAME WHERE ROWNUM = 1</element>
+                <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION</element>
             </elements>
         </mapping>
         <mapping db='mssql'>
