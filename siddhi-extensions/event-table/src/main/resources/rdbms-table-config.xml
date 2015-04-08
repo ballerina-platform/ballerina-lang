@@ -70,7 +70,7 @@
         <mapping db='oracle'>
             <elements>
                 <element key="string">varchar2(255)</element>
-                <element key="long">CLOB</element>
+                <element key="long">NUMBER(19)</element>
                 <element key="double">BINARY_DOUBLE</element>
                 <element key="isTableExist">SELECT * FROM $TABLE_NAME WHERE ROWNUM = 1</element>
                 <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION</element>
