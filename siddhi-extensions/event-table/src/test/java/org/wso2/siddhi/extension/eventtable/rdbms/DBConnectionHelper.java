@@ -44,7 +44,6 @@ public class DBConnectionHelper {
 
     public void clearDatabaseTable(DataSource dataSource) {
         PreparedStatement stmt = null;
-        PreparedStatement isExistsStmt;
         Connection con = null;
         try {
             con = dataSource.getConnection();

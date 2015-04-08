@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
 

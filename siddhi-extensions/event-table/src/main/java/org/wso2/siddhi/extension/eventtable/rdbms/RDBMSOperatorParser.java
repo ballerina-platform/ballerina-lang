@@ -270,7 +270,7 @@ public class RDBMSOperatorParser {
     private static void setConstantValue(Expression expression, StringBuilder conditionBuilder) {
         if (expression instanceof StringConstant) {
             String value = ((StringConstant) expression).getValue();
-            conditionBuilder.append('"').append(value).append('"');
+            conditionBuilder.append("'").append(value).append("'");
         } else if (expression instanceof IntConstant) {
             int value = ((IntConstant) expression).getValue();
             conditionBuilder.append(value);

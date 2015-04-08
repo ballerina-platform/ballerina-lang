@@ -18,7 +18,6 @@ package org.wso2.siddhi.extension.eventtable.rdbms;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.extension.eventtable.jaxbMappings.Element;
 import org.wso2.siddhi.extension.eventtable.jaxbMappings.Mapping;
 import org.wso2.siddhi.extension.eventtable.jaxbMappings.Mappings;
@@ -55,9 +54,9 @@ public class DBQueryHelper {
             jaxbContext = JAXBContext.newInstance(Mappings.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             ClassLoader classLoader = getClass().getClassLoader();
-            File configFile = new File(classLoader.getResource(SiddhiConstants.RDBMS_TABLE_CONFIG_FILE).getFile());
+            File configFile = new File(classLoader.getResource(RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE).getFile());
             if (!configFile.exists()) {
-                log.error(SiddhiConstants.RDBMS_TABLE_CONFIG_FILE + " is not found in the classpath");
+                log.error(RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE + " is not found in the classpath");
             }
             Mappings mappings = (Mappings) unmarshaller.unmarshal(configFile);
             Map<String, Mapping> dbMap = new HashMap<String, Mapping>();
@@ -91,7 +90,7 @@ public class DBQueryHelper {
             }
         } catch (JAXBException e) {
             throw new CannotLoadConfigurationException("Syntax Error.Cannot unmarshal provided File "
-                    + SiddhiConstants.RDBMS_TABLE_CONFIG_FILE + e.getMessage(), e);
+                    + RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE + e.getMessage(), e);
         }
     }
 

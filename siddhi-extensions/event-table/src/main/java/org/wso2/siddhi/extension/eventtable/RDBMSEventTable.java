@@ -31,10 +31,7 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
-import org.wso2.siddhi.extension.eventtable.rdbms.DBConfiguration;
-import org.wso2.siddhi.extension.eventtable.rdbms.DBQueryHelper;
-import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperator;
-import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperatorParser;
+import org.wso2.siddhi.extension.eventtable.rdbms.*;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -57,13 +54,13 @@ public class RDBMSEventTable implements EventTable {
     public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) throws CannotLoadConfigurationException, EventTableConnectionException, EventTableConfigurationException {
         this.tableDefinition = tableDefinition;
         Connection con = null;
-        int bloomFilterSize = SiddhiConstants.BLOOM_FILTER_SIZE;
-        int bloomFilterHashFunctions = SiddhiConstants.BLOOM_FILTER_HASH_FUNCTIONS;
+        int bloomFilterSize = RDBMSEventTableConstants.BLOOM_FILTER_SIZE;
+        int bloomFilterHashFunctions = RDBMSEventTableConstants.BLOOM_FILTER_HASH_FUNCTIONS;
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                 tableDefinition.getAnnotations());
-        String dataSourceName = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_DATASOURCE_ID);
-        String tableName = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TABLE_NAME);
+        String dataSourceName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_DATASOURCE_ID);
+        String tableName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
         DataSource dataSource = executionPlanContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
@@ -71,9 +68,9 @@ public class RDBMSEventTable implements EventTable {
             throw new EventTableConfigurationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
         }
 
-        String cacheType = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_CACHE);
-        String cacheSizeInString = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
-        String bloomsEnabled = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
+        String cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
+        String cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
+        String bloomsEnabled = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
 
         try {
             DBQueryHelper.loadConfiguration();
@@ -87,8 +84,8 @@ public class RDBMSEventTable implements EventTable {
                 cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
                 isCachingEnabled = true;
             } else if (bloomsEnabled != null && bloomsEnabled.equalsIgnoreCase("true")) {
-                String bloomsFilterSize = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
-                String bloomsFilterHash = fromAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
+                String bloomsFilterSize = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
+                String bloomsFilterHash = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
                 if (bloomsFilterSize != null) {
                     bloomFilterSize = Integer.parseInt(bloomsFilterSize);
                 }
