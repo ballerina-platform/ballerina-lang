@@ -82,6 +82,11 @@ public class InMemoryEventTable implements EventTable {
     }
 
     @Override
+    public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
+        //No Implementation Required
+    }
+
+    @Override
     public TableDefinition getTableDefinition() {
         return tableDefinition;
     }
