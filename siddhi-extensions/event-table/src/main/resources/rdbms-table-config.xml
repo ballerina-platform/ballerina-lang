@@ -71,7 +71,9 @@
             <elements>
                 <element key="string">varchar2(255)</element>
                 <element key="long">NUMBER(19)</element>
-                <element key="double">BINARY_DOUBLE</element>
+                <element key="double">NUMBER(19,4)</element>
+                <element key="integer">NUMBER(10)</element>
+                <element key="float">NUMBER(19,4)</element>
                 <element key="isTableExist">SELECT * FROM $TABLE_NAME WHERE ROWNUM = 1</element>
                 <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION</element>
             </elements>
@@ -79,6 +81,9 @@
         <mapping db='mssql'>
             <elements>
                 <element key="string">varchar2(255)</element>
+                <element key="long">NUMERIC(19)</element>
+                <element key="integer">INTEGER</element>
+                <element key="float">FLOAT(16)</element>
                 <element key="isTableExist">SELECT TOP 1 * FROM $TABLE_NAME</element>
             </elements>
         </mapping>
