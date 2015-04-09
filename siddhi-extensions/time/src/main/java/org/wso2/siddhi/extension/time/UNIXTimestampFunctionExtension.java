@@ -1,0 +1,145 @@
+/*
+ *
+ *  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  *
+ *  * WSO2 Inc. licenses this file to you under the Apache License,
+ *  * Version 2.0 (the "License"); you may not use this file except
+ *  * in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing,
+ *  * software distributed under the License is distributed on an
+ *  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  * KIND, either express or implied.  See the License for the
+ *  * specific language governing permissions and limitations
+ *  * under the License.
+ *
+ */
+
+package org.wso2.siddhi.extension.time;
+
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.extension.time.util.TimeExtensionConstants;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+
+import java.text.ParseException;
+import java.util.Date;
+
+/**
+ * unixTimestamp() / unixTimestamp(timestamp,dateFormat)
+ * Returns System time in milliseconds.
+ * Return Type(s): LONG
+ */
+public class UNIXTimestampFunctionExtension extends FunctionExecutor {
+
+    static final Logger log = Logger.getLogger(UNIXTimestampFunctionExtension.class);
+    Attribute.Type returnType = Attribute.Type.LONG;
+    Boolean useDefaultDateFormat = false;
+
+    @Override
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors,
+            ExecutionPlanContext executionPlanContext) {
+
+        if (attributeExpressionExecutors.length > 0) {
+            if (attributeExpressionExecutors.length == 2) {
+
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:unixTimestamp(timestamp,dateFormat) function, " + "required " + Attribute.Type.STRING
+                            +" but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:unixTimestamp(timestamp,dateFormat) function, " + "required " + Attribute.Type.STRING
+                            +" but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
+            } else if(attributeExpressionExecutors.length == 1) {
+
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                        "str:unixTimestamp(timestamp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                useDefaultDateFormat = true;
+            }
+
+        }
+    }
+
+    @Override
+    protected Object execute(Object[] data) {
+
+        long returnValue;
+        String userFormat;
+
+        if (data.length == 2 || useDefaultDateFormat){
+            if (data[0] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:unixTimestamp(timestamp," +
+                        "dateFormat) function" + ". First argument cannot be null");
+            }
+            if(!useDefaultDateFormat) {
+                if (data[1] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:unixTimestamp(timestamp," +
+                            "dateFormat) function" + ". First argument cannot be null");
+                }
+                userFormat = (String) data[1];
+            } else{
+                userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+            }
+            String source = (String) data[0];
+            FastDateFormat userSpecificFormat = FastDateFormat.getInstance(userFormat);
+            try {
+                Date date = userSpecificFormat.parse(source);
+                returnValue = date.getTime() / TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
+            } catch (ParseException e) {
+                String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
+                        .getMessage();
+                log.error(errorMsg, e);
+                throw new ExecutionPlanRuntimeException(errorMsg);
+            }
+            return returnValue;
+        } else {
+            throw new ExecutionPlanRuntimeException("Invalid set of arguments" + data.length + " given to "+
+                    "str:unixTimestamp(timestamp,dateFormat) function. Only two arguments can be provided. ");
+        }
+
+    }
+
+    @Override
+    protected Object execute(Object data) {
+        return System.currentTimeMillis() / TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[0]; //No need to maintain a state.
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Since there's no need to maintain a state, nothing needs to be done here.
+    }
+}

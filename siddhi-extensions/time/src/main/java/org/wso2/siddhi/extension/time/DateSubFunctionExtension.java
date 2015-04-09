@@ -1,0 +1,258 @@
+/*
+ *
+ *  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  *
+ *  * WSO2 Inc. licenses this file to you under the Apache License,
+ *  * Version 2.0 (the "License"); you may not use this file except
+ *  * in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  * http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing,
+ *  * software distributed under the License is distributed on an
+ *  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  * KIND, either express or implied.  See the License for the
+ *  * specific language governing permissions and limitations
+ *  * under the License.
+ *
+ */
+
+package org.wso2.siddhi.extension.time;
+
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.extension.time.util.TimeExtensionConstants;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+
+/**
+ * dateSub(dateValue,expr,unit,dateFormat)/dateSub(expr,unit,unixTimestamp)
+ * Returns subtracted specified time interval to a date.
+ * Return Type(s): STRING
+ */
+public class DateSubFunctionExtension extends FunctionExecutor {
+
+    Attribute.Type returnType = Attribute.Type.STRING;
+    static final Logger log = Logger.getLogger(DateSubFunctionExtension.class);
+    Boolean useDefaultDateFormat = false;
+
+    @Override
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors,
+            ExecutionPlanContext executionPlanContext) {
+
+        if(attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
+                .length == 3){
+            useDefaultDateFormat = true;
+        }
+        if (attributeExpressionExecutors.length == 4) {
+            if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+            }
+            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.LONG +
+                        " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+            }
+            if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
+                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
+                        .STRING +" but found " + attributeExpressionExecutors[2].getReturnType().toString());
+            }
+            if (attributeExpressionExecutors[3].getReturnType() != Attribute.Type.STRING) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the fourth argument of " +
+                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
+                        .STRING +" but found " + attributeExpressionExecutors[3].getReturnType().toString());
+            }
+        } else if (attributeExpressionExecutors.length == 3) {
+            if(useDefaultDateFormat){
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[2].getReturnType().toString());
+                }
+            } else{
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:dateSub(unixTimestamp,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateSub(unixTimestamp,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateSub(unixTimestamp,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[2].getReturnType().toString());
+                }
+            }
+        } else {
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:dateSub() function, " +
+                    "required 3 or 4, but found " + attributeExpressionExecutors.length);
+        }
+
+    }
+
+    @Override
+    protected Object execute(Object[] data) {
+
+        Calendar calInstance = Calendar.getInstance();
+        String unit;
+        int expression;
+        String dateFormat;
+
+        if (data.length == 4 || useDefaultDateFormat) {
+            if (data[0] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                        "unit,dateFormat) function" + ". First " + "argument cannot be null");
+            }
+            if (data[1] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                        "unit,dateFormat) function" + ". Second " + "argument cannot be null");
+            }
+            if (data[2] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                        "unit,dateFormat) function" + ". Third " + "argument cannot be null");
+            }
+            if(!useDefaultDateFormat){
+                if (data[3] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                            "unit,dateFormat) function" + ". Fourth " + "argument cannot be null");
+                }
+                dateFormat = (String) data[3];
+            } else {
+                dateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+            }
+
+            String date = (String) data[0];
+            expression = (Integer) data[1];
+            expression = -expression;
+            unit = (String) data[2];
+            FastDateFormat formattedDate = FastDateFormat.getInstance(dateFormat);
+
+            try {
+                Date userSpecifiedDate = formattedDate.parse(date);
+                calInstance.setTime(userSpecifiedDate);
+                getProcessedCalenderInstance(unit, calInstance, expression);
+                return formattedDate.format(calInstance.getTime());
+            } catch (ParseException e) {
+                String errorMsg = "Provided format " + dateFormat + " does not match with the timestamp " + date + e
+                        .getMessage();
+                log.error(errorMsg, e);
+                throw new ExecutionPlanRuntimeException(errorMsg);
+            }
+
+        } else if(data.length == 3){
+
+            if (data[0] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(expr,unit," +
+                        "unixTimestamp) function" + ". First " + "argument cannot be null");
+            }
+            if (data[1] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(expr,unit," +
+                        "unixTimestamp) function" + ". Second " + "argument cannot be null");
+            }
+            if (data[2] == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(expr,unit," +
+                        "unixTimestamp) function" + ". Third " + "argument cannot be null");
+            }
+
+            long dateInMills = Long.parseLong((String) data[2]) * TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
+
+            calInstance.setTimeInMillis(dateInMills);
+            unit = (String) data[1];
+            expression = (Integer) data[0];
+            expression = -expression;
+            getProcessedCalenderInstance(unit, calInstance, expression);
+            return String.valueOf((calInstance.getTimeInMillis() / TimeExtensionConstants.EXTENSION_TIME_THOUSAND));
+        } else {
+            throw new ExecutionPlanRuntimeException("Invalid set of arguments given to str:dateSub() function." +
+                    "Arguments should be either 3 or 4. ");
+        }
+    }
+
+    public Calendar getProcessedCalenderInstance(String unit, Calendar calInstance, int expression){
+
+        unit = unit.toUpperCase();
+
+        if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_YEAR)) {
+            calInstance.add(Calendar.YEAR, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_MONTH)) {
+            calInstance.add(Calendar.MONTH, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_SECOND)) {
+            calInstance.add(Calendar.SECOND, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_MINUTE)) {
+            calInstance.add(Calendar.MINUTE, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_HOUR)) {
+            calInstance.add(Calendar.HOUR, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_DAY)) {
+            calInstance.add(Calendar.DAY_OF_MONTH, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_WEEK)) {
+            calInstance.add(Calendar.WEEK_OF_YEAR, expression);
+
+        } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_QUARTER)) {
+            calInstance.add(Calendar.MONTH, expression * 3);
+        }
+
+        return calInstance;
+    }
+
+    @Override
+    protected Object execute(Object data) {
+        return null;//Since the EpochToDateFormat function takes in 2 parameters, this method does not get called. Hence, not implemented.
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[0]; //No need to maintain a state.
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        //Since there's no need to maintain a state, nothing needs to be done here.
+    }
+}
