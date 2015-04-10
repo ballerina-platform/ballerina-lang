@@ -44,15 +44,15 @@ public class DateFormatFunctionExtensionTestCase {
     }
 
     @Test
-    public void DateFormatFunctionExtension() throws InterruptedException {
+    public void dateFormatFunctionExtension() throws InterruptedException {
 
         log.info("DateFormatFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue string,sourceFormat string,unixTimestamp string,targetFormat string);";
+                "dateValue string,sourceFormat string,timestampInMilliseconds long,targetFormat string);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:dateFormat(dateValue,sourceFormat,targetFormat) as formattedDate,str:dateFormat(unixTimestamp," +
+                "str:dateFormat(dateValue,targetFormat,sourceFormat) as formattedDate,str:dateFormat(timestampInMilliseconds," +
                 "targetFormat) as formattedUnixDate insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inStreamDefinition + query);
@@ -65,23 +65,23 @@ public class DateFormatFunctionExtensionTestCase {
                 count = count + inEvents.length;
                 if (count == 1) {
                     log.info("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedUnixDate : " + inEvents[0].getData(2));
+                            "formattedMillsDate : " + inEvents[0].getData(2));
                     System.out.println("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedUnixDate : " + inEvents[0].getData(2));
+                            "formattedMillsDate : " + inEvents[0].getData(2));
                     eventArrived = true;
                 }
                 if (count == 2) {
                     log.info("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedUnixDate : " + inEvents[0].getData(2));
+                            "formattedMillsDate : " + inEvents[0].getData(2));
                     System.out.println("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedUnixDate : " + inEvents[0].getData(2));
+                            "formattedMillsDate : " + inEvents[0].getData(2));
                     eventArrived = true;
                 }
                 if (count == 3) {
                     log.info("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedUnixDate : " + inEvents[0].getData(2));
+                            "formattedMillsDate : " + inEvents[0].getData(2));
                     System.out.println("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedUnixDate : " + inEvents[0].getData(2));
+                            "formattedMillsDate : " + inEvents[0].getData(2));
                     eventArrived = true;
                 }
             }
@@ -89,11 +89,11 @@ public class DateFormatFunctionExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", "1415712224", "ss" });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", 1415712224000L, "ss" });
         Thread.sleep(100);
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", "1415712224", "ss" });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", 1415712224000L, "ss" });
         Thread.sleep(100);
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", "1415712224",
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", 1415712224000L,
                 "yyyy-MM-dd" });
         Thread.sleep(100);
         Assert.assertEquals(3, count);

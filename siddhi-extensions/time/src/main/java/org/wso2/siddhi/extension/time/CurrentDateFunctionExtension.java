@@ -24,6 +24,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.extension.time.util.TimeExtensionConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Date;
@@ -52,7 +53,7 @@ public class CurrentDateFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         Date now = new Date();
-        FastDateFormat dataFormat = FastDateFormat.getInstance("yyyy-MM-dd");
+        FastDateFormat dataFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_DATE_FORMAT);
         return dataFormat.format(now);
 
     }

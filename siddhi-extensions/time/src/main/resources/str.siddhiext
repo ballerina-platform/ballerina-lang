@@ -1,5 +1,5 @@
 currentTimestamp=org.wso2.siddhi.extension.time.CurrentTimestampFunctionExtension
-unixTimestamp=org.wso2.siddhi.extension.time.UNIXTimestampFunctionExtension
+timestampInMilliseconds=org.wso2.siddhi.extension.time.TimestampInMillisecondsFunctionExtension
 utcTimestamp=org.wso2.siddhi.extension.time.UTCTimestampFunctionExtension
 now=org.wso2.siddhi.extension.time.CurrentTimestampFunctionExtension
 currentDate=org.wso2.siddhi.extension.time.CurrentDateFunctionExtension

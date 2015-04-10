@@ -44,7 +44,7 @@ public class ExtractDateFunctionExtensionTestCase {
     }
 
     @Test
-    public void ExtractDateFunctionExtension() throws InterruptedException {
+    public void extractDateFunctionExtension() throws InterruptedException {
 
         log.info("ExtractDateFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();

@@ -44,7 +44,7 @@ public class CurrentDateFunctionExtensionTestCase {
     }
 
     @Test
-    public void CurrentDateFunctionExtension() throws InterruptedException {
+    public void currentDateFunctionExtension() throws InterruptedException {
 
         log.info("CurrentDateFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();

@@ -36,7 +36,8 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * dateDiff(dateValue1,dateFormat1,dateValue2,dateFormat2)/dateDiff(unixTimeStamp1,unixTimeStamp2)
+ * dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2)/dateDiff(timestampInMilliseconds1,
+ * timestampInMilliseconds2)
  * Returns time between two dates.
  * Return Type(s): INT
  */
@@ -44,46 +45,89 @@ public class DateDifferenceFunctionExtension extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.LONG;
     static final Logger log = Logger.getLogger(DateDifferenceFunctionExtension.class);
+    Boolean useDefaultDateFormat = false;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
 
+        if(attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
+                .length == 3 || attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG &&
+                attributeExpressionExecutors.length == 2){
+            useDefaultDateFormat = true;
+        }
         if (attributeExpressionExecutors.length == 4) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:dateDiff(dateValue1,dateFormat1,dateValue2,dateFormat2) function, " + "required "
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:dateDiff(dateValue1,dateFormat1,dateValue2,dateFormat2) function, " + "required "
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
-                        "str:dateDiff(dateValue1,dateFormat1,dateValue2,dateFormat2) function, " + "required "
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
             if (attributeExpressionExecutors[3].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the fourth argument of " +
-                        "str:dateDiff(dateValue1,dateFormat1,dateValue2,dateFormat2) function, " + "required "
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[3].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 2) {
+            if(useDefaultDateFormat){
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
+                            + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
+                            + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
+            } else {
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) function, " +
+                            "" + "required " + Attribute.Type.LONG +
+                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) function, " +
+                            "" + "required " + Attribute.Type.LONG +
+                            " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
+            }
+
+        } else if (attributeExpressionExecutors.length == 3 && useDefaultDateFormat) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:dateDiff(unixTimeStamp1,unixTimeStamp2) function, " + "required " + Attribute.Type.STRING +
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
+                        + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:dateDiff(unixTimeStamp1,unixTimeStamp2) function, " + "required " + Attribute.Type.STRING +
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
+                        + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+            }
+            if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
+                        "str:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) function, " + "required "
+                        + Attribute.Type.STRING +
+                        " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
         } else {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:dateDiff() function, " +
@@ -97,39 +141,58 @@ public class DateDifferenceFunctionExtension extends FunctionExecutor {
 
         Calendar firstCalInstance = Calendar.getInstance();
         Calendar secondCalInstance = Calendar.getInstance();
+        String firstDateFormat = null;
+        String secondDateFormat;
+        String firstDate = null;
+        String secondDate;
+        FastDateFormat userSpecifiedFirstFormat;
+        FastDateFormat userSpecifiedSecondFormat;
 
-        if (data.length == 4) {
-            if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
-                        "dateFormat) function" + ". First " + "argument cannot be null");
-            }
-            if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
-                        "dateFormat) function" + ". Second " + "argument cannot be null");
-            }
-            if (data[2] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
-                        "dateFormat) function" + ". Third " + "argument cannot be null");
-            }
-            if (data[3] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
-                        "dateFormat) function" + ". Fourth " + "argument cannot be null");
-            }
-
-            String firstDate = (String) data[0];
-            String firstDateFormat = (String) data[1];
-            String secondDate = (String) data[2];
-            String secondDateFormat = (String) data[3];
-            FastDateFormat userSpecifiedFirstFormat = FastDateFormat.getInstance(firstDateFormat);
-            FastDateFormat userSpecifiedSecondFormat = FastDateFormat.getInstance(secondDateFormat);
-
+        if (data.length == 4 || useDefaultDateFormat) {
             try {
+                if (data[0] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
+                            "dateFormat) function" + ". First " + "argument cannot be null");
+                }
+                if (data[1] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
+                            "dateFormat) function" + ". Second " + "argument cannot be null");
+                }
+
+                if(!useDefaultDateFormat){
+                    if (data[2] == null) {
+                        throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
+                                "dateFormat) function" + ". Third " + "argument cannot be null");
+                    }
+                    if (data[3] == null) {
+                        throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
+                                "dateFormat) function" + ". Fourth " + "argument cannot be null");
+                    }
+                    firstDateFormat = (String) data[2];
+                    secondDateFormat = (String) data[3];
+                } else{
+                    if(data.length == 2){
+                        firstDateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+                        secondDateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+                    } else{
+                        firstDateFormat = (String) data[2];
+                        secondDateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+                    }
+                }
+                firstDate = (String) data[0];
+                secondDate = (String) data[1];
+                userSpecifiedFirstFormat = FastDateFormat.getInstance(firstDateFormat);
+                userSpecifiedSecondFormat = FastDateFormat.getInstance(secondDateFormat);
                 Date userSpecifiedFirstDate = userSpecifiedFirstFormat.parse(firstDate);
                 firstCalInstance.setTime(userSpecifiedFirstDate);
             } catch (ParseException e) {
                 String errorMsg =
                         "Provided format " + firstDateFormat + " does not match with the timestamp " + firstDate + e
                                 .getMessage();
+                log.error(errorMsg, e);
+                throw new ExecutionPlanRuntimeException(errorMsg);
+            } catch (ClassCastException e){
+                String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new ExecutionPlanRuntimeException(errorMsg);
             }
@@ -156,10 +219,16 @@ public class DateDifferenceFunctionExtension extends FunctionExecutor {
                         "unixTimeStamp1) function" + ". Second " + "argument cannot be null");
             }
 
-            long firstDateInMills = Long.parseLong((String) data[0]) * TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
-            long secondDateInMills = Long.parseLong((String) data[1]) * TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
-            firstCalInstance.setTimeInMillis(firstDateInMills);
-            secondCalInstance.setTimeInMillis(secondDateInMills);
+            try {
+                long firstDateInMills = (Long)data[0];
+                long secondDateInMills = (Long)data[1];
+                firstCalInstance.setTimeInMillis(firstDateInMills);
+                secondCalInstance.setTimeInMillis(secondDateInMills);
+            } catch (ClassCastException e){
+                String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
+                log.error(errorMsg, e);
+                throw new ExecutionPlanRuntimeException(errorMsg);
+            }
         } else {
             throw new ExecutionPlanRuntimeException("Invalid set of arguments given to str:dateDiff() function." +
                     "Arguments should be either 2 or 4. ");

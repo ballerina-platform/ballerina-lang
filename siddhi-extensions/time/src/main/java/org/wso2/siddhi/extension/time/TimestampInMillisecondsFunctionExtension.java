@@ -34,13 +34,13 @@ import java.text.ParseException;
 import java.util.Date;
 
 /**
- * unixTimestamp() / unixTimestamp(timestamp,dateFormat)
+ * timestampInMilliseconds() / timestampInMilliseconds(dateValue,dateFormat)
  * Returns System time in milliseconds.
  * Return Type(s): LONG
  */
-public class UNIXTimestampFunctionExtension extends FunctionExecutor {
+public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {
 
-    static final Logger log = Logger.getLogger(UNIXTimestampFunctionExtension.class);
+    static final Logger log = Logger.getLogger(TimestampInMillisecondsFunctionExtension.class);
     Attribute.Type returnType = Attribute.Type.LONG;
     Boolean useDefaultDateFormat = false;
 
@@ -53,22 +53,26 @@ public class UNIXTimestampFunctionExtension extends FunctionExecutor {
 
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:unixTimestamp(timestamp,dateFormat) function, " + "required " + Attribute.Type.STRING
+                            "str:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING
                             +" but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:unixTimestamp(timestamp,dateFormat) function, " + "required " + Attribute.Type.STRING
+                            "str:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING
                             +" but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             } else if(attributeExpressionExecutors.length == 1) {
 
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:unixTimestamp(timestamp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "str:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         "but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 useDefaultDateFormat = true;
+            } else {
+                throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:timestampInMilliseconds" +
+                        "(dateValue,dateFormat) function, " +"required 2, but found " + attributeExpressionExecutors
+                        .length);
             }
 
         }
@@ -82,12 +86,12 @@ public class UNIXTimestampFunctionExtension extends FunctionExecutor {
 
         if (data.length == 2 || useDefaultDateFormat){
             if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:unixTimestamp(timestamp," +
+                throw new ExecutionPlanRuntimeException("Invalid input given to str:timestampInMilliseconds(dateValue," +
                         "dateFormat) function" + ". First argument cannot be null");
             }
             if(!useDefaultDateFormat) {
                 if (data[1] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:unixTimestamp(timestamp," +
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:timestampInMilliseconds(dateValue," +
                             "dateFormat) function" + ". First argument cannot be null");
                 }
                 userFormat = (String) data[1];
@@ -98,7 +102,7 @@ public class UNIXTimestampFunctionExtension extends FunctionExecutor {
             FastDateFormat userSpecificFormat = FastDateFormat.getInstance(userFormat);
             try {
                 Date date = userSpecificFormat.parse(source);
-                returnValue = date.getTime() / TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
+                returnValue = date.getTime();
             } catch (ParseException e) {
                 String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
                         .getMessage();
@@ -108,14 +112,14 @@ public class UNIXTimestampFunctionExtension extends FunctionExecutor {
             return returnValue;
         } else {
             throw new ExecutionPlanRuntimeException("Invalid set of arguments" + data.length + " given to "+
-                    "str:unixTimestamp(timestamp,dateFormat) function. Only two arguments can be provided. ");
+                    "str:timestampInMilliseconds(dateValue,dateFormat) function. Only two arguments can be provided. ");
         }
 
     }
 
     @Override
     protected Object execute(Object data) {
-        return System.currentTimeMillis() / TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
+        return System.currentTimeMillis();
     }
 
     @Override

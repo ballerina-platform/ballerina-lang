@@ -36,9 +36,11 @@ public final class TimeExtensionConstants {
     public static final String EXTENSION_TIME_UNIT_MONTH = "MONTH";
     public static final String EXTENSION_TIME_UNIT_QUARTER = "QUARTER";
     public static final String EXTENSION_TIME_UNIT_YEAR = "YEAR";
-    public static final long EXTENSION_TIME_THOUSAND = 1000L;
-    public static final String EXTENSION_TIME_DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSS";
+    public static final String EXTENSION_TIME_DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     public static final String EXTENSION_TIME_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String EXTENSION_TIME_UTC_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String EXTENSION_TIME_CURRENT_TIME_FORMAT = "HH:mm:ss";
+    public static final String EXTENSION_TIME_CURRENT_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 
 

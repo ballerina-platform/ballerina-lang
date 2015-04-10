@@ -44,17 +44,17 @@ public class DateAddFunctionExtensionTestCase {
     }
 
     @Test
-    public void DateAddFunctionExtension() throws InterruptedException {
+    public void dateAddFunctionExtension() throws InterruptedException {
 
         log.info("DateAddFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue string,dateFormat string,unixTimestamp string,expr long);";
+                "dateValue string,dateFormat string,timestampInMilliseconds long,expr long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:dateAdd(dateValue,expr,'year',dateFormat) as yearAdded,str:dateAdd(dateValue,expr," +
+                "str:dateAdd(dateValue,expr,'year') as yearAdded,str:dateAdd(dateValue,expr," +
                 "'month',dateFormat) as monthAdded," +
-                "str:dateAdd(expr,'year',unixTimestamp) as yearAddedUnix" + " insert into outputStream;");
+                "str:dateAdd(expr,'year',timestampInMilliseconds) as yearAddedMills" + " insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -66,28 +66,28 @@ public class DateAddFunctionExtensionTestCase {
                 count = count + inEvents.length;
                 if (count == 1) {
                     log.info("Event : " + count + ",YEAR_ADDED : " + inEvents[0].getData(1) + "," +
-                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_UNIX : " + inEvents[0]
+                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_MILLS : " + inEvents[0]
                             .getData(3));
                     System.out.println("Event : " + count + ",YEAR_ADDED : " + inEvents[0].getData(1) + "," +
-                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_UNIX : " + inEvents[0]
+                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_MILLS : " + inEvents[0]
                             .getData(3));
                     eventArrived = true;
                 }
                 if (count == 2) {
                     log.info("Event : " + count + ",YEAR_ADDED : " + inEvents[0].getData(1) + "," +
-                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_UNIX : " + inEvents[0]
+                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_MILLS : " + inEvents[0]
                             .getData(3));
                     System.out.println("Event : " + count + ",YEAR_ADDED : " + inEvents[0].getData(1) + "," +
-                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_UNIX : " + inEvents[0]
+                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_MILLS : " + inEvents[0]
                             .getData(3));
                     eventArrived = true;
                 }
                 if (count == 3) {
                     log.info("Event : " + count + ",YEAR_ADDED : " + inEvents[0].getData(1) + "," +
-                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_UNIX : " + inEvents[0]
+                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_MILLS : " + inEvents[0]
                             .getData(3));
                     System.out.println("Event : " + count + ",YEAR_ADDED : " + inEvents[0].getData(1) + "," +
-                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_UNIX : " + inEvents[0]
+                            "MONTH_ADDED : " + inEvents[0].getData(2) + ",YEAR_ADDED_IN_MILLS : " + inEvents[0]
                             .getData(3));
                     eventArrived = true;
                 }
@@ -96,11 +96,14 @@ public class DateAddFunctionExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", "1415712224",2 });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", 1415712224000L,
+                2 });
         Thread.sleep(100);
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", "1415712224", 2 });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", 1415712224000L,
+                2 });
         Thread.sleep(100);
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", "1415712224", 2 });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", 1415712224000L,
+                2 });
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

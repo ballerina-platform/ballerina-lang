@@ -44,7 +44,7 @@ public class CurrentTimestampFunctionExtensionTestCase {
     }
 
     @Test
-    public void CurrentTimestampFunctionExtension() throws InterruptedException {
+    public void currentTimestampFunctionExtension() throws InterruptedException {
 
         log.info("CurrentTimestampFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();

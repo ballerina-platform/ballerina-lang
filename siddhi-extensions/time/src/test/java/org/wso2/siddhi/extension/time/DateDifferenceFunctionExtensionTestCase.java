@@ -44,17 +44,18 @@ public class DateDifferenceFunctionExtensionTestCase {
     }
 
     @Test
-    public void DateDifferenceFunctionExtension() throws InterruptedException {
+    public void dateDifferenceFunctionExtension() throws InterruptedException {
 
         log.info("DateDifferenceFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue1 string,dateFormat1 string,dateValue2 string,dateFormat2 string,unixTimeStamp1 string," +
-                "unixTimeStamp2 string);";
+                "dateValue1 string,dateFormat1 string,dateValue2 string,dateFormat2 string," +
+                "timestampInMilliseconds1 long,timestampInMilliseconds2 long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:dateDiff(dateValue1,dateFormat1,dateValue2,dateFormat2) as dateDifference," +
-                "str:dateDiff(unixTimeStamp1,unixTimeStamp2) as dateDifferenceInUnix insert into outputStream;");
+                "str:dateDiff(dateValue1,dateValue2,dateFormat2) as dateDifference," +
+                "str:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) as dateDifferenceInUnix insert into " +
+                "outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -89,13 +90,13 @@ public class DateDifferenceFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",
-                "2014-11-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS","1415712224","1415539424"});
+                "2014-11-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,1415539424000L});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",
-                "2014-10-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS","1415712224","1412861024"});
+                "2014-10-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,1412861024000L});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",
-                "2014-11-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS","1415712224","1415539424"});
+                "2014-11-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,1415539424000L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

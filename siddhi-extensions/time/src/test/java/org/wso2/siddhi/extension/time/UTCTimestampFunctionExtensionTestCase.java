@@ -44,7 +44,7 @@ public class UTCTimestampFunctionExtensionTestCase {
     }
 
     @Test
-    public void UTCTimestampFunctionExtension() throws InterruptedException {
+    public void utcTimestampFunctionExtension() throws InterruptedException {
 
         log.info("UTCTimestampFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();

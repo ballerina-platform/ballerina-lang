@@ -44,16 +44,16 @@ public class ExtractAttributesFunctionExtensionTestCase {
     }
 
     @Test
-    public void ExtractAttributesFunctionExtension() throws InterruptedException {
+    public void extractAttributesFunctionExtension() throws InterruptedException {
 
         log.info("ExtractAttributesFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue string,dateFormat string,unixTimestamp string);";
+                "dateValue string,dateFormat string,timestampInMilliseconds long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
                 "str:extract('YEAR',dateValue,dateFormat) as YEAR,str:extract('month',dateValue," +
-                "dateFormat) as MONTH,str:extract('quarter',unixTimestamp) as QUARTER" +" insert into outputStream;");
+                "dateFormat) as MONTH,str:extract(timestampInMilliseconds,'quarter') as QUARTER" +" insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -87,11 +87,11 @@ public class ExtractAttributesFunctionExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS","1415712224"});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS","1415712224"});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L});
         Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS","1415712224"});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

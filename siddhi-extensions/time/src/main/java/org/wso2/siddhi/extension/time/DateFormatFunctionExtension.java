@@ -35,7 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * dateFormat(dateValue,dateSourceFormat,dateTargetFormat)/dateFormat(unixTimestamp,dateTargetFormat)
+ * dateFormat(dateValue,dateTargetFormat,dateSourceFormat)/dateFormat(timestampInMilliseconds,dateTargetFormat)
  * Returns a formatted date string.
  * Return Type(s): STRING
  */
@@ -43,40 +43,62 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.STRING;
     static final Logger log = Logger.getLogger(DateFormatFunctionExtension.class);
+    Boolean useDefaultDateFormat = false;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
 
+        if(attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
+                .length == 2){
+            useDefaultDateFormat = true;
+        }
+
         if (attributeExpressionExecutors.length == 3) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:dateFormat(dateValue,dateSourceFormat,dateTargetFormat) function, " + "required "
+                        "str:dateFormat(dateValue,dateTargetFormat,dateSourceFormat) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:dateFormat(dateValue,dateSourceFormat,dateTargetFormat) function, " + "required "
+                        "str:dateFormat(dateValue,dateTargetFormat,dateSourceFormat) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
-                        "str:dateFormat(dateValue,dateSourceFormat,dateTargetFormat) function, " + "required "
+                        "str:dateFormat(dateValue,dateTargetFormat,dateSourceFormat) function, " + "required "
                         + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 2) {
-            if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:dateFormat(unixTimestamp,dateTargetFormat) function, " + "required " + Attribute.Type.STRING +
-                        " but found " + attributeExpressionExecutors[0].getReturnType().toString());
-            }
-            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:dateFormat(unixTimestamp,dateTargetFormat) function, " + "required " + Attribute.Type.STRING +
-                        " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+            if(useDefaultDateFormat){
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:dateFormat(dateValue,dateTargetFormat,dateSourceFormat) function, " + "required "
+                            + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateFormat(dateValue,dateTargetFormat,dateSourceFormat) function, " + "required "
+                            + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
+            } else{
+                if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
+                            "str:dateFormat(timestampInMilliseconds,dateTargetFormat) function, " +
+                            "" + "required " + Attribute.Type.LONG +
+                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                }
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
+                            "str:dateFormat(timestampInMilliseconds,dateTargetFormat) function, " + "required " + Attribute.Type.STRING +
+                            " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                }
             }
         } else {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to dateFormat() function, " +
@@ -90,66 +112,87 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
 
         Date userSpecifiedSourceDate;
 
-        if (data.length == 3) {
-            if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateFormat(sourceDate," +
-                        "dateSourceFormat,dateTargetFormat) function" + ". First " + "argument cannot be null");
-            }
-            if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateFormat(sourceDate," +
-                        "dateSourceFormat,dateTargetFormat) function" + ". Second " + "argument cannot be null");
-            }
-            if (data[2] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateFormat(sourceDate," +
-                        "dateSourceFormat,dateTargetFormat) function" + ". Third " + "argument cannot be null");
-            }
 
-            String sourceDate = (String) data[0];
-            String sourceDateFormat = (String) data[1];
-            String targetDataFormat = (String) data[2];
+        if (data.length == 3 || useDefaultDateFormat) {
 
-            FastDateFormat userSpecifiedSourceFormat = FastDateFormat.getInstance(sourceDateFormat);
+            String sourceDate = null;
+            String targetDataFormat;
+            FastDateFormat userSpecifiedSourceFormat;
+            String sourceDateFormat = null;
 
             try {
+                if (data[0] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateFormat(dateValue," +
+                            "dateTargetFormat,dateSourceFormat) function" + ". First " + "argument cannot be null");
+                }
+                if (data[1] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateFormat(dateValue," +
+                            "dateTargetFormat,dateSourceFormat) function" + ". Second " + "argument cannot be null");
+                }
+                if(!useDefaultDateFormat){
+                    if (data[2] == null) {
+                        throw new ExecutionPlanRuntimeException("Invalid input given to str:dateFormat(dateValue," +
+                                "dateTargetFormat,dateSourceFormat) function" + ". Third " + "argument cannot be null");
+                    }
+                    sourceDateFormat = (String) data[2];
+                } else {
+                    sourceDateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+                }
+
+                sourceDate = (String) data[0];
+                targetDataFormat = (String) data[1];
+                userSpecifiedSourceFormat = FastDateFormat.getInstance(sourceDateFormat);
                 userSpecifiedSourceDate = userSpecifiedSourceFormat.parse(sourceDate);
+                // Format the Date to specified Format
+                FastDateFormat targetFormat = FastDateFormat.getInstance(targetDataFormat);
+                return targetFormat.format(userSpecifiedSourceDate);
             } catch (ParseException e) {
                 String errorMsg = "Provided format " + sourceDateFormat + " does not match with the timestamp " +
-                        sourceDate + e.getMessage();
+                        sourceDate +" "+ e.getMessage();
+                log.error(errorMsg, e);
+                throw new ExecutionPlanRuntimeException(errorMsg);
+            } catch (ClassCastException e){
+                String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new ExecutionPlanRuntimeException(errorMsg);
             }
-
-            // Format the Date to specified Format
-            FastDateFormat targetFormat = FastDateFormat.getInstance(targetDataFormat);
-            return targetFormat.format(userSpecifiedSourceDate);
         } else if(data.length == 2){
 
             if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to dateFormat(unixTimestamp," +
+                throw new ExecutionPlanRuntimeException("Invalid input given to dateFormat(timestampInMilliseconds," +
                         "dateTargetFormat) function" + ". First " + "argument cannot be null");
             }
             if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to dateFormat(unixTimestamp," +
+                throw new ExecutionPlanRuntimeException("Invalid input given to dateFormat(timestampInMilliseconds," +
                         "dateTargetFormat) function" + ". Second " + "argument cannot be null");
             }
 
-            String targetDataFormat = (String) data[1];
+            String targetDataFormat = null;
             // Format the Date to specified Format
-            FastDateFormat targetFormat = FastDateFormat.getInstance(targetDataFormat);
-            long dateInMills = Long.parseLong((String) data[0]) * TimeExtensionConstants.EXTENSION_TIME_THOUSAND;
-            Calendar calInstance = Calendar.getInstance();
-            calInstance.setTimeInMillis(dateInMills);
-            userSpecifiedSourceDate = calInstance.getTime();
-            String formattedNewDateValue = targetFormat.format(userSpecifiedSourceDate);
+            FastDateFormat targetFormat;
+            long dateInMills;
+            Calendar calInstance;
+            String formattedNewDateValue = null;
 
             try {
 
-                long newFormattedDateInUnix = (targetFormat.parse(formattedNewDateValue).getTime() /
-                        TimeExtensionConstants.EXTENSION_TIME_THOUSAND);
+                targetDataFormat = (String) data[1];
+                // Format the Date to specified Format
+                targetFormat = FastDateFormat.getInstance(targetDataFormat);
+                dateInMills = (Long) data[0];
+                calInstance = Calendar.getInstance();
+                calInstance.setTimeInMillis(dateInMills);
+                userSpecifiedSourceDate = calInstance.getTime();
+                formattedNewDateValue = targetFormat.format(userSpecifiedSourceDate);
+                long newFormattedDateInUnix = targetFormat.parse(formattedNewDateValue).getTime();
                 return  String.valueOf(newFormattedDateInUnix);
             } catch (ParseException e) {
                 String errorMsg = "Provided format " + targetDataFormat + " does not match with the timestamp " +
-                        formattedNewDateValue + e.getMessage();
+                        formattedNewDateValue +" "+ e.getMessage();
+                log.error(errorMsg, e);
+                throw new ExecutionPlanRuntimeException(errorMsg);
+            } catch (ClassCastException e){
+                String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
                 log.error(errorMsg, e);
                 throw new ExecutionPlanRuntimeException(errorMsg);
             }

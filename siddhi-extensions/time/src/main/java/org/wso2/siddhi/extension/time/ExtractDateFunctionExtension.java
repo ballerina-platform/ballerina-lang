@@ -85,19 +85,25 @@ public class ExtractDateFunctionExtension extends FunctionExecutor {
             userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
         }
 
-        String source = (String) data[0];
-        FastDateFormat userSpecificFormat = FastDateFormat.getInstance(userFormat);
+        String source = null;
+        FastDateFormat userSpecificFormat;
         Date userSpecifiedDate;
         try {
+            source = (String) data[0];
+            userSpecificFormat = FastDateFormat.getInstance(userFormat);
             userSpecifiedDate = userSpecificFormat.parse(source);
+            FastDateFormat dataFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_DATE_FORMAT);
+            return dataFormat.format(userSpecifiedDate);
         } catch (ParseException e) {
             String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
                     .getMessage();
             log.error(errorMsg, e);
             throw new ExecutionPlanRuntimeException(errorMsg);
+        } catch (ClassCastException e){
+            String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
+            log.error(errorMsg, e);
+            throw new ExecutionPlanRuntimeException(errorMsg);
         }
-        FastDateFormat dataFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_DATE_FORMAT);
-        return dataFormat.format(userSpecifiedDate);
     }
 
     @Override

@@ -31,9 +31,9 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class UNIXTimestampFunctionExtensionTestCase {
+public class TimestampInMillisecondsFunctionExtensionTestCase {
 
-    static final Logger log = Logger.getLogger(UNIXTimestampFunctionExtensionTestCase.class);
+    static final Logger log = Logger.getLogger(TimestampInMillisecondsFunctionExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -44,16 +44,16 @@ public class UNIXTimestampFunctionExtensionTestCase {
     }
 
     @Test
-    public void UNIXTimestampFunctionExtension() throws InterruptedException {
+    public void timestampInMillisecondsFunctionExtension() throws InterruptedException {
 
-        log.info("UNIXTimestampFunctionExtensionTestCase");
+        log.info("TimestampInMillisecondsFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:unixTimestamp('2007-11-30 10:30:19','yyyy-MM-DD HH:MM:SS') as unixTimestampWithArguments, " +
-                "str:unixTimestamp('2007-11-30 10:30:19') as unixTimestampWithoutSendingFormat, " +
-                "str:unixTimestamp() as unixTimestampWithoutArguments" +" insert into outputStream;");
+                "str:timestampInMilliseconds('2007-11-30 10:30:19','yyyy-MM-DD HH:MM:SS') as timestampInMillisecondsWithArguments, " +
+                "str:timestampInMilliseconds('2007-11-30 10:30:19') as timestampInMillisecondsWithoutSendingFormat, " +
+                "str:timestampInMilliseconds() as timestampInMillisecondsWithoutArguments" +" insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -62,24 +62,24 @@ public class UNIXTimestampFunctionExtensionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 if (count == 1) {
-                    log.info("Event : " + count + ",unixTimestampWithArguments : " + inEvents[0].getData(1) + "," +
-                            "unixTimestampWithoutSendingFormat :" +inEvents[0].getData(2));
-                    System.out.println("Event : " + count + ",unixTimestampWithArguments : " + inEvents[0].getData(1)+ "," +
-                            "unixTimestampWithoutSendingFormat :" +inEvents[0].getData(2));
+                    log.info("Event : " + count + ",timestampInMillisecondsWithArguments : " + inEvents[0].getData(1) + "," +
+                            "timestampInMillisecondsWithoutSendingFormat :" +inEvents[0].getData(2));
+                    System.out.println("Event : " + count + ",timestampInMillisecondsWithArguments : " + inEvents[0].getData(1)+ "," +
+                            "timestampInMillisecondsWithoutSendingFormat :" +inEvents[0].getData(2));
                     eventArrived = true;
                 }
                 if (count == 2) {
-                    log.info("Event : " + count + ",unixTimestampWithArguments : " + inEvents[0].getData(1) + "," +
-                            "unixTimestampWithoutSendingFormat :" +inEvents[0].getData(2));
-                    System.out.println("Event : " + count + ",unixTimestampWithArguments : " + inEvents[0].getData(1)+ "," +
-                            "unixTimestampWithoutSendingFormat :" +inEvents[0].getData(2));
+                    log.info("Event : " + count + ",timestampInMillisecondsWithArguments : " + inEvents[0].getData(1) + "," +
+                            "timestampInMillisecondsWithoutSendingFormat :" +inEvents[0].getData(2));
+                    System.out.println("Event : " + count + ",timestampInMillisecondsWithArguments : " + inEvents[0].getData(1)+ "," +
+                            "timestampInMillisecondsWithoutSendingFormat :" +inEvents[0].getData(2));
                     eventArrived = true;
                 }
                 if (count == 3) {
-                    log.info("Event : " + count + ",unixTimestampWithArguments : " + inEvents[0].getData(1) + "," +
-                            "unixTimestampWithoutSendingFormat :" +inEvents[0].getData(2));
-                    System.out.println("Event : " + count + ",unixTimestampWithArguments : " + inEvents[0].getData(1)+ "," +
-                            "unixTimestampWithoutSendingFormat :" +inEvents[0].getData(2));
+                    log.info("Event : " + count + ",timestampInMillisecondsWithArguments : " + inEvents[0].getData(1) + "," +
+                            "timestampInMillisecondsWithoutSendingFormat :" +inEvents[0].getData(2));
+                    System.out.println("Event : " + count + ",timestampInMillisecondsWithArguments : " + inEvents[0].getData(1)+ "," +
+                            "timestampInMillisecondsWithoutSendingFormat :" +inEvents[0].getData(2));
                     eventArrived = true;
                 }
             }
