@@ -1,0 +1,4 @@
+matches=org.wso2.siddhi.extension.regex.MatchesFunctionExtension
+find=org.wso2.siddhi.extension.regex.FindFunctionExtension
+group=org.wso2.siddhi.extension.regex.GetGroupFunctionExtension
+lookingAt=org.wso2.siddhi.extension.regex.LookingAtFunctionExtension
