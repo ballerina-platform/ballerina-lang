@@ -20,6 +20,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
@@ -27,6 +28,7 @@ import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created on 11/28/14.
@@ -37,7 +39,10 @@ public class SingleStreamEntryValve implements InputProcessor {
     private RingBuffer<IndexedEventFactory.IndexedEvent> ringBuffer;
     private ExecutionPlanContext executionPlanContext;
     private InputProcessor inputProcessor;
+    private AtomicLong eventSizeInDisruptor = new AtomicLong(0l);
+    private long count;
 
+    static final Logger log = Logger.getLogger(SingleStreamEntryValve.class);
 
     public SingleStreamEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
         this.executionPlanContext = executionPlanContext;
@@ -70,6 +75,7 @@ public class SingleStreamEntryValve implements InputProcessor {
                 existingEvent.setEvent(event);
                 existingEvent.setStreamIndex(streamIndex);
             } finally {
+                eventSizeInDisruptor.incrementAndGet();
                 ringBuffer.publish(sequenceNo);    //Todo fix this for array of events
             }
         } catch (NullPointerException e) {
@@ -114,6 +120,13 @@ public class SingleStreamEntryValve implements InputProcessor {
          */
         @Override
         public void onEvent(IndexedEventFactory.IndexedEvent indexedEvent, long sequence, boolean endOfBatch) throws Exception {
+            if(ExecutionPlanContext.statEnable) {
+                count++;
+                if (count % 1000000 == 0) {
+                    log.info("Number of events in the disruptor:" + eventSizeInDisruptor.get()+"\nThread:"+Thread.currentThread().getName());
+                }
+            }
+            eventSizeInDisruptor.decrementAndGet();
             int streamIndex = indexedEvent.getStreamIndex();
             if (currentIndex != streamIndex) {
                 sendEvents();

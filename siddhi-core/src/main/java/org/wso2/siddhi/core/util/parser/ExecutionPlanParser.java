@@ -14,6 +14,7 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
@@ -94,7 +95,7 @@ public class ExecutionPlanParser {
 
             executionPlanContext.setExecutorService(new ThreadPoolExecutor(25, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
-                    new LinkedBlockingDeque<Runnable>()));
+                    new LinkedBlockingDeque<Runnable>(), new ThreadFactoryBuilder().setNameFormat(executionPlanContext.getName()+"thread-%d").build()));
 
             executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5));
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());

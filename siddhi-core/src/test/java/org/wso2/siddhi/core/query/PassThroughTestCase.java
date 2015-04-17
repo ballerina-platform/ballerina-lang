@@ -191,4 +191,54 @@ public class PassThroughTestCase {
         executionPlanRuntime.shutdown();
     }
 
+    @Test
+    public void PassThroughTest4() throws InterruptedException {
+        log.info("pass through test4");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('passThroughTest4') " +
+                "" +
+                "define stream cseEventStream (symbol string, price float, volume long);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream " +
+                "insert into outputStream;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from outputStream " +
+                "select * " +
+                "insert into outputStream2 ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        QueryCallback queryCallback = new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                Assert.assertTrue("WSO2".equals(inEvents[0].getData(0)));
+                count = count + inEvents.length;
+                eventArrived = true;
+            }
+
+        };
+        executionPlanRuntime.addCallback("query2", queryCallback);
+        queryCallback.startProcessing();
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{"WSO2", 700f, 100l});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        Thread.sleep(100);
+        Assert.assertEquals(2, count);
+        Assert.assertTrue(eventArrived);
+
+        executionPlanRuntime.shutdown();
+    }
+
 }

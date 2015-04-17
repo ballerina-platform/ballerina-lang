@@ -40,6 +40,7 @@ public class ExecutionPlanContext {
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
 
+    public static boolean statEnable = true;
 
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;

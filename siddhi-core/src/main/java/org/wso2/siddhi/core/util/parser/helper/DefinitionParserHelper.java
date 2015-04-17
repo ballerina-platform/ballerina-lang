@@ -15,16 +15,26 @@
 
 package org.wso2.siddhi.core.util.parser.helper;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.EventTableConfigurationException;
+import org.wso2.siddhi.core.exception.EventTableConnectionException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
+import org.wso2.siddhi.core.util.SiddhiClassLoader;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-
+import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
+import org.wso2.siddhi.query.api.extension.Extension;
+import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -69,9 +79,30 @@ public class DefinitionParserHelper {
 
 
     public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
-        if (!eventTableMap.containsKey(tableDefinition.getId())) {
-            EventTable eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
-            eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+
+        Logger log = Logger.getLogger(DefinitionParserHelper.class);
+
+        try {
+            if (!eventTableMap.containsKey(tableDefinition.getId())) {
+                EventTable eventTable;
+                Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+                        tableDefinition.getAnnotations());
+                if (annotation != null) {
+                    String evenTableType = annotation.getElement("eventtable");
+                    Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
+                    eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
+                    eventTable.init(tableDefinition, executionPlanContext);
+                } else {
+                    eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
+                }
+                eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+            }
+        } catch (EventTableConnectionException e) {
+            log.error("Error while initiating a database connection", e);
+        } catch (CannotLoadConfigurationException e) {
+            log.error("Error while loading the database configuration from rdbms-table-config.xml", e);
+        } catch (EventTableConfigurationException e) {
+            log.error("Event table parameters are not specified/available", e);
         }
     }
 }
