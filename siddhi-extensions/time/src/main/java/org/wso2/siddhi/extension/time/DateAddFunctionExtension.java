@@ -37,6 +37,21 @@ import java.util.Date;
 /**
  * dateAdd(dateValue,expr,unit,dateFormat)/dateAdd(expr,unit,timestampInMilliseconds)
  * Returns added specified time interval to a date.
+ * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
+ * unit - Which part of the date format you want to manipulate. eg: "MINUTE" , "HOUR" , "MONTH" , "YEAR" , "QUARTER" ,
+ *        "WEEK" , "DAY" , "SECOND"
+ * expr - In which amount, selected date format part should be incremented. eg: 2 ,5 ,10 etc
+ * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * timestampInMilliseconds - date value in milliseconds. eg: 1415712224000L
+ * Accept Type(s) for dateAdd(dateValue,expr,unit,dateFormat):
+ *         dateValue : STRING
+ *         expr : LONG
+ *         unit : STRING
+ *         dateFormat : STRING
+ * Accept Type(s) for dateAdd(expr,unit,timestampInMilliseconds):
+ *         expr : LONG
+ *         unit : STRING
+ *         timestampInMilliseconds : LONG
  * Return Type(s): STRING
  */
 public class DateAddFunctionExtension extends FunctionExecutor {

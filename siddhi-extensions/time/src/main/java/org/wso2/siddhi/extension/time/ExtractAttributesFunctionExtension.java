@@ -36,8 +36,20 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * extract(unit,dateExp,dateFormat)/extract(timestampInMilliseconds,unit)
+ * extract(unit,dateValue,dateFormat)/extract(timestampInMilliseconds,unit)
  * Returns date attributes from a date expression.
+ * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
+ * unit - Which part of the date format you want to manipulate. eg: "MINUTE" , "HOUR" , "MONTH" , "YEAR" , "QUARTER" ,
+ *        "WEEK" , "DAY" , "SECOND"
+ * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * timestampInMilliseconds - date value in milliseconds. eg: 1415712224000L
+ * Accept Type(s) for extract(unit,dateValue,dateFormat):
+ *         unit : STRING
+ *         dateValue : STRING
+ *         dateFormat : STRING
+ * Accept Type(s) for extract(timestampInMilliseconds,unit):
+ *         timestampInMilliseconds : LONG
+ *         unit : STRING
  * Return Type(s): INT
  */
 public class ExtractAttributesFunctionExtension extends FunctionExecutor {
@@ -57,29 +69,29 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
         if (attributeExpressionExecutors.length == 3) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:extract(unit,dateExp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:extract(unit,dateExp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
-                        "str:extract(unit,dateExp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if(useDefaultDateFormat){
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:extract(unit,dateExp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                            "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:extract(unit,dateExp,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                            "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             } else{
@@ -111,17 +123,17 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
         if (data.length == 3 || useDefaultDateFormat) {
             try {
                 if (data[0] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateValue," +
                             "dateFormat) function" + ". First " + "argument cannot be null");
                 }
                 if (data[1] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateExp," +
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateValue," +
                             "dateFormat) function" + ". Second " + "argument cannot be null");
                 }
                 if(!useDefaultDateFormat){
                     if (data[2] == null) {
-                        throw new ExecutionPlanRuntimeException("Invalid input given to str:dateAdd(date,expr," +
-                                "unit,dateFormat) function" + ". Third " + "argument cannot be null");
+                        throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateValue," +
+                                "dateFormat) function" + ". Third " + "argument cannot be null");
                     }
                     userFormat = (String) data[2];
                 } else {

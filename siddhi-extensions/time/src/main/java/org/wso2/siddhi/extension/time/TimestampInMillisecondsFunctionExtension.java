@@ -36,6 +36,11 @@ import java.util.Date;
 /**
  * timestampInMilliseconds() / timestampInMilliseconds(dateValue,dateFormat)
  * Returns System time in milliseconds.
+ * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
+ * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * Accept Type(s) for timestampInMilliseconds(dateValue,dateFormat):
+ *         dateValue : STRING
+ *         dateFormat : STRING
  * Return Type(s): LONG
  */
 public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {

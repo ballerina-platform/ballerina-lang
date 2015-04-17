@@ -37,6 +37,18 @@ import java.util.Date;
 /**
  * dateFormat(dateValue,dateTargetFormat,dateSourceFormat)/dateFormat(timestampInMilliseconds,dateTargetFormat)
  * Returns a formatted date string.
+ * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
+ * dateTargetFormat - Date format which need to be converted to. eg: yyyy/MM/dd HH:mm:ss
+ * dateSourceFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * timestampInMilliseconds - date value in milliseconds. eg: 1415712224000L
+ * dateTargetFormat - Date format which need to be converted to. eg: yyyy/MM/dd HH:mm:ss
+ * Accept Type(s) for dateFormat(dateValue,dateTargetFormat,dateSourceFormat):
+ *         dateValue : STRING
+ *         dateTargetFormat : STRING
+ *         dateSourceFormat : STRING
+ * Accept Type(s) for dateFormat(timestampInMilliseconds,dateTargetFormat):
+ *         timestampInMilliseconds : LONG
+ *         dateTargetFormat : STRING
  * Return Type(s): STRING
  */
 public class DateFormatFunctionExtension extends FunctionExecutor {

@@ -36,9 +36,22 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2)/dateDiff(timestampInMilliseconds1,
- * timestampInMilliseconds2)
+ * dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2)/dateDiff(timestampInMilliseconds1,timestampInMilliseconds2)
  * Returns time between two dates.
+ * dateValue1 - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
+ * dateValue2 - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
+ * dateFormat1 - Date format of the provided dateValue1. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * dateFormat2 - Date format of the provided dateValue2. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * timestampInMilliseconds1 - date value in milliseconds. eg: 1415712224000L
+ * timestampInMilliseconds2 - date value in milliseconds. eg: 1423456224000L
+ * Accept Type(s) for dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2):
+ *         dateValue1 : STRING
+ *         dateValue2 : STRING
+ *         dateFormat1 : STRING
+ *         dateFormat2 : STRING
+ * Accept Type(s) for dateDiff(timestampInMilliseconds1,timestampInMilliseconds2):
+ *         timestampInMilliseconds1 : LONG
+ *         timestampInMilliseconds2 : LONG
  * Return Type(s): INT
  */
 public class DateDifferenceFunctionExtension extends FunctionExecutor {

@@ -36,6 +36,11 @@ import java.util.Date;
 /**
  * date(dateValue,dateFormat)
  * Returns date part from a date or date/time expression.
+ * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11"
+ * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
+ * Accept Type(s) for date(dateValue,dateFormat):
+ *         dateValue : STRING
+ *         dateFormat : STRING
  * Return Type(s): STRING
  */
 public class ExtractDateFunctionExtension extends FunctionExecutor {
