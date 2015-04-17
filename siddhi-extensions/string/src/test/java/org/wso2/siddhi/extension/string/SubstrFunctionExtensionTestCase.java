@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -30,6 +31,14 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class SubstrFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(SubstrFunctionExtensionTestCase.class);
+    private volatile int count;
+    private volatile boolean eventArrived;
+
+    @Before
+    public void init() {
+        count = 0;
+        eventArrived = false;
+    }
 
     /*
     * Test Case for str:substr(<string sourceText> , <int beginIndex>)
@@ -48,14 +57,32 @@ public class SubstrFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("efghiJ KLMN", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("efghiJ KLMN", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("yut", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("o", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"AbCDefghiJ KLMN", 700f, 100l});
+        inputHandler.send(new Object[]{" ertyut", 60.5f, 200l});
+        inputHandler.send(new Object[]{"Hello", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -76,14 +103,32 @@ public class SubstrFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("CDef", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("CDef", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("rtyu", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("lloo", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"AbCDefghiJ KLMN", 700f, 100l});
+        inputHandler.send(new Object[]{" ertyut", 60.5f, 200l});
+        inputHandler.send(new Object[]{"Helloooo", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -104,14 +149,32 @@ public class SubstrFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("WSO2D efghiJ KLMN", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("WSO2D efghiJ KLMN", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2D efghiJ KLMN", 700f, 100l});
+        inputHandler.send(new Object[]{" ertWSO2yut", 60.5f, 200l});
+        inputHandler.send(new Object[]{"Helloooo", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -132,14 +195,32 @@ public class SubstrFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals(" ello", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(" ello", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("o", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("llo", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"hello hi hWSO2 hiA ello", 700f, 100l});
+        inputHandler.send(new Object[]{"WSO2 hiA WSO2 hellAo", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2 cep WSO2 XX E hi hA WSO2 heAllo", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }

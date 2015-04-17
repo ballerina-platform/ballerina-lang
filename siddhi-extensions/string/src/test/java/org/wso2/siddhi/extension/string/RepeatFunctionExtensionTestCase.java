@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -30,6 +31,14 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class RepeatFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(RepeatFunctionExtensionTestCase.class);
+    private volatile int count;
+    private volatile boolean eventArrived;
+
+    @Before
+    public void init() {
+        count = 0;
+        eventArrived = false;
+    }
 
     @Test
     public void testRepeatFunctionExtension() throws InterruptedException {
@@ -49,14 +58,32 @@ public class RepeatFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("StRing 1StRing 1StRing 1", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("StRing 1StRing 1StRing 1", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("StrInG 2StrInG 2StrInG 2", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("Str 3Str 3Str 3", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"StRing 1", 700f, 100l});
+        inputHandler.send(new Object[]{"StrInG 2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"Str 3", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -78,14 +105,32 @@ public class RepeatFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("StRing 1StRing 1StRing 1", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("StRing 1StRing 1StRing 1", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("StrInG 2StrInG 2", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("Str 3Str 3Str 3Str 3Str 3Str 3", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"StRing 1", 3, 100l});
+        inputHandler.send(new Object[]{"StrInG 2", 2, 200l});
+        inputHandler.send(new Object[]{"Str 3", 6, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }

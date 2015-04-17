@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -30,6 +31,14 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class ReplaceFirstFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(ReplaceFirstFunctionExtensionTestCase.class);
+    private volatile int count;
+    private volatile boolean eventArrived;
+
+    @Before
+    public void init() {
+        count = 0;
+        eventArrived = false;
+    }
 
     @Test
     public void testReplaceFirstFunctionExtension1() throws InterruptedException {
@@ -49,14 +58,32 @@ public class ReplaceFirstFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("test hi hello", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("test hi hello", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("WSO2 hi test", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("WSO2 cep", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"hello hi hello", 700f, 100l});
+        inputHandler.send(new Object[]{"WSO2 hi hello", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2 cep", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -78,14 +105,32 @@ public class ReplaceFirstFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("hello XXXX A hi hello", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("hello XXXX A hi hello", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("XXXX ", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("WSO2 bam", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"hello WSO2 A hi hello", "WSO2", "XXXX"});
-        Thread.sleep(100);
+        inputHandler.send(new Object[]{"WSO2 hi helloA ", "WSO2(.*)A", "XXXX"});
+        inputHandler.send(new Object[]{"WSO2 cep", "cep", "bam"});
+        Thread.sleep(4000);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -108,14 +153,32 @@ public class ReplaceFirstFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("hello XXXX hi hello", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("hello XXXX hi hello", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("XXXX ", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("WSO2 cep", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"hello WSO2 A hi hello", 700f, 100l});
+        inputHandler.send(new Object[]{"WSO2 hi helloA ", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2 cep", 60.5f, 200l});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }

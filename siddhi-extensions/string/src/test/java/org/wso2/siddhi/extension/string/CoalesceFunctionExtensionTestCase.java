@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -30,6 +31,14 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class CoalesceFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(CoalesceFunctionExtensionTestCase.class);
+    private volatile int count;
+    private volatile boolean eventArrived;
+
+    @Before
+    public void init() {
+        count = 0;
+        eventArrived = false;
+    }
 
     @Test
     public void testCoalesceFunctionExtension() throws InterruptedException {
@@ -45,14 +54,32 @@ public class CoalesceFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertEquals("BBB", inEvents[0].getData(1));
+                for (Event event : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("BBB", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("123", event.getData(1));
+                        eventArrived = true;
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals("XYZ", event.getData(1));
+                        eventArrived = true;
+                    }
+                }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{null, "BBB", "CCC"});
+        inputHandler.send(new Object[]{"123", null, "789"});
+        inputHandler.send(new Object[]{null, null, "XYZ"});
         Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }
