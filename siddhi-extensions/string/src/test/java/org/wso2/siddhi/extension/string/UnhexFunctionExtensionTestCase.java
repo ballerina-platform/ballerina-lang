@@ -49,11 +49,7 @@ public class UnhexFunctionExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents,
                                 Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                String result;
-                for (Event event : inEvents) {
-                    result = (String) event.getData(0);
-                    Assert.assertEquals("MySQL", result);
-                }
+                Assert.assertEquals("MySQL", inEvents[0].getData(0));
             }
         });
         InputHandler inputHandler = executionPlanRuntime

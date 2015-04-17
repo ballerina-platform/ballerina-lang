@@ -20,7 +20,6 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -31,14 +30,6 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class CharAtFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(CharAtFunctionExtensionTestCase.class);
-    private volatile int count;
-    private volatile boolean eventArrived;
-
-    @Before
-    public void init() {
-        count = 0;
-        eventArrived = false;
-    }
 
     @Test
     public void testCharAtFunctionExtension() throws InterruptedException {
@@ -54,30 +45,14 @@ public class CharAtFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals('B', inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals('S', inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals('Y', inEvents[2].getData(1));
-                    eventArrived = true;
-                }
+                Assert.assertEquals('B', inEvents[0].getData(1));
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        inputHandler.send(new Object[]{"XYZ", 60.5f, 200l});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -95,30 +70,14 @@ public class CharAtFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals('B', inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals('W', inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals('Z', inEvents[2].getData(1));
-                    eventArrived = true;
-                }
+                Assert.assertEquals('B', inEvents[0].getData(1));
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l, 1});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l, 0});
-        inputHandler.send(new Object[]{"XYZ", 60.5f, 200l, 2});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }

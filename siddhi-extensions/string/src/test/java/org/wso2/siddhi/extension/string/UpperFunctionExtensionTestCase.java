@@ -20,7 +20,6 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -31,14 +30,6 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class UpperFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(UpperFunctionExtensionTestCase.class);
-    private volatile int count;
-    private volatile boolean eventArrived;
-
-    @Before
-    public void init() {
-        count = 0;
-        eventArrived = false;
-    }
 
     @Test
     public void testUpperFunctionExtension() throws InterruptedException {
@@ -54,30 +45,14 @@ public class UpperFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals("ABCDEFGHIJ KLMNAAAAAAAAAA", inEvents[0].getData(1));    //Note: Assertion doesn't count the spaces infront or in the back
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals("123456XYZ ABC 78AAAAAA", inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals("HELLO WORLDAAAA", inEvents[2].getData(1));
-                    eventArrived = true;
-                }
+                Assert.assertEquals("ABCDEFGHIJ KLMNAAAAAAAAAA", inEvents[0].getData(1));    //Note: Assertion doesn't count the spaces infront or in the back
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"AbCDefghiJ KLMNaaaaaaaaaa", 700f, 100l});
-        inputHandler.send(new Object[]{"123456XyZ abC 78aaaaaa", 60.5f, 200l});
-        inputHandler.send(new Object[]{"Hello Worldaaaa", 60.5f, 200l});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }

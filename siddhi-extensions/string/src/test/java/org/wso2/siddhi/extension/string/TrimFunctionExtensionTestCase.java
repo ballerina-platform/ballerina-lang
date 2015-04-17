@@ -20,7 +20,6 @@ package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -31,14 +30,6 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class TrimFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(TrimFunctionExtensionTestCase.class);
-    private volatile int count;
-    private volatile boolean eventArrived;
-
-    @Before
-    public void init() {
-        count = 0;
-        eventArrived = false;
-    }
 
     @Test
     public void testTrimFunctionExtension1() throws InterruptedException {
@@ -54,33 +45,15 @@ public class TrimFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals("AbCDefghiJ KLMN", inEvents[0].getData(1));
-                    Assert.assertEquals(15, inEvents[0].getData(1).toString().length());
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals("ertyut", inEvents[1].getData(1));
-                    Assert.assertEquals(6, inEvents[1].getData(1).toString().length());
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals("", inEvents[2].getData(1));
-                    Assert.assertEquals(0, inEvents[2].getData(1).toString().length());
-                    eventArrived = true;
-                }
+                Assert.assertEquals("AbCDefghiJ KLMN", inEvents[0].getData(1));
+                Assert.assertEquals(15, inEvents[0].getData(1).toString().length());
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"  AbCDefghiJ KLMN  ", 700f, 100l});
-        inputHandler.send(new Object[]{"ertyut     ", 60.5f, 200l});
-        inputHandler.send(new Object[]{"", 60.5f, 200l});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }
