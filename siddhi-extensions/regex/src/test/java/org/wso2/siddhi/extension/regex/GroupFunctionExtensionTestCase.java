@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class GetGroupFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(FindFunctionExtensionTestCase.class);
+public class GroupFunctionExtensionTestCase {
+    static final Logger log = Logger.getLogger(GroupFunctionExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 

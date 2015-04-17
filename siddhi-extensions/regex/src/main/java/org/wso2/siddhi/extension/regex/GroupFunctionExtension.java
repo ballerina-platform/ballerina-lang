@@ -29,7 +29,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GetGroupFunctionExtension extends FunctionExecutor {
+public class GroupFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     //state-variables
@@ -40,19 +40,19 @@ public class GetGroupFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to regex:getGroupValue() function, required 3, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to regex:getGroup() function, required 3, " +
                     "but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:getGroupValue() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:getGroup() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:getGroupValue() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:getGroup() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.INT) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:getGroupValue() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:getGroup() function, " +
                     "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
@@ -69,13 +69,13 @@ public class GetGroupFunctionExtension extends FunctionExecutor {
         Matcher matcher;
 
         if (data[0] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroupValue() function. First argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroup() function. First argument cannot be null");
         }
         if (data[1] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroupValue() function. Second argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroup() function. Second argument cannot be null");
         }
         if (data[2] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroupValue() function. Third argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroup() function. Third argument cannot be null");
         }
         String source = (String) data[0];
         int groupId = (Integer) data[2];
