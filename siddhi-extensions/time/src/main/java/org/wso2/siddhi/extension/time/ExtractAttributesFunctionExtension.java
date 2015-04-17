@@ -33,6 +33,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * extract(unit,dateExp,dateFormat)/extract(timestampInMilliseconds,unit)
@@ -103,7 +104,7 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
 
-        Calendar cal = Calendar.getInstance();
+        Calendar cal;
         String userFormat = null;
         String source = null;
         String unit;
@@ -127,6 +128,7 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
                     userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
                 }
 
+                cal = Calendar.getInstance();
                 FastDateFormat userSpecificFormat;
                 source = (String) data[1];
                 unit = (String) data[0];
@@ -155,6 +157,7 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
             }
 
             try {
+                cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 long millis = (Long)data[0];
                 unit = (String) data[1];
                 cal.setTimeInMillis(millis);
@@ -181,7 +184,7 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
             returnValue = cal.get(Calendar.MINUTE);
 
         } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_HOUR)) {
-            returnValue = cal.get(Calendar.HOUR);
+            returnValue = cal.get(Calendar.HOUR_OF_DAY);
 
         } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_DAY)) {
             returnValue = cal.get(Calendar.DAY_OF_MONTH);

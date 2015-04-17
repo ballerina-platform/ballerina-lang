@@ -38,6 +38,7 @@
         <module>math</module>
         <module>event-table</module>
         <module>regex</module>
+        <module>time</module>
     </modules>
 
 </project>

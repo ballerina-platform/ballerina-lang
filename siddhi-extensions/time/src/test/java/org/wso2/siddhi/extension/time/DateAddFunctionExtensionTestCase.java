@@ -54,7 +54,7 @@ public class DateAddFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
                 "str:dateAdd(dateValue,expr,'year') as yearAdded,str:dateAdd(dateValue,expr," +
                 "'month',dateFormat) as monthAdded," +
-                "str:dateAdd(expr,'year',timestampInMilliseconds) as yearAddedMills" + " insert into outputStream;");
+                "str:dateAdd(expr,'MINUTE',timestampInMilliseconds) as yearAddedMills" + " insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inStreamDefinition + query);
 
