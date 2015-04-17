@@ -70,7 +70,7 @@ public class JoinTableTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2",100l}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
                                 break;
                             case 2:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 10l}, event.getData());

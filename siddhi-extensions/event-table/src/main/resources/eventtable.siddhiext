@@ -1,0 +1,1 @@
+rdbms=org.wso2.siddhi.extension.eventtable.RDBMSEventTable

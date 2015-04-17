@@ -36,7 +36,8 @@
         <module>string</module>
         <module>geo</module>
         <module>math</module>
-        <module>time</module>
+        <module>event-table</module>
+        <module>regex</module>
     </modules>
 
 </project>

@@ -24,15 +24,17 @@ import org.wso2.siddhi.core.exception.EventTableConnectionException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
-import org.wso2.siddhi.core.table.RDBMSEventTable;
+import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
+import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
-
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -86,7 +88,10 @@ public class DefinitionParserHelper {
                 Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                         tableDefinition.getAnnotations());
                 if (annotation != null) {
-                    eventTable = new RDBMSEventTable(tableDefinition, executionPlanContext);
+                    String evenTableType = annotation.getElement("eventtable");
+                    Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
+                    eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
+                    eventTable.init(tableDefinition, executionPlanContext);
                 } else {
                     eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
                 }
