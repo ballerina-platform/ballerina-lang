@@ -32,7 +32,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * sdsfdsf
+ * matches(string: input sequence, regex: regular expression pattern)
+ * This method attempts to match the entire 'string' against the 'regex' pattern.
+ * Accept Type(s): (STRING,STRING)
+ * Return Type(s): BOOLEAN
  */
 public class MatchesFunctionExtension extends FunctionExecutor{
 
@@ -92,7 +95,7 @@ public class MatchesFunctionExtension extends FunctionExecutor{
 
     @Override
     protected Object execute(Object data) {
-        return null;  //Since the regexp function takes in 2 parameters, this method does not get called. Hence, not implemented.
+        return null;  //Since the matches function takes in 2 parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override
