@@ -29,6 +29,12 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * group(string: input sequence, regex: regular expression pattern, groupId: the given group id of the regex expression)
+ * This method returns the input sub-sequence captured by the given group during the previous match operation.
+ * Accept Type(s): (STRING,STRING,INT)
+ * Return Type(s): STRING
+ */
 public class GroupFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
@@ -40,19 +46,19 @@ public class GroupFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to regex:getGroup() function, required 3, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to regex:group() function, required 3, " +
                     "but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:getGroup() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:group() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:getGroup() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:group() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.INT) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:getGroup() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:group() function, " +
                     "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
@@ -69,13 +75,13 @@ public class GroupFunctionExtension extends FunctionExecutor {
         Matcher matcher;
 
         if (data[0] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroup() function. First argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:group() function. First argument cannot be null");
         }
         if (data[1] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroup() function. Second argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:group() function. Second argument cannot be null");
         }
         if (data[2] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:getGroup() function. Third argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:group() function. Third argument cannot be null");
         }
         String source = (String) data[0];
         int groupId = (Integer) data[2];
@@ -98,7 +104,7 @@ public class GroupFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        return null;
+        return null;//Since the group function takes in 3 parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override

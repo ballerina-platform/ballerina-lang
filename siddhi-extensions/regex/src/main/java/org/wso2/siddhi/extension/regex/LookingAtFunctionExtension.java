@@ -12,6 +12,12 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * lookingAt(string: input sequence, regex: regular expression pattern)
+ * This method attempts to match the 'string', starting at the beginning, against the 'regex' pattern.
+ * Accept Type(s): (STRING,STRING)
+ * Return Type(s): BOOLEAN
+ */
 public class LookingAtFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
@@ -69,7 +75,7 @@ public class LookingAtFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        return null;  //Since the lookingAt function takes in 3 parameters, this method does not get called. Hence, not implemented.
+        return null;  //Since the lookingAt function takes in 2 parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override
