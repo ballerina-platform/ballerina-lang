@@ -72,7 +72,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.core*
+                            org.wso2.siddhi.core,
+                            org.wso2.siddhi.core.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

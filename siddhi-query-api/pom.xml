@@ -36,6 +36,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -50,7 +51,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.query.api*
+                            org.wso2.siddhi.query.api,
+                            org.wso2.siddhi.query.api.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

@@ -38,9 +38,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <!--todo fix export package-->
                         <Export-Package>
-                            org.wso2.siddhi.query.compiler.*
+                            org.wso2.siddhi.extension.evalscript,
+                            org.wso2.siddhi.extension.evalscript.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

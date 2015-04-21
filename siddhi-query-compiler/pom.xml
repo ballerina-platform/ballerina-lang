@@ -80,7 +80,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.query.compiler*
+                            org.wso2.siddhi.query.compiler,
+                            org.wso2.siddhi.query.compiler.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
