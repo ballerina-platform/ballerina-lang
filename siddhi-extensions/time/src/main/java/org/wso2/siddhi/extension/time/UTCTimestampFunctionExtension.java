@@ -37,27 +37,26 @@ import java.util.TimeZone;
  */
 public class UTCTimestampFunctionExtension extends FunctionExecutor {
 
-    Attribute.Type returnType = Attribute.Type.STRING;
+    private Attribute.Type returnType = Attribute.Type.STRING;
+    private FastDateFormat dateFormat = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
 
-        //Nothing to be done.
+        dateFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_UTC_TIMESTAMP_FORMAT,
+                TimeZone.getTimeZone("UTC"));
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null; //Since the e function takes in no parameters, this method does not get called. Hence, not implemented.
+        return null; //Since the function takes in no parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override
     protected Object execute(Object data) {
         Date now = new Date();
-        FastDateFormat dataFormat = FastDateFormat.getInstance(TimeExtensionConstants
-                .EXTENSION_TIME_UTC_TIMESTAMP_FORMAT, TimeZone.getTimeZone("UTC"));
-        return dataFormat.format(now);
-
+        return dateFormat.format(now);
     }
 
     @Override

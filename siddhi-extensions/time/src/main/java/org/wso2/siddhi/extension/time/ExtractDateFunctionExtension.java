@@ -45,27 +45,27 @@ import java.util.Date;
  */
 public class ExtractDateFunctionExtension extends FunctionExecutor {
 
-    static final Logger log = Logger.getLogger(ExtractDateFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.STRING;
+    private static final Logger log = Logger.getLogger(ExtractDateFunctionExtension.class);
+    private Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
 
         if (attributeExpressionExecutors.length > 2) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to date(dateValue," +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:date(dateValue," +
                     "dateFormat) function, " + "required 2, but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
             throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                    "str:date(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                    "time:date(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                     " but found " + attributeExpressionExecutors[0].getReturnType().toString());
         }
         //User can omit sending the dateFormat thus using a default CEP Time format
         if (attributeExpressionExecutors.length > 0) {
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:date(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "time:date(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
         }
@@ -76,13 +76,13 @@ public class ExtractDateFunctionExtension extends FunctionExecutor {
     protected Object execute(Object[] data) {
         String userFormat;
         if (data[0] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:date(dateValue," +
+            throw new ExecutionPlanRuntimeException("Invalid input given to time:date(dateValue," +
                     "dateFormat) function" + ". First " + "argument cannot be null");
         }
         if (data.length > 0) {
             if (data[1] == null) {
                 throw new ExecutionPlanRuntimeException(
-                        "Invalid input given to str:date(dateValue,dateFormat) function" + ". Second " +
+                        "Invalid input given to time:date(dateValue,dateFormat) function" + ". Second " +
                                 "argument cannot be null");
             }
             userFormat = (String) data[1];
@@ -102,12 +102,10 @@ public class ExtractDateFunctionExtension extends FunctionExecutor {
         } catch (ParseException e) {
             String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
                     .getMessage();
-            log.error(errorMsg, e);
-            throw new ExecutionPlanRuntimeException(errorMsg);
+            throw new ExecutionPlanRuntimeException(errorMsg,e);
         } catch (ClassCastException e){
             String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-            log.error(errorMsg, e);
-            throw new ExecutionPlanRuntimeException(errorMsg);
+            throw new ExecutionPlanRuntimeException(errorMsg,e);
         }
     }
 

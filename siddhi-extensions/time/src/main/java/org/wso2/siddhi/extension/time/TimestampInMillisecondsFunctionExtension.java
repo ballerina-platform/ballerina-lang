@@ -34,7 +34,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 /**
- * timestampInMilliseconds() / timestampInMilliseconds(dateValue,dateFormat)
+ * timestampInMilliseconds() / timestampInMilliseconds(dateValue,dateFormat)/timestampInMilliseconds(dateValue)
  * Returns System time in milliseconds.
  * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
  * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
@@ -45,9 +45,10 @@ import java.util.Date;
  */
 public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {
 
-    static final Logger log = Logger.getLogger(TimestampInMillisecondsFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.LONG;
-    Boolean useDefaultDateFormat = false;
+    private static final Logger log = Logger.getLogger(TimestampInMillisecondsFunctionExtension.class);
+    private Attribute.Type returnType = Attribute.Type.LONG;
+    private boolean useDefaultDateFormat = false;
+    private String dateFormat = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -58,24 +59,25 @@ public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {
 
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING
+                            "time:timestampInMilliseconds(dateValue,dateFormat) function,required " + Attribute.Type.STRING
                             +" but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING
+                            "time:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING
                             +" but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             } else if(attributeExpressionExecutors.length == 1) {
 
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "time:timestampInMilliseconds(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         "but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 useDefaultDateFormat = true;
+                dateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
             } else {
-                throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:timestampInMilliseconds" +
+                throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:timestampInMilliseconds" +
                         "(dateValue,dateFormat) function, " +"required 2, but found " + attributeExpressionExecutors
                         .length);
             }
@@ -87,37 +89,33 @@ public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {
     protected Object execute(Object[] data) {
 
         long returnValue;
-        String userFormat;
 
         if (data.length == 2 || useDefaultDateFormat){
             if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:timestampInMilliseconds(dateValue," +
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:timestampInMilliseconds(dateValue," +
                         "dateFormat) function" + ". First argument cannot be null");
             }
             if(!useDefaultDateFormat) {
                 if (data[1] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:timestampInMilliseconds(dateValue," +
+                    throw new ExecutionPlanRuntimeException("Invalid input given to time:timestampInMilliseconds(dateValue," +
                             "dateFormat) function" + ". First argument cannot be null");
                 }
-                userFormat = (String) data[1];
-            } else{
-                userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+                dateFormat = (String) data[1];
             }
             String source = (String) data[0];
-            FastDateFormat userSpecificFormat = FastDateFormat.getInstance(userFormat);
+            FastDateFormat userSpecificFormat = FastDateFormat.getInstance(dateFormat);
             try {
                 Date date = userSpecificFormat.parse(source);
                 returnValue = date.getTime();
             } catch (ParseException e) {
-                String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
+                String errorMsg = "Provided format " + dateFormat + " does not match with the timestamp " + source + e
                         .getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             }
             return returnValue;
         } else {
             throw new ExecutionPlanRuntimeException("Invalid set of arguments" + data.length + " given to "+
-                    "str:timestampInMilliseconds(dateValue,dateFormat) function. Only two arguments can be provided. ");
+                    "time:timestampInMilliseconds(dateValue,dateFormat) function. Only two arguments can be provided. ");
         }
 
     }

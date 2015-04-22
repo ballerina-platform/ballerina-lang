@@ -49,49 +49,34 @@ public class ExtractAttributesFunctionExtensionTestCase {
         log.info("ExtractAttributesFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue string,dateFormat string,timestampInMilliseconds long);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:extract('YEAR',dateValue,dateFormat) as YEAR,str:extract('HOUR',dateValue," +
-                "dateFormat) as MONTH,str:extract(timestampInMilliseconds,'HOUR') as QUARTER" +" insert into outputStream;");
+        String inStreamDefinition = "@config(async = 'true')" +
+                "define stream inputStream (symbol string,dateValue string,dateFormat string,timestampInMilliseconds long);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , time:extract('YEAR',dateValue,dateFormat) as YEAR,time:extract('HOUR',dateValue," +
+                "dateFormat) as MONTH,time:extract(timestampInMilliseconds,'HOUR') as QUARTER "+
+                "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    log.info("Event : " + count + ",YEAR : " + inEvents[0].getData(1) +"," +
-                            "MONTH : "+inEvents[0].getData(2) + ",QUARTER : "+inEvents[0].getData(3));
-                    System.out.println("Event : " + count + ",YEAR : " + inEvents[0].getData(1) +"," +
-                            "MONTH : "+inEvents[0].getData(2) + ",QUARTER : "+inEvents[0].getData(3));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    log.info("Event : " + count + ",YEAR : " + inEvents[0].getData(1) +"," +
-                            "MONTH : "+inEvents[0].getData(2) + ",QUATER : "+inEvents[0].getData(3));
-                    System.out.println("Event : " + count + ",YEAR : " + inEvents[0].getData(1) +"," +
-                            "MONTH : "+inEvents[0].getData(2) + ",QUATER : "+inEvents[0].getData(3));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    log.info("Event : " + count + ",YEAR : " + inEvents[0].getData(1) +"," +
-                            "MONTH : "+inEvents[0].getData(2) + ",QUATER : "+inEvents[0].getData(3));
-                    System.out.println("Event : " + count + ",YEAR : " + inEvents[0].getData(1) +"," +
-                            "MONTH : "+inEvents[0].getData(2) + ",QUATER : "+inEvents[0].getData(3));
-                    eventArrived = true;
+                eventArrived = true;
+                for(int cnt=0;cnt<inEvents.length;cnt++){
+                    count++;
+                    log.info("Event : " + count + ",YEAR : " + inEvents[cnt].getData(1) +"," +
+                            "MONTH : "+inEvents[cnt].getData(2) + ",QUARTER : "+inEvents[cnt].getData(3));
+
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", "2014-3-11 2:23:44", "yyyy-MM-dd HH:mm:ss",1394504624657L});
-        Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-3-11 2:23:44", "yyyy-MM-dd HH:mm:ss",1394504624657L});
-        Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-3-11 2:23:44", "yyyy-MM-dd HH:mm:ss",1394504624657L});
+        inputHandler.send(new Object[]{"IBM", "2014-3-11 02:23:44", "yyyy-MM-dd hh:mm:ss",1394484824000L});
+        inputHandler.send(new Object[]{"IBM", "2014-3-11 02:23:44", "yyyy-MM-dd hh:mm:ss",1394484824000L});
+        inputHandler.send(new Object[]{"IBM", "2014-3-11 02:23:44", "yyyy-MM-dd hh:mm:ss",1394484824000L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

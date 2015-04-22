@@ -49,54 +49,39 @@ public class DateDifferenceFunctionExtensionTestCase {
         log.info("DateDifferenceFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue1 string,dateFormat1 string,dateValue2 string,dateFormat2 string," +
+        String inStreamDefinition = "@config(async = 'true')" +
+                "define stream inputStream (symbol string,dateValue1 string,dateFormat1 string,dateValue2 string,dateFormat2 string," +
                 "timestampInMilliseconds1 long,timestampInMilliseconds2 long);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:dateDiff(dateValue1,dateValue2,dateFormat2) as dateDifference," +
-                "str:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) as dateDifferenceInUnix insert into " +
-                "outputStream;");
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , time:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) as dateDifference," +
+                "time:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) as dateDifferenceInUnix " +
+                "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    log.info("Event : " + count + ",dateDifference : " + inEvents[0].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[0].getData(2) );
-                    System.out.println("Event : " + count + ",dateDifference : " + inEvents[0].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[0].getData(2) );
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    log.info("Event : " + count + ",dateDifference : " + inEvents[0].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[0].getData(2) );
-                    System.out.println("Event : " + count + ",dateDifference : " + inEvents[0].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[0].getData(2) );
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    log.info("Event : " + count + ",dateDifference : " + inEvents[0].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[0].getData(2) );
-                    System.out.println("Event : " + count + ",dateDifference : " + inEvents[0].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[0].getData(2) );
-                    eventArrived = true;
+
+                eventArrived = true;
+                for(int cnt=0;cnt<inEvents.length;cnt++){
+                    count++;
+                    log.info("Event : " + count + ",dateDifference : " + inEvents[cnt].getData(1) +"," +
+                            "dateDifferenceInUnix : "+inEvents[cnt].getData(2) );
+
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",
-                "2014-11-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,1415539424000L});
-        Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",
-                "2014-10-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,1412861024000L});
-        Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",
-                "2014-11-9 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,1415539424000L});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",
+                "2014-11-9 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,1415519624000L});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",
+                "2014-10-9 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,1412841224000L});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",
+                "2013-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,1384156424000L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

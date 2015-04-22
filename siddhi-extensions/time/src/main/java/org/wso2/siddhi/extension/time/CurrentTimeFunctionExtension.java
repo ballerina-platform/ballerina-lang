@@ -36,12 +36,15 @@ import java.util.Date;
  */
 public class CurrentTimeFunctionExtension extends FunctionExecutor {
 
-    Attribute.Type returnType = Attribute.Type.STRING;
+    private Attribute.Type returnType = Attribute.Type.STRING;
+    private FastDateFormat dateFormat = null;
+    //todo : init method, various methodCombinations,testcase siddhi query format, throw exception with e,
+    // todo : set dafault timeformat in init, don't log the message, add private to variables
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
-
+        dateFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_CURRENT_TIME_FORMAT);
         //Nothing to be done.
     }
 
@@ -53,9 +56,7 @@ public class CurrentTimeFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         Date now = new Date();
-        FastDateFormat dataFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_CURRENT_TIME_FORMAT);
-        return dataFormat.format(now);
-
+        return dateFormat.format(now);
     }
 
     @Override

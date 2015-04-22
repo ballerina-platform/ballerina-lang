@@ -18,31 +18,23 @@
  *
  */
 
-package org.wso2.siddhi.extension.time;
+package org.wso2.siddhi.core.executor.function;
 
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
-import org.wso2.siddhi.extension.time.util.TimeExtensionConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.Date;
+import java.util.UUID;
 
-/**
- * currentDate()
- * Returns System Time in yyyy-MM-dd format.
- * Return Type(s): STRING
- */
-public class CurrentDateFunctionExtension extends FunctionExecutor {
+public class UUIDFunctionExecutor extends FunctionExecutor{
 
-    private Attribute.Type returnType = Attribute.Type.STRING;
-    private FastDateFormat dateFormat = null;
+    Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
-        dateFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_DATE_FORMAT);
+
+        //Nothing to be done.
     }
 
     @Override
@@ -52,8 +44,7 @@ public class CurrentDateFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        Date now = new Date();
-        return dateFormat.format(now);
+        return UUID.randomUUID().toString();
     }
 
     @Override

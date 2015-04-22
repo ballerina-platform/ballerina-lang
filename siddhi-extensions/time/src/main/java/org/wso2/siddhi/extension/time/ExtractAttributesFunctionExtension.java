@@ -21,7 +21,6 @@
 package org.wso2.siddhi.extension.time;
 
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -33,16 +32,15 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
- * extract(unit,dateValue,dateFormat)/extract(timestampInMilliseconds,unit)
+ * extract(unit,dateValue,dateFormat)/extract(unit,dateValue)/extract(timestampInMilliseconds,unit)
  * Returns date attributes from a date expression.
  * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
  * unit - Which part of the date format you want to manipulate. eg: "MINUTE" , "HOUR" , "MONTH" , "YEAR" , "QUARTER" ,
  *        "WEEK" , "DAY" , "SECOND"
  * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
- * timestampInMilliseconds - date value in milliseconds. eg: 1415712224000L
+ * timestampInMilliseconds - date value in milliseconds.(from the epoch) eg: 1415712224000L
  * Accept Type(s) for extract(unit,dateValue,dateFormat):
  *         unit : STRING
  *         dateValue : STRING
@@ -54,9 +52,9 @@ import java.util.TimeZone;
  */
 public class ExtractAttributesFunctionExtension extends FunctionExecutor {
 
-    static final Logger log = Logger.getLogger(ExtractAttributesFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.INT;
-    Boolean useDefaultDateFormat = false;
+    private Attribute.Type returnType = Attribute.Type.INT;
+    private boolean useDefaultDateFormat = false;
+    private String dateFormat = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -65,49 +63,50 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
         if(attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
                 .length == 2){
             useDefaultDateFormat = true;
+            dateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
         }
         if (attributeExpressionExecutors.length == 3) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
-                        "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                        "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if(useDefaultDateFormat){
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                            "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                            "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             } else{
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:extract(timestampInMilliseconds,unit) function, " + "required " + Attribute.Type.LONG +
+                            "time:extract(timestampInMilliseconds,unit) function, " + "required " + Attribute.Type.LONG +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:extract(timestampInMilliseconds,unit) function, " + "required " + Attribute.Type.STRING +
+                            "time:extract(timestampInMilliseconds,unit) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             }
         } else {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:extract() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:extract() function, " +
                     "required 2 or 3, but found " + attributeExpressionExecutors.length);
         }
 
@@ -116,67 +115,59 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
 
-        Calendar cal;
-        String userFormat = null;
+        Calendar cal = Calendar.getInstance();;
         String source = null;
         String unit;
         if (data.length == 3 || useDefaultDateFormat) {
             try {
                 if (data[0] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateValue," +
+                    throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(unit,dateValue," +
                             "dateFormat) function" + ". First " + "argument cannot be null");
                 }
                 if (data[1] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateValue," +
+                    throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(unit,dateValue," +
                             "dateFormat) function" + ". Second " + "argument cannot be null");
                 }
                 if(!useDefaultDateFormat){
                     if (data[2] == null) {
-                        throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(unit,dateValue," +
+                        throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(unit,dateValue," +
                                 "dateFormat) function" + ". Third " + "argument cannot be null");
                     }
-                    userFormat = (String) data[2];
-                } else {
-                    userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+                    dateFormat = (String) data[2];
                 }
 
-                cal = Calendar.getInstance();
                 FastDateFormat userSpecificFormat;
                 source = (String) data[1];
                 unit = (String) data[0];
-                userSpecificFormat = FastDateFormat.getInstance(userFormat);
+                userSpecificFormat = FastDateFormat.getInstance(dateFormat);
                 Date userSpecifiedDate = userSpecificFormat.parse(source);
                 cal.setTime(userSpecifiedDate);
             } catch (ParseException e) {
-                String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
+                String errorMsg = "Provided format " + dateFormat + " does not match with the timestamp " + source + e
                         .getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             } catch (ClassCastException e){
                 String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             }
         } else {
 
             if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(timestampInMilliseconds," +
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(timestampInMilliseconds," +
                         "unit) function" + ". First " + "argument cannot be null");
             }
             if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:extract(timestampInMilliseconds," +
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(timestampInMilliseconds," +
                         "unit) function" + ". Second " + "argument cannot be null");
             }
 
             try {
-                cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 long millis = (Long)data[0];
                 unit = (String) data[1];
                 cal.setTimeInMillis(millis);
             } catch (ClassCastException e){
                 String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             }
         }
 
