@@ -38,14 +38,11 @@ public class CurrentTimeFunctionExtension extends FunctionExecutor {
 
     private Attribute.Type returnType = Attribute.Type.STRING;
     private FastDateFormat dateFormat = null;
-    //todo : init method, various methodCombinations,testcase siddhi query format, throw exception with e,
-    // todo : set dafault timeformat in init, don't log the message, add private to variables
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
             ExecutionPlanContext executionPlanContext) {
         dateFormat = FastDateFormat.getInstance(TimeExtensionConstants.EXTENSION_TIME_CURRENT_TIME_FORMAT);
-        //Nothing to be done.
     }
 
     @Override
