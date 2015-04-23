@@ -70,7 +70,7 @@ public class CachingTable {
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
     }
 
-    public synchronized void add(StreamEvent streamEvent) {
+    public void add(StreamEvent streamEvent) {
         StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
         list.add(clonedEvent);
         cacheManager.add(clonedEvent);
@@ -80,14 +80,14 @@ public class CachingTable {
     }
 
 
-    public synchronized void delete(StreamEvent deletingEventChunk) {
+    public void delete(StreamEvent deletingEventChunk) {
         cacheManager.delete(deletingEventChunk);
         if (log.isTraceEnabled()) {
             log.trace("list " + elementId + " size " + list.size());
         }
     }
 
-    public synchronized void update(StreamEvent updatingEventChunk) {
+    public void update(StreamEvent updatingEventChunk) {
 
         StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(updatingEventChunk);
         cacheManager.update(clonedEvent);
