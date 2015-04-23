@@ -35,13 +35,15 @@ public class RDBMSOperator implements Operator {
     private DBHandler dbHandler;
     private final boolean isBloomEnabled;
     private final int[] attributeIndexArray;
+    private ExecutionInfo executionInfo;
 
-    public RDBMSOperator(List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator) {
+    public RDBMSOperator(ExecutionInfo executionInfo, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator) {
         this.expressionExecutorList = expressionExecutorList;
         this.dbHandler = dbHandler;
         this.inMemoryEventTableOperator = inMemoryEventTableOperator;
         this.isBloomEnabled = dbHandler.isBloomFilterEnabled();
-        List<Attribute> conditionList = dbHandler.getExecutionInfo().getConditionQueryColumnOrder();
+        this.executionInfo = executionInfo;
+        List<Attribute> conditionList = executionInfo.getConditionQueryColumnOrder();
         attributeIndexArray = new int[conditionList.size()];
 
         int i = 0;
@@ -68,7 +70,7 @@ public class RDBMSOperator implements Operator {
                 obj = new Object[]{};
             }
 
-            dbHandler.deleteEvent(obj, deletingEvent);
+            dbHandler.deleteEvent(obj, deletingEvent,executionInfo);
         }
     }
 
@@ -86,13 +88,13 @@ public class RDBMSOperator implements Operator {
                 obj[count] = value;
                 count++;
             }
-            dbHandler.updateEvent(obj);
+            dbHandler.updateEvent(obj,executionInfo);
         }
     }
 
     @Override
     public Finder cloneFinder() {
-        return new RDBMSOperator(expressionExecutorList, dbHandler, inMemoryEventTableOperator);
+        return new RDBMSOperator(executionInfo,expressionExecutorList, dbHandler, inMemoryEventTableOperator);
     }
 
     @Override
@@ -110,7 +112,7 @@ public class RDBMSOperator implements Operator {
         } else {
             obj = new Object[]{};
         }
-        return dbHandler.selectEvent(obj);
+        return dbHandler.selectEvent(obj,executionInfo);
     }
 
     @Override
@@ -134,7 +136,7 @@ public class RDBMSOperator implements Operator {
         } else {
             obj = new Object[]{};
         }
-        return dbHandler.checkExistence(obj);
+        return dbHandler.checkExistence(obj,executionInfo);
     }
 
     public Operator getInMemoryEventTableOperator() {

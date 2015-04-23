@@ -39,13 +39,12 @@ public class DBHandler {
 
     private String tableName;
     private Map<String, String> elementMappings;
-    private final ExecutionInfo executionInfo;
+    private ExecutionInfo executionInfo;
     private List<Attribute> attributeList;
     private DataSource dataSource;
     private CountingBloomFilter[] bloomFilters;
     private boolean isBloomFilterEnabled;
     private TableDefinition tableDefinition;
-    private StreamEventCloner streamEventCloner;
     private int bloomFilterSize;
     private int bloomFilterHashFunction;
     private static final Logger log = Logger.getLogger(DBHandler.class);
@@ -60,18 +59,9 @@ public class DBHandler {
         this.tableDefinition = tableDefinition;
         executionInfo = new ExecutionInfo();
 
-        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.addInputDefinition(tableDefinition);
-        for (Attribute attribute : tableDefinition.getAttributeList()) {
-            metaStreamEvent.addOutputData(attribute);
-        }
-
-        StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 10);
-        streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
-
         try {
             con = dataSource.getConnection();
-            initializeDatabaseExecutionInfo();
+            initializeDatabaseExecutionInfo(executionInfo);
             initializeConnection();
 
 
@@ -83,7 +73,9 @@ public class DBHandler {
 
     }
 
-    public ExecutionInfo getExecutionInfo() {
+    public ExecutionInfo getExecutionInfoInstance() {
+        ExecutionInfo executionInfo = new ExecutionInfo();
+        initializeDatabaseExecutionInfo(executionInfo);
         return executionInfo;
     }
 
@@ -151,7 +143,7 @@ public class DBHandler {
     }
 
 
-    public void deleteEvent(Object[] obj, StreamEvent streamEvent) {
+    public void deleteEvent(Object[] obj, StreamEvent streamEvent,ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
@@ -178,7 +170,7 @@ public class DBHandler {
         }
     }
 
-    public void updateEvent(Object[] obj) {
+    public void updateEvent(Object[] obj,ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
@@ -205,7 +197,7 @@ public class DBHandler {
         }
     }
 
-    public StreamEvent selectEvent(Object[] obj) {
+    public StreamEvent selectEvent(Object[] obj,ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
@@ -256,7 +248,7 @@ public class DBHandler {
         return returnEventChunk.getFirst();
     }
 
-    public boolean checkExistence(Object[] obj) {
+    public boolean checkExistence(Object[] obj,ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
@@ -355,7 +347,7 @@ public class DBHandler {
     /**
      * Construct all the queries and assign to executionInfo instance
      */
-    private void initializeDatabaseExecutionInfo() {
+    private void initializeDatabaseExecutionInfo(ExecutionInfo executionInfo) {
 
         String databaseType;
         Connection con = null;
