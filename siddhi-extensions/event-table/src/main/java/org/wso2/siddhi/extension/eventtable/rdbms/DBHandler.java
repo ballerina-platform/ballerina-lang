@@ -182,7 +182,7 @@ public class DBHandler {
             updatedRows = stmt.executeUpdate();
             con.commit();
             if (log.isDebugEnabled()) {
-                log.debug(updatedRows + " updated deleted in table " + tableName);
+                log.debug(updatedRows + " updated in table " + tableName);
             }
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Error while updating the event", e);
