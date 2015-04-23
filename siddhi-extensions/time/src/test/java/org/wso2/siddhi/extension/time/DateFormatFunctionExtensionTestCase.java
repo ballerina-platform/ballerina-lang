@@ -52,7 +52,8 @@ public class DateFormatFunctionExtensionTestCase {
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
                 "dateValue string,sourceFormat string,timestampInMilliseconds long,targetFormat string);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:dateFormat(dateValue,targetFormat,sourceFormat) as formattedDate,str:dateFormat(timestampInMilliseconds," +
+                "time:dateFormat(dateValue,targetFormat,sourceFormat) as formattedDate," +
+                "time:dateFormat(timestampInMilliseconds," +
                 "targetFormat) as formattedUnixDate insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inStreamDefinition + query);
@@ -62,38 +63,22 @@ public class DateFormatFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    log.info("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedMillsDate : " + inEvents[0].getData(2));
-                    System.out.println("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedMillsDate : " + inEvents[0].getData(2));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    log.info("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedMillsDate : " + inEvents[0].getData(2));
-                    System.out.println("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedMillsDate : " + inEvents[0].getData(2));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    log.info("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedMillsDate : " + inEvents[0].getData(2));
-                    System.out.println("Event : " + count + ",formattedDate : " + inEvents[0].getData(1) + "," +
-                            "formattedMillsDate : " + inEvents[0].getData(2));
-                    eventArrived = true;
+
+                eventArrived = true;
+                for(int cnt=0;cnt<inEvents.length;cnt++){
+                    count++;
+                    log.info("Event : " + count + ",formattedDate : " + inEvents[cnt].getData(1) + "," +
+                            "formattedMillsDate : " + inEvents[cnt].getData(2));
+
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", 1415712224000L, "ss" });
-        Thread.sleep(100);
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", 1415712224000L, "ss" });
-        Thread.sleep(100);
-        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", 1415712224000L,
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", 1415692424000L, "ss" });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss", 1415692424000L, "ss" });
+        inputHandler.send(new Object[] { "IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS", 1415692424000L,
                 "yyyy-MM-dd" });
         Thread.sleep(100);
         Assert.assertEquals(3, count);

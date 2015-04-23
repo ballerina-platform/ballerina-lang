@@ -35,14 +35,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * dateSub(dateValue,expr,unit,dateFormat)/dateSub(expr,unit,timestampInMilliseconds)
+ * dateSub(dateValue,expr,unit,dateFormat)/dateSub(dateValue,expr,unit)/dateSub(timestampInMilliseconds,expr,unit)
  * Returns subtracted specified time interval to a date.
  * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11" , "13:23:44.657"
  * unit - Which part of the date format you want to manipulate. eg: "MINUTE" , "HOUR" , "MONTH" , "YEAR" , "QUARTER" ,
  *        "WEEK" , "DAY" , "SECOND"
  * expr - In which amount, selected date format part should be decremented. eg: 2 ,5 ,10 etc
  * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
- * timestampInMilliseconds - date value in milliseconds. eg: 1415712224000L
+ * timestampInMilliseconds - date value in milliseconds.(from the epoch) eg: 1415712224000L
  * Accept Type(s) for dateSub(dateValue,expr,unit,dateFormat):
  *         dateValue : STRING
  *         expr : LONG
@@ -56,9 +56,10 @@ import java.util.Date;
  */
 public class DateSubFunctionExtension extends FunctionExecutor {
 
-    Attribute.Type returnType = Attribute.Type.STRING;
-    static final Logger log = Logger.getLogger(DateSubFunctionExtension.class);
-    Boolean useDefaultDateFormat = false;
+    private Attribute.Type returnType = Attribute.Type.STRING;
+    private static final Logger log = Logger.getLogger(DateSubFunctionExtension.class);
+    private boolean useDefaultDateFormat = false;
+    private String dateFormat = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -67,65 +68,66 @@ public class DateSubFunctionExtension extends FunctionExecutor {
         if(attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
                 .length == 3){
             useDefaultDateFormat = true;
+            dateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
         }
         if (attributeExpressionExecutors.length == 4) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.STRING +
-                        " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                        "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
+                        .STRING +" but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.LONG +
+                        "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.LONG +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of " +
-                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
+                        "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
                         .STRING +" but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
             if (attributeExpressionExecutors[3].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the fourth argument of " +
-                        "str:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
+                        "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
                         .STRING +" but found " + attributeExpressionExecutors[3].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 3) {
             if(useDefaultDateFormat){
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            "time:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            "time:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.LONG +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            "time:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[2].getReturnType().toString());
                 }
             } else{
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "str:dateSub(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.LONG +
-                            " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                            "time:dateSub(timestampInMilliseconds,expr,unit) function, " +
+                            "required " + Attribute.Type.LONG +" but found " + attributeExpressionExecutors[0]
+                            .getReturnType().toString());
                 }
-                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:dateSub(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.STRING +
+                            "time:dateSub(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.LONG +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
-                if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.LONG) {
+                if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "str:dateSub(timestampInMilliseconds,expr,unit) function, " +
-                            "" + "required " + Attribute.Type.LONG +
+                            "time:dateSub(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[2].getReturnType().toString());
                 }
             }
         } else {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:dateSub() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:dateSub() function, " +
                     "required 3 or 4, but found " + attributeExpressionExecutors.length);
         }
 
@@ -137,35 +139,31 @@ public class DateSubFunctionExtension extends FunctionExecutor {
         Calendar calInstance = Calendar.getInstance();
         String unit;
         int expression;
-        String dateFormat;
+        String date = null;
+        FastDateFormat formattedDate;
 
         if (data.length == 4 || useDefaultDateFormat) {
-            if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
-                        "unit,dateFormat) function" + ". First " + "argument cannot be null");
-            }
-            if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
-                        "unit,dateFormat) function" + ". Second " + "argument cannot be null");
-            }
-            if (data[2] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
-                        "unit,dateFormat) function" + ". Third " + "argument cannot be null");
-            }
-            if(!useDefaultDateFormat){
-                if (data[3] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
-                            "unit,dateFormat) function" + ". Fourth " + "argument cannot be null");
-                }
-                dateFormat = (String) data[3];
-            } else {
-                dateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
-            }
-
-            String date = null;
-            FastDateFormat formattedDate;
-
             try {
+                if (data[0] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                            "unit,dateFormat) function" + ". First " + "argument cannot be null");
+                }
+                if (data[1] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                            "unit,dateFormat) function" + ". Second " + "argument cannot be null");
+                }
+                if (data[2] == null) {
+                    throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                            "unit,dateFormat) function" + ". Third " + "argument cannot be null");
+                }
+                if(!useDefaultDateFormat){
+                    if (data[3] == null) {
+                        throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(date,expr," +
+                                "unit,dateFormat) function" + ". Fourth " + "argument cannot be null");
+                    }
+                    dateFormat = (String) data[3];
+                }
+
                 date = (String) data[0];
                 expression = (Integer) data[1];
                 expression = -expression;
@@ -178,45 +176,41 @@ public class DateSubFunctionExtension extends FunctionExecutor {
             } catch (ParseException e) {
                 String errorMsg = "Provided format " + dateFormat + " does not match with the timestamp " + date + e
                         .getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             } catch (ClassCastException e){
                 String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             }
 
         } else if(data.length == 3){
 
             if (data[0] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(expr,unit," +
-                        "timestampInMilliseconds) function" + ". First " + "argument cannot be null");
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:dateSub(timestampInMilliseconds," +
+                        "expr,unit) function" + ". First " + "argument cannot be null");
             }
             if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(expr,unit," +
-                        "timestampInMilliseconds) function" + ". Second " + "argument cannot be null");
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:dateSub(timestampInMilliseconds," +
+                        "expr,unit) function" + ". Second " + "argument cannot be null");
             }
             if (data[2] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to str:dateSub(expr,unit," +
-                        "timestampInMilliseconds) function" + ". Third " + "argument cannot be null");
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:dateSub(timestampInMilliseconds," +
+                        "expr,unit) function" + ". Third " + "argument cannot be null");
             }
 
             try {
-                long dateInMills = (Long) data[2];
-
+                long dateInMills = (Long)data[0];
                 calInstance.setTimeInMillis(dateInMills);
-                unit = (String) data[1];
-                expression = (Integer) data[0];
+                unit = (String) data[2];
+                expression = (Integer) data[1];
                 expression = -expression;
                 getProcessedCalenderInstance(unit, calInstance, expression);
-                return String.valueOf(calInstance.getTimeInMillis());
+                return String.valueOf((calInstance.getTimeInMillis()));
             } catch (ClassCastException e){
                 String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-                log.error(errorMsg, e);
-                throw new ExecutionPlanRuntimeException(errorMsg);
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
             }
         } else {
-            throw new ExecutionPlanRuntimeException("Invalid set of arguments given to str:dateSub() function." +
+            throw new ExecutionPlanRuntimeException("Invalid set of arguments given to time:dateSub() function." +
                     "Arguments should be either 3 or 4. ");
         }
     }

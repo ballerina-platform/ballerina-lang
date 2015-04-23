@@ -49,51 +49,33 @@ public class DateSubFunctionExtensionTestCase {
         log.info("DateSubFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
-                "dateValue string,dateFormat string,timestampInMilliseconds long,expr long);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:dateSub(dateValue,expr,'year',dateFormat) as yearSubtracted,str:dateSub(dateValue,expr," +
-                "'month',dateFormat) as monthSubtracted," +
-                "str:dateSub(expr,'year',timestampInMilliseconds) as yearSubtractedUnix" + " insert into outputStream;");
+        String inStreamDefinition = "@config(async = 'true')" +
+                "define stream inputStream (symbol string,dateValue string,dateFormat string,timestampInMilliseconds long,expr long);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream select symbol ,time:dateSub(dateValue,expr,'year',dateFormat) as yearSubtracted,time:dateSub(dateValue,expr," +
+                "'month',dateFormat) as monthSubtracted,time:dateSub(timestampInMilliseconds,expr,'year') as yearSubtractedUnix "+
+                "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    log.info("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[0].getData(1) +"," +
-                            "MONTH_SUBTRACTED : "+inEvents[0].getData(2) + ",YEAR_SUBTRACTED_IN_MILLS : "+inEvents[0].getData(3));
-                    System.out.println("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[0].getData(1) +"," +
-                            "MONTH_SUBTRACTED : "+inEvents[0].getData(2) + ",YEAR_SUBTRACTED_IN_MILLS : "+inEvents[0]
-                            .getData(3));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    log.info("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[0].getData(1) +"," +
-                            "MONTH_SUBTRACTED : "+inEvents[0].getData(2) + ",YEAR_SUBTRACTED_IN_MILLS : "+inEvents[0].getData(3));
-                    System.out.println("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[0].getData(1) +"," +
-                            "MONTH_SUBTRACTED : "+inEvents[0].getData(2) + ",YEAR_SUBTRACTED_IN_MILLS : "+inEvents[0].getData(3));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    log.info("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[0].getData(1) +"," +
-                            "MONTH_SUBTRACTED : "+inEvents[0].getData(2) + ",YEAR_SUBTRACTED_IN_MILLS : "+inEvents[0].getData(3));
-                    System.out.println("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[0].getData(1) +"," +
-                            "MONTH_SUBTRACTED : "+inEvents[0].getData(2) + ",YEAR_SUBTRACTED_IN_MILLS : "+inEvents[0].getData(3));
-                    eventArrived = true;
+                eventArrived = true;
+                for(int cnt=0;cnt<inEvents.length;cnt++){
+                    count++;
+                    log.info("Event : " + count + ",YEAR_SUBTRACTED : " + inEvents[cnt].getData(1) +"," +
+                            "MONTH_SUBTRACTED : "+inEvents[cnt].getData(2) + "," +
+                            "YEAR_SUBTRACTED_IN_MILLS : "+inEvents[cnt].getData(3));
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,2});
-        Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,2});
-        Thread.sleep(100);
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS",1415712224000L,2});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,2});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,2});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,2});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

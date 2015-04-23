@@ -18,7 +18,7 @@
  *
  */
 
-package org.wso2.siddhi.extension.time;
+package org.wso2.siddhi.core.query.function;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -31,11 +31,11 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class CurrentDateFunctionExtensionTestCase {
+public class UUIDFunctionTestCase {
 
-    static final Logger log = Logger.getLogger(CurrentDateFunctionExtensionTestCase.class);
-    private volatile int count;
-    private volatile boolean eventArrived;
+    static final Logger log = Logger.getLogger(UUIDFunctionTestCase.class);
+    private int count;
+    private boolean eventArrived;
 
     @Before
     public void init() {
@@ -44,39 +44,35 @@ public class CurrentDateFunctionExtensionTestCase {
     }
 
     @Test
-    public void currentDateFunctionExtension() throws InterruptedException {
+    public void testFunctionQuery1() throws InterruptedException {
 
-        log.info("CurrentDateFunctionExtensionTestCase");
+        log.info("UUIDFunction test1");
+
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
-                "define stream inputStream (symbol string, price long, volume long);";
-        String query = ("@info(name = 'query1') " +
-                "from inputStream select symbol , time:currentDate() as currentTime "+
-                "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
+        String query = "@info(name = 'query1') " +
+                "from cseEventStream " +
+                "select symbol, price as price, quantity,UUID() as uniqueValue " +
+                "insert into outputStream;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                eventArrived = true;
-                for(int cnt=0;cnt<inEvents.length;cnt++){
-                    count++;
-                    log.info("Event : " + count + ",currentDate : " + inEvents[cnt].getData(1));
-
-                }
+                Assert.assertEquals(1.56, inEvents[0].getData()[1]);
+                System.out.println("Event : " + count + ",uniqueId : " + inEvents[0].getData(3));
+                count = count + inEvents.length;
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        inputHandler.send(new Object[]{"XYZ", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2", 1.56d, 60l, 6});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        junit.framework.Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
     }
 }

@@ -49,30 +49,23 @@ public class CurrentTimeFunctionExtensionTestCase {
         log.info("CurrentTimeFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , " +
-                "str:currentTime() as currentTime" +" insert into outputStream;");
+        String inStreamDefinition = "@config(async = 'true')" +
+                "define stream inputStream (symbol string, price long, volume long);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream select symbol , time:currentTime() as currentTime "+
+                "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    log.info("Event : " + count + ",currentTime : " + inEvents[0].getData(1));
-                    System.out.println("Event : " + count + ",currentTime : " + inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    log.info("Event : " + count + ",currentTime : " + inEvents[0].getData(1));
-                    System.out.println("Event : " + count + ",currentTime : " + inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    log.info("Event : " + count + ",currentTime : " + inEvents[0].getData(1));
-                    System.out.println("Event : " + count + ",currentTime : " + inEvents[0].getData(1));
-                    eventArrived = true;
+
+                eventArrived = true;
+                for(int cnt=0;cnt<inEvents.length;cnt++){
+                    count++;
+                    log.info("Event : " + count + ",currentDate : " + inEvents[cnt].getData(1));
+
                 }
             }
         });
@@ -80,9 +73,7 @@ public class CurrentTimeFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        Thread.sleep(100);
         inputHandler.send(new Object[]{"XYZ", 60.5f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
