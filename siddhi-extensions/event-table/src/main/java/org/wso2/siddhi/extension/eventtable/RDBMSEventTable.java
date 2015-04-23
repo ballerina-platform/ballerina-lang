@@ -23,8 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.core.exception.EventTableConfigurationException;
-import org.wso2.siddhi.core.exception.EventTableConnectionException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -56,11 +55,11 @@ public class RDBMSEventTable implements EventTable {
         try {
             DBQueryHelper.loadConfiguration();
         } catch (CannotLoadConfigurationException e) {
-            log.error("Error while loading the rdbms configuration file", e);
+            throw new ExecutionPlanCreationException("Error while loading the rdbms configuration file", e);
         }
     }
 
-    public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) throws CannotLoadConfigurationException, EventTableConnectionException, EventTableConfigurationException {
+    public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
         int bloomFilterSize = RDBMSEventTableConstants.BLOOM_FILTER_SIZE;
@@ -74,7 +73,7 @@ public class RDBMSEventTable implements EventTable {
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
         if (dataSourceName == null || tableName == null) {
-            throw new EventTableConfigurationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
+            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
         }
 
         String cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
@@ -85,7 +84,7 @@ public class RDBMSEventTable implements EventTable {
             this.dbHandler = new DBHandler(dataSource, tableName, attributeList, tableDefinition);
 
             if ((con = dataSource.getConnection()) == null) {
-                throw new EventTableConnectionException("Error while making connection to database");
+                throw new ExecutionPlanCreationException("Error while making connection to database");
             }
 
             if (cacheType != null) {
@@ -106,7 +105,7 @@ public class RDBMSEventTable implements EventTable {
             }
 
         } catch (SQLException e) {
-            throw new EventTableConnectionException("Error while making connection to database", e);
+            throw new ExecutionPlanCreationException("Error while making connection to database", e);
         } finally {
             if (con != null) {
                 try {
