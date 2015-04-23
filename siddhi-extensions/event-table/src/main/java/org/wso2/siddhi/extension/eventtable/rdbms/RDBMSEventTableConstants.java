@@ -49,7 +49,7 @@ public interface RDBMSEventTableConstants {
     public static final String EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST = "isTableRowExist";
     public static final String EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER = " ";
 
-    public static final String ANNOTATION_ELEMENT_DATASOURCE_ID = "datasource.id";
+    public static final String ANNOTATION_ELEMENT_DATASOURCE_NAME = "datasource.name";
     public static final String ANNOTATION_ELEMENT_TABLE_NAME = "table.name";
     public static final String ANNOTATION_ELEMENT_CACHE = "cache";
     public static final String ANNOTATION_ELEMENT_CACHE_SIZE = "cache.size";

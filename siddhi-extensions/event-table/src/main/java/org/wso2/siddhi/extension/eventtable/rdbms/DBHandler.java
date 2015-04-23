@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DBConfiguration {
+public class DBHandler {
 
     private String tableName;
     private Map<String, String> elementMappings;
@@ -48,10 +48,10 @@ public class DBConfiguration {
     private StreamEventCloner streamEventCloner;
     private int bloomFilterSize;
     private int bloomFilterHashFunction;
-    private static final Logger log = Logger.getLogger(DBConfiguration.class);
+    private static final Logger log = Logger.getLogger(DBHandler.class);
 
 
-    public DBConfiguration(DataSource dataSource, String tableName, List<Attribute> attributeList, TableDefinition tableDefinition) {
+    public DBHandler(DataSource dataSource, String tableName, List<Attribute> attributeList, TableDefinition tableDefinition) {
 
         Connection con = null;
         this.dataSource = dataSource;
@@ -132,9 +132,8 @@ public class DBConfiguration {
                 stmt.executeUpdate();
                 con.commit();
 
-                if (isBloomFilterEnabled) {
-                    StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                    bloomFilterInsertionList.add(clonedEvent);
+                if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
+                    bloomFilterInsertionList.add(streamEvent);
                 }
                 if (cachingTable != null) {
                     cachingTable.add(streamEvent);
@@ -154,11 +153,6 @@ public class DBConfiguration {
 
     public void deleteEvent(Object[] obj, StreamEvent streamEvent) {
 
-        ArrayList<StreamEvent> bloomFilterDeletionList = null;
-        if (isBloomFilterEnabled) {
-            bloomFilterDeletionList = new ArrayList<StreamEvent>();
-        }
-
         PreparedStatement stmt = null;
         Connection con = null;
         try {
@@ -174,18 +168,13 @@ public class DBConfiguration {
             }
 
             if (isBloomFilterEnabled && deletedRows > 0) {
-                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                bloomFilterDeletionList.add(clonedEvent);
+                removeFromBloomFilters(streamEvent);
             }
 
         } catch (SQLException e) {
             log.error("Error while deleting the event", e);
         } finally {
             cleanUpConnections(stmt, con);
-        }
-
-        if (isBloomFilterEnabled) {
-            removeFromBloomFilters(bloomFilterDeletionList);
         }
     }
 
@@ -308,7 +297,7 @@ public class DBConfiguration {
         }
 
         try {
-            if (!tableExists) {
+            if (!tableExists && stmt != null) {
                 stmt.executeUpdate(executionInfo.getPreparedCreateTableStatement());
             }
         } catch (SQLException e) {
@@ -502,7 +491,7 @@ public class DBConfiguration {
 
     //Bloom Filter Operations  -----------------------------------------------------------------------------------------
 
-    public synchronized void buildBloomFilters() {
+    public void buildBloomFilters() {
         this.bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
         this.isBloomFilterEnabled = true;
         for (int i = 0; i < bloomFilters.length; i++) {
@@ -549,7 +538,7 @@ public class DBConfiguration {
         }
     }
 
-    public synchronized void addToBloomFilters(List<StreamEvent> eventList) {
+    public void addToBloomFilters(List<StreamEvent> eventList) {
         for (StreamEvent event : eventList) {
             for (int i = 0; i < attributeList.size(); i++) {
                 bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
@@ -557,11 +546,9 @@ public class DBConfiguration {
         }
     }
 
-    public synchronized void removeFromBloomFilters(List<StreamEvent> eventList) {
-        for (StreamEvent event : eventList) {
-            for (int i = 0; i < attributeList.size(); i++) {
-                bloomFilters[i].delete(new Key(event.getOutputData()[i].toString().getBytes()));
-            }
+    public void removeFromBloomFilters(StreamEvent event) {
+        for (int i = 0; i < attributeList.size(); i++) {
+            bloomFilters[i].delete(new Key(event.getOutputData()[i].toString().getBytes()));
         }
     }
 

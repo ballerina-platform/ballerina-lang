@@ -32,21 +32,21 @@ public class RDBMSOperator implements Operator {
 
     private Operator inMemoryEventTableOperator;
     private List<ExpressionExecutor> expressionExecutorList;
-    private DBConfiguration dbConfiguration;
+    private DBHandler dbHandler;
     private final boolean isBloomEnabled;
     private final int[] attributeIndexArray;
 
-    public RDBMSOperator(List<ExpressionExecutor> expressionExecutorList, DBConfiguration dbConfiguration, Operator inMemoryEventTableOperator) {
+    public RDBMSOperator(List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator) {
         this.expressionExecutorList = expressionExecutorList;
-        this.dbConfiguration = dbConfiguration;
+        this.dbHandler = dbHandler;
         this.inMemoryEventTableOperator = inMemoryEventTableOperator;
-        this.isBloomEnabled = dbConfiguration.isBloomFilterEnabled();
-        List<Attribute> conditionList = dbConfiguration.getExecutionInfo().getConditionQueryColumnOrder();
+        this.isBloomEnabled = dbHandler.isBloomFilterEnabled();
+        List<Attribute> conditionList = dbHandler.getExecutionInfo().getConditionQueryColumnOrder();
         attributeIndexArray = new int[conditionList.size()];
 
         int i = 0;
         for (Attribute attribute : conditionList) {
-            attributeIndexArray[i++] = getAttributeIndex(dbConfiguration, attribute.getName());
+            attributeIndexArray[i++] = getAttributeIndex(dbHandler, attribute.getName());
         }
     }
 
@@ -68,7 +68,7 @@ public class RDBMSOperator implements Operator {
                 obj = new Object[]{};
             }
 
-            dbConfiguration.deleteEvent(obj, deletingEvent);
+            dbHandler.deleteEvent(obj, deletingEvent);
         }
     }
 
@@ -86,13 +86,13 @@ public class RDBMSOperator implements Operator {
                 obj[count] = value;
                 count++;
             }
-            dbConfiguration.updateEvent(obj);
+            dbHandler.updateEvent(obj);
         }
     }
 
     @Override
     public Finder cloneFinder() {
-        return new RDBMSOperator(expressionExecutorList, dbConfiguration, inMemoryEventTableOperator);
+        return new RDBMSOperator(expressionExecutorList, dbHandler, inMemoryEventTableOperator);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class RDBMSOperator implements Operator {
         } else {
             obj = new Object[]{};
         }
-        return dbConfiguration.selectEvent(obj);
+        return dbHandler.selectEvent(obj);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class RDBMSOperator implements Operator {
                 Object value = expressionExecutor.execute(matchingEvent);
                 obj[count] = value;
                 if (isBloomEnabled) {
-                    boolean mightContain = dbConfiguration.getBloomFilters()[attributeIndexArray[count]].membershipTest(new Key(value.toString().getBytes()));
+                    boolean mightContain = dbHandler.getBloomFilters()[attributeIndexArray[count]].membershipTest(new Key(value.toString().getBytes()));
                     if (!mightContain) {
                         return false;
                     }
@@ -134,7 +134,7 @@ public class RDBMSOperator implements Operator {
         } else {
             obj = new Object[]{};
         }
-        return dbConfiguration.checkExistence(obj);
+        return dbHandler.checkExistence(obj);
     }
 
     public Operator getInMemoryEventTableOperator() {
@@ -142,9 +142,9 @@ public class RDBMSOperator implements Operator {
     }
 
 
-    private static int getAttributeIndex(DBConfiguration dbConfiguration, String attributeName) {
+    private static int getAttributeIndex(DBHandler dbHandler, String attributeName) {
         int i = 0;
-        for (Attribute attribute : dbConfiguration.getAttributeList()) {
+        for (Attribute attribute : dbHandler.getAttributeList()) {
             if (attribute.getName().equals(attributeName)) {
                 return i;
             }

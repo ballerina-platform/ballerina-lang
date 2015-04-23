@@ -81,9 +81,7 @@ public class CachingTable {
 
 
     public synchronized void delete(StreamEvent deletingEventChunk) {
-        StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(deletingEventChunk);
-        cacheManager.delete(clonedEvent);
-
+        cacheManager.delete(deletingEventChunk);
         if (log.isTraceEnabled()) {
             log.trace("list " + elementId + " size " + list.size());
         }

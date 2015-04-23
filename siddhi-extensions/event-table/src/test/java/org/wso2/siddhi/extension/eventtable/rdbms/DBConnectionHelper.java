@@ -42,13 +42,13 @@ public class DBConnectionHelper {
         return dbConnectionHelper;
     }
 
-    public void clearDatabaseTable(DataSource dataSource) {
+    public void clearDatabaseTable(DataSource dataSource,String tableName) {
         PreparedStatement stmt = null;
         Connection con = null;
         try {
             con = dataSource.getConnection();
             con.setAutoCommit(false);
-            stmt = con.prepareStatement("DELETE FROM " + RDBMSTestConstants.TABLE_NAME + "");
+            stmt = con.prepareStatement("DELETE FROM " + tableName + "");
             stmt.executeUpdate();
             con.commit();
 
