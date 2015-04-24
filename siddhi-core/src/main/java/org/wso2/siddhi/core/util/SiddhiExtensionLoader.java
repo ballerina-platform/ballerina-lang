@@ -35,7 +35,7 @@ public class SiddhiExtensionLoader {
      * Helper method to load the siddhi extensions
      */
     public static Map<String, Class> loadSiddhiExtensions() {
-        String classPath = System.getProperty(CLASS_PATH,".");
+        String classPath = System.getProperty(CLASS_PATH);
         if (classPath == null) {
             classPath = ".";
         } else {
@@ -57,7 +57,7 @@ public class SiddhiExtensionLoader {
                 try {
                     classMap.put(info[0].trim(), Class.forName(info[1].trim()));
                 } catch (ClassNotFoundException e) {
-                    log.error("Cannot load Siddhi extension " + info[1].trim(), e);
+                    log.debug("Cannot load Siddhi extension " + extension);
                 }
             }
         }
