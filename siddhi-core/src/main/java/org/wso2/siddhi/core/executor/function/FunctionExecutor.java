@@ -16,6 +16,7 @@ package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -29,15 +30,21 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     private int attributeSize;
 
     public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
-        this.attributeExpressionExecutors = attributeExpressionExecutors;
-        attributeSize = attributeExpressionExecutors.length;
-        executionPlanContext.addEternalReferencedHolder(this);
-        if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        try {
+            this.executionPlanContext = executionPlanContext;
+            this.attributeExpressionExecutors = attributeExpressionExecutors;
+            attributeSize = attributeExpressionExecutors.length;
+            executionPlanContext.addEternalReferencedHolder(this);
+            if (elementId == null) {
+                elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            }
+            executionPlanContext.getSnapshotService().addSnapshotable(this);
+            init(attributeExpressionExecutors, executionPlanContext);
+        }catch (ExecutionPlanCreationException e){
+            throw e;
+        }catch (Throwable t){
+            throw new ExecutionPlanCreationException(t);
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
-        init(attributeExpressionExecutors, executionPlanContext);
     }
 
     @Override

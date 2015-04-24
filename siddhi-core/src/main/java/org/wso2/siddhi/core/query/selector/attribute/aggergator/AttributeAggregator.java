@@ -16,6 +16,7 @@ package org.wso2.siddhi.core.query.selector.attribute.aggergator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -30,6 +31,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
     private int attributeSize;
 
     public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+     try{
         this.executionPlanContext = executionPlanContext;
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.attributeSize = attributeExpressionExecutors.length;
@@ -39,6 +41,11 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
         }
         executionPlanContext.getSnapshotService().addSnapshotable(this);
         init(attributeExpressionExecutors, executionPlanContext);
+     } catch (ExecutionPlanCreationException e) {
+         throw e;
+     } catch (Throwable t) {
+         throw new ExecutionPlanCreationException(t);
+     }
     }
 
     public AttributeAggregator cloneAggregator(String key) {
