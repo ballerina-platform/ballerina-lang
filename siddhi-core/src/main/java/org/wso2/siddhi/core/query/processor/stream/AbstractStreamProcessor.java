@@ -21,6 +21,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -47,28 +48,35 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
 
-    public AbstractDefinition initProcessor(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.inputDefinition = inputDefinition;
-        this.attributeExpressionExecutors = attributeExpressionExecutors;
-        this.executionPlanContext = executionPlanContext;
-        this.attributeExpressionLength = attributeExpressionExecutors.length;
-        if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
-        this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+    public AbstractDefinition initProcessor(AbstractDefinition inputDefinition,
+            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+        try {
+            this.inputDefinition = inputDefinition;
+            this.attributeExpressionExecutors = attributeExpressionExecutors;
+            this.executionPlanContext = executionPlanContext;
+            this.attributeExpressionLength = attributeExpressionExecutors.length;
+            if (elementId == null) {
+                elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            }
+            executionPlanContext.getSnapshotService().addSnapshotable(this);
+            this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
 
-        executionPlanContext.addEternalReferencedHolder(this);
+            executionPlanContext.addEternalReferencedHolder(this);
 
-        StreamDefinition outputDefinition = StreamDefinition.id(inputDefinition.getId());
-        for (Attribute attribute : inputDefinition.getAttributeList()) {
-            outputDefinition.attribute(attribute.getName(), attribute.getType());
-        }
-        for (Attribute attribute : additionalAttributes) {
-            outputDefinition.attribute(attribute.getName(), attribute.getType());
-        }
+            StreamDefinition outputDefinition = StreamDefinition.id(inputDefinition.getId());
+            for (Attribute attribute : inputDefinition.getAttributeList()) {
+                outputDefinition.attribute(attribute.getName(), attribute.getType());
+            }
+            for (Attribute attribute : additionalAttributes) {
+                outputDefinition.attribute(attribute.getName(), attribute.getType());
+            }
 
-        return outputDefinition;
+            return outputDefinition;
+        } catch (ExecutionPlanCreationException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new ExecutionPlanCreationException(t);
+        }
     }
 
     /**
@@ -79,14 +87,16 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param executionPlanContext         the context of the execution plan
      * @return the additional output attributes introduced by the function
      */
-    protected abstract List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+    protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
+            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         try {
             processEventChunk(complexEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
         } catch (RuntimeException e) {
-            log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass().getCanonicalName() + ", " + e.getMessage(), e);
+            log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass()
+                    .getCanonicalName() + ", " + e.getMessage(), e);
         }
     }
 
@@ -99,7 +109,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param complexEventPopulater helps to populate the events with the resultant attributes
      */
     protected abstract void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor,
-                                              StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
+            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
 
     public void setNextProcessor(Processor processor) {
         this.nextProcessor = processor;
