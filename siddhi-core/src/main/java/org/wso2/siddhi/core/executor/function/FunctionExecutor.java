@@ -40,8 +40,6 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
             }
             executionPlanContext.getSnapshotService().addSnapshotable(this);
             init(attributeExpressionExecutors, executionPlanContext);
-        }catch (ExecutionPlanCreationException e){
-            throw e;
         }catch (Throwable t){
             throw new ExecutionPlanCreationException(t);
         }
