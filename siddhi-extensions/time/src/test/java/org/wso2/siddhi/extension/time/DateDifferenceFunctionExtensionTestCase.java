@@ -55,7 +55,7 @@ public class DateDifferenceFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , time:dateDiff(dateValue1,dateValue2,dateFormat1,dateFormat2) as dateDifference," +
-                "time:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) as dateDifferenceInUnix " +
+                "time:dateDiff(timestampInMilliseconds1,timestampInMilliseconds2) as dateDifferenceInMilliseconds " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -68,7 +68,7 @@ public class DateDifferenceFunctionExtensionTestCase {
                 for(int cnt=0;cnt<inEvents.length;cnt++){
                     count++;
                     log.info("Event : " + count + ",dateDifference : " + inEvents[cnt].getData(1) +"," +
-                            "dateDifferenceInUnix : "+inEvents[cnt].getData(2) );
+                            "dateDifferenceInMilliseconds : "+inEvents[cnt].getData(2) );
 
                 }
             }
@@ -82,7 +82,7 @@ public class DateDifferenceFunctionExtensionTestCase {
                 "2014-10-9 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,1412841224000L});
         inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",
                 "2013-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss",1415692424000L,1384156424000L});
-        Thread.sleep(100);
+        Thread.sleep(1000);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();

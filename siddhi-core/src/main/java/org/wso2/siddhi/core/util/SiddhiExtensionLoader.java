@@ -35,7 +35,12 @@ public class SiddhiExtensionLoader {
      * Helper method to load the siddhi extensions
      */
     public static Map<String, Class> loadSiddhiExtensions() {
-        String classPath = System.getProperty(CLASS_PATH, ".");
+        String classPath = System.getProperty(CLASS_PATH);
+        if (classPath == null) {
+            classPath = ".";
+        } else {
+            classPath += ":.";
+        }
         String[] classPathElements = classPath.split(":");
         Pattern pattern = Pattern.compile(SIDDHI_EXT);
         Collection<String> extensionsList = new ArrayList<String>();
@@ -47,12 +52,12 @@ public class SiddhiExtensionLoader {
         Map<String, Class> classMap = new HashMap<String, Class>();
 
         for (String extension : extensionsList) {
-            if(extension.matches(CLASS_EXT)) {
+            if (extension.matches(CLASS_EXT)) {
                 String[] info = extension.split("=");
                 try {
                     classMap.put(info[0].trim(), Class.forName(info[1].trim()));
                 } catch (ClassNotFoundException e) {
-                    log.error("Cannot load Siddhi extension " + info[1].trim(), e);
+                    log.debug("Cannot load Siddhi extension " + extension);
                 }
             }
         }

@@ -33,7 +33,7 @@ public abstract class AbstractExtensionHolder {
                 Class extension = extensions.get(extensionKey);
                 if (clazz.isAssignableFrom(extension)) {
                     if (extensionMap.containsKey(extensionKey)) {
-                        log.error("Extension class " + extension.getName() + " not loaded, as there is already an matching extension " + extensionKey + ", implemented at " + extensionMap.get(extensionKey).getName());
+                        log.error("Extension class " + extension.getName() + " not loaded, as there is already an matching extension '" + extensionKey + "' implemented as " + extensionMap.get(extensionKey).getName());
                     } else {
                         extensionMap.put(extensionKey, extension);
                     }
