@@ -51,6 +51,9 @@ public class RDBMSEventTable implements EventTable {
     private boolean isCachingEnabled;
     private static final Logger log = Logger.getLogger(RDBMSEventTable.class);
 
+    /*
+    Loads rdbms-table-config.xml file which provides DB mapping details
+     */
     static {
         try {
             DBQueryHelper.loadConfiguration();
@@ -59,6 +62,11 @@ public class RDBMSEventTable implements EventTable {
         }
     }
 
+    /**
+     * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
+     * @param tableDefinition Definition of event table
+     * @param executionPlanContext ExecutionPlan related meta information
+     */
     public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
@@ -122,11 +130,20 @@ public class RDBMSEventTable implements EventTable {
         return tableDefinition;
     }
 
+    /**
+     * Called when adding an event to the event table
+     * @param addingEventChunk input event list
+     */
     @Override
     public void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
         dbHandler.addEvent(addingEventChunk, cachedTable);
     }
 
+    /**
+     * Called when deleting an event chunk from event table
+     * @param deletingEventChunk Event list for deletion
+     * @param operator Operator that perform RDBMS related operations
+     */
     @Override
     public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator) {
         operator.delete(deletingEventChunk, null);
@@ -135,6 +152,11 @@ public class RDBMSEventTable implements EventTable {
         }
     }
 
+    /**
+     * Called when updating the event table entries
+     * @param updatingEventChunk Event list that needs to be updated
+     * @param operator Operator that perform RDBMS related operations
+     */
     @Override
     public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition) {
         operator.update(updatingEventChunk, null, null);
@@ -143,6 +165,11 @@ public class RDBMSEventTable implements EventTable {
         }
     }
 
+    /**
+     * Called when having "in" condition, to check the existence of the event
+     * @param matchingEvent Event that need to be check for existence
+     * @param finder Operator that perform RDBMS related search
+     */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Finder finder) {
         if (isCachingEnabled) {
@@ -151,17 +178,26 @@ public class RDBMSEventTable implements EventTable {
         return finder.contains(matchingEvent, null);
     }
 
+    /**
+     * Called to construct a operator to perform delete and update operations
+     */
     @Override
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return RDBMSOperatorParser.parse(dbHandler, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);
     }
 
 
+    /**
+     * Called to find a event from event table
+     */
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         return finder.find(matchingEvent, null, null);
     }
 
+    /**
+     * Called to construct a operator to perform search operations
+     */
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return RDBMSOperatorParser.parse(dbHandler, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);

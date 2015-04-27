@@ -30,6 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class that reads the rdbms-table-config.xml and assign all the db mappings
+ */
 public class DBQueryHelper {
 
     private static Map<String, Map<String, String>> dbTypeMappings;

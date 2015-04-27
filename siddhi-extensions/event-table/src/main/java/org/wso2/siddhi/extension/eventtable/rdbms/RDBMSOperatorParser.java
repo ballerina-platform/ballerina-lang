@@ -46,6 +46,9 @@ public class RDBMSOperatorParser {
     private RDBMSOperatorParser() {
     }
 
+    /**
+     * Method that constructs the Operator for RDBMS related operations
+     */
     public static Operator parse(DBHandler dbHandler, Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
 
@@ -147,6 +150,9 @@ public class RDBMSOperatorParser {
     }
 
 
+    /**
+     * Method called to get the attribute object for attribute name
+     */
     private static Attribute getAttribute(DBHandler dbHandler, String attributeName) {
         for (Attribute attribute : dbHandler.getAttributeList()) {
             if (attribute.getName().equals(attributeName)) {
@@ -157,6 +163,9 @@ public class RDBMSOperatorParser {
         return null;
     }
 
+    /**
+     * Method which constructs the update query string
+     */
     private static StringBuilder getUpdateQueryAttributes(List<Attribute> updateConditionAttributeList, Map<String, String> elementMappings) {
 
         //Constructing (eg: information = ?  , latitude = ?) type values : column_values
@@ -178,6 +187,9 @@ public class RDBMSOperatorParser {
     }
 
 
+    /**
+     * Create necessary executors based on the Siddhi query in recursive manner
+     */
     private static void buildConditionQuery(Map<String, Boolean> isTableStreamMap, Expression expression, StringBuilder conditionBuilder, List<Attribute> conditionAttributeList, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int matchingStreamIndex,
                                             Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> variableExpressionExecutors,
                                             ExecutionPlanContext executionPlanContext) {
@@ -294,6 +306,9 @@ public class RDBMSOperatorParser {
     }
 
 
+    /**
+     * Method which creates the operator to perform event table cache related operations
+     */
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
 
