@@ -59,7 +59,7 @@ public abstract class AbstractDefinition implements Serializable {
     protected void checkAttribute(String attributeName) {
         for (Attribute attribute : attributeList) {
             if (attribute.getName().equals(attributeName)) {
-                throw new DuplicateAttributeException(attributeName + " is already defined for with type " + attribute.getType() + " for " + id + "; " + this.toString());
+                throw new DuplicateAttributeException("'"+attributeName + "' is already defined for with type '" + attribute.getType() + "' for '" + id + "'; " + this.toString());
             }
         }
     }
@@ -70,7 +70,7 @@ public abstract class AbstractDefinition implements Serializable {
                 return attribute.getType();
             }
         }
-        throw new AttributeNotExistException("Cannot find attribute type as " + attributeName + " does not exist in " + id + "; " + this.toString());
+        throw new AttributeNotExistException("Cannot find attribute type as '" + attributeName + "' does not exist in '" + id + "'; " + this.toString());
     }
 
     public int getAttributePosition(String attributeName) {
@@ -80,7 +80,7 @@ public abstract class AbstractDefinition implements Serializable {
                 return i;
             }
         }
-        throw new AttributeNotExistException("Cannot get attribute position as " + attributeName + " does not exist in " + id + "; " + this.toString());
+        throw new AttributeNotExistException("Cannot get attribute position as '" + attributeName + "' does not exist in '" + id + "'; " + this.toString());
     }
 
     public String[] getAttributeNameArray() {
