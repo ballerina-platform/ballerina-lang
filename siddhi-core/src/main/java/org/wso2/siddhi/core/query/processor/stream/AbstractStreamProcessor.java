@@ -72,8 +72,6 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             }
 
             return outputDefinition;
-        } catch (ExecutionPlanCreationException e) {
-            throw e;
         } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
         }

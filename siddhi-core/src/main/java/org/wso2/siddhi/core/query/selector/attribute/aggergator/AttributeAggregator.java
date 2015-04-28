@@ -41,8 +41,6 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
         }
         executionPlanContext.getSnapshotService().addSnapshotable(this);
         init(attributeExpressionExecutors, executionPlanContext);
-     } catch (ExecutionPlanCreationException e) {
-         throw e;
      } catch (Throwable t) {
          throw new ExecutionPlanCreationException(t);
      }
