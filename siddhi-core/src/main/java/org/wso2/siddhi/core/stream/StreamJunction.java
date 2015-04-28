@@ -206,7 +206,7 @@ public class StreamJunction {
     public synchronized void subscribe(Receiver receiver) {
         //to have reverse order at the sequence/pattern processors
         if (!receivers.contains(receiver)) {
-            receivers.add(0, receiver);
+            receivers.add(receiver);
         }
     }
 
