@@ -36,7 +36,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     private ComplexEventChunk<StreamEvent> currentStreamEventChunk;
     protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
-
+    protected int[] eventSequence;
 
     public MultiProcessStreamReceiver(String streamId, int processCount) {
         super(streamId);
@@ -46,6 +46,10 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         streamEventPools = new StreamEventPool[processCount];
         streamEventConverters = new StreamEventConverter[processCount];
         currentStreamEventChunk = new ComplexEventChunk<StreamEvent>();
+        eventSequence= new int[processCount];
+        for (int i=0;i<eventSequence.length;i++){
+            eventSequence[i]=i;
+        }
 
     }
 
@@ -58,13 +62,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         ComplexEvent aComplexEvent = complexEvent;
         while (aComplexEvent != null) {
             stabilizeStates();
-            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-//            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
-                StreamEventConverter aStreamEventConverter = streamEventConverters[i];
-                StreamEventPool aStreamEventPool = streamEventPools[i];
+            for (int anEventSequence : eventSequence) {
+                StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+                StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
                 aStreamEventConverter.convertStreamEvent(aComplexEvent, borrowedEvent);
-                processAndClear(i, borrowedEvent);
+                processAndClear(anEventSequence, borrowedEvent);
             }
             aComplexEvent = aComplexEvent.getNext();
         }
@@ -73,13 +76,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     @Override
     public void receive(Event event) {
         stabilizeStates();
-//        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-        for (int i = metaStreamEvents.length - 1; i > -1; i--) {
-            StreamEventConverter aStreamEventConverter = streamEventConverters[i];
-            StreamEventPool aStreamEventPool = streamEventPools[i];
+        for (int anEventSequence : eventSequence) {
+            StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+            StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
             StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
             aStreamEventConverter.convertEvent(event, borrowedEvent);
-            processAndClear(i, borrowedEvent);
+            processAndClear(anEventSequence, borrowedEvent);
         }
     }
 
@@ -87,13 +89,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     public void receive(Event[] events) {
         for (Event event : events) {
             stabilizeStates();
-//            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
-                StreamEventConverter aStreamEventConverter = streamEventConverters[i];
-                StreamEventPool aStreamEventPool = streamEventPools[i];
+            for (int anEventSequence : eventSequence) {
+                StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+                StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
                 aStreamEventConverter.convertEvent(event, borrowedEvent);
-                processAndClear(i, borrowedEvent);
+                processAndClear(anEventSequence, borrowedEvent);
             }
         }
     }
@@ -104,13 +105,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         if (endOfBatch) {
             for (Event aEvent : eventBuffer) {
                 stabilizeStates();
-//                for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-                for (int i = metaStreamEvents.length - 1; i > -1; i--) {
-                    StreamEventConverter aStreamEventConverter = streamEventConverters[i];
-                    StreamEventPool aStreamEventPool = streamEventPools[i];
+                for (int anEventSequence : eventSequence) {
+                    StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+                    StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                     StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
                     aStreamEventConverter.convertEvent(aEvent, borrowedEvent);
-                    processAndClear(i, borrowedEvent);
+                    processAndClear(anEventSequence, borrowedEvent);
                 }
             }
             eventBuffer.clear();
@@ -120,13 +120,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     @Override
     public void receive(long timeStamp, Object[] data) {
         stabilizeStates();
-//        for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-        for (int i = metaStreamEvents.length - 1; i > -1; i--) {
-            StreamEventConverter aStreamEventConverter = streamEventConverters[i];
-            StreamEventPool aStreamEventPool = streamEventPools[i];
+        for (int anEventSequence : eventSequence) {
+            StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+            StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
             StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
             aStreamEventConverter.convertData(timeStamp, data, borrowedEvent);
-            processAndClear(i, borrowedEvent);
+            processAndClear(anEventSequence, borrowedEvent);
         }
     }
 

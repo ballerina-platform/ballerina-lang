@@ -66,10 +66,12 @@ public class OutputParser {
             EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
 
-                TableDefinition eventTableDefinition = eventTable.getTableDefinition();
-                for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
-                    if (!eventTableDefinition.getAttributeList().contains(attribute)) {
-                        throw new ExecutionPlanCreationException("Attribute " + attribute + " does not exist on Event Table " + eventTableDefinition);
+                if(outStream instanceof UpdateStream) {
+                    TableDefinition eventTableDefinition = eventTable.getTableDefinition();
+                    for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
+                        if (!eventTableDefinition.getAttributeList().contains(attribute)) {
+                            throw new ExecutionPlanCreationException("Attribute " + attribute + " does not exist on Event Table " + eventTableDefinition);
+                        }
                     }
                 }
 

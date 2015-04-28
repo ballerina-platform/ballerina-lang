@@ -26,6 +26,12 @@ public class SequenceMultiProcessStreamReceiver extends MultiProcessStreamReceiv
     public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime) {
         super(streamId, processCount);
         this.stateStreamRuntime = stateStreamRuntime;
+        eventSequence = new int[processCount];
+        int count=0;
+        for (int i = eventSequence.length - 1; i >= 0; i--) {
+            eventSequence[count] = i;
+            count++;
+        }
     }
 
     public SequenceMultiProcessStreamReceiver clone(String key) {
