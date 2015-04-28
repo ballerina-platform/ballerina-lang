@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class which act as layer between the database and Siddhi. This class performs all the RDBMS related operations & Blooms Filter
+ */
 public class DBHandler {
 
     private String tableName;

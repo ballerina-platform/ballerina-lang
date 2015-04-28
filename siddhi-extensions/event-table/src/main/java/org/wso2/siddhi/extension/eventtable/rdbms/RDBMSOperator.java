@@ -28,6 +28,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
+/**
+ * Operator which is related to RDBMS operations
+ */
 public class RDBMSOperator implements Operator {
 
     private Operator inMemoryEventTableOperator;

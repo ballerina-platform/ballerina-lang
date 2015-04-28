@@ -33,6 +33,9 @@ import java.util.Map;
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
 
+/**
+ * Operator which does In-memory cache related operations
+ */
 public class CacheInMemoryOperator implements Operator {
     private FinderStateEvent event;
     private ExpressionExecutor expressionExecutor;
