@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class DeleteFromTableTestCase {
@@ -231,5 +232,62 @@ public class DeleteFromTableTestCase {
         executionPlanRuntime.shutdown();
 
     }
+
+    @Test
+    public void deleteFromTableTest5() throws InterruptedException {
+        log.info("deleteFromTableTest3");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, vol long); " +
+                "define stream DeleteStockStream (symbol string, price float, vol long); " +
+                "define stream CountStockStream (symbol string); " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "select symbol, price, vol as volume " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from DeleteStockStream[vol>=100] " +
+                "delete StockTable " +
+                "   on StockTable.symbol==symbol ;" +
+                ""+
+                "@info(name = 'query3') " +
+                "from CountStockStream#window.length(0) join StockTable" +
+                " on CountStockStream.symbol==StockTable.symbol " +
+                "select CountStockStream.symbol as symbol " +
+                "insert into CountResultsStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+        InputHandler countStockStream = executionPlanRuntime.getInputHandler("CountStockStream");
+
+
+        executionPlanRuntime.addCallback("CountResultsStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                inEventCount+=events.length;
+            }
+        });
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+        countStockStream.send(new Object[]{"WSO2"});
+
+        Thread.sleep(500);
+        Assert.assertEquals(2,inEventCount);
+        executionPlanRuntime.shutdown();
+
+    }
+
 
 }

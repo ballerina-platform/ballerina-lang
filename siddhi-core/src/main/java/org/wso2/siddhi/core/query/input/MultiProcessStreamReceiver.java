@@ -58,8 +58,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         ComplexEvent aComplexEvent = complexEvent;
         while (aComplexEvent != null) {
             stabilizeStates();
-//            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
-            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
+            for (int i = 0, size = metaStreamEvents.length; size > i; i++) {
+//            for (int i = metaStreamEvents.length - 1; i > -1; i--) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[i];
                 StreamEventPool aStreamEventPool = streamEventPools[i];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
