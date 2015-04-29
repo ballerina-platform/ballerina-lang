@@ -46,7 +46,9 @@ public class RegExFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , regex:find(symbol, regex) as aboutWSO2 " +
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , regex:find(regex, symbol) as aboutWSO2 " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -54,17 +56,20 @@ public class RegExFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(true, inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals(true, inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals(true, inEvents[2].getData(1));
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
+                    if (count == 4) {
+                        Assert.assertEquals(false, inEvent.getData(1));
+                    }
                     eventArrived = true;
                 }
             }
@@ -75,9 +80,9 @@ public class RegExFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"21 products are produced by WSO2 currently", 60.5f, "\\d\\d(.*)WSO2"});
         inputHandler.send(new Object[]{"WSO2 is situated in trace and its a middleware company", 60.5f, "WSO2(.*)middleware(.*)"});
         inputHandler.send(new Object[]{"WSO2 is situated in trace and its a middleware company", 60.5f, "WSO2(.*)middleware"});
-
+        inputHandler.send(new Object[]{"21 products are produced by WSO2 currently", 60.5f, "\\d(.*)WSO22"});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(4, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -88,7 +93,9 @@ public class RegExFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string, startingIndex int);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , regex:find(symbol, regex, startingIndex) as aboutWSO2 " +
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , regex:find(regex, symbol, startingIndex) as aboutWSO2 " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -96,13 +103,14 @@ public class RegExFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(true, inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals(false, inEvents[1].getData(1));
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(false, inEvent.getData(1));
+                    }
                     eventArrived = true;
                 }
             }
@@ -124,7 +132,9 @@ public class RegExFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , regex:matches(symbol, regex) as aboutWSO2 " +
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , regex:matches(regex, symbol) as aboutWSO2 " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -132,17 +142,17 @@ public class RegExFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(false, inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals(true, inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals(false, inEvents[2].getData(1));
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(false, inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals(false, inEvent.getData(1));
+                    }
                     eventArrived = true;
                 }
             }
@@ -165,7 +175,9 @@ public class RegExFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , regex:lookingAt(symbol, regex) as aboutWSO2 " +
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , regex:lookingAt(regex, symbol) as aboutWSO2 " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -173,17 +185,17 @@ public class RegExFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals(true, inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals(false, inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals(true, inEvents[2].getData(1));
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(false, inEvent.getData(1));
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals(true, inEvent.getData(1));
+                    }
                     eventArrived = true;
                 }
             }
@@ -206,7 +218,9 @@ public class RegExFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string, group int);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , regex:group(symbol, regex, group) as aboutWSO2 " +
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol , regex:group(regex, symbol, group) as aboutWSO2 " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -214,17 +228,20 @@ public class RegExFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-                if (count == 1) {
-                    Assert.assertEquals("WSO2 employees", inEvents[0].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 2) {
-                    Assert.assertEquals("21", inEvents[1].getData(1));
-                    eventArrived = true;
-                }
-                if (count == 3) {
-                    Assert.assertEquals(" is situated in trace and its a ", inEvents[2].getData(1));
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals("WSO2 employees", inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals("21", inEvent.getData(1));
+                    }
+                    if (count == 3) {
+                        Assert.assertEquals(" is situated in trace and its a ", inEvent.getData(1));
+                    }
+                    if (count == 4) {
+                        Assert.assertEquals(null, inEvent.getData(1));
+                    }
                     eventArrived = true;
                 }
             }
@@ -235,8 +252,9 @@ public class RegExFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"21 products are produced within 10 years by WSO2 currently by WSO2 employees", 60.5f, "(\\d\\d)(.*)(WSO2.*)", 3});
         inputHandler.send(new Object[]{"21 products are produced within 10 years by WSO2 currently by WSO2 employees", 60.5f, "(\\d\\d)(.*)(WSO2.*)", 1});
         inputHandler.send(new Object[]{"WSO2 is situated in trace and its a middleware company", 60.5f, "WSO2(.*)middleware", 1});
+        inputHandler.send(new Object[]{"WSO2 is situated in trace and its a middleware company", 60.5f, "WSO2(.*)middleware", 2});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(4, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

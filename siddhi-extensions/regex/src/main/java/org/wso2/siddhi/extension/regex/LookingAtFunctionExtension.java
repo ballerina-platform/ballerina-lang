@@ -13,18 +13,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * lookingAt(string: input sequence, regex: regular expression pattern)
- * This method attempts to match the 'string', starting at the beginning, against the 'regex' pattern.
- * Accept Type(s): (STRING,STRING)
+ * lookingAt(regex, inputSequence)
+ * This method attempts to match the 'inputSequence', starting at the beginning, against the 'regex' pattern.
+ * regex - regular expression. eg: "\d\d(.*)WSO2"
+ * inputSequence - input sequence to be matched with the regular expression eg: "21 products are produced by WSO2 currently"
+ * Accept Type(s) for lookingAt(regex, inputSequence);
+ *         regex : STRING
+ *         inputSequence : STRING
  * Return Type(s): BOOLEAN
  */
 public class LookingAtFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     //state-variables
-    boolean isRegexConstant = false;
-    String regexConstant;
-    Pattern patternConstant;
+    private boolean isRegexConstant = false;
+    private String regexConstant;
+    private Pattern patternConstant;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -40,9 +44,9 @@ public class LookingAtFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of regex:lookingAt() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
-        if(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
+        if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
             isRegexConstant = true;
-            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
             patternConstant = Pattern.compile(regexConstant);
         }
     }
@@ -59,10 +63,10 @@ public class LookingAtFunctionExtension extends FunctionExecutor {
         if (data[1] == null) {
             throw new ExecutionPlanRuntimeException("Invalid input given to regex:lookingAt() function. Second argument cannot be null");
         }
-        String source = (String) data[0];
+        String source = (String) data[1];
 
         if(!isRegexConstant){
-            regex = (String) data[1];
+            regex = (String) data[0];
             pattern = Pattern.compile(regex);
             matcher = pattern.matcher(source);
             return matcher.lookingAt();
