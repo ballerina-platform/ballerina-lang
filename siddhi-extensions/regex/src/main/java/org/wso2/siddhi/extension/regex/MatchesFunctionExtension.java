@@ -32,9 +32,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * matches(string: input sequence, regex: regular expression pattern)
- * This method attempts to match the entire 'string' against the 'regex' pattern.
- * Accept Type(s): (STRING,STRING)
+ * matches(regex, inputSequence)
+ * This method attempts to match the entire 'inputSequence' against the 'regex' pattern.
+ * regex - regular expression. eg: "\d\d(.*)WSO2"
+ * inputSequence - input sequence to be matched with the regular expression eg: "21 products are produced by WSO2 currently"
+ * Accept Type(s) for matches(regex, inputSequence);
+ *         regex : STRING
+ *         inputSequence : STRING
  * Return Type(s): BOOLEAN
  */
 public class MatchesFunctionExtension extends FunctionExecutor{
@@ -42,9 +46,9 @@ public class MatchesFunctionExtension extends FunctionExecutor{
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     //state-variables
-    boolean isRegexConstant = false;
-    String regexConstant;
-    Pattern patternConstant;
+    private boolean isRegexConstant = false;
+    private String regexConstant;
+    private Pattern patternConstant;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -60,9 +64,9 @@ public class MatchesFunctionExtension extends FunctionExecutor{
             throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of regex:matches() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
-        if(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
+        if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
             isRegexConstant = true;
-            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
             patternConstant = Pattern.compile(regexConstant);
         }
     }
@@ -79,10 +83,10 @@ public class MatchesFunctionExtension extends FunctionExecutor{
         if (data[1] == null) {
             throw new ExecutionPlanRuntimeException("Invalid input given to regex:matches() function. Second argument cannot be null");
         }
-        String source = (String) data[0];
+        String source = (String) data[1];
 
         if(!isRegexConstant){
-            regex = (String) data[1];
+            regex = (String) data[0];
             pattern = Pattern.compile(regex);
             matcher = pattern.matcher(source);
             return matcher.matches();

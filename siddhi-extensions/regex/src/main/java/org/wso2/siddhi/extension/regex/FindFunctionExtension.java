@@ -30,19 +30,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * find(string: input sequence, regex: regular expression pattern)
- * find(string: input sequence, regex: regular expression pattern, startingIndex: specific starting index to match the regex pattern)
- * This method attempts to find the next sub-sequence of the 'string' that matches the 'regex' pattern.
- * Accept Type(s): (STRING,STRING)
+ * find(regex, inputSequence)
+ * find(regex, inputSequence, startingIndex)
+ * These methods attempts to find the next sub-sequence of the 'inputSequence' that matches the 'regex' pattern.
+ * regex - regular expression. eg: "\d\d(.*)WSO2"
+ * inputSequence - input sequence to be matched with the regular expression eg: "21 products are produced by WSO2 currently"
+ * startingIndex - starting index of the input sequence to start matching the given regex pattern eg: 1, 2
+ * Accept Type(s) for find(regex, inputSequence);
+ *         regex : STRING
+ *         inputSequence : STRING
+ * Accept Type(s) for find(regex, inputSequence, startingIndex);
+ *         regex : STRING
+ *         inputSequence : STRING
+ *         startingIndex : INT
  * Return Type(s): BOOLEAN
  */
 public class FindFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
 
     //state-variables
-    boolean isRegexConstant = false;
-    String regexConstant;
-    Pattern patternConstant;
+    private boolean isRegexConstant = false;
+    private String regexConstant;
+    private Pattern patternConstant;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -66,9 +75,9 @@ public class FindFunctionExtension extends FunctionExecutor {
             }
         }
 
-        if(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
+        if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
             isRegexConstant = true;
-            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
             patternConstant = Pattern.compile(regexConstant);
         }
     }
@@ -86,33 +95,32 @@ public class FindFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanRuntimeException("Invalid input given to regex:find() function. Second argument cannot be null");
         }
 
-        String source = (String) data[0];
+        String source = (String) data[1];
+
+        if(!isRegexConstant){
+            regex = (String) data[0];
+            pattern = Pattern.compile(regex);
+            matcher = pattern.matcher(source);
+
+        } else {
+            matcher = patternConstant.matcher(source);
+
+        }
+
 
         if(data.length == 2){
-            if(!isRegexConstant){
-                regex = (String) data[1];
-                pattern = Pattern.compile(regex);
-                matcher = pattern.matcher(source);
-                return matcher.find();
-
-            } else {
-                matcher = patternConstant.matcher(source);
-                return matcher.find();
-            }
+            return matcher.find();
         }else{
             if (data[2] == null) {
                 throw new ExecutionPlanRuntimeException("Invalid input given to regex:find() function. Second argument cannot be null");
             }
-            if(!isRegexConstant){
-                regex = (String) data[1];
-                pattern = Pattern.compile(regex);
-                matcher = pattern.matcher(source);
-                return matcher.find((Integer) data[2]);
-
-            } else {
-                matcher = patternConstant.matcher(source);
-                return matcher.find((Integer) data[2]);
+            int startingIndex;
+            try{
+                startingIndex = (Integer) data[2];
+            }catch(ClassCastException ex){
+                throw new ExecutionPlanRuntimeException("Invalid input given to regex:group() function. Third argument should be an integer");
             }
+            return matcher.find(startingIndex);
         }
     }
 

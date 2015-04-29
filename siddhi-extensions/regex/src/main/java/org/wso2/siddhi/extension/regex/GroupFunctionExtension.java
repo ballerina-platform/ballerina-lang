@@ -30,18 +30,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * group(string: input sequence, regex: regular expression pattern, groupId: the given group id of the regex expression)
+ * group(regex, inputSequence, groupId)
  * This method returns the input sub-sequence captured by the given group during the previous match operation.
- * Accept Type(s): (STRING,STRING,INT)
+ * regex - regular expression. eg: "\d\d(.*)WSO2"
+ * inputSequence - input sequence to be matched with the regular expression eg: "21 products are produced by WSO2 currently"
+ * groupId - the given group id of the regex expression eg: 0, 1, 2, etc.
+ * Accept Type(s) for group(regex, inputSequence, groupId);
+ *         regex : STRING
+ *         inputSequence : STRING
+ *         groupId : INT
  * Return Type(s): STRING
  */
 public class GroupFunctionExtension extends FunctionExecutor {
-    Attribute.Type returnType = Attribute.Type.BOOL;
+    Attribute.Type returnType = Attribute.Type.STRING;
 
     //state-variables
-    boolean isRegexConstant = false;
-    String regexConstant;
-    Pattern patternConstant;
+    private boolean isRegexConstant = false;
+    private String regexConstant;
+    private Pattern patternConstant;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -61,9 +67,9 @@ public class GroupFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:group() function, " +
                     "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
-        if(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
+        if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
             isRegexConstant = true;
-            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+            regexConstant = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
             patternConstant = Pattern.compile(regexConstant);
         }
     }
@@ -83,11 +89,16 @@ public class GroupFunctionExtension extends FunctionExecutor {
         if (data[2] == null) {
             throw new ExecutionPlanRuntimeException("Invalid input given to regex:group() function. Third argument cannot be null");
         }
-        String source = (String) data[0];
-        int groupId = (Integer) data[2];
+        String source = (String) data[1];
+        int groupId;
+        try{
+            groupId = (Integer) data[2];
+        }catch(ClassCastException ex){
+            throw new ExecutionPlanRuntimeException("Invalid input given to regex:group() function. Third argument should be an integer");
+        }
 
         if(!isRegexConstant){
-            regex = (String) data[1];
+            regex = (String) data[0];
             pattern = Pattern.compile(regex);
             matcher = pattern.matcher(source);
         } else {
@@ -119,12 +130,12 @@ public class GroupFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        return null;
+        return returnType;
     }
 
     @Override
     public Object[] currentState() {
-        return new Object[0];
+        return new Object[]{isRegexConstant, regexConstant, patternConstant};
     }
 
     @Override
