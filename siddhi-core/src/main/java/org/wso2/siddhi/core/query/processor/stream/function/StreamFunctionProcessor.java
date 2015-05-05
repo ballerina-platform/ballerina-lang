@@ -44,7 +44,6 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
                     }
                     outputData = process(inputData);
                     complexEventPopulater.populateComplexEvent(complexEvent, outputData);
-                    break;
             }
         }
         nextProcessor.process(complexEventChunk);
