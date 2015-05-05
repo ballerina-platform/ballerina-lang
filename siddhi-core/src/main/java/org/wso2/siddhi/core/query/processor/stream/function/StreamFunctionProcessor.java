@@ -32,9 +32,11 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
                 case 0:
                     outputData = process((Object) null);
                     complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                    break;
                 case 1:
                     outputData = process(attributeExpressionExecutors[0].execute(complexEvent));
                     complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                    break;
                 default:
                     Object[] inputData = new Object[attributeExpressionLength];
                     for (int i = 0; i < attributeExpressionLength; i++) {
