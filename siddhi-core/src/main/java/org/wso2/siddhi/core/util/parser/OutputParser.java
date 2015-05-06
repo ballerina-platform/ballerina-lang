@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
@@ -66,7 +67,7 @@ public class OutputParser {
             EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
 
-                if(outStream instanceof UpdateStream) {
+                if (outStream instanceof UpdateStream) {
                     TableDefinition eventTableDefinition = eventTable.getTableDefinition();
                     for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                         if (!eventTableDefinition.getAttributeList().contains(attribute)) {
@@ -84,11 +85,19 @@ public class OutputParser {
                 }
                 matchingMetaStreamEvent.addInputDefinition(matchingTableDefinition);
                 if (outStream instanceof DeleteStream) {
-                    Operator operator = eventTable.constructOperator(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                    return new DeleteTableCallback(eventTable, operator);
+                    try {
+                        Operator operator = eventTable.constructOperator(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
+                        return new DeleteTableCallback(eventTable, operator);
+                    } catch (ExecutionPlanValidationException e) {
+                        throw new ExecutionPlanCreationException("Cannot create delete for table '" + outStream.getId() + "', " + e.getMessage(), e);
+                    }
                 } else {
-                    Operator operator = eventTable.constructOperator(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                    return new UpdateTableCallback(eventTable, operator, matchingTableDefinition);
+                    try {
+                        Operator operator = eventTable.constructOperator(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
+                        return new UpdateTableCallback(eventTable, operator, matchingTableDefinition);
+                    } catch (ExecutionPlanValidationException e) {
+                        throw new ExecutionPlanCreationException("Cannot create update for table '" + outStream.getId() + "', " + e.getMessage(), e);
+                    }
                 }
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
@@ -189,5 +198,4 @@ public class OutputParser {
     }
 
 
-
-    }
+}
