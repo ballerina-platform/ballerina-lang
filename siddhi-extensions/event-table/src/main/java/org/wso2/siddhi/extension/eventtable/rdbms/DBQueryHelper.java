@@ -25,7 +25,7 @@ import org.wso2.siddhi.extension.eventtable.jaxbMappings.Mappings;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +57,11 @@ public class DBQueryHelper {
             jaxbContext = JAXBContext.newInstance(Mappings.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             ClassLoader classLoader = getClass().getClassLoader();
-            File configFile = new File(classLoader.getResource(RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE).getFile());
-            if (!configFile.exists()) {
-                log.error(RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE + " is not found in the classpath");
+            InputStream inputStream = classLoader.getResourceAsStream(RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE);
+            if (inputStream == null) {
+                throw new CannotLoadConfigurationException(RDBMSEventTableConstants.RDBMS_TABLE_CONFIG_FILE + " is not found in the classpath");
             }
-            Mappings mappings = (Mappings) unmarshaller.unmarshal(configFile);
+            Mappings mappings = (Mappings) unmarshaller.unmarshal(inputStream);
             Map<String, Mapping> dbMap = new HashMap<String, Mapping>();
             List<Mapping> mappingList = mappings.getMapping();
 
