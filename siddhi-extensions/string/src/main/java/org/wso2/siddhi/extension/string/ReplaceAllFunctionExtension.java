@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
- * replace_all(string, target, replacement)
+ * replaceAll(string, regex, replacement)
  * Replaces each substring of this string that matches the given expression with the given replacement.
  * Accept Type(s): (STRING,STRING,STRING)
  * Return Type(s): STRING
@@ -38,19 +38,19 @@ public class ReplaceAllFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:replace_all() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:replaceAll() function, " +
                     "required 3, but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:replace_all() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:replaceAll() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:replace_all() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:replaceAll() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:replace_all() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:replaceAll() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[2].getReturnType().toString());
         }
     }
@@ -58,23 +58,23 @@ public class ReplaceAllFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
         if (data[0] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:replace_all() function. First argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to str:replaceAll() function. First argument cannot be null");
         }
         if (data[1] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:replace_all() function. Second argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to str:replaceAll() function. Second argument cannot be null");
         }
         if (data[2] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:replace_all() function. Third argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to str:replaceAll() function. Third argument cannot be null");
         }
         String source = (String) data[0];
-        String target = (String) data[1];
+        String regex = (String) data[1];
         String replacement = (String) data[2];
-        return source.replaceAll(target, replacement);
+        return source.replaceAll(regex, replacement);
     }
 
     @Override
     protected Object execute(Object data) {
-        return null;  //Since the replace_all function take 3 parameters, this method does not get called. Hence, not implemented.
+        return null;  //Since the replaceAll function take 3 parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override

@@ -38,7 +38,7 @@ public class CoalesceFunctionExtension extends FunctionExecutor{
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         int attributeCount = 0;
         if (attributeExpressionExecutors.length == 0) {
-            throw new ExecutionPlanValidationException("str:charat() function requires at least two arguments, but found only " +
+            throw new ExecutionPlanValidationException("str:coalesce() function requires at least one argument, but found only " +
                     attributeExpressionExecutors.length);
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();

@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
- * charat(string , index)
+ * charAt(string , index)
  * Returns the char value in 'string' at the specified 'index'.
  * Accept Type(s): (STRING,INT)
  * Return Type(s): STRING

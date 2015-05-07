@@ -46,7 +46,7 @@ public class CharAtFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , str:charat(symbol,1) as charAt " +
+        String query = ("@info(name = 'query1') from inputStream select symbol , str:charAt(symbol,1) as charAt " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -89,7 +89,7 @@ public class CharAtFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long, times int);";
-        String query = ("@info(name = 'query1') from inputStream select symbol , str:charat(symbol,times) as charAt, times " +
+        String query = ("@info(name = 'query1') from inputStream select symbol , str:charAt(symbol,times) as charAt, times " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 

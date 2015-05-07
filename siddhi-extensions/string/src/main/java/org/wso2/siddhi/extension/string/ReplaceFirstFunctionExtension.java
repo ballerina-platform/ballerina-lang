@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
- * replace_first(string, regex, replacement)
+ * replaceFirst(string, regex, replacement)
  * Replaces the first substring of this string that matches the given expression with the given replacement.
  * Accept Type(s): (STRING,STRING,STRING)
  * Return Type(s): STRING
@@ -38,19 +38,19 @@ public class ReplaceFirstFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:replace_first() function, required 3, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:replaceFirst() function, required 3, " +
                     "but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:replace_first() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of str:replaceFirst() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:replace_first() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of str:replaceFirst() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:replace_first() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:replaceFirst() function, " +
                     "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[2].getReturnType().toString());
         }
     }
@@ -58,13 +58,13 @@ public class ReplaceFirstFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
         if (data[0] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:replace_first() function. First argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to str:replaceFirst() function. First argument cannot be null");
         }
         if (data[1] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:replace_first() function. Second argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to str:replaceFirst() function. Second argument cannot be null");
         }
         if (data[2] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:replace_first() function. Third argument cannot be null");
+            throw new ExecutionPlanRuntimeException("Invalid input given to str:replaceFirst() function. Third argument cannot be null");
         }
         String source = (String) data[0];
         String regex = (String) data[1];
@@ -74,7 +74,7 @@ public class ReplaceFirstFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        return null;  //Since the replace_first function take 3 parameters, this method does not get called. Hence, not implemented.
+        return null;  //Since the replaceFirst function take 3 parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override

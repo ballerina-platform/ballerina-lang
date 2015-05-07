@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
  * lower(string)
- * Coverts the capital letters in the input string to the equivalent simple letters.
+ * Converts the capital letters in the input string to the equivalent simple letters.
  * Accept Type(s): STRING
  * Return Type(s): STRING
  */

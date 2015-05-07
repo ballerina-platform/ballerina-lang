@@ -137,7 +137,7 @@ public class SubstrFunctionExtensionTestCase {
    * */
     @Test
     public void testSubstrFunctionExtension3() throws InterruptedException {
-        log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <int beginIndex>, <int length>)");
+        log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <string regex>)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
@@ -183,7 +183,7 @@ public class SubstrFunctionExtensionTestCase {
    * */
     @Test
     public void testSubstrFunctionExtension4() throws InterruptedException {
-        log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <int beginIndex>, <int length>)");
+        log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <string regex>, <int groupNumber>)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";

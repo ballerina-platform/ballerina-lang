@@ -48,7 +48,7 @@ public class ReplaceFirstFunctionExtensionTestCase {
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
 
         String query = (
-                "@info(name = 'query1') from inputStream select symbol , str:replace_first(symbol, 'hello', 'test') as replacedString " +
+                "@info(name = 'query1') from inputStream select symbol , str:replaceFirst(symbol, 'hello', 'test') as replacedString " +
                         "insert into outputStream;"
         );
 
@@ -95,7 +95,7 @@ public class ReplaceFirstFunctionExtensionTestCase {
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, target string, replacement string);";
 
         String query = (
-                "@info(name = 'query1') from inputStream select symbol , str:replace_first(symbol, target, replacement) as replacedString " +
+                "@info(name = 'query1') from inputStream select symbol , str:replaceFirst(symbol, target, replacement) as replacedString " +
                         "insert into outputStream;"
         );
 
@@ -143,7 +143,7 @@ public class ReplaceFirstFunctionExtensionTestCase {
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
 
         String query = (
-                "@info(name = 'query1') from inputStream select symbol , str:replace_first(symbol, 'WSO2(.*)A', 'XXXX') as replacedString " +
+                "@info(name = 'query1') from inputStream select symbol , str:replaceFirst(symbol, 'WSO2(.*)A', 'XXXX') as replacedString " +
                         "insert into outputStream;"
         );
 

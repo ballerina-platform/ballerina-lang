@@ -48,7 +48,7 @@ public class ReplaceAllFunctionExtensionTestCase {
         String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
 
         String query = (
-                "@info(name = 'query1') from inputStream select symbol , str:replace_all(symbol, 'hello', 'test') as replacedString " +
+                "@info(name = 'query1') from inputStream select symbol , str:replaceAll(symbol, 'hello', 'test') as replacedString " +
                         "insert into outputStream;"
         );
 
@@ -89,13 +89,13 @@ public class ReplaceAllFunctionExtensionTestCase {
 
     @Test
     public void testReplaceAllFunctionExtension2() throws InterruptedException {
-        log.info("ReplaceAllFunctionExtension TestCase, variable target and replacement strings scenario");
+        log.info("ReplaceAllFunctionExtension TestCase, variable regex and replacement strings scenario");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, target string, replacement string);";
+        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, regex string, replacement string);";
 
         String query = (
-                "@info(name = 'query1') from inputStream select symbol , str:replace_all(symbol, target, replacement) as replacedString " +
+                "@info(name = 'query1') from inputStream select symbol , str:replaceAll(symbol, regex, replacement) as replacedString " +
                         "insert into outputStream;"
         );
 

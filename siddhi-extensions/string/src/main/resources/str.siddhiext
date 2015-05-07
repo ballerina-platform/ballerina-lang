@@ -1,12 +1,12 @@
-charat=org.wso2.siddhi.extension.string.CharAtFunctionExtension
+charAt=org.wso2.siddhi.extension.string.CharAtFunctionExtension
 coalesce=org.wso2.siddhi.extension.string.CoalesceFunctionExtension
 concat=org.wso2.siddhi.extension.string.ConcatFunctionExtension
 length=org.wso2.siddhi.extension.string.LengthFunctionExtension
 lower=org.wso2.siddhi.extension.string.LowerFunctionExtension
 regexp=org.wso2.siddhi.extension.string.RegexpFunctionExtension
 repeat=org.wso2.siddhi.extension.string.RepeatFunctionExtension
-replace_all=org.wso2.siddhi.extension.string.ReplaceAllFunctionExtension
-replace_first=org.wso2.siddhi.extension.string.ReplaceFirstFunctionExtension
+replaceAll=org.wso2.siddhi.extension.string.ReplaceAllFunctionExtension
+replaceFirst=org.wso2.siddhi.extension.string.ReplaceFirstFunctionExtension
 reverse=org.wso2.siddhi.extension.string.ReverseFunctionExtension
 strcmp=org.wso2.siddhi.extension.string.StrcmpFunctionExtension
 substr=org.wso2.siddhi.extension.string.SubstrFunctionExtension
