@@ -68,6 +68,10 @@ public class CoalesceFunctionExtensionTestCase {
                         Assert.assertEquals("XYZ", event.getData(1));
                         eventArrived = true;
                     }
+                    if (count == 4) {
+                        Assert.assertEquals(null, event.getData(1));
+                        eventArrived = true;
+                    }
                 }
             }
         });
@@ -77,8 +81,9 @@ public class CoalesceFunctionExtensionTestCase {
         inputHandler.send(new Object[]{null, "BBB", "CCC"});
         inputHandler.send(new Object[]{"123", null, "789"});
         inputHandler.send(new Object[]{null, null, "XYZ"});
+        inputHandler.send(new Object[]{null, null, null});
         Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(4, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
