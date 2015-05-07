@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
 * min(a,b);
-* Returns the greater of 'a' and 'b'.
+* Returns the minimum of 'a' and 'b'.
 * Accept Type(s): INT,LONG,FLOAT,DOUBLE
 * Return Type(s): DOUBLE
 */

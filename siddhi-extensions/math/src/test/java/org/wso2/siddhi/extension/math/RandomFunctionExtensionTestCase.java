@@ -104,6 +104,7 @@ public class RandomFunctionExtensionTestCase {
                     randNumbers[1] = (Double) inEvents[1].getData(1);
                     randNumbers[2] = (Double) inEvents[2].getData(1);
                     boolean isDuplicatePresent = false;
+                    System.out.println(randNumbers[0]+", "+randNumbers[1]);
                     if(randNumbers[0] == randNumbers[1] ||
                             randNumbers[0] == randNumbers[2] ||
                             randNumbers[1] == randNumbers[2]) {

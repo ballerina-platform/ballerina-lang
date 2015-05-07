@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
 * sqrt(a);
-* Returns the square-root of a (a is in radians).
+* Returns the square-root of a.
 * Accept Type(s) :DOUBLE/INT/FLOAT/LONG
 * Return Type(s): DOUBLE
 */

@@ -40,7 +40,7 @@ public class ParseFloatFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue string);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:parse_float(inValue) as output "
+                + "select math:parseFloat(inValue) as output "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 

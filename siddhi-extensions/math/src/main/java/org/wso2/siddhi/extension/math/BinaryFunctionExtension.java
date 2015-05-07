@@ -28,7 +28,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 /**
  * bin(a)
  * This class wraps the java.lang.Integer.toBinaryString and java.lang.Long.toBinaryString methods,
- *      which returns a string representation of the integer/long argument as an unsigned integer in base 2.
+ *      which return a string representation of the integer/long argument as an unsigned integer in base 2.
  * Accept Type(s):INT, LONG
  * Return Type(s): STRING
  */

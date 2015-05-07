@@ -40,7 +40,7 @@ public class ToRadiansFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:to_radians(inValue) as radiansValue "
+                + "select math:toRadians(inValue) as radiansValue "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 

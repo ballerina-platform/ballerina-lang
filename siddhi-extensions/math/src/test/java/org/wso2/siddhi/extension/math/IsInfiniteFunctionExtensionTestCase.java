@@ -40,7 +40,7 @@ public class IsInfiniteFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue1 double,inValue2 int);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:is_infinite(inValue1) as isInfinite "
+                + "select math:isInfinite(inValue1) as isInfinite "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 

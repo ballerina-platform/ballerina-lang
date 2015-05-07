@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
 * atan(a); or atan(a,b);
-* Returns the arc-tangent(inverse tangent)
+* Returns the arc-tangent(inverse tangent). The return value is in radian scale.
 * Accept Type(s) :DOUBLE/INT/FLOAT/LONG
 * Return Type(s): DOUBLE
 */

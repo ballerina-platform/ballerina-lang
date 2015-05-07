@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
 * acos(a);
-* Returns the arc-cosine(inverse cosine) of a if -1<=a<=1 or NULL otherwise.
+* Returns the arc-cosine(inverse cosine) of 'a' if -1<=a<=1 or NULL otherwise. The return value is in radian scale.
 * Accept Type(s) :FLOAT/DOUBLE
 * Return Type(s): DOUBLE
 */

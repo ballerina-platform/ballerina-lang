@@ -40,7 +40,7 @@ public class GetExponentFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:get_exponent(inValue) as expValue "
+                + "select math:getExponent(inValue) as expValue "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 

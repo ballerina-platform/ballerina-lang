@@ -27,7 +27,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
 * asin(a);
-* Returns the arc sin(inverse sine) of a if -1<=a<=1 or NULL otherwise.
+* Returns the arc sin(inverse sine) of a if -1<=a<=1 or NULL otherwise. The return value is in radian scale.
 * Accept Type(s) :DOUBLE/FLOAT
 * Return Type(s): DOUBLE
 */

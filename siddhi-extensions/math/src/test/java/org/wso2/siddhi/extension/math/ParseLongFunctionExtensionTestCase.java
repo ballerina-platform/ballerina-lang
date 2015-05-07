@@ -40,7 +40,7 @@ public class ParseLongFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue string);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:parse_long(inValue) as output "
+                + "select math:parseLong(inValue) as output "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 

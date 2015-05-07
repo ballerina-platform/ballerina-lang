@@ -40,7 +40,7 @@ public class ParseIntFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue string);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:parse_int(inValue) as intValue "
+                + "select math:parseInt(inValue) as intValue "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 

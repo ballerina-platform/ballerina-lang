@@ -28,8 +28,8 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 /*
 * copysign(magnitude,sign);
 * Returns the first argument with the sign of the second argument.
-* value - Accept Type(s):DOUBLE/INT/FLOAT/LONG
-* toPower - Accept Type(s):DOUBLE/INT/FLOAT/LONG
+* magnitude - Accept Type(s):DOUBLE/INT/FLOAT/LONG
+* sign - Accept Type(s):DOUBLE/INT/FLOAT/LONG
 * Return Type(s): DOUBLE
 */
 public class CopySignFunctionExtension extends FunctionExecutor {

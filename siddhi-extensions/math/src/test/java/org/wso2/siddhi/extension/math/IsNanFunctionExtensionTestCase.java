@@ -40,7 +40,7 @@ public class IsNanFunctionExtensionTestCase {
         String inValueStream = "@config(async = 'true')define stream InValueStream (inValue1 double,inValue2 int);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
-                + "select math:is_nan(inValue1) as isNaN "
+                + "select math:isNan(inValue1) as isNaN "
                 + "insert into OutMediationStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inValueStream + eventFuseExecutionPlan);
 
