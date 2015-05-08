@@ -145,7 +145,7 @@ public class SingleInputStreamParser {
 
         } else if (streamHandler instanceof StreamFunction) {
             AbstractStreamProcessor abstractStreamProcessor;
-            if(supportsBatchProcessing) {
+            if (supportsBatchProcessing) {
                 try {
                     if (streamHandler instanceof Extension) {
                         abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
@@ -157,8 +157,10 @@ public class SingleInputStreamParser {
                     metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                             attributeExpressionExecutors, executionPlanContext));
                     return abstractStreamProcessor;
-                } catch (ExecutionPlanCreationException e){
-
+                } catch (ExecutionPlanCreationException e) {
+                    if (!e.isClassLoadingIssue()) {
+                        throw e;
+                    }
                 }
             }
             if (streamHandler instanceof Extension) {
