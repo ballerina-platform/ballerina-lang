@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>event-table</artifactId>
+    <artifactId>siddhi-extension-event-table</artifactId>
     <name>Siddhi Extension - Event Table</name>
 
     <dependencies>

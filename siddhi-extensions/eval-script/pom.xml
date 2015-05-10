@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>eval-script</artifactId>
+    <artifactId>siddhi-extension-eval-script</artifactId>
     <name>Siddhi Extension - Evaluate Scripts</name>
 
     <build>

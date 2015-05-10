@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>math</artifactId>
+    <artifactId>siddhi-extension-math</artifactId>
     <name>Siddhi Extension - Math</name>
 
     <dependencies>
