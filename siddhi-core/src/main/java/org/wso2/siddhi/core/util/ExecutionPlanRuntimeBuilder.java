@@ -48,9 +48,9 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
+    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = new ConcurrentHashMap<String, ExecutionPlanRuntime>();
     private ExecutionPlanContext executionPlanContext;
     private InputManager inputManager;
-    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
 
     public ExecutionPlanRuntimeBuilder(ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext=executionPlanContext;
