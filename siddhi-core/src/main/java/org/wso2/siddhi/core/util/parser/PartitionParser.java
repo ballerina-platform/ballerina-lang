@@ -15,7 +15,6 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
@@ -23,6 +22,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -36,17 +36,17 @@ import java.util.concurrent.ConcurrentMap;
 
 public class PartitionParser {
 
-    public static PartitionRuntime parse(ExecutionPlanRuntime executionPlanRuntime, Partition partition,
+    public static PartitionRuntime parse(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Partition partition,
                                          ExecutionPlanContext executionPlanContext,
                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
-        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntime, partition, executionPlanContext);
+        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntimeBuilder.getStreamDefinitionMap(), executionPlanRuntimeBuilder.getStreamJunctions(), partition, executionPlanContext);
         for (Query query : partition.getQueryList()) {
             List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String, AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
             QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap,
-                    executionPlanRuntime.getTableDefinitionMap(), executionPlanRuntime.getEventTableMap());
+                    executionPlanRuntimeBuilder.getTableDefinitionMap(), executionPlanRuntimeBuilder.getEventTableMap());
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);

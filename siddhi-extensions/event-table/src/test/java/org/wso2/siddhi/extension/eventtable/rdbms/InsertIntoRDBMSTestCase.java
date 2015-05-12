@@ -34,7 +34,7 @@ public class InsertIntoRDBMSTestCase {
         log.info("InsertIntoTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {

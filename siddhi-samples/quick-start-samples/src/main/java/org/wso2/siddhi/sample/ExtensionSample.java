@@ -18,15 +18,11 @@ package org.wso2.siddhi.sample;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.sample.util.CustomFunctionExtension;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ExtensionSample {
 
@@ -34,11 +30,7 @@ public class ExtensionSample {
 
         // Create Siddhi Manager
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("custom:plus", CustomFunctionExtension.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
 
         String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price long, volume long);"
                 + "@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as totalCount insert into mailOutput;";

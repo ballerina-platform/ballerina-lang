@@ -50,7 +50,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery1 - OUT 2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if ((dataSource.getConnection()) != null) {
@@ -130,7 +130,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery2 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -208,7 +208,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery3 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -286,7 +286,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery4 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -363,7 +363,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery5 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -441,7 +441,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery6 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -518,7 +518,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery7 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -596,7 +596,7 @@ public class JoinRDBMSTableTestCase {
         log.info("testTableJoinQuery8 - OUT 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {

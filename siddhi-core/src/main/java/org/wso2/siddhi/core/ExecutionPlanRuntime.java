@@ -20,11 +20,6 @@ import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -32,13 +27,9 @@ import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
-import org.wso2.siddhi.core.util.parser.FunctionParser;
-import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -55,63 +46,31 @@ public class ExecutionPlanRuntime {
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ExecutionPlanContext executionPlanContext;
+    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
 
-    public ExecutionPlanRuntime(ExecutionPlanContext executionPlanContext) {
+    public ExecutionPlanRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager, ConcurrentMap<String, QueryRuntime> queryProcessorMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ConcurrentMap<String, EventTable> eventTableMap, ConcurrentMap<String, PartitionRuntime> partitionMap, ExecutionPlanContext executionPlanContext, ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
+        this.streamDefinitionMap = streamDefinitionMap;
+        this.tableDefinitionMap = tableDefinitionMap;
+        this.inputManager = inputManager;
+        this.queryProcessorMap = queryProcessorMap;
+        this.streamJunctionMap = streamJunctionMap;
+        this.eventTableMap = eventTableMap;
+        this.partitionMap = partitionMap;
         this.executionPlanContext = executionPlanContext;
-        this.inputManager = new InputManager(executionPlanContext, streamDefinitionMap, streamJunctionMap);
+        this.executionPlanRuntimeMap = executionPlanRuntimeMap;
     }
 
-    public void defineStream(StreamDefinition streamDefinition) {
-        DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap);
-        if (!streamDefinitionMap.containsKey(streamDefinition.getId())) {
-            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-        }
-        DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
+    public String getName() {
+        return executionPlanContext.getName();
     }
 
-    public void defineTable(TableDefinition tableDefinition) {
-        DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap);
-        if (!tableDefinitionMap.containsKey(tableDefinition.getId())) {
-            tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
-        }
-        DefinitionParserHelper.addEventTable(tableDefinition, eventTableMap, executionPlanContext);
+    //Todo remove
+    public ConcurrentMap<String, StreamJunction> getStreamJunctions() {
+        return streamJunctionMap;
     }
 
-    public void addPartition(PartitionRuntime partitionRuntime) {
-        partitionMap.put(partitionRuntime.getPartitionId(), partitionRuntime);
-    }
-
-    public String addQuery(QueryRuntime queryRuntime) {
-        queryProcessorMap.put(queryRuntime.getQueryId(), queryRuntime);
-        StreamRuntime streamRuntime = queryRuntime.getStreamRuntime();
-
-        for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {
-            ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
-            if (!processStreamReceiver.toTable()) {
-                streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
-            }
-        }
-
-        OutputCallback outputCallback = queryRuntime.getOutputCallback();
-
-        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
-            StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
-
-            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
-            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
-
-            if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
-                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
-            }
-            insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition().getId()));
-        }
-
-        return queryRuntime.getQueryId();
+    public Map<String, AbstractDefinition> getStreamDefinitionMap() {
+        return streamDefinitionMap;
     }
 
     public void addCallback(String streamId, StreamCallback streamCallback) {
@@ -139,28 +98,8 @@ public class ExecutionPlanRuntime {
         return inputManager.getInputHandler(streamId);
     }
 
-    public void addQueryRuntime(QueryRuntime queryRuntime) {
-        queryProcessorMap.put(queryRuntime.getQueryId(), queryRuntime);
-    }
-
-    public ConcurrentMap<String, StreamJunction> getStreamJunctions() {
-        return streamJunctionMap;
-    }
-
-    public ConcurrentMap<String, EventTable> getEventTableMap() {
-        return eventTableMap;
-    }
-
-    public ConcurrentMap<String, AbstractDefinition> getStreamDefinitionMap() {
-        return streamDefinitionMap;
-    }
-
-    public ConcurrentMap<String, AbstractDefinition> getTableDefinitionMap() {
-        return tableDefinitionMap;
-    }
-
     public void shutdown() {
-        for (EternalReferencedHolder eternalReferencedHolder :executionPlanContext.getEternalReferencedHolders()){
+        for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.stop();
         }
         inputManager.stopProcessing();
@@ -168,24 +107,17 @@ public class ExecutionPlanRuntime {
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.stopProcessing();
         }
-    }
-
-    public String getName() {
-        return executionPlanContext.getName();
+        executionPlanRuntimeMap.remove(executionPlanContext.getName());
     }
 
     public void start() {
-        for (EternalReferencedHolder eternalReferencedHolder :executionPlanContext.getEternalReferencedHolders()){
+        for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
         inputManager.startProcessing();
-        for(StreamJunction streamJunction :streamJunctionMap.values()){
+        for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.startProcessing();
         }
-    }
-
-    public void enableStatistics(){
-        ExecutionPlanContext.statEnable = true;
     }
 
     public String persist() {
@@ -208,7 +140,8 @@ public class ExecutionPlanRuntime {
         executionPlanContext.getSnapshotService().restore(snapshot);
     }
 
-    public void defineFunction(FunctionDefinition functionDefinition) {
-        FunctionParser.addFunction(executionPlanContext.getSiddhiContext(), functionDefinition);
+    public void enableStatistics() {
+        ExecutionPlanContext.statEnable = true;
     }
+
 }

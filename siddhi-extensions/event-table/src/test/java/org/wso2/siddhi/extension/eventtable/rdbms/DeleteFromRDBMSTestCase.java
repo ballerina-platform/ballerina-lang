@@ -35,7 +35,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
@@ -88,7 +88,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
 
@@ -139,7 +139,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
 
@@ -189,7 +189,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
 
@@ -239,7 +239,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
 
@@ -289,7 +289,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
 
@@ -339,7 +339,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
 
@@ -387,7 +387,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -439,7 +439,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
@@ -491,7 +491,7 @@ public class DeleteFromRDBMSTestCase {
         log.info("deleteFromTableTest10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
         try {
             if (dataSource.getConnection() != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);

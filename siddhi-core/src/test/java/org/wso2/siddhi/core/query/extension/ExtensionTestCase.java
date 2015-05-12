@@ -21,16 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.extension.util.CustomFunctionExtension;
 import org.wso2.siddhi.core.query.extension.util.StringConcatAggregatorString;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ExtensionTestCase {
     static final Logger log = Logger.getLogger(ExtensionTestCase.class);
@@ -81,12 +77,8 @@ public class ExtensionTestCase {
     public void extensionTest2() throws InterruptedException, ClassNotFoundException {
         log.info("extension test2");
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("custom:plus", CustomFunctionExtension.class);
-        classList.put("email:getAll", StringConcatAggregatorString.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
+        siddhiManager.setExtension("email:getAll", StringConcatAggregatorString.class);
 
         String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as totalCount " +

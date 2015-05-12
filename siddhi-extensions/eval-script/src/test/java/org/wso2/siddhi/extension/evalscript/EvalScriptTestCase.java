@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -32,11 +31,6 @@ import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.exception.FunctionAlreadyExistException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class EvalScriptTestCase {
 
@@ -51,12 +45,8 @@ public class EvalScriptTestCase {
         log.info("TestEvalScalaConcat");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc = "define function concatS[Scala] return string {\n" +
                 "  var concatenatedString = \"\"\n" +
@@ -103,17 +93,8 @@ public class EvalScriptTestCase {
         log.info("testEvalJavaScriptConcat");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
-
-
-        List<Class> list = new ArrayList<Class>();
-        list.add(org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        list.add(org.wso2.siddhi.extension.evalscript.EvalScala.class);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc = "define function concatJ[JavaScript] return string {\n" +
                 "  var str1 = data[0];\n" +
@@ -160,12 +141,8 @@ public class EvalScriptTestCase {
         log.info("testScalaCompilationFailure");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc = "define function concat[Scala] return string {\n" +
                 "  for(i <- 0 until data.length){\n" +
@@ -185,12 +162,8 @@ public class EvalScriptTestCase {
         log.info("testJavaScriptCompilationFailure");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc =  "define function concatJ[JavaScript] return string {\n" +
                 "  var str1 = data[0;\n" +
@@ -211,12 +184,8 @@ public class EvalScriptTestCase {
         log.info("testDefineFunctionsWithSameFunctionID");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define function concat[Scala] return string {\n" +
@@ -245,12 +214,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatSFunc =
                 "define function concatS[Scala] return string {\n" +
@@ -370,12 +335,8 @@ public class EvalScriptTestCase {
         log.info("testReturnType");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String toFloatSFunc =
                 "define function toFloatS[Scala] return float {\n" +
@@ -420,12 +381,8 @@ public class EvalScriptTestCase {
     public void testMissingReturnType() {
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         siddhiManager.defineFunction((new FunctionDefinition().functionID("concat").language("Scala").body(
                 "var concatenatedString = \"\"\n" +
@@ -440,12 +397,8 @@ public class EvalScriptTestCase {
         log.info("testUseUndefinedFunction");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
         //siddhiManager.defineFunction(concatFunc);
         String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select price , undefinedFunc(symbol,' ',price) as concatStr " +
@@ -483,12 +436,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define concat[Scala] return string {\n" +
@@ -507,12 +456,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "function concat[Scala] return string {\n" +
@@ -531,12 +476,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define function [Scala] return string {\n" +
@@ -555,12 +496,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define function concat[] return string {\n" +
@@ -579,12 +516,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define function concat Scala return string {\n" +
@@ -603,12 +536,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define function concat(Scala) return string {\n" +
@@ -627,12 +556,8 @@ public class EvalScriptTestCase {
         log.info("testDefineManyFunctionsAndCallThemRandom");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        SiddhiContext siddhiContext = siddhiManager.getSiddhiContext();
-
-        Map<String, Class> classList = new HashMap<String, Class>();
-        classList.put("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
-        classList.put("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
-        siddhiContext.setSiddhiExtensions(classList);
+        siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
+        siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
         String concatFunc1 =
                 "define function concat[Scala] {\n" +
