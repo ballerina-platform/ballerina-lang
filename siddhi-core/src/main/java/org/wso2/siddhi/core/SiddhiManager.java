@@ -65,13 +65,13 @@ public class SiddhiManager {
         return executionPlanRuntimeMap.get(executionPlanName);
     }
 
-    public static void validateExecutionPlan(ExecutionPlan executionPlan) {
-        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, new SiddhiContext()).build();
+    public void validateExecutionPlan(ExecutionPlan executionPlan) {
+        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
         executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
     }
 
-    public static void validateExecutionPlan(String executionPlan) {
+    public void validateExecutionPlan(String executionPlan) {
         validateExecutionPlan(SiddhiCompiler.parse(executionPlan));
     }
 
