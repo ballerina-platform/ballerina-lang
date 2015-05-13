@@ -16,46 +16,43 @@
 
 package org.wso2.siddhi.query.api.definition;
 
-public class FunctionDefinition {
+public class TriggerDefinition {
 
-    private String language;
-    private String body;
     private String id;
-    private Attribute.Type returnType;
-
-    public Attribute.Type getReturnType() {
-        return returnType;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public String getBody() {
-        return body;
-    }
+    private Long atEvery;
+    private String at;
 
     public String getId() {
         return id;
     }
 
-    public FunctionDefinition language(String language) {
-        this.language = language;
+    public Long getAtEvery() {
+        return atEvery;
+    }
+
+    public String getAt() {
+        return at;
+    }
+
+    public TriggerDefinition() {
+    }
+
+    protected TriggerDefinition(String id) {
+        this.id = id;
+    }
+
+    public static TriggerDefinition id(String id) {
+        return new TriggerDefinition(id);
+    }
+
+    public TriggerDefinition atEvery(long timeInMilliSeconds) {
+        this.atEvery = timeInMilliSeconds;
         return this;
     }
 
-    public FunctionDefinition body(String body) {
-        this.body = body;
+    public TriggerDefinition at(String interval) {
+        this.at = interval;
         return this;
     }
 
-    public FunctionDefinition functionID(String functionID) {
-        this.id = functionID;
-        return this;
-    }
-
-    public FunctionDefinition type(Attribute.Type type) {
-        this.returnType = type;
-        return this;
-    }
 }

@@ -17,10 +17,7 @@ package org.wso2.siddhi.query.api;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.exception.FunctionAlreadyExistException;
@@ -79,14 +76,6 @@ public class ExecutionPlan {
         return this;
     }
 
-    public ExecutionPlan removeStream(String streamId) {
-        if (streamId == null) {
-            throw new ExecutionPlanValidationException("Stream Id should not be null");
-        }
-        this.streamDefinitionMap.remove(streamId);
-        return this;
-    }
-
     public ExecutionPlan defineTable(TableDefinition tableDefinition) {
         if (tableDefinition == null) {
             throw new ExecutionPlanValidationException("Table Definition should not be null");
@@ -95,6 +84,24 @@ public class ExecutionPlan {
         }
         checkDuplicateDefinition(tableDefinition);
         this.tableDefinitionMap.put(tableDefinition.getId(), tableDefinition);
+        return this;
+    }
+
+    public ExecutionPlan defineTrigger(TriggerDefinition triggerDefinition) {
+        if (triggerDefinition == null) {
+            throw new ExecutionPlanValidationException("Trigger Definition should not be null");
+        } else if (triggerDefinition.getId() == null) {
+            throw new ExecutionPlanValidationException("Trigger Id should not be null for Trigger Definition");
+        }
+        StreamDefinition streamDefinition = StreamDefinition.id(triggerDefinition.getId()).attribute("triggered_time", Attribute.Type.LONG);
+        try {
+            checkDuplicateDefinition(streamDefinition);
+        }catch (DuplicateDefinitionException e){
+            throw new DuplicateDefinitionException("Trigger '"+triggerDefinition.getId()+"' cannot be defined as, "+e.getMessage(),e);
+        }
+        this.streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
+
+
         return this;
     }
 
@@ -222,16 +229,18 @@ public class ExecutionPlan {
     public void defineFunction(FunctionDefinition functionDefinition) {
         if (functionDefinition == null) {
             throw new ExecutionPlanValidationException("Function Definition should not be null");
-        } else if (functionDefinition.getFunctionID() == null) {
+        } else if (functionDefinition.getId() == null) {
             throw new ExecutionPlanValidationException("Function Id should not be null for Function Definition");
         }
         checkDuplicateFunctionExist(functionDefinition);
-        this.functionDefinitionMap.put(functionDefinition.getFunctionID(), functionDefinition);
+        this.functionDefinitionMap.put(functionDefinition.getId(), functionDefinition);
     }
 
     private void checkDuplicateFunctionExist(FunctionDefinition functionDefinition) {
-        if(this.functionDefinitionMap.get(functionDefinition.getFunctionID()) != null ) {
-            throw new FunctionAlreadyExistException("The function definition with the same functionID exists " + functionDefinition.getFunctionID());
+        if(this.functionDefinitionMap.get(functionDefinition.getId()) != null ) {
+            throw new FunctionAlreadyExistException("The function definition with the same functionID exists " + functionDefinition.getId());
         }
     }
+
+
 }
