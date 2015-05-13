@@ -28,12 +28,9 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.FunctionParser;
+import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -44,16 +41,18 @@ import java.util.concurrent.ConcurrentMap;
 public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
+    private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
+    private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = null;
     private ExecutionPlanContext executionPlanContext;
     private InputManager inputManager;
 
     public ExecutionPlanRuntimeBuilder(ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext=executionPlanContext;
+        this.executionPlanContext = executionPlanContext;
         this.inputManager = new InputManager(this.executionPlanContext, streamDefinitionMap, streamJunctionMap);
     }
 
@@ -71,6 +70,12 @@ public class ExecutionPlanRuntimeBuilder {
             tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         }
         DefinitionParserHelper.addEventTable(tableDefinition, eventTableMap, executionPlanContext);
+    }
+
+    public void defineTrigger(TriggerDefinition triggerDefinition) {
+        DefinitionParserHelper.validateDefinition(triggerDefinition);
+        triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(), triggerDefinition);
+        DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap, executionPlanContext);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
@@ -111,7 +116,7 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineFunction(FunctionDefinition functionDefinition) {
-        FunctionParser.addFunction(executionPlanContext.getSiddhiContext(), functionDefinition);
+        DefinitionParserHelper.addFunction(executionPlanContext, functionDefinition);
     }
 
     public void setExecutionPlanRuntimeMap(ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
@@ -138,6 +143,4 @@ public class ExecutionPlanRuntimeBuilder {
     public ExecutionPlanRuntime build() {
         return new ExecutionPlanRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap, streamJunctionMap, eventTableMap, partitionMap, executionPlanContext, executionPlanRuntimeMap);
     }
-
-
 }

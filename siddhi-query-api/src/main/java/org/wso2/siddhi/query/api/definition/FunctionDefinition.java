@@ -49,7 +49,7 @@ public class FunctionDefinition {
         return this;
     }
 
-    public FunctionDefinition functionID(String functionID) {
+    public FunctionDefinition id(String functionID) {
         this.id = functionID;
         return this;
     }

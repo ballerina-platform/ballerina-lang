@@ -41,8 +41,8 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        returnType = executionPlanContext.getSiddhiContext().getEvalScript(functionId).getReturnType();
-        evalScript = executionPlanContext.getSiddhiContext().getEvalScript(functionId);
+        returnType = executionPlanContext.getEvalScript(functionId).getReturnType();
+        evalScript = executionPlanContext.getEvalScript(functionId);
     }
 
     @Override

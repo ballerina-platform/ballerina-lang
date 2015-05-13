@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.extension.evalscript.exceptions;
+package org.wso2.siddhi.core.trigger;
 
-public class FunctionReturnTypeNotPresent extends RuntimeException{
-    public FunctionReturnTypeNotPresent(String message) {
-        super(message);
-    }
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+
+public interface EventTrigger extends EternalReferencedHolder {
+
+    void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction streamJunction);
+
+    TriggerDefinition getTriggerDefinition();
+
+    String getId();
+
 }

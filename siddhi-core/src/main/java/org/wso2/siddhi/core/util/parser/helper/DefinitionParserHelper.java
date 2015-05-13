@@ -18,17 +18,22 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
+import org.wso2.siddhi.core.trigger.CronEventTrigger;
+import org.wso2.siddhi.core.trigger.EventTrigger;
+import org.wso2.siddhi.core.trigger.PeriodicEventTrigger;
+import org.wso2.siddhi.core.trigger.StartEventTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.extension.holder.EvalScriptExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
@@ -78,19 +83,76 @@ public class DefinitionParserHelper {
 
     public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
 
-            if (!eventTableMap.containsKey(tableDefinition.getId())) {
-                EventTable eventTable;
-                Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
-                        tableDefinition.getAnnotations());
-                if (annotation != null) {
-                    String evenTableType = annotation.getElement("eventtable");
-                    Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
-                    eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
-                    eventTable.init(tableDefinition, executionPlanContext);
-                } else {
-                    eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
-                }
-                eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+        if (!eventTableMap.containsKey(tableDefinition.getId())) {
+            EventTable eventTable;
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+                    tableDefinition.getAnnotations());
+            if (annotation != null) {
+                String evenTableType = annotation.getElement("eventtable");
+                Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
+                eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
+                eventTable.init(tableDefinition, executionPlanContext);
+            } else {
+                eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
             }
+            eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+        }
+    }
+
+    public static void addFunction(ExecutionPlanContext executionPlanContext, final FunctionDefinition functionDefinition) {
+        EvalScript evalScript = (EvalScript) SiddhiClassLoader.loadExtensionImplementation(
+                new Extension() {
+                    @Override
+                    public String getNamespace() {
+                        return "evalscript";
+                    }
+
+                    @Override
+                    public String getFunction() {
+                        return functionDefinition.getLanguage().toLowerCase();
+                    }
+                }, EvalScriptExtensionHolder.getInstance(executionPlanContext));
+        evalScript.setReturnType(functionDefinition.getReturnType());
+        evalScript.init(functionDefinition.getId(), functionDefinition.getBody());
+        executionPlanContext.getScriptFunctionMap().put(functionDefinition.getId(), evalScript);
+    }
+
+    public static void validateDefinition(TriggerDefinition triggerDefinition) {
+        if (triggerDefinition.getId() != null) {
+            if (triggerDefinition.getAtEvery() == null) {
+                String expression = triggerDefinition.getAt();
+                if (expression == null) {
+                    throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' must have trigger time defined");
+                } else {
+                    if (!expression.trim().equalsIgnoreCase(SiddhiConstants.TRIGGER_START)) {
+                        try {
+                            org.quartz.CronExpression.isValidExpression(expression);
+                        } catch (Throwable t) {
+                            throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() +
+                                    "' have invalid trigger time defined, expected 'start' or valid cron but found '" + expression + "'");
+                        }
+                    }
+                }
+            }
+        } else {
+            throw new ExecutionPlanValidationException("Trigger Definition id cannot be null");
+        }
+    }
+
+    public static void addEventTrigger(TriggerDefinition triggerDefinition, ConcurrentMap<String, EventTrigger> eventTriggerMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ExecutionPlanContext executionPlanContext) {
+        if (!eventTriggerMap.containsKey(triggerDefinition.getId())) {
+            EventTrigger eventTrigger;
+            if (triggerDefinition.getAtEvery() != null) {
+                eventTrigger = new PeriodicEventTrigger();
+            } else if (triggerDefinition.getAt().trim().equalsIgnoreCase(SiddhiConstants.TRIGGER_START)) {
+                eventTrigger = new StartEventTrigger();
+            } else {
+                eventTrigger = new CronEventTrigger();
+            }
+            StreamJunction streamJunction=streamJunctionMap.get(triggerDefinition.getId());
+            eventTrigger.init(triggerDefinition,executionPlanContext,streamJunction);
+            executionPlanContext.getEternalReferencedHolders().add(eventTrigger);
+            eventTriggerMap.putIfAbsent(eventTrigger.getId(), eventTrigger);
+        }
     }
 }

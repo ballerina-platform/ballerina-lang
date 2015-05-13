@@ -23,4 +23,5 @@ public class SiddhiConstants {
     public static final String ANNOTATION_ELEMENT_NAME = "name";
 
     public static final String INNER_STREAM_FLAG = "#";
+    public static final String TRIGGERED_TIME = "triggered_time";
 }

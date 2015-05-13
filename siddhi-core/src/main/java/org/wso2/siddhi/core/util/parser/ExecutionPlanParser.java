@@ -33,6 +33,7 @@ import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -132,24 +133,33 @@ public class ExecutionPlanParser {
             throw new DuplicateDefinitionException(e.getMessage() + " in execution plan \"" +
                     executionPlanContext.getName() + "\"", e);
         }
+
+        //Done last as they have to be started last
+        defineTriggerDefinitions(executionPlanRuntimeBuilder, executionPlan.getTriggerDefinitionMap());
         return executionPlanRuntimeBuilder;
     }
 
-    private static void defineFunctionDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntime, Map<String, FunctionDefinition> functionDefinitionMap) {
+    private static void defineTriggerDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TriggerDefinition> triggerDefinitionMap) {
+        for (TriggerDefinition definition:triggerDefinitionMap.values()){
+            executionPlanRuntimeBuilder.defineTrigger(definition);
+        }
+    }
+
+    private static void defineFunctionDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, FunctionDefinition> functionDefinitionMap) {
         for (FunctionDefinition definition : functionDefinitionMap.values()) {
-            executionPlanRuntime.defineFunction(definition);
+            executionPlanRuntimeBuilder.defineFunction(definition);
         }
     }
 
-    private static void defineStreamDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntime, Map<String, StreamDefinition> streamDefinitionMap) {
+    private static void defineStreamDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, StreamDefinition> streamDefinitionMap) {
         for (StreamDefinition definition : streamDefinitionMap.values()) {
-            executionPlanRuntime.defineStream(definition);
+            executionPlanRuntimeBuilder.defineStream(definition);
         }
     }
 
-    private static void defineTableDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntime, Map<String, TableDefinition> tableDefinitionMap) {
+    private static void defineTableDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TableDefinition> tableDefinitionMap) {
         for (TableDefinition definition : tableDefinitionMap.values()) {
-            executionPlanRuntime.defineTable(definition);
+            executionPlanRuntimeBuilder.defineTable(definition);
         }
     }
 

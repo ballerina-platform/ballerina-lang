@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.evalscript.exceptions.FunctionInitializationException;
-import org.wso2.siddhi.extension.evalscript.exceptions.FunctionReturnTypeNotPresent;
+import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.exception.FunctionAlreadyExistException;
@@ -135,7 +135,7 @@ public class EvalScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected= FunctionInitializationException.class)
+    @Test(expected= ExecutionPlanCreationException.class)
     public void testScalaCompilationFailure() throws InterruptedException {
 
         log.info("testScalaCompilationFailure");
@@ -156,7 +156,7 @@ public class EvalScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=FunctionInitializationException.class)
+    @Test(expected=ExecutionPlanCreationException.class)
     public void testJavaScriptCompilationFailure() throws InterruptedException {
 
         log.info("testJavaScriptCompilationFailure");
@@ -377,19 +377,19 @@ public class EvalScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=FunctionReturnTypeNotPresent.class)
+    @Test(expected=ExecutionPlanValidationException.class)
     public void testMissingReturnType() {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
         siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
-        siddhiManager.defineFunction((new FunctionDefinition().functionID("concat").language("Scala").body(
+        ExecutionPlan.executionPlan("test").defineFunction((new FunctionDefinition().id("concat").language("Scala").body(
                 "var concatenatedString = \"\"\n" +
                         "for(i <- 0 until data.length){\n" +
                         "  concatenatedString += data(i).toString\n" +
                         "}\n"
-                        +"concatenatedString")));
+                        + "concatenatedString")));
     }
 
     @Test(expected=ExecutionPlanValidationException.class)

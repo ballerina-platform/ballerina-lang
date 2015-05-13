@@ -33,9 +33,9 @@ error
 
 execution_plan
     : (plan_annotation|error)*
-      ( (definition_stream|definition_table|error|definition_function) (';' (definition_stream|definition_table|error|definition_function))* ';'?
+      ( (definition_stream|definition_table|definition_trigger|definition_function|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|error))* ';'?
       || (execution_element|error) (';' (execution_element|error))* ';'?
-      || (definition_stream|definition_table|error|definition_function) (';' (definition_stream|definition_table|error|definition_function))* (';' (execution_element|error))* ';'? )
+      || (definition_stream|definition_table|definition_trigger|definition_function|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|error))* (';' (execution_element|error))* ';'? )
     ;
 
 execution_element
@@ -76,6 +76,18 @@ language_name
 
 function_body
     : SCRIPT
+    ;
+
+definition_trigger_final
+    : definition_trigger ';'? EOF
+    ;
+
+definition_trigger
+    : DEFINE TRIGGER trigger_name AT (EVERY time_value | string_value )
+    ;
+
+trigger_name
+    : id
     ;
 
 annotation
@@ -563,13 +575,14 @@ GT : '>';
 GT_EQ : '>=';
 EQ : '==';
 NOT_EQ : '!=';
-AT: '@';
+AT_SYMBOL: '@';
 FOLLOWED_BY:'->';
 HASH:'#';
 
 STREAM:   S T R E A M;
 DEFINE:   D E F I N E;
 FUNCTION: F U N C T I O N;
+TRIGGER:  T R I G G E R;
 TABLE:    T A B L E;
 PLAN:     P L A N;
 FROM:     F R O M;
@@ -593,6 +606,7 @@ FOR:      F O R;
 RAW:      R A W;
 OF:       O F;
 AS:       A S;
+AT:       A T;
 OR:       O R;
 AND:      A N D;
 IN:       I N;
