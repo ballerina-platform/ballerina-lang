@@ -107,7 +107,9 @@ public class ExecutionPlanRuntime {
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.stopProcessing();
         }
-        executionPlanRuntimeMap.remove(executionPlanContext.getName());
+        if(executionPlanRuntimeMap!=null) {
+            executionPlanRuntimeMap.remove(executionPlanContext.getName());
+        }
     }
 
     public void start() {
