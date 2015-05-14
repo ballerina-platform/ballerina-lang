@@ -53,7 +53,6 @@ public class TriggerTestCase {
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineTrigger(triggerDefinition);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
     }
 
@@ -69,7 +68,6 @@ public class TriggerTestCase {
         executionPlan.defineTrigger(triggerDefinition);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
-        executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
     }
 

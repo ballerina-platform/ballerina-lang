@@ -15,6 +15,7 @@
  */
 package org.wso2.siddhi.core;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
@@ -38,6 +39,8 @@ import java.util.concurrent.ConcurrentMap;
  * and streamJunctions and inputHandlers used
  */
 public class ExecutionPlanRuntime {
+    private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
+
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
     private InputManager inputManager;
@@ -98,21 +101,25 @@ public class ExecutionPlanRuntime {
         return inputManager.getInputHandler(streamId);
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
-            eternalReferencedHolder.stop();
+            try {
+                eternalReferencedHolder.stop();
+            } catch (Throwable t) {
+                log.error("Error in shutting down Execution Plan '" + executionPlanContext.getName() + "', " + t.getMessage(), t);
+            }
         }
         inputManager.stopProcessing();
         executionPlanContext.getScheduledExecutorService().shutdownNow();
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.stopProcessing();
         }
-        if(executionPlanRuntimeMap!=null) {
+        if (executionPlanRuntimeMap != null) {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }
     }
 
-    public void start() {
+    public synchronized void start() {
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }

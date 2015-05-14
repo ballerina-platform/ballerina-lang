@@ -75,6 +75,8 @@ public class PeriodicEventTrigger implements EventTrigger {
      */
     @Override
     public void stop() {
-        scheduledFuture.cancel(true);
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+        }
     }
 }
