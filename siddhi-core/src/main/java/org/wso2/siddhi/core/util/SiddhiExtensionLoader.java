@@ -40,9 +40,9 @@ public class SiddhiExtensionLoader {
         if (classPath == null) {
             classPath = ".";
         } else {
-            classPath += ":.";
+            classPath += File.pathSeparator+".";
         }
-        String[] classPathElements = classPath.split(":");
+        String[] classPathElements = classPath.split(File.pathSeparator);
         Pattern pattern = Pattern.compile(SIDDHI_EXT);
         Collection<String> extensionsList = new ArrayList<String>();
 
