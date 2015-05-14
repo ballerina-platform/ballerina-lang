@@ -226,12 +226,12 @@ public class RDBMSOperatorParser {
                             setEventTableVariableAttribute(leftExpression, conditionBuilder);
                             isLeftExpressionEventTable = true;
                         } else {
-                            setExpressionExecutor(leftExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
+                            setExpressionExecutor(rightExpression, leftExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
                             isLeftExpressionEventTable = false;
                         }
                     }
                 } else {
-                    setExpressionExecutor(leftExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
+                    setExpressionExecutor(rightExpression, leftExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
                     isLeftExpressionEventTable = false;
                 }
             } else if (leftExpression instanceof Constant) {
@@ -256,7 +256,7 @@ public class RDBMSOperatorParser {
 
             if (isLeftExpressionEventTable) {
                 if (rightExpression instanceof Variable) {
-                    setExpressionExecutor(rightExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
+                    setExpressionExecutor(leftExpression, rightExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext);
                 } else if (rightExpression instanceof Constant) {
                     setConstantValue(rightExpression, conditionBuilder);
                 }
@@ -272,14 +272,14 @@ public class RDBMSOperatorParser {
         conditionBuilder.append(attributeName).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
     }
 
-    private static void setExpressionExecutor(Expression expression, StringBuilder conditionBuilder, List<Attribute> conditionAttributeList, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int matchingStreamIndex,
+    private static void setExpressionExecutor(Expression eventTableExpression, Expression expression, StringBuilder conditionBuilder, List<Attribute> conditionAttributeList, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Map<String, String> elementMappings, MetaComplexEvent metaStateEvent, int matchingStreamIndex,
                                               Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> variableExpressionExecutors,
                                               ExecutionPlanContext executionPlanContext) {
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
         conditionBuilder.append(elementMappings.get(RDBMSEventTableConstants
                 .EVENT_TABLE_RDBMS_QUESTION_MARK)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
-        String attributeName = ((Variable) expression).getAttributeName();
+        String attributeName = ((Variable) eventTableExpression).getAttributeName();
         conditionAttributeList.add(getAttribute(dbHandler, attributeName));
         expressionExecutorList.add(expressionExecutor);
     }
