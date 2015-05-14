@@ -20,7 +20,6 @@ import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.exception.FunctionAlreadyExistException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -253,7 +252,7 @@ public class ExecutionPlan {
 
     private void checkDuplicateFunctionExist(FunctionDefinition functionDefinition) {
         if (this.functionDefinitionMap.get(functionDefinition.getId()) != null) {
-            throw new FunctionAlreadyExistException("The function definition with the same id exists " + functionDefinition.getId());
+            throw new DuplicateDefinitionException("The function definition with the same id exists " + functionDefinition.getId());
         }
     }
 

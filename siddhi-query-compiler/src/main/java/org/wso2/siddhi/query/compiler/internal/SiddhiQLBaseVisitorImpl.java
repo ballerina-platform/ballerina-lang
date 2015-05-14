@@ -104,6 +104,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 throw newSiddhiParserException(ctx);
             }
         }
+        for (SiddhiQLParser.Definition_triggerContext triggerContext : ctx.definition_trigger()) {
+            executionPlan.defineTrigger((TriggerDefinition) visit(triggerContext));
+        }
         return executionPlan;
     }
 

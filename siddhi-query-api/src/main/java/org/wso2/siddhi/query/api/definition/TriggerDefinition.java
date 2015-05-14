@@ -16,6 +16,8 @@
 
 package org.wso2.siddhi.query.api.definition;
 
+import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
+
 public class TriggerDefinition {
 
     private String id;
@@ -55,4 +57,8 @@ public class TriggerDefinition {
         return this;
     }
 
+    public TriggerDefinition atEvery(TimeConstant time) {
+        this.atEvery = time.value();
+        return this;
+    }
 }

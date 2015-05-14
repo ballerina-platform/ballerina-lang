@@ -28,8 +28,8 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.exception.FunctionAlreadyExistException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class EvalScriptTestCase {
@@ -178,7 +178,7 @@ public class EvalScriptTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected=FunctionAlreadyExistException.class)
+    @Test(expected=DuplicateDefinitionException.class)
     public void testDefineFunctionsWithSameFunctionID() throws InterruptedException {
 
         log.info("testDefineFunctionsWithSameFunctionID");

@@ -133,6 +133,8 @@ public class DefinitionParserHelper {
                         }
                     }
                 }
+            }else if(triggerDefinition.getAt()!=null){
+                throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' must either have trigger time in cron or 'start' or time interval defined, and it cannot have more than one defined as '"+triggerDefinition+"'");
             }
         } else {
             throw new ExecutionPlanValidationException("Trigger Definition id cannot be null");
