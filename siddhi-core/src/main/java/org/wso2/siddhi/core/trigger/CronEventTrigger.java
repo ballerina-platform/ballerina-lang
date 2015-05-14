@@ -75,7 +75,9 @@ public class CronEventTrigger implements EventTrigger, Job {
     @Override
     public void stop() {
         try {
-            scheduler.deleteJob(new JobKey(jobName, jobGroup));
+            if (scheduler != null) {
+                scheduler.deleteJob(new JobKey(jobName, jobGroup));
+            }
         } catch (SchedulerException e) {
             log.error("Error while removing the cron trigger job, " + e.getMessage(), e);
         }
