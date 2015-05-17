@@ -190,10 +190,11 @@ public class TriggerTestCase {
 
         executionPlanRuntime.start();
 
-        Thread.sleep(1100);
+        Thread.sleep(900);
+        executionPlanRuntime.shutdown();
+
         Assert.assertEquals(2, count);
         Assert.assertEquals(true, eventArrived);
-        executionPlanRuntime.shutdown();
 
     }
 
