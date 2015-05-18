@@ -76,7 +76,6 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
-                        <Embed-Transitive>true</Embed-Transitive>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
