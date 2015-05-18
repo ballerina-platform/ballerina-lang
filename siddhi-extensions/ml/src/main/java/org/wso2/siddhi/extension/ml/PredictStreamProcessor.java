@@ -124,7 +124,6 @@ public class PredictStreamProcessor extends StreamProcessor {
             int index = 0;
             for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
                 if(expressionExecutor instanceof VariableExpressionExecutor) {
-                    index++;
                     VariableExpressionExecutor variable = (VariableExpressionExecutor) expressionExecutor;
                     String variableName = variable.getAttribute().getName();
                     if (featureIndexMap.get(variableName) != null) {
@@ -135,6 +134,7 @@ public class PredictStreamProcessor extends StreamProcessor {
                         throw new ExecutionPlanCreationException("No matching feature name found in the model " +
                                 "for the attribute : " + variableName);
                     }
+                    index++;
                 }
             }
         } else {

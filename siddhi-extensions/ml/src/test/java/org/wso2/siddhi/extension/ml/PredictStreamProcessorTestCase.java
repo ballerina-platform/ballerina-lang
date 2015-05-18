@@ -34,10 +34,13 @@ import java.util.Properties;
 
 public class PredictStreamProcessorTestCase {
 
+    private volatile boolean eventArrived;
+
     @Before
     public void init() {
         MLCoreServiceValueHolder valueHolder = MLCoreServiceValueHolder.getInstance();
         valueHolder.setMlProperties(new Properties());
+        eventArrived = false;
     }
 
     @Test
@@ -62,6 +65,7 @@ public class PredictStreamProcessorTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
                 if (inEvents != null) {
                     Assert.assertEquals(0.9176214029655854, inEvents[0].getData(8));
                 }
@@ -73,6 +77,7 @@ public class PredictStreamProcessorTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{6, 148, 72, 35, 0, 33.6, 0.627, 50});
         Thread.sleep(1000);
+        junit.framework.Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 
@@ -98,6 +103,7 @@ public class PredictStreamProcessorTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
                 if (inEvents != null) {
                     Assert.assertEquals(0.9176214029655854, inEvents[0].getData(0));
                 }
@@ -109,6 +115,7 @@ public class PredictStreamProcessorTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{6, 148, 72, 35, 0, 33.6, 0.627, 50});
         Thread.sleep(1000);
+        junit.framework.Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }
