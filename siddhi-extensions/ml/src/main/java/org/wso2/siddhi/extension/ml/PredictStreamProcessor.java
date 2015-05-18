@@ -88,7 +88,7 @@ public class PredictStreamProcessor extends StreamProcessor {
         } else if(attributeExpressionExecutors.length == 1) {
             attributeSelectionAvailable = false;    // model-storage-location
         } else {
-            attributeSelectionAvailable = true;  // model-name, ml-server-url, username, password, stream-attributes list
+            attributeSelectionAvailable = true;  // model-storage-location, stream-attributes list
         }
 
         if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)  {
