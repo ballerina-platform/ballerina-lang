@@ -174,7 +174,7 @@ public class TriggerTestCase {
 
         String plan = "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
-                "define trigger triggerStream at '0/1 * * * * ?' ;";
+                "define trigger triggerStream at '*/1 * * * * ?' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(plan);
 
@@ -190,10 +190,11 @@ public class TriggerTestCase {
 
         executionPlanRuntime.start();
 
-        Thread.sleep(1100);
+        Thread.sleep(1000);
+        executionPlanRuntime.shutdown();
+
         Assert.assertEquals(2, count);
         Assert.assertEquals(true, eventArrived);
-        executionPlanRuntime.shutdown();
 
     }
 
