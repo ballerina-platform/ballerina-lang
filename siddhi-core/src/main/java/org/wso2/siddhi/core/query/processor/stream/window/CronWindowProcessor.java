@@ -25,22 +25,22 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
-public class CronWindowProcessor extends WindowProcessor {
+public class CronWindowProcessor extends WindowProcessor implements Job{
 
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
     private ExecutionPlanContext executionPlanContext;
     private Scheduler scheduler;
     private String jobName;
-    private final String jobGroup = "group1";
+    private final String jobGroup = "CronWindowGroup";
+    private String cronString;
 
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         if (attributeExpressionExecutors != null) {
-            String cronString = (String) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());
-            scheduleCronJob(cronString, elementId);
+            cronString = (String) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());
         }
     }
 
@@ -56,7 +56,7 @@ public class CronWindowProcessor extends WindowProcessor {
 
     @Override
     public void start() {
-        //Do nothing
+        scheduleCronJob(cronString, elementId);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class CronWindowProcessor extends WindowProcessor {
             dataMap.put("windowProcessor", this);
 
             jobName = "EventRemoverJob_" + elementId;
-            JobDetail job = org.quartz.JobBuilder.newJob(CronWindowEventRemoverJob.class)
+            JobDetail job = org.quartz.JobBuilder.newJob(CronWindowProcessor.class)
                     .withIdentity(jobName, jobGroup)
                     .usingJobData(dataMap)
                     .build();
@@ -135,4 +135,15 @@ public class CronWindowProcessor extends WindowProcessor {
 
     }
 
+    @Override
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        if (log.isDebugEnabled()) {
+            log.debug("Running Event Remover Job");
+        }
+
+        JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+        CronWindowProcessor windowProcessor = (CronWindowProcessor) dataMap.get("windowProcessor");
+        windowProcessor.dispatchEvents();
+
+    }
 }

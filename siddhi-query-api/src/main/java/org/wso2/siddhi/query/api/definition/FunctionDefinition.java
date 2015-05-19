@@ -16,11 +16,11 @@
 
 package org.wso2.siddhi.query.api.definition;
 
-public class FunctionDefinition extends AbstractDefinition {
+public class FunctionDefinition {
 
     private String language;
     private String body;
-    private String functionID;
+    private String id;
     private Attribute.Type returnType;
 
     public Attribute.Type getReturnType() {
@@ -35,8 +35,8 @@ public class FunctionDefinition extends AbstractDefinition {
         return body;
     }
 
-    public String getFunctionID() {
-        return functionID;
+    public String getId() {
+        return id;
     }
 
     public FunctionDefinition language(String language) {
@@ -49,8 +49,8 @@ public class FunctionDefinition extends AbstractDefinition {
         return this;
     }
 
-    public FunctionDefinition functionID(String functionID) {
-        this.functionID = functionID;
+    public FunctionDefinition id(String functionID) {
+        this.id = functionID;
         return this;
     }
 

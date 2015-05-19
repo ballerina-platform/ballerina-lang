@@ -16,13 +16,13 @@
 package org.wso2.siddhi.core.util.parser;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
+import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
@@ -30,10 +30,10 @@ import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGener
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -58,7 +58,7 @@ public class ExecutionPlanParser {
      * @param executionPlan plan to be parsed
      * @return ExecutionPlanRuntime
      */
-    public static ExecutionPlanRuntime parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
+    public static ExecutionPlanRuntimeBuilder parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
 
         ExecutionPlanContext executionPlanContext = new ExecutionPlanContext();
         executionPlanContext.setSiddhiContext(siddhiContext);
@@ -109,53 +109,58 @@ public class ExecutionPlanParser {
                     executionPlan.toString());
         }
 
-        ExecutionPlanRuntime executionPlanRuntime = new ExecutionPlanRuntime(executionPlanContext);
+        ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = new ExecutionPlanRuntimeBuilder(executionPlanContext);
 
-        defineStreamDefinitions(executionPlanRuntime, executionPlan.getStreamDefinitionMap());
-        defineTableDefinitions(executionPlanRuntime, executionPlan.getTableDefinitionMap());
-        defineFunctionDefinitions(executionPlanRuntime, executionPlan.getFunctionDefinitionMap());
+        defineStreamDefinitions(executionPlanRuntimeBuilder, executionPlan.getStreamDefinitionMap());
+        defineTableDefinitions(executionPlanRuntimeBuilder, executionPlan.getTableDefinitionMap());
+        defineFunctionDefinitions(executionPlanRuntimeBuilder, executionPlan.getFunctionDefinitionMap());
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
                     QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, executionPlanContext,
-                            executionPlanRuntime.getStreamDefinitionMap(), executionPlanRuntime.getTableDefinitionMap(), executionPlanRuntime.getEventTableMap());
-                    executionPlanRuntime.addQuery(queryRuntime);
+                            executionPlanRuntimeBuilder.getStreamDefinitionMap(), executionPlanRuntimeBuilder.getTableDefinitionMap(), executionPlanRuntimeBuilder.getEventTableMap());
+                    executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 } else {
-                    PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntime,
-                            (Partition) executionElement, executionPlanContext, executionPlanRuntime.getStreamDefinitionMap());
-                    executionPlanRuntime.addPartition(partitionRuntime);
+                    PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,
+                            (Partition) executionElement, executionPlanContext, executionPlanRuntimeBuilder.getStreamDefinitionMap());
+                    executionPlanRuntimeBuilder.addPartition(partitionRuntime);
                 }
             }
         } catch (ExecutionPlanCreationException e) {
             throw new ExecutionPlanValidationException(e.getMessage() + " in execution plan \"" +
-                    executionPlanRuntime.getName() + "\"", e);
+                    executionPlanContext.getName() + "\"", e);
         } catch (DuplicateDefinitionException e) {
             throw new DuplicateDefinitionException(e.getMessage() + " in execution plan \"" +
-                    executionPlanRuntime.getName() + "\"", e);
+                    executionPlanContext.getName() + "\"", e);
         }
-        return executionPlanRuntime;
+
+        //Done last as they have to be started last
+        defineTriggerDefinitions(executionPlanRuntimeBuilder, executionPlan.getTriggerDefinitionMap());
+        return executionPlanRuntimeBuilder;
     }
 
-    private static void defineFunctionDefinitions(ExecutionPlanRuntime executionPlanRuntime, Map<String, FunctionDefinition> functionDefinitionMap) {
+    private static void defineTriggerDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TriggerDefinition> triggerDefinitionMap) {
+        for (TriggerDefinition definition:triggerDefinitionMap.values()){
+            executionPlanRuntimeBuilder.defineTrigger(definition);
+        }
+    }
+
+    private static void defineFunctionDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, FunctionDefinition> functionDefinitionMap) {
         for (FunctionDefinition definition : functionDefinitionMap.values()) {
-            executionPlanRuntime.defineFunction(definition);
+            executionPlanRuntimeBuilder.defineFunction(definition);
         }
     }
 
-    private static void defineStreamDefinitions(ExecutionPlanRuntime executionPlanRuntime, Map<String, StreamDefinition> streamDefinitionMap) {
+    private static void defineStreamDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, StreamDefinition> streamDefinitionMap) {
         for (StreamDefinition definition : streamDefinitionMap.values()) {
-            executionPlanRuntime.defineStream(definition);
+            executionPlanRuntimeBuilder.defineStream(definition);
         }
     }
 
-    private static void defineTableDefinitions(ExecutionPlanRuntime executionPlanRuntime, Map<String, TableDefinition> tableDefinitionMap) {
+    private static void defineTableDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TableDefinition> tableDefinitionMap) {
         for (TableDefinition definition : tableDefinitionMap.values()) {
-            executionPlanRuntime.defineTable(definition);
+            executionPlanRuntimeBuilder.defineTable(definition);
         }
-    }
-
-    public void validateDefinition(AbstractDefinition definition) {
-
     }
 
 }

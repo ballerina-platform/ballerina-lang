@@ -1,0 +1,1 @@
+predict=org.wso2.siddhi.extension.ml.PredictStreamProcessor

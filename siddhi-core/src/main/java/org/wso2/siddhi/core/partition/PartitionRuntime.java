@@ -15,7 +15,6 @@
  */
 package org.wso2.siddhi.core.partition;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -64,7 +63,7 @@ public class PartitionRuntime implements Snapshotable {
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
     private ExecutionPlanContext executionPlanContext;
 
-    public PartitionRuntime(ExecutionPlanRuntime executionPlanRuntime, Partition partition, ExecutionPlanContext executionPlanContext) {
+    public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,ConcurrentMap<String, StreamJunction> streamJunctionMap, Partition partition, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         try {
             Element element = AnnotationHelper.getAnnotationElement("info", "name", partition.getAnnotations());
@@ -79,8 +78,8 @@ public class PartitionRuntime implements Snapshotable {
         }
         elementId = executionPlanContext.getElementIdGenerator().createNewId();
         this.partition = partition;
-        this.streamDefinitionMap = executionPlanRuntime.getStreamDefinitionMap();
-        this.streamJunctionMap = executionPlanRuntime.getStreamJunctions();
+        this.streamDefinitionMap = streamDefinitionMap;
+        this.streamJunctionMap = streamJunctionMap;
     }
 
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {

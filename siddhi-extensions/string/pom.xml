@@ -67,8 +67,6 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
-                        <Embed-Transitive>true</Embed-Transitive>
-                        <Embed-Dependency>scope=runtime;inline=true</Embed-Dependency>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>

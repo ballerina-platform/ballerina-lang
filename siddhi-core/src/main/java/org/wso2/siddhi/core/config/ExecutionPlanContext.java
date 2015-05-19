@@ -16,6 +16,7 @@
 
 package org.wso2.siddhi.core.config;
 
+import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
@@ -23,7 +24,9 @@ import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
@@ -47,9 +50,11 @@ public class ExecutionPlanContext {
     private TimestampGenerator timestampGenerator=null;
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
+    private Map<String, EvalScript> scriptFunctionMap;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
+        this.scriptFunctionMap = new HashMap<String, EvalScript>();
     }
 
     public SiddhiContext getSiddhiContext() {
@@ -154,5 +159,17 @@ public class ExecutionPlanContext {
 
     public ElementIdGenerator getElementIdGenerator() {
         return elementIdGenerator;
+    }
+
+    public EvalScript getEvalScript(String name) {
+        return scriptFunctionMap.get(name);
+    }
+
+    public boolean isFunctionExist(String name) {
+        return scriptFunctionMap.get(name) != null;
+    }
+
+    public Map<String, EvalScript> getScriptFunctionMap() {
+        return scriptFunctionMap;
     }
 }

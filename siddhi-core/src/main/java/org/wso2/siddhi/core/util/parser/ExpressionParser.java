@@ -279,7 +279,7 @@ public class ExpressionParser {
                 executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), AttributeAggregator.class);
             } catch (ExecutionPlanCreationException ex) {
                 try {
-                    if(executionPlanContext.getSiddhiContext().isFunctionExist(((AttributeFunction) expression).getFunction())) {
+                    if(executionPlanContext.isFunctionExist(((AttributeFunction) expression).getFunction())) {
                         executor = new ScriptFunctionExecutor(((AttributeFunction) expression).getFunction());
                     } else {
                         try {

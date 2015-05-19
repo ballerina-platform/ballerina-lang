@@ -40,9 +40,9 @@ public class SiddhiExtensionLoader {
         if (classPath == null) {
             classPath = ".";
         } else {
-            classPath += ":.";
+            classPath += File.pathSeparator+".";
         }
-        String[] classPathElements = classPath.split(":");
+        String[] classPathElements = classPath.split(File.pathSeparator);
         Pattern pattern = Pattern.compile(SIDDHI_EXT);
         Collection<String> extensionsList = new ArrayList<String>();
 
@@ -75,21 +75,17 @@ public class SiddhiExtensionLoader {
         if (file.isDirectory()) {
             resources.addAll(getContentFromDirectory(file, pattern));
         } else {
-            try {
-                String fileName = file.getCanonicalPath();
-                Pattern jar = Pattern.compile(JAR);
-                if (jar.matcher(fileName).matches()) {
-                    resources.addAll(getContentFromJarFile(file, pattern));
-                } else if (pattern.matcher(fileName).matches()) {
-                    try {
-                        InputStream inputStream = new FileInputStream(fileName);
-                        resources.addAll(readContent(fileName, inputStream));
-                    } catch (IOException ex) {
-                        log.error("unable to get input stream of " + fileName, ex);
-                    }
+            String fileName = file.getName();
+            Pattern jar = Pattern.compile(JAR);
+            if (jar.matcher(fileName).matches()) {
+                resources.addAll(getContentFromJarFile(file, pattern));
+            } else if (pattern.matcher(fileName).matches()) {
+                try {
+                    InputStream inputStream = new FileInputStream(file.getCanonicalPath());
+                    resources.addAll(readContent(fileName, inputStream));
+                } catch (IOException ex) {
+                    log.error("unable to get input stream of " + fileName, ex);
                 }
-            } catch (IOException e) {
-                log.error("unable to get canonical path of file " + file, e);
             }
         }
         return resources;
@@ -142,8 +138,7 @@ public class SiddhiExtensionLoader {
 
     public static Collection<String> readContent(String fileName, InputStream inputStream) {
         List<String> resources = new ArrayList<String>();
-        String[] file = fileName.split("/");
-        String namespace = file[file.length - 1].split("\\.")[0];
+        String namespace = fileName.split("\\.")[0];
         try {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(new BufferedInputStream(inputStream)));

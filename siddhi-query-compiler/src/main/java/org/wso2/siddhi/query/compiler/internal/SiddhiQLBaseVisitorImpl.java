@@ -20,10 +20,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
@@ -92,7 +89,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         for (SiddhiQLParser.Definition_tableContext tableContext : ctx.definition_table()) {
             executionPlan.defineTable((TableDefinition) visit(tableContext));
         }
-        for(SiddhiQLParser.Definition_functionContext functionContext: ctx.definition_function()) {
+        for (SiddhiQLParser.Definition_functionContext functionContext : ctx.definition_function()) {
             executionPlan.defineFunction((FunctionDefinition) visit(functionContext));
         }
         for (SiddhiQLParser.Execution_elementContext executionElementContext : ctx.execution_element()) {
@@ -106,6 +103,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             } else {
                 throw newSiddhiParserException(ctx);
             }
+        }
+        for (SiddhiQLParser.Definition_triggerContext triggerContext : ctx.definition_trigger()) {
+            executionPlan.defineTrigger((TriggerDefinition) visit(triggerContext));
         }
         return executionPlan;
     }
@@ -154,22 +154,105 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     @Override
     public Object visitDefinition_function_final(@NotNull SiddhiQLParser.Definition_function_finalContext ctx) {
-          return visit(ctx.definition_function());
+        return visit(ctx.definition_function());
     }
 
     @Override
     public FunctionDefinition visitDefinition_function(@NotNull SiddhiQLParser.Definition_functionContext ctx) {
-        SiddhiQLParser.Function_nameContext  functionName  = ctx.function_name();
-        SiddhiQLParser.Language_nameContext  languageName  = ctx.language_name();
-        SiddhiQLParser.Attribute_typeContext attributeType = ctx.attribute_type();
-        SiddhiQLParser.Function_bodyContext  functionBody  = ctx.function_body();
+        String functionName = (String) visitFunction_name(ctx.function_name());
+        String languageName = (String) visitLanguage_name(ctx.language_name());
+        Attribute.Type attributeType = (Attribute.Type) visit(ctx.attribute_type());
+        String functionBody = (String) visitFunction_body(ctx.function_body());
 
         FunctionDefinition functionDefinition = new FunctionDefinition();
-        String bodyBlock = functionBody.getText();
-        String body = bodyBlock.substring(1,bodyBlock.length()-2);
-        functionDefinition.functionID(functionName.getText()).language(languageName.getText()).
-                type((Attribute.Type)visit(attributeType)).body(body);
+        functionDefinition.id(functionName).language(languageName).
+                type(attributeType).body(functionBody);
         return functionDefinition;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitFunction_name(@NotNull SiddhiQLParser.Function_nameContext ctx) {
+        return visitId(ctx.id());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitFunction_body(@NotNull SiddhiQLParser.Function_bodyContext ctx) {
+        String bodyBlock = ctx.SCRIPT().getText();
+        return bodyBlock.substring(1, bodyBlock.length() - 2);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitLanguage_name(@NotNull SiddhiQLParser.Language_nameContext ctx) {
+        return visitId(ctx.id());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitDefinition_trigger_final(@NotNull SiddhiQLParser.Definition_trigger_finalContext ctx) {
+        return visitDefinition_trigger(ctx.definition_trigger());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitDefinition_trigger(@NotNull SiddhiQLParser.Definition_triggerContext ctx) {
+        TriggerDefinition triggerDefinition = TriggerDefinition.id((String) visitTrigger_name(ctx.trigger_name()));
+        if (ctx.time_value() != null) {
+            triggerDefinition.atEvery(visitTime_value(ctx.time_value()).value());
+        } else {
+            triggerDefinition.at(visitString_value(ctx.string_value()).getValue());
+        }
+        return triggerDefinition;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitTrigger_name(@NotNull SiddhiQLParser.Trigger_nameContext ctx) {
+        return visitId(ctx.id());
     }
 
     /**

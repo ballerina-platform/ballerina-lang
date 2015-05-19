@@ -27,6 +27,8 @@ public final class SiddhiConstants {
     public static final int STREAM_ATTRIBUTE_TYPE_INDEX = 2;
     public static final int STREAM_ATTRIBUTE_INDEX = 3;
 
+    public static final String TRIGGER_START = "start";
+
     public static final String ANNOTATION_ELEMENT_CALLBACK_ASYNC = "callback.async";
 
     public static final String ANNOTATION_NAME = "Name";

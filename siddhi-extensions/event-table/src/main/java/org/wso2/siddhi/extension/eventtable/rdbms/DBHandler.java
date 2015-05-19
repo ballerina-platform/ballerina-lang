@@ -23,6 +23,7 @@ import org.apache.hadoop.util.hash.Hash;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -62,6 +63,9 @@ public class DBHandler {
         executionInfo = new ExecutionInfo();
 
         try {
+            if(dataSource == null){
+                throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
+            }
             con = dataSource.getConnection();
             initializeDatabaseExecutionInfo(executionInfo);
             initializeConnection();

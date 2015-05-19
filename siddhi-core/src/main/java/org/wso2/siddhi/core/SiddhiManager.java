@@ -17,13 +17,15 @@ package org.wso2.siddhi.core;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
-import org.wso2.siddhi.core.util.parser.FunctionParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.query.api.ExecutionPlan;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -46,7 +48,9 @@ public class SiddhiManager {
      * @
      */
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
-        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext);
+        ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = ExecutionPlanParser.parse(executionPlan, siddhiContext);
+        executionPlanRuntimeBuilder.setExecutionPlanRuntimeMap(executionPlanRuntimeMap);
+        ExecutionPlanRuntime executionPlanRuntime = executionPlanRuntimeBuilder.build();
         executionPlanRuntimeMap.put(executionPlanRuntime.getName(), executionPlanRuntime);
         return executionPlanRuntime;
     }
@@ -59,26 +63,34 @@ public class SiddhiManager {
         return executionPlanRuntimeMap.get(executionPlanName);
     }
 
-    //Todo remove the execution plan from SiddhiManager
-    public SiddhiContext getSiddhiContext() {
-        return siddhiContext;
+    public void validateExecutionPlan(ExecutionPlan executionPlan) {
+        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
+        executionPlanRuntime.start();
+        executionPlanRuntime.shutdown();
     }
 
-    public void validateExecutionPlan(ExecutionPlan executionPlan) {
-        ExecutionPlanParser.parse(executionPlan, siddhiContext);
+    public void validateExecutionPlan(String executionPlan) {
+        validateExecutionPlan(SiddhiCompiler.parse(executionPlan));
     }
 
     public void setPersistenceStore(PersistenceStore persistenceStore) {
         this.siddhiContext.setPersistenceStore(persistenceStore);
     }
 
-    public void defineFunction(String functionDefinition) {
-        defineFunction(SiddhiCompiler.parseFunctionDefinition(functionDefinition));
+    public void setExtension(String name, Class clazz) {
+        siddhiContext.getSiddhiExtensions().put(name, clazz);
     }
 
-    public void defineFunction(FunctionDefinition functionDefinition) {
-        FunctionParser.addFunction(siddhiContext, functionDefinition);
-
+    public void setDataSource(String dataSourceName, DataSource dataSource) {
+        siddhiContext.addSiddhiDataSource(dataSourceName, dataSource);
     }
+
+    public void shutdown() {
+        List<String> executionPlanNames = new ArrayList<String>(executionPlanRuntimeMap.keySet());
+        for (String executionPlanName : executionPlanNames) {
+            executionPlanRuntimeMap.get(executionPlanName).shutdown();
+        }
+    }
+
 
 }

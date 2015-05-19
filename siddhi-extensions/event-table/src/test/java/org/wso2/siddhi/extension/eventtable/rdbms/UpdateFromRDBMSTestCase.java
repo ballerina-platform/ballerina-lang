@@ -49,7 +49,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -100,7 +100,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -150,7 +150,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -218,7 +218,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -287,7 +287,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -355,7 +355,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
@@ -424,7 +424,7 @@ public class UpdateFromRDBMSTestCase {
         log.info("updateFromTableTest7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.getSiddhiContext().addSiddhiDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
         try {
             if (dataSource.getConnection() != null) {
