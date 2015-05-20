@@ -12,5 +12,6 @@
 # CONDITIONS OF ANY KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations under the License.
 #
-regress = org.wso2.siddhi.extension.timeseries.LinearRegressionStreamProcessor
-forecast = org.wso2.siddhi.extension.timeseries.LinearRegressionForecastStreamProcessor
+regress=org.wso2.siddhi.extension.timeseries.LinearRegressionStreamProcessor
+forecast=org.wso2.siddhi.extension.timeseries.LinearRegressionForecastStreamProcessor
+outlier=org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierStreamProcessor

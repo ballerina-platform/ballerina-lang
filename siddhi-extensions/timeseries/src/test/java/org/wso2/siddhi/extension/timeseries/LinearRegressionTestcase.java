@@ -31,7 +31,8 @@ public class LinearRegressionTestcase {
     static final Logger logger = Logger.getLogger(LinearRegressionTestcase.class);
     protected static SiddhiManager siddhiManager;
     private int count;
-    private double betaZero, betaTwo;
+    private double betaZero, betaTwo, forecastY;
+    private boolean outlier;
 
     @Before
     public void init() {
@@ -144,6 +145,7 @@ public class LinearRegressionTestcase {
                 betaTwo = (Double) inEvents[inEvents.length-1].getData(8);
             }
         });
+
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
         System.out.println(System.currentTimeMillis());
@@ -214,7 +216,7 @@ public class LinearRegressionTestcase {
         siddhiManager = new SiddhiManager();
         String inputStream = "@config(async = 'true')define stream InputStream (y double, symbol string, x double);";
 
-        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:forecast(1, 100, 0.95, x+2, y, x) "
+        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:forecast(2, 1000, 0.95, x+2, y, x) "
                 + "select * "
                 + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + executionPlan);
@@ -224,6 +226,8 @@ public class LinearRegressionTestcase {
             public void receive(long timeStamp, Event[] inEvents,
                                 Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count = count + inEvents.length;
+                forecastY = (Double) inEvents[inEvents.length-1].getData(6);
             }
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
@@ -284,10 +288,234 @@ public class LinearRegressionTestcase {
 
         Thread.sleep(100);
 
-        Assert.assertEquals("No of events: ", 50, count);
-        Assert.assertEquals("Beta0: ", 573.1418421169493, betaZero, 573.1418421169493-betaZero);
+        Assert.assertEquals("Beta0: ", 1250.1106928045238, forecastY, 1250.1106928045238-forecastY);
+        Assert.assertEquals("No of events: ", 25, count);
 
         executionPlanRuntime.shutdown();
 
     }
+
+    @Test
+    public void simpleOutlierTest() throws Exception {
+        logger.info("Simple Outlier TestCase");
+
+        siddhiManager = new SiddhiManager();
+        String inputStream = "@config(async = 'true')define stream InputStream (y double, x double);";
+
+        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:outlier(1, y, x) "
+                + "select * "
+                + "insert into OutputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + executionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents,
+                                Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count = count + inEvents.length;
+                outlier = (Boolean) inEvents[inEvents.length-1].getData(5);
+            }
+        });
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
+        executionPlanRuntime.start();
+
+        System.out.println(System.currentTimeMillis());
+
+        inputHandler.send(new Object[]{3300.00,31.00});
+        inputHandler.send(new Object[]{2600.00,18.00});
+        inputHandler.send(new Object[]{2500.00,17.00});
+        inputHandler.send(new Object[]{2475.00,12.00});
+        inputHandler.send(new Object[]{2313.00,8.00});
+        inputHandler.send(new Object[]{2175.00,26.00});
+        inputHandler.send(new Object[]{600.00,14.00});
+        inputHandler.send(new Object[]{460.00,3.00});
+        inputHandler.send(new Object[]{240.00,1.00});
+        inputHandler.send(new Object[]{200.00,10.00});
+        inputHandler.send(new Object[]{177.00,0.00});
+        inputHandler.send(new Object[]{140.00,6.00});
+        inputHandler.send(new Object[]{117.00,1.00});
+        inputHandler.send(new Object[]{115.00,0.00});
+        inputHandler.send(new Object[]{2600.00,19.00});
+        inputHandler.send(new Object[]{1907.00,13.00});
+        inputHandler.send(new Object[]{1190.00,3.00});
+        inputHandler.send(new Object[]{990.00,16.00});
+        inputHandler.send(new Object[]{925.00,6.00});
+        inputHandler.send(new Object[]{365.00,0.00});
+        inputHandler.send(new Object[]{302.00,10.00});
+        inputHandler.send(new Object[]{300.00,6.00});
+        inputHandler.send(new Object[]{129.00,2.00});
+        inputHandler.send(new Object[]{111.00,1.00});
+        inputHandler.send(new Object[]{6100.00,18.00});
+        inputHandler.send(new Object[]{4125.00,19.00});
+        inputHandler.send(new Object[]{3213.00,1.00});
+        inputHandler.send(new Object[]{2319.00,38.00});
+        inputHandler.send(new Object[]{2000.00,10.00});
+        inputHandler.send(new Object[]{1600.00,0.00});
+        inputHandler.send(new Object[]{1394.00,4.00});
+        inputHandler.send(new Object[]{935.00,4.00});
+        inputHandler.send(new Object[]{850.00,0.00});
+        inputHandler.send(new Object[]{775.00,5.00});
+        inputHandler.send(new Object[]{760.00,6.00});
+        inputHandler.send(new Object[]{629.00,1.00});
+        inputHandler.send(new Object[]{275.00,6.00});
+        inputHandler.send(new Object[]{120.00,0.00});
+        inputHandler.send(new Object[]{2567.00,12.00});
+        inputHandler.send(new Object[]{2500.00,28.00});
+        inputHandler.send(new Object[]{2350.00,21.00});
+        inputHandler.send(new Object[]{2317.00,3.00});
+        inputHandler.send(new Object[]{2000.00,12.00});
+        inputHandler.send(new Object[]{715.00,1.00});
+        inputHandler.send(new Object[]{660.00,9.00});
+        inputHandler.send(new Object[]{650.00,0.00});
+        inputHandler.send(new Object[]{260.00,0.00});
+        inputHandler.send(new Object[]{250.00,1.00});
+        inputHandler.send(new Object[]{200.00,13.00});
+        inputHandler.send(new Object[]{180.00,6.00});
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("No of events: ", 50, count);
+        Assert.assertEquals(false, outlier);
+
+        executionPlanRuntime.shutdown();
+
+    }
+    @Test
+    public void discreteSeasonalityTest() throws Exception {
+        logger.info("Discrete Seasonality TestCase");
+
+        siddhiManager = new SiddhiManager();
+        String inputStream = "@config(async = 'true')define stream InputStream (y double, t long);";
+
+        String executionPlan = ("from InputStream "
+                + " select y, t,  time:extract(t*1000,'MONTH') as eventMonth "
+                + " insert into tempStream1;"
+                + ""
+                + " from tempStream1[eventMonth == 12] "
+                + " select y, t, 1 as dum1"
+                + " insert into tempStream2;"
+                + ""
+                + " from tempStream1[eventMonth != 12] "
+                + " select y, t, 0 as dum1"
+                + " insert into tempStream2;"
+                + ""
+                + " @info(name = 'query1') from tempStream2#timeseries:regress( 1, 1000, 0.95, y, dum1)"
+                + " select *  "
+                + " insert into RegressionResult;"
+        );
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + executionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents,
+                                Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count = count + inEvents.length;
+                betaTwo = (Double) inEvents[inEvents.length-1].getData(5);
+            }
+        });
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
+        executionPlanRuntime.start();
+
+        System.out.println(System.currentTimeMillis());
+
+
+        inputHandler.send(new Object[]{ 3439, 694224000 });
+        inputHandler.send(new Object[]{ 3264, 696902400 });
+        inputHandler.send(new Object[]{ 3437, 699408000 });
+        inputHandler.send(new Object[]{ 3523, 702086400 });
+        inputHandler.send(new Object[]{ 3545, 704678400 });
+        inputHandler.send(new Object[]{ 3611, 707356800 });
+        inputHandler.send(new Object[]{ 3637, 709948800 });
+        inputHandler.send(new Object[]{ 3986, 712627200 });
+        inputHandler.send(new Object[]{ 3797, 715305600 });
+        inputHandler.send(new Object[]{ 3758, 717897600 });
+        inputHandler.send(new Object[]{ 4428, 720576000 });
+        inputHandler.send(new Object[]{ 8566, 723168000 });
+        inputHandler.send(new Object[]{ 3801, 725846400 });
+        inputHandler.send(new Object[]{ 3204, 728524800 });
+        inputHandler.send(new Object[]{ 3686, 730944000 });
+        inputHandler.send(new Object[]{ 3827, 733622400 });
+        inputHandler.send(new Object[]{ 3770, 736214400 });
+        inputHandler.send(new Object[]{ 3923, 738892800 });
+        inputHandler.send(new Object[]{ 3839, 741484800 });
+        inputHandler.send(new Object[]{ 4270, 744163200 });
+        inputHandler.send(new Object[]{ 3988, 746841600 });
+        inputHandler.send(new Object[]{ 3920, 749433600 });
+        inputHandler.send(new Object[]{ 4853, 752112000 });
+        inputHandler.send(new Object[]{ 9010, 754704000 });
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("No of events: ", 24, count);
+        Assert.assertEquals("Beta0: ", 3795.7272727272725, betaZero, 3795.7272727272725-betaZero);
+
+        executionPlanRuntime.shutdown();
+
+    }
+ @Test
+    public void continuousSeasonalityTest() throws Exception {
+        logger.info("Continuous Seasonality TestCase");
+
+        siddhiManager = new SiddhiManager();
+        String inputStream = "@config(async = 'true')define stream InputStream (y double, x double);";
+
+        String executionPlan = ("@info(name = 'query1') from InputStream "
+                + " select y, x, math:sin(x) as sinx"
+                + " insert into tempStream;"
+                + ""
+                + " @info(name = 'query2') from tempStream#timeseries:regress( y, x, sinx)"
+                + " select *  "
+                + " insert into RegressionResult;"
+        );
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + executionPlan);
+
+        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents,
+                                Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count = count + inEvents.length;
+                betaTwo = (Double) inEvents[inEvents.length-1].getData(6);
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
+        executionPlanRuntime.start();
+
+        System.out.println(System.currentTimeMillis());
+
+         inputHandler.send(new Object[]{ 5.49, 0.00 });
+         inputHandler.send(new Object[]{ 6.79, 1.00 });
+         inputHandler.send(new Object[]{ 6.46, 2.00 });
+         inputHandler.send(new Object[]{ 6.24, 3.00 });
+         inputHandler.send(new Object[]{ 5.05, 4.00 });
+         inputHandler.send(new Object[]{ 4.92, 5.00 });
+         inputHandler.send(new Object[]{ 5.64, 6.00 });
+         inputHandler.send(new Object[]{ 7.33, 7.00 });
+         inputHandler.send(new Object[]{ 7.55, 8.00 });
+         inputHandler.send(new Object[]{ 6.87, 9.00 });
+         inputHandler.send(new Object[]{ 6.20, 10.00 });
+         inputHandler.send(new Object[]{ 5.79, 11.00 });
+         inputHandler.send(new Object[]{ 6.56, 12.00 });
+         inputHandler.send(new Object[]{ 6.71, 13.00 });
+         inputHandler.send(new Object[]{ 7.41, 14.00 });
+         inputHandler.send(new Object[]{ 7.97, 15.00 });
+         inputHandler.send(new Object[]{ 6.51, 16.00 });
+         inputHandler.send(new Object[]{ 5.95, 17.00 });
+         inputHandler.send(new Object[]{ 6.40, 18.00 });
+         inputHandler.send(new Object[]{ 7.88, 19.00 });
+         inputHandler.send(new Object[]{ 7.92, 20.00 });
+
+        Thread.sleep(100);
+
+        Assert.assertEquals("No of events: ", 21, count);
+        Assert.assertEquals("Beta0: ", 0.996755594843574, betaTwo, 0.996755594843574 - betaTwo);
+
+        executionPlanRuntime.shutdown();
+
+    }
+
 }

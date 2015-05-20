@@ -36,9 +36,15 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The methods supported by this function are
+ * timeseries:regress(int/long/float/double y, int/long/float/double x1, int/long/float/double x2 ...)
+ * and
+ * timeseries:regress(int calcInterval, int batchSize, double confidenceInterval, int/long/float/double y, int/long/float/double x1, int/long/float/double x2 ...)
+ */
+
 public class LinearRegressionStreamProcessor extends StreamProcessor {
 
-    private boolean constFlag = false;
     private int paramCount = 0;                                         // Number of x variables +1
     private int calcInterval = 1;                                       // The frequency of regression calculation
     private int batchSize = 1000000000;                                 // Maximum # of events, used for regression calculation
@@ -52,8 +58,8 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
 
+        // Capture constant inputs
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
-            constFlag = true;
             paramCount = paramCount - 3;
             paramPosition = 3;
             try {
@@ -69,12 +75,15 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
             }
         }
 
+        // Pick the appropriate regression calculator
         if (paramCount > SIMPLE_LINREG_INPUT_PARAM_COUNT) {
             regressionCalculator = new MultipleLinearRegressionCalculator(paramCount, calcInterval, batchSize, ci);
         } else {
             regressionCalculator = new SimpleLinearRegressionCalculator(paramCount, calcInterval, batchSize, ci);
         }
 
+
+        // Add attributes for standard error and all beta values
         String betaVal;
         ArrayList<Attribute> attributes = new ArrayList<Attribute>(paramCount);
         attributes.add(new Attribute("stderr", Attribute.Type.DOUBLE));
@@ -97,6 +106,7 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
             }
             Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
 
+            // Skip processing if user has specified calculation interval
             if (outputData == null) {
                 streamEventChunk.remove();
             } else {
