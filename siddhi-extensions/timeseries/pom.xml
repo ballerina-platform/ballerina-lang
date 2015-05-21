@@ -41,18 +41,14 @@
             <artifactId>siddhi-query-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.log4j.wso2</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-app</artifactId>
-            <version>0.8</version>
+            <groupId>gov.nist.math</groupId>
+            <artifactId>jama</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -83,9 +79,12 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            Jama
+                        </Private-Package>
                         <Export-Package>
-                            org.wso2.siddhi.extension.string,
-                            org.wso2.siddhi.extension.string.*
+                            org.wso2.siddhi.extension.timeseries,
+                            org.wso2.siddhi.extension.timeseries.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
