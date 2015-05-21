@@ -92,5 +92,9 @@ public class SiddhiManager {
         }
     }
 
-
+    public void persist(){
+        for(ExecutionPlanRuntime executionPlanRuntime:executionPlanRuntimeMap.values()){
+            executionPlanRuntime.persist();
+        }
+    }
 }

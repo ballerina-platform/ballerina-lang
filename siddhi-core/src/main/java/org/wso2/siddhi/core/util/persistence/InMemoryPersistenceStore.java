@@ -78,6 +78,11 @@ public class InMemoryPersistenceStore implements PersistenceStore {
         return null;
     }
 
+    @Override
+    public void setProperties(Map properties) {
+        //no properties to add
+    }
+
     public void shutdown() {
         persistenceMap.clear();
         revisionMap.clear();

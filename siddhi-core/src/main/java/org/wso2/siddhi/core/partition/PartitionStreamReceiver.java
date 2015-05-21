@@ -139,8 +139,9 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         streamEventConverter.convertEvent(event, borrowedEvent);
         streamEventChunk.add(borrowedEvent);
         if (endOfBatch) {
-            receive(streamEventChunk.getFirst());
+            ComplexEvent complexEvent = streamEventChunk.getFirst();
             streamEventChunk.clear();
+            receive(complexEvent);
         }
     }
 

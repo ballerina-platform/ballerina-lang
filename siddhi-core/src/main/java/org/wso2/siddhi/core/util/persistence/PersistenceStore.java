@@ -15,9 +15,13 @@
  */
 package org.wso2.siddhi.core.util.persistence;
 
+import java.util.Map;
+
 public interface PersistenceStore {
 
     void save(String executionPlanId, String revision, byte[] snapshot);
+
+    void setProperties(Map properties);
 
     public byte[] load(String executionPlanId, String revision);
 
