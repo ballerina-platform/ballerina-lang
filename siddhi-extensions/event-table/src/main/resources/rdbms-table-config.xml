@@ -41,7 +41,7 @@
                 <element key="integer">INT</element>
                 <element key="long">BIGINT</element>
                 <element key="float">FLOAT</element>
-                <element key="boolean">BOOL</element>
+                <element key="bool">BOOL</element>
                 <element key="createTable">CREATE TABLE $TABLE_NAME ($COLUMN_TYPES)</element>
                 <element key="insertDataToTable">INSERT INTO $TABLE_NAME ($COLUMNS) VALUES ($VALUES)</element>
                 <element key="isTableExist">SELECT * FROM $TABLE_NAME limit 1</element>
@@ -63,6 +63,7 @@
         </mapping>
         <mapping db='mysql'>
             <elements>
+                <element key="bool">TINYINT</element>
             </elements>
         </mapping>
         <mapping db='oracle'>
