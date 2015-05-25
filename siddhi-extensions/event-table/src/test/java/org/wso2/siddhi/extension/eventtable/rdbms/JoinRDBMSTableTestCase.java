@@ -668,4 +668,87 @@ public class JoinRDBMSTableTestCase {
 
     }
 
+
+   //----------------------------------------------- Connection Properties ----------------------------------------------------------
+
+    @Test
+    public void testTableJoinQuery9() throws InterruptedException {
+        log.info("testTableJoinQuery9 - OUT 2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+
+        try {
+            if ((dataSource.getConnection()) != null) {
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+
+                String streams = "" +
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream CheckStockStream (symbol string); " +
+                        "@from(eventtable = 'rdbms' , jdbc.url = 'jdbc:mysql://localhost:3306/cepdb' , username = 'root' , password = 'root' , driver.name = 'com.mysql.jdbc.Driver' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@connection(maxWait = '4000')" +
+                        "define table StockTable (symbol string, price float, volume long); ";
+                String query = "" +
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from CheckStockStream#window.length(1) join StockTable " +
+                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        "insert into OutputStream ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                    @Override
+                    public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        if (inEvents != null) {
+                            for (Event event : inEvents) {
+                                inEventCount++;
+                                switch (inEventCount) {
+                                    case 1:
+                                        Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
+                                        break;
+                                    case 2:
+                                        Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 10l}, event.getData());
+                                        break;
+                                    default:
+                                        Assert.assertSame(2, inEventCount);
+                                }
+                            }
+                            eventArrived = true;
+                        }
+                        if (removeEvents != null) {
+                            removeEventCount = removeEventCount + removeEvents.length;
+                        }
+                        eventArrived = true;
+                    }
+
+                });
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 10l});
+                checkStockStream.send(new Object[]{"WSO2"});
+
+                Thread.sleep(1000);
+
+                Assert.assertEquals("Number of success events", 2, inEventCount);
+                Assert.assertEquals("Number of remove events", 0, removeEventCount);
+                Assert.assertEquals("Event arrived", true, eventArrived);
+
+                executionPlanRuntime.shutdown();
+            }
+        } catch (SQLException e) {
+            log.info("Test case ignored due to DB connection unavailability");
+        }
+
+    }
+
 }

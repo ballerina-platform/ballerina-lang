@@ -62,10 +62,14 @@ public class SiddhiContext {
     }
 
     public DataSource getSiddhiDataSource(String dataSourceName) {
-        return siddhiDataSources.get(dataSourceName);
+        if (dataSourceName != null) {
+            return siddhiDataSources.get(dataSourceName);
+        }
+
+        return null;
     }
 
     public void addSiddhiDataSource(String dataSourceName, DataSource dataSource) {
-        this.siddhiDataSources.put(dataSourceName,dataSource);
+        this.siddhiDataSources.put(dataSourceName, dataSource);
     }
 }

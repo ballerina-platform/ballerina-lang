@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
 import org.wso2.siddhi.extension.eventtable.rdbms.*;
 import org.wso2.siddhi.query.api.annotation.Annotation;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -52,6 +53,7 @@ public class RDBMSEventTable implements EventTable {
     private boolean isCachingEnabled;
     private static final Logger log = Logger.getLogger(RDBMSEventTable.class);
 
+
     /*
     Loads rdbms-table-config.xml file which provides DB mapping details
      */
@@ -65,7 +67,8 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     * @param tableDefinition Definition of event table
+     *
+     * @param tableDefinition      Definition of event table
      * @param executionPlanContext ExecutionPlan related meta information
      */
     public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -81,7 +84,21 @@ public class RDBMSEventTable implements EventTable {
         DataSource dataSource = executionPlanContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
-        if (dataSourceName == null || tableName == null) {
+        if (dataSource == null) {
+            String jdbcConnectionUrl = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_JDBC_URL);
+            String username = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_USERNAME);
+            String password = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_PASSWORD);
+            String driverName = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME);
+            List<Element> connectionPropertyElements = null;
+
+            Annotation connectionAnnotation = AnnotationHelper.getAnnotation(RDBMSEventTableConstants.ANNOTATION_CONNECTION, tableDefinition.getAnnotations());
+            if (connectionAnnotation != null) {
+                connectionPropertyElements = connectionAnnotation.getElements();
+            }
+            dataSource = PooledDataSource.getPoolDataSource(driverName,jdbcConnectionUrl,username,password,connectionPropertyElements);
+        }
+
+        if (dataSource == null || tableName == null) {
             throw new ExecutionPlanCreationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
         }
 
@@ -133,6 +150,7 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when adding an event to the event table
+     *
      * @param addingEventChunk input event list
      */
     @Override
@@ -142,8 +160,9 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when deleting an event chunk from event table
+     *
      * @param deletingEventChunk Event list for deletion
-     * @param operator Operator that perform RDBMS related operations
+     * @param operator           Operator that perform RDBMS related operations
      */
     @Override
     public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator) {
@@ -155,8 +174,9 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when updating the event table entries
+     *
      * @param updatingEventChunk Event list that needs to be updated
-     * @param operator Operator that perform RDBMS related operations
+     * @param operator           Operator that perform RDBMS related operations
      */
     @Override
     public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition) {
@@ -168,8 +188,9 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when having "in" condition, to check the existence of the event
+     *
      * @param matchingEvent Event that need to be check for existence
-     * @param finder Operator that perform RDBMS related search
+     * @param finder        Operator that perform RDBMS related search
      */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Finder finder) {
