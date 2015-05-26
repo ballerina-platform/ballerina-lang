@@ -16,6 +16,7 @@
 
 package org.wso2.siddhi.extension.eventtable.rdbms;
 
+import org.apache.log4j.Logger;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -33,6 +34,7 @@ public class PooledDataSource {
     private static final String validationQuery = "SELECT 1";
     private static final long validationInterval = 30000;
     private static final boolean defaultAutoCommit = false;
+    private static final Logger log = Logger.getLogger(PooledDataSource.class);
 
 
     private PooledDataSource() {
@@ -58,86 +60,91 @@ public class PooledDataSource {
         if (connectionPropertyElements != null) {
             for (Element element : connectionPropertyElements) {
                 String elementKey = element.getKey();
-                if ("maxIdle".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setMaxIdle(value);
-                } else if ("minIdle".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setMinIdle(value);
-                } else if ("initialSize".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setInitialSize(value);
-                } else if ("maxActive".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setMaxActive(value);
-                } else if ("maxWait".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setMaxWait(value);
-                } else if ("testOnBorrow".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setTestOnBorrow(value);
-                } else if ("validationQuery".equalsIgnoreCase(elementKey)) {
-                    poolProperties.setValidationQuery(element.getValue());
-                } else if ("validationInterval".equalsIgnoreCase(elementKey)) {
-                    long value = Long.parseLong(element.getValue());
-                    poolProperties.setValidationInterval(value);
-                } else if ("testOnReturn".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setTestOnReturn(value);
-                } else if ("testWhileIdle".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setTestWhileIdle(value);
-                } else if ("validatorClassName".equalsIgnoreCase(elementKey)) {
-                    poolProperties.setValidatorClassName(element.getValue());
-                } else if ("timeBetweenEvictionRunsMillis".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setTimeBetweenEvictionRunsMillis(value);
-                } else if ("numTestsPerEvictionRun".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setNumTestsPerEvictionRun(value);
-                } else if ("minEvictableIdleTimeMillis".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setMinEvictableIdleTimeMillis(value);
-                } else if ("accessToUnderlyingConnectionAllowed".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setAccessToUnderlyingConnectionAllowed(value);
-                } else if ("removeAbandoned".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setRemoveAbandoned(value);
-                } else if ("removeAbandonedTimeout".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setRemoveAbandonedTimeout(value);
-                } else if ("logAbandoned".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setLogAbandoned(value);
-                } else if ("initSQL".equalsIgnoreCase(elementKey)) {
-                    poolProperties.setInitSQL(element.getValue());
-                } else if ("jdbcInterceptors".equalsIgnoreCase(elementKey)) {
-                    poolProperties.setJdbcInterceptors(element.getValue());
-                } else if ("jmxEnabled".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setJmxEnabled(value);
-                } else if ("fairQueue".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setFairQueue(value);
-                } else if ("abandonWhenPercentageFull".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setAbandonWhenPercentageFull(value);
-                } else if ("maxAge".equalsIgnoreCase(elementKey)) {
-                    long value = Long.parseLong(element.getValue());
-                    poolProperties.setMaxAge(value);
-                } else if ("useEquals".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setUseEquals(value);
-                } else if ("suspectTimeout".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setSuspectTimeout(value);
-                } else if ("validationQueryTimeout".equalsIgnoreCase(elementKey)) {
-                    int value = Integer.parseInt(element.getValue());
-                    poolProperties.setValidationQueryTimeout(value);
-                } else if ("alternateUsernameAllowed".equalsIgnoreCase(elementKey)) {
-                    boolean value = Boolean.parseBoolean(element.getValue());
-                    poolProperties.setAlternateUsernameAllowed(value);
+                try {
+                    if ("maxIdle".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setMaxIdle(value);
+                    } else if ("minIdle".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setMinIdle(value);
+                    } else if ("initialSize".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setInitialSize(value);
+                    } else if ("maxActive".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setMaxActive(value);
+                    } else if ("maxWait".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setMaxWait(value);
+                    } else if ("testOnBorrow".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setTestOnBorrow(value);
+                    } else if ("validationQuery".equalsIgnoreCase(elementKey)) {
+                        poolProperties.setValidationQuery(element.getValue());
+                    } else if ("validationInterval".equalsIgnoreCase(elementKey)) {
+                        long value = Long.parseLong(element.getValue());
+                        poolProperties.setValidationInterval(value);
+                    } else if ("testOnReturn".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setTestOnReturn(value);
+                    } else if ("testWhileIdle".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setTestWhileIdle(value);
+                    } else if ("validatorClassName".equalsIgnoreCase(elementKey)) {
+                        poolProperties.setValidatorClassName(element.getValue());
+                    } else if ("timeBetweenEvictionRunsMillis".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setTimeBetweenEvictionRunsMillis(value);
+                    } else if ("numTestsPerEvictionRun".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setNumTestsPerEvictionRun(value);
+                    } else if ("minEvictableIdleTimeMillis".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setMinEvictableIdleTimeMillis(value);
+                    } else if ("accessToUnderlyingConnectionAllowed".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setAccessToUnderlyingConnectionAllowed(value);
+                    } else if ("removeAbandoned".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setRemoveAbandoned(value);
+                    } else if ("removeAbandonedTimeout".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setRemoveAbandonedTimeout(value);
+                    } else if ("logAbandoned".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setLogAbandoned(value);
+                    } else if ("initSQL".equalsIgnoreCase(elementKey)) {
+                        poolProperties.setInitSQL(element.getValue());
+                    } else if ("jdbcInterceptors".equalsIgnoreCase(elementKey)) {
+                        poolProperties.setJdbcInterceptors(element.getValue());
+                    } else if ("jmxEnabled".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setJmxEnabled(value);
+                    } else if ("fairQueue".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setFairQueue(value);
+                    } else if ("abandonWhenPercentageFull".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setAbandonWhenPercentageFull(value);
+                    } else if ("maxAge".equalsIgnoreCase(elementKey)) {
+                        long value = Long.parseLong(element.getValue());
+                        poolProperties.setMaxAge(value);
+                    } else if ("useEquals".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setUseEquals(value);
+                    } else if ("suspectTimeout".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setSuspectTimeout(value);
+                    } else if ("validationQueryTimeout".equalsIgnoreCase(elementKey)) {
+                        int value = Integer.parseInt(element.getValue());
+                        poolProperties.setValidationQueryTimeout(value);
+                    } else if ("alternateUsernameAllowed".equalsIgnoreCase(elementKey)) {
+                        boolean value = Boolean.parseBoolean(element.getValue());
+                        poolProperties.setAlternateUsernameAllowed(value);
+                    }
+                } catch (NumberFormatException e) {
+                    log.error("Invalid database connection property value: " + element.getValue() + ", "
+                            + "ignoring property " + elementKey);
                 }
             }
         }
