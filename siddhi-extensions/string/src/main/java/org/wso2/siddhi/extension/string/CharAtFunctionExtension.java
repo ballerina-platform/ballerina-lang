@@ -60,7 +60,7 @@ public class CharAtFunctionExtension extends FunctionExecutor {
         String source = (String) data[0];
         int index = (Integer) data[1];
         try {
-            return source.charAt(index);
+            return String.valueOf(source.charAt(index));
         } catch (IndexOutOfBoundsException e) {
             throw new ExecutionPlanRuntimeException("Index argument "+index+
                     " is negative or not less than the length of the given string "+source, e);

@@ -55,15 +55,15 @@ public class CharAtFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals('B', event.getData(1));
+                        Assert.assertEquals("B", event.getData(1));
                         eventArrived = true;
                     }
                     if (count == 2) {
-                        Assert.assertEquals('S', event.getData(1));
+                        Assert.assertEquals("S", event.getData(1));
                         eventArrived = true;
                     }
                     if (count == 3) {
-                        Assert.assertEquals('Y', event.getData(1));
+                        Assert.assertEquals("Y", event.getData(1));
                         eventArrived = true;
                     }
                 }
@@ -98,15 +98,15 @@ public class CharAtFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals('B', event.getData(1));
+                        Assert.assertEquals("B", event.getData(1));
                         eventArrived = true;
                     }
                     if (count == 2) {
-                        Assert.assertEquals('W', event.getData(1));
+                        Assert.assertEquals("W", event.getData(1));
                         eventArrived = true;
                     }
                     if (count == 3) {
-                        Assert.assertEquals('Z', event.getData(1));
+                        Assert.assertEquals("Z", event.getData(1));
                         eventArrived = true;
                     }
                 }
