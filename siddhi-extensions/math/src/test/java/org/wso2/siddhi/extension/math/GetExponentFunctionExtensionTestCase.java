@@ -47,9 +47,9 @@ public class GetExponentFunctionExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents,
                                 Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Double result;
+                Integer result;
                 for (Event event : inEvents) {
-                    result = (Double) event.getData(0);
+                    result = (Integer) event.getData(0);
                     Assert.assertEquals((Integer) 15, result);
                 }
             }

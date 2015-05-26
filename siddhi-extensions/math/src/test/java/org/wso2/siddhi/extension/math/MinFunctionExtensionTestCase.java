@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class MinFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(IsInfiniteFunctionExtensionTestCase.class);
+    private static Logger logger = Logger.getLogger(MinFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test

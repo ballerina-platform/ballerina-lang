@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class AbsFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(ParseDoubleFunctionExtensionTestCase.class);
+    private static Logger logger = Logger.getLogger(AbsFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test

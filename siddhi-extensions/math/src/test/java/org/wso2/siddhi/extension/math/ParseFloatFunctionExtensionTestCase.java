@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class ParseFloatFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(ParseDoubleFunctionExtensionTestCase.class);
+    private static Logger logger = Logger.getLogger(ParseFloatFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test

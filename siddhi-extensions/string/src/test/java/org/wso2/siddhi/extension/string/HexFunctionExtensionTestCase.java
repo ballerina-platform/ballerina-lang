@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class HexFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(HexFunctionExtension.class);
+    private static Logger logger = Logger.getLogger(HexFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test

@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class IsNanFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(IsInfiniteFunctionExtensionTestCase.class);
+    private static Logger logger = Logger.getLogger(IsNanFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test

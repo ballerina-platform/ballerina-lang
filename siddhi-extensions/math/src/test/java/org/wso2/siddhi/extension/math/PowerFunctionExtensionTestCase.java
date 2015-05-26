@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class PowerFunctionExtensionTestCase {
-    private static Logger logger = Logger.getLogger(LnFunctionExtensionTestCase.class);
+    private static Logger logger = Logger.getLogger(PowerFunctionExtensionTestCase.class);
     protected static SiddhiManager siddhiManager;
 
     @Test
