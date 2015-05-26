@@ -54,3 +54,4 @@ parseFloat=org.wso2.siddhi.extension.math.ParseFloatFunctionExtension
 parseDouble=org.wso2.siddhi.extension.math.ParseDoubleFunctionExtension
 isNan=org.wso2.siddhi.extension.math.IsNanFunctionExtension
 isInfinite=org.wso2.siddhi.extension.math.IsInfiniteFunctionExtension
+round=org.wso2.siddhi.extension.math.RoundFunctionExtension
