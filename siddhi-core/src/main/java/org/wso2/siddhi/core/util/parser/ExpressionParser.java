@@ -136,11 +136,6 @@ public class ExpressionParser {
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
             }
-//            else if (((Compare) expression).getOperator() == Compare.Operator.CONTAINS) {
-//                return parseContainsCompare(
-//                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex),
-//                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
-//            }
 
         } else if (expression instanceof Constant) {
             if (expression instanceof BoolConstant) {
