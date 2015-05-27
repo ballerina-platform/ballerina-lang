@@ -881,29 +881,6 @@ public class ExpressionParser {
         }
     }
 
-//    /**
-//     * Create contains Compare Condition Expression Executor.
-//     *
-//     * @param leftExpressionExecutor
-//     * @param rightExpressionExecutor
-//     * @return
-//     */
-//    private static ConditionExpressionExecutor parseContainsCompare(
-//            ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
-//        switch (leftExpressionExecutor.getReturnType()) {
-//            case STRING:
-//                switch (rightExpressionExecutor.getReturnType()) {
-//                    case STRING:
-//                        return new ContainsCompareConditionExpressionExecutor(leftExpressionExecutor, rightExpressionExecutor);
-//                    default:
-//                        throw new OperationNotSupportedException(rightExpressionExecutor.getReturnType() + " cannot be used in contains comparisons");
-//                }
-//            default:
-//                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in contains comparisons");
-//        }
-//    }
-
-
     /**
      * Parse and validate the given Siddhi variable and return a VariableExpressionExecutor
      *
