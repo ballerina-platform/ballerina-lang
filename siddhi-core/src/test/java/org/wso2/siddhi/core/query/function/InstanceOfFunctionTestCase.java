@@ -131,8 +131,8 @@ public class InstanceOfFunctionTestCase {
     }
 
     @Test
-    public void testInstanceOfIntFunctionExtensionTestCase() throws InterruptedException {
-        log.info("testInstanceOfIntFunctionExtension TestCase");
+    public void testInstanceOfIntegerFunctionExtensionTestCase() throws InterruptedException {
+        log.info("testInstanceOfIntegerFunctionExtension TestCase");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
