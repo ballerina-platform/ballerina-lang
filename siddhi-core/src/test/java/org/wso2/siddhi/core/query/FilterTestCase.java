@@ -683,57 +683,6 @@ public class FilterTestCase {
 
     }
 
-
-    // Test case for CONTAINS operator
-    @Test
-    public void testFilterQuery19() throws InterruptedException {
-        log.info("Filter test19");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.LONG);
-
-        Query query = new Query();
-        query.from(InputStream.stream("cseEventStream").
-                        filter(Expression.compare(Expression.variable("symbol"),
-                                        Compare.Operator.CONTAINS,
-                                        Expression.value("WS"))
-                        )
-        );
-        query.annotation(Annotation.annotation("info").element("name", "query1"));
-        query.select(
-                Selector.selector().
-                        select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.variable("price")).
-                        select("volume", Expression.variable("volume"))
-        );
-        query.insertInto("StockQuote");
-
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count = count + inEvents.length;
-            }
-        });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
-
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 57.6f, 100l});
-        Thread.sleep(100);
-        Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
-
-
-    }
-
     @Test
     public void testFilterQuery20() throws InterruptedException {
         log.info("Filter test20");

@@ -25,7 +25,6 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.*;
-import org.wso2.siddhi.core.executor.condition.compare.contains.ContainsCompareConditionExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.compare.equal.*;
 import org.wso2.siddhi.core.executor.condition.compare.greater_than.*;
 import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal.*;
@@ -136,11 +135,12 @@ public class ExpressionParser {
                 return parseLessThanEqualCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
-            } else if (((Compare) expression).getOperator() == Compare.Operator.CONTAINS) {
-                return parseContainsCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
             }
+//            else if (((Compare) expression).getOperator() == Compare.Operator.CONTAINS) {
+//                return parseContainsCompare(
+//                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex),
+//                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+//            }
 
         } else if (expression instanceof Constant) {
             if (expression instanceof BoolConstant) {
@@ -886,27 +886,27 @@ public class ExpressionParser {
         }
     }
 
-    /**
-     * Create contains Compare Condition Expression Executor.
-     *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
-     */
-    private static ConditionExpressionExecutor parseContainsCompare(
-            ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
-        switch (leftExpressionExecutor.getReturnType()) {
-            case STRING:
-                switch (rightExpressionExecutor.getReturnType()) {
-                    case STRING:
-                        return new ContainsCompareConditionExpressionExecutor(leftExpressionExecutor, rightExpressionExecutor);
-                    default:
-                        throw new OperationNotSupportedException(rightExpressionExecutor.getReturnType() + " cannot be used in contains comparisons");
-                }
-            default:
-                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in contains comparisons");
-        }
-    }
+//    /**
+//     * Create contains Compare Condition Expression Executor.
+//     *
+//     * @param leftExpressionExecutor
+//     * @param rightExpressionExecutor
+//     * @return
+//     */
+//    private static ConditionExpressionExecutor parseContainsCompare(
+//            ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
+//        switch (leftExpressionExecutor.getReturnType()) {
+//            case STRING:
+//                switch (rightExpressionExecutor.getReturnType()) {
+//                    case STRING:
+//                        return new ContainsCompareConditionExpressionExecutor(leftExpressionExecutor, rightExpressionExecutor);
+//                    default:
+//                        throw new OperationNotSupportedException(rightExpressionExecutor.getReturnType() + " cannot be used in contains comparisons");
+//                }
+//            default:
+//                throw new OperationNotSupportedException(leftExpressionExecutor.getReturnType() + " cannot be used in contains comparisons");
+//        }
+//    }
 
 
     /**
