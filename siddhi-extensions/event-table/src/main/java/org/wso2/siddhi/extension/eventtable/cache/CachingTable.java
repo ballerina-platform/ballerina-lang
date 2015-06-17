@@ -18,10 +18,11 @@ package org.wso2.siddhi.extension.eventtable.cache;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 
@@ -31,6 +32,8 @@ public class CachingTable {
 
     private static final Logger log = Logger.getLogger(CachingTable.class);
     private final LinkedList<StreamEvent> list;
+    private final ZeroStreamEventConverter eventConverter;
+    private final StreamEventPool streamEventPool;
     private String elementId;
     private CacheManager cacheManager;
 
@@ -38,9 +41,6 @@ public class CachingTable {
 
     public static final String CACHING_ALGO_LRU = "lru";
     public static final String CACHING_ALGO_LFU = "lfu";
-
-    private final StreamEventCloner streamEventCloner;
-
 
     public CachingTable(String cachingAlgorithm, String cacheSize, ExecutionPlanContext executionPlanContext, TableDefinition tableDefinition) {
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
@@ -67,31 +67,34 @@ public class CachingTable {
             metaStreamEvent.addOutputData(attribute);
         }
 
-        StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 10);
-        streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
+        streamEventPool = new StreamEventPool(metaStreamEvent, 10);
+        eventConverter = new ZeroStreamEventConverter();
+
     }
 
-    public void add(StreamEvent streamEvent) {
-        StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-        list.add(clonedEvent);
-        cacheManager.add(clonedEvent);
+    public void add(ComplexEvent complexEvent) {
+        StreamEvent streamEvent = streamEventPool.borrowEvent();
+        eventConverter.convertStreamEvent(complexEvent, streamEvent);
+        list.add(streamEvent);
+        cacheManager.add(streamEvent);
         if (log.isTraceEnabled()) {
             log.trace("list " + elementId + " size " + list.size());
         }
     }
 
 
-    public void delete(StreamEvent deletingEventChunk) {
-        cacheManager.delete(deletingEventChunk);
+    public void delete(StreamEvent deletingEvent) {
+        cacheManager.delete(deletingEvent);
         if (log.isTraceEnabled()) {
             log.trace("list " + elementId + " size " + list.size());
         }
     }
 
-    public void update(StreamEvent updatingEventChunk) {
+    public void update(StreamEvent updatingEvent) {
 
-        StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(updatingEventChunk);
-        cacheManager.update(clonedEvent);
+        StreamEvent streamEvent = streamEventPool.borrowEvent();
+        eventConverter.convertStreamEvent(updatingEvent, streamEvent);
+        cacheManager.update(streamEvent);
 
         if (log.isTraceEnabled()) {
             log.trace("list " + elementId + " size " + list.size());

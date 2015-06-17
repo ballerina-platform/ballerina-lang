@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -52,6 +53,7 @@ public class InMemoryEventTable implements EventTable {
     private int indexPosition;
     private final StreamEventCloner streamEventCloner;
     private final StreamEventPool streamEventPool;
+    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
 
     public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -92,20 +94,21 @@ public class InMemoryEventTable implements EventTable {
         return tableDefinition;
     }
 
-    public synchronized void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
+    public synchronized void add(ComplexEventChunk addingEventChunk) {
         addingEventChunk.reset();
         while (addingEventChunk.hasNext()) {
-            StreamEvent streamEvent = addingEventChunk.next();
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            ComplexEvent complexEvent = addingEventChunk.next();
+            StreamEvent streamEvent = streamEventPool.borrowEvent();
+            eventConverter.convertStreamEvent(complexEvent, streamEvent);
             if (indexAttribute != null) {
-                treeMap.put(clonedEvent.getOutputData()[indexPosition], streamEvent);
+                treeMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
             } else {
                 list.add(streamEvent);
             }
         }
     }
 
-    public synchronized void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator) {
+    public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         if (indexAttribute != null) {
             operator.delete(deletingEventChunk, treeMap);
         } else {
@@ -114,7 +117,7 @@ public class InMemoryEventTable implements EventTable {
 
     }
 
-    public synchronized void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition) {
+    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
         if (indexAttribute != null) {
             operator.update(updatingEventChunk, treeMap, mappingPosition);
         } else {

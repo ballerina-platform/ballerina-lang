@@ -16,7 +16,6 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -33,7 +32,7 @@ public class InsertIntoStreamCallback implements OutputCallback {
     }
 
     @Override
-    public void send(ComplexEventChunk<StreamEvent> complexEventChunk) {
+    public void send(ComplexEventChunk complexEventChunk) {
         publisher.send(complexEventChunk.getFirst());
     }
 

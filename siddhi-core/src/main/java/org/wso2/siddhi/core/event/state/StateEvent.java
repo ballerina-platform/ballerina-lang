@@ -65,9 +65,9 @@ public class StateEvent implements ComplexEvent {
 
     /**
      * @param position int array of 3 or 4 elements
-     *                 int array of 3 : position[0]-which element of the streamEvents array, position[1]-BeforeWindowData or OutputData or AfterWindowData,
+     *                 int array of 3 : position[0]-which element of the streamEventSize array, position[1]-BeforeWindowData or OutputData or AfterWindowData,
      *                 position[2]- which attribute
-     *                 int array of 4 : position[0]-which element of the streamEvents array, position[1]-which event of the event chain,
+     *                 int array of 4 : position[0]-which element of the streamEventSize array, position[1]-which event of the event chain,
      *                 position[3]- BeforeWindowData or OutputData or AfterWindowData, position[4]- which attribute
      * @return
      */
@@ -168,7 +168,7 @@ public class StateEvent implements ComplexEvent {
     @Override
     public String toString() {
         return "StateEvent{" +
-                "streamEvents=" + Arrays.toString(streamEvents) +
+                "streamEventSize=" + Arrays.toString(streamEvents) +
                 ", timestamp=" + timestamp +
                 ", type=" + type +
                 ", outputData=" + Arrays.toString(outputData) +

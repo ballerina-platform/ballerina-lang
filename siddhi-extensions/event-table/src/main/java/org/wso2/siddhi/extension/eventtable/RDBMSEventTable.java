@@ -154,18 +154,17 @@ public class RDBMSEventTable implements EventTable {
      * @param addingEventChunk input event list
      */
     @Override
-    public void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
+    public void add(ComplexEventChunk addingEventChunk) {
         dbHandler.addEvent(addingEventChunk, cachedTable);
     }
 
     /**
      * Called when deleting an event chunk from event table
-     *
-     * @param deletingEventChunk Event list for deletion
+     *  @param deletingEventChunk Event list for deletion
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
-    public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator) {
+    public void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         operator.delete(deletingEventChunk, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
@@ -174,12 +173,11 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when updating the event table entries
-     *
-     * @param updatingEventChunk Event list that needs to be updated
+     *  @param updatingEventChunk Event list that needs to be updated
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
-    public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition) {
+    public void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
         operator.update(updatingEventChunk, null, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), mappingPosition);

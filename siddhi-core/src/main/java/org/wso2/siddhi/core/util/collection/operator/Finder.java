@@ -27,7 +27,7 @@ public interface Finder {
 
     Finder cloneFinder();
 
-    StreamEvent  find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner);
+    StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner);
 
     boolean contains(ComplexEvent matchingEvent, Object candidateEvents);
 

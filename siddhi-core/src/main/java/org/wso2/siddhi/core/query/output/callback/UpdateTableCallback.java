@@ -17,7 +17,6 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -46,7 +45,7 @@ public class UpdateTableCallback implements OutputCallback {
 
 
     @Override
-    public void send(ComplexEventChunk<StreamEvent> complexEventChunk) {
+    public void send(ComplexEventChunk complexEventChunk) {
         eventTable.update(complexEventChunk, operator, mappingPosition);
     }
 

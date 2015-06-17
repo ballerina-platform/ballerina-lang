@@ -36,6 +36,7 @@ public class ExecutionInfo {
     private String preparedSelectTableStatement;
     private String preparedTableExistenceCheckStatement;
     private String preparedTableRowExistenceCheckStatement;
+    private boolean isBloomFilterCompatible;
 
     public List<Attribute> getInsertQueryColumnOrder() {
         return insertQueryColumnOrder;
@@ -123,5 +124,13 @@ public class ExecutionInfo {
 
     public void setPreparedTableRowExistenceCheckStatement(String preparedTableRowExistenceCheckStatement) {
         this.preparedTableRowExistenceCheckStatement = preparedTableRowExistenceCheckStatement;
+    }
+
+    public void setIsBloomFilterCompatible(boolean isBloomFilterCompatible) {
+        this.isBloomFilterCompatible = isBloomFilterCompatible;
+    }
+
+    public boolean isBloomFilterCompatible() {
+        return isBloomFilterCompatible;
     }
 }

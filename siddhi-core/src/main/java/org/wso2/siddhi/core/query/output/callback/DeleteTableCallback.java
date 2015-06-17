@@ -17,7 +17,6 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
@@ -31,7 +30,7 @@ public class DeleteTableCallback implements OutputCallback {
     }
 
     @Override
-    public void send(ComplexEventChunk<StreamEvent> complexEventChunk) {
+    public void send(ComplexEventChunk complexEventChunk) {
         eventTable.delete(complexEventChunk, operator);
     }
 

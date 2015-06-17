@@ -21,41 +21,47 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
 
 /**
  * Operator which does In-memory cache related operations
  */
 public class CacheInMemoryOperator implements Operator {
+    private final StreamEvent matchingEvent;
+    private final ZeroStreamEventConverter streamEventConverter;
     private FinderStateEvent event;
     private ExpressionExecutor expressionExecutor;
     private int candidateEventPosition;
     private int matchingEventPosition;
     private int streamEvents;
     private long withinTime;
+    private int matchingEventOutputSize;
     private CachingTable cachingTable;
 
 
-    public CacheInMemoryOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int streamEvents, long withinTime, CachingTable cachingTable) {
+    public CacheInMemoryOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int streamEvents, long withinTime, CachingTable cachingTable, int matchingEventOutputSize) {
         this.streamEvents = streamEvents;
         this.withinTime = withinTime;
+        this.matchingEventOutputSize = matchingEventOutputSize;
         this.event = new FinderStateEvent(streamEvents, 0);
+        this.matchingEvent = new StreamEvent(0, 0, matchingEventOutputSize);
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
         this.matchingEventPosition = matchingEventPosition;
         this.cachingTable = cachingTable;
+        this.streamEventConverter = new ZeroStreamEventConverter();
     }
 
     public boolean execute(StreamEvent candidateEvent) {
@@ -67,7 +73,7 @@ public class CacheInMemoryOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new CacheInMemoryOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEvents, withinTime, cachingTable);
+        return new CacheInMemoryOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEvents, withinTime, cachingTable, matchingEventOutputSize);
     }
 
     @Override
@@ -98,12 +104,13 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
-            StreamEvent deletingEvent = deletingEventChunk.next();
+            ComplexEvent deletingEvent = deletingEventChunk.next();
             try {
-                this.event.setEvent(matchingEventPosition, deletingEvent);
+                streamEventConverter.convertStreamEvent(deletingEvent, matchingEvent);
+                this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
                     delete((ComplexEventChunk) candidateEvents);
                 } else if (candidateEvents instanceof Map) {
@@ -153,18 +160,19 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
-            StreamEvent updatingEvent = updatingEventChunk.next();
+            ComplexEvent updatingEvent = updatingEventChunk.next();
             try {
-                this.event.setEvent(matchingEventPosition, updatingEvent);
+                streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
+                this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
-                    update((ComplexEventChunk) candidateEvents, mappingPosition, updatingEvent);
+                    update((ComplexEventChunk) candidateEvents, mappingPosition);
                 } else if (candidateEvents instanceof Map) {
-                    update(((Map) candidateEvents).values(), mappingPosition, updatingEvent);
+                    update(((Map) candidateEvents).values(), mappingPosition);
                 } else if (candidateEvents instanceof Collection) {
-                    update((Collection) candidateEvents, mappingPosition, updatingEvent);
+                    update((Collection) candidateEvents, mappingPosition);
                 } else {
                     throw new OperationNotSupportedException(CacheInMemoryOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
@@ -174,7 +182,7 @@ public class CacheInMemoryOperator implements Operator {
         }
     }
 
-    private void update(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition, StreamEvent updatingEvent) {
+    private void update(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition) {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
@@ -187,13 +195,13 @@ public class CacheInMemoryOperator implements Operator {
             if (execute(streamEvent)) {
                 cachingTable.update(streamEvent);
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
                 }
             }
         }
     }
 
-    private void update(Collection<StreamEvent> candidateEvents, int[] mappingPosition, StreamEvent updatingEvent) {
+    private void update(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
@@ -204,7 +212,7 @@ public class CacheInMemoryOperator implements Operator {
             if (execute(streamEvent)) {
                 cachingTable.update(streamEvent);
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
                 }
             }
         }
@@ -308,161 +316,18 @@ public class CacheInMemoryOperator implements Operator {
 
 
     protected class FinderStateEvent extends StateEvent {
-        private StateEvent matchingStateEvent;
 
         public FinderStateEvent(int size, int outputSize) {
             super(size, outputSize);
         }
 
         public void setEvent(StateEvent matchingStateEvent) {
-            this.matchingStateEvent = matchingStateEvent;
-        }
-
-        public StreamEvent getStreamEvent(int position) {
-            if (matchingStateEvent != null && position < matchingStateEvent.getStreamEvents().length) {
-                return matchingStateEvent.getStreamEvent(position);
-            } else {
-                return super.getStreamEvent(position);
-            }
-        }
-
-        public StreamEvent[] getStreamEvents() {
             if (matchingStateEvent != null) {
-                int length = matchingStateEvent.getStreamEvents().length;
-                StreamEvent[] streamEvents = Arrays.copyOf(matchingStateEvent.getStreamEvents(), length + 1);
-                streamEvents[length] = this.streamEvents[length];
-                return streamEvents;
+                System.arraycopy(matchingStateEvent.getStreamEvents(), 0, streamEvents, 0, matchingStateEvent.getStreamEvents().length);
             } else {
-                return super.getStreamEvents();
-            }
-        }
-
-        public void setNext(ComplexEvent stateEvent) {
-            if (matchingStateEvent != null) {
-                matchingStateEvent.setNext(stateEvent);
-            } else {
-                super.setNext(stateEvent);
-            }
-        }
-
-        public StateEvent getNext() {
-            if (matchingStateEvent != null) {
-                return matchingStateEvent.getNext();
-            } else {
-                return super.getNext();
-            }
-        }
-
-        @Override
-        public void setOutputData(Object object, int index) {
-            if (matchingStateEvent != null) {
-                matchingStateEvent.setOutputData(object, index);
-            } else {
-                super.setOutputData(object, index);
-            }
-        }
-
-        @Override
-        public Object getAttribute(int[] position) {
-            if (position[STREAM_ATTRIBUTE_TYPE_INDEX] == STATE_OUTPUT_DATA_INDEX) {
-                return outputData[position[STREAM_ATTRIBUTE_INDEX]];
-            } else {
-                int index = position[STREAM_EVENT_CHAIN_INDEX];
-                if (matchingStateEvent != null && index < matchingStateEvent.getStreamEvents().length) {
-                    return matchingStateEvent.getAttribute(position);
-                } else {
-                    return super.getAttribute(position);
+                for (int i = 0; i < streamEvents.length - 1; i++) {
+                    streamEvents[i] = null;
                 }
-            }
-        }
-
-        public Object[] getOutputData() {
-            if (matchingStateEvent != null) {
-                return matchingStateEvent.getOutputData();
-            } else {
-                return super.getOutputData();
-            }
-        }
-
-        public long getTimestamp() {
-            if (matchingStateEvent != null) {
-                return matchingStateEvent.getTimestamp();
-            } else {
-                return super.getTimestamp();
-            }
-        }
-
-        public void setTimestamp(long timestamp) {
-            if (matchingStateEvent != null) {
-                matchingStateEvent.setTimestamp(timestamp);
-            } else {
-                super.setTimestamp(timestamp);
-            }
-        }
-
-        public void setType(Type type) {
-            if (matchingStateEvent != null) {
-                matchingStateEvent.setType(type);
-            } else {
-                super.setType(type);
-            }
-        }
-
-        @Override
-        public Type getType() {
-            if (matchingStateEvent != null) {
-                return matchingStateEvent.getType();
-            } else {
-                return super.getType();
-            }
-        }
-
-        public void setEvent(int position, StreamEvent streamEvent) {
-            if (matchingStateEvent != null && position < matchingStateEvent.getStreamEvents().length) {
-                matchingStateEvent.setEvent(position, streamEvent);
-            } else {
-                super.setEvent(position, streamEvent);
-            }
-        }
-
-        public void addEvent(int position, StreamEvent streamEvent) {
-            if (matchingStateEvent != null && position < matchingStateEvent.getStreamEvents().length) {
-                matchingStateEvent.addEvent(position, streamEvent);
-            } else {
-                super.addEvent(position, streamEvent);
-            }
-        }
-
-        public void removeLastEvent(int position) {
-            if (matchingStateEvent != null && position < matchingStateEvent.getStreamEvents().length) {
-                matchingStateEvent.removeLastEvent(position);
-            } else {
-                super.removeLastEvent(position);
-            }
-        }
-
-        @Override
-        public String toString() {
-            if (matchingStateEvent != null) {
-                return matchingStateEvent.toString() + streamEvents[streamEvents.length - 1].toString();
-            } else {
-                return super.toString();
-            }
-        }
-
-        public long getId() {
-            if (matchingStateEvent != null) {
-                return matchingStateEvent.getId();
-            } else {
-                return super.getId();
-            }
-        }
-
-        public void setId(long id) {
-            if (matchingStateEvent != null) {
-                matchingStateEvent.setId(id);
-            } else {
-                super.setId(id);
             }
         }
     }

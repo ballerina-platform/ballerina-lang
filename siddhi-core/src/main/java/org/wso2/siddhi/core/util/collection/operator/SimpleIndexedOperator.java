@@ -50,25 +50,19 @@ public class SimpleIndexedOperator implements Operator {
 
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
-        StreamEvent matchingStreamEvent;
-        if (matchingEvent instanceof StreamEvent) {
-            matchingStreamEvent = ((StreamEvent) matchingEvent);
-        } else {
-            matchingStreamEvent = ((StateEvent) matchingEvent).getStreamEvent(matchingEventPosition);
-        }
-        Object matchingKey = expressionExecutor.execute(matchingStreamEvent);
+
+        Object matchingKey = expressionExecutor.execute(matchingEvent);
         if (candidateEvents instanceof Map) {
             StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
             if (streamEvent == null) {
                 return null;
             } else {
                 if (withinTime != ANY) {
-                    long timeDifference = Math.abs(matchingStreamEvent.getTimestamp() - streamEvent.getTimestamp());
+                    long timeDifference = Math.abs(matchingEvent.getTimestamp() - streamEvent.getTimestamp());
                     if (timeDifference > withinTime) {
                         return null;
                     }
                 }
-
                 return streamEventCloner.copyStreamEvent(streamEvent);
             }
         } else {
@@ -78,10 +72,10 @@ public class SimpleIndexedOperator implements Operator {
     }
 
     @Override
-    public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
-            StreamEvent deletingEvent = deletingEventChunk.next();
+            ComplexEvent deletingEvent = deletingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(deletingEvent);
             if (candidateEvents instanceof Map) {
                 if (withinTime != ANY) {
@@ -101,11 +95,10 @@ public class SimpleIndexedOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
-            StreamEvent updatingEvent = updatingEventChunk.next();
-
+            ComplexEvent updatingEvent = updatingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(updatingEvent);
             if (candidateEvents instanceof Map) {
                 StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
@@ -146,7 +139,6 @@ public class SimpleIndexedOperator implements Operator {
                         return false;
                     }
                 }
-
                 return true;
             }
             return false;

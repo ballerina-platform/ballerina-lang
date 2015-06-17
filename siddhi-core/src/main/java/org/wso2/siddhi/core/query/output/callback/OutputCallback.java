@@ -17,9 +17,8 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 public interface OutputCallback {
 
-    void send(ComplexEventChunk<StreamEvent> streamEventChunk);
+    void send(ComplexEventChunk complexEventChunk);
 }

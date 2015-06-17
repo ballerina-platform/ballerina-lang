@@ -42,10 +42,10 @@ import java.util.Map;
 public class CollectionOperatorParser {
 
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                               Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
 
         int candidateEventPosition = 0;
-        int size = 0;
+        int streamEventSize = 0;
 
         MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
         eventTableStreamEvent.setTableEvent(true);
@@ -61,7 +61,7 @@ public class CollectionOperatorParser {
             metaStateEvent.addEvent(eventTableStreamEvent);
             candidateEventPosition = 1;
             matchingStreamIndex = 0;
-            size = 2;
+            streamEventSize = 2;
         } else {
 
             MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
@@ -71,7 +71,7 @@ public class CollectionOperatorParser {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
                 if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) metaComplexEvent);
-                    size = metaStreamEvents.length;
+                    streamEventSize = metaStreamEvents.length;
                     break;
                 }
             }
@@ -83,19 +83,19 @@ public class CollectionOperatorParser {
                 }
                 metaStateEvent.addEvent(eventTableStreamEvent);
                 candidateEventPosition = metaStreamEvents.length;
-                size = metaStreamEvents.length + 1;
+                streamEventSize = metaStreamEvents.length + 1;
             }
         }
 
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, size, withinTime);
+        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize, withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getOutputStreamDefinition().getAttributeList().size());
     }
 
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                               Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute) {
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute) {
 
-        if(indexedAttribute==null){
+        if (indexedAttribute == null) {
             return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
         }
 

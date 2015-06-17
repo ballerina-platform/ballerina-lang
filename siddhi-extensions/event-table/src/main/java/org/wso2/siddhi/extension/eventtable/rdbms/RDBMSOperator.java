@@ -37,7 +37,7 @@ public class RDBMSOperator implements Operator {
     private Operator inMemoryEventTableOperator;
     private List<ExpressionExecutor> expressionExecutorList;
     private DBHandler dbHandler;
-    private final boolean isBloomEnabled;
+    private boolean isBloomEnabled;
     private final int[] attributeIndexArray;
     private ExecutionInfo executionInfo;
 
@@ -45,11 +45,14 @@ public class RDBMSOperator implements Operator {
         this.expressionExecutorList = expressionExecutorList;
         this.dbHandler = dbHandler;
         this.inMemoryEventTableOperator = inMemoryEventTableOperator;
-        this.isBloomEnabled = dbHandler.isBloomFilterEnabled();
         this.executionInfo = executionInfo;
+
+        if (dbHandler.isBloomFilterEnabled() && executionInfo.isBloomFilterCompatible()) {
+            this.isBloomEnabled = true;
+        }
+
         List<Attribute> conditionList = executionInfo.getConditionQueryColumnOrder();
         attributeIndexArray = new int[conditionList.size()];
-
         int i = 0;
         for (Attribute attribute : conditionList) {
             attributeIndexArray[i++] = getAttributeIndex(dbHandler, attribute.getName());
@@ -57,11 +60,11 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             Object[] obj;
-            StreamEvent deletingEvent = deletingEventChunk.next();
+            ComplexEvent deletingEvent = deletingEventChunk.next();
             if (expressionExecutorList != null) {
                 obj = new Object[expressionExecutorList.size()];
                 int count = 0;
@@ -73,16 +76,15 @@ public class RDBMSOperator implements Operator {
             } else {
                 obj = new Object[]{};
             }
-
-            dbHandler.deleteEvent(obj, deletingEvent,executionInfo);
+            dbHandler.deleteEvent(obj, deletingEvent, executionInfo);
         }
     }
 
     @Override
-    public void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
-            StreamEvent updatingEvent = updatingEventChunk.next();
+            ComplexEvent updatingEvent = updatingEventChunk.next();
             Object[] incomingEvent = updatingEvent.getOutputData();
             Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
             System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
@@ -92,13 +94,13 @@ public class RDBMSOperator implements Operator {
                 obj[count] = value;
                 count++;
             }
-            dbHandler.updateEvent(obj,executionInfo);
+            dbHandler.updateEvent(obj, executionInfo);
         }
     }
 
     @Override
     public Finder cloneFinder() {
-        return new RDBMSOperator(executionInfo,expressionExecutorList, dbHandler, inMemoryEventTableOperator);
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator);
     }
 
     @Override
@@ -111,12 +113,18 @@ public class RDBMSOperator implements Operator {
             for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
                 Object value = expressionExecutor.execute(matchingEvent);
                 obj[count] = value;
+                if (isBloomEnabled) {
+                    boolean mightContain = dbHandler.getBloomFilters()[attributeIndexArray[count]].membershipTest(new Key(value.toString().getBytes()));
+                    if (!mightContain) {
+                        return null;
+                    }
+                }
                 count++;
             }
         } else {
             obj = new Object[]{};
         }
-        return dbHandler.selectEvent(obj,executionInfo);
+        return dbHandler.selectEvent(obj, executionInfo);
     }
 
     @Override
@@ -140,7 +148,7 @@ public class RDBMSOperator implements Operator {
         } else {
             obj = new Object[]{};
         }
-        return dbHandler.checkExistence(obj,executionInfo);
+        return dbHandler.checkExistence(obj, executionInfo);
     }
 
     public Operator getInMemoryEventTableOperator() {

@@ -20,7 +20,6 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
@@ -37,11 +36,11 @@ public interface EventTable extends FindableProcessor {
 
     TableDefinition getTableDefinition();
 
-    void add(ComplexEventChunk<StreamEvent> addingEventChunk);
+    void add(ComplexEventChunk addingEventChunk);
 
-    void delete(ComplexEventChunk<StreamEvent> deletingEventChunk, Operator operator);
+    void delete(ComplexEventChunk deletingEventChunk, Operator operator);
 
-    void update(ComplexEventChunk<StreamEvent> updatingEventChunk, Operator operator, int[] mappingPosition);
+    void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition);
 
     boolean contains(ComplexEvent matchingEvent, Finder finder);
 

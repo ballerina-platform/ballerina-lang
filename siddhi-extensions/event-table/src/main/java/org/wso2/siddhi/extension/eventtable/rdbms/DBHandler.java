@@ -21,6 +21,7 @@ import org.apache.hadoop.util.bloom.CountingBloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
@@ -110,31 +111,31 @@ public class DBHandler {
         return bloomFilters;
     }
 
-    public void addEvent(ComplexEventChunk<StreamEvent> addingEventChunk, CachingTable cachingTable) {
+    public void addEvent(ComplexEventChunk addingEventChunk, CachingTable cachingTable) {
         addingEventChunk.reset();
         PreparedStatement stmt = null;
 
-        ArrayList<StreamEvent> bloomFilterInsertionList = null;
+        ArrayList<ComplexEvent> bloomFilterInsertionList = null;
         if (isBloomFilterEnabled) {
-            bloomFilterInsertionList = new ArrayList<StreamEvent>();
+            bloomFilterInsertionList = new ArrayList<ComplexEvent>();
         }
 
         while (addingEventChunk.hasNext()) {
-            StreamEvent streamEvent = addingEventChunk.next();
+            ComplexEvent complexEvent = addingEventChunk.next();
             Connection con = null;
             try {
                 con = dataSource.getConnection();
                 con.setAutoCommit(false);
                 stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
-                populateStatement(streamEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
+                populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
                 stmt.executeUpdate();
                 con.commit();
 
                 if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
-                    bloomFilterInsertionList.add(streamEvent);
+                    bloomFilterInsertionList.add(complexEvent);
                 }
                 if (cachingTable != null) {
-                    cachingTable.add(streamEvent);
+                    cachingTable.add(complexEvent);
                 }
             } catch (SQLException e) {
                 throw new ExecutionPlanRuntimeException("Error while adding events to event table", e);
@@ -149,7 +150,7 @@ public class DBHandler {
     }
 
 
-    public void deleteEvent(Object[] obj, StreamEvent streamEvent, ExecutionInfo executionInfo) {
+    public void deleteEvent(Object[] obj, ComplexEvent complexEvent, ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
@@ -166,7 +167,7 @@ public class DBHandler {
             }
 
             if (isBloomFilterEnabled && deletedRows > 0) {
-                removeFromBloomFilters(streamEvent);
+                removeFromBloomFilters(complexEvent);
             }
 
         } catch (SQLException e) {
@@ -536,15 +537,15 @@ public class DBHandler {
         }
     }
 
-    public void addToBloomFilters(List<StreamEvent> eventList) {
-        for (StreamEvent event : eventList) {
+    public void addToBloomFilters(List<ComplexEvent> eventList) {
+        for (ComplexEvent event : eventList) {
             for (int i = 0; i < attributeList.size(); i++) {
                 bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
             }
         }
     }
 
-    public void removeFromBloomFilters(StreamEvent event) {
+    public void removeFromBloomFilters(ComplexEvent event) {
         for (int i = 0; i < attributeList.size(); i++) {
             bloomFilters[i].delete(new Key(event.getOutputData()[i].toString().getBytes()));
         }

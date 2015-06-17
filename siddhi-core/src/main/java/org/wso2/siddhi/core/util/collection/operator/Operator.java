@@ -17,15 +17,14 @@
 package org.wso2.siddhi.core.util.collection.operator;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 /**
  * Created on 3/22/15.
  */
 public interface Operator extends Finder {
 
-    void delete(ComplexEventChunk<StreamEvent> deletingEvent, Object candidateEvents);
+    void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents);
 
-    void update(ComplexEventChunk<StreamEvent> updatingEvent, Object candidateEvents, int[] mappingPosition);
+    void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition);
 
 }
