@@ -89,7 +89,7 @@ public class CollectionOperatorParser {
 
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize, withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getOutputStreamDefinition().getAttributeList().size());
+        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize, withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
     }
 
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,

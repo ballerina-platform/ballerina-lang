@@ -46,7 +46,7 @@ public class DBConnectionHelper {
         try {
             con = dataSource.getConnection();
             con.setAutoCommit(false);
-            stmt = con.prepareStatement("DELETE FROM " + tableName + "");
+            stmt = con.prepareStatement("DELETE IGNORE FROM " + tableName + "");
             stmt.executeUpdate();
             con.commit();
 

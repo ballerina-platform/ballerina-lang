@@ -165,7 +165,7 @@ public class DefineTableTestCase {
 
     @Test
     public void testQuery11() throws InterruptedException {
-        log.info("testTableDefinition9 - OUT 0");
+        log.info("testTableDefinition11 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
@@ -181,7 +181,7 @@ public class DefineTableTestCase {
 
     @Test
     public void testQuery12() throws InterruptedException {
-        log.info("testTableDefinition9 - OUT 0");
+        log.info("testTableDefinition12 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
@@ -197,7 +197,7 @@ public class DefineTableTestCase {
 
     @Test(expected = DuplicateDefinitionException.class)
     public void testQuery13() throws InterruptedException {
-        log.info("testTableDefinition9 - OUT 0");
+        log.info("testTableDefinition13 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
@@ -213,7 +213,7 @@ public class DefineTableTestCase {
 
     @Test(expected = DuplicateDefinitionException.class)
     public void testQuery14() throws InterruptedException {
-        log.info("testTableDefinition9 - OUT 0");
+        log.info("testTableDefinition14 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
@@ -229,7 +229,7 @@ public class DefineTableTestCase {
 
     @Test(expected = ExecutionPlanValidationException.class)
     public void testQuery15() throws InterruptedException {
-        log.info("testTableDefinition9 - OUT 0");
+        log.info("testTableDefinition15 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
