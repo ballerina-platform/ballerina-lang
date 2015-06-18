@@ -719,4 +719,84 @@ public class CountPatternTestCase {
 
         executionPlanRuntime.shutdown();
     }
+
+    @Test
+    public void testQuery13() throws InterruptedException {
+        log.info("testPatternCount13 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream EventStream (symbol string, price float, volume int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from every e1 = EventStream -> " +
+                "     e2 = EventStream [e1.symbol==e2.symbol]<4:6> " +
+                "select e1.volume as volume1, e2[0].volume as volume2, e2[1].volume as volume3, e2[2].volume as volume4, e2[3].volume as volume5, e2[4].volume as volume6, e2[5].volume as volume7 " +
+                "insert into StockQuote;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertArrayEquals(new Object[]{100, 200, 300, 400, 500, null, null}, event.getData());
+                                break;
+                            case 2:
+                                Assert.assertArrayEquals(new Object[]{200, 300, 400, 500, 600, null, null}, event.getData());
+                                break;
+                            case 3:
+                                Assert.assertArrayEquals(new Object[]{300, 400, 500, 600, 700, null, null}, event.getData());
+                                break;
+                            case 4:
+                                Assert.assertArrayEquals(new Object[]{400, 500, 600, 700, 800, null, null}, event.getData());
+                                break;
+                            case 5:
+                                Assert.assertArrayEquals(new Object[]{500, 600, 700, 800, 900, null, null}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(5, inEventCount);
+                        }
+                    }
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler eventStream = executionPlanRuntime.getInputHandler("EventStream");
+
+        executionPlanRuntime.start();
+
+        eventStream.send(new Object[]{"IBM", 75.6f, 100});
+        eventStream.send(new Object[]{"IBM", 75.6f, 200});
+        eventStream.send(new Object[]{"IBM", 75.6f, 300});
+        eventStream.send(new Object[]{"GOOG", 21f, 91});
+        eventStream.send(new Object[]{"IBM", 75.6f, 400});
+        eventStream.send(new Object[]{"IBM", 75.6f, 500});
+
+        eventStream.send(new Object[]{"GOOG", 21f, 91});
+
+        eventStream.send(new Object[]{"IBM", 75.6f, 600});
+        eventStream.send(new Object[]{"IBM", 75.6f, 700});
+        eventStream.send(new Object[]{"IBM", 75.6f, 800});
+        eventStream.send(new Object[]{"GOOG", 21f, 91});
+        eventStream.send(new Object[]{"IBM", 75.6f, 900});
+        Thread.sleep(100);
+
+        Assert.assertEquals("Number of success events", 5, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+
+        executionPlanRuntime.shutdown();
+    }
 }
