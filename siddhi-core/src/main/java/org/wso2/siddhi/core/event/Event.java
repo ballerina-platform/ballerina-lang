@@ -67,7 +67,7 @@ public class Event {
 
     @Override
     public String toString() {
-        return "StreamEvent{" +
+        return "Event{" +
                 "timestamp=" + timestamp +
                 ", data=" + Arrays.toString(data) +
                 ", isExpired=" + isExpired +
@@ -90,5 +90,28 @@ public class Event {
         System.arraycopy(complexEvent.getOutputData(), 0, data, 0, data.length);
         isExpired = complexEvent.getType() == StreamEvent.Type.EXPIRED;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Event)) return false;
+
+        Event event = (Event) o;
+
+        if (isExpired != event.isExpired) return false;
+        if (timestamp != event.timestamp) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(data, event.data)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (data != null ? Arrays.hashCode(data) : 0);
+        result = 31 * result + (isExpired ? 1 : 0);
+        return result;
     }
 }
