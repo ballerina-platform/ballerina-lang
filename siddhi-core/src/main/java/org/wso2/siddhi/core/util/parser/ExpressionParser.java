@@ -239,6 +239,7 @@ public class ExpressionParser {
             } catch (ExecutionPlanCreationException ex) {
                 try {
                     executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
+                    SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 } catch (ExecutionPlanCreationException e) {
                     throw new ExecutionPlanCreationException(((AttributeFunctionExtension) expression).getFunction() + " is neither a function extension nor an aggregated attribute extension");
                 }
@@ -266,6 +267,7 @@ public class ExpressionParser {
                 } else {
                     aggregationAttributeProcessor = new AggregationAttributeExecutor(attributeAggregator, innerExpressionExecutors, executionPlanContext);
                 }
+                SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 return aggregationAttributeProcessor;
             }
         } else if (expression instanceof AttributeFunction) {
@@ -304,6 +306,7 @@ public class ExpressionParser {
                 } else {
                     aggregationAttributeProcessor = new AggregationAttributeExecutor((AttributeAggregator) executor, innerExpressionExecutors, executionPlanContext);
                 }
+                SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 return aggregationAttributeProcessor;
             } else {
                 FunctionExecutor functionExecutor = (FunctionExecutor) executor;

@@ -65,7 +65,9 @@ public class ExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        Thread.sleep(100);
         inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);

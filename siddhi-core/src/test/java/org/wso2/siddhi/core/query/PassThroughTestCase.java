@@ -155,7 +155,7 @@ public class PassThroughTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.function("sum", Expression.variable("price")))
+                        select("price",Expression.variable("symbol"))
         );
         query.insertInto("StockQuote");
 

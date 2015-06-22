@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SelectorParser {
-
+    private static final ThreadLocal<String> containsAggregatorThreadLocal = new ThreadLocal<String>();
     /**
      * Parse Selector portion of a query and return corresponding QuerySelector
      *
@@ -68,8 +68,9 @@ public class SelectorParser {
 
         id = outputStream.getId();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, executionPlanContext);
-        querySelector.setAttributeProcessorList(getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, null, variableExpressionExecutors));
-
+        List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, null, variableExpressionExecutors);
+        querySelector.setAttributeProcessorList(attributeProcessors,"true".equals(containsAggregatorThreadLocal.get()));
+        containsAggregatorThreadLocal.remove();
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(),
                 metaComplexEvent, executionPlanContext, eventTableMap, variableExpressionExecutors);
         querySelector.setHavingConditionExecutor(havingCondition);
@@ -170,5 +171,9 @@ public class SelectorParser {
 
         }
         return havingConditionExecutor;
+    }
+
+    public static ThreadLocal<String> getContainsAggregatorThreadLocal() {
+        return containsAggregatorThreadLocal;
     }
 }

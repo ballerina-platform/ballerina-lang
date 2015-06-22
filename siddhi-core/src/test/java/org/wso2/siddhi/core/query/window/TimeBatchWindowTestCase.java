@@ -48,8 +48,8 @@ public class TimeBatchWindowTestCase {
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from cseEventStream#window.timeBatch(2 sec) " +
-                "select symbol,price,volume " +
+                "from cseEventStream#window.timeBatch(1 sec) " +
+                "select symbol,sum(price) as sumPrice,volume " +
                 "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -60,6 +60,8 @@ public class TimeBatchWindowTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
+                } else if(removeEvents != null){
+                    removeEventCount = removeEventCount + removeEvents.length;
                 }
                 Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
                 eventArrived = true;
@@ -72,8 +74,8 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(3000);
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertEquals(0, removeEventCount);
+        Assert.assertEquals(1, inEventCount);
+        Assert.assertEquals(1, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -90,8 +92,8 @@ public class TimeBatchWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(1 sec) select symbol,price," +
-                "volume insert all events into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(1 sec) select symbol, sum(price) as price" +
+                " insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -121,9 +123,9 @@ public class TimeBatchWindowTestCase {
         Thread.sleep(1100);
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
-        Thread.sleep(4000);
-        Assert.assertEquals(6, inEventCount);
-        Assert.assertEquals(6, removeEventCount);
+        Thread.sleep(2000);
+        Assert.assertEquals(3, inEventCount);
+        Assert.assertEquals(1, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

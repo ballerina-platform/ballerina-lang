@@ -48,7 +48,7 @@ public class WindowPartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert all events into OutStockStream ;  end ";
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert expired events into OutStockStream ;  end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -68,21 +68,6 @@ public class WindowPartitionTestCase {
                         }
                     } else {
                         inEventCount++;
-                        if (inEventCount == 1) {
-                            Assert.assertEquals(70.0, event.getData()[1]);
-                        } else if (inEventCount == 2) {
-                            Assert.assertEquals(700.0, event.getData()[1]);
-                        } else if (inEventCount == 3) {
-                            Assert.assertEquals(170.0, event.getData()[1]);
-                        } else if (inEventCount == 4) {
-                            Assert.assertEquals(300.0, event.getData()[1]);
-                        } else if (inEventCount == 5) {
-                            Assert.assertEquals(75.5999984741211, event.getData()[1]);
-                        } else if (inEventCount == 6) {
-                            Assert.assertEquals(1700.0, event.getData()[1]);
-                        } else if (inEventCount == 7) {
-                            Assert.assertEquals(1500.0, event.getData()[1]);
-                        }
                     }
 
 
@@ -103,7 +88,7 @@ public class WindowPartitionTestCase {
 
         Thread.sleep(1000);
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(7, inEventCount);
+        Assert.assertEquals(0, inEventCount);
         Assert.assertEquals(2, removeEventCount);
         executionRuntime.shutdown();
 
@@ -129,12 +114,8 @@ public class WindowPartitionTestCase {
                     inEventCount++;
                     eventArrived = true;
                     if (inEventCount == 1) {
-                        Assert.assertEquals(70.0, event.getData()[1]);
-                    } else if (inEventCount == 2) {
                         Assert.assertEquals(170.0, event.getData()[1]);
-                    } else if (inEventCount == 3) {
-                        Assert.assertEquals(700.0, event.getData()[1]);
-                    } else if (inEventCount == 4) {
+                    } else if (inEventCount == 2) {
                         Assert.assertEquals(1700.0, event.getData()[1]);
                     }
                 }
@@ -151,7 +132,7 @@ public class WindowPartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 1000f, 100});
 
         Thread.sleep(2000);
-        Assert.assertEquals(4, inEventCount);
+        Assert.assertEquals(2, inEventCount);
         executionRuntime.shutdown();
 
     }
@@ -228,6 +209,66 @@ public class WindowPartitionTestCase {
         executionRuntime.shutdown();
 
     }
+
+
+    @Test
+    public void testWindowPartitionQuery4() throws InterruptedException {
+        log.info("Window Partition test4");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
+
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+
+        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    if (event.isExpired()) {
+                        removeEventCount++;
+                    } else {
+                        inEventCount++;
+                        if (inEventCount == 1) {
+                            Assert.assertEquals(70.0, event.getData()[1]);
+                        } else if (inEventCount == 2) {
+                            Assert.assertEquals(700.0, event.getData()[1]);
+                        } else if (inEventCount == 3) {
+                            Assert.assertEquals(300.0, event.getData()[1]);
+                        } else if (inEventCount == 4) {
+                            Assert.assertEquals(75.5999984741211, event.getData()[1]);
+                        } else if (inEventCount == 5) {
+                            Assert.assertEquals(1500.0, event.getData()[1]);
+                        }
+                    }
+
+
+                    eventArrived = true;
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 70f, 100});
+        inputHandler.send(new Object[]{"WSO2", 700f, 100});
+        inputHandler.send(new Object[]{"IBM", 100f, 100});
+        inputHandler.send(new Object[]{"IBM", 200f, 100});
+        inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
+        inputHandler.send(new Object[]{"WSO2", 1000f, 100});
+        inputHandler.send(new Object[]{"WSO2", 500f, 100});
+
+        Thread.sleep(1000);
+        Assert.assertTrue(eventArrived);
+        Assert.assertTrue(7 >= inEventCount);
+        Assert.assertEquals(0, removeEventCount);
+        executionRuntime.shutdown();
+
+    }
+
 
 
 }

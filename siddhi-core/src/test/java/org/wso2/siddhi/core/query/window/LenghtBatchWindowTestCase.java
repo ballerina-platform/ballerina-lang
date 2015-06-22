@@ -197,7 +197,11 @@ public class LenghtBatchWindowTestCase {
                 for (Event event : events) {
                     Assert.assertEquals("Events cannot be expired", false, event.isExpired());
                     inEventCount++;
+                    if(inEventCount==1){
+                        Assert.assertEquals(100.0, event.getData(1));
+                    }
                 }
+
                 eventArrived = true;
             }
         });
@@ -212,7 +216,7 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60f, 1});
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
-        Assert.assertEquals(4, inEventCount);
+        Assert.assertEquals(1, inEventCount);
         Assert.assertTrue(eventArrived);
 
     }

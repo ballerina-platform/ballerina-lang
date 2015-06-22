@@ -4112,7 +4112,7 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price)+5 as price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500) select symbol,sum(price)+5 as price insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4121,6 +4121,9 @@ public class FilterTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count = count + inEvents.length;
                 eventArrived = true;
+                if (count == 1) {
+                    Assert.assertEquals(1465.5f, inEvents[0].getData()[1]);
+                }
             }
 
         });
@@ -4131,8 +4134,8 @@ public class FilterTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        Thread.sleep(1000);
+        Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -4144,7 +4147,7 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream select volume, sum(price) as price group by volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500)  select volume, sum(price) as price group by volume insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -4163,8 +4166,8 @@ public class FilterTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        Thread.sleep(1000);
+        Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 

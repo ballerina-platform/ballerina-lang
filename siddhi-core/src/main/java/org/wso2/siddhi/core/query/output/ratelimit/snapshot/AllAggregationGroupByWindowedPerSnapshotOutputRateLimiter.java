@@ -117,7 +117,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     public synchronized void sendEvents() {
         ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
-        if (groupByKeyEvents.size() > 1) {
+        if (groupByKeyEvents.size() > 0) {
             for (LastEventHolder lastEventHolder : groupByKeyEvents.values()) {
                 eventChunk.add(lastEventHolder.lastEvent);
             }
@@ -125,7 +125,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
         sendToCallBacks(eventChunk);
 
-        if (groupByKeyEvents.size() > 1) {
+        if (groupByKeyEvents.size() > 0) {
             for (LastEventHolder lastEventHolder : groupByKeyEvents.values()) {
                 lastEventHolder.lastEvent.setNext(null);
             }
