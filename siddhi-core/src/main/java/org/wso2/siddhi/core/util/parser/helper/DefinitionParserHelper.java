@@ -91,10 +91,10 @@ public class DefinitionParserHelper {
                 String evenTableType = annotation.getElement("eventtable");
                 Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
                 eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
-                eventTable.init(tableDefinition, executionPlanContext);
             } else {
                 eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
             }
+            eventTable.init(tableDefinition, executionPlanContext);
             eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
         }
     }

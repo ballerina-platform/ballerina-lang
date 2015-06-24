@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -43,17 +44,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class InMemoryEventTable implements EventTable {
+public class InMemoryEventTable implements EventTable, Snapshotable {
 
     private final TableDefinition tableDefinition;
     private final ExecutionPlanContext executionPlanContext;
-    private final LinkedList<StreamEvent> list = new LinkedList<StreamEvent>();
-    private final TreeMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
+    private LinkedList<StreamEvent> list = new LinkedList<StreamEvent>();
+    private TreeMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
     private String indexAttribute = null;
     private int indexPosition;
     private final StreamEventCloner streamEventCloner;
     private final StreamEventPool streamEventPool;
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
+    private String elementId;
 
 
     public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -86,7 +88,10 @@ public class InMemoryEventTable implements EventTable {
 
     @Override
     public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
-        //No Implementation Required
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
     }
 
     @Override
@@ -150,5 +155,21 @@ public class InMemoryEventTable implements EventTable {
     @Override
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
+    }
+
+    @Override
+    public Object[] currentState() {
+        return new Object[]{list, treeMap};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        list = (LinkedList<StreamEvent>) state[0];
+        treeMap = (TreeMap<Object, StreamEvent>) state[1];
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }
