@@ -21,6 +21,7 @@ import org.wso2.carbon.ml.commons.domain.Feature;
 import org.wso2.carbon.ml.commons.domain.MLModel;
 import org.wso2.carbon.ml.core.exceptions.MLInputAdapterException;
 import org.wso2.carbon.ml.core.exceptions.MLModelBuilderException;
+import org.wso2.carbon.ml.core.exceptions.MLModelHandlerException;
 import org.wso2.carbon.ml.core.impl.MLIOFactory;
 import org.wso2.carbon.ml.core.impl.Predictor;
 import org.wso2.carbon.ml.core.interfaces.MLInputAdapter;
@@ -29,9 +30,8 @@ import org.wso2.carbon.ml.core.utils.MLCoreServiceValueHolder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,11 +79,13 @@ public class ModelHandler {
             } else {
                 modelStorageLocation = modelStorage[1];
             }
+        } else {
+            storageType = MLConstants.DATASET_SOURCE_TYPE_FILE;
         }
 
         MLIOFactory ioFactory = new MLIOFactory(MLCoreServiceValueHolder.getInstance().getMlProperties());
         MLInputAdapter inputAdapter = ioFactory.getInputAdapter(storageType + MLConstants.IN_SUFFIX);
-        InputStream in = inputAdapter.readDataset(new URI(modelStorageLocation));
+        InputStream in = inputAdapter.read(modelStorageLocation);
         ObjectInputStream ois = new ObjectInputStream(in);
         MLModel mlModel = (MLModel) ois.readObject();
         ois.close();
@@ -97,11 +99,12 @@ public class ModelHandler {
      * @return      predicted value
      * @throws      MLModelBuilderException
      */
-    public double predict(double[] data) throws MLModelBuilderException {
-
-        Predictor predictor = new Predictor(modelId, mlModel, Arrays.asList(data));
+    public String predict(String[] data) throws MLModelHandlerException {
+        ArrayList<String[]> list = new ArrayList<String[]>();
+        list.add(data);
+        Predictor predictor = new Predictor(modelId, mlModel, list);
         List<?> predictions = predictor.predict();
-        return (Double) predictions.get(0);
+        return predictions.get(0).toString();
     }
 
     /**
@@ -115,5 +118,13 @@ public class ModelHandler {
             featureIndexMap.put(feature.getName(), feature.getIndex());
         }
         return featureIndexMap;
+    }
+    
+    /**
+     * Get new to old indices list of this model.
+     * @return
+     */
+    public List<Integer> getNewToOldIndicesList() {
+        return mlModel.getNewToOldIndicesList();
     }
 }
