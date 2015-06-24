@@ -45,39 +45,43 @@ public class PredictStreamProcessor extends StreamProcessor {
     private String modelStorageLocation;
     private boolean attributeSelectionAvailable;
     private Map<Integer, Integer> attributeIndexMap;           // <feature-index, attribute-index> pairs
+    private int selectedAttributesSize;
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
 
-        StreamEvent event = streamEventChunk.getFirst();
+        while (streamEventChunk.hasNext()) {
 
-        Object[] data;
-        double[] featureValues;
-        if (attributeSelectionAvailable) {
-            data = event.getBeforeWindowData();
-            featureValues = new double[data.length];
-        } else {
+            StreamEvent event = streamEventChunk.next();
+
+            Object[] data;
+            String[] featureValues;
             data = event.getOutputData();
-            featureValues = new double[data.length-1];
-        }
+            if (attributeSelectionAvailable) {
+                featureValues = new String[selectedAttributesSize];
+            } else {
+                featureValues = new String[data.length - 1];
+            }
 
-        for(Map.Entry<Integer, Integer> entry : attributeIndexMap.entrySet()) {
-            int featureIndex = entry.getKey();
-            int attributeIndex = entry.getValue();
-            featureValues[featureIndex] = Double.parseDouble(String.valueOf(data[attributeIndex]));
-        }
+            for (Map.Entry<Integer, Integer> entry : attributeIndexMap.entrySet()) {
+                int featureIndex = entry.getKey();
+                int attributeIndex = entry.getValue();
+                featureValues[featureIndex] = String.valueOf(data[attributeIndex]);
+            }
 
-        if(featureValues != null) {
-            try {
-                double predictionResult = modelHandler.predict(featureValues);
-                Object[] output = new Object[]{predictionResult};
-                complexEventPopulater.populateComplexEvent(event, output);
-                nextProcessor.process(streamEventChunk);
-            } catch (Exception e) {
-                log.error("Error while predicting", e);
-                throw new ExecutionPlanRuntimeException("Error while predicting" ,e);
+            if (featureValues != null) {
+                try {
+                    String predictionResult = modelHandler.predict(featureValues);
+                    Object[] output = new Object[] { predictionResult };
+                    complexEventPopulater.populateComplexEvent(event, output);
+                } catch (Exception e) {
+                    log.error("Error while predicting", e);
+                    throw new ExecutionPlanRuntimeException("Error while predicting", e);
+                }
             }
         }
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override
@@ -89,6 +93,7 @@ public class PredictStreamProcessor extends StreamProcessor {
             attributeSelectionAvailable = false;    // model-storage-location
         } else {
             attributeSelectionAvailable = true;  // model-storage-location, stream-attributes list
+            selectedAttributesSize = attributeExpressionExecutors.length - 1;
         }
 
         if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)  {
@@ -119,22 +124,22 @@ public class PredictStreamProcessor extends StreamProcessor {
     private void populateFeatureAttributeMapping() throws Exception {
         attributeIndexMap = new HashMap<Integer, Integer>();
         Map<String, Integer> featureIndexMap = modelHandler.getFeatures();
+        List<Integer> newToOldIndicesList = modelHandler.getNewToOldIndicesList();
 
         if(attributeSelectionAvailable) {
-            int index = 0;
             for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
                 if(expressionExecutor instanceof VariableExpressionExecutor) {
                     VariableExpressionExecutor variable = (VariableExpressionExecutor) expressionExecutor;
                     String variableName = variable.getAttribute().getName();
                     if (featureIndexMap.get(variableName) != null) {
                         int featureIndex = featureIndexMap.get(variableName);
-                        int attributeIndex = index;
-                        attributeIndexMap.put(featureIndex, attributeIndex);
+                        int newFeatureIndex = newToOldIndicesList.indexOf(featureIndex);
+                        int attributeIndex = inputDefinition.getAttributePosition(variableName);
+                        attributeIndexMap.put(newFeatureIndex, attributeIndex);
                     } else {
                         throw new ExecutionPlanCreationException("No matching feature name found in the model " +
                                 "for the attribute : " + variableName);
                     }
-                    index++;
                 }
             }
         } else {
@@ -142,8 +147,9 @@ public class PredictStreamProcessor extends StreamProcessor {
             for(String attributeName : attributeNames) {
                 if (featureIndexMap.get(attributeName) != null) {
                     int featureIndex = featureIndexMap.get(attributeName);
+                    int newFeatureIndex = newToOldIndicesList.indexOf(featureIndex);
                     int attributeIndex = inputDefinition.getAttributePosition(attributeName);
-                    attributeIndexMap.put(featureIndex, attributeIndex);
+                    attributeIndexMap.put(newFeatureIndex, attributeIndex);
                 } else {
                     throw new ExecutionPlanCreationException("No matching feature name found in the model " +
                             "for the attribute : " + attributeName);

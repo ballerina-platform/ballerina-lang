@@ -36,7 +36,6 @@
         <module>regex</module>
         <module>time</module>
         <module>timeseries</module>
-        <module>ml</module>
     </modules>
 
 </project>
