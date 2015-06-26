@@ -31,7 +31,7 @@ public interface RDBMSEventTableConstants {
     public static final String EVENT_TABLE_RDBMS_FLOAT = "float";
     public static final String EVENT_TABLE_RDBMS_DOUBLE = "double";
     public static final String EVENT_TABLE_RDBMS_STRING = "string";
-    public static final String EVENT_TABLE_RDBMS_BOOLEAN = "boolean";
+    public static final String EVENT_TABLE_RDBMS_BOOL = "bool";
     public static final String EVENT_TABLE_RDBMS_QUESTION_MARK = "questionMark";
     public static final String EVENT_TABLE_RDBMS_CREATE_TABLE = "createTable";
     public static final String EVENT_TABLE_RDBMS_INSERT_DATA = "insertDataToTable";

@@ -395,7 +395,7 @@ public class DBHandler {
                 } else if (attribute.getType().equals(Attribute.Type.STRING)) {
                     columnTypes.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_STRING));
                 } else if (attribute.getType().equals(Attribute.Type.BOOL)) {
-                    columnTypes.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_BOOLEAN));
+                    columnTypes.append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_BOOL));
                 }
 
                 if (appendComma) {
