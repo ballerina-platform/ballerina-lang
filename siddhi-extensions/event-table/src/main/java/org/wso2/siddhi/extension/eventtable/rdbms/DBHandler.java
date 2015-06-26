@@ -64,7 +64,7 @@ public class DBHandler {
         executionInfo = new ExecutionInfo();
 
         try {
-            if(dataSource == null){
+            if (dataSource == null) {
                 throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
             }
             con = dataSource.getConnection();
@@ -73,7 +73,7 @@ public class DBHandler {
 
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while initialising the connection ", e);
+            throw new ExecutionPlanRuntimeException("Error while initialising the connection, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(null, con);
         }
@@ -138,7 +138,7 @@ public class DBHandler {
                     cachingTable.add(complexEvent);
                 }
             } catch (SQLException e) {
-                throw new ExecutionPlanRuntimeException("Error while adding events to event table", e);
+                throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
             } finally {
                 cleanUpConnections(stmt, con);
             }
@@ -171,7 +171,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while deleting the event", e);
+            throw new ExecutionPlanRuntimeException("Error while deleting the event," + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -194,7 +194,7 @@ public class DBHandler {
                 log.debug(updatedRows + " updated in table " + tableName);
             }
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while updating the event", e);
+            throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -248,7 +248,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while retrieving events from event table", e);
+            throw new ExecutionPlanRuntimeException("Error while retrieving events from event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -271,7 +271,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while retrieving events from event table", e);
+            throw new ExecutionPlanRuntimeException("Error while retrieving events from event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -300,7 +300,7 @@ public class DBHandler {
                 stmt.executeUpdate(executionInfo.getPreparedCreateTableStatement());
             }
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Exception while creating the event table", e);
+            throw new ExecutionPlanRuntimeException("Exception while creating the event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -427,7 +427,7 @@ public class DBHandler {
             executionInfo.setPreparedTableExistenceCheckStatement(isTableExistQuery);
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while accessing through datasource connection", e);
+            throw new ExecutionPlanRuntimeException("Error while accessing through datasource connection, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(null, con);
         }
@@ -474,7 +474,7 @@ public class DBHandler {
             try {
                 stmt.close();
             } catch (SQLException e) {
-                throw new ExecutionPlanRuntimeException("unable to release statement", e);
+                throw new ExecutionPlanRuntimeException("unable to release statement, " + e.getMessage(), e);
             }
         }
 
@@ -482,7 +482,7 @@ public class DBHandler {
             try {
                 con.close();
             } catch (SQLException e) {
-                throw new ExecutionPlanRuntimeException("unable to release connection", e);
+                throw new ExecutionPlanRuntimeException("unable to release connection, " + e.getMessage(), e);
             }
         }
     }
@@ -531,7 +531,7 @@ public class DBHandler {
             results.close();
 
         } catch (SQLException ex) {
-            throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data", ex);
+            throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex.getMessage(), ex);
         } finally {
             cleanUpConnections(stmt, con);
         }
