@@ -34,17 +34,9 @@ public class ConcatFunctionExtension extends FunctionExecutor{
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        int attributeCount = 0;
         if (attributeExpressionExecutors.length < 2) {
             throw new ExecutionPlanValidationException("str:charat() function requires at least two arguments, " +
                     "but found only " + attributeExpressionExecutors.length);
-        }
-        for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
-            attributeCount++;
-            if (returnType != expressionExecutor.getReturnType()) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the "+attributeCount+"'th argument of str:concat() function, " +
-                        "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[attributeCount-1].getReturnType().toString());
-            }
         }
     }
 
