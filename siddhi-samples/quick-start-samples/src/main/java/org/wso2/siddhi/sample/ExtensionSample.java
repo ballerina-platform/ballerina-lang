@@ -28,15 +28,23 @@ public class ExtensionSample {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // Create Siddhi Manager
+        // Creating Siddhi Manager
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price long, volume long);"
-                + "@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as totalCount insert into mailOutput;";
 
+        String executionPlan = "" +
+                "define stream cseEventStream (symbol string, price long, volume long);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream " +
+                "select symbol , custom:plus(price,volume) as totalCount " +
+                "insert into Output;";
+
+        //Generating runtime
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
+        //Adding callback to retrieve output events from query
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -44,11 +52,23 @@ public class ExtensionSample {
             }
         });
 
+        //Retrieving InputHandler to push events into Siddhi
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        //Starting event processing
+        executionPlanRuntime.start();
+
+        //Sending events to Siddhi
         inputHandler.send(new Object[]{"IBM", 700l, 100l});
         inputHandler.send(new Object[]{"WSO2", 605l, 200l});
         inputHandler.send(new Object[]{"GOOG", 60l, 200l});
         Thread.sleep(500);
+
+        //Shutting down the runtime
+        executionPlanRuntime.shutdown();
+
+        //Shutting down Siddhi
+        siddhiManager.shutdown();
 
     }
 }

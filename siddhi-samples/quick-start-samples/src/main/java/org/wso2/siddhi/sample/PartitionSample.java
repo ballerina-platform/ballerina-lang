@@ -27,32 +27,49 @@ public class PartitionSample {
 
     public static void main(String[] args) throws InterruptedException {
 
-        // Create Siddhi Manager
+        // Creating Siddhi Manager
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
-                + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream)"
-                + "begin"
-                + "@info(name = 'query') from cseEventStream select symbol,sum(price) as price,volume insert into OutStockStream ;"
-                + "end ";
+        String executionPlan = "" +
+                "define stream cseEventStream (symbol string, price float,volume int);" +
+                "" +
+                "partition with (symbol of cseEventStream)" +
+                "begin" +
+                "   @info(name = 'query') " +
+                "   from cseEventStream " +
+                "   select symbol, sum(price) as price, volume " +
+                "   insert into OutStockStream ;" +
+                "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        //Generating runtime
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
-        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+        //Adding callback to retrieve output events from stream
+        executionPlanRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
             }
         });
 
-        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        //Retrieving InputHandler to push events into Siddhi
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        //Starting event processing
+        executionPlanRuntime.start();
+
+        //Sending events to Siddhi
         inputHandler.send(new Object[]{"IBM", 75f, 100});
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
         Thread.sleep(1000);
 
+        //Shutting down the runtime
+        executionPlanRuntime.shutdown();
+
+        //Shutting down Siddhi
+        siddhiManager.shutdown();
     }
 }

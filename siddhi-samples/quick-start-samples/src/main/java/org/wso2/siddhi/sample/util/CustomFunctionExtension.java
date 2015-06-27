@@ -23,30 +23,17 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 public class CustomFunctionExtension extends FunctionExecutor {
-    Attribute.Type returnType;
 
-    @Override
-    public void start() {
-        //Nothing to start
-    }
-
-    @Override
-    public void stop() {
-    }
+    private Attribute.Type returnType;
 
     /**
-     * Return type of the custom function mentioned
+     * The initialization method for FunctionExecutor, this method will be called before the other methods
      *
-     * @return
+     * @param attributeExpressionExecutors are the executors of each function parameters
+     * @param executionPlanContext         the context of the execution plan
      */
-
     @Override
-    public Attribute.Type getReturnType() {
-        return returnType;
-    }
-
-    @Override
-    public void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             Attribute.Type attributeType = expressionExecutor.getReturnType();
             if (attributeType == Attribute.Type.DOUBLE) {
@@ -58,57 +45,97 @@ public class CustomFunctionExtension extends FunctionExecutor {
                 returnType = Attribute.Type.LONG;
             }
         }
-
     }
 
+    /**
+     * The main execution method which will be called upon event arrival
+     * when there are more then one function parameter
+     *
+     * @param data the runtime values of function parameters
+     * @return the function result
+     */
     @Override
-    protected Object execute(Object[] obj) {
+    protected Object execute(Object[] data) {
         if (returnType == Attribute.Type.DOUBLE) {
             double total = 0;
-            for (Object aObj : obj) {
+            for (Object aObj : data) {
                 total += Double.parseDouble(String.valueOf(aObj));
             }
 
             return total;
         } else {
             long total = 0;
-            for (Object aObj : obj) {
+            for (Object aObj : data) {
                 total += Long.parseLong(String.valueOf(aObj));
             }
             return total;
         }
-
     }
 
+    /**
+     * The main execution method which will be called upon event arrival
+     * when there are zero or one function parameter
+     *
+     * @param data null if the function parameter count is zero or
+     *             runtime data value of the function parameter
+     * @return the function result
+     */
     @Override
-    protected Object execute(Object obj) {
+    protected Object execute(Object data) {
         if (returnType == Attribute.Type.DOUBLE) {
-            double total = 0;
-            if (obj instanceof Object[]) {
-                for (Object aObj : (Object[]) obj) {
-                    total += Double.parseDouble(String.valueOf(aObj));
-                }
-            }
-            return total;
+            return Double.parseDouble(String.valueOf(data));
         } else {
-            long total = 0;
-            if (obj instanceof Object[]) {
-                for (Object aObj : (Object[]) obj) {
-                    total += Long.parseLong(String.valueOf(aObj));
-                }
-            }
-            return total;
+            return Long.parseLong(String.valueOf(data));
         }
     }
 
+    /**
+     * This will be called only once and this can be used to acquire
+     * required resources for the processing element.
+     * This will be called after initializing the system and before
+     * starting to process the events.
+     */
     @Override
-    public Object[] currentState() {
-        //No state
-        return null;
+    public void start() {
+
+    }
+
+    /**
+     * This will be called only once and this can be used to release
+     * the acquired resources for processing.
+     * This will be called before shutting down the system.
+     */
+    @Override
+    public void stop() {
+
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        //Nothing to be done
+    public Attribute.Type getReturnType() {
+        return returnType;
     }
+
+    /**
+     * Used to collect the serializable state of the processing element, that need to be
+     * persisted for the reconstructing the element to the same state on a different point of time
+     *
+     * @return stateful objects of the processing element as an array
+     */
+    @Override
+    public Object[] currentState() {
+        return new Object[0];
+    }
+
+    /**
+     * Used to restore serialized state of the processing element, for reconstructing
+     * the element to the same state as if was on a previous point of time.
+     *
+     * @param state the stateful objects of the element as an array on
+     *              the same order provided by currentState().
+     */
+    @Override
+    public void restoreState(Object[] state) {
+
+    }
+
 }
