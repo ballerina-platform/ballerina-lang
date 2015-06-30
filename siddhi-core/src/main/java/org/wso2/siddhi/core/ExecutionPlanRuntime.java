@@ -114,6 +114,7 @@ public class ExecutionPlanRuntime {
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.stopProcessing();
         }
+        executionPlanContext.getExecutorService().shutdownNow();
         if (executionPlanRuntimeMap != null) {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }

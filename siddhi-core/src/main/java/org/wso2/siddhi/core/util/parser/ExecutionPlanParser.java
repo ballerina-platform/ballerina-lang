@@ -96,9 +96,9 @@ public class ExecutionPlanParser {
 
             executionPlanContext.setExecutorService(new ThreadPoolExecutor(25, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
-                    new LinkedBlockingDeque<Runnable>(), new ThreadFactoryBuilder().setNameFormat(executionPlanContext.getName()+"thread-%d").build()));
+                    new LinkedBlockingDeque<Runnable>(), new ThreadFactoryBuilder().setNameFormat("Siddhi-"+executionPlanContext.getName()+"-executor-thread-%d").build()));
 
-            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5));
+            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5,new ThreadFactoryBuilder().setNameFormat("Siddhi-"+executionPlanContext.getName()+"-scheduler-thread-%d").build()));
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
             executionPlanContext.setSnapshotService(new SnapshotService(executionPlanContext));
             executionPlanContext.setPersistenceService(new PersistenceService(executionPlanContext));
