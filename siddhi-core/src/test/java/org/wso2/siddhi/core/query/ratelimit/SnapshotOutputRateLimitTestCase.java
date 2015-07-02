@@ -808,7 +808,6 @@ public class SnapshotOutputRateLimitTestCase {
         executionPlanRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
-        Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
         Thread.sleep(2200);
 
