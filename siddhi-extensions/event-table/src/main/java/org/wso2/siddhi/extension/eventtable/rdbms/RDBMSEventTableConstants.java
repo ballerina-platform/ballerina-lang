@@ -72,4 +72,6 @@ public interface RDBMSEventTableConstants {
     public static final String ANNOTATION_CONNECTION = "connection";
 
 
+    public static final String BOOLEAN_LITERAL_TRUE = "TRUE";
+    public static final String BOOLEAN_LITERAL_FALSE = "FALSE";
 }

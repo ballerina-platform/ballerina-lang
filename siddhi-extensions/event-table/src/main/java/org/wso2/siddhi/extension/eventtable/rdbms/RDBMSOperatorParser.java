@@ -16,6 +16,7 @@
 
 package org.wso2.siddhi.extension.eventtable.rdbms;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
@@ -43,6 +44,8 @@ import java.util.Map;
 
 
 public class RDBMSOperatorParser {
+
+    private static final Logger log = Logger.getLogger(RDBMSOperatorParser.class);
 
     private RDBMSOperatorParser() {
     }
@@ -107,23 +110,35 @@ public class RDBMSOperatorParser {
 
         //Constructing query to delete a table row
         String deleteTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
+        if (log.isDebugEnabled()) {
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + deleteTableRowQuery);
+        }
         executionInfo.setPreparedDeleteStatement(deleteTableRowQuery);
         executionInfo.setDeleteQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to update a table row
         StringBuilder updateColumnValues = getUpdateQueryAttributes(updateConditionAttributeList, dbHandler.getElementMappings());
         String updateTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE), null, null, null, updateColumnValues, conditionBuilder);
+        if (log.isDebugEnabled()) {
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + updateTableRowQuery);
+        }
         executionInfo.setPreparedUpdateStatement(updateTableRowQuery);
         updateConditionAttributeList.addAll(conditionAttributeList);
         executionInfo.setUpdateQueryColumnOrder(updateConditionAttributeList);
 
         //Constructing query to select table rows
         String selectTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, conditionBuilder);
+        if (log.isDebugEnabled()) {
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + selectTableRowQuery);
+        }
         executionInfo.setPreparedSelectTableStatement(selectTableRowQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
         //Constructing query to check for existence
         String isTableRowExistentQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST), null, null, null, null, conditionBuilder);
+        if (log.isDebugEnabled()) {
+            log.debug("Adding SQL Prepared Statement for execution plan " + executionPlanContext.getName() + " : " + isTableRowExistentQuery);
+        }
         executionInfo.setPreparedTableRowExistenceCheckStatement(isTableRowExistentQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
@@ -289,7 +304,7 @@ public class RDBMSOperatorParser {
             conditionBuilder.append(value);
         } else if (expression instanceof BoolConstant) {
             boolean value = ((BoolConstant) expression).getValue();
-            conditionBuilder.append('"').append(value).append('"');
+            conditionBuilder.append(value ? RDBMSEventTableConstants.BOOLEAN_LITERAL_TRUE : RDBMSEventTableConstants.BOOLEAN_LITERAL_FALSE);
         }
     }
 
