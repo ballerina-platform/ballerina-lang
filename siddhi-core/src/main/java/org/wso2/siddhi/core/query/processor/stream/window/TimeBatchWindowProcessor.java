@@ -109,14 +109,24 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         if (sendEvents) {
             currentEventChunk.reset();
             ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
+
+
+            StreamEvent resetEvent = new StreamEvent(0,0,0);
+            resetEvent.setTimestamp(currentTime);
+            resetEvent.setType(ComplexEvent.Type.RESET);
+            newEventChunk.add(resetEvent);
+
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
-                expiredEvent.setTimestamp(currentTime);
+                if(expiredEvent.getTimestamp()+timeInMilliSeconds <= currentTime){
+                    expiredEventChunk.remove();
+                }  else {
+                    break;
+                }
+
             }
-            if (expiredEventChunk.getFirst() != null) {
-                newEventChunk.add(expiredEventChunk.getFirst());
-            }
-            expiredEventChunk.clear();
+
+            expiredEventChunk.reset();
             while (currentEventChunk.hasNext()) {
                 StreamEvent currentEvent = currentEventChunk.next();
                 StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);

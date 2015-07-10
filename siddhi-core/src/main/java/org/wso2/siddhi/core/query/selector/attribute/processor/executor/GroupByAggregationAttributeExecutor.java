@@ -36,15 +36,23 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     @Override
     public Object execute(ComplexEvent event) {
-        String key = QuerySelector.getThreadLocalGroupByKey();
-        AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
-        if (currentAttributeAggregator == null) {
-            currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            currentAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
-            currentAttributeAggregator.start();
-            aggregatorMap.put(key, currentAttributeAggregator);
+        if(event.getType() == ComplexEvent.Type.RESET){
+            for(AttributeAggregator aggregator: aggregatorMap.values()){
+                  aggregator.reset();
+            }
+            aggregatorMap.clear();
+            return null;
+        } else {
+            String key = QuerySelector.getThreadLocalGroupByKey();
+            AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
+            if (currentAttributeAggregator == null) {
+                currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
+                currentAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
+                currentAttributeAggregator.start();
+                aggregatorMap.put(key, currentAttributeAggregator);
+            }
+            return currentAttributeAggregator.process(event);
         }
-        return currentAttributeAggregator.process(event);
     }
 
     public ExpressionExecutor cloneExecutor(String key) {

@@ -228,7 +228,8 @@ public class LenghtBatchWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.lengthBatch(" + length + ") select symbol,sum(price) as price insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.lengthBatch(" + length + ") select volume,sum(price) as price " +
+                " group by volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -237,9 +238,25 @@ public class LenghtBatchWindowTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    Assert.assertTrue((Double)event.getData(1)== 760.5 || (Double)event.getData(1)== 1400.5 ||(Double)event.getData(1)== 1000.0);
+                for(Event event: events){
                     inEventCount++;
+                    switch (inEventCount){
+                        case 1:
+                            org.junit.Assert.assertArrayEquals(new Object[]{1, 700.0}, event.getData());
+                            break;
+                        case 2:
+                            org.junit.Assert.assertArrayEquals(new Object[]{2, 60.5}, event.getData());
+                            break;
+                        case 3:
+                            org.junit.Assert.assertArrayEquals(new Object[]{1, 1400.5}, event.getData());
+                            break;
+                        case 4:
+                            org.junit.Assert.assertArrayEquals(new Object[]{5, 700.0}, event.getData());
+                            break;
+                        case 5:
+                            org.junit.Assert.assertArrayEquals(new Object[]{6, 300.0}, event.getData());
+
+                    }
                 }
                 eventArrived = true;
             }
@@ -250,8 +267,8 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 1});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 2});
         Thread.sleep(1000);
-        inputHandler.send(new Object[]{"IBM", 700f, 3});
-        inputHandler.send(new Object[]{"WSO2", 700.5f, 4});
+        inputHandler.send(new Object[]{"IBM", 700f, 1});
+        inputHandler.send(new Object[]{"WSO2", 700.5f, 1});
         inputHandler.send(new Object[]{"IBM", 700f, 5});
         inputHandler.send(new Object[]{"WSO2", 300f, 6});
         Thread.sleep(500);
