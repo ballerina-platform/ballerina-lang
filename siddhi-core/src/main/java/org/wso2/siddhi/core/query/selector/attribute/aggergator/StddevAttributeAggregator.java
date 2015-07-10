@@ -120,7 +120,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             }
 
             if (n < 2) {
-                return 0;
+                return 0.0;
             }
             return Math.sqrt(S/n);
         }
@@ -141,7 +141,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             }
 
             if (n < 2) {
-                return 0;
+                return 0.0;
             }
             return Math.sqrt(S/n);
         }
