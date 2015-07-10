@@ -144,19 +144,9 @@ public class LenghtBatchWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-//                    if (event.isExpired()) {
-//                        removeEventCount++;
-//                        Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
-//                        if (removeEventCount == 1) {
-//                            Assert.assertEquals("Expired event triggering position", length, inEventCount);
-//                        }
-//                    } else {
-                        inEventCount++;
-                        Assert.assertEquals("In event order", inEventCount, event.getData(2));
-//                    }
+                    inEventCount++;
+                    Assert.assertEquals("In event order", inEventCount, event.getData(2));
                 }
-//                Assert.assertEquals("No of emitted events at window expiration", inEventCount - length,
-//                        removeEventCount);
                 eventArrived = true;
             }
         });
@@ -171,7 +161,6 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
         Assert.assertEquals("In event count", 6, inEventCount);
-//        Assert.assertEquals("Remove event count", 4, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
