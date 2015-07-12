@@ -232,8 +232,8 @@ public class StddevAttributeAggregatorTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
 //                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 400.09052) < 0.00001);
-//                Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 405.11802) < 0.0000001);
-//                Assert.assertTrue(Math.abs((Double) inEvents[2].getData(0) - 199.96026) < 0.0000001);
+//                Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 405.11802) < 0.00001);
+//                Assert.assertTrue(Math.abs((Double) inEvents[2].getData(0) - 199.96026) < 0.00001);
             }
         });
 

@@ -56,9 +56,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
                 break;
             default:
                 throw new OperationNotSupportedException("Stddev not supported for " + type);
-
         }
-
     }
 
     @Override
@@ -97,7 +95,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
     private class StddevAttributeAggregatorDouble extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.INT;
-        private double M, oldM, S, oldS; // We can get rid of oldS
+        private double M, oldM, S;
         private int n = 0;
 
         @Override
@@ -111,12 +109,11 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
             if (n == 1) {
                 M = oldM = value;
-                S = oldS = 0.0;
+                S = 0.0;
             } else {
                 oldM = M;
-                oldS = S;
                 M = oldM + (value - oldM)/n;
-                S = oldS + (value - oldM)*(value - M);
+                S += (value - oldM)*(value - M);
             }
 
             if (n < 2) {
@@ -135,9 +132,8 @@ public class StddevAttributeAggregator extends AttributeAggregator {
                 S = 0;
             } else {
                 oldM = M;
-                oldS = S;
                 M = (oldM*(n + 1) - value)/n;
-                S = oldS - (value - oldM)*(value - M);
+                S -= (value - oldM)*(value - M);
             }
 
             if (n < 2) {
@@ -148,21 +144,20 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object reset() {
-            M = oldM = 0;
-            S = oldS = 0;
+            M = oldM = 0.0;
+            S = 0.0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {M, oldM, S, oldS, n}; }
+        public Object[] currentState() { return new Object[] {M, oldM, S, n}; }
 
         @Override
         public void restoreState(Object[] state) {
             M = (Double) state[0];
             oldM = (Double) state[1];
             S = (Double) state[2];
-            oldS = (Double) state[3];
-            n = (Integer) state[4];
+            n = (Integer) state[3];
         }
     }
 
