@@ -146,6 +146,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             M = oldM = 0.0;
             S = 0.0;
+            n = 0;
             return 0;
         }
 
@@ -214,6 +215,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             M = oldM = 0.0;
             S = 0.0;
+            n = 0;
             return 0;
         }
 
@@ -282,6 +284,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             M = oldM = 0.0;
             S = 0.0;
+            n = 0;
             return 0;
         }
 
@@ -350,6 +353,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             M = oldM = 0.0;
             S = 0.0;
+            n = 0;
             return 0;
         }
 
