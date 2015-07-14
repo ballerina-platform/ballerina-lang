@@ -64,27 +64,27 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
     }
 
     public Object process(ComplexEvent event) {
-        if(event.getType() == ComplexEvent.Type.RESET){
-            return reset();
+        if (attributeSize > 1) {
+            Object[] data = new Object[attributeSize];
+            for (int i = 0; i < attributeSize; i++) {
+                data[i] = attributeExpressionExecutors[i].execute(event);
+            }
+            switch (event.getType()) {
+                case CURRENT:
+                    return processAdd(data);
+                case EXPIRED:
+                    return processRemove(data);
+                case RESET:
+                    return reset();
+            }
         } else {
-            if (attributeSize > 1) {
-                Object[] data = new Object[attributeSize];
-                for (int i = 0; i < attributeSize; i++) {
-                    data[i] = attributeExpressionExecutors[i].execute(event);
-                }
-                switch (event.getType()) {
-                    case CURRENT:
-                        return processAdd(data);
-                    case EXPIRED:
-                        return processRemove(data);
-                }
-            } else {
-                switch (event.getType()) {
-                    case CURRENT:
-                        return processAdd(attributeExpressionExecutors[0].execute(event));
-                    case EXPIRED:
-                        return processRemove(attributeExpressionExecutors[0].execute(event));
-                }
+            switch (event.getType()) {
+                case CURRENT:
+                    return processAdd(attributeExpressionExecutors[0].execute(event));
+                case EXPIRED:
+                    return processRemove(attributeExpressionExecutors[0].execute(event));
+                case RESET:
+                    return reset();
             }
         }
         return null;

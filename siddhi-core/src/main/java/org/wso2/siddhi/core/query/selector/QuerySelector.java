@@ -75,13 +75,12 @@ public class QuerySelector implements Processor {
             while (complexEventChunk.hasNext()) {       //todo optimize
                 ComplexEvent event = complexEventChunk.next();
 
-                if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED || event.getType() == StreamEvent.Type.RESET ) {
+                if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
 
-                    if(event.getType() != StreamEvent.Type.RESET) {
-                        eventPopulator.populateStateEvent(event);
-                        if (isGroupBy) {
-                            keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
-                        }
+                    eventPopulator.populateStateEvent(event);
+
+                    if (isGroupBy) {
+                        keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
                     }
 
                     //TODO: have to change for windows
@@ -122,15 +121,13 @@ public class QuerySelector implements Processor {
         while (complexEventChunk.hasNext()) {
             ComplexEvent event = complexEventChunk.next();
 
-            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED || event.getType() == StreamEvent.Type.RESET ) {
-                String groupByKey = "";
+            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
 
-                if(event.getType() != StreamEvent.Type.RESET) {
-                    eventPopulator.populateStateEvent(event);
-                    if (isGroupBy) {
-                        groupByKey = groupByKeyGenerator.constructEventKey(event);
-                        keyThreadLocal.set(groupByKey);
-                    }
+                eventPopulator.populateStateEvent(event);
+                String groupByKey = "";
+                if (isGroupBy) {
+                    groupByKey = groupByKeyGenerator.constructEventKey(event);
+                    keyThreadLocal.set(groupByKey);
                 }
 
                 for (AttributeProcessor attributeProcessor : attributeProcessorList) {

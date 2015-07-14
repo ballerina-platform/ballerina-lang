@@ -58,7 +58,11 @@ public class TimeBatchWindowTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                inEventCount = inEventCount + inEvents.length;
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                } else if(removeEvents != null){
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
                 Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
                 eventArrived = true;
             }
@@ -71,6 +75,7 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(3000);
         Assert.assertEquals(1, inEventCount);
+        Assert.assertEquals(1, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -99,6 +104,10 @@ public class TimeBatchWindowTestCase {
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
                 }
+                if (removeEvents != null) {
+                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
                 eventArrived = true;
             }
 
@@ -116,6 +125,7 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(2000);
         Assert.assertEquals(3, inEventCount);
+        Assert.assertEquals(1, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

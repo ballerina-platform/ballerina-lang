@@ -33,10 +33,7 @@ public class AttributeProcessor {
     }
 
     public void process(ComplexEvent event) {
-        Object outputData = expressionExecutor.execute(event);
-        if(event.getType() != ComplexEvent.Type.RESET) {
-            event.setOutputData(outputData, outputPosition);
-        }
+        event.setOutputData(expressionExecutor.execute(event), outputPosition);
     }
 
     public AttributeProcessor cloneProcessor(String key) {

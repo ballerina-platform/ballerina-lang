@@ -144,9 +144,19 @@ public class LenghtBatchWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    inEventCount++;
-                    Assert.assertEquals("In event order", inEventCount, event.getData(2));
+                    if (event.isExpired()) {
+                        removeEventCount++;
+                        Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
+                        if (removeEventCount == 1) {
+                            Assert.assertEquals("Expired event triggering position", length, inEventCount);
+                        }
+                    } else {
+                        inEventCount++;
+                        Assert.assertEquals("In event order", inEventCount, event.getData(2));
+                    }
                 }
+                Assert.assertEquals("No of emitted events at window expiration", inEventCount - length,
+                        removeEventCount);
                 eventArrived = true;
             }
         });
@@ -161,6 +171,7 @@ public class LenghtBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
         Assert.assertEquals("In event count", 6, inEventCount);
+        Assert.assertEquals("Remove event count", 4, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -217,8 +228,7 @@ public class LenghtBatchWindowTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.lengthBatch(" + length + ") select volume,sum(price) as price " +
-                " group by volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.lengthBatch(" + length + ") select symbol,price,volume insert expired events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -227,24 +237,13 @@ public class LenghtBatchWindowTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for(Event event: events){
-                    inEventCount++;
-                    switch (inEventCount){
-                        case 1:
-                            org.junit.Assert.assertArrayEquals(new Object[]{1, 700.0}, event.getData());
-                            break;
-                        case 2:
-                            org.junit.Assert.assertArrayEquals(new Object[]{2, 60.5}, event.getData());
-                            break;
-                        case 3:
-                            org.junit.Assert.assertArrayEquals(new Object[]{1, 1400.5}, event.getData());
-                            break;
-                        case 4:
-                            org.junit.Assert.assertArrayEquals(new Object[]{5, 700.0}, event.getData());
-                            break;
-                        case 5:
-                            org.junit.Assert.assertArrayEquals(new Object[]{6, 300.0}, event.getData());
-
+                for (Event event : events) {
+                    if (event.isExpired()) {
+                        removeEventCount++;
+                        Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
+                    } else {
+                        inEventCount++;
+                        Assert.fail("In event should not occur");
                     }
                 }
                 eventArrived = true;
@@ -255,13 +254,13 @@ public class LenghtBatchWindowTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 1});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 2});
-        Thread.sleep(1000);
-        inputHandler.send(new Object[]{"IBM", 700f, 1});
-        inputHandler.send(new Object[]{"WSO2", 700.5f, 1});
+        inputHandler.send(new Object[]{"IBM", 700f, 3});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 4});
         inputHandler.send(new Object[]{"IBM", 700f, 5});
-        inputHandler.send(new Object[]{"WSO2", 300f, 6});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(500);
-        Assert.assertTrue("In event count", inEventCount >= 2);
+        Assert.assertEquals("In event count", 0, inEventCount);
+        Assert.assertEquals("Remove event count", 4, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
