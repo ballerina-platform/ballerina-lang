@@ -95,7 +95,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
     private class StddevAttributeAggregatorDouble extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private double M, oldM, S;
+        private double mean, oldMean, S, sum;
         private int n = 0;
 
         @Override
@@ -108,12 +108,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Double) data;
 
             if (n == 1) {
-                M = oldM = value;
+                sum = mean = oldMean = value;
                 S = 0.0;
             } else {
-                oldM = M;
-                M = oldM + (value - oldM)/n;
-                S += (value - oldM)*(value - M);
+                oldMean = mean;
+                sum += value;
+                mean = sum / n;
+                S += (value - oldMean)*(value - mean);
             }
 
             if (n < 2) {
@@ -128,12 +129,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Double) data;
 
             if (n == 0) {
-                M = 0;
+                sum = mean = 0;
                 S = 0;
             } else {
-                oldM = M;
-                M = (oldM*(n + 1) - value)/n;
-                S -= (value - oldM)*(value - M);
+                oldMean = mean;
+                sum -= value;
+                mean = sum / n;
+                S -= (value - oldMean)*(value - mean);
             }
 
             if (n < 2) {
@@ -144,27 +146,28 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object reset() {
-            M = oldM = 0.0;
+            sum = mean = oldMean = 0.0;
             S = 0.0;
             n = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {M, oldM, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
 
         @Override
         public void restoreState(Object[] state) {
-            M = (Double) state[0];
-            oldM = (Double) state[1];
-            S = (Double) state[2];
-            n = (Integer) state[3];
+            sum = (Double) state[0];
+            mean = (Double) state[1];
+            oldMean = (Double) state[2];
+            S = (Double) state[3];
+            n = (Integer) state[4];
         }
     }
 
     private class StddevAttributeAggregatorFloat extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.FLOAT;
-        private double M, oldM, S;
+        private double mean, oldMean, S, sum;
         private int n = 0;
 
         @Override
@@ -177,12 +180,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Float) data;
 
             if (n == 1) {
-                M = oldM = value;
+                sum = mean = oldMean = value;
                 S = 0.0;
             } else {
-                oldM = M;
-                M = oldM + (value - oldM)/n;
-                S += (value - oldM)*(value - M);
+                oldMean = mean;
+                sum += value;
+                mean = sum / n;
+                S += (value - oldMean)*(value - mean);
             }
 
             if (n < 2) {
@@ -197,12 +201,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Float) data;
 
             if (n == 0) {
-                M = 0;
+                sum = mean = 0;
                 S = 0;
             } else {
-                oldM = M;
-                M = (oldM*(n + 1) - value)/n;
-                S -= (value - oldM)*(value - M);
+                oldMean = mean;
+                sum -= value;
+                mean = sum / n;
+                S -= (value - oldMean)*(value - mean);
             }
 
             if (n < 2) {
@@ -213,96 +218,28 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object reset() {
-            M = oldM = 0.0;
+            sum = mean = oldMean = 0.0;
             S = 0.0;
             n = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {M, oldM, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
 
         @Override
         public void restoreState(Object[] state) {
-            M = (Double) state[0];
-            oldM = (Double) state[1];
-            S = (Double) state[2];
-            n = (Integer) state[3];
-        }
-    }
-
-    private class StddevAttributeAggregatorLong extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.LONG;
-        private double M, oldM, S;
-        private int n = 0;
-
-        @Override
-        public Attribute.Type getReturnType() { return type; }
-
-        @Override
-        public Object processAdd(Object data) {
-            // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
-            n++;
-            double value = (Long) data;
-
-            if (n == 1) {
-                M = oldM = value;
-                S = 0.0;
-            } else {
-                oldM = M;
-                M = oldM + (value - oldM)/n;
-                S += (value - oldM)*(value - M);
-            }
-
-            if (n < 2) {
-                return 0.0;
-            }
-            return Math.sqrt(S/n);
-        }
-
-        @Override
-        public Object processRemove(Object data) {
-            n--;
-            double value = (Long) data;
-
-            if (n == 0) {
-                M = 0;
-                S = 0;
-            } else {
-                oldM = M;
-                M = (oldM*(n + 1) - value)/n;
-                S -= (value - oldM)*(value - M);
-            }
-
-            if (n < 2) {
-                return 0.0;
-            }
-            return Math.sqrt(S/n);
-        }
-
-        @Override
-        public Object reset() {
-            M = oldM = 0.0;
-            S = 0.0;
-            n = 0;
-            return 0;
-        }
-
-        @Override
-        public Object[] currentState() { return new Object[] {M, oldM, S, n}; }
-
-        @Override
-        public void restoreState(Object[] state) {
-            M = (Double) state[0];
-            oldM = (Double) state[1];
-            S = (Double) state[2];
-            n = (Integer) state[3];
+            sum = (Double) state[0];
+            mean = (Double) state[1];
+            oldMean = (Double) state[2];
+            S = (Double) state[3];
+            n = (Integer) state[4];
         }
     }
 
     private class StddevAttributeAggregatorInt extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.INT;
-        private double M, oldM, S;
+        private double mean, oldMean, S, sum;
         private int n = 0;
 
         @Override
@@ -315,12 +252,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Integer) data;
 
             if (n == 1) {
-                M = oldM = value;
+                sum = mean = oldMean = value;
                 S = 0.0;
             } else {
-                oldM = M;
-                M = oldM + (value - oldM)/n;
-                S += (value - oldM)*(value - M);
+                oldMean = mean;
+                sum += value;
+                mean = sum / n;
+                S += (value - oldMean)*(value - mean);
             }
 
             if (n < 2) {
@@ -335,12 +273,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Integer) data;
 
             if (n == 0) {
-                M = 0;
+                sum = mean = 0;
                 S = 0;
             } else {
-                oldM = M;
-                M = (oldM*(n + 1) - value)/n;
-                S -= (value - oldM)*(value - M);
+                oldMean = mean;
+                sum -= value;
+                mean = sum / n;
+                S -= (value - oldMean)*(value - mean);
             }
 
             if (n < 2) {
@@ -351,21 +290,94 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object reset() {
-            M = oldM = 0.0;
+            sum = mean = oldMean = 0.0;
             S = 0.0;
             n = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {M, oldM, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
 
         @Override
         public void restoreState(Object[] state) {
-            M = (Double) state[0];
-            oldM = (Double) state[1];
-            S = (Double) state[2];
-            n = (Integer) state[3];
+            sum = (Double) state[0];
+            mean = (Double) state[1];
+            oldMean = (Double) state[2];
+            S = (Double) state[3];
+            n = (Integer) state[4];
+        }
+    }
+
+    private class StddevAttributeAggregatorLong extends StddevAttributeAggregator {
+        private final Attribute.Type type = Attribute.Type.LONG;
+        private double mean, oldMean, S, sum;
+        private int n = 0;
+
+        @Override
+        public Attribute.Type getReturnType() { return type; }
+
+        @Override
+        public Object processAdd(Object data) {
+            // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
+            n++;
+            double value = (Long) data;
+
+            if (n == 1) {
+                sum = mean = oldMean = value;
+                S = 0.0;
+            } else {
+                oldMean = mean;
+                sum += value;
+                mean = sum / n;
+                S += (value - oldMean)*(value - mean);
+            }
+
+            if (n < 2) {
+                return 0.0;
+            }
+            return Math.sqrt(S/n);
+        }
+
+        @Override
+        public Object processRemove(Object data) {
+            n--;
+            double value = (Long) data;
+
+            if (n == 0) {
+                sum = mean = 0;
+                S = 0;
+            } else {
+                oldMean = mean;
+                sum -= value;
+                mean = sum / n;
+                S -= (value - oldMean)*(value - mean);
+            }
+
+            if (n < 2) {
+                return 0.0;
+            }
+            return Math.sqrt(S/n);
+        }
+
+        @Override
+        public Object reset() {
+            sum = mean = oldMean = 0.0;
+            S = 0.0;
+            n = 0;
+            return 0;
+        }
+
+        @Override
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
+
+        @Override
+        public void restoreState(Object[] state) {
+            sum = (Double) state[0];
+            mean = (Double) state[1];
+            oldMean = (Double) state[2];
+            S = (Double) state[3];
+            n = (Integer) state[4];
         }
     }
 }
