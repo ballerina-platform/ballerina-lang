@@ -19,7 +19,9 @@ package org.wso2.siddhi.core.event.state;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
@@ -82,21 +84,43 @@ public class StateEvent implements ComplexEvent {
             }
             int streamEventIndex = position[STREAM_EVENT_INDEX];
 
-            switch (streamEventIndex) {
-                case LAST:
-                    while (streamEvent.getNext() != null) {
-                        streamEvent = streamEvent.getNext();
+            if (streamEventIndex >= 0) {
+                for (int i = 1; i <= position[STREAM_EVENT_INDEX]; i++) {
+                    streamEvent = streamEvent.getNext();
+                    if (streamEvent == null) {
+                        return null;
                     }
-                    break;
-                default:
-                    for (int i = 1; i <= position[STREAM_EVENT_INDEX]; i++) {
-                        streamEvent = streamEvent.getNext();
-                        if (streamEvent == null) {
-                            return null;
-                        }
-                    }
-                    break;
+                }
+            } else if (streamEventIndex == CURRENT) {
+
+                if (streamEvent.getNext() != null) {
+                    streamEvent = streamEvent.getNext();
+                }
+
+            } else if (streamEventIndex == LAST) {
+
+                if (streamEvent.getNext() == null) {
+                    return null;
+                }
+                while (streamEvent.getNext() != null && streamEvent.getNext().getNext() == null) {
+                    streamEvent = streamEvent.getNext();
+                }
+            } else {
+                List<StreamEvent> stateEventList = new ArrayList<StreamEvent>();
+                while (streamEvent != null) {
+                    stateEventList.add(streamEvent);
+                    streamEvent = streamEvent.getNext();
+                }
+
+                int index = stateEventList.size() - 1 + streamEventIndex;
+                if (index < 0) {
+                    return null;
+                } else {
+                    streamEvent = stateEventList.get(index);
+                }
+
             }
+
 
             switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
                 case BEFORE_WINDOW_DATA_INDEX:

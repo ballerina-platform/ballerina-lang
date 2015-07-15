@@ -98,7 +98,7 @@ public class StateInputStreamParser {
 
                 if (stateElement.getWithin() != null) {
                     Set<Integer> withinStateset = new HashSet<Integer>();
-                    withinStateset.add(SiddhiConstants.LAST);
+                    withinStateset.add(SiddhiConstants.ANY);
                     withinStates.add(0, new AbstractMap.SimpleEntry<Long, Set<Integer>>(stateElement.getWithin().getValue(), withinStateset));
                 }
 
@@ -190,7 +190,7 @@ public class StateInputStreamParser {
 
             if (stateElement.getWithin() != null) {
                 Set<Integer> withinStateset = new HashSet<Integer>();
-                withinStateset.add(SiddhiConstants.LAST);
+                withinStateset.add(SiddhiConstants.ANY);
                 withinStates.add(0, new AbstractMap.SimpleEntry<Long, Set<Integer>>(stateElement.getWithin().getValue(), withinStateset));
             }
 
@@ -255,7 +255,7 @@ public class StateInputStreamParser {
 
             if (stateElement.getWithin() != null) {
                 Set<Integer> withinStateset = new HashSet<Integer>();
-                withinStateset.add(SiddhiConstants.LAST);
+                withinStateset.add(SiddhiConstants.ANY);
                 withinStates.add(0, new AbstractMap.SimpleEntry<Long, Set<Integer>>(stateElement.getWithin().getValue(), withinStateset));
             }
 

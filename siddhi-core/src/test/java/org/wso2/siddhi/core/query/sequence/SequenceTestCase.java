@@ -683,23 +683,23 @@ public class SequenceTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if (inEvents != null) {
-                    for (Event event : inEvents) {
-                        inEventCount++;
-                        switch (inEventCount) {
-                            case 1:
-                                Assert.assertArrayEquals(new Object[]{29.6f, 35.6f, 57.6f, 47.6f}, event.getData());
-                                break;
-                            default:
-                                Assert.assertSame(1, inEventCount);
-                        }
-                    }
-                    eventArrived = true;
-                }
-                if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
-                }
-                eventArrived = true;
+//                if (inEvents != null) {
+//                    for (Event event : inEvents) {
+//                        inEventCount++;
+//                        switch (inEventCount) {
+//                            case 1:
+//                                Assert.assertArrayEquals(new Object[]{29.6f, 35.6f, 57.6f, 47.6f}, event.getData());
+//                                break;
+//                            default:
+//                                Assert.assertSame(1, inEventCount);
+//                        }
+//                    }
+//                    eventArrived = true;
+//                }
+//                if (removeEvents != null) {
+//                    removeEventCount = removeEventCount + removeEvents.length;
+//                }
+//                eventArrived = true;
             }
 
         });
@@ -711,12 +711,20 @@ public class SequenceTestCase {
 
         stream1.send(new Object[]{"WSO2", 29.6f, 100});
         Thread.sleep(100);
+//        stream1.send(new Object[]{"WSO2", 25.0f, 100});
+//        Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 35.6f, 100});
         Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 47.6f, 100});
         Thread.sleep(100);
+//        stream1.send(new Object[]{"IBM", 27.6f, 100});
+//        Thread.sleep(100);
+//        stream1.send(new Object[]{"IBM", 49.6f, 100});
+//        Thread.sleep(100);
+//        stream1.send(new Object[]{"IBM", 45.6f, 100});
+//        Thread.sleep(100);
 
         Assert.assertEquals("Number of success events", 1, inEventCount);
         Assert.assertEquals("Number of remove events", 0, removeEventCount);

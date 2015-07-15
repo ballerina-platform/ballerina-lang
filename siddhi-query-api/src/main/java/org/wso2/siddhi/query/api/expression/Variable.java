@@ -19,7 +19,7 @@ import org.wso2.siddhi.query.api.util.SiddhiConstants;
 
 public class Variable extends Expression {
 
-    public static final int LAST = -1;
+    public static final int LAST = -2;
 
     private String streamId;
     private boolean isInnerStream;

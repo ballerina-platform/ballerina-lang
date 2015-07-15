@@ -127,7 +127,7 @@ public class SingleInputStreamParser {
         }
         for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
             attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                    executionPlanContext, false, SiddhiConstants.LAST);
+                    executionPlanContext, false, SiddhiConstants.CURRENT);
         }
         if (streamHandler instanceof Filter) {
             return new FilterProcessor(attributeExpressionExecutors[0]);
