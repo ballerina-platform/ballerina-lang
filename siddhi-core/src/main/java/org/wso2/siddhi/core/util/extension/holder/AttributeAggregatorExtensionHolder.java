@@ -16,7 +16,7 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 
 public class AttributeAggregatorExtensionHolder extends AbstractExtensionHolder {
     private static AttributeAggregatorExtensionHolder instance;
