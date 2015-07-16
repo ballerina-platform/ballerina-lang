@@ -276,7 +276,7 @@ public class ExpressionParser {
                 executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), AttributeAggregator.class);
             } catch (ExecutionPlanCreationException ex) {
                 try {
-                    if(executionPlanContext.isFunctionExist(((AttributeFunction) expression).getFunction())) {
+                    if (executionPlanContext.isFunctionExist(((AttributeFunction) expression).getFunction())) {
                         executor = new ScriptFunctionExecutor(((AttributeFunction) expression).getFunction());
                     } else {
                         try {
@@ -900,7 +900,11 @@ public class ExpressionParser {
         String attributeName = variable.getAttributeName();
         int[] eventPosition = new int[2];
         if (variable.getStreamIndex() != null) {
-            eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
+            if (variable.getStreamIndex() == LAST) {
+                eventPosition[STREAM_EVENT_INDEX] = CURRENT;
+            } else {
+                eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
+            }
         } else {
             eventPosition[STREAM_EVENT_INDEX] = defaultStreamEventIndex;
         }
@@ -962,7 +966,7 @@ public class ExpressionParser {
                                 definition.getAttributeType(attributeName);
                                 throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " + definition.getId() + " with " +
                                         "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute with same" +
-                                        " name '"+attributeName+"'");
+                                        " name '" + attributeName + "'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
                             }
@@ -994,19 +998,23 @@ public class ExpressionParser {
                         if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
                             type = definition.getAttributeType(attributeName);
                             eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
+                            if (variable.getStreamIndex() != null && variable.getStreamIndex() == LAST) {
+                                if (metaStreamEvents[currentState].getInputReferenceId() != null && variable.getStreamId().equals(metaStreamEvents[currentState].getInputReferenceId())) {
+                                    eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
+                                }
+                            }
                             break;
                         }
                     }
                 }
             }
-            if(eventPosition[STREAM_EVENT_CHAIN_INDEX]==UNKNOWN_STATE){
+            if (eventPosition[STREAM_EVENT_CHAIN_INDEX] == UNKNOWN_STATE) {
                 throw new ExecutionPlanValidationException("Stream with reference : " +
-                        variable.getStreamId() +" not found");
-
+                        variable.getStreamId() + " not found");
             }
 
             VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX]);
-            if(eventPosition[STREAM_EVENT_CHAIN_INDEX] != HAVING_STATE) {
+            if (eventPosition[STREAM_EVENT_CHAIN_INDEX] != HAVING_STATE) {
                 MetaStreamEvent metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]);
                 if (metaStreamEvent.isTableEvent()) {
                     variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;

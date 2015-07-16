@@ -136,7 +136,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     private boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
         for (Map.Entry<Long, Set<Integer>> withinEntry : withinStates) {
             for (Integer withinStateId : withinEntry.getValue()) {
-                if (withinStateId == SiddhiConstants.LAST) {
+                if (withinStateId == SiddhiConstants.ANY) {
                     if (Math.abs(pendingStateEvent.getTimestamp() - incomingStreamEvent.getTimestamp()) > withinEntry.getKey()) {
                         return true;
                     }

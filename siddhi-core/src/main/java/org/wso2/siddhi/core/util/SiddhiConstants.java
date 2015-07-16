@@ -49,7 +49,8 @@ public final class SiddhiConstants {
     public static final int HAVING_STATE = -2;
     public static final int UNKNOWN_STATE = -1;
 
-    public static final int LAST = -1;
+    public static final int CURRENT = -1;
+    public static final int LAST = -2;
     public static final int ANY = -1;
 
     public static final String ANNOTATION_FROM = "from";
