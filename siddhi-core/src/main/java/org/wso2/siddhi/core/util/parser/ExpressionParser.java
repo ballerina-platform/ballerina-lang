@@ -53,7 +53,7 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
-import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;

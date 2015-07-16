@@ -17,7 +17,7 @@ package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.attribute.aggergator.AttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 public abstract class AbstractAggregationAttributeExecutor implements ExpressionExecutor {

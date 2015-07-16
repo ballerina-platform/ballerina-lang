@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggergator;
+package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
