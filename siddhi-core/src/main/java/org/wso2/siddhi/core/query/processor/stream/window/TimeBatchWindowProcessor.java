@@ -42,7 +42,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private long timeInMilliSeconds;
     private long lastSentTime;
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
-    private StreamEvent lastExpiredEvent =null;
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
 
@@ -63,7 +63,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-//        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
         if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -89,7 +89,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         boolean sendEvents;
         if (currentTime >= lastSentTime + timeInMilliSeconds) {
             lastSentTime = currentTime;
-            if (currentEventChunk.getFirst() != null || lastExpiredEvent != null) {
+            if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
                 scheduler.notifyAt(lastSentTime + timeInMilliSeconds);
             }
             sendEvents = true;
@@ -109,22 +109,19 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         if (sendEvents) {
             currentEventChunk.reset();
             ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
-//            while (expiredEventChunk.hasNext()) {
-//                StreamEvent expiredEvent = expiredEventChunk.next();
-//                expiredEvent.setTimestamp(currentTime);
-//            }
-            if (lastExpiredEvent != null) {
-                lastExpiredEvent.setTimestamp(currentTime);
-                lastExpiredEvent.setType(ComplexEvent.Type.RESET);
-                newEventChunk.add(lastExpiredEvent);
+            while (expiredEventChunk.hasNext()) {
+                StreamEvent expiredEvent = expiredEventChunk.next();
+                expiredEvent.setTimestamp(currentTime);
             }
-            lastExpiredEvent=null;
+            if (expiredEventChunk.getFirst() != null) {
+                newEventChunk.add(expiredEventChunk.getFirst());
+            }
+            expiredEventChunk.clear();
             while (currentEventChunk.hasNext()) {
                 StreamEvent currentEvent = currentEventChunk.next();
                 StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
                 toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-//                expiredEventChunk.add(toExpireEvent);
-                lastExpiredEvent=toExpireEvent;
+                expiredEventChunk.add(toExpireEvent);
             }
             if (currentEventChunk.getFirst() != null) {
                 newEventChunk.add(currentEventChunk.getFirst());
@@ -148,23 +145,21 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public Object[] currentState() {
-//        return new Object[]{expiredEventChunk};
-        return null;
+        return new Object[]{expiredEventChunk};
     }
 
     @Override
     public void restoreState(Object[] state) {
-//        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
     }
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-//        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
-        return null;
+        return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }

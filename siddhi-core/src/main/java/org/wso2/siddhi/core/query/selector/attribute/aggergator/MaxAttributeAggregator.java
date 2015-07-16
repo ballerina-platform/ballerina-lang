@@ -261,7 +261,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public synchronized Object reset() {
+        public Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -317,7 +317,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public synchronized Object reset() {
+        public Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;

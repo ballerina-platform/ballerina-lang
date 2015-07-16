@@ -121,7 +121,7 @@ public class QuerySelector implements Processor {
         while (complexEventChunk.hasNext()) {
             ComplexEvent event = complexEventChunk.next();
 
-            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED || event.getType() == StreamEvent.Type.RESET) {
+            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
 
                 eventPopulator.populateStateEvent(event);
                 String groupByKey = "";
