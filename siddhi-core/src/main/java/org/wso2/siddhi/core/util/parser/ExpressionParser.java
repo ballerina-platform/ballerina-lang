@@ -998,8 +998,8 @@ public class ExpressionParser {
                         if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
                             type = definition.getAttributeType(attributeName);
                             eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
-                            if (variable.getStreamIndex() != null && variable.getStreamIndex() == LAST) {
-                                if (metaStreamEvents[currentState].getInputReferenceId() != null && variable.getStreamId().equals(metaStreamEvents[currentState].getInputReferenceId())) {
+                            if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null && variable.getStreamIndex() != null && variable.getStreamIndex() == LAST) {
+                                if (variable.getStreamId().equals(metaStreamEvents[currentState].getInputReferenceId())) {
                                     eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
                                 }
                             }

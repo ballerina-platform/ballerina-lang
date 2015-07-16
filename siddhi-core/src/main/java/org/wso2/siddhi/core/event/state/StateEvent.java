@@ -93,7 +93,7 @@ public class StateEvent implements ComplexEvent {
                 }
             } else if (streamEventIndex == CURRENT) {
 
-                if (streamEvent.getNext() != null) {
+                while (streamEvent.getNext() != null) {
                     streamEvent = streamEvent.getNext();
                 }
 
@@ -102,7 +102,7 @@ public class StateEvent implements ComplexEvent {
                 if (streamEvent.getNext() == null) {
                     return null;
                 }
-                while (streamEvent.getNext() != null && streamEvent.getNext().getNext() == null) {
+                while (streamEvent.getNext().getNext() != null) {
                     streamEvent = streamEvent.getNext();
                 }
             } else {
