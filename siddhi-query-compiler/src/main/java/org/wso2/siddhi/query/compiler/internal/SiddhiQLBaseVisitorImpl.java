@@ -43,6 +43,7 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 import org.wso2.siddhi.query.api.expression.constant.*;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
+import org.wso2.siddhi.query.api.util.SiddhiConstants;
 import org.wso2.siddhi.query.compiler.SiddhiQLBaseVisitor;
 import org.wso2.siddhi.query.compiler.SiddhiQLParser;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
@@ -1633,7 +1634,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Integer visitAttribute_index(@NotNull SiddhiQLParser.Attribute_indexContext ctx) {
         int index;
         if (ctx.LAST() != null) {
-            index = -1;
+            index = SiddhiConstants.LAST;
             if (ctx.INT_LITERAL() != null) {
                 index -= Integer.parseInt(ctx.INT_LITERAL().getText());
             }

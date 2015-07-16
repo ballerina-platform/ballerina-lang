@@ -24,4 +24,6 @@ public class SiddhiConstants {
 
     public static final String INNER_STREAM_FLAG = "#";
     public static final String TRIGGERED_TIME = "triggered_time";
+
+    public static final int LAST = -2;
 }
