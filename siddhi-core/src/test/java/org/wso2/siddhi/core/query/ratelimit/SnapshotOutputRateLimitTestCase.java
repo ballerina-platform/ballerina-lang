@@ -63,14 +63,14 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event:events){
+                for (Event event : events) {
                     if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
-                    }  else {
+                    } else {
                         count++;
                         Assert.assertTrue("192.10.1.3".equals(event.getData(0)));
                     }
@@ -117,14 +117,14 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
-                for (Event event:events){
+                for (Event event : events) {
                     EventPrinter.print(events);
                     if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
-                    }  else {
+                    } else {
                         count++;
                         Assert.assertTrue("192.10.1.3".equals(event.getData(0)));
                     }
@@ -172,14 +172,14 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event:events){
+                for (Event event : events) {
                     if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
-                    }  else {
+                    } else {
                         count++;
                         Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
                     }
@@ -231,15 +231,15 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 count++;
-                for (Event event:events){
+                for (Event event : events) {
                     if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
-                    }  else {
+                    } else {
                         value++;
                         Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
                     }
@@ -290,7 +290,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -298,10 +298,10 @@ public class SnapshotOutputRateLimitTestCase {
                 if (count == 3) {
                     Assert.assertTrue((Long) events[0].getData(1) == 5l && (Long) events[1].getData(1) == 16l);
                 }
-                for (Event event:events){
+                for (Event event : events) {
                     if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
-                    }  else {
+                    } else {
                         value++;
                         Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)));
 
@@ -352,7 +352,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -409,7 +409,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -465,7 +465,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -521,7 +521,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -579,12 +579,12 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event:events){
-                    if(event.isExpired()){
+                for (Event event : events) {
+                    if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
                     } else {
                         count++;
@@ -633,12 +633,12 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event:events){
-                    if(event.isExpired()){
+                for (Event event : events) {
+                    if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
                     } else {
                         count++;
@@ -734,12 +734,12 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event:events){
-                    if(event.isExpired()){
+                for (Event event : events) {
+                    if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
                     } else {
                         count++;
@@ -787,12 +787,12 @@ public class SnapshotOutputRateLimitTestCase {
 
         log.info("Running : " + executionPlanRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps",new StreamCallback() {
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event:events){
-                    if(event.isExpired()){
+                for (Event event : events) {
+                    if (event.isExpired()) {
                         Assert.fail("Remove events emitted");
                     } else {
                         count++;
@@ -843,9 +843,9 @@ public class SnapshotOutputRateLimitTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if(inEvents!=null){
-                    value++ ;
-                }  else if(value == 1) {
+                if (inEvents != null) {
+                    value++;
+                } else if (value == 1) {
                     Assert.assertNull(inEvents);
                 }
                 eventArrived = true;
@@ -901,7 +901,7 @@ public class SnapshotOutputRateLimitTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count++;
-                    for (Event event:inEvents) {
+                    for (Event event : inEvents) {
                         Assert.assertTrue("192.10.1.5".equals(event.getData(0)) || "192.10.1.3".equals(event.getData(0)));
                     }
                     value += inEvents.length;
@@ -978,7 +978,7 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
         Thread.sleep(1200);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event bundles greater than 3 ", count>3);
+        Assert.assertTrue("Number of output event bundles greater than 3 ", count > 3);
         Assert.assertEquals("Number of output event value", 8, value);
 
         executionPlanRuntime.shutdown();
@@ -1014,9 +1014,9 @@ public class SnapshotOutputRateLimitTestCase {
                 if (inEvents != null) {
                     count++;
                     if (count == 1) {
-                        Assert.assertTrue((Long) inEvents[0].getData(1) == 9l && (Long) inEvents[1].getData(1) == 9l);
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
                     } else if (count == 2) {
-                        Assert.assertTrue((Long) inEvents[0].getData(1) == 12l && (Long) inEvents[1].getData(1) == 12l);
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 12l);
                     }
                 }
                 eventArrived = true;
@@ -1070,11 +1070,11 @@ public class SnapshotOutputRateLimitTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count++;
                 if (count == 3) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 9l && (Long) inEvents[1].getData(1) == 9l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
                 } else if (count == 4) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 9l && (Long) inEvents[1].getData(1) == 9l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
                 } else if (count == 5) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 21l && (Long) inEvents[1].getData(1) == 21l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 21l);
                 }
                 eventArrived = true;
             }
