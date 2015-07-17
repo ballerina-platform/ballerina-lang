@@ -22,6 +22,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class SiddhiExtensionLoader {
@@ -108,8 +109,12 @@ public class SiddhiExtensionLoader {
         ZipFile zf = null;
         try {
             zf = new ZipFile(file);
+        } catch (ZipException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error viewing zip file for jar:" + file, e);
+            }
         } catch (IOException e) {
-            log.error("Error creating zip file for jar:" + file, e);
+            log.error("Error viewing zip file for jar:" + file, e);
         }
 
         if (zf != null) {
