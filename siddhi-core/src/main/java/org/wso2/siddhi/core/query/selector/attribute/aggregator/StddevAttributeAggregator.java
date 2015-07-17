@@ -95,8 +95,8 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
     private class StddevAttributeAggregatorDouble extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private double mean, oldMean, S, sum;
-        private int n = 0;
+        private double mean, oldMean, stdDeviation, sum;
+        private int count = 0;
 
         @Override
         public Attribute.Type getReturnType() { return type; }
@@ -104,71 +104,71 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         @Override
         public Object processAdd(Object data) {
             // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
-            n++;
+            count++;
             double value = (Double) data;
 
-            if (n == 1) {
+            if (count == 1) {
                 sum = mean = oldMean = value;
-                S = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum += value;
-                mean = sum / n;
-                S += (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation += (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object processRemove(Object data) {
-            n--;
+            count--;
             double value = (Double) data;
 
-            if (n == 0) {
+            if (count == 0) {
                 sum = mean = 0;
-                S = 0;
+                stdDeviation = 0;
             } else {
                 oldMean = mean;
                 sum -= value;
-                mean = sum / n;
-                S -= (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation -= (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object reset() {
             sum = mean = oldMean = 0.0;
-            S = 0.0;
-            n = 0;
+            stdDeviation = 0.0;
+            count = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
 
         @Override
         public void restoreState(Object[] state) {
             sum = (Double) state[0];
             mean = (Double) state[1];
             oldMean = (Double) state[2];
-            S = (Double) state[3];
-            n = (Integer) state[4];
+            stdDeviation = (Double) state[3];
+            count = (Integer) state[4];
         }
     }
 
     private class StddevAttributeAggregatorFloat extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.FLOAT;
-        private double mean, oldMean, S, sum;
-        private int n = 0;
+        private double mean, oldMean, stdDeviation, sum;
+        private int count = 0;
 
         @Override
         public Attribute.Type getReturnType() { return type; }
@@ -176,71 +176,71 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         @Override
         public Object processAdd(Object data) {
             // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
-            n++;
+            count++;
             double value = (Float) data;
 
-            if (n == 1) {
+            if (count == 1) {
                 sum = mean = oldMean = value;
-                S = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum += value;
-                mean = sum / n;
-                S += (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation += (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object processRemove(Object data) {
-            n--;
+            count--;
             double value = (Float) data;
 
-            if (n == 0) {
+            if (count == 0) {
                 sum = mean = 0;
-                S = 0;
+                stdDeviation = 0;
             } else {
                 oldMean = mean;
                 sum -= value;
-                mean = sum / n;
-                S -= (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation -= (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object reset() {
             sum = mean = oldMean = 0.0;
-            S = 0.0;
-            n = 0;
+            stdDeviation = 0.0;
+            count = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
 
         @Override
         public void restoreState(Object[] state) {
             sum = (Double) state[0];
             mean = (Double) state[1];
             oldMean = (Double) state[2];
-            S = (Double) state[3];
-            n = (Integer) state[4];
+            stdDeviation = (Double) state[3];
+            count = (Integer) state[4];
         }
     }
 
     private class StddevAttributeAggregatorInt extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.INT;
-        private double mean, oldMean, S, sum;
-        private int n = 0;
+        private double mean, oldMean, stdDeviation, sum;
+        private int count = 0;
 
         @Override
         public Attribute.Type getReturnType() { return type; }
@@ -248,71 +248,71 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         @Override
         public Object processAdd(Object data) {
             // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
-            n++;
+            count++;
             double value = (Integer) data;
 
-            if (n == 1) {
+            if (count == 1) {
                 sum = mean = oldMean = value;
-                S = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum += value;
-                mean = sum / n;
-                S += (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation += (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object processRemove(Object data) {
-            n--;
+            count--;
             double value = (Integer) data;
 
-            if (n == 0) {
+            if (count == 0) {
                 sum = mean = 0;
-                S = 0;
+                stdDeviation = 0;
             } else {
                 oldMean = mean;
                 sum -= value;
-                mean = sum / n;
-                S -= (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation -= (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object reset() {
             sum = mean = oldMean = 0.0;
-            S = 0.0;
-            n = 0;
+            stdDeviation = 0.0;
+            count = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
 
         @Override
         public void restoreState(Object[] state) {
             sum = (Double) state[0];
             mean = (Double) state[1];
             oldMean = (Double) state[2];
-            S = (Double) state[3];
-            n = (Integer) state[4];
+            stdDeviation = (Double) state[3];
+            count = (Integer) state[4];
         }
     }
 
     private class StddevAttributeAggregatorLong extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.LONG;
-        private double mean, oldMean, S, sum;
-        private int n = 0;
+        private double mean, oldMean, stdDeviation, sum;
+        private int count = 0;
 
         @Override
         public Attribute.Type getReturnType() { return type; }
@@ -320,64 +320,64 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         @Override
         public Object processAdd(Object data) {
             // See here for the algorithm: http://www.johndcook.com/blog/standard_deviation/
-            n++;
+            count++;
             double value = (Long) data;
 
-            if (n == 1) {
+            if (count == 1) {
                 sum = mean = oldMean = value;
-                S = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum += value;
-                mean = sum / n;
-                S += (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation += (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object processRemove(Object data) {
-            n--;
+            count--;
             double value = (Long) data;
 
-            if (n == 0) {
+            if (count == 0) {
                 sum = mean = 0;
-                S = 0;
+                stdDeviation = 0;
             } else {
                 oldMean = mean;
                 sum -= value;
-                mean = sum / n;
-                S -= (value - oldMean)*(value - mean);
+                mean = sum / count;
+                stdDeviation -= (value - oldMean)*(value - mean);
             }
 
-            if (n < 2) {
+            if (count < 2) {
                 return 0.0;
             }
-            return Math.sqrt(S/n);
+            return Math.sqrt(stdDeviation / count);
         }
 
         @Override
         public Object reset() {
             sum = mean = oldMean = 0.0;
-            S = 0.0;
-            n = 0;
+            stdDeviation = 0.0;
+            count = 0;
             return 0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, S, n}; }
+        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
 
         @Override
         public void restoreState(Object[] state) {
             sum = (Double) state[0];
             mean = (Double) state[1];
             oldMean = (Double) state[2];
-            S = (Double) state[3];
-            n = (Integer) state[4];
+            stdDeviation = (Double) state[3];
+            count = (Integer) state[4];
         }
     }
 }

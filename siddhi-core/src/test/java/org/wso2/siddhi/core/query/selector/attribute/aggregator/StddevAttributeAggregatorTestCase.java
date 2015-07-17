@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 
 public class StddevAttributeAggregatorTestCase {
     static final Logger log = Logger.getLogger(StddevAttributeAggregatorTestCase.class);
-    private final double eps = 0.00001; // difference threshold for two doubles to be treated distinct
+    private final double epsilon = 0.00001; // difference threshold for two doubles to be treated distinct
     private int inEventCount; // Only used in the Test #1 and #6
 
     @Before
@@ -94,7 +94,7 @@ public class StddevAttributeAggregatorTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0) < eps);
+                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0) < epsilon);
             }
         });
 
@@ -128,7 +128,7 @@ public class StddevAttributeAggregatorTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0) < eps);
+                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0) < epsilon);
             }
         });
 
@@ -164,8 +164,8 @@ public class StddevAttributeAggregatorTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0.40825) < eps);
-                Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 0.40825) < eps);
+                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0.40825) < epsilon);
+                Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 0.40825) < epsilon);
             }
         });
 
@@ -204,8 +204,8 @@ public class StddevAttributeAggregatorTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 400.13025) < eps);
-                Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 0.00103) < eps);
+                Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 400.13025) < epsilon);
+                Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 0.00103) < epsilon);
             }
         });
 
@@ -247,7 +247,7 @@ public class StddevAttributeAggregatorTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event event : inEvents) {
-                    Assert.assertTrue(Math.abs(results[inEventCount] - (Double) event.getData(0)) < eps);
+                    Assert.assertTrue(Math.abs(results[inEventCount] - (Double) event.getData(0)) < epsilon);
                     inEventCount++;
                 }
             }
