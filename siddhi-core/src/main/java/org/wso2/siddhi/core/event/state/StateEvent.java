@@ -112,7 +112,7 @@ public class StateEvent implements ComplexEvent {
                     streamEvent = streamEvent.getNext();
                 }
 
-                int index = stateEventList.size() - 1 + streamEventIndex;
+                int index = stateEventList.size() + streamEventIndex;
                 if (index < 0) {
                     return null;
                 } else {

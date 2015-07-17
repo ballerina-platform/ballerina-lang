@@ -900,8 +900,8 @@ public class ExpressionParser {
         String attributeName = variable.getAttributeName();
         int[] eventPosition = new int[2];
         if (variable.getStreamIndex() != null) {
-            if (variable.getStreamIndex() == LAST) {
-                eventPosition[STREAM_EVENT_INDEX] = CURRENT;
+            if (variable.getStreamIndex() <= LAST) {
+                eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex() + 1;
             } else {
                 eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
             }
@@ -998,7 +998,7 @@ public class ExpressionParser {
                         if (metaStreamEvent.getInputReferenceId().equals(variable.getStreamId())) {
                             type = definition.getAttributeType(attributeName);
                             eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
-                            if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null && variable.getStreamIndex() != null && variable.getStreamIndex() == LAST) {
+                            if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null && variable.getStreamIndex() != null && variable.getStreamIndex() <= LAST) {
                                 if (variable.getStreamId().equals(metaStreamEvents[currentState].getInputReferenceId())) {
                                     eventPosition[STREAM_EVENT_INDEX] = variable.getStreamIndex();
                                 }
