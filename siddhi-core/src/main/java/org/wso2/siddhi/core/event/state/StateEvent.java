@@ -78,50 +78,10 @@ public class StateEvent implements ComplexEvent {
         if (position[STREAM_ATTRIBUTE_TYPE_INDEX] == STATE_OUTPUT_DATA_INDEX) {
             return outputData[position[STREAM_ATTRIBUTE_INDEX]];
         } else {
-            StreamEvent streamEvent = streamEvents[position[STREAM_EVENT_CHAIN_INDEX]];
+            StreamEvent streamEvent = getStreamEvent(position);
             if (streamEvent == null) {
                 return null;
             }
-            int streamEventIndex = position[STREAM_EVENT_INDEX];
-
-            if (streamEventIndex >= 0) {
-                for (int i = 1; i <= position[STREAM_EVENT_INDEX]; i++) {
-                    streamEvent = streamEvent.getNext();
-                    if (streamEvent == null) {
-                        return null;
-                    }
-                }
-            } else if (streamEventIndex == CURRENT) {
-
-                while (streamEvent.getNext() != null) {
-                    streamEvent = streamEvent.getNext();
-                }
-
-            } else if (streamEventIndex == LAST) {
-
-                if (streamEvent.getNext() == null) {
-                    return null;
-                }
-                while (streamEvent.getNext().getNext() != null) {
-                    streamEvent = streamEvent.getNext();
-                }
-            } else {
-                List<StreamEvent> stateEventList = new ArrayList<StreamEvent>();
-                while (streamEvent != null) {
-                    stateEventList.add(streamEvent);
-                    streamEvent = streamEvent.getNext();
-                }
-
-                int index = stateEventList.size() + streamEventIndex;
-                if (index < 0) {
-                    return null;
-                } else {
-                    streamEvent = stateEventList.get(index);
-                }
-
-            }
-
-
             switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
                 case BEFORE_WINDOW_DATA_INDEX:
                     return streamEvent.getBeforeWindowData()[position[STREAM_ATTRIBUTE_INDEX]];
@@ -133,6 +93,52 @@ public class StateEvent implements ComplexEvent {
                     throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " + position[STREAM_ATTRIBUTE_TYPE_INDEX]);
             }
         }
+    }
+
+    public StreamEvent getStreamEvent(int[] position) {
+        StreamEvent streamEvent = streamEvents[position[STREAM_EVENT_CHAIN_INDEX]];
+        if (streamEvent == null) {
+            return null;
+        }
+        int streamEventIndex = position[STREAM_EVENT_INDEX];
+
+        if (streamEventIndex >= 0) {
+            for (int i = 1; i <= position[STREAM_EVENT_INDEX]; i++) {
+                streamEvent = streamEvent.getNext();
+                if (streamEvent == null) {
+                    return null;
+                }
+            }
+        } else if (streamEventIndex == CURRENT) {
+
+            while (streamEvent.getNext() != null) {
+                streamEvent = streamEvent.getNext();
+            }
+
+        } else if (streamEventIndex == LAST) {
+
+            if (streamEvent.getNext() == null) {
+                return null;
+            }
+            while (streamEvent.getNext().getNext() != null) {
+                streamEvent = streamEvent.getNext();
+            }
+        } else {
+            List<StreamEvent> stateEventList = new ArrayList<StreamEvent>();
+            while (streamEvent != null) {
+                stateEventList.add(streamEvent);
+                streamEvent = streamEvent.getNext();
+            }
+
+            int index = stateEventList.size() + streamEventIndex;
+            if (index < 0) {
+                return null;
+            } else {
+                streamEvent = stateEventList.get(index);
+            }
+
+        }
+        return streamEvent;
     }
 
     public Object[] getOutputData() {

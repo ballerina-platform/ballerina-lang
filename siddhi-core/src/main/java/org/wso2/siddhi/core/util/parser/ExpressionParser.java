@@ -329,7 +329,65 @@ public class ExpressionParser {
 
             return new InConditionExpressionExecutor(eventTable, finder);
 
+        } else if (expression instanceof IsNull) {
+
+            IsNull isNull = (IsNull) expression;
+
+            if (isNull.getExpression() != null) {
+                ExpressionExecutor innerExpressionExecutor = parseExpression(isNull.getExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
+                return new IsNullConditionExpressionExecutor(innerExpressionExecutor);
+            } else {
+                String streamId = isNull.getStreamId();
+                Integer streamIndex = isNull.getStreamIndex();
+
+
+                if (metaEvent instanceof MetaStateEvent) {
+                    int[] eventPosition = new int[2];
+                    if (streamIndex != null) {
+                        if (streamIndex <= LAST) {
+                            eventPosition[STREAM_EVENT_INDEX] = streamIndex + 1;
+                        } else {
+                            eventPosition[STREAM_EVENT_INDEX] = streamIndex;
+                        }
+                    } else {
+                        eventPosition[STREAM_EVENT_INDEX] = defaultStreamEventIndex;
+                    }
+                    eventPosition[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
+
+                    MetaStateEvent metaStateEvent = (MetaStateEvent) metaEvent;
+                    if (streamId == null) {
+                        throw new ExecutionPlanCreationException("IsNull does not support streamId being null");
+                    } else {
+                        MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
+                        for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
+                            MetaStreamEvent metaStreamEvent = metaStreamEvents[i];
+                            AbstractDefinition definition = metaStreamEvent.getLastInputDefinition();
+                            if (metaStreamEvent.getInputReferenceId() == null) {
+                                if (definition.getId().equals(streamId)) {
+                                    eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
+                                    break;
+                                }
+                            } else {
+                                if (metaStreamEvent.getInputReferenceId().equals(streamId)) {
+                                    eventPosition[STREAM_EVENT_CHAIN_INDEX] = i;
+                                    if (currentState > -1 && metaStreamEvents[currentState].getInputReferenceId() != null && streamIndex != null && streamIndex <= LAST) {
+                                        if (streamId.equals(metaStreamEvents[currentState].getInputReferenceId())) {
+                                            eventPosition[STREAM_EVENT_INDEX] = streamIndex;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    return new IsNullStreamConditionExpressionExecutor(eventPosition);
+                } else {
+                    return new IsNullStreamConditionExpressionExecutor(null);
+                }
+
+            }
         }
+
 
         //TODO else if parts
         throw new UnsupportedOperationException(expression.toString() + " not supported!");

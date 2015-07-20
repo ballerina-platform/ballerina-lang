@@ -918,6 +918,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 //        : (event '=')? basic_source
 //        ;
 
+        if (ctx.event() != null) {
+            activeStreams.add(ctx.event().getText());
+        }
         BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(ctx.basic_source());
         if (ctx.event() != null) {
             if (basicSingleInputStream.isInnerStream()) {
@@ -925,7 +928,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             } else {
                 activeStreams.remove(basicSingleInputStream.getStreamId());
             }
-            activeStreams.add(ctx.getText());
             return new StreamStateElement((BasicSingleInputStream) basicSingleInputStream.as((String) visit(ctx.event())));
         } else {
             return new StreamStateElement(basicSingleInputStream);
