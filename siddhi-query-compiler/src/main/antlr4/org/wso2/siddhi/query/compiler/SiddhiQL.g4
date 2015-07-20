@@ -237,7 +237,7 @@ query_section
     ;
 
 group_by
-    : GROUP BY attribute_reference+
+    : GROUP BY attribute_reference (',' attribute_reference)*
     ;
 
 having
@@ -286,6 +286,7 @@ expression
 
 math_operation
     :'('math_operation')'                         #basic_math_operation
+    |null_check                                   #basic_math_operation
     |NOT math_operation                           #not_math_operation
     |math_operation (multiply='*'|devide='/'|mod='%') math_operation    #multiplication_math_operation
     |math_operation (add='+'|substract='-') math_operation              #addition_math_operation
@@ -295,7 +296,6 @@ math_operation
     |math_operation AND math_operation            #and_math_operation
     |math_operation OR math_operation             #or_math_operation
     |function_operation                           #basic_math_operation
-    |null_check                                   #basic_math_operation
     |constant_value                               #basic_math_operation
     |attribute_reference                          #basic_math_operation
     ;
