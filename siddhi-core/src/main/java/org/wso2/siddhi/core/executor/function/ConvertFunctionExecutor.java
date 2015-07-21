@@ -33,7 +33,7 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
         }
         inputType = attributeExpressionExecutors[0].getReturnType();
         if (inputType == Attribute.Type.OBJECT) {
-            throw new ExecutionPlanValidationException("1st parameter of convert() cannot be 'object' as its not supported, it has to be a constant value either of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found " + attributeExpressionExecutors[0].getReturnType());
+            throw new ExecutionPlanValidationException("1st parameter of convert() cannot be 'object' as it's not supported, it has to be either of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found " + attributeExpressionExecutors[0].getReturnType());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
             throw new ExecutionPlanValidationException("2nd parameter of convert() must be 'string' have constant value either of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found " + attributeExpressionExecutors[0].getReturnType());

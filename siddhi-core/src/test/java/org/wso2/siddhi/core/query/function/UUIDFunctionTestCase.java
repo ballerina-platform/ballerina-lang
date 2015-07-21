@@ -49,7 +49,7 @@ public class UUIDFunctionTestCase {
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
         String query = "@info(name = 'query1') " +
                 "from cseEventStream " +
-                "select symbol, price as price, quantity,UUID() as uniqueValue " +
+                "select symbol, price as price, quantity, UUID() as uniqueValue " +
                 "insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);

@@ -17,7 +17,6 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -50,7 +49,7 @@ public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         if (data == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:instanceOfDouble() function. The argument cannot be null");
+            return null;
         }
         return data instanceof Double;
     }

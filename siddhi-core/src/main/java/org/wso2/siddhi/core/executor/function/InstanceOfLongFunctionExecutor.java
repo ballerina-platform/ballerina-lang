@@ -17,7 +17,6 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -27,7 +26,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  * This method returns true if and only if the input is a instance of Long
  * input - the sequence to check for Long instance eg: 123456789
  * Accept Type(s) for instanceOfLong(input);
- *         inputSequence : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
+ * inputSequence : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
  * Return Type(s): BOOLEAN
  */
 public class InstanceOfLongFunctionExecutor extends FunctionExecutor {
@@ -50,7 +49,7 @@ public class InstanceOfLongFunctionExecutor extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         if (data == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:instanceOfLong() function. The argument cannot be null");
+            return null;
         }
         return data instanceof Long;
     }
