@@ -78,7 +78,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
         } else {
-            throw new ExecutionPlanValidationException("Time window should only have one parameter (timeInterval int), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("Time window should only have one parameter (<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
         }
         lastSentTime = executionPlanContext.getTimestampGenerator().currentTime();
     }

@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -50,9 +51,10 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-
-        if (attributeExpressionExecutors != null) {
+        if (attributeExpressionExecutors.length == 1) {
             length = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+        } else {
+            throw new ExecutionPlanValidationException("Length window should only have one parameter (<int> windowLength), but found " + attributeExpressionExecutors.length + " input attributes");
         }
     }
 

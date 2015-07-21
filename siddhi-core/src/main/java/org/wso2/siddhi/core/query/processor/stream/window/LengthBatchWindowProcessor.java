@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -45,8 +46,10 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        if (attributeExpressionExecutors != null) {
+        if (attributeExpressionExecutors.length == 1) {
             length = (Integer) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());
+        } else {
+            throw new ExecutionPlanValidationException("Length batch window should only have one parameter (<int> windowLength), but found " + attributeExpressionExecutors.length + " input attributes");
         }
     }
 
@@ -106,12 +109,12 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     public void restoreState(Object[] state) {
         currentEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
         expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[1];
-        count = (Integer)state[2];
+        count = (Integer) state[2];
     }
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
+        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
