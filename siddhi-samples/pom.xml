@@ -59,9 +59,9 @@
                                     </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>com.lmax</groupId>
+                                    <groupId>org.wso2.lmax</groupId>
                                     <artifactId>disruptor</artifactId>
-                                    <version>3.2.1</version>
+                                    <version>${disruptor.version}</version>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.basedir}/target/lib
                                     </outputDirectory>

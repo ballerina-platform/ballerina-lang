@@ -46,7 +46,7 @@
             <artifactId>slf4j-simple</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.lmax.wso2</groupId>
+            <groupId>org.wso2.lmax</groupId>
             <artifactId>disruptor</artifactId>
         </dependency>
         <dependency>
