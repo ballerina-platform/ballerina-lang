@@ -16,6 +16,7 @@
 package org.wso2.siddhi.core.util.parser;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
@@ -44,13 +45,11 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ExecutionPlanParser {
+    private static final Logger log = Logger.getLogger(ExecutionPlanRuntimeBuilder.class);
 
     /**
      * Parse an ExecutionPlan returning ExecutionPlanRuntime
@@ -96,9 +95,9 @@ public class ExecutionPlanParser {
 
             executionPlanContext.setExecutorService(new ThreadPoolExecutor(25, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
-                    new LinkedBlockingDeque<Runnable>(), new ThreadFactoryBuilder().setNameFormat("Siddhi-"+executionPlanContext.getName()+"-executor-thread-%d").build()));
+                    new LinkedBlockingDeque<Runnable>(), new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-executor-thread-%d").build()));
 
-            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5,new ThreadFactoryBuilder().setNameFormat("Siddhi-"+executionPlanContext.getName()+"-scheduler-thread-%d").build()));
+            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5, new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-scheduler-thread-%d").build()));
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
             executionPlanContext.setSnapshotService(new SnapshotService(executionPlanContext));
             executionPlanContext.setPersistenceService(new PersistenceService(executionPlanContext));
@@ -140,7 +139,7 @@ public class ExecutionPlanParser {
     }
 
     private static void defineTriggerDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TriggerDefinition> triggerDefinitionMap) {
-        for (TriggerDefinition definition:triggerDefinitionMap.values()){
+        for (TriggerDefinition definition : triggerDefinitionMap.values()) {
             executionPlanRuntimeBuilder.defineTrigger(definition);
         }
     }

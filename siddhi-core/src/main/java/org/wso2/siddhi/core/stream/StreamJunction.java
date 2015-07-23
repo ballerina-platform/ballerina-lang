@@ -16,8 +16,8 @@
 package org.wso2.siddhi.core.stream;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
@@ -36,6 +36,7 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class StreamJunction {
 
@@ -173,7 +174,7 @@ public class StreamJunction {
                         }
 
                         disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                                bufferSize, executorService, producerType, new SleepingWaitStrategy());
+                                bufferSize, executorService, producerType, PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
                         break;
                     }
                 }

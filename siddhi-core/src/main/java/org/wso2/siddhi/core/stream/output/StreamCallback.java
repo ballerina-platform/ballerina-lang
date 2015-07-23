@@ -17,8 +17,8 @@ package org.wso2.siddhi.core.stream.output;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public abstract class StreamCallback implements StreamJunction.Receiver {
 
@@ -137,7 +138,8 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
                         }
                     },
                             executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                            executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
+                            executionPlanContext.getExecutorService(), ProducerType.SINGLE,
+                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
                     break;
                 }
             }

@@ -17,8 +17,8 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
@@ -33,6 +33,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public abstract class QueryCallback {
 
@@ -154,7 +155,8 @@ public abstract class QueryCallback {
                 if (constructor.getParameterTypes().length == 5) {      //if new disruptor implementation available
                     disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
                             executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                            executionPlanContext.getExecutorService(), ProducerType.SINGLE, new SleepingWaitStrategy());
+                            executionPlanContext.getExecutorService(), ProducerType.SINGLE,
+                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
                     break;
                 }
             }

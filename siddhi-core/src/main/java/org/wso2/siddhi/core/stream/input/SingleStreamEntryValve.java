@@ -17,8 +17,8 @@
 package org.wso2.siddhi.core.stream.input;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -55,7 +56,7 @@ public class SingleStreamEntryValve implements InputProcessor {
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),
                         executionPlanContext.getExecutorService(),
                         ProducerType.MULTI,
-                        new SleepingWaitStrategy());
+                        PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
                 break;
             }
         }
@@ -121,10 +122,10 @@ public class SingleStreamEntryValve implements InputProcessor {
          */
         @Override
         public void onEvent(IndexedEventFactory.IndexedEvent indexedEvent, long sequence, boolean endOfBatch) throws Exception {
-            if(ExecutionPlanContext.statEnable) {
+            if (ExecutionPlanContext.statEnable) {
                 count++;
                 if (count % 1000000 == 0) {
-                    log.info("Number of events in the disruptor:" + eventSizeInDisruptor.get()+"\nThread:"+Thread.currentThread().getName());
+                    log.info("Number of events in the disruptor:" + eventSizeInDisruptor.get() + "\nThread:" + Thread.currentThread().getName());
                 }
             }
             eventSizeInDisruptor.decrementAndGet();
@@ -198,4 +199,5 @@ public class SingleStreamEntryValve implements InputProcessor {
             }
         }
     }
+
 }

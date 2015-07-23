@@ -64,9 +64,21 @@ public class SiddhiManager {
     }
 
     public void validateExecutionPlan(ExecutionPlan executionPlan) {
-        ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
+        final ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
         executionPlanRuntime.start();
-        executionPlanRuntime.shutdown();
+        Thread thread =new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+
+                }
+                executionPlanRuntime.shutdown();
+            }
+        },"Siddhi-ExecutionPlan-Validation-Cleaner");
+        thread.start();
+
     }
 
     public void validateExecutionPlan(String executionPlan) {
@@ -92,8 +104,8 @@ public class SiddhiManager {
         }
     }
 
-    public void persist(){
-        for(ExecutionPlanRuntime executionPlanRuntime:executionPlanRuntimeMap.values()){
+    public void persist() {
+        for (ExecutionPlanRuntime executionPlanRuntime : executionPlanRuntimeMap.values()) {
             executionPlanRuntime.persist();
         }
     }
