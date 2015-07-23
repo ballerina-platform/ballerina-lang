@@ -106,6 +106,7 @@ public class FilterTestCase {
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
+        queryCallback.stopProcessing();
 
         executionPlanRuntime.shutdown();
     }

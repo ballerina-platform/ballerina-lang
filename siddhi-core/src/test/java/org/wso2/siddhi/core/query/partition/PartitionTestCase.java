@@ -80,6 +80,7 @@ public class PartitionTestCase {
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
+        streamCallback.stopProcessing();
         executionPlanRuntime.shutdown();
     }
 

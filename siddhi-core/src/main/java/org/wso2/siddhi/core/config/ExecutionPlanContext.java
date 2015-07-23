@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
 
 public class ExecutionPlanContext {
@@ -39,7 +39,7 @@ public class ExecutionPlanContext {
     private boolean enforceOrder;
     private boolean parallel;
 
-    private ThreadPoolExecutor executorService;
+    private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
@@ -121,11 +121,11 @@ public class ExecutionPlanContext {
         this.sharedLock = sharedLock;
     }
 
-    public void setExecutorService(ThreadPoolExecutor executorService) {
+    public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
     }
 
-    public ThreadPoolExecutor getExecutorService() {
+    public ExecutorService getExecutorService() {
         return executorService;
     }
 

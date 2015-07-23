@@ -238,6 +238,7 @@ public class PassThroughTestCase {
         Thread.sleep(100);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
+        queryCallback.stopProcessing();
 
         executionPlanRuntime.shutdown();
     }

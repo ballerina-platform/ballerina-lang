@@ -109,12 +109,26 @@ public class ExecutionPlanRuntime {
                 log.error("Error in shutting down Execution Plan '" + executionPlanContext.getName() + "', " + t.getMessage(), t);
             }
         }
-        inputManager.stopProcessing();
-        executionPlanContext.getScheduledExecutorService().shutdownNow();
-        for (StreamJunction streamJunction : streamJunctionMap.values()) {
-            streamJunction.stopProcessing();
-        }
-        executionPlanContext.getExecutorService().shutdownNow();
+        inputManager.disconnect();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+
+                }
+                inputManager.stopProcessing();
+                for (StreamJunction streamJunction : streamJunctionMap.values()) {
+                    streamJunction.stopProcessing();
+                }
+                executionPlanContext.getScheduledExecutorService().shutdownNow();
+                executionPlanContext.getExecutorService().shutdownNow();
+
+            }
+        }, "Siddhi-ExecutionPlan-" + executionPlanContext.getName() + "-Shutdown-Cleaner");
+        thread.start();
         if (executionPlanRuntimeMap != null) {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }

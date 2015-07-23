@@ -66,19 +66,7 @@ public class SiddhiManager {
     public void validateExecutionPlan(ExecutionPlan executionPlan) {
         final ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
         executionPlanRuntime.start();
-        Thread thread =new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-
-                }
-                executionPlanRuntime.shutdown();
-            }
-        },"Siddhi-ExecutionPlan-Validation-Cleaner");
-        thread.start();
-
+        executionPlanRuntime.shutdown();
     }
 
     public void validateExecutionPlan(String executionPlan) {

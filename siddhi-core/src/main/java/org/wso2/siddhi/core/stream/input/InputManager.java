@@ -66,15 +66,17 @@ public class InputManager {
         }
     }
 
-    public synchronized void stopProcessing() {
+    public synchronized void disconnect() {
         for (InputHandler inputHandler : inputHandlerMap.values()) {
             inputHandler.disconnect();
         }
+        inputHandlerMap.clear();
+    }
+
+    public synchronized void stopProcessing() {
         if (singleStreamEntryValve != null) {
             singleStreamEntryValve.stopProcessing();
         }
-        inputHandlerMap.clear();
-
     }
 
     public InputHandler constructInputHandler(String streamId) {
