@@ -167,12 +167,7 @@ public class WindowPartitionTestCase {
                 for (Event event : events) {
                     if (event.isExpired()) {
                         removeEventCount++;
-                        if ("IBM".equals(event.getData()[0]) && firstEvent) {
-                            firstEvent = false;
-                            Assert.assertEquals(100.0, event.getData()[1]);
-                        } else {
-                            Assert.assertEquals(0.0, event.getData()[1]);
-                        }
+                        Assert.assertEquals(0.0, event.getData()[1]);
                     } else {
                         inEventCount++;
                         if (inEventCount == 1) {
@@ -205,7 +200,7 @@ public class WindowPartitionTestCase {
 
         Thread.sleep(2000);
         Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(5, removeEventCount);
+        Assert.assertEquals(4, removeEventCount);
         executionRuntime.shutdown();
 
     }
@@ -268,7 +263,6 @@ public class WindowPartitionTestCase {
         executionRuntime.shutdown();
 
     }
-
 
 
 }

@@ -221,7 +221,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(100);
+        Thread.sleep(200);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
 
@@ -721,7 +721,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(100);
+        Thread.sleep(200);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }
@@ -766,7 +766,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(100);
+        Thread.sleep(200);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
     }

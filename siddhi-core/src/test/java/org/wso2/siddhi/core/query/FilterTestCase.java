@@ -806,7 +806,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[symbol != 'WSO2' and volume != 55l and price != 45f ] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -825,7 +825,7 @@ public class FilterTestCase {
         inputHandler.send(new Object[]{"WSO2", 45f, 100l});
         inputHandler.send(new Object[]{"IBM", 35f, 50l});
 
-        Thread.sleep(100);
+        Thread.sleep(200);
         Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
 
