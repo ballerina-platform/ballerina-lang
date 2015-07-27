@@ -47,6 +47,10 @@ public class InputManager {
             inputDistributor = new InputDistributor();
             singleThreadEntryValve = new SingleThreadEntryValve(executionPlanContext, inputDistributor);
             singleStreamEntryValve = new SingleStreamEntryValve(executionPlanContext, singleThreadEntryValve);
+        } else if (!executionPlanContext.isPlayback() &&
+                !executionPlanContext.isEnforceOrder() &&
+                executionPlanContext.isParallel()) {
+            inputDistributor = new InputDistributor();
         }
 
     }
@@ -90,7 +94,14 @@ public class InputManager {
             }
             inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());
         } else {
-            //todo handle
+            inputHandler = new InputHandler(streamId, inputHandlerMap.size(), inputDistributor);
+            StreamJunction streamJunction = streamJunctionMap.get(streamId);
+            if (streamJunction == null) {
+                throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");
+            }
+            inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());
+
+            //todo handle others
         }
         inputHandlerMap.put(streamId, inputHandler);
         return inputHandler;

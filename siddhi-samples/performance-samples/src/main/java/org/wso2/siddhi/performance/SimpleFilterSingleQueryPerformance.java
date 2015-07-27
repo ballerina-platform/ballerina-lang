@@ -18,8 +18,8 @@ package org.wso2.siddhi.performance;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 
 public class SimpleFilterSingleQueryPerformance {
     private static int count = 0;
@@ -37,13 +37,13 @@ public class SimpleFilterSingleQueryPerformance {
                 "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             private long chunk = 0;
             private long prevCount = 0;
 
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count += inEvents.length;
+            public void receive(Event[] events) {
+                count += events.length;
                 long currentChunk = count / 2000000;
                 if (currentChunk != chunk) {
                     long end = System.currentTimeMillis();
@@ -54,7 +54,6 @@ public class SimpleFilterSingleQueryPerformance {
                     prevCount = count;
                 }
             }
-
         });
 
 

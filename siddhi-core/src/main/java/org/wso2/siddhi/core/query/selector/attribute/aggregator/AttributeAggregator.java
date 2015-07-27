@@ -32,19 +32,19 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
     private int attributeSize;
 
     public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-     try{
-        this.executionPlanContext = executionPlanContext;
-        this.attributeExpressionExecutors = attributeExpressionExecutors;
-        this.attributeSize = attributeExpressionExecutors.length;
-        executionPlanContext.addEternalReferencedHolder(this);
-        if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        try {
+            this.executionPlanContext = executionPlanContext;
+            this.attributeExpressionExecutors = attributeExpressionExecutors;
+            this.attributeSize = attributeExpressionExecutors.length;
+            executionPlanContext.addEternalReferencedHolder(this);
+            if (elementId == null) {
+                elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            }
+            executionPlanContext.getSnapshotService().addSnapshotable(this);
+            init(attributeExpressionExecutors, executionPlanContext);
+        } catch (Throwable t) {
+            throw new ExecutionPlanCreationException(t);
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
-        init(attributeExpressionExecutors, executionPlanContext);
-     } catch (Throwable t) {
-         throw new ExecutionPlanCreationException(t);
-     }
     }
 
     public AttributeAggregator cloneAggregator(String key) {
@@ -77,12 +77,21 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
                 case RESET:
                     return reset();
             }
-        } else {
+        } else if (attributeSize == 1) {
             switch (event.getType()) {
                 case CURRENT:
                     return processAdd(attributeExpressionExecutors[0].execute(event));
                 case EXPIRED:
                     return processRemove(attributeExpressionExecutors[0].execute(event));
+                case RESET:
+                    return reset();
+            }
+        } else {
+            switch (event.getType()) {
+                case CURRENT:
+                    return processAdd(null);
+                case EXPIRED:
+                    return processRemove(null);
                 case RESET:
                     return reset();
             }

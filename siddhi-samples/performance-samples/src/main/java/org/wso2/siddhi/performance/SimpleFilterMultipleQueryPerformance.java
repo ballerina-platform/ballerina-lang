@@ -28,19 +28,29 @@ public class SimpleFilterMultipleQueryPerformance {
     public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = " define stream cseEventStream (symbol string, price float, volume int);";
-        String query1 = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price,volume insert into outputStream ;";
-        String query2 = "@info(name = 'query2') from cseEventStream[volume > 90] select symbol,price,volume insert into outputStream ;";
+        String executionPlan = "" +
+                "define stream cseEventStream (symbol string, price float, volume int);" +
+                "define stream cseEventStream2 (symbol string, price float, volume int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream[70 > price] " +
+                "select * " +
+                "insert into outputStream ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from cseEventStream[volume > 90] " +
+                "select * " +
+                "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query1 + query2);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             private long chunk = 0;
             private long prevCount = 0;
 
             @Override
-            public void receive(Event[] inEvents) {
-                count += inEvents.length;
+            public void receive(Event[] events) {
+                count += events.length;
                 long currentChunk = count / 2000000;
                 if (currentChunk != chunk) {
                     long end = System.currentTimeMillis();

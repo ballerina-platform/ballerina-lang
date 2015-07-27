@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventFactory;
 import org.wso2.siddhi.core.stream.input.InputProcessor;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -188,13 +189,26 @@ public class StreamJunction {
 
                 ringBuffer = disruptor.start();
 
+            } else {
+                for (Receiver receiver : receivers) {
+                    if (receiver instanceof StreamCallback) {
+                        ((StreamCallback) receiver).startProcessing();
+                    }
+                }
             }
+
         }
     }
 
     public synchronized void stopProcessing() {
         if (disruptor != null) {
             disruptor.shutdown();
+        } else {
+            for (Receiver receiver : receivers) {
+                if (receiver instanceof StreamCallback) {
+                    ((StreamCallback) receiver).stopProcessing();
+                }
+            }
         }
     }
 

@@ -72,5 +72,6 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         }
+//        executionPlanRuntime.shutdown();
     }
 }
