@@ -71,7 +71,7 @@ public class Scheduler implements Snapshotable {
             }
 
         } catch (InterruptedException e) {
-            log.error("Error when adding time:" + time + " to TimeNotifier ", e);//todo improve
+            log.error("Error when adding time:" + time + " to toNotifyQueue at Scheduler", e);
         }
 
 

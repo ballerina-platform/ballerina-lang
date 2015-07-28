@@ -122,7 +122,6 @@ public class QueryRuntime {
                 }
             }
         }
-        //TODO for sequence streams
         return false;
     }
 

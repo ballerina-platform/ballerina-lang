@@ -67,11 +67,6 @@ public class ExecutionPlanRuntime {
         return executionPlanContext.getName();
     }
 
-    //Todo remove
-    public ConcurrentMap<String, StreamJunction> getStreamJunctions() {
-        return streamJunctionMap;
-    }
-
     public Map<String, AbstractDefinition> getStreamDefinitionMap() {
         return streamDefinitionMap;
     }

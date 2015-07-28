@@ -392,9 +392,6 @@ public class ExpressionParser {
 
             }
         }
-
-
-        //TODO else if parts
         throw new UnsupportedOperationException(expression.toString() + " not supported!");
 
     }
@@ -994,7 +991,7 @@ public class ExpressionParser {
                 executorList.add(variableExpressionExecutor);
             }
             return variableExpressionExecutor;
-        } else {      //todo support stream index
+        } else {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaEvent;
             Attribute.Type type = null;
             AbstractDefinition definition = null;

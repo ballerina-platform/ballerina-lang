@@ -68,11 +68,10 @@ public class QuerySelector implements Processor {
         }
 
         if(!containsAggregator) {
-            boolean eventSent = false;
+            boolean isEventSent = false;
             complexEventChunk.reset();
 
-
-            while (complexEventChunk.hasNext()) {       //todo optimize
+            while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
 
                 if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
@@ -83,7 +82,6 @@ public class QuerySelector implements Processor {
                         keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
                     }
 
-                    //TODO: have to change for windows
                     for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                         attributeProcessor.process(event);
                     }
@@ -92,7 +90,7 @@ public class QuerySelector implements Processor {
                     if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
                         if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
                             outputRateLimiter.add(event);
-                            eventSent = true;
+                            isEventSent = true;
                         }
                     }
 
@@ -102,7 +100,7 @@ public class QuerySelector implements Processor {
                 }
             }
 
-            if (eventSent) {
+            if (isEventSent) {
                 complexEventChunk.clear();
                 outputRateLimiter.process(complexEventChunk);
             }
@@ -113,10 +111,9 @@ public class QuerySelector implements Processor {
 
     public void processInBatches(ComplexEventChunk complexEventChunk) {
         Map<String, ComplexEvent> groupedEvents = new LinkedHashMap<String, ComplexEvent>();
-        boolean eventSent = false;
+        boolean isEventSent = false;
         complexEventChunk.reset();
         ComplexEvent lastEvent = null;
-
 
         while (complexEventChunk.hasNext()) {
             ComplexEvent event = complexEventChunk.next();
@@ -142,7 +139,7 @@ public class QuerySelector implements Processor {
                         } else {
                             lastEvent = event;
                         }
-                        eventSent = true;
+                        isEventSent = true;
                     }
                 }
 
@@ -153,7 +150,7 @@ public class QuerySelector implements Processor {
 
         }
 
-        if (eventSent) {
+        if (isEventSent) {
             if (isGroupBy) {
                 for (Map.Entry<String,ComplexEvent> groupedEventEntry : groupedEvents.entrySet()) {
                     keyThreadLocal.set(groupedEventEntry.getKey());
@@ -165,17 +162,6 @@ public class QuerySelector implements Processor {
             }
             complexEventChunk.clear();
             outputRateLimiter.process(complexEventChunk);
-        }
-    }
-
-
-    private void evaluateHavingConditions(ComplexEventChunk<StreamEvent> streamEventBuffer) {
-        while (streamEventBuffer.hasNext()) {
-            StreamEvent streamEvent = streamEventBuffer.next();
-            if (!havingConditionExecutor.execute(streamEvent)) {
-                streamEventBuffer.remove();
-//                        eventManager.clear(event);  todo use this after fixing join cases
-            }
         }
     }
 
