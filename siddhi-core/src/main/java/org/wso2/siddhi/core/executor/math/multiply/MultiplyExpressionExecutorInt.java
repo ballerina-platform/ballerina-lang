@@ -33,8 +33,12 @@ public class MultiplyExpressionExecutorInt implements ExpressionExecutor {
 
     @Override
     public Object execute(ComplexEvent event) {
-        return ((Number) leftExpressionExecutor.execute(event)).intValue() * ((Number) rightExpressionExecutor.execute(event)).intValue();
-
+        Object leftObject = leftExpressionExecutor.execute(event);
+        Object rightObject = rightExpressionExecutor.execute(event);
+        if (leftObject == null || rightObject == null) {
+            return null;
+        }
+        return ((Number) leftObject).intValue() * ((Number) rightObject).intValue();
     }
 
     public Attribute.Type getReturnType() {

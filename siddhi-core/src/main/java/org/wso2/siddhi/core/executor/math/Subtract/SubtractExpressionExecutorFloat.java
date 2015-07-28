@@ -32,8 +32,12 @@ public class SubtractExpressionExecutorFloat implements ExpressionExecutor {
 
     @Override
     public Object execute(ComplexEvent event) {
-        return ((Number) leftExpressionExecutor.execute(event)).floatValue() - ((Number) rightExpressionExecutor.execute(event)).floatValue();
-
+        Object leftObject = leftExpressionExecutor.execute(event);
+        Object rightObject = rightExpressionExecutor.execute(event);
+        if (leftObject == null || rightObject == null) {
+            return null;
+        }
+        return ((Number) leftObject).floatValue() - ((Number) rightObject).floatValue();
     }
 
     public Attribute.Type getReturnType() {

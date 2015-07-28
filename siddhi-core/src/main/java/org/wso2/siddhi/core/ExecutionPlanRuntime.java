@@ -123,6 +123,11 @@ public class ExecutionPlanRuntime {
                 for (StreamJunction streamJunction : streamJunctionMap.values()) {
                     streamJunction.stopProcessing();
                 }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+
+                }
                 executionPlanContext.getScheduledExecutorService().shutdownNow();
                 executionPlanContext.getExecutorService().shutdownNow();
 

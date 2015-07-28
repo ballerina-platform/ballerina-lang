@@ -73,13 +73,12 @@ public class SortWindowTestCase {
         });
 
 
-
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
         inputHandler.send(new Object[]{"IBM", 75.6f, 300l});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 200l});
-        inputHandler.send(new Object[]{"WSO2", 55.6f,20l});
+        inputHandler.send(new Object[]{"WSO2", 55.6f, 20l});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 40l});
         Thread.sleep(1000);
         Assert.assertEquals(5, inEventCount);
@@ -89,14 +88,12 @@ public class SortWindowTestCase {
 
     }
 
-
-
     @Test
     public void sortWindowTest2() throws InterruptedException {
         log.info("sortWindow test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-
+        String planName = "@plan:name('sortWindow2') ";
         String cseEventStream = "" +
                 "define stream cseEventStream (symbol string, price int, volume long);";
         String query = "" +
@@ -105,7 +102,7 @@ public class SortWindowTestCase {
                 "select price, volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(planName + cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -123,14 +120,13 @@ public class SortWindowTestCase {
         });
 
 
-
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50, 100l});
         inputHandler.send(new Object[]{"IBM", 20, 100l});
         inputHandler.send(new Object[]{"WSO2", 40, 50l});
-        inputHandler.send(new Object[]{"WSO2", 100,20l});
-        inputHandler.send(new Object[]{"WSO2",50, 50l});
+        inputHandler.send(new Object[]{"WSO2", 100, 20l});
+        inputHandler.send(new Object[]{"WSO2", 50, 50l});
         Thread.sleep(1000);
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(3, removeEventCount);

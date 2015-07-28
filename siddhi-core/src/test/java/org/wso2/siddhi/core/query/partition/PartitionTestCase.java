@@ -55,8 +55,13 @@ public class PartitionTestCase {
         log.info("Partition test");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream streamA (symbol string, price int);"
-                + "partition with (symbol of streamA) begin @info(name = 'query1') from streamA select symbol,price insert into StockQuote ;  end ";
+        String executionPlan = "@plan:name('PartitionTest') " +
+                "@config(async = 'true')define stream streamA (symbol string, price int);"+
+                "partition with (symbol of streamA) " +
+                "begin " +
+                "@info(name = 'query1') " +
+                "from streamA select symbol,price insert into StockQuote ;  " +
+                "end ";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
@@ -70,7 +75,6 @@ public class PartitionTestCase {
             }
         };
         executionPlanRuntime.addCallback("StockQuote", streamCallback);
-        streamCallback.startProcessing();
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
         executionPlanRuntime.start();
@@ -80,7 +84,6 @@ public class PartitionTestCase {
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        streamCallback.stopProcessing();
         executionPlanRuntime.shutdown();
     }
 
@@ -89,7 +92,8 @@ public class PartitionTestCase {
         log.info("Partition test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest1') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
@@ -133,7 +137,8 @@ public class PartitionTestCase {
         log.info("Partition test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest2') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream StockStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') from cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
 
@@ -166,7 +171,7 @@ public class PartitionTestCase {
 
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan1");
+        ExecutionPlan executionPlan = new ExecutionPlan("plan3");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
@@ -221,7 +226,7 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(200);
+        Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionRuntime.shutdown();
 
@@ -232,7 +237,7 @@ public class PartitionTestCase {
     public void testPartitionQuery4() throws InterruptedException {
         log.info("Partition test4");
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan1");
+        ExecutionPlan executionPlan = new ExecutionPlan("plan4");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
         StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
@@ -343,7 +348,7 @@ public class PartitionTestCase {
     public void testPartitionQuery5() throws InterruptedException {
         log.info("Partition test5");
         final SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan1");
+        ExecutionPlan executionPlan = new ExecutionPlan("plan5");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
         StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
@@ -504,7 +509,8 @@ public class PartitionTestCase {
         log.info("Partition test6");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest6') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream , symbol of cseEventStream1) begin @info(name = 'query') from cseEventStream select symbol,price,volume insert into #StockStream ;"
                 + "@info(name = 'query1') from #StockStream select symbol,price,volume insert into OutStockStream ;"
@@ -549,7 +555,8 @@ public class PartitionTestCase {
         log.info("Partition test7");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest7') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
@@ -596,7 +603,8 @@ public class PartitionTestCase {
         log.info("Partition test8");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest8') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
@@ -641,7 +649,8 @@ public class PartitionTestCase {
         log.info("Partition test9");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest9') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
@@ -686,7 +695,8 @@ public class PartitionTestCase {
         log.info("Partition test10");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest10') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
@@ -731,7 +741,8 @@ public class PartitionTestCase {
         log.info("Partition test11");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest11') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
@@ -777,7 +788,8 @@ public class PartitionTestCase {
         log.info("Partition test15");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest15') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream StockStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query') from cseEventStream select symbol,price as price,volume insert into #StockStream ;"
@@ -839,7 +851,8 @@ public class PartitionTestCase {
         log.info("partition test16");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream streamA (symbol string, price int);"
+        String executionPlan = "@plan:name('PartitionTest16') " +
+                "@config(async = 'true')define stream streamA (symbol string, price int);"
                 + "partition with (symbol of streamA) begin @info(name = 'query1') from streamA select symbol,price insert into StockQuote ;"
                 + "@info(name = 'query2') from streamA select symbol,price insert into StockQuote ; end ";
 
@@ -873,7 +886,7 @@ public class PartitionTestCase {
 
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan1");
+        ExecutionPlan executionPlan = new ExecutionPlan("plan17");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
@@ -952,7 +965,8 @@ public class PartitionTestCase {
         log.info("Partition test18");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest18') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
                 + "partition with (price>=100 as 'large' or price<100 as 'small' of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(4) select symbol,sum(price) as price insert into OutStockStream ;  end ";
@@ -998,7 +1012,8 @@ public class PartitionTestCase {
         log.info("Partition test19");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "@plan:name('PartitionTest19') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
                 + "@config(async = 'true')define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
                 + "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of cseEventStream) begin @info(name = 'query1') from cseEventStream select symbol,sum(price) as price insert into OutStockStream ;  end ";
@@ -1050,6 +1065,8 @@ public class PartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
+                "@plan:name('PartitionTest20') " +
+                "" +
                 "@config(async = 'true') " +
                 "define stream cseEventStream (symbol string, price float,volume int); " +
                 "@config(async = 'true')" +

@@ -32,8 +32,16 @@ public class ModExpressionExecutorFloat implements ExpressionExecutor {
 
     @Override
     public Object execute(ComplexEvent event) {
-        return ((Number) leftExpressionExecutor.execute(event)).floatValue() % ((Number) rightExpressionExecutor.execute(event)).floatValue();
-
+        Object leftObject = leftExpressionExecutor.execute(event);
+        Object rightObject = rightExpressionExecutor.execute(event);
+        if (leftObject == null || rightObject == null) {
+            return null;
+        }
+        float right = ((Number) rightObject).floatValue();
+        if (right == 0.0f) {
+            return null;
+        }
+        return ((Number) leftExpressionExecutor.execute(event)).floatValue() % right;
     }
 
     public Attribute.Type getReturnType() {

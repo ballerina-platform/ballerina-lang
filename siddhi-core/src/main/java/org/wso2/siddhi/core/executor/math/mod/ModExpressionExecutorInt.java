@@ -32,8 +32,16 @@ public class ModExpressionExecutorInt implements ExpressionExecutor {
 
     @Override
     public Object execute(ComplexEvent event) {
-        return ((Number) leftExpressionExecutor.execute(event)).intValue() % ((Number) rightExpressionExecutor.execute(event)).intValue();
-
+        Object leftObject = leftExpressionExecutor.execute(event);
+        Object rightObject = rightExpressionExecutor.execute(event);
+        if (leftObject == null || rightObject == null) {
+            return null;
+        }
+        int right = ((Number) rightObject).intValue();
+        if (right == 0) {
+            return null;
+        }
+        return  ((Number) leftExpressionExecutor.execute(event)).intValue() % right;
     }
 
     public Attribute.Type getReturnType() {

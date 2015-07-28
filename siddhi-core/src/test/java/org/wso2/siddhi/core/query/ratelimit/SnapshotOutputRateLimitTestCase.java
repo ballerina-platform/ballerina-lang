@@ -358,9 +358,9 @@ public class SnapshotOutputRateLimitTestCase {
                 count++;
                 value += events.length;
                 if (count == 1) {
-                    Assert.assertTrue((Long) events[0].getData(0) == 6l);
+                    Assert.assertTrue((Long) events[0].getData(0) == 3l || (Long) events[1].getData(0) == 6l);
                 } else if (count == 2) {
-                    Assert.assertTrue((Long) events[0].getData(0) == 10l);
+                    Assert.assertTrue((Long) events[0].getData(0) == 2l || (Long) events[1].getData(0) == 10l);
                 }
                 eventArrived = true;
 
@@ -380,7 +380,7 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(1200);
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event bundles", 2, count);
-        Assert.assertTrue("Number of output events", 4 >= value);
+        Assert.assertTrue("Number of output events", 4 == value);
         executionPlanRuntime.shutdown();
 
     }
@@ -415,9 +415,9 @@ public class SnapshotOutputRateLimitTestCase {
                 count++;
                 value += events.length;
                 if (count == 1 || count == 2) {
-                    Assert.assertTrue((Long) events[0].getData(0) == 6l);
+                    Assert.assertTrue((Long) events[0].getData(0) == 3l || (Long) events[1].getData(0) == 6l);
                 } else if (count == 3) {
-                    Assert.assertTrue((Long) events[0].getData(0) == 16l);
+                    Assert.assertTrue((Long) events[0].getData(0) == 5l || (Long) events[1].getData(0) == 16l);
                 }
                 eventArrived = true;
             }
@@ -1070,10 +1070,15 @@ public class SnapshotOutputRateLimitTestCase {
                 count++;
                 if (count == 3) {
                     Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
+                    Assert.assertTrue((Long) inEvents[1].getData(1) == 9l);
                 } else if (count == 4) {
                     Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
+                    Assert.assertTrue((Long) inEvents[1].getData(1) == 9l);
                 } else if (count == 5) {
                     Assert.assertTrue((Long) inEvents[0].getData(1) == 21l);
+                    Assert.assertTrue((Long) inEvents[1].getData(1) == 21l);
+                    Assert.assertTrue((Long) inEvents[2].getData(1) == 21l);
+                    Assert.assertTrue((Long) inEvents[3].getData(1) == 21l);
                 }
                 eventArrived = true;
             }
@@ -1127,9 +1132,10 @@ public class SnapshotOutputRateLimitTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count++;
                 if (count == 3 || count == 4) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 3l || (Long) inEvents[1].getData(1) == 6l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 3l && (Long) inEvents[1].getData(1) == 6l);
                 } else if (count == 5) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 5l || (Long) inEvents[1].getData(1) == 16l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 5l && (Long) inEvents[1].getData(1) == 16l);
+                    Assert.assertTrue((Long) inEvents[2].getData(1) == 5l && (Long) inEvents[3].getData(1) == 16l);
                 }
                 if (inEvents != null) {
                     value += inEvents.length;
@@ -1187,9 +1193,9 @@ public class SnapshotOutputRateLimitTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count++;
                 if (count == 3) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 3l || (Long) inEvents[1].getData(1) == 6l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 3l && (Long) inEvents[1].getData(1) == 6l);
                 } else if (count == 5) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 2l || (Long) inEvents[1].getData(1) == 10l);
+                    Assert.assertTrue((Long) inEvents[0].getData(1) == 2l && (Long) inEvents[1].getData(1) == 10l);
                 }
                 if (inEvents != null) {
                     value += inEvents.length;

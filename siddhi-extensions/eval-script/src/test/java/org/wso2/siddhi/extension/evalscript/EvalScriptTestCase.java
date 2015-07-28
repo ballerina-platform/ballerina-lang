@@ -369,7 +369,7 @@ public class EvalScriptTestCase {
         Thread.sleep(100);
 
         if(isReceived[0]) {
-            Assert.assertEquals(25.0, value[0]);
+            Assert.assertEquals(25.0f, value[0]);
         } else {
             throw new RuntimeException("The event has not been received");
         }

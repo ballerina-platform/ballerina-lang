@@ -155,8 +155,10 @@ public class QuerySelector implements Processor {
 
         if (eventSent) {
             if (isGroupBy) {
-                for (ComplexEvent complexEvent : groupedEvents.values()) {
-                    outputRateLimiter.add(complexEvent);
+                for (Map.Entry<String,ComplexEvent> groupedEventEntry : groupedEvents.entrySet()) {
+                    keyThreadLocal.set(groupedEventEntry.getKey());
+                    outputRateLimiter.add(groupedEventEntry.getValue());
+                    keyThreadLocal.remove();
                 }
             } else {
                 outputRateLimiter.add(lastEvent);

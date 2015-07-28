@@ -46,13 +46,14 @@ public class UUIDFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
+        String planName = "@plan:name('UUIDFunction') ";
         String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price double, volume long , quantity int);";
         String query = "@info(name = 'query1') " +
                 "from cseEventStream " +
                 "select symbol, price as price, quantity, UUID() as uniqueValue " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(planName + cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -67,7 +68,7 @@ public class UUIDFunctionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56d, 60l, 6});
-        Thread.sleep(100);
+        Thread.sleep(200);
         junit.framework.Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
     }

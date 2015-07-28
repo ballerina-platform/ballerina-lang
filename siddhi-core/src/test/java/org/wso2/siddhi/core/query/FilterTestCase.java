@@ -3880,8 +3880,8 @@ public class FilterTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertTrue("30.0".equals(inEvents[0].getData()[1].toString()));
                 Assert.assertTrue("50.0".equals(inEvents[0].getData()[2].toString()));
-                Assert.assertTrue("20.0".equals(inEvents[0].getData()[3].toString()));
-                Assert.assertTrue("7.0".equals(inEvents[0].getData()[4].toString()));
+                Assert.assertTrue("20".equals(inEvents[0].getData()[3].toString()));
+                Assert.assertTrue("7".equals(inEvents[0].getData()[4].toString()));
                 count = count + inEvents.length;
 
             }

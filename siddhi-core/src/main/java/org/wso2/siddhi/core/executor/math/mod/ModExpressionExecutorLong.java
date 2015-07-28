@@ -32,8 +32,16 @@ public class ModExpressionExecutorLong implements ExpressionExecutor {
 
     @Override
     public Object execute(ComplexEvent event) {
-        return ((Number) leftExpressionExecutor.execute(event)).longValue() % ((Number) rightExpressionExecutor.execute(event)).longValue();
-
+        Object leftObject = leftExpressionExecutor.execute(event);
+        Object rightObject = rightExpressionExecutor.execute(event);
+        if (leftObject == null || rightObject == null) {
+            return null;
+        }
+        long right = ((Number) rightObject).longValue();
+        if (right == 0l) {
+            return null;
+        }
+        return ((Number) leftExpressionExecutor.execute(event)).longValue() % right;
     }
 
     public Attribute.Type getReturnType() {
