@@ -799,4 +799,60 @@ public class CountPatternTestCase {
 
         executionPlanRuntime.shutdown();
     }
+
+
+    @Test
+    public void testQuery14() throws InterruptedException {
+        log.info("testPatternCount14 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); " +
+                "define stream Stream2 (symbol string, price float, volume int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from e1=Stream1[price>20] <0:5> -> e2=Stream2[price>e1[0].price] " +
+                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as price2 " +
+                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat(price1_1) and not instanceOfFloat(price1_2) " +
+                "insert into OutputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                    Assert.assertArrayEquals(new Object[]{25.6f, 23.6f, null, 45.7f}, inEvents[0].getData());
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+
+        executionPlanRuntime.start();
+
+        stream1.send(new Object[]{"WSO2", 25.6f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"WSO2", 23.6f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"GOOG", 7.6f, 100});
+        Thread.sleep(100);
+        stream2.send(new Object[]{"IBM", 45.7f, 100});
+        Thread.sleep(100);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+
+        executionPlanRuntime.shutdown();
+    }
 }

@@ -48,9 +48,6 @@ public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        if (data == null) {
-            return null;
-        }
         return data instanceof Double;
     }
 

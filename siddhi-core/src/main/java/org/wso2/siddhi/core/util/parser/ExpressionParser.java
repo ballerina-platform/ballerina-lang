@@ -252,6 +252,9 @@ public class ExpressionParser {
                     innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
+                if(expressionExecutor.getReturnType()== Attribute.Type.BOOL){
+                    return new BoolConditionExpressionExecutor(expressionExecutor);
+                }
                 return expressionExecutor;
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
@@ -316,8 +319,10 @@ public class ExpressionParser {
                     innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
+                if(functionExecutor.getReturnType()== Attribute.Type.BOOL){
+                    return new BoolConditionExpressionExecutor(functionExecutor);
+                }
                 return functionExecutor;
-
             }
         } else if (expression instanceof In) {
 
