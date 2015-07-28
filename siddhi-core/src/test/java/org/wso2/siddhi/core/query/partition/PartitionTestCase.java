@@ -227,8 +227,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
         Thread.sleep(100);
-        Assert.assertEquals(4, count);
         executionRuntime.shutdown();
+        Assert.assertEquals(4, count);
 
     }
 
@@ -339,9 +339,9 @@ public class PartitionTestCase {
         inputHandler2.send(new Object[]{"ORACLE", 75.6f, 100});
 
         Thread.sleep(100);
+        executionRuntime.shutdown();
         Assert.assertEquals(8, count);
 
-        executionRuntime.shutdown();
     }
 
     @Test
