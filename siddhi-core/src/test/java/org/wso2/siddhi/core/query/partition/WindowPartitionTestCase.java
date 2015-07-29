@@ -199,9 +199,10 @@ public class WindowPartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 1000f, 100});
 
         Thread.sleep(2000);
+        executionRuntime.shutdown();
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(4, removeEventCount);
-        executionRuntime.shutdown();
+
 
     }
 
