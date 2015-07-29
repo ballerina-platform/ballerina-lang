@@ -150,7 +150,7 @@ public class WindowPartitionTestCase {
                 "begin " +
                 "" +
                 "@info(name = 'query1') " +
-                "from cseEventStream#window.time(1 sec)  " +
+                "from cseEventStream#window.time(2 sec)  " +
                 "select symbol,sum(price) as price,volume " +
                 "insert all events into OutStockStream ;  " +
                 "end ";
@@ -190,7 +190,6 @@ public class WindowPartitionTestCase {
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
         executionRuntime.start();
-        Thread.sleep(100);
         inputHandler.send(new Object[]{"IBM", 70f, 100});
         inputHandler.send(new Object[]{"WSO2", 700f, 100});
         inputHandler.send(new Object[]{"IBM", 100f, 200});
@@ -199,7 +198,7 @@ public class WindowPartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 200f, 300});
         inputHandler.send(new Object[]{"WSO2", 1000f, 100});
 
-        Thread.sleep(2000);
+        Thread.sleep(2500);
         executionRuntime.shutdown();
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(4, removeEventCount);
