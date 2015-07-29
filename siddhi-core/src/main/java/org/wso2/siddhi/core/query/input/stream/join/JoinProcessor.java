@@ -34,6 +34,7 @@ public class JoinProcessor implements Processor {
     private boolean leftJoinProcessor = false;
     private boolean preJoinProcessor = false;
     private ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
+    private ComplexEventChunk currentEventChunk = new ComplexEventChunk();
 
     private StateEventPool stateEventPool;
     private Finder finder;
@@ -55,12 +56,18 @@ public class JoinProcessor implements Processor {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         if (trigger) {
+            currentEventChunk.clear();
             returnEventChunk.clear();
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
                 StreamEvent streamEvent = (StreamEvent) complexEventChunk.next();
-                if (streamEvent.getType() == ComplexEvent.Type.TIMER ||
-                        (!preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.CURRENT)) {
+                complexEventChunk.remove();
+                if (preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.TIMER) {
+                    currentEventChunk.add(streamEvent);
+                    nextProcessor.process(currentEventChunk);
+                    currentEventChunk.clear();
+                    continue;
+                } else if (!preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.CURRENT) {
                     continue;
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
@@ -83,14 +90,20 @@ public class JoinProcessor implements Processor {
                     returnEventChunk.add(returnEvent);
                     foundStreamEvent = foundStreamEvent.getNext();
                 }
+                if (returnEventChunk.getFirst() != null) {
+                    selector.process(returnEventChunk);
+                }
+                returnEventChunk.clear();
+                if (preJoinProcessor) {
+                    currentEventChunk.add(streamEvent);
+                    nextProcessor.process(currentEventChunk);
+                    currentEventChunk.clear();
+                }
             }
-            if (returnEventChunk.getFirst() != null) {
-                selector.process(returnEventChunk);
+        } else {
+            if (preJoinProcessor) {
+                nextProcessor.process(complexEventChunk);
             }
-
-        }
-        if (preJoinProcessor) {
-            nextProcessor.process(complexEventChunk);
         }
     }
 
@@ -134,8 +147,8 @@ public class JoinProcessor implements Processor {
     /**
      * Clone a copy of processor
      *
-     * @return
      * @param key
+     * @return
      */
     @Override
     public Processor cloneProcessor(String key) {
