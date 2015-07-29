@@ -190,6 +190,7 @@ public class WindowPartitionTestCase {
 
         InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
         executionRuntime.start();
+        Thread.sleep(100);
         inputHandler.send(new Object[]{"IBM", 70f, 100});
         inputHandler.send(new Object[]{"WSO2", 700f, 100});
         inputHandler.send(new Object[]{"IBM", 100f, 200});
