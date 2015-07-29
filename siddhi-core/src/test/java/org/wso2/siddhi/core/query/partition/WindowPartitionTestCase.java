@@ -168,8 +168,9 @@ public class WindowPartitionTestCase {
                         removeEventCount++;
                         if ((Double) event.getData()[1] != 0.0) {
                             Assert.assertEquals(100.0, event.getData()[1]);
+                        } else {
+                            Assert.assertEquals(0.0, event.getData()[1]);
                         }
-                        Assert.assertEquals(0.0, event.getData()[1]);
                     } else {
                         inEventCount++;
                         if (inEventCount == 1) {
