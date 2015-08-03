@@ -175,10 +175,11 @@ public class JoinTestCase {
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(2000);
+        executionPlanRuntime.shutdown();
         Assert.assertEquals(2, inEventCount);
         Assert.assertEquals(2, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+
 
     }
 
