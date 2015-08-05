@@ -494,4 +494,73 @@ public class JoinTestCase {
 
     }
 
+    @Test
+    public void joinTest12() throws InterruptedException {
+        log.info("Join test12");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select * " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+        Thread.sleep(100);
+        Assert.assertEquals(1, inEventCount);
+        Assert.assertEquals(0, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void joinTest13() throws InterruptedException {
+        log.info("Join test13");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, symbol string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.symbol " +
+                "select * " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.start();
+        executionPlanRuntime.shutdown();
+    }
+
+
 }
