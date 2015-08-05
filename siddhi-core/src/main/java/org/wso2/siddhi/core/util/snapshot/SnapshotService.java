@@ -39,10 +39,7 @@ public class SnapshotService {
 
     public byte[] snapshot() {
         HashMap<String, Object[]> snapshots = new HashMap<String, Object[]>(snapshotableList.size());
-
-        if (log.isDebugEnabled()) {
-            log.debug("Taking snapshot ...");
-        }
+        log.info("Taking snapshot ...");
         try {
             executionPlanContext.getSharedLock().lock();
             for (Snapshotable snapshotable : snapshotableList) {
@@ -51,11 +48,12 @@ public class SnapshotService {
         } finally {
             executionPlanContext.getSharedLock().unlock();
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Taking snapshot finished.");
-        }
+        log.debug("Taking snapshot finished.");
 
-        return ByteSerializer.OToB(snapshots);
+        log.info("Snapshot serialization started ...");
+        byte[] serializedSnapshots = ByteSerializer.OToB(snapshots);
+        log.info("Snapshot serialization finished.");
+        return serializedSnapshots;
 
     }
 
