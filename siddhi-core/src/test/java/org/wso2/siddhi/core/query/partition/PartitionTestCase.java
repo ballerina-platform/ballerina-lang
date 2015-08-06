@@ -839,11 +839,9 @@ public class PartitionTestCase {
         inputHandler3.send(new Object[]{"ABC", 75.6d, 100});
 
         Thread.sleep(100);
-
-        Assert.assertEquals(16, count);
-        Thread.sleep(100);
-        Assert.assertEquals(8, stockStreamEventCount);
         executionRuntime.shutdown();
+        Assert.assertEquals(16, count);
+        Assert.assertEquals(8, stockStreamEventCount);
     }
 
     @Test
