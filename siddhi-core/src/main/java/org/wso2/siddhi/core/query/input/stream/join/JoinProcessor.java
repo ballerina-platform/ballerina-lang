@@ -62,13 +62,21 @@ public class JoinProcessor implements Processor {
             while (complexEventChunk.hasNext()) {
                 StreamEvent streamEvent = (StreamEvent) complexEventChunk.next();
                 complexEventChunk.remove();
-                if (preJoinProcessor && streamEvent.getType() == ComplexEvent.Type.TIMER) {
-                    currentEventChunk.add(streamEvent);
-                    nextProcessor.process(currentEventChunk);
-                    currentEventChunk.clear();
+                if (streamEvent.getType() == ComplexEvent.Type.TIMER) {
+                    if (preJoinProcessor) {
+                        currentEventChunk.add(streamEvent);
+                        nextProcessor.process(currentEventChunk);
+                        currentEventChunk.clear();
+                    }
                     continue;
-                } else if (!preJoinProcessor && (streamEvent.getType() == ComplexEvent.Type.CURRENT || streamEvent.getType() == ComplexEvent.Type.TIMER)) {
-                    continue;
+                } else if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
+                    if (!preJoinProcessor) {
+                        continue;
+                    }
+                } else if (streamEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                    if (preJoinProcessor) {
+                        continue;
+                    }
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
                 while (foundStreamEvent != null) {

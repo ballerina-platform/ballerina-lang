@@ -59,18 +59,12 @@ public class WindowPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                        if (removeEventCount == 1) {
-                            Assert.assertEquals(100.0, event.getData()[1]);
-                        } else if (removeEventCount == 2) {
-                            Assert.assertEquals(1000.0, event.getData()[1]);
-                        }
-                    } else {
-                        inEventCount++;
+                    removeEventCount++;
+                    if (removeEventCount == 1) {
+                        Assert.assertEquals(100.0, event.getData()[1]);
+                    } else if (removeEventCount == 2) {
+                        Assert.assertEquals(1000.0, event.getData()[1]);
                     }
-
-
                     eventArrived = true;
                 }
             }
@@ -88,7 +82,6 @@ public class WindowPartitionTestCase {
 
         Thread.sleep(1000);
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(0, inEventCount);
         Assert.assertEquals(2, removeEventCount);
         executionRuntime.shutdown();
 
@@ -163,31 +156,33 @@ public class WindowPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
+                eventArrived = true;
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                        if ((Double) event.getData()[1] != 0.0) {
-                            Assert.assertEquals(100.0, event.getData()[1]);
-                        } else {
-                            Assert.assertEquals(0.0, event.getData()[1]);
+                    inEventCount++;
+                    if (inEventCount == 1) {
+                        Assert.assertEquals(70.0, event.getData()[1]);
+                    } else if (inEventCount == 2) {
+                        Assert.assertEquals(700.0, event.getData()[1]);
+                    } else if (inEventCount == 3) {
+                        Assert.assertEquals(170.0, event.getData()[1]);
+                    } else if (inEventCount == 4) {
+                        Assert.assertEquals(0.0, event.getData()[1]);
+                    } else if (inEventCount == 5) {
+                        Assert.assertEquals(0.0, event.getData()[1]);
+                    } else if (inEventCount == 6) {
+                        if (((Double) event.getData()[1]) == 0.0) {
+                            inEventCount = 5;
+                            continue;
                         }
-                    } else {
-                        inEventCount++;
-                        if (inEventCount == 1) {
-                            Assert.assertEquals(70.0, event.getData()[1]);
-                        } else if (inEventCount == 2) {
-                            Assert.assertEquals(700.0, event.getData()[1]);
-                        } else if (inEventCount == 3) {
-                            Assert.assertEquals(170.0, event.getData()[1]);
-                        } else if (inEventCount == 4) {
-                            Assert.assertEquals(200.0, event.getData()[1]);
-                        } else if (inEventCount == 5) {
-                            Assert.assertEquals(1000.0, event.getData()[1]);
-                        }
+                        Assert.assertEquals(200.0, event.getData()[1]);
+                    } else if (inEventCount == 7) {
+                        Assert.assertEquals(1000.0, event.getData()[1]);
+                    } else if (inEventCount == 8) {
+                        Assert.assertEquals(0.0, event.getData()[1]);
+                    } else if (inEventCount == 9) {
+                        Assert.assertEquals(0.0, event.getData()[1]);
                     }
-                    eventArrived = true;
                 }
-
             }
         });
 
@@ -203,8 +198,8 @@ public class WindowPartitionTestCase {
 
         Thread.sleep(2000);
         executionRuntime.shutdown();
-        Assert.assertTrue(inEventCount >= 4);
-        Assert.assertTrue(removeEventCount >= 4);
+        Assert.assertTrue(inEventCount >= 9);
+        Assert.assertTrue(eventArrived);
 
 
     }

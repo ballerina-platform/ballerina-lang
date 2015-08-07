@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.state.StateEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.util.Schedulable;
 
-public abstract class SnapshotOutputRateLimiter implements Schedulable{
+public abstract class SnapshotOutputRateLimiter implements Schedulable {
     static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
     private WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter;
     protected StreamEventCloner streamEventCloner;

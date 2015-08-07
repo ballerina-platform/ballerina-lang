@@ -27,14 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable{
+public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable {
 
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();
     protected OutputCallback outputCallback = null;
     private boolean hasCallBack = false;
     private String elementId;
 
-    public void init(ExecutionPlanContext executionPlanContext){
+    public void init(ExecutionPlanContext executionPlanContext) {
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
@@ -42,13 +42,20 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
     }
 
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
-        if (outputCallback != null && complexEventChunk.getFirst()!=null) {
-            outputCallback.send(complexEventChunk);
-        }
         if (!queryCallbacks.isEmpty()) {
             for (QueryCallback callback : queryCallbacks) {
                 callback.receiveStreamEvent(complexEventChunk);
             }
+        }
+        if (outputCallback != null && complexEventChunk.getFirst() != null) {
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent complexEvent = complexEventChunk.next();
+                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                    complexEvent.setType(ComplexEvent.Type.CURRENT);
+                }
+            }
+            outputCallback.send(complexEventChunk);
         }
     }
 
