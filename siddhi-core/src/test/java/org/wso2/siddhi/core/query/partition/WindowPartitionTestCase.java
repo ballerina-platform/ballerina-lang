@@ -166,14 +166,14 @@ public class WindowPartitionTestCase {
                     } else if (inEventCount == 3) {
                         Assert.assertEquals(170.0, event.getData()[1]);
                     } else if (inEventCount == 4) {
+                        if (((Double) event.getData()[1]) == 100.0) {
+                            inEventCount = 3;
+                            continue;
+                        }
                         Assert.assertEquals(0.0, event.getData()[1]);
                     } else if (inEventCount == 5) {
                         Assert.assertEquals(0.0, event.getData()[1]);
                     } else if (inEventCount == 6) {
-                        if (((Double) event.getData()[1]) == 0.0) {
-                            inEventCount = 5;
-                            continue;
-                        }
                         Assert.assertEquals(200.0, event.getData()[1]);
                     } else if (inEventCount == 7) {
                         Assert.assertEquals(1000.0, event.getData()[1]);
