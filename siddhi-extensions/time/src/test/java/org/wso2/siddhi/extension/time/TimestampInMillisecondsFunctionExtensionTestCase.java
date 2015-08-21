@@ -50,7 +50,7 @@ public class TimestampInMillisecondsFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , time:timestampInMilliseconds('2007-11-30 10:30:19','yyyy-MM-DD HH:MM:SS') as " +
-                "timestampInMillisecondsWithArguments, time:timestampInMilliseconds('2007-11-30 10:30:19') as timestampInMillisecondsWithoutSendingFormat, " +
+                "timestampInMillisecondsWithArguments, time:timestampInMilliseconds('2007-11-30 10:30:19.000') as timestampInMillisecondsWithoutSendingFormat, " +
                 "time:timestampInMilliseconds() as timestampInMillisecondsWithoutArguments "+
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

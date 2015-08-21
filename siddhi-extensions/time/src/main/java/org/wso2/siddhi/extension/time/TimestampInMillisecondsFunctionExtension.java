@@ -118,7 +118,28 @@ public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        return System.currentTimeMillis();
+        long returnValue;
+
+        if (useDefaultDateFormat){
+            if (data == null) {
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:timestampInMilliseconds(dateValue," +
+                        "dateFormat) function" + ". First argument cannot be null");
+            }
+            String source = (String) data;
+            FastDateFormat userSpecificFormat = FastDateFormat.getInstance(dateFormat);
+            try {
+                Date date = userSpecificFormat.parse(source);
+                returnValue = date.getTime();
+            } catch (ParseException e) {
+                String errorMsg = "Provided format " + dateFormat + " does not match with the timestamp " + source + e
+                        .getMessage();
+                throw new ExecutionPlanRuntimeException(errorMsg,e);
+            }
+            return returnValue;
+        } else {
+            throw new ExecutionPlanRuntimeException("Invalid set of arguments given to "+
+                    "time:timestampInMilliseconds(dateValue,dateFormat) function. Only two arguments can be provided. ");
+        }
     }
 
     @Override
