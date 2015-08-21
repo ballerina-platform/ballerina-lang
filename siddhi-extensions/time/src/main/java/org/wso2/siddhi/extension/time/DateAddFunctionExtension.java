@@ -40,11 +40,11 @@ import java.util.Date;
  * timestampInMilliseconds - date value in milliseconds.(from the epoch) eg: 1415712224000L
  * Accept Type(s) for dateAdd(dateValue,expr,unit,dateFormat):
  *         dateValue : STRING
- *         expr : LONG
+ *         expr : INT
  *         unit : STRING
  *         dateFormat : STRING
  * Accept Type(s) for dateAdd(timestampInMilliseconds,expr,unit):
- *         expr : LONG
+ *         expr : INT
  *         unit : STRING
  *         timestampInMilliseconds : LONG
  * Return Type(s): STRING
@@ -71,9 +71,9 @@ public class DateAddFunctionExtension extends FunctionExecutor {
                         "time:dateAdd(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
-            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "time:dateAdd(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.LONG +
+                        "time:dateAdd(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.INT +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
@@ -93,9 +93,9 @@ public class DateAddFunctionExtension extends FunctionExecutor {
                             "time:dateAdd(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
-                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "time:dateAdd(dateValue,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            "time:dateAdd(dateValue,expr,unit) function, " + "required " + Attribute.Type.INT +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
@@ -110,9 +110,9 @@ public class DateAddFunctionExtension extends FunctionExecutor {
                             "required " + Attribute.Type.LONG +" but found " + attributeExpressionExecutors[0]
                             .getReturnType().toString());
                 }
-                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "time:dateAdd(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            "time:dateAdd(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.INT +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {

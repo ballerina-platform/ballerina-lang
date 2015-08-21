@@ -41,13 +41,13 @@ import java.util.Date;
  * timestampInMilliseconds - date value in milliseconds.(from the epoch) eg: 1415712224000L
  * Accept Type(s) for dateSub(dateValue,expr,unit,dateFormat):
  *         dateValue : STRING
- *         expr : LONG
+ *         expr : INT
  *         unit : STRING
  *         dateFormat : STRING
- * Accept Type(s) for dateSub(expr,unit,timestampInMilliseconds):
- *         expr : LONG
- *         unit : STRING
+ * Accept Type(s) for dateSub(timestampInMilliseconds, expr,unit):
  *         timestampInMilliseconds : LONG
+ *         expr : INT
+ *         unit : STRING
  * Return Type(s): STRING
  */
 public class DateSubFunctionExtension extends FunctionExecutor {
@@ -72,9 +72,9 @@ public class DateSubFunctionExtension extends FunctionExecutor {
                         "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type
                         .STRING +" but found " + attributeExpressionExecutors[0].getReturnType().toString());
             }
-            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                        "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.LONG +
+                        "time:dateSub(dateValue,expr,unit,dateFormat) function, " + "required " + Attribute.Type.INT +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
@@ -94,9 +94,9 @@ public class DateSubFunctionExtension extends FunctionExecutor {
                             "time:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
-                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "time:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            "time:dateSub(dateValue,expr,unit) function, " + "required " + Attribute.Type.INT +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
@@ -111,9 +111,9 @@ public class DateSubFunctionExtension extends FunctionExecutor {
                             "required " + Attribute.Type.LONG +" but found " + attributeExpressionExecutors[0]
                             .getReturnType().toString());
                 }
-                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.INT) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "time:dateSub(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.LONG +
+                            "time:dateSub(timestampInMilliseconds,expr,unit) function, " + "required " + Attribute.Type.INT +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.STRING) {
