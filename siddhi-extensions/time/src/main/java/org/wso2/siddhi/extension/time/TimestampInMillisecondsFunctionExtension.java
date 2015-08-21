@@ -119,11 +119,10 @@ public class TimestampInMillisecondsFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         long returnValue;
-
         if (useDefaultDateFormat){
             if (data == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to time:timestampInMilliseconds(dateValue," +
-                        "dateFormat) function" + ". First argument cannot be null");
+                throw new ExecutionPlanRuntimeException("Invalid input given to time:timestampInMilliseconds(dateValue) "
+                        + "function" + ". argument cannot be null");
             }
             String source = (String) data;
             FastDateFormat userSpecificFormat = FastDateFormat.getInstance(dateFormat);
