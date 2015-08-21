@@ -744,7 +744,7 @@ public class SequencePartitionTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from every e1=Stream1[price>20], " +
-                "   e2=Stream1[(isNull(e2[last].price) and price>=e1.price) or ((not isNull(e2[last].price)) and price>=e2[last].price)]+, " +
+                "   e2=Stream1[((e2[last].price is null) and price>=e1.price) or ((not (e2[last].price is null)) and price>=e2[last].price)]+, " +
                 "   e3=Stream1[price<e2[last].price] " +
                 "select e1.price as price1, e2[0].price as price2, e2[1].price as price3, e3.price as price4 " +
                 "insert into OutputStream ;";
