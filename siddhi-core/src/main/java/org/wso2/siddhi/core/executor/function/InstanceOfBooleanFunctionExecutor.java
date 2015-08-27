@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  * This method returns true if and only if the input is a instance of Boolean
  * input - the value to check for Boolean instance eg: true
  * Accept Type(s) for instanceOfBoolean(input);
- *         inputSequence : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
+ *         input : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
  * Return Type(s): BOOLEAN
  */
 public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
@@ -36,14 +36,14 @@ public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:instanceOfBoolean() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfBoolean() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the contains function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null;//Since the instanceOfBoolean function takes in 1 parameter, this method does not get called. Hence, not implemented.
     }
 
     @Override
