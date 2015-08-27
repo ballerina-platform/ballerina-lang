@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  * This method returns true if and only if the input is a instance of Double
  * input - the value to check for Double instance eg: 233.424
  * Accept Type(s) for instanceOfDouble(input);
- *         inputSequence : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
+ *         input : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
  * Return Type(s): BOOLEAN
  */
 public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
@@ -36,14 +36,14 @@ public class InstanceOfDoubleFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:instanceOfDouble() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfDouble() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the contains function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null;//Since the instanceOfDouble function takes in 1 parameter, this method does not get called. Hence, not implemented.
     }
 
     @Override
