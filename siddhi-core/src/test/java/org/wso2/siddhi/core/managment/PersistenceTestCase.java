@@ -85,7 +85,7 @@ public class PersistenceTestCase {
         executionPlanRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-        Thread.sleep(10);
+        Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         Thread.sleep(100);
@@ -97,7 +97,7 @@ public class PersistenceTestCase {
         revision = executionPlanRuntime.persist();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-        Thread.sleep(10);
+        Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
 
         //restarting execution plan

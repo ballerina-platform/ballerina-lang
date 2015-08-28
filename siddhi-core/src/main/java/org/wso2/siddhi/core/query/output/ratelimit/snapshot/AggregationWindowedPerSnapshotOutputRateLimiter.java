@@ -119,7 +119,6 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
             ComplexEvent next = complexEvent.getNext();
             complexEvent.setNext(null);
 
-
             if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
                 addEventToList(complexEvent, groupByKey);
                 for (Integer position : aggregateAttributePositionList) {

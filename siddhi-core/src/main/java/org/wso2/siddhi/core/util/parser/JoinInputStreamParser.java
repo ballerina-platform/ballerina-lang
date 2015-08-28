@@ -179,7 +179,7 @@ public class JoinInputStreamParser {
         if (lastProcessor == null) {
             WindowProcessor windowProcessor = new LengthWindowProcessor();
             ExpressionExecutor[] expressionExecutors = new ExpressionExecutor[1];
-            expressionExecutors[0] = new ConstantExpressionExecutor(1, Attribute.Type.INT);
+            expressionExecutors[0] = new ConstantExpressionExecutor(0, Attribute.Type.INT);
             windowProcessor.initProcessor(((MetaStreamEvent) streamRuntime.getMetaComplexEvent()).getLastInputDefinition(),
                     expressionExecutors, executionPlanContext);
             lastProcessor = windowProcessor;

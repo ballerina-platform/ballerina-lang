@@ -31,10 +31,12 @@ public class LenghtWindowTestCase {
     private static final Logger log = Logger.getLogger(LenghtWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
+    private int count;
     private boolean eventArrived;
 
     @Before
     public void init() {
+        count = 0;
         inEventCount = 0;
         removeEventCount = 0;
         eventArrived = false;
@@ -93,7 +95,7 @@ public class LenghtWindowTestCase {
                 EventPrinter.print(events);
                 eventArrived = true;
                 for (Event event : events) {
-                    if (event.isExpired()) {
+                    if (count >= length && count % 2 == 0) {
                         removeEventCount++;
                         Assert.assertEquals("Remove event order", removeEventCount, event.getData(2));
                         Assert.assertEquals("Expired event triggering position", inEventCount + 1,
@@ -102,6 +104,7 @@ public class LenghtWindowTestCase {
                         inEventCount++;
                         Assert.assertEquals("In event order", inEventCount, event.getData(2));
                     }
+                    count++;
                 }
             }
         });

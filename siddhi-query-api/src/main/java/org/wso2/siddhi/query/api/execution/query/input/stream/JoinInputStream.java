@@ -75,10 +75,14 @@ public class JoinInputStream extends InputStream {
     public List<String> getAllStreamIds() {
         List<String> list = new ArrayList<String>();
         for (String streamId : leftInputStream.getAllStreamIds()) {
-            list.add(streamId);
+            if (!list.contains(streamId)) {
+                list.add(streamId);
+            }
         }
         for (String streamId : rightInputStream.getAllStreamIds()) {
-            list.add(streamId);
+            if (!list.contains(streamId)) {
+                list.add(streamId);
+            }
         }
         return list;
     }

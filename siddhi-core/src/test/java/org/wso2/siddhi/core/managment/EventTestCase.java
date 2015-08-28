@@ -38,7 +38,7 @@ public class EventTestCase {
     }
 
     @Test
-    public void persistenceTest1() throws InterruptedException {
+    public void eventTest1() throws InterruptedException {
         log.info("event test 1 - equal");
 
         Event event1= new Event(123,new Object[]{23,234.5,3f,234l,"adfsad",true}) ;
@@ -50,7 +50,7 @@ public class EventTestCase {
     }
 
     @Test
-    public void persistenceTest2() throws InterruptedException {
+    public void eventTest2() throws InterruptedException {
         log.info("event test 2 - not equal");
 
         Event event1= new Event(1223,new Object[]{23,234.5,3f,234l,"adfsad",true}) ;
@@ -61,7 +61,7 @@ public class EventTestCase {
     }
 
     @Test
-    public void persistenceTest3() throws InterruptedException {
+    public void eventTest3() throws InterruptedException {
         log.info("event test 3 - not equal");
 
         Event event1= new Event(123,new Object[]{23,2343.5,3f,234l,"adfsad",true}) ;

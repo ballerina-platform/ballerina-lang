@@ -33,8 +33,30 @@ import java.util.Map;
  */
 public interface FindableProcessor {
 
+    /**
+     * To find events from the processor event pool, that the matches the matchingEvent based on finder logic.
+     *
+     * @param matchingEvent the event to be matched with the events at the processor
+     * @param finder        the execution element responsible for finding the corresponding events that matches
+     *                      the matchingEvent based on pool of events at Processor
+     * @return the matched events
+     */
     public StreamEvent find(ComplexEvent matchingEvent, Finder finder);
 
+    /**
+     * To construct a finder having the capability of finding events at the processor that corresponds to the incoming
+     * matchingEvent and the given matching expression logic.
+     *
+     * @param expression                  the matching expression
+     * @param metaComplexEvent            the meta structure of the incoming matchingEvent
+     * @param executionPlanContext        current execution plan context
+     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
+     * @param eventTableMap               map of event tables
+     * @param matchingStreamIndex         the stream index of the incoming matchingEvent
+     * @param withinTime                  the maximum time gap between the events to be matched
+     * @return finder having the capability of finding events at the processor against the expression and incoming
+     * matchingEvent
+     */
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
 
 }

@@ -377,8 +377,8 @@ public class UpdateFromTableTestCase {
                 "insert into StockTable ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from UpdateStockStream join StockStream " +
-                "   on UpdateStockStream.comp == StockStream.symbol " +
+                "from UpdateStockStream join StockTable " +
+                "   on UpdateStockStream.comp == StockTable.symbol " +
                 "select symbol, vol as volume " +
                 "update StockTable " +
                 "   on StockTable.symbol==symbol;" +

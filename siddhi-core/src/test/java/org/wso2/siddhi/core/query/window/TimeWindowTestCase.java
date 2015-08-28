@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class TimeWindowTestCase {
@@ -127,6 +128,43 @@ public class TimeWindowTestCase {
         Thread.sleep(4000);
         Assert.assertEquals(6, inEventCount);
         Assert.assertEquals(6, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void timeWindowTest3() throws InterruptedException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+
+        String queries = "define stream fireAlarmEventStream (deviceID string, sonar double);\n" +
+                "@info(name = 'query1')\n" +
+                "from fireAlarmEventStream#window.time(30 milliseconds)\n" +
+                "select deviceID\n" +
+                "insert expired events into analyzeStream;\n" +
+                "" +
+                "@info(name = 'query2')\n" +
+                "from analyzeStream\n" +
+                "select deviceID\n" +
+                "insert into bulbOnStream;\n";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(queries);
+
+        executionPlanRuntime.addCallback("analyzeStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                eventArrived = true;
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("fireAlarmEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"id1", 20d});
+        inputHandler.send(new Object[]{"id2", 20d});
+        Thread.sleep(2000);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 

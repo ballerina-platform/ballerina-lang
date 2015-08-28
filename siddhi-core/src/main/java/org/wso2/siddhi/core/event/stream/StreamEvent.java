@@ -17,6 +17,9 @@ package org.wso2.siddhi.core.event.stream;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
@@ -181,5 +184,49 @@ public class StreamEvent implements ComplexEvent {
         sb.append(", next=").append(next);
         sb.append('}');
         return sb.toString();
+    }
+
+    private void writeObject(ObjectOutputStream stream)
+            throws IOException {
+        stream.writeObject(beforeWindowData);
+        stream.writeObject(onAfterWindowData);
+        stream.writeObject(outputData);
+        stream.writeObject(type);
+        stream.writeLong(timestamp);
+        StreamEvent nextEvent = next;
+        while (nextEvent != null) {
+            stream.writeBoolean(true);
+            stream.writeObject(nextEvent.beforeWindowData);
+            stream.writeObject(nextEvent.onAfterWindowData);
+            stream.writeObject(nextEvent.outputData);
+            stream.writeObject(nextEvent.type);
+            stream.writeLong(nextEvent.timestamp);
+            nextEvent = nextEvent.getNext();
+        }
+        stream.writeBoolean(false);
+    }
+
+
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        StreamEvent previousStreamEvent;
+        beforeWindowData = (Object[]) stream.readObject();
+        onAfterWindowData = (Object[]) stream.readObject();
+        outputData = (Object[]) stream.readObject();
+        type = (Type) stream.readObject();
+        timestamp = stream.readLong();
+        previousStreamEvent = this;
+        boolean isNextAvailable = stream.readBoolean();
+        while (isNextAvailable){
+            StreamEvent nextEvent = new StreamEvent(0,0,0);
+            nextEvent.beforeWindowData = (Object[]) stream.readObject();
+            nextEvent.onAfterWindowData = (Object[]) stream.readObject();
+            nextEvent.outputData = (Object[]) stream.readObject();
+            nextEvent.type = (Type) stream.readObject();
+            nextEvent.timestamp = stream.readLong();
+            previousStreamEvent.next = nextEvent;
+            previousStreamEvent = nextEvent;
+            isNextAvailable = stream.readBoolean();
+        }
     }
 }

@@ -102,11 +102,7 @@ public class CronWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
                         removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
                 }
                 eventArrived = true;
             }

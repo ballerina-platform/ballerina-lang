@@ -27,7 +27,7 @@ import java.util.Date;
 
 /**
  * currentDate()
- * Returns System Time in yyyy-MM-dd format.
+ * Returns System Date in yyyy-MM-dd format.
  * Return Type(s): STRING
  */
 public class CurrentDateFunctionExtension extends FunctionExecutor {

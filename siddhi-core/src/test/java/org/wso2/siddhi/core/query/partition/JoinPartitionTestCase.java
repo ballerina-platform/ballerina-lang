@@ -61,11 +61,7 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                     eventArrived = true;
                 }
             }
@@ -80,8 +76,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hellno World", "WSO2"});
 
         Thread.sleep(2000);
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
+        Assert.assertEquals(4, inEventCount);
         executionPlanRuntime.shutdown();
 
     }
@@ -108,11 +103,7 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                     eventArrived = true;
                 }
             }
@@ -130,8 +121,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
         Thread.sleep(2000);
-        Assert.assertEquals(4, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
+        Assert.assertEquals(8, inEventCount);
         executionPlanRuntime.shutdown();
 
     }
@@ -160,11 +150,7 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                     eventArrived = true;
                 }
             }
@@ -183,8 +169,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
         Thread.sleep(2000);
-        Assert.assertEquals(4, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
+        Assert.assertEquals(8, inEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -213,11 +198,7 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                     eventArrived = true;
                 }
             }
@@ -242,8 +223,7 @@ public class JoinPartitionTestCase {
 
         Thread.sleep(2000);
 
-        Assert.assertEquals(6, inEventCount);
-        Assert.assertEquals(4, removeEventCount);
+        Assert.assertEquals(10, inEventCount);
         executionPlanRuntime.shutdown();
 
     }
@@ -276,11 +256,7 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                 }
                 eventArrived = true;
             }
@@ -298,8 +274,7 @@ public class JoinPartitionTestCase {
 
         Thread.sleep(2000);
 
-        Assert.assertEquals(2, inEventCount);
-        Assert.assertEquals(2, removeEventCount);
+        Assert.assertEquals(4, inEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -371,13 +346,8 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                 }
                 eventArrived = true;
             }
@@ -398,7 +368,6 @@ public class JoinPartitionTestCase {
 
         Thread.sleep(1000);
 
-        Assert.assertEquals(4, inEventCount);
         Assert.assertEquals(4, inEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -427,11 +396,7 @@ public class JoinPartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    if (event.isExpired()) {
-                        removeEventCount++;
-                    } else {
-                        inEventCount++;
-                    }
+                    inEventCount++;
                     eventArrived = true;
                 }
             }
@@ -447,8 +412,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User3", "Hellno World", "WSO2"});
 
         Thread.sleep(2000);
-        Assert.assertEquals(3, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
+        Assert.assertEquals(6, inEventCount);
         executionPlanRuntime.shutdown();
 
     }

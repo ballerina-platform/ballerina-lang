@@ -155,7 +155,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
+        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
