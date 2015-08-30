@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  * This method returns true if and only if the input is a instance of Long
  * input - the sequence to check for Long instance eg: 123456789
  * Accept Type(s) for instanceOfLong(input);
- * inputSequence : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
+ *      input : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
  * Return Type(s): BOOLEAN
  */
 public class InstanceOfLongFunctionExecutor extends FunctionExecutor {
@@ -36,14 +36,14 @@ public class InstanceOfLongFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to str:instanceOfLong() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfLong() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the contains function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null;//Since the instanceOfLong function takes in 1 parameter, this method does not get called. Hence, not implemented.
     }
 
     @Override
