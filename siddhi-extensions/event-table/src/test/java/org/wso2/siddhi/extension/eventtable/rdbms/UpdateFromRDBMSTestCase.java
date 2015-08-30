@@ -432,8 +432,8 @@ public class UpdateFromRDBMSTestCase {
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
-                        "define stream CheckStockStream (symbol string, volume long, price float); " +
-                        "define stream UpdateStockStream (comp string, vol long); " +
+                        "define stream CheckStockStream (symbol string, price float, volume long); " +
+                        "define stream UpdateStockStream (comp string, prc float); " +
                         "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
@@ -444,7 +444,7 @@ public class UpdateFromRDBMSTestCase {
                         "" +
                         "@info(name = 'query2') " +
                         "from UpdateStockStream " +
-                        "select comp as symbol, vol as volume " +
+                        "select comp as symbol, prc as price " +
                         "update StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
@@ -463,10 +463,10 @@ public class UpdateFromRDBMSTestCase {
                                 inEventCount++;
                                 switch (inEventCount) {
                                     case 1:
-                                        Assert.assertArrayEquals(new Object[]{"IBM", 100l, 155.6f}, event.getData());
+                                        Assert.assertArrayEquals(new Object[]{"IBM", 150.6f, 100l}, event.getData());
                                         break;
                                     case 2:
-                                        Assert.assertArrayEquals(new Object[]{"IBM", 200l, 155.6f}, event.getData());
+                                        Assert.assertArrayEquals(new Object[]{"IBM", 190.6f, 100l}, event.getData());
                                         break;
                                     default:
                                         Assert.assertSame(2, inEventCount);
@@ -489,12 +489,12 @@ public class UpdateFromRDBMSTestCase {
                 executionPlanRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-                stockStream.send(new Object[]{"IBM", 155.6f, 100l});
-                checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
-                checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
-                updateStockStream.send(new Object[]{"IBM", 200l});
-                checkStockStream.send(new Object[]{"IBM", 200l, 155.6f});
-                checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
+                stockStream.send(new Object[]{"IBM", 185.6f, 100l});
+                checkStockStream.send(new Object[]{"IBM", 150.6f, 100l});
+                checkStockStream.send(new Object[]{"WSO2", 175.6f, 100l});
+                updateStockStream.send(new Object[]{"IBM", 200f});
+                checkStockStream.send(new Object[]{"IBM", 190.6f, 100l});
+                checkStockStream.send(new Object[]{"WSO2", 155.6f, 100l});
 
                 Thread.sleep(2000);
 
