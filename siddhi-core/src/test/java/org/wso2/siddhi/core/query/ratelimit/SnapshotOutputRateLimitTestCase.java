@@ -33,12 +33,14 @@ public class SnapshotOutputRateLimitTestCase {
     private volatile int count;
     private long value;
     private volatile boolean eventArrived;
+    private volatile int eventsSent;
 
     @Before
     public void init() {
         count = 0;
         value = 0;
         eventArrived = false;
+        eventsSent = 0;
     }
 
     @Test
@@ -72,7 +74,11 @@ public class SnapshotOutputRateLimitTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count++;
-                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)));
+                        if (eventsSent == 1) {
+                            Assert.assertTrue("192.10.1.5".equals(event.getData(0)));
+                        } else if (eventsSent == 2) {
+                            Assert.assertTrue("192.10.1.3".equals(event.getData(0)));
+                        }
                     }
                     eventArrived = true;
                 }
@@ -84,14 +90,15 @@ public class SnapshotOutputRateLimitTestCase {
         executionPlanRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
+        eventsSent++;
         Thread.sleep(10);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        eventsSent++;
         Thread.sleep(1200);
 
         executionPlanRuntime.shutdown();
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertTrue("Number of output event value", 1 <= count);
-
     }
 
     @Test
