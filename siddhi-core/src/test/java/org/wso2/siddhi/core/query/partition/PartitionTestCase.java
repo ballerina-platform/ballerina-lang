@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -36,16 +37,18 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class PartitionTestCase {
     static final Logger log = Logger.getLogger(PartitionTestCase.class);
-    private int count;
+    private AtomicInteger count = new AtomicInteger(0);
     private int stockStreamEventCount;
     private boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
+        count.set(0);
         eventArrived = false;
         stockStreamEventCount = 0;
     }
@@ -56,7 +59,7 @@ public class PartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "@plan:name('PartitionTest') " +
-                "@config(async = 'true')define stream streamA (symbol string, price int);"+
+                "@config(async = 'true')define stream streamA (symbol string, price int);" +
                 "partition with (symbol of streamA) " +
                 "begin " +
                 "@info(name = 'query1') " +
@@ -70,7 +73,7 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 Assert.assertTrue("IBM".equals(events[0].getData(0)) || "WSO2".equals(events[0].getData(0)));
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         };
@@ -81,8 +84,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -107,13 +110,13 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
+                    count.incrementAndGet();
                     eventArrived = true;
-                    if (count == 1) {
+                    if (count.get() == 1) {
                         Assert.assertEquals(75.5999984741211, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(151.1999969482422, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(75.5999984741211, event.getData()[1]);
                     }
                 }
@@ -126,8 +129,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 70005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertEquals(3, count.get());
         executionRuntime.shutdown();
 
     }
@@ -150,7 +153,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -160,8 +163,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(100);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
     }
 
@@ -216,7 +219,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -226,9 +229,9 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 75.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
         executionRuntime.shutdown();
-        Assert.assertEquals(4, count);
+        Assert.assertEquals(4, count.get());
 
     }
 
@@ -319,7 +322,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -338,9 +341,9 @@ public class PartitionTestCase {
         inputHandler2.send(new Object[]{"IBM", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE", 75.6f, 100});
 
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
         executionRuntime.shutdown();
-        Assert.assertEquals(8, count);
+        Assert.assertEquals(8, count.get());
 
     }
 
@@ -469,7 +472,7 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 synchronized (siddhiManager) {
-                    count = count + events.length;
+                    count.addAndGet(events.length);
                     eventArrived = true;
                 }
             }
@@ -495,9 +498,8 @@ public class PartitionTestCase {
         inputHandler3.send(new Object[]{"KLM", 75.6f, 100});
         inputHandler3.send(new Object[]{"ABC", 75.6f, 100});
 
-        Thread.sleep(100);
-
-        Assert.assertEquals(16, count);
+        SiddhiTestHelper.waitForEvents(100, 16, count, 60000);
+        Assert.assertEquals(16, count.get());
         Thread.sleep(100);
         Assert.assertEquals(8, stockStreamEventCount);
         executionRuntime.shutdown();
@@ -524,7 +526,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -544,8 +546,8 @@ public class PartitionTestCase {
         inputHandler2.send(new Object[]{"IBM1", 75.6f, 100});
         inputHandler2.send(new Object[]{"ORACLE1", 75.6f, 100});
 
-        Thread.sleep(100);
-        Assert.assertEquals(8, count);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        Assert.assertEquals(8, count.get());
 
         executionRuntime.shutdown();
     }
@@ -572,14 +574,14 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(75.0, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(705.0, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(110.0, event.getData()[1]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(50.0, event.getData()[1]);
                     }
                     eventArrived = true;
@@ -593,8 +595,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(100);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
     }
 
@@ -618,14 +620,14 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(75.0f, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(705.0f, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(75.0f, event.getData()[1]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(50.0f, event.getData()[1]);
                     }
                     eventArrived = true;
@@ -639,8 +641,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(100);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
     }
 
@@ -664,14 +666,14 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(75.0f, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(705.0f, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(35.0f, event.getData()[1]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(50.0f, event.getData()[1]);
                     }
                     eventArrived = true;
@@ -685,8 +687,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(100);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
     }
 
@@ -710,14 +712,14 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(75.0, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(705.0, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(55.0, event.getData()[1]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(50.0, event.getData()[1]);
                     }
                     eventArrived = true;
@@ -731,8 +733,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(200);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
     }
 
@@ -756,14 +758,14 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(1l, event.getData()[0]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(1l, event.getData()[0]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(2l, event.getData()[0]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(1l, event.getData()[0]);
                     }
                     eventArrived = true;
@@ -777,8 +779,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 705f, 100});
         inputHandler.send(new Object[]{"IBM", 35f, 100});
         inputHandler.send(new Object[]{"ORACLE", 50.0f, 100});
-        Thread.sleep(200);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
     }
 
@@ -813,7 +815,7 @@ public class PartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -838,9 +840,9 @@ public class PartitionTestCase {
         inputHandler3.send(new Object[]{"KLM", 75.6d, 100});
         inputHandler3.send(new Object[]{"ABC", 75.6d, 100});
 
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 16, count, 60000);
         executionRuntime.shutdown();
-        Assert.assertEquals(16, count);
+        Assert.assertEquals(16, count.get());
         Assert.assertEquals(8, stockStreamEventCount);
     }
 
@@ -861,7 +863,7 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 Assert.assertTrue("IBM".equals(events[0].getData(0)) || "WSO2".equals(events[0].getData(0)));
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -871,8 +873,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
-        Thread.sleep(100);
-        Assert.assertEquals(6, count);
+        SiddhiTestHelper.waitForEvents(100, 6, count, 60000);
+        Assert.assertEquals(6, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -930,14 +932,14 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(100l, event.getData()[0]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(600l, event.getData()[0]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(200l, event.getData()[0]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(250l, event.getData()[0]);
                     }
                     eventArrived = true;
@@ -951,8 +953,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"ORACLE", 75.6f, 50});
-        Thread.sleep(100);
-        Assert.assertEquals(4, count);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionRuntime.shutdown();
 
     }
@@ -978,15 +980,15 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
+                    count.incrementAndGet();
                     eventArrived = true;
-                    if (count == 1) {
+                    if (count.get() == 1) {
                         Assert.assertEquals(25.0, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(7005.60009765625, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertTrue(event.getData()[1].equals(75.0) || event.getData()[1].equals(100.0));
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertEquals(100.0, event.getData()[1]);
                     }
                 }
@@ -999,8 +1001,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 50f, 100});
         inputHandler.send(new Object[]{"ORACLE", 25f, 100});
-        Thread.sleep(100);
-        Assert.assertTrue(count<=4);
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertTrue(count.get() <= 4);
         executionRuntime.shutdown();
 
     }
@@ -1025,19 +1027,19 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
+                    count.incrementAndGet();
                     eventArrived = true;
-                    if (count == 1) {
+                    if (count.get() == 1) {
                         Assert.assertEquals(25.0, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(25.0, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(7005.60009765625, event.getData()[1]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertTrue(event.getData()[1].equals(75.0) || event.getData()[1].equals(100.0));
-                    } else if (count == 5) {
+                    } else if (count.get() == 5) {
                         Assert.assertTrue(event.getData()[1].equals(50.0) || event.getData()[1].equals(100.0));
-                    } else if (count == 6) {
+                    } else if (count.get() == 6) {
                         Assert.assertEquals(50.0, event.getData()[1]);
                     }
                 }
@@ -1051,8 +1053,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 50f, 100});
         inputHandler.send(new Object[]{"ORACLE", 25f, 100});
-        Thread.sleep(100);
-        Assert.assertTrue(6>=count);
+        SiddhiTestHelper.waitForEvents(100, 5, count, 60000);
+        Assert.assertTrue(6 >= count.get());
         executionRuntime.shutdown();
 
     }
@@ -1101,19 +1103,19 @@ public class PartitionTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    count++;
+                    count.incrementAndGet();
                     eventArrived = true;
-                    if (count == 1) {
+                    if (count.get() == 1) {
                         Assert.assertEquals(25.0, event.getData()[1]);
-                    } else if (count == 2) {
+                    } else if (count.get() == 2) {
                         Assert.assertEquals(25.0, event.getData()[1]);
-                    } else if (count == 3) {
+                    } else if (count.get() == 3) {
                         Assert.assertEquals(7005.60009765625, event.getData()[1]);
-                    } else if (count == 4) {
+                    } else if (count.get() == 4) {
                         Assert.assertTrue(event.getData()[1].equals(75.0) || event.getData()[1].equals(100.0));
-                    } else if (count == 5) {
+                    } else if (count.get() == 5) {
                         Assert.assertTrue(event.getData()[1].equals(50.0) || event.getData()[1].equals(100.0));
-                    } else if (count == 6) {
+                    } else if (count.get() == 6) {
                         Assert.assertEquals(50.0, event.getData()[1]);
                     }
                 }
@@ -1127,8 +1129,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
         inputHandler.send(new Object[]{"IBM", 50f, 100});
         inputHandler.send(new Object[]{"ORACLE", 25f, 100});
-        Thread.sleep(100);
-        Assert.assertTrue(6 >= count);
+        SiddhiTestHelper.waitForEvents(100, 5, count, 60000);
+        Assert.assertTrue(6 >= count.get());
         executionRuntime.shutdown();
 
     }
