@@ -48,7 +48,7 @@ public class SnapshotService {
         } finally {
             executionPlanContext.getSharedLock().unlock();
         }
-        log.debug("Taking snapshot finished.");
+        log.info("Taking snapshot finished.");
 
         log.info("Snapshot serialization started ...");
         byte[] serializedSnapshots = ByteSerializer.OToB(snapshots);
