@@ -1135,4 +1135,79 @@ public class PartitionTestCase {
 
     }
 
+    @Test
+    public void testPartitionQuery21() throws InterruptedException {
+        log.info("Partition test21");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@plan:name('PartitionTest20') " +
+                "" +
+                "@config(async = 'true') " +
+                "define stream cseEventStream (symbol string, price float,volume int); " +
+                "@config(async = 'true')" +
+                "define stream cseEventStreamOne (symbol string, price float,volume int);" +
+                "" +
+                "@info(name = 'query')" +
+                "from cseEventStreamOne " +
+                "select symbol, price, volume " +
+                "insert into cseEventStream;" +
+                " " +
+                "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of cseEventStream) " +
+                "   begin" +
+                "   @info(name = 'query1') " +
+                "   from cseEventStream " +
+                "   select symbol, sum(price) as price " +
+                "   insert into #OutStockStream1 ; " +
+                " " +
+                "   @info(name = 'query2') " +
+                "   from #OutStockStream1 " +
+                "   insert into #OutStockStream2 ;" +
+                " " +
+                "   @info(name = 'query3') " +
+                "   from #OutStockStream2 " +
+                "   insert into OutStockStream ;" +
+                " " +
+                "   end ; ";
+
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+
+        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    count.incrementAndGet();
+                    eventArrived = true;
+                    if (count.get() == 1) {
+                        Assert.assertEquals(25.0, event.getData()[1]);
+                    } else if (count.get() == 2) {
+                        Assert.assertEquals(25.0, event.getData()[1]);
+                    } else if (count.get() == 3) {
+                        Assert.assertEquals(7005.60009765625, event.getData()[1]);
+                    } else if (count.get() == 4) {
+                        Assert.assertTrue(event.getData()[1].equals(50.0) || event.getData()[1].equals(100.0));
+                    } else if (count.get() == 5) {
+                        Assert.assertTrue(event.getData()[1].equals(50.0) || event.getData()[1].equals(100.0));
+                    } else if (count.get() == 6) {
+                        Assert.assertEquals(50.0, event.getData()[1]);
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStreamOne");
+        executionRuntime.start();
+
+        inputHandler.send(new Object[]{"IBM", 25f, 100});
+        inputHandler.send(new Object[]{"WSO2", 7005.6f, 100});
+        inputHandler.send(new Object[]{"ORACLE", 25f, 100});
+        SiddhiTestHelper.waitForEvents(100, 5, count, 60000);
+        Assert.assertTrue(5 == count.get());
+        executionRuntime.shutdown();
+
+    }
+
 }

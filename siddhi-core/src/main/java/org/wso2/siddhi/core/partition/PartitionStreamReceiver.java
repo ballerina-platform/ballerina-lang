@@ -80,7 +80,6 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
             } else {
                 streamEventChunk.add(complexEvent);
                 String currentKey = null;
-                ComplexEvent prevToStreamEvent = null;
                 while (streamEventChunk.hasNext()) {
                     ComplexEvent aEvent = streamEventChunk.next();
                     boolean currentEventMatchedPrevPartitionExecutor = false;
@@ -97,9 +96,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                                 } else {
                                     StreamEvent cloneEvent = eventPool.borrowEvent();
                                     streamEventConverter.convertStreamEvent(aEvent, cloneEvent);
-                                    if (prevToStreamEvent != null) {
-                                        prevToStreamEvent.setNext(cloneEvent);
-                                    } else if (firstEvent != null) {
+                                    if (firstEvent != null) {
                                         firstEvent.setNext(cloneEvent);
                                     } else {
                                         firstEvent = cloneEvent;
@@ -111,7 +108,6 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                             currentEventMatchedPrevPartitionExecutor = true;
                         }
                     }
-                    prevToStreamEvent = aEvent;
                 }
                 send(currentKey, streamEventChunk.getFirst());
                 streamEventChunk.clear();
