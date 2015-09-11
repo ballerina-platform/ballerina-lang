@@ -166,7 +166,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     private class StddevAttributeAggregatorFloat extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.FLOAT;
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
 
@@ -238,7 +238,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     private class StddevAttributeAggregatorInt extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.INT;
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
 
@@ -310,7 +310,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     private class StddevAttributeAggregatorLong extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.LONG;
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
 
