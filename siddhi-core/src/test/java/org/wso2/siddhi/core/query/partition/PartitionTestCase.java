@@ -85,8 +85,8 @@ public class PartitionTestCase {
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
+        Assert.assertEquals(3, count.get());
         executionPlanRuntime.shutdown();
     }
 
