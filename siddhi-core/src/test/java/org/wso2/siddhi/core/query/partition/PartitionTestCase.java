@@ -1210,4 +1210,84 @@ public class PartitionTestCase {
 
     }
 
+    @Test
+    public void testPartitionQuery22() throws InterruptedException {
+        log.info("Partition test22");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@plan:name('PartitionTest10') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+                + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
+                + "partition with (symbol of cseEventStream)"
+                + "begin"
+                + "@info(name = 'query') from cseEventStream#window.time(1 sec) " +
+                "select symbol, avg(price) as avgPrice, volume " +
+                "having avgPrice > 10" +
+                "insert expired events into OutStockStream ;"
+                + "end ";
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
+                        Assert.assertEquals(75.0, event.getData()[1]);
+                    }
+                    eventArrived = true;
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 75f, 100});
+        inputHandler.send(new Object[]{"IBM", 75f, 100});
+        SiddhiTestHelper.waitForEvents(200, 1, count, 60000);
+        Assert.assertTrue(1 <= count.get());
+        executionRuntime.shutdown();
+    }
+
+    @Test
+    public void testPartitionQuery23() throws InterruptedException {
+        log.info("Partition test23");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@plan:name('PartitionTest10') " +
+                "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+                + "@config(async = 'true')define stream cseEventStream1 (symbol string, price float,volume int);"
+                + "partition with (symbol of cseEventStream)"
+                + "begin"
+                + "@info(name = 'query') from cseEventStream#window.time(1 sec) " +
+                "select symbol, avg(price) as avgPrice, volume " +
+                "having avgPrice >= 0" +
+                "insert expired events into OutStockStream ;"
+                + "end ";
+
+        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionRuntime.addCallback("OutStockStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                for (Event event : events) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
+                        Assert.assertEquals(0.0, event.getData()[1]);
+                    }
+                    eventArrived = true;
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionRuntime.getInputHandler("cseEventStream");
+        executionRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 75f, 100});
+        SiddhiTestHelper.waitForEvents(200, 1, count, 60000);
+        Assert.assertEquals(1, count.get());
+        executionRuntime.shutdown();
+    }
 }
