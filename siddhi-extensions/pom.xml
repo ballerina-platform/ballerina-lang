@@ -36,6 +36,7 @@
         <module>regex</module>
         <module>time</module>
         <module>timeseries</module>
+        <module>ooh</module>
     </modules>
 
 </project>
