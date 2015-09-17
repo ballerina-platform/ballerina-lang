@@ -14,13 +14,9 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
  */
 public class KSlackExtensionTestCase {
     static final Logger log = Logger.getLogger(KSlackExtensionTestCase.class);
-    private volatile int count;
-    private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
-        eventArrived = false;
     }
 
     @Test
