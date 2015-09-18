@@ -17,6 +17,7 @@
 package org.wso2.siddhi.extension.ooh;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -26,13 +27,17 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 
 /**
  * This is the test case for KSlackExtension.
- * Created by miyurud on 8/10/15.
  */
+
 public class KSlackExtensionTestCase {
     static final Logger log = Logger.getLogger(KSlackExtensionTestCase.class);
+    private volatile int count;
+    private volatile boolean eventArrived;
 
     @Before
     public void init() {
+        count = 0;
+        eventArrived = false;
     }
 
     @Test
@@ -50,8 +55,47 @@ public class KSlackExtensionTestCase {
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
                 for (org.wso2.siddhi.core.event.Event evt : events) {
-                    Object[] dt = evt.getData();
-                    log.info(dt[0]);
+                    count++;
+
+                    if(count == 1){
+                        Assert.assertEquals(1l, evt.getData()[0]);
+                    }
+
+                    if(count == 2){
+                        Assert.assertEquals(4l, evt.getData()[0]);
+                    }
+
+                    if(count == 3){
+                        Assert.assertEquals(3l, evt.getData()[0]);
+                    }
+
+                    if(count == 4){
+                        Assert.assertEquals(5l, evt.getData()[0]);
+                    }
+
+                    if(count == 5){
+                        Assert.assertEquals(6l, evt.getData()[0]);
+                    }
+
+                    if(count == 6){
+                        Assert.assertEquals(7l, evt.getData()[0]);
+                    }
+
+                    if(count == 7){
+                        Assert.assertEquals(8l, evt.getData()[0]);
+                    }
+
+                    if(count == 8){
+                        Assert.assertEquals(9l, evt.getData()[0]);
+                    }
+
+                    if(count == 9){
+                        Assert.assertEquals(10l, evt.getData()[0]);
+                    }
+
+                    if(count == 10){
+                        Assert.assertEquals(13l, evt.getData()[0]);
+                    }
                 }
             }
         });

@@ -35,12 +35,9 @@ import java.util.List;
 import java.util.TreeMap;
 
 /**
- *
  * The following code conducts reordering of an out-of-order event stream.
  * This implements the K-Slack based disorder handling algorithm which was originally described in
  * https://www2.informatik.uni-erlangen.de/publication/download/IPDPS2013.pdf
- *
- * @author miyurud
  */
 public class KSlackExtension extends StreamProcessor {
     private long k = 0; //In the beginning the K is zero.
@@ -95,7 +92,9 @@ public class KSlackExtension extends StreamProcessor {
                         }
                     }
 
-                    k = (t_curr - minTs) > k ? (t_curr - minTs) : k;
+                    if((t_curr - minTs) > k){
+                        k = t_curr - minTs;
+                    }
 
                     ArrayList<StreamEvent> buff = new ArrayList<StreamEvent>();
                     buff.addAll(eventBuffer);
