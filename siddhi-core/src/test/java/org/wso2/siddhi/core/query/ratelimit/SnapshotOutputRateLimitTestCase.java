@@ -209,10 +209,10 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});
         Thread.sleep(1100);
 
+        executionPlanRuntime.shutdown();
+
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 3, count);
-
-        executionPlanRuntime.shutdown();
 
     }
 
