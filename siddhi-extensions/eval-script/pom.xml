@@ -19,7 +19,7 @@
     <parent>
         <artifactId>siddhi-extensions</artifactId>
         <groupId>org.wso2.siddhi</groupId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>3.0.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
