@@ -78,6 +78,7 @@ public class PartitionParser {
                     newMetaStreamEvent.addOutputData(attribute);
                 }
                 newMetaStreamEvent.addInputDefinition(definition);
+                newMetaStreamEvent.setTableEvent(metaStreamEvent.isTableEvent());
                 metaStateEvent.addEvent(newMetaStreamEvent);
             }
         } else {
@@ -88,6 +89,7 @@ public class PartitionParser {
                 newMetaStreamEvent.addOutputData(attribute);
             }
             newMetaStreamEvent.addInputDefinition(definition);
+            newMetaStreamEvent.setTableEvent(((MetaStreamEvent) stateEvent).isTableEvent());
             metaStateEvent.addEvent(newMetaStreamEvent);
         }
 
