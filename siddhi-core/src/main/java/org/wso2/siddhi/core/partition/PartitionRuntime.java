@@ -85,7 +85,7 @@ public class PartitionRuntime implements Snapshotable {
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {
         Query query = metaQueryRuntime.getQuery();
 
-        if (query.getOutputStream() instanceof InsertIntoStream) {
+        if (query.getOutputStream() instanceof InsertIntoStream && metaQueryRuntime.getOutputCallback() instanceof InsertIntoStreamCallback) {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) metaQueryRuntime.getOutputCallback();
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
             String id = streamDefinition.getId();
