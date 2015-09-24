@@ -33,31 +33,39 @@ import javax.xml.validation.SchemaFactory;
  * Parses & creates the object model for the Netty transport configuration file.
  */
 public class TransportConfigurationBuilder {
+
+    public static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
+
     public static final String NETTY_TRANSPORTS_CONFIG_FILE =
-            "repository" + File.separator + "conf" + File.separator +
-                    "transports" + File.separator + "netty-transports.xml";
+            System.getProperty(NETTY_TRANSPORT_CONF,
+                    "repository" + File.separator + "conf" + File.separator +
+                            "transports" + File.separator + "netty-transports.xml");
 
     public static TransportsConfiguration build() {
         TransportsConfiguration transportsConfiguration;
-        try {
-            File file = new File(NETTY_TRANSPORTS_CONFIG_FILE);
-            JAXBContext jaxbContext = JAXBContext.newInstance(TransportsConfiguration.class);
+        File file = new File(NETTY_TRANSPORTS_CONFIG_FILE);
+        if (file.exists()) {
+            try {
+                JAXBContext jaxbContext = JAXBContext.newInstance(TransportsConfiguration.class);
 
-            // validate using the schema
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            StreamSource streamSource = new StreamSource();
-            streamSource.
-                    setInputStream(Thread.currentThread().getContextClassLoader().
-                            getResourceAsStream("netty-transports.xsd"));
-            Schema schema = sf.newSchema(streamSource);
+                // validate using the schema
+                SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                StreamSource streamSource = new StreamSource();
+                streamSource.
+                        setInputStream(Thread.currentThread().getContextClassLoader().
+                                getResourceAsStream("netty-transports.xsd"));
+                Schema schema = sf.newSchema(streamSource);
 
-            // un-marshall and populate the Netty transport configuration instance
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            unmarshaller.setSchema(schema);
-            transportsConfiguration = (TransportsConfiguration) unmarshaller.unmarshal(file);
-        } catch (SAXException | JAXBException e) {
-            String msg = "Error while loading " + NETTY_TRANSPORTS_CONFIG_FILE + " configuration file";
-            throw new RuntimeException(msg, e);
+                // un-marshall and populate the Netty transport configuration instance
+                Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                unmarshaller.setSchema(schema);
+                transportsConfiguration = (TransportsConfiguration) unmarshaller.unmarshal(file);
+            } catch (SAXException | JAXBException e) {
+                String msg = "Error while loading " + NETTY_TRANSPORTS_CONFIG_FILE + " configuration file";
+                throw new RuntimeException(msg, e);
+            }
+        } else { // return a default config
+            transportsConfiguration = TransportsConfiguration.getDefault();
         }
         return transportsConfiguration;
     }

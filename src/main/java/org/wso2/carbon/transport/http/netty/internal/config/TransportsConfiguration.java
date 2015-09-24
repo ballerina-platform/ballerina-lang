@@ -19,6 +19,7 @@
 package org.wso2.carbon.transport.http.netty.internal.config;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -33,6 +34,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "transports")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TransportsConfiguration {
+
+    public static TransportsConfiguration getDefault() {
+        TransportsConfiguration defaultConfig = new TransportsConfiguration();
+        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        HashSet<ListenerConfiguration> listenerConfigurations = new HashSet<>();
+        listenerConfigurations.add(listenerConfiguration);
+        defaultConfig.setListenerConfigurations(listenerConfigurations);
+        return defaultConfig;
+    }
 
     @XmlElementWrapper(name = "listeners")
     @XmlElement(name = "listener")

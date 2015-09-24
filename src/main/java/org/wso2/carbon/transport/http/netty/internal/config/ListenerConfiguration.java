@@ -21,6 +21,8 @@ package org.wso2.carbon.transport.http.netty.internal.config;
 import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,6 +36,16 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @SuppressWarnings("unused")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
+
+    public static ListenerConfiguration getDefault() {
+        ListenerConfiguration defaultConfig;
+        try {
+            defaultConfig = new ListenerConfiguration("netty", InetAddress.getLocalHost().getHostAddress(), 8080);
+        } catch (UnknownHostException e) {
+            defaultConfig = new ListenerConfiguration("netty", "127.0.0.1", 8080);
+        }
+        return defaultConfig;
+    }
 
     @XmlAttribute(required = true)
     private String id;
@@ -74,6 +86,15 @@ public class ListenerConfiguration {
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
+
+    public ListenerConfiguration() {
+    }
+
+    public ListenerConfiguration(String id, String host, int port) {
+        this.id = id;
+        this.host = host;
+        this.port = port;
+    }
 
     public int getBossThreadPoolSize() {
         return bossThreadPoolSize;
