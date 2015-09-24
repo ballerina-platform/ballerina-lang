@@ -37,12 +37,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
 
+    public static final String DEFAULT_KEY = "netty";
+
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
         try {
-            defaultConfig = new ListenerConfiguration("netty", InetAddress.getLocalHost().getHostAddress(), 8080);
+            defaultConfig = new ListenerConfiguration(DEFAULT_KEY, InetAddress.getLocalHost().getHostAddress(), 8080);
         } catch (UnknownHostException e) {
-            defaultConfig = new ListenerConfiguration("netty", "127.0.0.1", 8080);
+            defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "127.0.0.1", 8080);
         }
         return defaultConfig;
     }
