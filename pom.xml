@@ -91,10 +91,10 @@
                             <phase>validate</phase>
                             <configuration>
                                 <configLocation>
-                                    https://raw.githubusercontent.com/wso2/carbon-kernel/5.0.x/checkstyle.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
                                 </configLocation>
                                 <suppressionsLocation>
-                                    https://raw.githubusercontent.com/wso2/carbon-kernel/5.0.x/suppressions.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
                                 </suppressionsLocation>
                                 <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
