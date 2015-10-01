@@ -22,7 +22,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;
-    private long value = 0;
+    private long value = 0l;
 
     /**
      * The initialization method for FunctionExecutor
@@ -65,7 +65,7 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object reset() {
-        value = 0;
+        value = 0l;
         return value;
     }
 

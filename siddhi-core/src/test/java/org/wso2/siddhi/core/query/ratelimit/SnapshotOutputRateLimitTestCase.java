@@ -26,7 +26,10 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SnapshotOutputRateLimitTestCase {
     static final Logger log = Logger.getLogger(SnapshotOutputRateLimitTestCase.class);
@@ -94,7 +97,7 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(10);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
         eventsSent++;
-        Thread.sleep(1200);
+        SiddhiTestHelper.waitForEvents(100, 1, new AtomicInteger(count), 60000);
 
         executionPlanRuntime.shutdown();
         Assert.assertEquals("Event arrived", true, eventArrived);
@@ -206,10 +209,10 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});
         Thread.sleep(1100);
 
+        executionPlanRuntime.shutdown();
+
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 3, count);
-
-        executionPlanRuntime.shutdown();
 
     }
 

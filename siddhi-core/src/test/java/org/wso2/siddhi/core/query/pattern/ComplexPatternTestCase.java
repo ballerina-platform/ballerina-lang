@@ -27,9 +27,6 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-/**
- * Created on 12/15/14.
- */
 public class ComplexPatternTestCase {
 
     private static final Logger log = Logger.getLogger(ComplexPatternTestCase.class);

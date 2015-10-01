@@ -154,7 +154,7 @@ public class Scheduler implements Snapshotable {
 
             }
             if (toNotifyTime != null) {
-                scheduledExecutorService.schedule(eventCaller, currentTime - toNotifyTime, TimeUnit.MILLISECONDS);
+                scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit.MILLISECONDS);
             } else {
                 synchronized (toNotifyQueue) {
                     running = false;

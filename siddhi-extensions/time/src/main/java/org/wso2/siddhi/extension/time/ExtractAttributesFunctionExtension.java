@@ -183,7 +183,7 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
             returnValue = cal.get(Calendar.MINUTE);
 
         } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_HOUR)) {
-            returnValue = cal.get(Calendar.HOUR);
+            returnValue = cal.get(Calendar.HOUR_OF_DAY);
 
         } else if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_DAY)) {
             returnValue = cal.get(Calendar.DAY_OF_MONTH);
