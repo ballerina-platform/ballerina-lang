@@ -35,8 +35,8 @@ public class ConcatFunctionExtension extends FunctionExecutor{
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length < 2) {
-            throw new ExecutionPlanValidationException("str:charat() function requires at least two arguments, " +
-                    "but found only " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("str:concat() function requires at least two arguments, " +
+                                                       "but found only " + attributeExpressionExecutors.length);
         }
     }
 
