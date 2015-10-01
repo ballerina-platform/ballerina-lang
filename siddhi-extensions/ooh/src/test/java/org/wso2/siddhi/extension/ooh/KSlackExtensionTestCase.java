@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.util.EventPrinter;
 
 /**
  * This is the test case for KSlackExtension.
@@ -57,6 +58,7 @@ public class KSlackExtensionTestCase {
 
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
+                EventPrinter.print(events);
                 for (org.wso2.siddhi.core.event.Event event : events) {
                     count++;
 

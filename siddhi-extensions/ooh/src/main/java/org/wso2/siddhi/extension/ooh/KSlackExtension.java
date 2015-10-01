@@ -28,10 +28,7 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * The following code conducts reordering of an out-of-order event stream.
@@ -41,8 +38,8 @@ import java.util.TreeMap;
 public class KSlackExtension extends StreamProcessor {
     private long k = 0; //In the beginning the K is zero.
     private long greatestTimestamp = 0; //Used to track the greatest timestamp of tuples seen so far in the stream history.
-    private ArrayList<StreamEvent> expiredEventBuffer;
-    private ArrayList<StreamEvent> eventBuffer;
+    private TreeMap<Long, ArrayList<StreamEvent>> eventTreeMap;
+    private TreeMap<Long, ArrayList<StreamEvent>> expiredEventTreeMap;
     private ExpressionExecutor timestampExecutor;
 
     @Override
@@ -74,67 +71,50 @@ public class KSlackExtension extends StreamProcessor {
             while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 streamEventChunk.remove(); //We might have the rest of the events linked to this event forming a chain.
-                //To break such occurrences we call remove()
+
                 long timestamp = (Long) timestampExecutor.execute(event);
 
-                //The variable greatestTimestamp is used to track the greatest timestamp of tuples seen so far in the stream history.
+                ArrayList<StreamEvent> eventList = eventTreeMap.get(timestamp);
+                if (eventList == null) {
+                    eventList = new ArrayList<StreamEvent>();
+                }
+                eventList.add(event);
+                eventTreeMap.put(timestamp, eventList);
+
                 if (timestamp > greatestTimestamp) {
-                    eventBuffer.add(event);
+
                     greatestTimestamp = timestamp;
-                    long minTimestamp = Long.MAX_VALUE;
-
-                    for (StreamEvent aEvent : eventBuffer) {
-                        timestamp = (Long) timestampExecutor.execute(aEvent);
-
-                        if (timestamp < minTimestamp) {
-                            minTimestamp = timestamp;
-                        }
-                    }
+                    long minTimestamp = eventTreeMap.firstKey();
 
                     if ((greatestTimestamp - minTimestamp) > k) {
                         k = greatestTimestamp - minTimestamp;
                     }
 
-                    ArrayList<StreamEvent> buff = new ArrayList<StreamEvent>();
-                    buff.addAll(eventBuffer);
-                    buff.addAll(expiredEventBuffer);
-                    expiredEventBuffer = new ArrayList<StreamEvent>();
-                    //Below we need to have an ArrayList of StreamEvents as value because we may have multiple events
-                    //with same timestamp value. So we must makesure we retain all of those events in the Map.
-                    TreeMap<Long, ArrayList<StreamEvent>> treeMapOutput = new TreeMap<Long, ArrayList<StreamEvent>>();
-
-                    //The following loop should be optimized in future since for each new event, it passes through the
-                    //entire event buffer.
-                    for (StreamEvent aEvent : buff) {
-                        timestamp = (Long) timestampExecutor.execute(aEvent);
-
-                        if (timestamp + k <= greatestTimestamp) {
-                            ArrayList<StreamEvent> eventList = treeMapOutput.get(timestamp);
-
-                            if (eventList == null) {
-                                eventList = new ArrayList<StreamEvent>();
-                            }
-                            eventList.add(aEvent);
-                            treeMapOutput.put(timestamp, eventList);
+                    Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = eventTreeMap.entrySet().iterator();
+                    while (entryIterator.hasNext()) {
+                        Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
+                        ArrayList<StreamEvent> list = expiredEventTreeMap.get(entry.getKey());
+                        if (list != null) {
+                            list.addAll(entry.getValue());
                         } else {
-                            expiredEventBuffer.add(aEvent);
+                            expiredEventTreeMap.put(entry.getKey(), entry.getValue());
                         }
-                        //We need to rethink whether just using remove() would be sufficient here. It may remove all
-                        //the events having a specific feature from the eventBuffer at once.
-                        eventBuffer.remove(aEvent);
                     }
-                    //At this point the size of the eventBuffer should be zero.
-                    Iterator<ArrayList<StreamEvent>> itr = treeMapOutput.values().iterator();
-                    while (itr.hasNext()) {
-                        ArrayList<StreamEvent> eventList = itr.next();
+                    eventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
 
-                        Iterator<StreamEvent> itr2 = eventList.iterator();
-                        while (itr2.hasNext()) {
-                            complexEventChunk.add(itr2.next());
+                    entryIterator = expiredEventTreeMap.entrySet().iterator();
+                    while (entryIterator.hasNext()) {
+                        Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
+
+                        if (entry.getKey() + k <= greatestTimestamp) {
+                            entryIterator.remove();
+                            ArrayList<StreamEvent> timeEventList = entry.getValue();
+
+                            for (StreamEvent aTimeEventList : timeEventList) {
+                                complexEventChunk.add(aTimeEventList);
+                            }
                         }
                     }
-                } else {
-                    eventBuffer.add(event);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException ec) {
@@ -153,7 +133,7 @@ public class KSlackExtension extends StreamProcessor {
             throw new ExecutionPlanCreationException("At least one parameter is required specifying the timestamp field having long return type.");
         }
         if (attributeExpressionLength > 1) {
-            throw new ExecutionPlanCreationException("Only one parameter is required for KSlack that's timestamp field having long return type, but found " + attributeExpressionExecutors);
+            throw new ExecutionPlanCreationException("Only one parameter is required for KSlack that's timestamp field having long return type, but found " + attributeExpressionLength);
         }
 
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
@@ -162,8 +142,8 @@ public class KSlackExtension extends StreamProcessor {
             throw new ExecutionPlanCreationException("Return type expected by KSlack is LONG but found " + attributeExpressionExecutors[0].getReturnType());
         }
 
-        expiredEventBuffer = new ArrayList<StreamEvent>();
-        eventBuffer = new ArrayList<StreamEvent>();
+        eventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
+        expiredEventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
         ArrayList<Attribute> attributes = new ArrayList<Attribute>();
         attributes.add(new Attribute("beta0", Attribute.Type.INT));
 
