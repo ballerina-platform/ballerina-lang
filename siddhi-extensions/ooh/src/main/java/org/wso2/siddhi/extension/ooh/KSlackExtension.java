@@ -22,7 +22,6 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
@@ -41,10 +40,10 @@ import java.util.TreeMap;
  */
 public class KSlackExtension extends StreamProcessor {
     private long k = 0; //In the beginning the K is zero.
-    private long t_curr = 0; //Used to track the greatest timestamp of tuples seen so far in the stream history.
+    private long greatestTimestamp = 0; //Used to track the greatest timestamp of tuples seen so far in the stream history.
     private ArrayList<StreamEvent> expiredEventBuffer;
     private ArrayList<StreamEvent> eventBuffer;
-    private int timeStampField = 0;
+    private ExpressionExecutor timestampExecutor;
 
     @Override
     public void start() {
@@ -76,24 +75,24 @@ public class KSlackExtension extends StreamProcessor {
                 StreamEvent event = streamEventChunk.next();
                 streamEventChunk.remove(); //We might have the rest of the events linked to this event forming a chain.
                 //To break such occurrences we call remove()
-                long ts = (Long) event.getOutputData()[timeStampField];
+                long timestamp = (Long) timestampExecutor.execute(event);
 
-                //The variable t_curr is used to track the greatest timestamp of tuples seen so far in the stream history.
-                if (ts > t_curr) {
+                //The variable greatestTimestamp is used to track the greatest timestamp of tuples seen so far in the stream history.
+                if (timestamp > greatestTimestamp) {
                     eventBuffer.add(event);
-                    t_curr = ts;
-                    long minTs = Long.MAX_VALUE;
+                    greatestTimestamp = timestamp;
+                    long minTimestamp = Long.MAX_VALUE;
 
-                    for (StreamEvent evt : eventBuffer) {
-                        ts = (Long) evt.getOutputData()[timeStampField];
+                    for (StreamEvent aEvent : eventBuffer) {
+                        timestamp = (Long) timestampExecutor.execute(aEvent);
 
-                        if (ts < minTs) {
-                            minTs = ts;
+                        if (timestamp < minTimestamp) {
+                            minTimestamp = timestamp;
                         }
                     }
 
-                    if((t_curr - minTs) > k){
-                        k = t_curr - minTs;
+                    if ((greatestTimestamp - minTimestamp) > k) {
+                        k = greatestTimestamp - minTimestamp;
                     }
 
                     ArrayList<StreamEvent> buff = new ArrayList<StreamEvent>();
@@ -106,31 +105,31 @@ public class KSlackExtension extends StreamProcessor {
 
                     //The following loop should be optimized in future since for each new event, it passes through the
                     //entire event buffer.
-                    for (StreamEvent evt : buff) {
-                        ts = (Long) evt.getOutputData()[timeStampField];
+                    for (StreamEvent aEvent : buff) {
+                        timestamp = (Long) timestampExecutor.execute(aEvent);
 
-                        if (ts + k <= t_curr) {
-                            ArrayList<StreamEvent> evtLst = treeMapOutput.get(ts);
+                        if (timestamp + k <= greatestTimestamp) {
+                            ArrayList<StreamEvent> eventList = treeMapOutput.get(timestamp);
 
-                            if(evtLst == null){
-                                evtLst = new ArrayList<StreamEvent>();
+                            if (eventList == null) {
+                                eventList = new ArrayList<StreamEvent>();
                             }
-                            evtLst.add(evt);
-                            treeMapOutput.put(ts, evtLst);
+                            eventList.add(aEvent);
+                            treeMapOutput.put(timestamp, eventList);
                         } else {
-                            expiredEventBuffer.add(evt);
+                            expiredEventBuffer.add(aEvent);
                         }
                         //We need to rethink whether just using remove() would be sufficient here. It may remove all
                         //the events having a specific feature from the eventBuffer at once.
-                        eventBuffer.remove(evt);
+                        eventBuffer.remove(aEvent);
                     }
                     //At this point the size of the eventBuffer should be zero.
                     Iterator<ArrayList<StreamEvent>> itr = treeMapOutput.values().iterator();
                     while (itr.hasNext()) {
-                        ArrayList<StreamEvent> e = itr.next();
+                        ArrayList<StreamEvent> eventList = itr.next();
 
-                        Iterator<StreamEvent> itr2 = e.iterator();
-                        while(itr2.hasNext()) {
+                        Iterator<StreamEvent> itr2 = eventList.iterator();
+                        while (itr2.hasNext()) {
                             complexEventChunk.add(itr2.next());
                         }
                     }
@@ -138,7 +137,7 @@ public class KSlackExtension extends StreamProcessor {
                     eventBuffer.add(event);
                 }
             }
-        }catch(ArrayIndexOutOfBoundsException ec){
+        } catch (ArrayIndexOutOfBoundsException ec) {
             //This happens due to user specifying an invalid field index.
             throw new ExecutionPlanCreationException("The very first parameter must be an Integer with a valid field index (0 to (fieldsLength-1)).");
         }
@@ -149,19 +148,18 @@ public class KSlackExtension extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors,
                                    ExecutionPlanContext executionPlanContext) {
-        int paramCount = attributeExpressionLength;
 
-        if(paramCount == 0){
-            throw new ExecutionPlanCreationException("At least one integer parameter is required specifying the time stamp field.");
+        if (attributeExpressionLength == 0) {
+            throw new ExecutionPlanCreationException("At least one parameter is required specifying the timestamp field having long return type.");
+        }
+        if (attributeExpressionLength > 1) {
+            throw new ExecutionPlanCreationException("Only one parameter is required for KSlack that's timestamp field having long return type, but found " + attributeExpressionExecutors);
         }
 
-        // Capture constant inputs
-        if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
-            try {
-                timeStampField = ((Integer)attributeExpressionExecutors[0].execute(null));
-            } catch(ClassCastException c) {
-                throw new ExecutionPlanCreationException("The very first parameter must be an Integer with a valid field index (0 to (fieldsLength-1)).");
-            }
+        if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
+            timestampExecutor = attributeExpressionExecutors[0];
+        } else {
+            throw new ExecutionPlanCreationException("Return type expected by KSlack is LONG but found " + attributeExpressionExecutors[0].getReturnType());
         }
 
         expiredEventBuffer = new ArrayList<StreamEvent>();

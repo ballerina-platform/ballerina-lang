@@ -43,56 +43,61 @@ public class KSlackExtensionTestCase {
         log.info("KSlackExtensionTestCase TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (eventtt long, price long, volume long);";
-        String query = ("@info(name = 'query1') from inputStream#ooh:kslack(0) select eventtt, price, volume " +
-                "insert into outputStream;");
+        String inStreamDefinition = "" +
+                "@config(async = 'true')" +
+                "define stream inputStream (eventTimestamp long, price long, volume long);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from inputStream#ooh:kslack(eventTimestamp) " +
+                "select eventTimestamp, price, volume " +
+                "insert into outputStream;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
 
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
-                for (org.wso2.siddhi.core.event.Event evt : events) {
+                for (org.wso2.siddhi.core.event.Event event : events) {
                     count++;
 
-                    if(count == 1){
-                        Assert.assertEquals(1l, evt.getData()[0]);
+                    if (count == 1) {
+                        Assert.assertEquals(1l, event.getData()[0]);
                     }
 
-                    if(count == 2){
-                        Assert.assertEquals(4l, evt.getData()[0]);
+                    if (count == 2) {
+                        Assert.assertEquals(4l, event.getData()[0]);
                     }
 
-                    if(count == 3){
-                        Assert.assertEquals(3l, evt.getData()[0]);
+                    if (count == 3) {
+                        Assert.assertEquals(3l, event.getData()[0]);
                     }
 
-                    if(count == 4){
-                        Assert.assertEquals(5l, evt.getData()[0]);
+                    if (count == 4) {
+                        Assert.assertEquals(5l, event.getData()[0]);
                     }
 
-                    if(count == 5){
-                        Assert.assertEquals(6l, evt.getData()[0]);
+                    if (count == 5) {
+                        Assert.assertEquals(6l, event.getData()[0]);
                     }
 
-                    if(count == 6){
-                        Assert.assertEquals(7l, evt.getData()[0]);
+                    if (count == 6) {
+                        Assert.assertEquals(7l, event.getData()[0]);
                     }
 
-                    if(count == 7){
-                        Assert.assertEquals(8l, evt.getData()[0]);
+                    if (count == 7) {
+                        Assert.assertEquals(8l, event.getData()[0]);
                     }
 
-                    if(count == 8){
-                        Assert.assertEquals(9l, evt.getData()[0]);
+                    if (count == 8) {
+                        Assert.assertEquals(9l, event.getData()[0]);
                     }
 
-                    if(count == 9){
-                        Assert.assertEquals(10l, evt.getData()[0]);
+                    if (count == 9) {
+                        Assert.assertEquals(10l, event.getData()[0]);
                     }
 
-                    if(count == 10){
-                        Assert.assertEquals(13l, evt.getData()[0]);
+                    if (count == 10) {
+                        Assert.assertEquals(13l, event.getData()[0]);
                     }
                 }
             }
@@ -117,5 +122,6 @@ public class KSlackExtensionTestCase {
 
         Thread.sleep(1000);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event count", 9, count);
     }
 }
