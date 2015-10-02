@@ -70,7 +70,7 @@ public class SelectorParser {
 
         id = outputStream.getId();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, executionPlanContext);
-        List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, null, variableExpressionExecutors);
+        List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, eventTableMap, variableExpressionExecutors);
         querySelector.setAttributeProcessorList(attributeProcessors,"true".equals(containsAggregatorThreadLocal.get()));
         containsAggregatorThreadLocal.remove();
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(),
