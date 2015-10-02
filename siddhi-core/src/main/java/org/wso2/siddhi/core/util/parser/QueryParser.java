@@ -100,13 +100,13 @@ public class QueryParser {
 
         } catch (DuplicateDefinitionException e) {
             if (element != null) {
-                throw new DuplicateDefinitionException(e.getMessage() + " when creating query " + element.getValue(), e);
+                throw new DuplicateDefinitionException(e.getMessage() + ", when creating query " + element.getValue(), e);
             } else {
                 throw new DuplicateDefinitionException(e.getMessage(), e);
             }
         } catch (RuntimeException e) {
             if (element != null) {
-                throw new ExecutionPlanCreationException(e.getMessage() + " when creating query " + element.getValue(), e);
+                throw new ExecutionPlanCreationException(e.getMessage() + ", when creating query " + element.getValue(), e);
             } else {
                 throw new ExecutionPlanCreationException(e.getMessage(), e);
             }

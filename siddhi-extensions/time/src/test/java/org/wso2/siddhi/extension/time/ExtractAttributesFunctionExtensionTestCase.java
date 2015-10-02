@@ -49,8 +49,8 @@ public class ExtractAttributesFunctionExtensionTestCase {
                 "define stream inputStream (symbol string,dateValue string,dateFormat string,timestampInMilliseconds long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
-                "select symbol , time:extract('YEAR',dateValue,dateFormat) as YEAR,time:extract('HOUR',dateValue," +
-                "dateFormat) as MONTH,time:extract(timestampInMilliseconds,'HOUR') as QUARTER "+
+                "select symbol , time:extract('YEAR',dateValue,dateFormat) as YEAR,time:extract('MONTH',dateValue," +
+                "dateFormat) as MONTH,time:extract(timestampInMilliseconds,'HOUR') as HOUR "+
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -62,7 +62,7 @@ public class ExtractAttributesFunctionExtensionTestCase {
                 for(int cnt=0;cnt<inEvents.length;cnt++){
                     count++;
                     log.info("Event : " + count + ",YEAR : " + inEvents[cnt].getData(1) +"," +
-                            "MONTH : "+inEvents[cnt].getData(2) + ",QUARTER : "+inEvents[cnt].getData(3));
+                            "MONTH : "+inEvents[cnt].getData(2) + ",HOUR : "+inEvents[cnt].getData(3));
 
                 }
             }
@@ -72,7 +72,7 @@ public class ExtractAttributesFunctionExtensionTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", "2014-3-11 02:23:44", "yyyy-MM-dd hh:mm:ss",1394484824000L});
         inputHandler.send(new Object[]{"IBM", "2014-3-11 02:23:44", "yyyy-MM-dd hh:mm:ss",1394484824000L});
-        inputHandler.send(new Object[]{"IBM", "2014-3-11 02:23:44", "yyyy-MM-dd hh:mm:ss",1394484824000L});
+        inputHandler.send(new Object[]{"IBM", "2014-3-11 22:23:44", "yyyy-MM-dd hh:mm:ss",1394556804000L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);

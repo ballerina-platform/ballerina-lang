@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.math;
@@ -24,7 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /*
-* parse_float(string);
+* parseFloat(string);
 * Returns the 'string' as a FLOAT
 * Accept Type(s): STRING
 * Return Type(s): FLOAT
@@ -33,11 +35,12 @@ public class ParseFloatFunctionExtension extends FunctionExecutor{
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:parse_float() function, " +
-                    "required 1, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to math:parseFloat() function," +
+                                                       " required 1, but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of math:parse_float() function, " +
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument of " +
+                                                       "math:parseFloat() function, " +
                     "required "+Attribute.Type.STRING+" but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
     }
@@ -52,7 +55,7 @@ public class ParseFloatFunctionExtension extends FunctionExecutor{
         if (data != null) {
             return Float.parseFloat((String)data);
         } else {
-            throw new ExecutionPlanRuntimeException("Input to the math:parse_float() function cannot be null");
+            throw new ExecutionPlanRuntimeException("Input to the math:parseFloat() function cannot be null");
         }
     }
 

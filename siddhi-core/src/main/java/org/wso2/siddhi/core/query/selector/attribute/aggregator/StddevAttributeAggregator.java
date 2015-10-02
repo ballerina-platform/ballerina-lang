@@ -60,10 +60,14 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Attribute.Type getReturnType() { return stddevOutputAttributeAggregator.getReturnType(); }
+    public Attribute.Type getReturnType() {
+        return stddevOutputAttributeAggregator.getReturnType();
+    }
 
     @Override
-    public Object processAdd(Object data) { return stddevOutputAttributeAggregator.processAdd(data); }
+    public Object processAdd(Object data) {
+        return stddevOutputAttributeAggregator.processAdd(data);
+    }
 
     @Override
     public Object processAdd(Object[] data) {
@@ -71,7 +75,9 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object processRemove(Object data) { return stddevOutputAttributeAggregator.processRemove(data); }
+    public Object processRemove(Object data) {
+        return stddevOutputAttributeAggregator.processRemove(data);
+    }
 
     @Override
     public Object processRemove(Object[] data) {
@@ -79,19 +85,27 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object reset() { return stddevOutputAttributeAggregator.reset(); }
+    public Object reset() {
+        return stddevOutputAttributeAggregator.reset();
+    }
 
     @Override
-    public Object[] currentState() { return stddevOutputAttributeAggregator.currentState(); }
+    public Object[] currentState() {
+        return stddevOutputAttributeAggregator.currentState();
+    }
 
     @Override
-    public void start() {}
+    public void start() {
+    }
 
     @Override
-    public void stop() {}
+    public void stop() {
+    }
 
     @Override
-    public void restoreState(Object[] state) { stddevOutputAttributeAggregator.restoreState(state); }
+    public void restoreState(Object[] state) {
+        stddevOutputAttributeAggregator.restoreState(state);
+    }
 
     private class StddevAttributeAggregatorDouble extends StddevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
@@ -99,7 +113,9 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         private int count = 0;
 
         @Override
-        public Attribute.Type getReturnType() { return type; }
+        public Attribute.Type getReturnType() {
+            return type;
+        }
 
         @Override
         public Object processAdd(Object data) {
@@ -114,7 +130,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
                 oldMean = mean;
                 sum += value;
                 mean = sum / count;
-                stdDeviation += (value - oldMean)*(value - mean);
+                stdDeviation += (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -129,13 +145,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Double) data;
 
             if (count == 0) {
-                sum = mean = 0;
-                stdDeviation = 0;
+                sum = mean = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum -= value;
                 mean = sum / count;
-                stdDeviation -= (value - oldMean)*(value - mean);
+                stdDeviation -= (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -149,11 +165,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = mean = oldMean = 0.0;
             stdDeviation = 0.0;
             count = 0;
-            return 0;
+            return 0.0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
+        public Object[] currentState() {
+            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+        }
 
         @Override
         public void restoreState(Object[] state) {
@@ -166,12 +184,14 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     private class StddevAttributeAggregatorFloat extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.FLOAT;
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
 
         @Override
-        public Attribute.Type getReturnType() { return type; }
+        public Attribute.Type getReturnType() {
+            return type;
+        }
 
         @Override
         public Object processAdd(Object data) {
@@ -186,7 +206,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
                 oldMean = mean;
                 sum += value;
                 mean = sum / count;
-                stdDeviation += (value - oldMean)*(value - mean);
+                stdDeviation += (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -201,13 +221,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Float) data;
 
             if (count == 0) {
-                sum = mean = 0;
-                stdDeviation = 0;
+                sum = mean = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum -= value;
                 mean = sum / count;
-                stdDeviation -= (value - oldMean)*(value - mean);
+                stdDeviation -= (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -221,11 +241,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = mean = oldMean = 0.0;
             stdDeviation = 0.0;
             count = 0;
-            return 0;
+            return 0.0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
+        public Object[] currentState() {
+            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+        }
 
         @Override
         public void restoreState(Object[] state) {
@@ -238,12 +260,14 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     private class StddevAttributeAggregatorInt extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.INT;
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
 
         @Override
-        public Attribute.Type getReturnType() { return type; }
+        public Attribute.Type getReturnType() {
+            return type;
+        }
 
         @Override
         public Object processAdd(Object data) {
@@ -258,7 +282,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
                 oldMean = mean;
                 sum += value;
                 mean = sum / count;
-                stdDeviation += (value - oldMean)*(value - mean);
+                stdDeviation += (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -273,13 +297,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Integer) data;
 
             if (count == 0) {
-                sum = mean = 0;
-                stdDeviation = 0;
+                sum = mean = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum -= value;
                 mean = sum / count;
-                stdDeviation -= (value - oldMean)*(value - mean);
+                stdDeviation -= (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -293,11 +317,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = mean = oldMean = 0.0;
             stdDeviation = 0.0;
             count = 0;
-            return 0;
+            return 0.0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
+        public Object[] currentState() {
+            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+        }
 
         @Override
         public void restoreState(Object[] state) {
@@ -310,12 +336,14 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     private class StddevAttributeAggregatorLong extends StddevAttributeAggregator {
-        private final Attribute.Type type = Attribute.Type.LONG;
+        private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
 
         @Override
-        public Attribute.Type getReturnType() { return type; }
+        public Attribute.Type getReturnType() {
+            return type;
+        }
 
         @Override
         public Object processAdd(Object data) {
@@ -330,7 +358,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
                 oldMean = mean;
                 sum += value;
                 mean = sum / count;
-                stdDeviation += (value - oldMean)*(value - mean);
+                stdDeviation += (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -345,13 +373,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             double value = (Long) data;
 
             if (count == 0) {
-                sum = mean = 0;
-                stdDeviation = 0;
+                sum = mean = 0.0;
+                stdDeviation = 0.0;
             } else {
                 oldMean = mean;
                 sum -= value;
                 mean = sum / count;
-                stdDeviation -= (value - oldMean)*(value - mean);
+                stdDeviation -= (value - oldMean) * (value - mean);
             }
 
             if (count < 2) {
@@ -365,11 +393,13 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = mean = oldMean = 0.0;
             stdDeviation = 0.0;
             count = 0;
-            return 0;
+            return 0.0;
         }
 
         @Override
-        public Object[] currentState() { return new Object[] {sum, mean, oldMean, stdDeviation, count}; }
+        public Object[] currentState() {
+            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+        }
 
         @Override
         public void restoreState(Object[] state) {

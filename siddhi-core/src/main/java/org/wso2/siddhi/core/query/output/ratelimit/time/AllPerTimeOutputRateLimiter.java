@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable{
+public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
     private final Long value;
     private String id;
@@ -58,7 +58,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
         ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
+            if (firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
                 if (firstEvent.getTimestamp() >= scheduledTime) {
                     sendEvents();
                     scheduledTime = scheduledTime + value;
@@ -83,7 +83,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;
