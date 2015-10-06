@@ -18,6 +18,13 @@
     <name>Carbon Netty HTTP Transport</name>
     <description>Carbon HTTP Transport based on Netty</description>
 
+    <scm>
+        <url>https://github.com/wso2/carbon-transports.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <pluginRepositories>
         <pluginRepository>
             <id>wso2-nexus</id>
@@ -194,6 +201,18 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>${maven.findbugsplugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>false</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
