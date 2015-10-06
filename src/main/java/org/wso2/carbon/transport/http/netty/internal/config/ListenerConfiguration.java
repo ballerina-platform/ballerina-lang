@@ -21,8 +21,6 @@ package org.wso2.carbon.transport.http.netty.internal.config;
 import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -41,11 +39,7 @@ public class ListenerConfiguration {
 
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
-        try {
-            defaultConfig = new ListenerConfiguration(DEFAULT_KEY, InetAddress.getLocalHost().getHostAddress(), 8080);
-        } catch (UnknownHostException e) {
-            defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "127.0.0.1", 8080);
-        }
+        defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "0.0.0.0", 8080);
         return defaultConfig;
     }
 
