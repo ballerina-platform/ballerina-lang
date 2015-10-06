@@ -18,6 +18,13 @@
     <name>Carbon Netty HTTP Transport</name>
     <description>Carbon HTTP Transport based on Netty</description>
 
+    <scm>
+        <url>https://github.com/wso2/carbon-transports.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <pluginRepositories>
         <pluginRepository>
             <id>wso2-nexus</id>
