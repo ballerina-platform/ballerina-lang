@@ -62,6 +62,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.4</version>
+        </dependency>
         <!--&lt;!&ndash; Temporary Dependencies&ndash;&gt;-->
         <!--<dependency>-->
         <!--<groupId>com.h2database</groupId>-->
