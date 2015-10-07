@@ -18,6 +18,14 @@ package org.wso2.siddhi.extension.eventtable.hazelcast;
 
 
 public interface HazelcastEventTableConstants {
-    public static final String HAZELCAST_DEFAULT_INSTANCE = "default";
+    public static final String HAZELCAST_DEFAULT_INSTANCE = "org.wso2.siddhi.hazelcast.cluster.instance";
+    public static final String HAZELCAST_INSTANCE_PREFIX = "org.wso2.siddhi.hazelcast.cluster.instance.";
+    public static final String HAZELCAST_DEFAULT_CLUSTER_NAME = "org.wso2.siddhi.hazelcast.cluster";
+    public static final String HAZELCAST_CLUSTER_PREFIX = "org.wso2.siddhi.hazelcast.cluster.";
+    public static final String HAZELCAST_ID_GENERATOR = "org.wso2.siddhi.hazelcast.idGenerator";
+
     public static final String ANNOTATION_ELEMENT_INSTANCE_NAME = "instance.name";
+    public static final String ANNOTATION_ELEMENT_CLUSTER_NAME = "cluster.name";
+    public static final String ANNOTATION_ELEMENT_CLUSTER_PASSWORD = "cluster.password";
+    public static final String ANNOTATION_ELEMENT_CLUSTER_ADDRESSES = "cluster.addresses";
 }
