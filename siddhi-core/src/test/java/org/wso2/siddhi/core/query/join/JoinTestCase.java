@@ -564,5 +564,200 @@ public class JoinTestCase {
         executionPlanRuntime.shutdown();
     }
 
+    @Test
+    public void joinTest14() throws InterruptedException {
+        log.info("Join test14");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "on order.custid == dow_items.custid \n" +
+                "select  dow_items.item\n" +
+                "having order.items == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
+    @Test
+    public void joinTest15() throws InterruptedException {
+        log.info("Join test15");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "on order.custid == dow_items.custid \n" +
+                "select  dow_items.item\n" +
+                "having dow_items.item == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
+    @Test
+    public void joinTest16() throws InterruptedException {
+        log.info("Join test16");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "on order.custid == dow_items.custid \n" +
+                "select  order.custid\n" +
+                "having dow_items.item == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
+    @Test
+    public void joinTest17() throws InterruptedException {
+        log.info("Join test17");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "select  dow_items.custid\n" +
+                "having order.items == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
 
 }

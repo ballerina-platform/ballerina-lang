@@ -243,7 +243,7 @@ public class ExpressionParser {
                     executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
                     SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 } catch (ExecutionPlanCreationException e) {
-                    throw new ExecutionPlanCreationException(((AttributeFunctionExtension) expression).getFunction() + " is neither a function extension nor an aggregated attribute extension");
+                    throw new ExecutionPlanCreationException("'" + ((AttributeFunctionExtension) expression).getFunction() + "' is neither a function extension nor an aggregated attribute extension");
                 }
             }
             if (executor instanceof FunctionExecutor) {
@@ -254,7 +254,7 @@ public class ExpressionParser {
                     innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
-                if(expressionExecutor.getReturnType()== Attribute.Type.BOOL){
+                if (expressionExecutor.getReturnType() == Attribute.Type.BOOL) {
                     return new BoolConditionExpressionExecutor(expressionExecutor);
                 }
                 return expressionExecutor;
@@ -321,7 +321,7 @@ public class ExpressionParser {
                     innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
                 }
                 functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
-                if(functionExecutor.getReturnType()== Attribute.Type.BOOL){
+                if (functionExecutor.getReturnType() == Attribute.Type.BOOL) {
                     return new BoolConditionExpressionExecutor(functionExecutor);
                 }
                 return functionExecutor;
@@ -1084,9 +1084,8 @@ public class ExpressionParser {
                     for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
                         ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addOutputData(new Attribute(attribute.getName(), attribute.getType()));
                     }
-                } else if (currentState != HAVING_STATE) {
-                    ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));
                 }
+                ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));
             }
             if (executorList != null) {
                 executorList.add(variableExpressionExecutor);
