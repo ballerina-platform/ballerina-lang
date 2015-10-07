@@ -62,11 +62,25 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>3.4</version>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <version>${org.eclipse.osgi.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <version>${version.equinox.osgi.services}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.orbit.com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>${hazelcast.version}</version>
+        </dependency>
+
         <!--&lt;!&ndash; Temporary Dependencies&ndash;&gt;-->
         <!--<dependency>-->
         <!--<groupId>com.h2database</groupId>-->
@@ -80,6 +94,12 @@
         <!--</dependency>-->
 
     </dependencies>
+
+    <properties>
+        <org.eclipse.osgi.version>3.7.0.v20110613</org.eclipse.osgi.version>
+        <version.equinox.osgi.services>3.3.100.v20120522-1822</version.equinox.osgi.services>
+        <hazelcast.version>3.5.0.wso2v1</hazelcast.version>
+    </properties>
 
     <build>
         <plugins>
@@ -95,9 +115,13 @@
                             org.wso2.siddhi.extension.eventtable,
                             org.wso2.siddhi.extension.eventtable.*
                         </Export-Package>
+                        <Private-Package>
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal*
+                        </Private-Package>
                         <Import-Package>
                             org.apache.hadoop.util.bloom,
                             org.apache.hadoop.util.bloom.*,
+                            org.osgi.framework,
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
