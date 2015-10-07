@@ -16,6 +16,8 @@
 
 package org.wso2.siddhi.extension.eventtable;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -39,6 +41,7 @@ import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastEventTableConstants;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastOperatorParser;
+import org.wso2.siddhi.extension.eventtable.hazelcast.internal.ds.HazelcastEventTableServiceValueHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -49,13 +52,13 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.List;
 import java.util.Map;
 
-
 public class HazelcastEventTable implements EventTable, Snapshotable {
+    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     private TableDefinition tableDefinition;
     private ExecutionPlanContext executionPlanContext;
     private StreamEventCloner streamEventCloner;
     private StreamEventPool streamEventPool;
-    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
+    private HazelcastInstance hcInstance;
     private IMap<Object, StreamEvent> eventMap = null;
     private String indexAttribute = null;
     private IdGenerator idGenerator = null;
@@ -64,8 +67,9 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     * @param tableDefinition       Definition of event table
-     * @param executionPlanContext  ExecutionPlan related meta information
+     *
+     * @param tableDefinition      Definition of event table
+     * @param executionPlanContext ExecutionPlan related meta information
      */
     @Override
     public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -73,15 +77,13 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
         this.executionPlanContext = executionPlanContext;
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations());
-        String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
-        instanceName = (instanceName == null || instanceName.isEmpty()) ? HazelcastEventTableConstants.HAZELCAST_DEFAULT_INSTANCE : instanceName;
+        String clusterName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_NAME);
+        String clusterPassword = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
+        String clusterAddresses = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
+        String instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanContext.getName();
 
-        // setup hazelcast config
-        Config config = new Config();
-        config.setInstanceName(instanceName);
-
-        HazelcastInstance hcInstance = Hazelcast.getOrCreateHazelcastInstance(config);
-        idGenerator = hcInstance.getIdGenerator("generator");
+        hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
+        idGenerator = hcInstance.getIdGenerator(HazelcastEventTableConstants.HAZELCAST_ID_GENERATOR);
         eventMap = hcInstance.getMap(executionPlanContext.getName() + '_' + tableDefinition.getId());
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
@@ -105,12 +107,62 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
 
-        // -- --
-
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(this);
+    }
+
+    protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses, String instanceName) {
+        HazelcastInstance hcInstance;
+        Config config;
+        if (clusterAddresses == null) {
+            // server
+            if (clusterName == null) {
+                // try from osgi
+                if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
+                    hcInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
+                } else {
+                    // create a new server with default cluster name
+                    clusterName = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_NAME;
+                    config = new Config();
+                    config.setInstanceName(instanceName);
+                    config.getGroupConfig().setName(clusterName);
+                    hcInstance = Hazelcast.getOrCreateHazelcastInstance(config);
+                }
+            } else {
+                // new instance with cluster name
+                clusterName = HazelcastEventTableConstants.HAZELCAST_CLUSTER_PREFIX + clusterName;
+                config = new Config();
+                config.setInstanceName(instanceName);
+                config.getGroupConfig().setName(clusterName);
+                if (clusterPassword != null) {
+                    config.getGroupConfig().setPassword(clusterPassword);
+                }
+                hcInstance = Hazelcast.getOrCreateHazelcastInstance(config);
+            }
+        } else {
+            // client
+            if (clusterName == null) {
+                clusterName = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_NAME;
+                ClientConfig clientConfig = new ClientConfig();
+                clientConfig.getGroupConfig().setName(clusterName);
+                clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
+                hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
+                hcInstance.getConfig().setInstanceName(instanceName);
+            } else {
+                clusterName = HazelcastEventTableConstants.HAZELCAST_CLUSTER_PREFIX + clusterName;
+                ClientConfig clientConfig = new ClientConfig();
+                clientConfig.getGroupConfig().setName(clusterName);
+                clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
+                if (clusterPassword != null) {
+                    clientConfig.getGroupConfig().setPassword(clusterPassword);
+                }
+                hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
+                hcInstance.getConfig().setInstanceName(instanceName);
+            }
+        }
+        return hcInstance;
     }
 
     @Override
@@ -121,7 +173,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
     /**
      * Called when adding an event to the event table
      *
-     * @param addingEventChunk      input event list
+     * @param addingEventChunk input event list
      */
     @Override
     public synchronized void add(ComplexEventChunk addingEventChunk) {
@@ -140,8 +192,9 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Called when deleting an event chunk from event table
-     * @param deletingEventChunk    Event list for deletion
-     * @param operator              Operator that perform Hazelcast related operations
+     *
+     * @param deletingEventChunk Event list for deletion
+     * @param operator           Operator that perform Hazelcast related operations
      */
     @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
@@ -154,8 +207,9 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Called when updating the event table entries
-     * @param updatingEventChunk    Event list that needs to be updated
-     * @param operator              Operator that perform Hazelcast related operations
+     *
+     * @param updatingEventChunk Event list that needs to be updated
+     * @param operator           Operator that perform Hazelcast related operations
      */
     @Override
     public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
@@ -168,6 +222,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Called when having "in" condition, to check the existence of the event
+     *
      * @param matchingEvent Event that need to be check for existence
      * @param finder        Operator that perform Hazelcast related search
      * @return boolean      whether event exists or not
@@ -183,6 +238,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Called to find a event from event table
+     *
      * @param matchingEvent the event to be matched with the events at the processor
      * @param finder        the execution element responsible for finding the corresponding events that matches
      *                      the matchingEvent based on pool of events at Processor
@@ -199,6 +255,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Called to construct a operator to perform search operations
+     *
      * @param expression                  the matching expression
      * @param metaComplexEvent            the meta structure of the incoming matchingEvent
      * @param executionPlanContext        current execution plan context
@@ -215,6 +272,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     /**
      * Called to construct a operator to perform delete and update operations
+     *
      * @param expression                  the matching expression
      * @param metaComplexEvent            the meta structure of the incoming matchingEvent
      * @param executionPlanContext        current execution plan context
