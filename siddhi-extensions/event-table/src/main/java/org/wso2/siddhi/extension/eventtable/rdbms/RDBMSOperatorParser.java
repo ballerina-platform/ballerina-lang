@@ -54,6 +54,18 @@ public class RDBMSOperatorParser {
 
     /**
      * Method that constructs the Operator for RDBMS related operations
+     *
+     * @param dbHandler                   dbHandler
+     * @param expression                  Expression
+     * @param metaComplexEvent            MetaComplexEvent
+     * @param executionPlanContext        ExecutionPlanContext
+     * @param variableExpressionExecutors list of VariableExpressionExecutor
+     * @param eventTableMap               EventTable map
+     * @param matchingStreamIndex         matching stream index
+     * @param candidateDefinition         candidate definition
+     * @param withinTime                  within time
+     * @param cachingTable                caching table
+     * @return Operator
      */
     public static Operator parse(DBHandler dbHandler, Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
@@ -310,9 +322,19 @@ public class RDBMSOperatorParser {
         }
     }
 
-
     /**
      * Method which creates the operator to perform event table cache related operations
+     *
+     * @param expression                  Expression
+     * @param metaComplexEvent            MetaComplexEvent
+     * @param executionPlanContext        ExecutionPlanContext
+     * @param variableExpressionExecutors List of VariableExpressionExecutor
+     * @param eventTableMap               EventTable Map
+     * @param matchingStreamIndex         matching stream index
+     * @param candidateDefinition         candidate definition
+     * @param withinTime                  within time
+     * @param cachingTable                caching table
+     * @return Operator
      */
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {

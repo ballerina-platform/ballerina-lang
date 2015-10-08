@@ -206,7 +206,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     /**
      * Clone a copy of processor
      *
-     * @param key
+     * @param key partition key
      * @return clone of StreamPreStateProcessor
      */
     @Override

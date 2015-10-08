@@ -40,7 +40,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
-     * @param executionPlanContext
+     * @param executionPlanContext         execution plan context
      * @return the additional output attributes introduced by the function
      */
     @Override

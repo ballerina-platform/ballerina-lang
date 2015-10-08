@@ -38,6 +38,7 @@ public class StreamEventCloner {
      * Method to copy new StreamEvent from StreamEvent
      *
      * @param streamEvent StreamEvent to be copied
+     * @return StreamEvent
      */
     public StreamEvent copyStreamEvent(StreamEvent streamEvent) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();

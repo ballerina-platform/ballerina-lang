@@ -120,7 +120,7 @@ public class JoinProcessor implements Processor {
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
      *
-     * @return
+     * @return Next Processor
      */
     @Override
     public Processor getNextProcessor() {
@@ -157,8 +157,8 @@ public class JoinProcessor implements Processor {
     /**
      * Clone a copy of processor
      *
-     * @param key
-     * @return
+     * @param key partition key
+     * @return Cloned Processor
      */
     @Override
     public Processor cloneProcessor(String key) {

@@ -35,11 +35,12 @@ public class InputStreamParser {
 
     /**
      * Parse an InputStream returning corresponding StreamRuntime
-     *  @param inputStream          input stream to be parsed
+     *
+     * @param inputStream          input stream to be parsed
      * @param executionPlanContext associated siddhi executionPlanContext
      * @param streamDefinitionMap  map containing user given stream definitions
-     * @param tableDefinitionMap
-     * @param eventTableMap
+     * @param tableDefinitionMap   table definition map
+     * @param eventTableMap        EventTable Map
      * @param executors            List to hold VariableExpressionExecutors to update after query parsing  @return
      */
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,

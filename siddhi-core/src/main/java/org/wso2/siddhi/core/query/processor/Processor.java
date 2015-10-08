@@ -31,7 +31,7 @@ public interface Processor {
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
      *
-     * @return
+     * @return next processor
      */
     public Processor getNextProcessor();
 
@@ -52,8 +52,8 @@ public interface Processor {
     /**
      * Clone a copy of processor
      *
-     * @return
-     * @param key
+     * @param key partition key
+     * @return cloned processor
      */
     public Processor cloneProcessor(String key);
 

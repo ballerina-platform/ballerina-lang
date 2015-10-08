@@ -108,8 +108,8 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
     /**
      * Clone a copy of processor
      *
+     * @param key partition key
      * @return clone of PostStateProcessor
-     * @param key
      */
     @Override
     public PostStateProcessor cloneProcessor(String key) {

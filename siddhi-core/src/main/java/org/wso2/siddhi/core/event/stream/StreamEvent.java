@@ -116,7 +116,7 @@ public class StreamEvent implements ComplexEvent {
      * @param position int array of 4 elements
      *                 position[0] and position[1] are discarded
      *                 position[2]-BeforeWindowData or OutputData or AfterWindowData, position[3]- which attribute
-     * @return
+     * @return attribute
      */
     @Override
     public Object getAttribute(int[] position) {
@@ -219,8 +219,8 @@ public class StreamEvent implements ComplexEvent {
         timestamp = stream.readLong();
         previousStreamEvent = this;
         boolean isNextAvailable = stream.readBoolean();
-        while (isNextAvailable){
-            StreamEvent nextEvent = new StreamEvent(0,0,0);
+        while (isNextAvailable) {
+            StreamEvent nextEvent = new StreamEvent(0, 0, 0);
             nextEvent.beforeWindowData = (Object[]) stream.readObject();
             nextEvent.onAfterWindowData = (Object[]) stream.readObject();
             nextEvent.outputData = (Object[]) stream.readObject();

@@ -47,7 +47,6 @@ public class SiddhiManager {
      *
      * @param executionPlan executionPlan which contains stream definitions,queries and partitions
      * @return executionPlanRuntime corresponding to the given executionPlan
-     * @
      */
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
         ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = ExecutionPlanParser.parse(executionPlan, siddhiContext);

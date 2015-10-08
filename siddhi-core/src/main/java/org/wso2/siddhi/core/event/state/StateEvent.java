@@ -73,7 +73,7 @@ public class StateEvent implements ComplexEvent {
      *                 position[2]- which attribute
      *                 int array of 4 : position[0]-which element of the streamEventSize array, position[1]-which event of the event chain,
      *                 position[3]- BeforeWindowData or OutputData or AfterWindowData, position[4]- which attribute
-     * @return
+     * @return Attribute
      */
     @Override
     public Object getAttribute(int[] position) {

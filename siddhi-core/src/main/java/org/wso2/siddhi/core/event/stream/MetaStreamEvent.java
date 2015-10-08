@@ -35,7 +35,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private List<Attribute> beforeWindowData = new ArrayList<Attribute>();
     private List<Attribute> onAfterWindowData = null;
     private List<Attribute> outputData = null;
-    private List<AbstractDefinition> inputDefinitions=new ArrayList<AbstractDefinition>();
+    private List<AbstractDefinition> inputDefinitions = new ArrayList<AbstractDefinition>();
     private String inputReferenceId;
     private StreamDefinition outputStreamDefinition;
     private boolean tableEvent = false;
@@ -71,7 +71,8 @@ public class MetaStreamEvent implements MetaComplexEvent {
      * Will make sure event will be added to corresponding array by
      * initializing them accordingly.
      *
-     * @param attribute
+     * @param attribute attribute
+     * @return attribute position
      */
     public int addData(Attribute attribute) {
         if (onAfterWindowData != null) {

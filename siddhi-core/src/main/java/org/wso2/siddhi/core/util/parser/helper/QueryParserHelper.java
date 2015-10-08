@@ -51,7 +51,7 @@ public class QueryParserHelper {
         if (metaComplexEvent instanceof MetaStateEvent) {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             for (MetaStateEventAttribute attribute : metaStateEvent.getOutputDataAttributes()) {
-                if(attribute != null) {
+                if (attribute != null) {
                     metaStateEvent.getMetaStreamEvent(attribute.getPosition()[STREAM_EVENT_CHAIN_INDEX]).
                             addOutputData(attribute.getAttribute());
                 }
@@ -67,7 +67,7 @@ public class QueryParserHelper {
     /**
      * Helper method to clean/refactor MetaStreamEvent
      *
-     * @param metaStreamEvent
+     * @param metaStreamEvent MetaStreamEvent
      */
     private static synchronized void reduceStreamAttributes(MetaStreamEvent metaStreamEvent) {
         for (Attribute attribute : metaStreamEvent.getOutputData()) {

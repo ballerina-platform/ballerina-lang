@@ -91,12 +91,13 @@ public class ExpressionParser {
      * Parse the given expression and create the appropriate Executor by recursively traversing the expression
      *
      * @param expression              Expression to be parsed
-     * @param metaEvent
-     * @param currentState
-     * @param eventTableMap
+     * @param metaEvent               Meta Event
+     * @param currentState            Current state number
+     * @param eventTableMap           Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
-     * @param executionPlanContext
-     * @param defaultStreamEventIndex
+     * @param executionPlanContext    ExecutionPlanContext
+     * @param defaultStreamEventIndex Default StreamEvent Index
+     * @return ExpressionExecutor
      */
     public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent, int currentState,
                                                      Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executorList,
@@ -402,9 +403,9 @@ public class ExpressionParser {
      * Create greater than Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
      * is greater than value of rightExpressionExecutor.
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Condition ExpressionExecutor
      */
     private static ConditionExpressionExecutor parseGreaterThanCompare(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
@@ -490,9 +491,9 @@ public class ExpressionParser {
      * Create greater than or equal Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
      * is greater than or equal to value of rightExpressionExecutor.
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Condition ExpressionExecutor
      */
     private static ConditionExpressionExecutor parseGreaterThanEqualCompare(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
@@ -578,9 +579,9 @@ public class ExpressionParser {
      * Create less than Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
      * is less than value of rightExpressionExecutor.
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Condition ExpressionExecutor
      */
     private static ConditionExpressionExecutor parseLessThanCompare(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
@@ -666,9 +667,9 @@ public class ExpressionParser {
      * Create less than or equal Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
      * is less than or equal to value of rightExpressionExecutor.
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Condition ExpressionExecutor
      */
     private static ConditionExpressionExecutor parseLessThanEqualCompare(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
@@ -754,9 +755,9 @@ public class ExpressionParser {
      * Create equal Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
      * is equal to value of rightExpressionExecutor.
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Condition ExpressionExecutor
      */
     private static ConditionExpressionExecutor parseEqualCompare(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
@@ -852,9 +853,9 @@ public class ExpressionParser {
      * Create not equal Compare Condition Expression Executor which evaluates whether value of leftExpressionExecutor
      * is not equal to value of rightExpressionExecutor.
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Condition ExpressionExecutor
      */
     private static ConditionExpressionExecutor parseNotEqualCompare(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {
@@ -951,7 +952,7 @@ public class ExpressionParser {
      *
      * @param variable     Variable to be parsed
      * @param metaEvent    Meta event used to collect execution info of stream associated with query
-     * @param currentState
+     * @param currentState Current State Number
      * @param executorList List to hold VariableExpressionExecutors to update after query parsing  @return VariableExpressionExecutor representing given variable
      */
     private static ExpressionExecutor parseVariable(Variable variable,
@@ -1097,9 +1098,9 @@ public class ExpressionParser {
     /**
      * Calculate the return type of arithmetic operation executors.(Ex: add, subtract, etc)
      *
-     * @param leftExpressionExecutor
-     * @param rightExpressionExecutor
-     * @return
+     * @param leftExpressionExecutor  left ExpressionExecutor
+     * @param rightExpressionExecutor right ExpressionExecutor
+     * @return Attribute Type
      */
     private static Attribute.Type parseArithmeticOperationResultType(
             ExpressionExecutor leftExpressionExecutor, ExpressionExecutor rightExpressionExecutor) {

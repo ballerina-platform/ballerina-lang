@@ -57,6 +57,7 @@ public class ExecutionPlanParser {
      * Parse an ExecutionPlan returning ExecutionPlanRuntime
      *
      * @param executionPlan plan to be parsed
+     * @param siddhiContext SiddhiContext
      * @return ExecutionPlanRuntime
      */
     public static ExecutionPlanRuntimeBuilder parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
@@ -95,7 +96,7 @@ public class ExecutionPlanParser {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
 
-            executionPlanContext.setExecutorService(Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-executor-thread-%d").build()));
+            executionPlanContext.setExecutorService(Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-executor-thread-%d").build()));
 
             executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5, new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-scheduler-thread-%d").build()));
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());

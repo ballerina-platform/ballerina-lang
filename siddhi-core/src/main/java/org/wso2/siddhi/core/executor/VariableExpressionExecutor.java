@@ -66,7 +66,7 @@ public class VariableExpressionExecutor implements ExpressionExecutor {
      * Method to set the position of variable to be executed. For stream events(simple queries) position can be an array
      * of size 2 and for state events(join/pattern queries) position should be an array of size 4.
      *
-     * @param position
+     * @param position attribute position
      */
     public void setPosition(int[] position) {
         if (position.length == 2) {

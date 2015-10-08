@@ -46,14 +46,16 @@ import java.util.Map;
 
 public class SelectorParser {
     private static final ThreadLocal<String> containsAggregatorThreadLocal = new ThreadLocal<String>();
+
     /**
      * Parse Selector portion of a query and return corresponding QuerySelector
      *
      * @param selector             selector to be parsed
-     * @param outputStream
-     *@param executionPlanContext query to be parsed
+     * @param outputStream         output stream
+     * @param executionPlanContext query to be parsed
      * @param metaComplexEvent     Meta event used to collect execution info of stream associated with query
-     * @param eventTableMap   @return
+     * @param eventTableMap        EventTable Map
+     * @return QuerySelector
      */
     public static QuerySelector parse(Selector selector, OutputStream outputStream, ExecutionPlanContext executionPlanContext,
                                       MetaComplexEvent metaComplexEvent, Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> variableExpressionExecutors) {
@@ -71,7 +73,7 @@ public class SelectorParser {
         id = outputStream.getId();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, executionPlanContext);
         List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, eventTableMap, variableExpressionExecutors);
-        querySelector.setAttributeProcessorList(attributeProcessors,"true".equals(containsAggregatorThreadLocal.get()));
+        querySelector.setAttributeProcessorList(attributeProcessors, "true".equals(containsAggregatorThreadLocal.get()));
         containsAggregatorThreadLocal.remove();
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(),
                 metaComplexEvent, executionPlanContext, eventTableMap, variableExpressionExecutors);
@@ -87,12 +89,13 @@ public class SelectorParser {
     /**
      * Method to construct AttributeProcessor list for the selector
      *
-     * @param selector
-     * @param id
-     * @param executionPlanContext
-     * @param metaComplexEvent
-     * @param eventTableMap
-     *@param variableExpressionExecutors  @return
+     * @param selector                    Selector
+     * @param id                          stream id
+     * @param executionPlanContext        execution plan context
+     * @param metaComplexEvent            meta ComplexEvent
+     * @param eventTableMap               EventTable Map
+     * @param variableExpressionExecutors list of VariableExpressionExecutors
+     * @return list of AttributeProcessors
      */
     private static List<AttributeProcessor> getAttributeProcessors(Selector selector, String id,
                                                                    ExecutionPlanContext executionPlanContext,

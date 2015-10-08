@@ -37,6 +37,7 @@ public class SiddhiExtensionLoader {
 
     /**
      * Helper method to load the siddhi extensions
+     * @return class map
      */
     public static Map<String, Class> loadSiddhiExtensions() {
         String classPath = System.getProperty(CLASS_PATH);

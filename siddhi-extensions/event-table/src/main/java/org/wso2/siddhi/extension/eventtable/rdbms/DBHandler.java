@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class which act as layer between the database and Siddhi. This class performs all the RDBMS related operations & Blooms Filter
+ * Class which act as layer between the database and Siddhi. This class performs all the RDBMS related operations and Blooms Filter
  */
 public class DBHandler {
 
@@ -437,6 +437,15 @@ public class DBHandler {
 
     /**
      * Replace attribute values with target build queries
+     *
+     * @param tableName     Table Name
+     * @param query         query  template
+     * @param columnTypes   column types
+     * @param columns       columns
+     * @param values        values
+     * @param column_values column_values
+     * @param condition     condition
+     * @return query as string
      */
     public String constructQuery(String tableName, String query, StringBuilder columnTypes, StringBuilder columns,
                                  StringBuilder values, StringBuilder column_values, StringBuilder condition) {

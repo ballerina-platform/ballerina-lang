@@ -45,7 +45,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     /**
      * Clone a copy of processor
      *
-     * @param key
+     * @param key partition key
      * @return clone of LogicalPreStateProcessor
      */
     @Override

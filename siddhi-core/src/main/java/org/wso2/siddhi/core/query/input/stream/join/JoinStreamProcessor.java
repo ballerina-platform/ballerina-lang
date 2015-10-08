@@ -45,7 +45,7 @@ public class JoinStreamProcessor implements Processor {
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
      *
-     * @return
+     * @return Next processor
      */
     @Override
     public Processor getNextProcessor() {
@@ -75,8 +75,8 @@ public class JoinStreamProcessor implements Processor {
     /**
      * Clone a copy of processor
      *
-     * @return
-     * @param key
+     * @param key partition key
+     * @return cloned processor
      */
     @Override
     public Processor cloneProcessor(String key) {

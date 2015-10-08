@@ -38,6 +38,7 @@ public class StateEventCloner {
      * Method to copy new StreamEvent from StreamEvent
      *
      * @param stateEvent StreamEvent to be copied
+     * @return StateEvent
      */
     public StateEvent copyStateEvent(StateEvent stateEvent) {
         StateEvent borrowedEvent = stateEventPool.borrowEvent();

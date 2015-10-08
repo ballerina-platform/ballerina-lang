@@ -31,9 +31,9 @@ public class StreamEventFactory implements EventFactory<StreamEvent> {
     /**
      * Initialization of the factory with event data sizes
      *
-     * @param beforeWindowDataSize
-     * @param onAfterWindowDataSize
-     * @param outputDataSize
+     * @param beforeWindowDataSize  BeforeWindow size
+     * @param onAfterWindowDataSize OnAfterWindow size
+     * @param outputDataSize        Output Size
      */
     public StreamEventFactory(int beforeWindowDataSize, int onAfterWindowDataSize, int outputDataSize) {
         this.beforeWindowDataSize = beforeWindowDataSize;

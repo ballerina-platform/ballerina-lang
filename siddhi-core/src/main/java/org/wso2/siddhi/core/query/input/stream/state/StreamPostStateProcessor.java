@@ -73,7 +73,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
      *
-     * @return
+     * @return next processor
      */
     @Override
     public Processor getNextProcessor() {
@@ -107,8 +107,8 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     /**
      * Clone a copy of processor
      *
+     * @param key partition key
      * @return clone of StreamPostStateProcessor
-     * @param key
      */
     @Override
     public PostStateProcessor cloneProcessor(String key) {

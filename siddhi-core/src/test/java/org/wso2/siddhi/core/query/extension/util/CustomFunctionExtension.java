@@ -46,7 +46,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
     /**
      * Return type of the custom function mentioned
      *
-     * @return
+     * @return return type
      */
     @Override
     public Attribute.Type getReturnType() {
