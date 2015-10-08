@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
@@ -27,6 +28,7 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
 public abstract class FunctionExecutor implements ExpressionExecutor, EternalReferencedHolder, Snapshotable {
 
+    private static final Logger log = Logger.getLogger(FunctionExecutor.class);
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
@@ -43,7 +45,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
             }
             executionPlanContext.getSnapshotService().addSnapshotable(this);
             init(attributeExpressionExecutors, executionPlanContext);
-        }catch (Throwable t){
+        } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
         }
     }
@@ -82,18 +84,22 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      */
     @Override
     public Object execute(ComplexEvent event) {
-
-        switch (attributeSize) {
-            case 0:
-                return execute((Object) null);
-            case 1:
-                return execute(attributeExpressionExecutors[0].execute(event));
-            default:
-                Object[] data = new Object[attributeSize];
-                for (int i = 0; i < attributeSize; i++) {
-                    data[i] = attributeExpressionExecutors[i].execute(event);
-                }
-                return execute(data);
+        try {
+            switch (attributeSize) {
+                case 0:
+                    return execute((Object) null);
+                case 1:
+                    return execute(attributeExpressionExecutors[0].execute(event));
+                default:
+                    Object[] data = new Object[attributeSize];
+                    for (int i = 0; i < attributeSize; i++) {
+                        data[i] = attributeExpressionExecutors[i].execute(event);
+                    }
+                    return execute(data);
+            }
+        } catch (Exception e) {
+            log.error("Exception on execution plan '" + executionPlanContext.getName() + "' on class '" + this.getClass().getName() + "', " + e.getMessage(), e);
+            return null;
         }
     }
 

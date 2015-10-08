@@ -37,7 +37,12 @@ public class NotConditionExpressionExecutor extends ConditionExpressionExecutor 
     }
 
     public Boolean execute(ComplexEvent event) {
-        return !(Boolean) conditionExecutor.execute(event);
+        Boolean result = (Boolean) conditionExecutor.execute(event);
+        if (result == Boolean.TRUE) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
     }
 
     @Override

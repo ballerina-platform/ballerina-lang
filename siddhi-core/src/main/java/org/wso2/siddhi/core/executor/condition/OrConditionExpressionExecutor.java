@@ -51,7 +51,18 @@ public class OrConditionExpressionExecutor extends ConditionExpressionExecutor {
     }
 
     public Boolean execute(ComplexEvent event) {
-        return (Boolean) leftConditionExecutor.execute(event) || (Boolean) rightConditionExecutor.execute(event);
+        Boolean result = (Boolean) leftConditionExecutor.execute(event);
+        if (result == Boolean.TRUE) {
+            return Boolean.TRUE;
+        } else {
+            result = (Boolean) rightConditionExecutor.execute(event);
+            if (result == Boolean.TRUE) {
+                return Boolean.TRUE;
+            } else {
+                return Boolean.FALSE;
+            }
+        }
+
     }
 
     @Override

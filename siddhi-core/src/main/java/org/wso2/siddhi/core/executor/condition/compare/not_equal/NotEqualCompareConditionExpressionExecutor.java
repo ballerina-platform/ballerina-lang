@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.executor.condition.compare.not_equal;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.compare.CompareConditionExpressionExecutor;
 
@@ -25,5 +26,11 @@ public abstract class NotEqualCompareConditionExpressionExecutor extends Compare
     public NotEqualCompareConditionExpressionExecutor(ExpressionExecutor leftExpressionExecutor,
                                                       ExpressionExecutor rightExpressionExecutor) {
         super(leftExpressionExecutor, rightExpressionExecutor);
+    }
+
+    public Boolean execute(ComplexEvent event) {
+        Object left = leftExpressionExecutor.execute(event);
+        Object right = rightExpressionExecutor.execute(event);
+        return left == null || right == null || execute(left, right);
     }
 }

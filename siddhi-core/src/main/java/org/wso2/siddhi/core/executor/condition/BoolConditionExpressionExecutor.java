@@ -37,7 +37,12 @@ public class BoolConditionExpressionExecutor extends ConditionExpressionExecutor
     }
 
     public Boolean execute(ComplexEvent event) {
-        return (Boolean) conditionExecutor.execute(event);
+        Object result = conditionExecutor.execute(event);
+        if (result == null) {
+            return Boolean.FALSE;
+        } else {
+            return (Boolean) result;
+        }
     }
 
     @Override
