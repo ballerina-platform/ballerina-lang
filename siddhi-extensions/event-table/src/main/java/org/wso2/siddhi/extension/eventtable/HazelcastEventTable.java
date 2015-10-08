@@ -80,7 +80,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
         String clusterName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_NAME);
         String clusterPassword = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
         String clusterAddresses = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
-        String instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanContext.getName();
+        String instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + this.executionPlanContext.getName();
 
         hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
         idGenerator = hcInstance.getIdGenerator(HazelcastEventTableConstants.HAZELCAST_ID_GENERATOR);
@@ -115,52 +115,34 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
     protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses, String instanceName) {
         HazelcastInstance hcInstance;
-        Config config;
+        if (clusterPassword == null || clusterName == null) {
+            clusterPassword = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_PASSWORD;
+        }
+
+        if (clusterName == null) {
+            clusterName = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_NAME;
+        } else {
+            clusterName = HazelcastEventTableConstants.HAZELCAST_CLUSTER_PREFIX + clusterName;
+        }
+
         if (clusterAddresses == null) {
-            // server
-            if (clusterName == null) {
-                // try from osgi
-                if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
-                    hcInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
-                } else {
-                    // create a new server with default cluster name
-                    clusterName = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_NAME;
-                    config = new Config();
-                    config.setInstanceName(instanceName);
-                    config.getGroupConfig().setName(clusterName);
-                    hcInstance = Hazelcast.getOrCreateHazelcastInstance(config);
-                }
+            if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
+                // take instance from osgi
+                hcInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
             } else {
-                // new instance with cluster name
-                clusterName = HazelcastEventTableConstants.HAZELCAST_CLUSTER_PREFIX + clusterName;
-                config = new Config();
+                // create a new server with default cluster name
+                Config config = new Config();
                 config.setInstanceName(instanceName);
-                config.getGroupConfig().setName(clusterName);
-                if (clusterPassword != null) {
-                    config.getGroupConfig().setPassword(clusterPassword);
-                }
+                config.getGroupConfig().setName(clusterName).setPassword(clusterPassword);
                 hcInstance = Hazelcast.getOrCreateHazelcastInstance(config);
             }
         } else {
             // client
-            if (clusterName == null) {
-                clusterName = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_NAME;
-                ClientConfig clientConfig = new ClientConfig();
-                clientConfig.getGroupConfig().setName(clusterName);
-                clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
-                hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
-                hcInstance.getConfig().setInstanceName(instanceName);
-            } else {
-                clusterName = HazelcastEventTableConstants.HAZELCAST_CLUSTER_PREFIX + clusterName;
-                ClientConfig clientConfig = new ClientConfig();
-                clientConfig.getGroupConfig().setName(clusterName);
-                clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
-                if (clusterPassword != null) {
-                    clientConfig.getGroupConfig().setPassword(clusterPassword);
-                }
-                hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
-                hcInstance.getConfig().setInstanceName(instanceName);
-            }
+            ClientConfig clientConfig = new ClientConfig();
+            clientConfig.getGroupConfig().setName(clusterName).setPassword(clusterPassword);
+            clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
+            hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
+            hcInstance.getConfig().setInstanceName(instanceName);
         }
         return hcInstance;
     }
