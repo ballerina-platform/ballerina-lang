@@ -42,7 +42,7 @@ import java.util.*;
 *
 * Description:
 * In the example query given, 5 is the size of the window.
-* The arguements following the size of the window are optional.
+* The arguments following the size of the window are optional.
 * If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
 * */
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
