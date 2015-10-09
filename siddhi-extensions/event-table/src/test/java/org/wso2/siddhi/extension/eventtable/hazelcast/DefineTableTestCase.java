@@ -18,6 +18,11 @@
 
 package org.wso2.siddhi.extension.eventtable.hazelcast;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Member;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -225,6 +230,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
+                "@from(eventtable = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float, time long); " +
                 "" +
                 "from StockStream " +
@@ -241,6 +247,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
+                "@from(eventtable = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume int); " +
                 "" +
                 "from StockStream " +
@@ -257,6 +264,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
+                "@from(eventtable = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from OutputStream " +
@@ -266,5 +274,54 @@ public class DefineTableTestCase {
         executionPlanRuntime.shutdown();
     }
 
+    @Test
+    public void testQuery16() throws InterruptedException {
+        log.info("testTableDefinition16 - OUT 0");
 
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "" +
+                "@from(eventtable = 'hazelcast', cluster.name = 'siddhi_cluster_t16')" +
+                "define table EventTable(symbol string, price int, volume float) ";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void testQuery17() throws InterruptedException {
+        log.info("testTableDefinition17 - OUT 0");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "" +
+                "@from(eventtable = 'hazelcast', cluster.name = 'siddhi_cluster_t17', cluster.password = 'cluster_pw')" +
+                "define table EventTable(symbol string, price int, volume float) ";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void testQuery18() throws InterruptedException {
+        log.info("testTableDefinition18 - OUT 0");
+
+        Config cfg_1 = new Config();
+        cfg_1.getGroupConfig().setName("siddhi_cluster_t18").setPassword("cluster_pw");
+        HazelcastInstance instance_1 = Hazelcast.newHazelcastInstance(cfg_1);
+
+        Config cfg_2 = new Config();
+        cfg_2.getGroupConfig().setName("siddhi_cluster_t18").setPassword("cluster_pw");
+        HazelcastInstance instance_2 = Hazelcast.newHazelcastInstance(cfg_2);
+
+        StringBuilder sb = new StringBuilder();
+        for (Member member : instance_2.getCluster().getMembers()) {
+            sb.append(member.getSocketAddress()).append(',');
+        }
+        String addresses = StringUtils.replace(sb.toString(), "/", "");
+        addresses = StringUtils.removeEnd(addresses, ",");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String tables = "" +
+                "@from(eventtable = 'hazelcast', cluster.name = 'siddhi_cluster_t18', cluster.password = 'cluster_pw', cluster.addresses = '" + addresses + "')" +
+                "define table EventTable(symbol string, price int, volume float) ";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        executionPlanRuntime.shutdown();
+    }
 }
