@@ -58,7 +58,8 @@ public class HazelcastOperator implements Operator {
         this.streamEventConverter = new ZeroStreamEventConverter();
     }
 
-    public boolean execute(StreamEvent candidateEvent) {
+    // TODO : change from public to private
+    private boolean execute(StreamEvent candidateEvent) {
         event.setEvent(candidateEventPosition, candidateEvent);
         boolean result = (Boolean) expressionExecutor.execute(event);
         event.setEvent(candidateEventPosition, null);
@@ -93,7 +94,8 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    protected StreamEvent find(ConcurrentMap<Object, StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
+    private StreamEvent find(ConcurrentMap<Object, StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
+        // TODO : check whether we can use List instead
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         SortedSet<Object> sortedEventKeys = new TreeSet<Object>(candidateEvents.keySet());
         for (Object eventKey : sortedEventKeys) {
@@ -133,6 +135,7 @@ public class HazelcastOperator implements Operator {
 
     private void delete(ConcurrentMap<Object, StreamEvent> candidateEvents) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
+            // TODO : check for the order
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
@@ -166,7 +169,9 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    // TODO : use something like updateMap() for the name
     private void update(ConcurrentMap<Object, StreamEvent> candidateEvents, int[] mappingPosition) {
+        // TODO : check for the order
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
@@ -208,9 +213,11 @@ public class HazelcastOperator implements Operator {
     }
 
     private boolean contains(ConcurrentMap<Object, StreamEvent> candidateEvents) {
+        //  TODO : ordering
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
+                // TODO : validate usage of abs()
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
                 if (timeDifference > withinTime) {
                     break;

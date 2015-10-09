@@ -48,6 +48,7 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     @Override
+    // TODO : should work with only one =,
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
         Object matchingKey = expressionExecutor.execute(matchingEvent);
         if (candidateEvents instanceof ConcurrentMap) {
@@ -56,6 +57,7 @@ public class HazelcastIndexedOperator implements Operator {
                 return null;
             } else {
                 if (withinTime != ANY) {
+                // TODO : check the usage of abs()
                     long timeDifference = Math.abs(matchingEvent.getTimestamp() - streamEvent.getTimestamp());
                     if (timeDifference > withinTime) {
                         return null;
@@ -81,7 +83,8 @@ public class HazelcastIndexedOperator implements Operator {
                     if (streamEvent != null) {
                         long timeDifference = Math.abs(deletingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
-                            return;
+                            // TODO : check whether it should be continue or return
+                            continue;
                         }
                     }
                 }
@@ -105,7 +108,8 @@ public class HazelcastIndexedOperator implements Operator {
                     if (withinTime != ANY) {
                         long timeDifference = Math.abs(updatingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
-                            return;
+                            // TODO : check whether it should be continue or return
+                            continue;
                         }
                     }
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {
