@@ -16,7 +16,6 @@
 
 package org.wso2.siddhi.extension.eventtable.hazelcast;
 
-import com.hazelcast.core.IMap;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -31,6 +30,7 @@ import org.wso2.siddhi.core.util.collection.operator.Operator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
@@ -74,12 +74,12 @@ public class HazelcastOperator implements Operator {
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
         try {
             if (matchingEvent instanceof StreamEvent) {
-                this.event.setEvent(matchingEventPosition, ((StreamEvent) matchingEvent));
+                this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
             } else {
-                this.event.setEvent(((StateEvent) matchingEvent));
+                this.event.setEvent((StateEvent) matchingEvent);
             }
-            if (candidateEvents instanceof IMap) {
-                return find((IMap) candidateEvents, streamEventCloner);
+            if (candidateEvents instanceof ConcurrentMap) {
+                return find((ConcurrentMap) candidateEvents, streamEventCloner);
             } else {
                 throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
                         + " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -93,7 +93,7 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    protected StreamEvent find(IMap<Object, StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
+    protected StreamEvent find(ConcurrentMap<Object, StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         SortedSet<Object> sortedEventKeys = new TreeSet<Object>(candidateEvents.keySet());
         for (Object eventKey : sortedEventKeys) {
@@ -119,8 +119,8 @@ public class HazelcastOperator implements Operator {
             try {
                 streamEventConverter.convertStreamEvent(deletingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
-                if (candidateEvents instanceof IMap) {
-                    delete((IMap) candidateEvents);
+                if (candidateEvents instanceof ConcurrentMap) {
+                    delete((ConcurrentMap) candidateEvents);
                 } else {
                     throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
                             + " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -131,7 +131,7 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    private void delete(IMap<Object, StreamEvent> candidateEvents) {
+    private void delete(ConcurrentMap<Object, StreamEvent> candidateEvents) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
@@ -154,8 +154,8 @@ public class HazelcastOperator implements Operator {
             try {
                 streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
-                if (candidateEvents instanceof IMap) {
-                    update((IMap) candidateEvents, mappingPosition);
+                if (candidateEvents instanceof ConcurrentMap) {
+                    update((ConcurrentMap) candidateEvents, mappingPosition);
                 } else {
                     throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
                             + " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -166,7 +166,7 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    private void update(IMap<Object, StreamEvent> candidateEvents, int[] mappingPosition) {
+    private void update(ConcurrentMap<Object, StreamEvent> candidateEvents, int[] mappingPosition) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
@@ -188,12 +188,12 @@ public class HazelcastOperator implements Operator {
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
         try {
             if (matchingEvent instanceof StreamEvent) {
-                this.event.setEvent(matchingEventPosition, ((StreamEvent) matchingEvent));
+                this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
             } else {
-                this.event.setEvent(((StateEvent) matchingEvent));
+                this.event.setEvent((StateEvent) matchingEvent);
             }
-            if (candidateEvents instanceof IMap) {
-                return contains((IMap) candidateEvents);
+            if (candidateEvents instanceof ConcurrentMap) {
+                return contains((ConcurrentMap) candidateEvents);
             } else {
                 throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
                         + " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -207,7 +207,7 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    private boolean contains(IMap<Object, StreamEvent> candidateEvents) {
+    private boolean contains(ConcurrentMap<Object, StreamEvent> candidateEvents) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
