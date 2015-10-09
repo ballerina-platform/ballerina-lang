@@ -37,6 +37,9 @@ import java.util.Map;
 
 public class HazelcastOperatorParser {
 
+    private HazelcastOperatorParser() {
+    }
+
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
 
@@ -53,7 +56,7 @@ public class HazelcastOperatorParser {
         MetaStateEvent metaStateEvent = null;
         if (metaComplexEvent instanceof MetaStreamEvent) {
             metaStateEvent = new MetaStateEvent(2);
-            metaStateEvent.addEvent(((MetaStreamEvent) metaComplexEvent));
+            metaStateEvent.addEvent((MetaStreamEvent) metaComplexEvent);
             metaStateEvent.addEvent(eventTableStreamEvent);
             candidateEventPosition = 1;
             matchingStreamIndex = 0;

@@ -21,6 +21,9 @@ import com.hazelcast.core.HazelcastInstance;
 public class HazelcastEventTableServiceValueHolder {
     private static HazelcastInstance hazelcastInstance;
 
+    private HazelcastEventTableServiceValueHolder() {
+    }
+
     public static void registerHazelcastInstance(HazelcastInstance hazelcastInstance) {
         HazelcastEventTableServiceValueHolder.hazelcastInstance = hazelcastInstance;
     }
