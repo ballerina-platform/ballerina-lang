@@ -21,7 +21,6 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -38,7 +37,6 @@ import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastEventTableConstants;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastOperatorParser;
 import org.wso2.siddhi.extension.eventtable.hazelcast.internal.ds.HazelcastEventTableServiceValueHolder;
@@ -51,15 +49,16 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
-public class HazelcastEventTable implements EventTable, Snapshotable {
+public class HazelcastEventTable implements EventTable {
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     private TableDefinition tableDefinition;
     private ExecutionPlanContext executionPlanContext;
     private StreamEventCloner streamEventCloner;
     private StreamEventPool streamEventPool;
     private HazelcastInstance hcInstance;
-    private IMap<Object, StreamEvent> eventMap = null;
+    private ConcurrentMap<Object, StreamEvent> eventMap = null;
     private String indexAttribute = null;
     private IdGenerator idGenerator = null;
     private int indexPosition;
@@ -97,7 +96,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
             if (annotation.getElements().size() > 1) {
                 throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " + annotation.getElements().size() + " elements, Siddhi Hazelcast event table only supports indexing based on a single attribute");
             }
-            if (annotation.getElements().size() == 0) {
+            if (annotation.getElements().isEmpty()) {
                 throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " + annotation.getElements().size() + " element");
             }
             indexAttribute = annotation.getElements().get(0).getValue();
@@ -106,45 +105,42 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
 
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
-
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
     }
 
     protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses, String instanceName) {
-        HazelcastInstance hcInstance;
+        HazelcastInstance hazelcastInstance;
         if (clusterPassword == null || clusterName == null) {
             clusterPassword = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_PASSWORD;
         }
 
         if (clusterName == null) {
             clusterName = HazelcastEventTableConstants.HAZELCAST_DEFAULT_CLUSTER_NAME;
-        } else {
-            clusterName = HazelcastEventTableConstants.HAZELCAST_CLUSTER_PREFIX + clusterName;
         }
 
         if (clusterAddresses == null) {
             if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
                 // take instance from osgi
-                hcInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
+                hazelcastInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
             } else {
                 // create a new server with default cluster name
                 Config config = new Config();
                 config.setInstanceName(instanceName);
+                config.setProperty("hazelcast.logging.type", "log4j");
                 config.getGroupConfig().setName(clusterName).setPassword(clusterPassword);
-                hcInstance = Hazelcast.getOrCreateHazelcastInstance(config);
+                hazelcastInstance = Hazelcast.getOrCreateHazelcastInstance(config);
             }
         } else {
             // client
             ClientConfig clientConfig = new ClientConfig();
+            clientConfig.setProperty( "hazelcast.logging.type", "log4j" );
             clientConfig.getGroupConfig().setName(clusterName).setPassword(clusterPassword);
             clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
-            hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
-            hcInstance.getConfig().setInstanceName(instanceName);
+            hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
         }
-        return hcInstance;
+        return hazelcastInstance;
     }
 
     @Override
@@ -180,11 +176,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
      */
     @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
-        if (indexAttribute != null) {
-            operator.delete(deletingEventChunk, eventMap);
-        } else {
-            operator.delete(deletingEventChunk, eventMap);
-        }
+        operator.delete(deletingEventChunk, eventMap);
     }
 
     /**
@@ -195,11 +187,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
      */
     @Override
     public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
-        if (indexAttribute != null) {
-            operator.update(updatingEventChunk, eventMap, mappingPosition);
-        } else {
-            operator.update(updatingEventChunk, eventMap, mappingPosition);
-        }
+        operator.update(updatingEventChunk, eventMap, mappingPosition);
     }
 
     /**
@@ -211,11 +199,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
      */
     @Override
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
-        if (indexAttribute != null) {
-            return finder.contains(matchingEvent, eventMap);
-        } else {
-            return finder.contains(matchingEvent, eventMap);
-        }
+        return finder.contains(matchingEvent, eventMap);
     }
 
     /**
@@ -228,11 +212,7 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
      */
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        if (indexAttribute != null) {
-            return finder.find(matchingEvent, eventMap, streamEventCloner);
-        } else {
-            return finder.find(matchingEvent, eventMap, streamEventCloner);
-        }
+        return finder.find(matchingEvent, eventMap, streamEventCloner);
     }
 
     /**
@@ -267,20 +247,5 @@ public class HazelcastEventTable implements EventTable, Snapshotable {
     @Override
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
-    }
-
-    @Override
-    public Object[] currentState() {
-        return new Object[]{eventMap};
-    }
-
-    @Override
-    public void restoreState(Object[] state) {
-        eventMap = (IMap<Object, StreamEvent>) state[1];
-    }
-
-    @Override
-    public String getElementId() {
-        return elementId;
     }
 }

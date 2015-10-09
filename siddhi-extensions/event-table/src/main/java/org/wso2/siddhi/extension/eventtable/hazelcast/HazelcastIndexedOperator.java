@@ -16,7 +16,6 @@
 
 package org.wso2.siddhi.extension.eventtable.hazelcast;
 
-import com.hazelcast.core.IMap;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -26,6 +25,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
+
+import java.util.concurrent.ConcurrentMap;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
@@ -49,8 +50,8 @@ public class HazelcastIndexedOperator implements Operator {
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
         Object matchingKey = expressionExecutor.execute(matchingEvent);
-        if (candidateEvents instanceof IMap) {
-            StreamEvent streamEvent = ((IMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
+        if (candidateEvents instanceof ConcurrentMap) {
+            StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
             if (streamEvent == null) {
                 return null;
             } else {
@@ -74,9 +75,9 @@ public class HazelcastIndexedOperator implements Operator {
         while (deletingEventChunk.hasNext()) {
             ComplexEvent deletingEvent = deletingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(deletingEvent);
-            if (candidateEvents instanceof IMap) {
+            if (candidateEvents instanceof ConcurrentMap) {
                 if (withinTime != ANY) {
-                    StreamEvent streamEvent = ((IMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
+                    StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                     if (streamEvent != null) {
                         long timeDifference = Math.abs(deletingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
@@ -84,7 +85,7 @@ public class HazelcastIndexedOperator implements Operator {
                         }
                     }
                 }
-                ((IMap<Object, StreamEvent>) candidateEvents).remove(matchingKey);
+                ((ConcurrentMap<Object, StreamEvent>) candidateEvents).remove(matchingKey);
             } else {
                 throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
                         + " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -98,8 +99,8 @@ public class HazelcastIndexedOperator implements Operator {
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(updatingEvent);
-            if (candidateEvents instanceof IMap) {
-                StreamEvent streamEvent = ((IMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
+            if (candidateEvents instanceof ConcurrentMap) {
+                StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                 if (streamEvent != null) {
                     if (withinTime != ANY) {
                         long timeDifference = Math.abs(updatingEvent.getTimestamp() - streamEvent.getTimestamp());
@@ -109,7 +110,7 @@ public class HazelcastIndexedOperator implements Operator {
                     }
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {
                         streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
-                        ((IMap<Object, StreamEvent>) candidateEvents).replace(matchingKey, streamEvent);
+                        ((ConcurrentMap<Object, StreamEvent>) candidateEvents).replace(matchingKey, streamEvent);
                     }
                 }
             } else {
@@ -128,8 +129,8 @@ public class HazelcastIndexedOperator implements Operator {
             matchingStreamEvent = ((StateEvent) matchingEvent).getStreamEvent(matchingEventPosition);
         }
         Object matchingKey = expressionExecutor.execute(matchingStreamEvent);
-        if (candidateEvents instanceof IMap) {
-            StreamEvent streamEvent = ((IMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
+        if (candidateEvents instanceof ConcurrentMap) {
+            StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
             if (streamEvent != null) {
                 if (withinTime != ANY) {
                     long timeDifference = Math.abs(matchingStreamEvent.getTimestamp() - streamEvent.getTimestamp());
