@@ -84,7 +84,7 @@ public class HazelcastIndexedOperator implements Operator {
                         long timeDifference = Math.abs(deletingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
                             // TODO : check whether it should be continue or return
-                            continue;
+                            return;
                         }
                     }
                 }
@@ -109,7 +109,7 @@ public class HazelcastIndexedOperator implements Operator {
                         long timeDifference = Math.abs(updatingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
                             // TODO : check whether it should be continue or return
-                            continue;
+                            return;
                         }
                     }
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {

@@ -27,10 +27,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
@@ -46,7 +45,8 @@ public class HazelcastOperator implements Operator {
     private FinderStateEvent event;
     private int matchingEventOutputSize;
 
-    public HazelcastOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int streamEventSize, long withinTime, int matchingEventOutputSize) {
+    public HazelcastOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition,
+                             int streamEventSize, long withinTime, int matchingEventOutputSize) {
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
         this.matchingEventPosition = matchingEventPosition;
@@ -58,7 +58,6 @@ public class HazelcastOperator implements Operator {
         this.streamEventConverter = new ZeroStreamEventConverter();
     }
 
-    // TODO : change from public to private
     private boolean execute(StreamEvent candidateEvent) {
         event.setEvent(candidateEventPosition, candidateEvent);
         boolean result = (Boolean) expressionExecutor.execute(event);
@@ -68,7 +67,8 @@ public class HazelcastOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEventSize, withinTime, matchingEventOutputSize);
+        return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEventSize,
+                withinTime, matchingEventOutputSize);
     }
 
     @Override
@@ -79,11 +79,15 @@ public class HazelcastOperator implements Operator {
             } else {
                 this.event.setEvent((StateEvent) matchingEvent);
             }
-            if (candidateEvents instanceof ConcurrentMap) {
-                return find((ConcurrentMap) candidateEvents, streamEventCloner);
+            if (candidateEvents instanceof ComplexEventChunk) {
+                return findInComplexEventChunk((ComplexEventChunk) candidateEvents, streamEventCloner);
+            } else if (candidateEvents instanceof Map) {
+                return findInCollection(((Map) candidateEvents).values(), streamEventCloner);
+            } else if (candidateEvents instanceof Collection) {
+                return findInCollection((Collection) candidateEvents, streamEventCloner);
             } else {
-                throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
-                        + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         } finally {
             if (matchingEvent instanceof StreamEvent) {
@@ -94,12 +98,28 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    private StreamEvent find(ConcurrentMap<Object, StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
-        // TODO : check whether we can use List instead
+    private StreamEvent findInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner) {
+        candidateEventChunk.reset();
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
-        SortedSet<Object> sortedEventKeys = new TreeSet<Object>(candidateEvents.keySet());
-        for (Object eventKey : sortedEventKeys) {
-            StreamEvent streamEvent = candidateEvents.get(eventKey);
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
+            if (withinTime != ANY) {
+                // TODO : Double check for usage of Math.abs
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
+            }
+        }
+        return returnEventChunk.getFirst();
+    }
+
+    protected StreamEvent findInCollection(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
                 if (timeDifference > withinTime) {
@@ -121,11 +141,16 @@ public class HazelcastOperator implements Operator {
             try {
                 streamEventConverter.convertStreamEvent(deletingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
-                if (candidateEvents instanceof ConcurrentMap) {
-                    delete((ConcurrentMap) candidateEvents);
+
+                if (candidateEvents instanceof ComplexEventChunk) {
+                    deleteInComplexEventChunk((ComplexEventChunk) candidateEvents);
+                } else if (candidateEvents instanceof Map) {
+                    deleteInMap((Map) candidateEvents);
+                } else if (candidateEvents instanceof Collection) {
+                    deleteInCollection((Collection) candidateEvents);
                 } else {
-                    throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
-                            + " does not support " + candidateEvents.getClass().getCanonicalName());
+                    throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
+                            " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
             } finally {
                 this.event.setEvent(matchingEventPosition, null);
@@ -133,9 +158,24 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    private void delete(ConcurrentMap<Object, StreamEvent> candidateEvents) {
+    private void deleteInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk) {
+        candidateEventChunk.reset();
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                candidateEventChunk.remove();
+            }
+        }
+    }
+
+    public void deleteInMap(Map<Object, StreamEvent> candidateEvents) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
-            // TODO : check for the order
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
@@ -149,6 +189,20 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    private void deleteInCollection(Collection<StreamEvent> candidateEvents) {
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                candidateEvents.remove(streamEvent);
+            }
+        }
+    }
+
     @Override
     public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
@@ -157,11 +211,17 @@ public class HazelcastOperator implements Operator {
             try {
                 streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
-                if (candidateEvents instanceof ConcurrentMap) {
-                    update((ConcurrentMap) candidateEvents, mappingPosition);
+                if (candidateEvents instanceof ComplexEventChunk) {
+                    updateInComplexEventChunk((ComplexEventChunk) candidateEvents, mappingPosition);
+                } else if (candidateEvents instanceof List) {
+                    updateInList((List) candidateEvents, mappingPosition);
+                } else if (candidateEvents instanceof Map) {
+                    updateInCollection(((Map) candidateEvents).values(), mappingPosition);
+                } else if (candidateEvents instanceof Collection) {
+                    updateInCollection((Collection) candidateEvents, mappingPosition);
                 } else {
-                    throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
-                            + " does not support " + candidateEvents.getClass().getCanonicalName());
+                    throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
+                            " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
             } finally {
                 this.event.setEvent(matchingEventPosition, null);
@@ -169,11 +229,10 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    // TODO : use something like updateMap() for the name
-    private void update(ConcurrentMap<Object, StreamEvent> candidateEvents, int[] mappingPosition) {
-        // TODO : check for the order
-        for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
-            StreamEvent streamEvent = entry.getValue();
+    private void updateInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition) {
+        candidateEventChunk.reset();
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
                 if (timeDifference > withinTime) {
@@ -183,8 +242,41 @@ public class HazelcastOperator implements Operator {
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
                     streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
-                    candidateEvents.replace(entry.getKey(), streamEvent);
                 }
+            }
+        }
+    }
+
+    private void updateInCollection(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                }
+            }
+        }
+    }
+
+    private void updateInList(List<StreamEvent> candidateEvents, int[] mappingPosition) {
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                int streamEventIndex = candidateEvents.indexOf(streamEvent);
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                }
+                candidateEvents.set(streamEventIndex, streamEvent);
             }
         }
     }
@@ -193,15 +285,19 @@ public class HazelcastOperator implements Operator {
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
         try {
             if (matchingEvent instanceof StreamEvent) {
-                this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
+                this.event.setEvent(matchingEventPosition, ((StreamEvent) matchingEvent));
             } else {
-                this.event.setEvent((StateEvent) matchingEvent);
+                this.event.setEvent(((StateEvent) matchingEvent));
             }
-            if (candidateEvents instanceof ConcurrentMap) {
-                return contains((ConcurrentMap) candidateEvents);
+            if (candidateEvents instanceof ComplexEventChunk) {
+                return containsInComplexEventChunk((ComplexEventChunk) candidateEvents);
+            } else if (candidateEvents instanceof Map) {
+                return containsInCollection(((Map) candidateEvents).values());
+            } else if (candidateEvents instanceof Collection) {
+                return containsInCollection((Collection) candidateEvents);
             } else {
-                throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName()
-                        + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         } finally {
             if (matchingEvent instanceof StreamEvent) {
@@ -212,12 +308,10 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    private boolean contains(ConcurrentMap<Object, StreamEvent> candidateEvents) {
-        //  TODO : ordering
-        for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
-            StreamEvent streamEvent = entry.getValue();
+    private boolean containsInCollection(Collection<StreamEvent> candidateEvents) {
+
+        for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
-                // TODO : validate usage of abs()
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
                 if (timeDifference > withinTime) {
                     break;
@@ -230,6 +324,22 @@ public class HazelcastOperator implements Operator {
         return false;
     }
 
+    private boolean containsInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk) {
+        candidateEventChunk.reset();
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     protected class FinderStateEvent extends StateEvent {
 
