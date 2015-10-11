@@ -21,7 +21,6 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IdGenerator;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -47,6 +46,7 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -59,10 +59,9 @@ public class HazelcastEventTable implements EventTable {
     private StreamEventCloner streamEventCloner;
     private StreamEventPool streamEventPool;
     private HazelcastInstance hcInstance;
-//    private ConcurrentMap<Object, StreamEvent> eventMap = null;
-    private ConcurrentMap<Object, StreamEvent> eventMap = null;
+    private ConcurrentMap<Object, StreamEvent> eventsMap = null;
+    private List<StreamEvent> eventsList = null;
     private String indexAttribute = null;
-    private IdGenerator idGenerator = null;
     private int indexPosition;
     private String elementId;
 
@@ -84,9 +83,8 @@ public class HazelcastEventTable implements EventTable {
         String instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + this.executionPlanContext.getName();
 
         hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
-        idGenerator = hcInstance.getIdGenerator(HazelcastEventTableConstants.HAZELCAST_ID_GENERATOR_PREFIX + tableDefinition.getId());
-        eventMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_COLLECTION_INSTANCE_PREFIX +
-                executionPlanContext.getName() + '_' + tableDefinition.getId());
+        eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX + executionPlanContext.getName() + '_' + tableDefinition.getId());
+        eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX + executionPlanContext.getName() + '_' + tableDefinition.getId());
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addInputDefinition(tableDefinition);
@@ -183,9 +181,9 @@ public class HazelcastEventTable implements EventTable {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
             eventConverter.convertStreamEvent(complexEvent, streamEvent);
             if (indexAttribute != null) {
-                eventMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+                eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
             } else {
-                eventMap.put(idGenerator.newId(), streamEvent);
+                eventsList.add(streamEvent);
             }
         }
     }
@@ -198,7 +196,11 @@ public class HazelcastEventTable implements EventTable {
      */
     @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
-        operator.delete(deletingEventChunk, eventMap);
+        if (indexAttribute != null) {
+            operator.delete(deletingEventChunk, eventsMap);
+        } else {
+            operator.delete(deletingEventChunk, eventsList);
+        }
     }
 
     /**
@@ -209,7 +211,11 @@ public class HazelcastEventTable implements EventTable {
      */
     @Override
     public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
-        operator.update(updatingEventChunk, eventMap, mappingPosition);
+        if (indexAttribute != null) {
+            operator.update(updatingEventChunk, eventsMap, mappingPosition);
+        } else {
+            operator.update(updatingEventChunk, eventsList, mappingPosition);
+        }
     }
 
     /**
@@ -221,7 +227,11 @@ public class HazelcastEventTable implements EventTable {
      */
     @Override
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
-        return finder.contains(matchingEvent, eventMap);
+        if (indexAttribute != null) {
+            return finder.contains(matchingEvent, eventsMap);
+        } else {
+            return finder.contains(matchingEvent, eventsList);
+        }
     }
 
     /**
@@ -234,7 +244,11 @@ public class HazelcastEventTable implements EventTable {
      */
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, eventMap, streamEventCloner);
+        if (indexAttribute != null) {
+            return finder.find(matchingEvent, eventsMap, streamEventCloner);
+        } else {
+            return finder.find(matchingEvent, eventsList, streamEventCloner);
+        }
     }
 
     /**

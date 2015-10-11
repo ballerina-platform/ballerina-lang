@@ -35,10 +35,9 @@ import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
-/**
- * Created on 1/17/15.
- */
+
 public class DefineTableTestCase {
+    // TODO : Use asserts where possible
     static final Logger log = Logger.getLogger(DefineTableTestCase.class);
 
     @Test
@@ -304,10 +303,12 @@ public class DefineTableTestCase {
 
         Config cfg_1 = new Config();
         cfg_1.getGroupConfig().setName("siddhi_cluster_t18").setPassword("cluster_pw");
+        cfg_1.setProperty("hazelcast.logging.type", "log4j");
         HazelcastInstance instance_1 = Hazelcast.newHazelcastInstance(cfg_1);
 
         Config cfg_2 = new Config();
         cfg_2.getGroupConfig().setName("siddhi_cluster_t18").setPassword("cluster_pw");
+        cfg_2.setProperty("hazelcast.logging.type", "log4j");
         HazelcastInstance instance_2 = Hazelcast.newHazelcastInstance(cfg_2);
 
         StringBuilder sb = new StringBuilder();

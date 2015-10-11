@@ -341,7 +341,6 @@ public class IndexedTableTestCase {
         InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
 
         executionPlanRuntime.start();
-
         Thread.sleep(EXEC_WAIT);
 
         stockStream.send(new Object[]{"IBM", 55.6f, 200l});
