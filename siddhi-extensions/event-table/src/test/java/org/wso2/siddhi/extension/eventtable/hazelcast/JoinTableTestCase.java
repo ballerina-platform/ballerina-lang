@@ -1,19 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.eventtable.hazelcast;
@@ -28,19 +28,20 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.eventtable.test.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class JoinTableTestCase {
     private static final Logger log = Logger.getLogger(JoinTableTestCase.class);
-    private static final long EXEC_WAIT = 0;
-    private static final long RESULT_WAIT = 500;
-    private int inEventCount;
-    private int removeEventCount;
+    private AtomicInteger inEventCount = new AtomicInteger(0);
+    private AtomicInteger removeEventCount = new AtomicInteger(0);
     private boolean eventArrived;
 
     @Before
     public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
+        inEventCount.set(0);
+        removeEventCount.set(0);
         eventArrived = false;
     }
 
@@ -53,7 +54,7 @@ public class JoinTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -73,8 +74,8 @@ public class JoinTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
                                 break;
@@ -82,13 +83,13 @@ public class JoinTableTestCase {
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 10l}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
+                    removeEventCount.addAndGet(removeEvents.length);
                 }
                 eventArrived = true;
             }
@@ -99,20 +100,15 @@ public class JoinTableTestCase {
         InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
         executionPlanRuntime.start();
-        Thread.sleep(EXEC_WAIT);
-
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
         stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
-        Thread.sleep(RESULT_WAIT);
-
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
-
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
@@ -124,7 +120,7 @@ public class JoinTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -145,19 +141,19 @@ public class JoinTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
+                    removeEventCount.addAndGet(removeEvents.length);
                 }
                 eventArrived = true;
             }
@@ -168,20 +164,15 @@ public class JoinTableTestCase {
         InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
         executionPlanRuntime.start();
-        Thread.sleep(EXEC_WAIT);
-
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
         stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
-        Thread.sleep(RESULT_WAIT);
-
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
-
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
@@ -193,7 +184,7 @@ public class JoinTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -214,19 +205,19 @@ public class JoinTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 10l}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
+                    removeEventCount.addAndGet(removeEvents.length);
                 }
                 eventArrived = true;
             }
@@ -237,20 +228,15 @@ public class JoinTableTestCase {
         InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
         executionPlanRuntime.start();
-        Thread.sleep(EXEC_WAIT);
-
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
         stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
-        Thread.sleep(RESULT_WAIT);
-
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
-
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
@@ -262,7 +248,7 @@ public class JoinTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -283,25 +269,25 @@ public class JoinTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 200l}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                 }
                 if (removeEvents != null) {
                     for (Event event : removeEvents) {
-                        removeEventCount++;
-                        switch (removeEventCount) {
+                        removeEventCount.incrementAndGet();
+                        switch (removeEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "IBM", 200l}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, removeEventCount);
+                                Assert.assertSame(1, removeEventCount.get());
                         }
                     }
                 }
@@ -314,19 +300,18 @@ public class JoinTableTestCase {
         InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
         executionPlanRuntime.start();
-
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
         stockStream.send(new Object[]{"IBM", 75.6f, 200l});
         checkStockStream.send(new Object[]{"WSO2"});
 
-        Thread.sleep(RESULT_WAIT * 3);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 1, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, removeEventCount, 60000);
+        Assert.assertEquals("Number of remove events", 1, removeEventCount.get());
+
         Assert.assertEquals("Event arrived", true, eventArrived);
-
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
@@ -338,7 +323,7 @@ public class JoinTableTestCase {
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast')" +
+                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -358,8 +343,8 @@ public class JoinTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
                                 break;
@@ -373,7 +358,7 @@ public class JoinTableTestCase {
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
+                    removeEventCount.addAndGet(removeEvents.length);
                 }
                 eventArrived = true;
             }
@@ -384,20 +369,14 @@ public class JoinTableTestCase {
         InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
         executionPlanRuntime.start();
-        Thread.sleep(EXEC_WAIT);
-
         stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
         stockStream.send(new Object[]{"IBM", 75.6f, 10l});
         checkStockStream.send(new Object[]{"WSO2"});
 
-        Thread.sleep(RESULT_WAIT);
-
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
-
         executionPlanRuntime.shutdown();
-
     }
-
 }

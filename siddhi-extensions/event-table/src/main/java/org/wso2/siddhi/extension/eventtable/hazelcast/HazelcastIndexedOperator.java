@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.eventtable.hazelcast;
@@ -30,7 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
-
+// TODO : check the usage of abs() when calculating time frame
 public class HazelcastIndexedOperator implements Operator {
     private final long withinTime;
     private ExpressionExecutor expressionExecutor;
@@ -57,7 +59,6 @@ public class HazelcastIndexedOperator implements Operator {
                 return null;
             } else {
                 if (withinTime != ANY) {
-                // TODO : check the usage of abs()
                     long timeDifference = Math.abs(matchingEvent.getTimestamp() - streamEvent.getTimestamp());
                     if (timeDifference > withinTime) {
                         return null;
@@ -83,8 +84,7 @@ public class HazelcastIndexedOperator implements Operator {
                     if (streamEvent != null) {
                         long timeDifference = Math.abs(deletingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
-                            // TODO : check whether it should be continue or return
-                            return;
+                            continue;
                         }
                     }
                 }
@@ -108,8 +108,7 @@ public class HazelcastIndexedOperator implements Operator {
                     if (withinTime != ANY) {
                         long timeDifference = Math.abs(updatingEvent.getTimestamp() - streamEvent.getTimestamp());
                         if (timeDifference > withinTime) {
-                            // TODO : check whether it should be continue or return
-                            return;
+                            continue;
                         }
                     }
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {

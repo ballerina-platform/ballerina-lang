@@ -16,22 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.eventtable.hazelcast.internal.ds;
+package org.wso2.siddhi.extension.eventtable.test.util;
 
-import com.hazelcast.core.HazelcastInstance;
+import java.util.concurrent.atomic.AtomicInteger;
 
-
-public class HazelcastEventTableServiceValueHolder {
-    private static HazelcastInstance hazelcastInstance;
-
-    private HazelcastEventTableServiceValueHolder() {
-    }
-
-    public static void registerHazelcastInstance(HazelcastInstance hazelcastInstance) {
-        HazelcastEventTableServiceValueHolder.hazelcastInstance = hazelcastInstance;
-    }
-
-    public static HazelcastInstance getHazelcastInstance() {
-        return hazelcastInstance;
+public class SiddhiTestHelper {
+    public static void waitForEvents(long sleepTime, int expectedCount, AtomicInteger actualCount, long timeout) throws InterruptedException {
+        long currentWaitTime = 0;
+        long startTime = System.currentTimeMillis();
+        while ((actualCount.get() < expectedCount) && (currentWaitTime <= timeout)) {
+            Thread.sleep(sleepTime);
+            currentWaitTime = System.currentTimeMillis() - startTime;
+        }
     }
 }

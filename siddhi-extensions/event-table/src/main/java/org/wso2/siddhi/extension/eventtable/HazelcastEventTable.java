@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.eventtable;
@@ -46,7 +48,6 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -80,7 +81,7 @@ public class HazelcastEventTable implements EventTable {
         String clusterName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_NAME);
         String clusterPassword = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
         String clusterAddresses = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
-        String instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + this.executionPlanContext.getName();
+        String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
 
         hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
         eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX + executionPlanContext.getName() + '_' + tableDefinition.getId());
@@ -121,6 +122,10 @@ public class HazelcastEventTable implements EventTable {
      */
     protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses, String instanceName) {
         HazelcastInstance hazelcastInstance;
+
+        if (instanceName == null) {
+            instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + this.executionPlanContext.getName();
+        }
 
         if (clusterAddresses == null) {
             if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
