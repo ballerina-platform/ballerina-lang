@@ -302,7 +302,7 @@ public class EvalScriptTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 6l});
 
-        Thread.sleep(100);
+        Thread.sleep(1000);
 
         if(isReceived[0]) {
             Assert.assertEquals("50", value[0]);
@@ -368,7 +368,7 @@ public class EvalScriptTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", "50.0", 60f, 60l, 6});
 
-        Thread.sleep(100);
+        Thread.sleep(1000);
 
         if(isReceived[0]) {
             Assert.assertEquals(25.0f, value[0]);
@@ -422,7 +422,7 @@ public class EvalScriptTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        Thread.sleep(100);
+        Thread.sleep(1000);
 
         if(isReceived[0]) {
             Assert.assertEquals("IBM 700.0", value[0]);
