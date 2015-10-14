@@ -52,6 +52,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Hazelcast event table implementation of SiddhiQL
+ */
 public class HazelcastEventTable implements EventTable {
     private static final Logger logger = Logger.getLogger(HazelcastEventTable.class);
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
@@ -84,8 +87,10 @@ public class HazelcastEventTable implements EventTable {
         String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
 
         hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
-        eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX + executionPlanContext.getName() + '_' + tableDefinition.getId());
-        eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX + executionPlanContext.getName() + '_' + tableDefinition.getId());
+        eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX +
+                executionPlanContext.getName() + '_' + tableDefinition.getId());
+        eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
+                executionPlanContext.getName() + '_' + tableDefinition.getId());
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addInputDefinition(tableDefinition);
@@ -120,7 +125,8 @@ public class HazelcastEventTable implements EventTable {
      * @param instanceName     Hazelcast instance name
      * @return Hazelcast Instance
      */
-    protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses, String instanceName) {
+    protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses,
+                                                     String instanceName) {
         HazelcastInstance hazelcastInstance;
 
         if (instanceName == null) {
@@ -269,8 +275,13 @@ public class HazelcastEventTable implements EventTable {
      * @return
      */
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
+                                  ExecutionPlanContext executionPlanContext,
+                                  List<VariableExpressionExecutor> variableExpressionExecutors,
+                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
+                indexAttribute);
     }
 
     /**
@@ -286,7 +297,12 @@ public class HazelcastEventTable implements EventTable {
      * @return
      */
     @Override
-    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
+    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent,
+                                      ExecutionPlanContext executionPlanContext,
+                                      List<VariableExpressionExecutor> variableExpressionExecutors,
+                                      Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
+                indexAttribute);
     }
 }

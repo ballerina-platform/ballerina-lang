@@ -134,7 +134,6 @@ public class HazelcastOperatorParser {
         return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
     }
 
-    // TODO : check whether these methods are also used in In memory and RDBMS
     private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, Expression expression, AbstractDefinition candidateDefinition, String indexedAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;

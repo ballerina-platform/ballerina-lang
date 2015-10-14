@@ -35,7 +35,9 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
-// TODO : check the usage of abs() when calculating time frame
+/**
+ * Operator which is related to non-indexed Hazelcast table operations
+ */
 public class HazelcastOperator implements Operator {
     private final ZeroStreamEventConverter streamEventConverter;
     private final StreamEvent matchingEvent;
@@ -73,6 +75,14 @@ public class HazelcastOperator implements Operator {
                 withinTime, matchingEventOutputSize);
     }
 
+    /**
+     * Called to find a event from event table
+     *
+     * @param matchingEvent     the event to be matched with the events at the processor
+     * @param candidateEvents   Map of candidate events
+     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent
+     * @return StreamEvent  event found
+     */
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
         try {
@@ -100,6 +110,13 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Finds an event from a Complex Event Chunk
+     *
+     * @param candidateEventChunk Set of events as a ComplexEventChunk
+     * @param streamEventCloner   StreamEventCloner to copy new StreamEvent from existing StreamEvent
+     * @return StreamEvent  event found
+     */
     private StreamEvent findInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner) {
         candidateEventChunk.reset();
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
@@ -118,6 +135,13 @@ public class HazelcastOperator implements Operator {
         return returnEventChunk.getFirst();
     }
 
+    /**
+     * Finds an event from a Collection of events
+     *
+     * @param candidateEvents   Collection of events
+     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent
+     * @return StreamEvent  event found
+     */
     protected StreamEvent findInCollection(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         for (StreamEvent streamEvent : candidateEvents) {
@@ -134,6 +158,12 @@ public class HazelcastOperator implements Operator {
         return returnEventChunk.getFirst();
     }
 
+    /**
+     * Called when deleting an event chunk from event table
+     *
+     * @param deletingEventChunk Event list for deletion
+     * @param candidateEvents    Collection / Map of candidate events
+     */
     @Override
     public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
@@ -159,6 +189,11 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Deletes events from a Complex Event Chunk
+     *
+     * @param candidateEventChunk Set of events as a ComplexEventChunk
+     */
     private void deleteInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk) {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
@@ -175,6 +210,11 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Deletes events from a Map of StreamEvent
+     *
+     * @param candidateEvents Map of events
+     */
     public void deleteInMap(Map<Object, StreamEvent> candidateEvents) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
@@ -190,6 +230,11 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Deletes events from a Collection of StreamEvent
+     *
+     * @param candidateEvents Collection of events
+     */
     private void deleteInCollection(Collection<StreamEvent> candidateEvents) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
@@ -204,6 +249,13 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Called when updating the event table entries
+     *
+     * @param updatingEventChunk Event list that needs to be updated
+     * @param candidateEvents    Map of candidate events
+     * @param mappingPosition    Mapping positions array
+     */
     @Override
     public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
@@ -230,6 +282,12 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Called when updating list of events in a ComplexEventChunk
+     *
+     * @param candidateEventChunk ComplexEventChunk of candidate events
+     * @param mappingPosition     Mapping positions array
+     */
     private void updateInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition) {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
@@ -248,6 +306,12 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Called when updating events in a Collection of stream events
+     *
+     * @param candidateEvents Collection of candidate stream events
+     * @param mappingPosition Mapping positions array
+     */
     private void updateInCollection(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
@@ -264,6 +328,12 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Called when updating events in a List of stream events
+     *
+     * @param candidateEvents List of candidate stream events
+     * @param mappingPosition Mapping positions array
+     */
     private void updateInList(List<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
@@ -282,6 +352,13 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Called when having "in" condition, to check the existence of the event
+     *
+     * @param matchingEvent   Event that need to be check for existence
+     * @param candidateEvents Map of candidate events
+     * @return existenceOfEvent
+     */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
         try {
@@ -309,6 +386,12 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    /**
+     * Check the existence of a particular event in a Collection of StreamEvents
+     *
+     * @param candidateEvents Collection of candidate events
+     * @return existenceOfEvent
+     */
     private boolean containsInCollection(Collection<StreamEvent> candidateEvents) {
 
         for (StreamEvent streamEvent : candidateEvents) {
@@ -325,6 +408,12 @@ public class HazelcastOperator implements Operator {
         return false;
     }
 
+    /**
+     * Check the existence of a particular event in a ComplexEventChunk
+     *
+     * @param candidateEventChunk ComplexEventChunk of candidate events
+     * @return existenceOfEvent
+     */
     private boolean containsInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk) {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
