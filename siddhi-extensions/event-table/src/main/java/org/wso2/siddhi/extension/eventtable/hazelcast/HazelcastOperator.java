@@ -123,9 +123,9 @@ public class HazelcastOperator implements Operator {
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -146,9 +146,9 @@ public class HazelcastOperator implements Operator {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -199,9 +199,9 @@ public class HazelcastOperator implements Operator {
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -219,8 +219,8 @@ public class HazelcastOperator implements Operator {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
                     continue;
                 }
             }
@@ -238,9 +238,9 @@ public class HazelcastOperator implements Operator {
     private void deleteInCollection(Collection<StreamEvent> candidateEvents) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -293,9 +293,9 @@ public class HazelcastOperator implements Operator {
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -315,9 +315,9 @@ public class HazelcastOperator implements Operator {
     private void updateInCollection(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -337,9 +337,9 @@ public class HazelcastOperator implements Operator {
     private void updateInList(List<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -396,9 +396,9 @@ public class HazelcastOperator implements Operator {
 
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {
@@ -419,9 +419,9 @@ public class HazelcastOperator implements Operator {
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
-                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
-                if (timeDifference > withinTime) {
-                    continue;
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                    break;
                 }
             }
             if (execute(streamEvent)) {

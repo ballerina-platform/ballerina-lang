@@ -68,8 +68,8 @@ public class HazelcastIndexedOperator implements Operator {
                 return null;
             } else {
                 if (withinTime != ANY) {
-                    long timeDifference = Math.abs(matchingEvent.getTimestamp() - streamEvent.getTimestamp());
-                    if (timeDifference > withinTime) {
+                    long timeDifference = matchingEvent.getTimestamp() - streamEvent.getTimestamp();
+                    if ((0 > timeDifference) || (timeDifference > withinTime)) {
                         return null;
                     }
                 }
@@ -97,8 +97,8 @@ public class HazelcastIndexedOperator implements Operator {
                 if (withinTime != ANY) {
                     StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                     if (streamEvent != null) {
-                        long timeDifference = Math.abs(deletingEvent.getTimestamp() - streamEvent.getTimestamp());
-                        if (timeDifference > withinTime) {
+                        long timeDifference = deletingEvent.getTimestamp() - streamEvent.getTimestamp();
+                        if ((0 > timeDifference) || (timeDifference > withinTime)) {
                             continue;
                         }
                     }
@@ -128,8 +128,8 @@ public class HazelcastIndexedOperator implements Operator {
                 StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                 if (streamEvent != null) {
                     if (withinTime != ANY) {
-                        long timeDifference = Math.abs(updatingEvent.getTimestamp() - streamEvent.getTimestamp());
-                        if (timeDifference > withinTime) {
+                        long timeDifference = updatingEvent.getTimestamp() - streamEvent.getTimestamp();
+                        if ((0 > timeDifference) || (timeDifference > withinTime)) {
                             continue;
                         }
                     }
@@ -165,8 +165,8 @@ public class HazelcastIndexedOperator implements Operator {
             StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
             if (streamEvent != null) {
                 if (withinTime != ANY) {
-                    long timeDifference = Math.abs(matchingStreamEvent.getTimestamp() - streamEvent.getTimestamp());
-                    if (timeDifference > withinTime) {
+                    long timeDifference = matchingStreamEvent.getTimestamp() - streamEvent.getTimestamp();
+                    if ((0 > timeDifference) || (timeDifference > withinTime)) {
                         return false;
                     }
                 }
