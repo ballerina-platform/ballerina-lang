@@ -43,8 +43,22 @@ public class HazelcastOperatorParser {
     private HazelcastOperatorParser() {
     }
 
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
+    /**
+     * Method that constructs the Operator for non-indexed Hazelcast event table related operations
+     *
+     * @param expression                  Expression
+     * @param metaComplexEvent            Meta information about ComplexEvent.
+     * @param executionPlanContext        Execution plan context
+     * @param variableExpressionExecutors Variable expression executors
+     * @param eventTableMap               Event table map
+     * @param matchingStreamIndex         Matching stream index
+     * @param candidateDefinition         candidate definition
+     * @param withinTime                  Within time frame
+     * @return HazelcastOperator
+     */
+    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext,
+                                 List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap,
+                                 int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
 
         int candidateEventPosition = 0;
         int streamEventSize = 0;
@@ -91,14 +105,31 @@ public class HazelcastOperatorParser {
 
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-        return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize, withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
+        return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize,
+                withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
     }
 
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute) {
+    /**
+     * Method that constructs the Operator for Indexed Hazelcast event table related operations
+     *
+     * @param expression                  Expression
+     * @param metaComplexEvent            Meta information about ComplexEvent.
+     * @param executionPlanContext        Execution plan context
+     * @param variableExpressionExecutors Variable expression executors
+     * @param eventTableMap               Event table map
+     * @param matchingStreamIndex         Matching stream index
+     * @param candidateDefinition         candidate definition
+     * @param withinTime                  Within time frame
+     * @param indexedAttribute            Indexed attribute
+     * @return HazelcastIndexedOperator or a HazelcastOperator
+     */
+    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext,
+                                 List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap,
+                                 int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute) {
 
         if (indexedAttribute == null) {
-            return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
+            return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors,
+                    eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
         }
 
         if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
@@ -119,22 +150,36 @@ public class HazelcastOperatorParser {
 
                 if (leftSideIndexed && !rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                            metaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                            metaComplexEvent, matchingStreamIndex, eventTableMap,
+                            variableExpressionExecutors, executionPlanContext, false, 0);
                     return new HazelcastIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime);
 
                 } else if (!leftSideIndexed && rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                            metaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                            metaComplexEvent, matchingStreamIndex, eventTableMap,
+                            variableExpressionExecutors, executionPlanContext, false, 0);
                     return new HazelcastIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime);
 
                 }
 
             }
         }
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
+        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors,
+                eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
     }
 
-    private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, Expression expression, AbstractDefinition candidateDefinition, String indexedAttribute) {
+    /**
+     * Checks whether a give expression is a table index variable
+     *
+     * @param metaComplexEvent    Meta information about ComplexEvent.
+     * @param matchingStreamIndex Matching stream index
+     * @param expression          Expression
+     * @param candidateDefinition candidate definition
+     * @param indexedAttribute    Indexed attribute
+     * @return boolean representing whether an expression is a indexed variable
+     */
+    private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, Expression expression,
+                                                AbstractDefinition candidateDefinition, String indexedAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;
             if (variable.getStreamId() != null) {
@@ -156,7 +201,16 @@ public class HazelcastOperatorParser {
         return false;
     }
 
-    private static MetaStreamEvent getTableMetaStreamEvent(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, AbstractDefinition candidateDefinition) {
+    /**
+     * Returns the table meta stream event
+     *
+     * @param metaComplexEvent    Meta information about ComplexEvent.
+     * @param matchingStreamIndex Matching stream index
+     * @param candidateDefinition candidate definition
+     * @return Meta stream event
+     */
+    private static MetaStreamEvent getTableMetaStreamEvent(MetaComplexEvent metaComplexEvent, int matchingStreamIndex,
+                                                           AbstractDefinition candidateDefinition) {
         if (metaComplexEvent instanceof MetaStateEvent) {
             MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
             int candidateEventPosition = 0;
