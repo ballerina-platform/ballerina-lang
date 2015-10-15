@@ -69,6 +69,22 @@ public class HazelcastOperator implements Operator {
         return result;
     }
 
+    /**
+     * Checks whether a Stream event resides with in the current window
+     *
+     * @param streamEvent Stream event to check
+     * @return whether the Stream event resides with in the current window
+     */
+    private boolean outsideTimeWindow(StreamEvent streamEvent) {
+        if (withinTime != ANY) {
+            long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+            if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Finder cloneFinder() {
         return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEventSize,
@@ -128,6 +144,9 @@ public class HazelcastOperator implements Operator {
                     break;
                 }
             }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
+            }
             if (execute(streamEvent)) {
                 returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
             }
@@ -145,11 +164,8 @@ public class HazelcastOperator implements Operator {
     protected StreamEvent findInCollection(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         for (StreamEvent streamEvent : candidateEvents) {
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
@@ -198,11 +214,8 @@ public class HazelcastOperator implements Operator {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 candidateEventChunk.remove();
@@ -218,11 +231,8 @@ public class HazelcastOperator implements Operator {
     public void deleteInMap(Map<Object, StreamEvent> candidateEvents) {
         for (Map.Entry<Object, StreamEvent> entry : candidateEvents.entrySet()) {
             StreamEvent streamEvent = entry.getValue();
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    continue;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 candidateEvents.remove(entry.getKey());
@@ -237,11 +247,8 @@ public class HazelcastOperator implements Operator {
      */
     private void deleteInCollection(Collection<StreamEvent> candidateEvents) {
         for (StreamEvent streamEvent : candidateEvents) {
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 candidateEvents.remove(streamEvent);
@@ -292,11 +299,8 @@ public class HazelcastOperator implements Operator {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
@@ -314,11 +318,8 @@ public class HazelcastOperator implements Operator {
      */
     private void updateInCollection(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
@@ -336,11 +337,8 @@ public class HazelcastOperator implements Operator {
      */
     private void updateInList(List<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 int streamEventIndex = candidateEvents.indexOf(streamEvent);
@@ -363,7 +361,7 @@ public class HazelcastOperator implements Operator {
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
         try {
             if (matchingEvent instanceof StreamEvent) {
-                this.event.setEvent(matchingEventPosition, ((StreamEvent) matchingEvent));
+                this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
             } else {
                 this.event.setEvent(((StateEvent) matchingEvent));
             }
@@ -395,11 +393,8 @@ public class HazelcastOperator implements Operator {
     private boolean containsInCollection(Collection<StreamEvent> candidateEvents) {
 
         for (StreamEvent streamEvent : candidateEvents) {
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 return true;
@@ -418,11 +413,8 @@ public class HazelcastOperator implements Operator {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
-            if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
-                if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                    break;
-                }
+            if (outsideTimeWindow(streamEvent)) {
+                break;
             }
             if (execute(streamEvent)) {
                 return true;

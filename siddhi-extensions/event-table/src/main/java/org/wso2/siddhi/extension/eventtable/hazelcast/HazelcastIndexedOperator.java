@@ -46,6 +46,23 @@ public class HazelcastIndexedOperator implements Operator {
         this.withinTime = withinTime;
     }
 
+    /**
+     * Checks whether a Stream event resides with in the current window
+     *
+     * @param complexEvent Complex event to compare
+     * @param streamEvent  Stream event to compare
+     * @return whether two events are within the time window
+     */
+    private boolean outsideTimeWindow(ComplexEvent complexEvent, StreamEvent streamEvent) {
+        if (withinTime != ANY) {
+            long timeDifference = complexEvent.getTimestamp() - streamEvent.getTimestamp();
+            if ((0 > timeDifference) || (timeDifference > withinTime)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Finder cloneFinder() {
         return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime);
@@ -67,11 +84,8 @@ public class HazelcastIndexedOperator implements Operator {
             if (streamEvent == null) {
                 return null;
             } else {
-                if (withinTime != ANY) {
-                    long timeDifference = matchingEvent.getTimestamp() - streamEvent.getTimestamp();
-                    if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                        return null;
-                    }
+                if (outsideTimeWindow(matchingEvent, streamEvent)) {
+                    return null;
                 }
                 return streamEventCloner.copyStreamEvent(streamEvent);
             }
@@ -94,16 +108,13 @@ public class HazelcastIndexedOperator implements Operator {
             ComplexEvent deletingEvent = deletingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(deletingEvent);
             if (candidateEvents instanceof ConcurrentMap) {
-                if (withinTime != ANY) {
-                    StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
-                    if (streamEvent != null) {
-                        long timeDifference = deletingEvent.getTimestamp() - streamEvent.getTimestamp();
-                        if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                            continue;
-                        }
+                StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
+                if (streamEvent != null) {
+                    if (outsideTimeWindow(deletingEvent, streamEvent)) {
+                        continue;
                     }
+                    ((ConcurrentMap<Object, StreamEvent>) candidateEvents).remove(matchingKey);
                 }
-                ((ConcurrentMap<Object, StreamEvent>) candidateEvents).remove(matchingKey);
             } else {
                 throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
                         + " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -127,11 +138,8 @@ public class HazelcastIndexedOperator implements Operator {
             if (candidateEvents instanceof ConcurrentMap) {
                 StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                 if (streamEvent != null) {
-                    if (withinTime != ANY) {
-                        long timeDifference = updatingEvent.getTimestamp() - streamEvent.getTimestamp();
-                        if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                            continue;
-                        }
+                    if (outsideTimeWindow(updatingEvent, streamEvent)) {
+                        continue;
                     }
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {
                         streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
@@ -163,16 +171,7 @@ public class HazelcastIndexedOperator implements Operator {
         Object matchingKey = expressionExecutor.execute(matchingStreamEvent);
         if (candidateEvents instanceof ConcurrentMap) {
             StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
-            if (streamEvent != null) {
-                if (withinTime != ANY) {
-                    long timeDifference = matchingStreamEvent.getTimestamp() - streamEvent.getTimestamp();
-                    if ((0 > timeDifference) || (timeDifference > withinTime)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
+            return streamEvent != null && !outsideTimeWindow(matchingStreamEvent, streamEvent);
         } else {
             throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
                     + " does not support " + candidateEvents.getClass().getCanonicalName());
