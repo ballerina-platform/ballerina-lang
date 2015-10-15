@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.query.table;
 
@@ -454,6 +456,65 @@ public class InsertIntoTableTestCase {
         stockStream.send(new Object[]{"IBM", 55.6f, 100l});
         stockStream.send(new Object[]{"GOOG", 255.6f, 100l});
         stockCheckStream.send(new Object[]{100f});
+
+        Thread.sleep(500);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void insertIntoTableTest9() throws InterruptedException {
+        log.info("InsertIntoTableTest9");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol string, price float, volume long); " +
+                "define stream StockCheckStream (symbol string); " +
+                "define table StockTable (symbol string, price float, volume long); ";
+        String query = "" +
+                "@info(name = 'query2') " +
+                "from StockCheckStream " +
+                "select StockCheckStream.symbol != StockTable.symbol in StockTable as abc " +
+                "insert into OutStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertArrayEquals(new Object[]{false}, event.getData());
+                                break;
+                            default:
+                                Assert.fail();
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        InputHandler stockCheckStream = executionPlanRuntime.getInputHandler("StockCheckStream");
+
+        executionPlanRuntime.start();
+
+        stockCheckStream.send(new Object[]{"WSO2"});
 
         Thread.sleep(500);
 

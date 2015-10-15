@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -59,11 +61,12 @@ public class SingleInputStreamParser {
      * @param inputStream                 single input stream to be parsed
      * @param executionPlanContext        query to be parsed
      * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
-     * @param streamDefinitionMap
-     * @param tableDefinitionMap
-     * @param eventTableMap
-     * @param metaComplexEvent
-     * @param processStreamReceiver
+     * @param streamDefinitionMap         Stream Definition Map
+     * @param tableDefinitionMap          Table Definition Map
+     * @param eventTableMap               EventTable Map
+     * @param metaComplexEvent            MetaComplexEvent
+     * @param processStreamReceiver       ProcessStreamReceiver
+     * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
@@ -183,10 +186,10 @@ public class SingleInputStreamParser {
      * Method to generate MetaStreamEvent reagent to the given input stream. Empty definition will be created and
      * definition and reference is will be set accordingly in this method.
      *
-     * @param inputStream
-     * @param streamDefinitionMap
-     * @param tableDefinitionMap
-     * @param metaStreamEvent     @return
+     * @param inputStream         InputStream
+     * @param streamDefinitionMap StreamDefinition Map
+     * @param tableDefinitionMap  TableDefinition Map
+     * @param metaStreamEvent     MetaStreamEvent
      */
     private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
             AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, MetaStreamEvent metaStreamEvent) {

@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.query.join;
 
@@ -560,6 +562,201 @@ public class JoinTestCase {
 
         executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void joinTest14() throws InterruptedException {
+        log.info("Join test14");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "on order.custid == dow_items.custid \n" +
+                "select  dow_items.item\n" +
+                "having order.items == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
+    @Test
+    public void joinTest15() throws InterruptedException {
+        log.info("Join test15");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "on order.custid == dow_items.custid \n" +
+                "select  dow_items.item\n" +
+                "having dow_items.item == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
+    @Test
+    public void joinTest16() throws InterruptedException {
+        log.info("Join test16");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "on order.custid == dow_items.custid \n" +
+                "select  order.custid\n" +
+                "having dow_items.item == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
+    }
+
+    @Test
+    public void joinTest17() throws InterruptedException {
+        log.info("Join test17");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream order (billnum string, custid string, items string, dow string, timestamp long); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from order join dow_items \n" +
+                "select  dow_items.custid\n" +
+                "having order.items == \"item1\" \n" +
+                "insert into recommendationStream ;" +
+
+                "@info(name = 'query2') " +
+                "from dow_items_stream " +
+                "insert into dow_items ;" +
+                "" +
+                "";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        InputHandler orderStream = executionPlanRuntime.getInputHandler("order");
+        InputHandler itemsStream = executionPlanRuntime.getInputHandler("dow_items_stream");
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        executionPlanRuntime.start();
+        Thread.sleep(100);
+        itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
+        orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+        Thread.sleep(100);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event Arrived", true, eventArrived);
+
     }
 
 

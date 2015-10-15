@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -55,6 +57,7 @@ public class ExecutionPlanParser {
      * Parse an ExecutionPlan returning ExecutionPlanRuntime
      *
      * @param executionPlan plan to be parsed
+     * @param siddhiContext SiddhiContext
      * @return ExecutionPlanRuntime
      */
     public static ExecutionPlanRuntimeBuilder parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
@@ -93,7 +96,7 @@ public class ExecutionPlanParser {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
 
-            executionPlanContext.setExecutorService(Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-executor-thread-%d").build()));
+            executionPlanContext.setExecutorService(Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-executor-thread-%d").build()));
 
             executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5, new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-scheduler-thread-%d").build()));
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
