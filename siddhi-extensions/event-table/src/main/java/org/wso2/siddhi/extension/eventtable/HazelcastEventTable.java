@@ -272,7 +272,7 @@ public class HazelcastEventTable implements EventTable {
      * @param eventTableMap               map of event tables
      * @param matchingStreamIndex         the stream index of the incoming matchingEvent
      * @param withinTime                  the maximum time gap between the events to be matched
-     * @return
+     * @return HazelcastOperator
      */
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
@@ -294,7 +294,7 @@ public class HazelcastEventTable implements EventTable {
      * @param eventTableMap               map of event tables
      * @param matchingStreamIndex         the stream index of the incoming matchingEvent
      * @param withinTime                  the maximum time gap between the events to be matched
-     * @return
+     * @return HazelcastOperator
      */
     @Override
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent,

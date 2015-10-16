@@ -355,7 +355,7 @@ public class HazelcastOperator implements Operator {
      *
      * @param matchingEvent   Event that need to be check for existence
      * @param candidateEvents Map of candidate events
-     * @return existenceOfEvent
+     * @return existence of the event
      */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
@@ -363,7 +363,7 @@ public class HazelcastOperator implements Operator {
             if (matchingEvent instanceof StreamEvent) {
                 this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
             } else {
-                this.event.setEvent(((StateEvent) matchingEvent));
+                this.event.setEvent((StateEvent) matchingEvent);
             }
             if (candidateEvents instanceof ComplexEventChunk) {
                 return containsInComplexEventChunk((ComplexEventChunk) candidateEvents);
@@ -388,7 +388,7 @@ public class HazelcastOperator implements Operator {
      * Check the existence of a particular event in a Collection of StreamEvents
      *
      * @param candidateEvents Collection of candidate events
-     * @return existenceOfEvent
+     * @return existence of the event
      */
     private boolean containsInCollection(Collection<StreamEvent> candidateEvents) {
 
@@ -407,7 +407,7 @@ public class HazelcastOperator implements Operator {
      * Check the existence of a particular event in a ComplexEventChunk
      *
      * @param candidateEventChunk ComplexEventChunk of candidate events
-     * @return existenceOfEvent
+     * @return existence of the event
      */
     private boolean containsInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk) {
         candidateEventChunk.reset();

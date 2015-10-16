@@ -158,7 +158,7 @@ public class HazelcastIndexedOperator implements Operator {
      *
      * @param matchingEvent   Event that need to be check for existence
      * @param candidateEvents Map of candidate events
-     * @return existenceOfEvent
+     * @return existence of the event
      */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
