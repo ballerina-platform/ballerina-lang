@@ -105,19 +105,26 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal,
+                        </Private-Package>
                         <Export-Package>
+                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal,
                             org.wso2.siddhi.extension.eventtable,
                             org.wso2.siddhi.extension.eventtable.*
                         </Export-Package>
-                        <Private-Package>
-                            org.wso2.siddhi.extension.eventtable.hazelcast.internal*
-                        </Private-Package>
                         <Import-Package>
                             org.apache.hadoop.util.bloom,
                             org.apache.hadoop.util.bloom.*,

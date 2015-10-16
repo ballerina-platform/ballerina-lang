@@ -19,32 +19,38 @@
 package org.wso2.siddhi.extension.eventtable.hazelcast.internal.ds;
 
 import com.hazelcast.core.HazelcastInstance;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
 
-/**
- * @scr.component name="hazelcastEventTable.component" immediate="true"
- * @scr.reference name="hazelcast.instance.service"
- * interface="com.hazelcast.core.HazelcastInstance" cardinality="0..1"
- * policy="dynamic" bind="setHazelcastInstance" unbind="unsetHazelcastInstance"
- */
-
+@Component(
+        name = "hazelcastEventTable.component",
+        immediate = true
+)
 public class HazelcastEventTableServiceDS {
-    private static final Log log = LogFactory.getLog(HazelcastEventTableServiceDS.class);
+    private static final Logger logger = Logger.getLogger(HazelcastEventTableServiceDS.class);
 
+    @Activate
     protected void activate(ComponentContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("Successfully activated Hazelcast Event Table");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Successfully activated Hazelcast Event Table");
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("Successfully deactivated Hazelcast Event Table");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Successfully deactivated Hazelcast Event Table");
         }
     }
 
+    @Reference(
+            name = "hazelcast.instance.service",
+            service = HazelcastInstance.class,
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetHazelcastInstance"
+    )
     protected void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
         HazelcastEventTableServiceValueHolder.registerHazelcastInstance(hazelcastInstance);
     }
