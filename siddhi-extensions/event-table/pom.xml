@@ -62,6 +62,19 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+
         <!--&lt;!&ndash; Temporary Dependencies&ndash;&gt;-->
         <!--<dependency>-->
         <!--<groupId>com.h2database</groupId>-->
@@ -86,14 +99,29 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal,
+                        </Private-Package>
                         <Export-Package>
-                            org.wso2.siddhi.extension.eventtable,
-                            org.wso2.siddhi.extension.eventtable.*
+                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal,
+                            org.wso2.siddhi.extension.eventtable;version="${siddhi.version}",
+                            org.wso2.siddhi.extension.eventtable.*;version="${siddhi.version}",
                         </Export-Package>
                         <Import-Package>
-                            org.apache.hadoop.util.bloom,
-                            org.apache.hadoop.util.bloom.*,
-                            *;resolution:=optional
+                            org.apache.hadoop.util.bloom;version="${hadoop.common.version}",
+                            org.osgi.service.component;version="${version.equinox.osgi.services}",
+                            org.osgi.framework;version="${org.eclipse.osgi.version}",
+                            com.hazelcast.*;version="${hazelcast.version}",
+                            org.wso2.siddhi.*;version="${siddhi.version}",
+                            org.apache.hadoop.util.hash;version="${hadoop.common.version}",
+                            org.apache.log4j;version="${log4j.version}",
+                            org.apache.tomcat.jdbc.pool;version="${jdbc-pool.version}",
+                            javax.sql,
+                            javax.xml.bind,
+                            javax.xml.bind.annotation
+                            <!--*;resolution:=optional-->
                         </Import-Package>
                     </instructions>
                 </configuration>

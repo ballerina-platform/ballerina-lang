@@ -41,17 +41,14 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class InMemoryEventTable implements EventTable, Snapshotable {
 
     private final TableDefinition tableDefinition;
     private final ExecutionPlanContext executionPlanContext;
-    private LinkedList<StreamEvent> list = new LinkedList<StreamEvent>();
-    private TreeMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
+    private List<StreamEvent> list = new LinkedList<StreamEvent>();
+    private SortedMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
     private String indexAttribute = null;
     private int indexPosition;
     private final StreamEventCloner streamEventCloner;
@@ -101,6 +98,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         return tableDefinition;
     }
 
+    @Override
     public synchronized void add(ComplexEventChunk addingEventChunk) {
         addingEventChunk.reset();
         while (addingEventChunk.hasNext()) {
@@ -115,6 +113,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         }
     }
 
+    @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         if (indexAttribute != null) {
             operator.delete(deletingEventChunk, treeMap);
@@ -124,6 +123,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
     }
 
+    @Override
     public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
         if (indexAttribute != null) {
             operator.update(updatingEventChunk, treeMap, mappingPosition);
@@ -132,7 +132,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         }
     }
 
-
+    @Override
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
             return finder.contains(matchingEvent, treeMap);
@@ -141,6 +141,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         }
     }
 
+    @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
             return finder.find(matchingEvent, treeMap, streamEventCloner);
@@ -150,6 +151,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
     }
 
+    @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
     }

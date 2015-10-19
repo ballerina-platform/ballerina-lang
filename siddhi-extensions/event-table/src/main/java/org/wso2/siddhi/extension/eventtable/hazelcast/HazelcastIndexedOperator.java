@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.collection.operator;
+package org.wso2.siddhi.extension.eventtable.hazelcast;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -25,28 +25,37 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.Operator;
 
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
 /**
- * Created on 12/8/14.
+ * Operator which is related to Indexed Hazelcast table operations
  */
-public class SimpleIndexedOperator implements Operator {
+public class HazelcastIndexedOperator implements Operator {
     private final long withinTime;
     private ExpressionExecutor expressionExecutor;
     private int matchingEventPosition;
 
-    public SimpleIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime) {
+    public HazelcastIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime) {
         this.expressionExecutor = expressionExecutor;
         this.matchingEventPosition = matchingEventPosition;
         this.withinTime = withinTime;
     }
 
-    private boolean outsideTimeWindow(ComplexEvent matchingEvent, StreamEvent streamEvent) {
+    /**
+     * Checks whether a Stream event resides with in the current window
+     *
+     * @param complexEvent Complex event to compare
+     * @param streamEvent  Stream event to compare
+     * @return whether two events are within the time window
+     */
+    private boolean outsideTimeWindow(ComplexEvent complexEvent, StreamEvent streamEvent) {
         if (withinTime != ANY) {
-            long timeDifference = matchingEvent.getTimestamp() - streamEvent.getTimestamp();
+            long timeDifference = complexEvent.getTimestamp() - streamEvent.getTimestamp();
             if ((0 > timeDifference) || (timeDifference > withinTime)) {
                 return true;
             }
@@ -56,14 +65,22 @@ public class SimpleIndexedOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new SimpleIndexedOperator(expressionExecutor, matchingEventPosition, withinTime);
+        return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime);
     }
 
+    /**
+     * Called to find a event from event table
+     *
+     * @param matchingEvent     the event to be matched with the events at the processor
+     * @param candidateEvents   Map of candidate events
+     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent
+     * @return StreamEvent  event found
+     */
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
         Object matchingKey = expressionExecutor.execute(matchingEvent);
-        if (candidateEvents instanceof Map) {
-            StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
+        if (candidateEvents instanceof ConcurrentMap) {
+            StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
             if (streamEvent == null) {
                 return null;
             } else {
@@ -73,53 +90,76 @@ public class SimpleIndexedOperator implements Operator {
                 return streamEventCloner.copyStreamEvent(streamEvent);
             }
         } else {
-            throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+            throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
+                    + " does not support " + candidateEvents.getClass().getCanonicalName());
         }
-
     }
 
+    /**
+     * Called when deleting an event chunk from event table
+     *
+     * @param deletingEventChunk Event list for deletion
+     * @param candidateEvents    Map of candidate events
+     */
     @Override
     public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             ComplexEvent deletingEvent = deletingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(deletingEvent);
-            if (candidateEvents instanceof Map) {
-                StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
+            if (candidateEvents instanceof ConcurrentMap) {
+                StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                 if (streamEvent != null) {
                     if (outsideTimeWindow(deletingEvent, streamEvent)) {
-                        return;
+                        continue;
                     }
-                    ((Map<Object, StreamEvent>) candidateEvents).remove(matchingKey);
+                    ((ConcurrentMap<Object, StreamEvent>) candidateEvents).remove(matchingKey);
                 }
             } else {
-                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
+                        + " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         }
     }
 
+    /**
+     * Called when updating the event table entries
+     *
+     * @param updatingEventChunk Event list that needs to be updated
+     * @param candidateEvents    Map of candidate events
+     * @param mappingPosition    Mapping positions array
+     */
     @Override
     public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(updatingEvent);
-            if (candidateEvents instanceof Map) {
-                StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
+            if (candidateEvents instanceof ConcurrentMap) {
+                StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
                 if (streamEvent != null) {
                     if (outsideTimeWindow(updatingEvent, streamEvent)) {
-                        return;
+                        continue;
                     }
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {
                         streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
+                        ((ConcurrentMap<Object, StreamEvent>) candidateEvents).replace(matchingKey, streamEvent);
                     }
                 }
             } else {
-                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
+                        + " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         }
     }
 
+    /**
+     * Called when having "in" condition, to check the existence of the event
+     *
+     * @param matchingEvent   Event that need to be check for existence
+     * @param candidateEvents Map of candidate events
+     * @return existence of the event
+     */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
         StreamEvent matchingStreamEvent;
@@ -129,11 +169,12 @@ public class SimpleIndexedOperator implements Operator {
             matchingStreamEvent = ((StateEvent) matchingEvent).getStreamEvent(matchingEventPosition);
         }
         Object matchingKey = expressionExecutor.execute(matchingStreamEvent);
-        if (candidateEvents instanceof Map) {
-            StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
+        if (candidateEvents instanceof ConcurrentMap) {
+            StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
             return streamEvent != null && !outsideTimeWindow(matchingStreamEvent, streamEvent);
         } else {
-            throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+            throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
+                    + " does not support " + candidateEvents.getClass().getCanonicalName());
         }
     }
 }
