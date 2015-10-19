@@ -95,18 +95,8 @@
 
     </dependencies>
 
-    <properties>
-        <org.eclipse.osgi.version>3.7.0.v20110613</org.eclipse.osgi.version>
-        <version.equinox.osgi.services>3.3.100.v20120522-1822</version.equinox.osgi.services>
-        <hazelcast.version>3.5.0.wso2v1</hazelcast.version>
-    </properties>
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -122,14 +112,22 @@
                         <Export-Package>
                             !org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
                             !org.wso2.siddhi.extension.eventtable.hazelcast.internal,
-                            org.wso2.siddhi.extension.eventtable,
-                            org.wso2.siddhi.extension.eventtable.*
+                            org.wso2.siddhi.extension.eventtable;version="${siddhi.version}",
+                            org.wso2.siddhi.extension.eventtable.*;version="${siddhi.version}",
                         </Export-Package>
                         <Import-Package>
-                            org.apache.hadoop.util.bloom,
-                            org.apache.hadoop.util.bloom.*,
-                            org.osgi.framework,
-                            *;resolution:=optional
+                            org.apache.hadoop.util.bloom;version="${hadoop.common.version}",
+                            org.osgi.service.component;version="${version.equinox.osgi.services}",
+                            org.osgi.framework;version="${org.eclipse.osgi.version}",
+                            com.hazelcast.*;version="${hazelcast.version}",
+                            org.wso2.siddhi.*;version="${siddhi.version}",
+                            org.apache.hadoop.util.hash;version="${hadoop.common.version}",
+                            org.apache.log4j;version="${log4j.version}",
+                            org.apache.tomcat.jdbc.pool;version="${jdbc-pool.version}",
+                            javax.sql,
+                            javax.xml.bind,
+                            javax.xml.bind.annotation
+                            <!--*;resolution:=optional-->
                         </Import-Package>
                     </instructions>
                 </configuration>
