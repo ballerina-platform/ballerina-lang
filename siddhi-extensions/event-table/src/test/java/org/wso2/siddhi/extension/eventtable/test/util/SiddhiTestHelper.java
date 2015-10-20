@@ -18,6 +18,8 @@
 
 package org.wso2.siddhi.extension.eventtable.test.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SiddhiTestHelper {
@@ -27,6 +29,19 @@ public class SiddhiTestHelper {
         while ((actualCount.get() < expectedCount) && (currentWaitTime <= timeout)) {
             Thread.sleep(sleepTime);
             currentWaitTime = System.currentTimeMillis() - startTime;
+        }
+    }
+
+    public static boolean isEventsMatch(List<Object[]> actual, List<Object[]> expected) {
+        if (actual.size() != expected.size()) {
+            return false;
+        } else {
+            for (int i = 0; i < actual.size(); i++) {
+                if (!Arrays.equals(actual.get(i), expected.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
