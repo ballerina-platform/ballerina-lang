@@ -111,8 +111,7 @@
                         </Export-Package>
                         <Import-Package>
                             org.apache.hadoop.util.bloom;version="${hadoop.common.version}",
-                            org.osgi.service.component;version="${version.equinox.osgi.services}",
-                            org.osgi.framework;version="${org.eclipse.osgi.version}",
+                            org.osgi.service.component;version="${equinox.osgi.services.imp.pkg.version.range}",
                             com.hazelcast.*;version="${hazelcast.imp.pkg.version.range}",
                             org.wso2.siddhi.*;version="${siddhi.version}",
                             org.apache.hadoop.util.hash;version="${hadoop.common.version}",
