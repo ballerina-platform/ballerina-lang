@@ -15,8 +15,7 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <modules>
-        <module>components/carbon-transports</module>
-        <module>features/carbon-transport-feature</module>
+        <module>http/netti</module>
     </modules>
 
     <pluginRepositories>
