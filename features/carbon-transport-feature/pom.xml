@@ -35,7 +35,6 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-
                             <propertyFile>../etc/feature.properties</propertyFile>
                             <adviceFileContents>
                                 <advice>
