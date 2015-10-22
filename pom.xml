@@ -15,7 +15,7 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <modules>
-        <module>http/netti</module>
+        <module>http/netty</module>
     </modules>
 
     <pluginRepositories>
