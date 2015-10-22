@@ -41,7 +41,7 @@
         <netty.version>4.0.30.Final</netty.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <org.wso2.carbon.core.version>5.0.0-m4</org.wso2.carbon.core.version>
+        <org.wso2.carbon.core.version>5.0.0-m5</org.wso2.carbon.core.version>
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
