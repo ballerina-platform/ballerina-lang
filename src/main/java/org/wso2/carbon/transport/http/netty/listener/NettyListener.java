@@ -26,11 +26,11 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.transport.http.netty.Constants;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
-import org.wso2.carbon.transports.CarbonTransport;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -57,6 +57,7 @@ public class NettyListener extends CarbonTransport {
     }
 
     public void start() {
+        log.info("Starting Netty Http Transport Listener");
         startTransport();
     }
 

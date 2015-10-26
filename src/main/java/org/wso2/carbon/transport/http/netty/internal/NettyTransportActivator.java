@@ -20,10 +20,10 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.TransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
-import org.wso2.carbon.transports.CarbonTransport;
 
 import java.util.HashSet;
 import java.util.Set;
