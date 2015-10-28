@@ -30,6 +30,9 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.eventtable.test.util.SiddhiTestHelper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class UpdateFromTableTestCase {
@@ -38,12 +41,14 @@ public class UpdateFromTableTestCase {
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private int removeEventCount;
     private boolean eventArrived;
+    private List<Object[]> inEventsList;
 
     @Before
     public void init() {
         inEventCount.set(0);
         removeEventCount = 0;
         eventArrived = false;
+        inEventsList = new ArrayList<Object[]>();
     }
 
     @Test
@@ -149,20 +154,8 @@ public class UpdateFromTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
+                        inEventsList.add(event.getData());
                         inEventCount.incrementAndGet();
-                        switch (inEventCount.get()) {
-                            case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l}, event.getData());
-                                break;
-                            case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
-                                break;
-                            case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
-                                break;
-                            default:
-                                Assert.assertSame(3, inEventCount.get());
-                        }
                     }
                     eventArrived = true;
                 }
@@ -171,7 +164,6 @@ public class UpdateFromTableTestCase {
                 }
                 eventArrived = true;
             }
-
         });
 
         InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
@@ -187,7 +179,9 @@ public class UpdateFromTableTestCase {
         checkStockStream.send(new Object[]{"IBM", 100l});
         checkStockStream.send(new Object[]{"WSO2", 100l});
 
+        List<Object[]> expected = Arrays.asList(new Object[]{"IBM", 100l}, new Object[]{"WSO2", 100l}, new Object[]{"WSO2", 100l});
         SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+        Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
         Assert.assertEquals("Number of success events", 3, inEventCount.get());
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
@@ -229,20 +223,8 @@ public class UpdateFromTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
+                        inEventsList.add(event.getData());
                         inEventCount.incrementAndGet();
-                        switch (inEventCount.get()) {
-                            case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l}, event.getData());
-                                break;
-                            case 2:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
-                                break;
-                            case 3:
-                                Assert.assertArrayEquals(new Object[]{"WSO2", 100l}, event.getData());
-                                break;
-                            default:
-                                Assert.assertSame(3, inEventCount.get());
-                        }
                     }
                     eventArrived = true;
                 }
@@ -267,7 +249,9 @@ public class UpdateFromTableTestCase {
         checkStockStream.send(new Object[]{"IBM", 100l});
         checkStockStream.send(new Object[]{"WSO2", 100l});
 
+        List<Object[]> expected = Arrays.asList(new Object[]{"IBM", 100l}, new Object[]{"WSO2", 100l}, new Object[]{"WSO2", 100l});
         SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+        Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
         Assert.assertEquals("Number of success events", 3, inEventCount.get());
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
@@ -309,17 +293,8 @@ public class UpdateFromTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
+                        inEventsList.add(event.getData());
                         inEventCount.incrementAndGet();
-                        switch (inEventCount.get()) {
-                            case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l, 155.6f}, event.getData());
-                                break;
-                            case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200l, 155.6f}, event.getData());
-                                break;
-                            default:
-                                Assert.assertSame(2, inEventCount.get());
-                        }
                     }
                     eventArrived = true;
                 }
@@ -328,7 +303,6 @@ public class UpdateFromTableTestCase {
                 }
                 eventArrived = true;
             }
-
         });
 
         InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
@@ -344,7 +318,9 @@ public class UpdateFromTableTestCase {
         checkStockStream.send(new Object[]{"IBM", 200l, 155.6f});
         checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
 
+        List<Object[]> expected = Arrays.asList(new Object[]{"IBM", 100l, 155.6f}, new Object[]{"IBM", 200l, 155.6f});
         SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+        Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
         Assert.assertEquals("Number of success events", 2, inEventCount.get());
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
@@ -387,17 +363,8 @@ public class UpdateFromTableTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     for (Event event : inEvents) {
+                        inEventsList.add(event.getData());
                         inEventCount.incrementAndGet();
-                        switch (inEventCount.get()) {
-                            case 1:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 100l, 155.6f}, event.getData());
-                                break;
-                            case 2:
-                                Assert.assertArrayEquals(new Object[]{"IBM", 200l, 155.6f}, event.getData());
-                                break;
-                            default:
-                                Assert.assertSame(2, inEventCount.get());
-                        }
                     }
                     eventArrived = true;
                 }
@@ -406,7 +373,6 @@ public class UpdateFromTableTestCase {
                 }
                 eventArrived = true;
             }
-
         });
 
         InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
@@ -422,7 +388,9 @@ public class UpdateFromTableTestCase {
         checkStockStream.send(new Object[]{"IBM", 200l, 155.6f});
         checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
 
+        List<Object[]> expected = Arrays.asList(new Object[]{"IBM", 100l, 155.6f}, new Object[]{"IBM", 200l, 155.6f});
         SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+        Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
         Assert.assertEquals("Number of success events", 2, inEventCount.get());
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
