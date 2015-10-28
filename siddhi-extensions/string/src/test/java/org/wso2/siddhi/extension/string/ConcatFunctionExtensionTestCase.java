@@ -81,7 +81,7 @@ public class ConcatFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"123", "$%$6", "789"});
         inputHandler.send(new Object[]{"D533", "8JU^", "XYZ"});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

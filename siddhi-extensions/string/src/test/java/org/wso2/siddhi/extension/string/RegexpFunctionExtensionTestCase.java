@@ -81,7 +81,7 @@ public class RegexpFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2 abcdh", 60.5f, "WSO(.*h)"});
         inputHandler.send(new Object[]{"aaWSO2 hi hello", 60.5f, "^WSO2(.*)"});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

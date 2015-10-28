@@ -84,7 +84,7 @@ public class SubstrFunctionExtensionTestCase {
         inputHandler.send(new Object[]{" ertyut", 60.5f, 200l});
         inputHandler.send(new Object[]{"Hello", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -130,7 +130,7 @@ public class SubstrFunctionExtensionTestCase {
         inputHandler.send(new Object[]{" ertyut", 60.5f, 200l});
         inputHandler.send(new Object[]{"Helloooo", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -176,7 +176,7 @@ public class SubstrFunctionExtensionTestCase {
         inputHandler.send(new Object[]{" ertWSO2yut", 60.5f, 200l});
         inputHandler.send(new Object[]{"Helloooo", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -222,7 +222,7 @@ public class SubstrFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2 hiA WSO2 hellAo", 60.5f, 200l});
         inputHandler.send(new Object[]{"WSO2 cep WSO2 XX E hi hA WSO2 heAllo", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

@@ -81,7 +81,7 @@ public class StrcmpFunctionExtensionTestCase {
         inputHandler.send(new Object[]{" ertyut", 60.5f, 200l});
         inputHandler.send(new Object[]{"Hello", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -124,7 +124,7 @@ public class StrcmpFunctionExtensionTestCase {
         inputHandler.send(new Object[]{" efdfdfrtyut", "Hertrlo", 200l});
         inputHandler.send(new Object[]{"Hello", "Hello", 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

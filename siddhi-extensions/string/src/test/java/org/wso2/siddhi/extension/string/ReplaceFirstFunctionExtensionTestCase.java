@@ -85,7 +85,7 @@ public class ReplaceFirstFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2 hi hello", 60.5f, 200l});
         inputHandler.send(new Object[]{"WSO2 cep", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -132,7 +132,7 @@ public class ReplaceFirstFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2 hi helloA ", "WSO2(.*)A", "XXXX"});
         inputHandler.send(new Object[]{"WSO2 cep", "cep", "bam"});
         SiddhiTestHelper.waitForEvents(4000, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -180,7 +180,7 @@ public class ReplaceFirstFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2 hi helloA ", 60.5f, 200l});
         inputHandler.send(new Object[]{"WSO2 cep", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

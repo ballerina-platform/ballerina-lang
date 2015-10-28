@@ -84,7 +84,7 @@ public class ContainsFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"One of the best middleware is from WSO2.", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

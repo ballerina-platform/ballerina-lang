@@ -82,7 +82,7 @@ public class UpperFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"123456XyZ abC 78aaaaaa", 60.5f, 200l});
         inputHandler.send(new Object[]{"Hello Worldaaaa", 60.5f, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

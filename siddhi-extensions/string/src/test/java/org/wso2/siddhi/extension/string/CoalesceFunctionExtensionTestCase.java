@@ -86,7 +86,7 @@ public class CoalesceFunctionExtensionTestCase {
         inputHandler.send(new Object[]{null, null, "XYZ"});
         inputHandler.send(new Object[]{null, null, null});
         SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
-        Assert.assertEquals(4, count);
+        Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
