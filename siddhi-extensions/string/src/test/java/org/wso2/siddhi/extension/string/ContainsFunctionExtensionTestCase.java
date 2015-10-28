@@ -28,16 +28,19 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.string.test.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ContainsFunctionExtensionTestCase {
 
     static final Logger log = Logger.getLogger(ContainsFunctionExtensionTestCase.class);
-    private volatile int count;
+    private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
+        count.set(0);
         eventArrived = false;
     }
 
@@ -60,14 +63,14 @@ public class ContainsFunctionExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals(false, inEvent.getData(1));
                     }
-                    if (count == 2) {
+                    if (count.get() == 2) {
                         Assert.assertEquals(true, inEvent.getData(1));
                     }
-                    if (count == 3) {
+                    if (count.get() == 3) {
                         Assert.assertEquals(true, inEvent.getData(1));
                     }
                     eventArrived = true;
@@ -80,7 +83,7 @@ public class ContainsFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         inputHandler.send(new Object[]{"One of the best middleware is from WSO2.", 60.5f, 200l});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();

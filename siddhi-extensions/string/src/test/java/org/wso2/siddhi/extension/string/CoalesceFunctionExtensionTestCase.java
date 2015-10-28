@@ -28,15 +28,18 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.string.test.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CoalesceFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(CoalesceFunctionExtensionTestCase.class);
-    private volatile int count;
+    private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
+        count.set(0);
         eventArrived = false;
     }
 
@@ -55,20 +58,20 @@ public class CoalesceFunctionExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event event : inEvents) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals("BBB", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 2) {
+                    if (count.get() == 2) {
                         Assert.assertEquals("123", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 3) {
+                    if (count.get() == 3) {
                         Assert.assertEquals("XYZ", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 4) {
+                    if (count.get() == 4) {
                         Assert.assertEquals(null, event.getData(1));
                         eventArrived = true;
                     }
@@ -82,7 +85,7 @@ public class CoalesceFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"123", null, "789"});
         inputHandler.send(new Object[]{null, null, "XYZ"});
         inputHandler.send(new Object[]{null, null, null});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
         Assert.assertEquals(4, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
