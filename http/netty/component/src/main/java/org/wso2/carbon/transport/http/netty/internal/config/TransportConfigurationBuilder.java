@@ -36,14 +36,13 @@ public class TransportConfigurationBuilder {
 
     public static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
 
-    public static final String NETTY_TRANSPORTS_CONFIG_FILE =
-            System.getProperty(NETTY_TRANSPORT_CONF,
-                    "repository" + File.separator + "conf" + File.separator +
-                            "transports" + File.separator + "netty-transports.xml");
-
     public static TransportsConfiguration build() {
         TransportsConfiguration transportsConfiguration;
-        File file = new File(NETTY_TRANSPORTS_CONFIG_FILE);
+        String nettyTransportsConfigFile =
+                System.getProperty(NETTY_TRANSPORT_CONF,
+                        "repository" + File.separator + "conf" + File.separator + "transports" +
+                                File.separator + "netty-transports.xml");
+        File file = new File(nettyTransportsConfigFile);
         if (file.exists()) {
             try {
                 JAXBContext jaxbContext = JAXBContext.newInstance(TransportsConfiguration.class);
@@ -61,7 +60,7 @@ public class TransportConfigurationBuilder {
                 unmarshaller.setSchema(schema);
                 transportsConfiguration = (TransportsConfiguration) unmarshaller.unmarshal(file);
             } catch (SAXException | JAXBException e) {
-                String msg = "Error while loading " + NETTY_TRANSPORTS_CONFIG_FILE + " configuration file";
+                String msg = "Error while loading " + nettyTransportsConfigFile + " configuration file";
                 throw new RuntimeException(msg, e);
             }
         } else { // return a default config
