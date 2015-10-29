@@ -5,7 +5,7 @@
     <parent>
         <artifactId>org.wso2.carbon.transport.http.netty.parent</artifactId>
         <groupId>org.wso2.carbon.transport</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-alpha</version>
         </dependency>
     </dependencies>
 
