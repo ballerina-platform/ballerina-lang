@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>1.0.0-alpha</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <modules>
         <module>http/netty</module>
@@ -227,7 +227,7 @@
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
-        <carbon.transport.osgi.version>1.0.0.alpha</carbon.transport.osgi.version>
+        <carbon.transport.osgi.version>1.0.0.SNAPSHOT</carbon.transport.osgi.version>
     </properties>
 
 </project>
