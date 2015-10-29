@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.evalscript;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -28,18 +29,24 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.evalscript.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class EvalScriptTestCase {
 
     static final Logger log = Logger.getLogger(EvalScriptTestCase.class);
+    private AtomicInteger count = new AtomicInteger(0);
 
-    boolean isReceived[] = new boolean[10];
-    Object value[] = new Object[10];
+    @Before
+    public void init() {
+        count.set(0);
+    }
 
     @Test
     public void testEvalScalaConcat() throws InterruptedException {
@@ -67,24 +74,17 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[0] = true;
-                value[0] = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals("IBM 700.0", value);
+                count.incrementAndGet();
             }
         });
-
-        isReceived[0] = false;
-        value[0] = null;
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        Thread.sleep(100);
-
-        if(isReceived[0]) {
-            Assert.assertEquals("IBM 700.0", value[0]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
+        SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
+        Assert.assertEquals(1, count.get());
 
         executionPlanRuntime.shutdown();
     }
@@ -115,25 +115,19 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[0] = true;
-                value[0] = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals("WSO2 50", value);
+                count.incrementAndGet();
             }
         });
-
-        isReceived[0] = false;
-        value[0] = null;
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
 
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
+        Assert.assertEquals(1, count.get());
 
-        if(isReceived[0]) {
-            Assert.assertEquals("WSO2 50", value[0]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
         executionPlanRuntime.shutdown();
     }
 
@@ -259,8 +253,9 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[0] = true;
-                value[0] = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals("50", value);
+                count.incrementAndGet();
             }
         });
 
@@ -268,8 +263,9 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[1] = true;
-                value[1] = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals(6f, value);
+                count.incrementAndGet();
             }
         });
 
@@ -277,8 +273,9 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[2] = true;
-                value[2] = inEvents[inEvents.length - 1].getData(1);
+                Object value  = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals("WSO2 50", value);
+                count.incrementAndGet();
             }
         });
 
@@ -286,47 +283,18 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[3] = true;
-                value[3] = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals("WSO2 50.0", value);
+                count.incrementAndGet();
             }
         });
 
-        for(int i = 0; i < isReceived.length; i++ ) {
-            isReceived[i] = false;
-        }
-
-        for(int i = 0; i < value.length; i++) {
-            value[i] = null;
-        }
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 6l});
 
-        Thread.sleep(1000);
-
-        if(isReceived[0]) {
-            Assert.assertEquals("50", value[0]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
-
-        if(isReceived[1]) {
-            Assert.assertEquals(6f, value[1]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
-
-        if(isReceived[2]) {
-            Assert.assertEquals("WSO2 50", value[2]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
-
-        if(isReceived[3]) {
-            Assert.assertEquals("WSO2 50.0", value[3]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
+        SiddhiTestHelper.waitForEvents(1000, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
 
         executionPlanRuntime.shutdown();
     }
@@ -356,25 +324,18 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[0] = true;
-                value[0] = inEvents[inEvents.length - 1].getData(0);
+                Object value = inEvents[inEvents.length - 1].getData(0);
+                Assert.assertEquals(25.0f, value);
+                count.incrementAndGet();
             }
         });
-
-        isReceived[0] = false;
-        value[0] = null;
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", "50.0", 60f, 60l, 6});
 
-        Thread.sleep(1000);
-
-        if(isReceived[0]) {
-            Assert.assertEquals(25.0f, value[0]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
+        SiddhiTestHelper.waitForEvents(1000, 1, count, 60000);
+        Assert.assertEquals(1, count.get());
 
         executionPlanRuntime.shutdown();
     }
@@ -411,24 +372,17 @@ public class EvalScriptTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                isReceived[0] = true;
-                value[0] = inEvents[inEvents.length - 1].getData(1);
+                Object value = inEvents[inEvents.length - 1].getData(1);
+                Assert.assertEquals("IBM 700.0", value);
+                count.incrementAndGet();
             }
         });
-
-        isReceived[0] = false;
-        value[0] = null;
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
-        Thread.sleep(1000);
-
-        if(isReceived[0]) {
-            Assert.assertEquals("IBM 700.0", value[0]);
-        } else {
-            throw new RuntimeException("The event has not been received");
-        }
+        SiddhiTestHelper.waitForEvents(1000, 1, count, 60000);
+        Assert.assertEquals(1, count.get());
 
         executionPlanRuntime.shutdown();
     }
