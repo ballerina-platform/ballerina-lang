@@ -18,6 +18,8 @@
  */
 package org.wso2.carbon.transport.http.netty.internal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
@@ -27,10 +29,10 @@ import java.util.Map;
  * DataHolder for the Netty transport.
  */
 public class NettyTransportDataHolder {
+    private static final Logger log = LoggerFactory.getLogger(NettyTransportDataHolder.class);
 
     private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
     private Map<String, CarbonNettyServerInitializer> channelInitializers = new HashMap<>();
-
 
     private NettyTransportDataHolder() {
 
@@ -41,9 +43,12 @@ public class NettyTransportDataHolder {
     }
 
     public synchronized void addNettyChannelInitializer(String key, CarbonNettyServerInitializer initializer) {
-        this.channelInitializers.put(key, initializer);
+        if (channelInitializers.get(key) == null) {
+            this.channelInitializers.put(key, initializer);
+        } else {
+            log.error("Netty transport listener " + key + " already registered");
+        }
     }
-
 
     public CarbonNettyServerInitializer getChannelInitializer(String key) {
         return channelInitializers.get(key);
