@@ -27,7 +27,7 @@ import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.listener.ssl.SSLHandlerFactory;
 
 /**
- * Handles initialization of the Netty Channel pipeline
+ * Handles initialization of the Netty Channel pipeline.
  */
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
     private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);

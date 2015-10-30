@@ -30,7 +30,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 /**
- * Parses & creates the object model for the Netty transport configuration file.
+ * Parses &amp; creates the object model for the Netty transport configuration file.
  */
 public class TransportConfigurationBuilder {
 

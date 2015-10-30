@@ -23,7 +23,7 @@ import io.netty.channel.socket.SocketChannel;
 import java.util.Map;
 
 /**
- * An implementation of this class is used for registering additional handlers to the channel pipeline
+ * An implementation of this class is used for registering additional handlers to the channel pipeline.
  */
 public interface CarbonNettyServerInitializer {
 

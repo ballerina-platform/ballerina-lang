@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * DataHolder for the Netty transport
+ * DataHolder for the Netty transport.
  */
 public class NettyTransportDataHolder {
 

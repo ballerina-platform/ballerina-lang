@@ -18,7 +18,7 @@
 package org.wso2.carbon.transport.http.netty;
 
 /**
- * Constants used by the Netty transport
+ * Constants used by the Netty transport.
  */
 public final class Constants {
 

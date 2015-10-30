@@ -29,7 +29,7 @@ import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitialize
 import java.util.Map;
 
 /**
- * Declarative service component for the Netty transport. This handles registration & unregistration of relevant
+ * Declarative service component for the Netty transport. This handles registration &amp; unregistration of relevant
  * OSGi services.
  */
 @Component(

@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A class that starts the netty server bootstrap in given port
+ * A class that starts the netty server bootstrap in given port.
  */
 public class NettyListener extends CarbonTransport {
     private static final Logger log = LoggerFactory.getLogger(NettyListener.class);

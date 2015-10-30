@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * OSGi BundleActivator of the Netty transport component
+ * OSGi BundleActivator of the Netty transport component.
  */
 public class NettyTransportActivator implements BundleActivator {
 

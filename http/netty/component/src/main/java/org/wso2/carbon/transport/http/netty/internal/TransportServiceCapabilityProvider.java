@@ -6,7 +6,7 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.transport.http.netty.internal.config.TransportConfigurationBuilder;
 
 /**
- * Component which registers the CarbonTransport capability information
+ * Component which registers the CarbonTransport capability information.
  */
 @Component(
         name = "org.wso2.carbon.transport.http.netty.internal.TransportServiceCapabilityProvider",
