@@ -503,7 +503,7 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
 
-        Assert.assertTrue(count == 6);
+        Assert.assertEquals(count, 6);
         Assert.assertEquals(true, eventArrived);
 
     }
