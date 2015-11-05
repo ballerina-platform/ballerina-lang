@@ -50,7 +50,6 @@ public class PersistenceTestCase {
         log.info("persistence test 1 - window query");
 
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
-        String revision;
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
@@ -94,7 +93,7 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        revision = executionPlanRuntime.persist();
+        executionPlanRuntime.persist();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(100);
@@ -130,7 +129,6 @@ public class PersistenceTestCase {
         log.info("persistence test 2 - pattern count query");
 
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
-        String revision;
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
@@ -164,7 +162,7 @@ public class PersistenceTestCase {
         executionPlanRuntime.addCallback("query1", queryCallback);
 
         InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream2;
         executionPlanRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
@@ -179,7 +177,7 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        revision = executionPlanRuntime.persist();
+        executionPlanRuntime.persist();
 
         //restarting execution plan
         Thread.sleep(500);
@@ -212,8 +210,6 @@ public class PersistenceTestCase {
     @Test(expected = NoPersistenceStoreException.class)
     public void persistenceTest3() throws InterruptedException {
         log.info("persistence test 3 - no store defined");
-
-        String revision;
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -261,7 +257,7 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        revision = executionPlanRuntime.persist();
+        executionPlanRuntime.persist();
 
         //restarting execution plan
         Thread.sleep(500);
@@ -274,7 +270,6 @@ public class PersistenceTestCase {
         log.info("persistence test 4 - window restart");
 
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
-        String revision;
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
@@ -318,7 +313,7 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        revision = executionPlanRuntime.persist();
+        executionPlanRuntime.persist();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(10);
@@ -329,7 +324,7 @@ public class PersistenceTestCase {
         executionPlanRuntime.shutdown();
         executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("query1", queryCallback);
-        inputHandler = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.getInputHandler("StockStream");
         executionPlanRuntime.start();
 
         //loading
@@ -350,7 +345,6 @@ public class PersistenceTestCase {
         log.info("persistence test 5 - window restart expired event ");
 
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
-        String revision;
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
@@ -402,7 +396,7 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        revision = executionPlanRuntime.persist();
+        executionPlanRuntime.persist();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(100);
@@ -413,7 +407,7 @@ public class PersistenceTestCase {
         executionPlanRuntime.shutdown();
         executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("query1", queryCallback);
-        inputHandler = executionPlanRuntime.getInputHandler("StockStream");
+        executionPlanRuntime.getInputHandler("StockStream");
         executionPlanRuntime.start();
 
         //loading
@@ -435,7 +429,6 @@ public class PersistenceTestCase {
         log.info("persistence test 7 - batch window query");
 
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
-        String revision;
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(persistenceStore);
@@ -478,7 +471,7 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        revision = executionPlanRuntime.persist();
+        executionPlanRuntime.persist();
 
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
         Thread.sleep(100);
