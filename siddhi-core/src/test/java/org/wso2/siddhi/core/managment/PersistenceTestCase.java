@@ -425,8 +425,8 @@ public class PersistenceTestCase {
     }
 
     @Test
-    public void persistenceTest7() throws InterruptedException {
-        log.info("persistence test 7 - batch window query");
+    public void persistenceTest6() throws InterruptedException {
+        log.info("persistence test 6 - batch window query");
 
         PersistenceStore persistenceStore = new InMemoryPersistenceStore();
 
