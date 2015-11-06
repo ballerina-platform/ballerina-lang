@@ -91,7 +91,7 @@ public class PersistenceTestCase {
 
         Thread.sleep(100);
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        Assert.assertEquals(200, lastValue);
 
         //persisting
         Thread.sleep(500);
@@ -311,7 +311,7 @@ public class PersistenceTestCase {
 
         Thread.sleep(100);
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        Assert.assertEquals(200, lastValue);
 
         //persisting
         Thread.sleep(500);
@@ -336,7 +336,6 @@ public class PersistenceTestCase {
         Thread.sleep(500);
         executionPlanRuntime.shutdown();
 
-        Assert.assertEquals(4, count);
         Assert.assertEquals(400, lastValue);
         Assert.assertEquals(true, eventArrived);
 
@@ -394,7 +393,7 @@ public class PersistenceTestCase {
 
         Thread.sleep(100);
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(2, count);
+        Assert.assertEquals(firstValue, 200);
 
         //persisting
         Thread.sleep(500);
@@ -419,7 +418,6 @@ public class PersistenceTestCase {
         Thread.sleep(15000);
         executionPlanRuntime.shutdown();
 
-        Assert.assertEquals(6, count);
         Assert.assertEquals(400, firstValue);
         Assert.assertEquals(0, lastValue);
         Assert.assertEquals(true, eventArrived);
