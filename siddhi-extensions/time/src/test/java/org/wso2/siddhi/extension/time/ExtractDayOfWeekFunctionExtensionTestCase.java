@@ -34,21 +34,18 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(ExtractDayOfWeekFunctionExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
-    private ExtractDayOfWeekFunctionExtension extractDayOfWeekFunctionExtension;
 
     @Before
     public void init() {
         count = 0;
         eventArrived = false;
-
     }
 
     @Test
     public void extractDayOfWeekFunctionExtension() throws InterruptedException {
 
-        log.info("ExtractDayOfWeekFunctionExtensionTestCase");
+        log.info("ExtractDayOfWeekFunctionExtensionTestCase ");
         SiddhiManager siddhiManager = new SiddhiManager();
-
 
         String inStreamDefinition = "@config(async = 'true')" +
                 "define stream inputStream (symbol string, dateValue string,dateFormat string);";
@@ -62,9 +59,9 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                String day="";
+                String day = "";
                 eventArrived = true;
-                for(int cnt=0;cnt<inEvents.length;cnt++){
+                for (int cnt = 0; cnt < inEvents.length; cnt++) {
                     count++;
 
                     log.info("Event : " + count + ",ExtractedDayOfWeek : " + inEvents[cnt].getData(1));
@@ -83,4 +80,43 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
+
+    @Test
+    public void extractDayOfWeekFunctionExtension2() throws InterruptedException {
+
+        log.info("ExtractDayOfWeekFunctionExtensionTestCase 2");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "@config(async = 'true')" +
+                "define stream inputStream (symbol string, dateValue string);";
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
+                "select symbol,time:dayOfWeek(dateValue) as dayOfWeekExtracted " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (int cnt = 0; cnt < inEvents.length; cnt++) {
+                    count++;
+                    log.info("Event : " + count + ",ExtractedDayOfWeek : " + inEvents[cnt].getData(1));
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS"});
+        inputHandler.send(new Object[]{"WSO2", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss"});
+        inputHandler.send(new Object[]{"XYZ", "2014-11-11", "yyyy-MM-dd"});
+        Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+
 }

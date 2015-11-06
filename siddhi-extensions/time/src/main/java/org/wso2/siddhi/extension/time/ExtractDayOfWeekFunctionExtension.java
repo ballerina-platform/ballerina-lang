@@ -34,13 +34,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * date(dateValue,dateFormat)
+ * dayOfWeek(dateValue,dateFormat)
  * Returns date part from a date or date/time expression.
  * dateValue - value of date. eg: "2014-11-11 13:23:44.657", "2014-11-11"
  * dateFormat - Date format of the provided date value. eg: yyyy-MM-dd HH:mm:ss.SSS
  * Accept Type(s) for dayOfWeek(dateValue,dateFormat):
- *         dateValue : STRING
- *         dateFormat : STRING
+ * dateValue : STRING
+ * dateFormat : STRING
  * Return Type(s): STRING
  */
 public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
@@ -50,8 +50,7 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-            ExecutionPlanContext executionPlanContext) {
-
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length > 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:dayOfWeek(dateValue," +
                     "dateFormat) function, " + "required 2, but found " + attributeExpressionExecutors.length);
@@ -63,7 +62,7 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
         }
         //User can omit sending the dateFormat thus using a default CEP Time format
         if (attributeExpressionExecutors.length > 0) {
-            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
+            if (attributeExpressionExecutors.length > 1 && attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
                         "time:dayOfWeek(dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[1].getReturnType().toString());
@@ -72,6 +71,7 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
 
     }
 
+    // this method will be executed for two or more parameters
     @Override
     protected Object execute(Object[] data) {
         String userFormat;
@@ -79,17 +79,17 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanRuntimeException("Invalid input given to time:dayOfWeek(dateValue," +
                     "dateFormat) function" + ". First " + "argument cannot be null");
         }
-        if (data.length > 0) {
+        if (data.length > 1) {
             if (data[1] == null) {
                 throw new ExecutionPlanRuntimeException(
                         "Invalid input given to time:dayOfWeek(dateValue,dateFormat) function" + ". Second " +
                                 "argument cannot be null");
+            } else {
+                userFormat = (String) data[1];
             }
-            userFormat = (String) data[1];
         } else {
             userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
         }
-
         String source = null;
         FastDateFormat userSpecificFormat;
         Date userSpecifiedDate;
@@ -97,22 +97,44 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
             source = (String) data[0];
             userSpecificFormat = FastDateFormat.getInstance(userFormat);
             userSpecifiedDate = userSpecificFormat.parse(source);
+            return getDayOfWeek(userSpecifiedDate);
+        } catch (ParseException e) {
+            String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
+                    .getMessage();
+            throw new ExecutionPlanRuntimeException(errorMsg, e);
+        } catch (ClassCastException e) {
+            String errorMsg = "Provided Data type cannot be cast to desired format. " + e.getMessage();
+            throw new ExecutionPlanRuntimeException(errorMsg, e);
+        }
+    }
+
+
+    // this method will be executed for a single parameter
+    @Override
+    protected Object execute(Object data) {
+        String userFormat;
+        if (data == null) {
+            throw new ExecutionPlanRuntimeException("Invalid input given to time:dayOfWeek(dateValue," +
+                    "dateFormat) function" + ". First " + "argument cannot be null");
+        }
+        userFormat = (String) data;
+        String source = null;
+        FastDateFormat userSpecificFormat;
+        Date userSpecifiedDate;
+        try {
+            source = (String) data;
+            userSpecificFormat = FastDateFormat.getInstance(userFormat);
+            userSpecifiedDate = userSpecificFormat.parse(source);
 
             return getDayOfWeek(userSpecifiedDate);
         } catch (ParseException e) {
             String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
                     .getMessage();
-            throw new ExecutionPlanRuntimeException(errorMsg,e);
-        } catch (ClassCastException e){
-            String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-            throw new ExecutionPlanRuntimeException(errorMsg,e);
+            throw new ExecutionPlanRuntimeException(errorMsg, e);
+        } catch (ClassCastException e) {
+            String errorMsg = "Provided Data type cannot be cast to desired format. " + e.getMessage();
+            throw new ExecutionPlanRuntimeException(errorMsg, e);
         }
-    }
-
-    @Override
-    protected Object execute(Object data) {
-        return null;//Since the EpochToDateFormat function takes in 2 parameters, this method does not get called. Hence, not implemented.
-
     }
 
     @Override
@@ -141,12 +163,8 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
     }
 
     //private methods
-    private Object getDayOfWeek(Date date){
-        String day;
-
-        DateFormat dateFormatDayOfWeek=new SimpleDateFormat("EEEE");
-        day=dateFormatDayOfWeek.format(date);
-
-        return day;
+    private String getDayOfWeek(Date date) {
+        DateFormat dateFormatDayOfWeek = new SimpleDateFormat("EEEE");
+        return dateFormatDayOfWeek.format(date);
     }
 }
