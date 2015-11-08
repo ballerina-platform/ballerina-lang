@@ -42,6 +42,10 @@ import java.util.Date;
  * dateValue : STRING
  * dateFormat : STRING
  * Return Type(s): STRING
+ *
+ * In the case of using only the datevalue as the parameter, user has to follow
+ * the following specific format for the date
+ * yyyy-MM-dd<space>time *
  */
 public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
 
@@ -117,20 +121,20 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanRuntimeException("Invalid input given to time:dayOfWeek(dateValue," +
                     "dateFormat) function" + ". First " + "argument cannot be null");
         }
-        userFormat = (String) data;
-        String source = null;
-        FastDateFormat userSpecificFormat;
-        Date userSpecifiedDate;
+        userFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
+        String source;
         try {
             source = (String) data;
-            userSpecificFormat = FastDateFormat.getInstance(userFormat);
-            userSpecifiedDate = userSpecificFormat.parse(source);
-
-            return getDayOfWeek(userSpecifiedDate);
-        } catch (ParseException e) {
-            String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
-                    .getMessage();
-            throw new ExecutionPlanRuntimeException(errorMsg, e);
+            String inputData[] = source.split(" ");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date date = format.parse(inputData[0]);
+                return getDayOfWeek(date);
+            } catch (ParseException e) {
+                String errorMsg = "Provided format " + userFormat + " does not match with the timestamp " + source + e
+                        .getMessage();
+                throw new ExecutionPlanRuntimeException(errorMsg, e);
+            }
         } catch (ClassCastException e) {
             String errorMsg = "Provided Data type cannot be cast to desired format. " + e.getMessage();
             throw new ExecutionPlanRuntimeException(errorMsg, e);
@@ -167,4 +171,7 @@ public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
         DateFormat dateFormatDayOfWeek = new SimpleDateFormat("EEEE");
         return dateFormatDayOfWeek.format(date);
     }
+
+
+
 }

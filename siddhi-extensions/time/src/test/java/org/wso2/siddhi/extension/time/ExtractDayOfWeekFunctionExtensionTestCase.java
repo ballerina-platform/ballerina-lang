@@ -63,16 +63,14 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
                 eventArrived = true;
                 for (int cnt = 0; cnt < inEvents.length; cnt++) {
                     count++;
-
                     log.info("Event : " + count + ",ExtractedDayOfWeek : " + inEvents[cnt].getData(1));
-
                 }
             }
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS"});
+        inputHandler.send(new Object[]{"IBM", "2014-12-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS"});
         inputHandler.send(new Object[]{"WSO2", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss"});
         inputHandler.send(new Object[]{"XYZ", "2014-11-11", "yyyy-MM-dd"});
         Thread.sleep(100);
@@ -109,9 +107,9 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS"});
-        inputHandler.send(new Object[]{"WSO2", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss"});
-        inputHandler.send(new Object[]{"XYZ", "2014-11-11", "yyyy-MM-dd"});
+        inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657"});
+        inputHandler.send(new Object[]{"WSO2", "2015-10-18 13:23:44"});
+        inputHandler.send(new Object[]{"XYZ", "2014-9-22"});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
