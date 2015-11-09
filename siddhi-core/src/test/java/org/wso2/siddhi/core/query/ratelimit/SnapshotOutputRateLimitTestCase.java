@@ -787,9 +787,9 @@ public class SnapshotOutputRateLimitTestCase {
                 "define stream LoginEvents (timeStamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
-                "from LoginEvents#window.time(1 sec) " +
+                "from LoginEvents#window.time(2 sec) " +
                 "select  ip " +
-                "output snapshot every 1 sec " +
+                "output snapshot every 2 sec " +
                 "insert all events into uniqueIps ;";
 
 
@@ -819,7 +819,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        Thread.sleep(2200);
+        Thread.sleep(3200);
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count);
