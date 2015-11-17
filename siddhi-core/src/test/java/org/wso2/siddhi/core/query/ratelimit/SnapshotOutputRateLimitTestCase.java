@@ -101,7 +101,9 @@ public class SnapshotOutputRateLimitTestCase {
         eventsSent++;
         SiddhiTestHelper.waitForEvents(100, 1, new AtomicInteger(count), 60000);
 
+        Thread.sleep(1100);
         executionPlanRuntime.shutdown();
+
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertTrue("Number of output event value", 1 <= count);
     }
