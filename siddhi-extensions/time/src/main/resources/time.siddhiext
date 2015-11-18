@@ -23,6 +23,7 @@ now=org.wso2.siddhi.extension.time.CurrentTimestampFunctionExtension
 currentDate=org.wso2.siddhi.extension.time.CurrentDateFunctionExtension
 currentTime=org.wso2.siddhi.extension.time.CurrentTimeFunctionExtension
 date=org.wso2.siddhi.extension.time.ExtractDateFunctionExtension
+dayOfWeek=org.wso2.siddhi.extension.time.ExtractDayOfWeekFunctionExtension
 extract=org.wso2.siddhi.extension.time.ExtractAttributesFunctionExtension
 dateDiff=org.wso2.siddhi.extension.time.DateDifferenceFunctionExtension
 dateAdd=org.wso2.siddhi.extension.time.DateAddFunctionExtension
