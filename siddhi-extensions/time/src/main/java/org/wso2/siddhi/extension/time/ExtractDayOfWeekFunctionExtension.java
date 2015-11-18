@@ -45,7 +45,7 @@ import java.util.Date;
  *
  * In the case of using only the datevalue as the parameter, user has to follow
  * the following specific format for the date
- * yyyy-MM-dd<space>time *
+ * yyyy-MM-dd time
  */
 public class ExtractDayOfWeekFunctionExtension extends FunctionExecutor {
 
