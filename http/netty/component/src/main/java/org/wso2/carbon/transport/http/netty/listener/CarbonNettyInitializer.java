@@ -24,8 +24,8 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
@@ -34,24 +34,18 @@ import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
-import java.io.File;
 import java.util.Map;
 
 /**
  * A class that responsible for create server side channels.
  */
-public class GatewayNettyInitializer implements CarbonTransportServerInitializer {
+public class CarbonNettyInitializer implements CarbonTransportServerInitializer {
 
-    private static final Logger log = Logger.getLogger(GatewayNettyInitializer.class);
+    private static final Logger log = Logger.getLogger(CarbonNettyInitializer.class);
     private int queueSize = 32544;
     private ConnectionManager connectionManager;
 
-    public static final String CAMEL_CONTEXT_CONFIG_FILE = "repository" + File.separator + "conf" +
-                                                           File.separator +
-                                                           "camel" + File.separator
-                                                           + "camel-context.xml";
-
-    public GatewayNettyInitializer() {
+    public CarbonNettyInitializer() {
 
     }
 
@@ -94,9 +88,8 @@ public class GatewayNettyInitializer implements CarbonTransportServerInitializer
                                                   disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
             }
         } catch (Exception e) {
-            String msg = "Error while loading " + CAMEL_CONTEXT_CONFIG_FILE + " configuration file";
-            log.error(msg + e);
-            throw new RuntimeException(msg, e);
+            log.error(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -120,6 +113,11 @@ public class GatewayNettyInitializer implements CarbonTransportServerInitializer
         public boolean receive(CarbonMessage carbonMessage,
                 CarbonCallback carbonCallback) throws Exception {
             return false;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void setTransportSender(TransportSender transportSender) {
+            //do nothing
         }
     }
 }

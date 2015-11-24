@@ -24,11 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.EngineException;
+import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.GWException;
 import org.wso2.carbon.transport.http.netty.common.HTTPContentChunk;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
@@ -53,7 +53,7 @@ public class NettySender implements TransportSender {
     }
 
     @Override
-    public boolean send(CarbonMessage msg, CarbonCallback callback) throws GWException {
+    public boolean send(CarbonMessage msg, CarbonCallback callback) throws EngineException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
 
@@ -82,7 +82,7 @@ public class NettySender implements TransportSender {
 
             writeContent(outboundChannel, httpRequest, msg);
         } catch (Exception failedCause) {
-            throw new GWException(failedCause.getMessage(), failedCause);
+            throw new EngineException(failedCause.getMessage(), failedCause);
         }
 
         return false;
