@@ -178,7 +178,8 @@
                             javax.xml.transform.*,
                             javax.xml.validation.*,
                             javax.net.ssl.*,
-                            org.wso2.carbon.kernel.startupresolver.*
+                            org.wso2.carbon.kernel.startupresolver.*,
+                            org.wso2.carbon.messaging.*
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>

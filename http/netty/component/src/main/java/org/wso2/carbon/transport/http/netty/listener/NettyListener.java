@@ -89,7 +89,7 @@ public class NettyListener extends TransportListener {
     }
 
     private void setupChannelInitializer() {
-        CarbonTransportServerInitializer channelInitializer = new GatewayNettyInitializer();
+        CarbonTransportServerInitializer channelInitializer = new CarbonNettyInitializer();
 
         List<Parameter> parameters = nettyConfig.getParameters();
         if (parameters != null && !parameters.isEmpty()) {
