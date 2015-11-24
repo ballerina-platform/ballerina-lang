@@ -25,8 +25,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
+import org.wso2.carbon.transport.http.netty.sender.NettySender;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
@@ -59,16 +62,14 @@ public class GatewayNettyInitializer implements CarbonTransportServerInitializer
         BootstrapConfiguration.createBootStrapConfiguration(parameters);
         PoolConfiguration.createPoolConfiguration(parameters);
 
-//        SpringCamelContext.setNoStart(true);
-//        ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-//                new String[]{CAMEL_CONTEXT_CONFIG_FILE});
         try {
-//            SpringCamelContext camelContext = (SpringCamelContext) applicationContext.getBean("wso2-cc");
-//            camelContext.start();
-//            CamelMediationComponent component = (CamelMediationComponent) camelContext.getComponent("wso2-gw");
-//            CamelMediationEngine engine = component.getEngine();
-//            connectionManager = component.getConnectionManager();
+            connectionManager = ConnectionManager.getInstance();
 
+            NettySender.Config config = new NettySender.Config("netty-gw-sender").setQueueSize(this.queueSize);
+            TransportSender sender = new NettySender(config, connectionManager);
+
+            NettyTransportDataHolder.getInstance().getBundleContext()
+                    .registerService(TransportSender.class, sender, null);
 
             if (parameters != null) {
                 DisruptorConfig disruptorConfig =

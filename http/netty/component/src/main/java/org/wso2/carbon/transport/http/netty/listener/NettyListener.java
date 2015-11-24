@@ -27,8 +27,8 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
 import org.wso2.carbon.transport.http.netty.Constants;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 
@@ -87,21 +87,16 @@ public class NettyListener extends CarbonTransport {
     }
 
     private void setupChannelInitializer() {
-        CarbonNettyServerInitializer channelInitializer =
-                NettyTransportDataHolder.getInstance().getChannelInitializer(nettyConfig.getId());
-        if (channelInitializer != null) {
-            List<Parameter> parameters = nettyConfig.getParameters();
-            if (parameters != null && !parameters.isEmpty()) {
-                Map<String, String> paramMap = new HashMap<>(parameters.size());
-                for (Parameter parameter : parameters) {
-                    paramMap.put(parameter.getName(), parameter.getValue());
-                }
+        CarbonTransportServerInitializer channelInitializer = new GatewayNettyInitializer();
 
-
-                ///
-
-                channelInitializer.setup(paramMap);
+        List<Parameter> parameters = nettyConfig.getParameters();
+        if (parameters != null && !parameters.isEmpty()) {
+            Map<String, String> paramMap = new HashMap<>(parameters.size());
+            for (Parameter parameter : parameters) {
+                paramMap.put(parameter.getName(), parameter.getValue());
             }
+
+            channelInitializer.setup(paramMap);
         }
     }
 
