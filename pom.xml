@@ -77,6 +77,11 @@
             <artifactId>snakeyaml</artifactId>
             <version>${org.snakeyaml.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.2.wso2v2</version>
+        </dependency>
     </dependencies>
 
     <build>
