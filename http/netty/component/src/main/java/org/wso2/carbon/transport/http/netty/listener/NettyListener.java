@@ -96,6 +96,10 @@ public class NettyListener extends CarbonTransport {
                 for (Parameter parameter : parameters) {
                     paramMap.put(parameter.getName(), parameter.getValue());
                 }
+
+
+                ///
+
                 channelInitializer.setup(paramMap);
             }
         }
