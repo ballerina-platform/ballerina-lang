@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.internal;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class NettyTransportDataHolder {
     private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
     private Map<String, CarbonNettyServerInitializer> channelInitializers = new HashMap<>();
     private BundleContext bundleContext;
+    private CarbonMessageProcessor engine;
 
     private NettyTransportDataHolder() {
 
@@ -69,4 +71,11 @@ public class NettyTransportDataHolder {
         return this.bundleContext;
     }
 
+    public CarbonMessageProcessor getEngine() {
+        return engine;
+    }
+
+    public void setEngine(CarbonMessageProcessor engine) {
+        this.engine = engine;
+    }
 }
