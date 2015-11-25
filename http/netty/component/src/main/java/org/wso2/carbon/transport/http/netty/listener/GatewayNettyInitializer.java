@@ -81,7 +81,7 @@ public class GatewayNettyInitializer implements CarbonTransportServerInitializer
                                 Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND,
-                        disruptorConfig, new Tempinit());
+                        disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
                 String queueSize = parameters.get(Constants.CONTENT_QUEUE_SIZE);
                 if (queueSize != null) {
                     this.queueSize = Integer.parseInt(queueSize);
@@ -91,7 +91,7 @@ public class GatewayNettyInitializer implements CarbonTransportServerInitializer
                          "configuration hence using default configs");
                 DisruptorConfig disruptorConfig = new DisruptorConfig();
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND,
-                                                  disruptorConfig, new Tempinit());
+                                                  disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
             }
         } catch (Exception e) {
             String msg = "Error while loading " + CAMEL_CONTEXT_CONFIG_FILE + " configuration file";

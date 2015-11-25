@@ -26,9 +26,11 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.transport.http.netty.Constants;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 
@@ -40,7 +42,7 @@ import java.util.Map;
 /**
  * A class that starts the netty server bootstrap in given port.
  */
-public class NettyListener extends CarbonTransport {
+public class NettyListener extends TransportListener {
     private static final Logger log = LoggerFactory.getLogger(NettyListener.class);
 
     private EventLoopGroup bossGroup;
@@ -149,5 +151,10 @@ public class NettyListener extends CarbonTransport {
                 });
             }
         });
+    }
+
+    @Override
+    public void setEngine(CarbonMessageProcessor carbonMessageProcessor) {
+        NettyTransportDataHolder.getInstance().setEngine(carbonMessageProcessor);
     }
 }
