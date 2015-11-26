@@ -36,12 +36,10 @@ public class IfThenElseFunctionTestCase {
     static final Logger log = Logger.getLogger(IfThenElseFunctionTestCase.class);
 
     private int count;
-    private boolean eventArrived;
 
     @Before
     public void init() {
         count = 0;
-        eventArrived = false;
     }
 
     @Test
@@ -65,10 +63,17 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof String);
-                    System.out.println("Event : " + count + ",sensorValue : " + inEvent.getData(0) + " °C ,status : "
-                            + inEvent.getData(1));
+                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
+                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    if (count == 1) {
+                        Assert.assertEquals(50.4, inEvent.getData(0));
+                        Assert.assertEquals("High", inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(20.4, inEvent.getData(0));
+                        Assert.assertEquals("Low", inEvent.getData(1));
+                    }
+
                 }
 
             }
@@ -79,8 +84,8 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{50.4});
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(2, count);
     }
 
     @Test (expected = ExecutionPlanValidationException.class)
@@ -104,10 +109,17 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof String);
-                    System.out.println("Event : " + count + ",sensorValue : " + inEvent.getData(0) + " °C ,status : "
-                            + inEvent.getData(1));
+                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
+                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    if (count == 1) {
+                        Assert.assertEquals(50.4, inEvent.getData(0));
+                        Assert.assertEquals("High", inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(20.4, inEvent.getData(0));
+                        Assert.assertEquals("Low", inEvent.getData(1));
+                    }
+
                 }
 
             }
@@ -118,8 +130,8 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{50.4});
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(2, count);
     }
 
     @Test (expected = ExecutionPlanValidationException.class)
@@ -143,10 +155,17 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof String);
-                    System.out.println("Event : " + count + ",sensorValue : " + inEvent.getData(0) + " °C ,status : "
-                            + inEvent.getData(1));
+                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
+                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    if (count == 1) {
+                        Assert.assertEquals(50.4, inEvent.getData(0));
+                        Assert.assertEquals("High", inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(20.4, inEvent.getData(0));
+                        Assert.assertEquals("Low", inEvent.getData(1));
+                    }
+
                 }
 
             }
@@ -157,8 +176,8 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{50.4});
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(2, count);
     }
 
     @Test (expected = ExecutionPlanValidationException.class)
@@ -182,10 +201,17 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof String);
-                    System.out.println("Event : " + count + ",sensorValue : " + inEvent.getData(0) + " °C ,status : "
-                            + inEvent.getData(1));
+                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
+                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    if (count == 1) {
+                        Assert.assertEquals(50.4, inEvent.getData(0));
+                        Assert.assertEquals("High", inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(20.4, inEvent.getData(0));
+                        Assert.assertEquals("Low", inEvent.getData(1));
+                    }
+
                 }
 
             }
@@ -196,8 +222,8 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{50.4});
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(2, count);
     }
 
     @Test
@@ -206,11 +232,11 @@ public class IfThenElseFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "define stream sensorEventStream (sensorValue int,status string);";
+        String sensorEventStream = "define stream sensorEventStream (sensorValue int,gainValue int);";
 
         String query = ("@info(name = 'query1') " +
                 "from sensorEventStream " +
-                "select sensorValue, ifThenElse(sensorValue<35,sensorValue*5,sensorValue*10) as status " +
+                "select sensorValue, ifThenElse(sensorValue>35,sensorValue*5,sensorValue*10) as gainValue " +
                 "insert into outputStream;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
@@ -221,10 +247,17 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof Integer);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof Integer);
-                    System.out.println("Event : " + count + ",sensorValue : " + inEvent.getData(0) + " °C ,gainValue : "
-                            + inEvent.getData(1) + " °C");
+                    Assert.assertTrue(inEvent.getData(0) instanceof Integer);
+                    Assert.assertTrue(inEvent.getData(1) instanceof Integer);
+                    if (count == 1) {
+                        Assert.assertEquals(50, inEvent.getData(0));
+                        Assert.assertEquals(250, inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(20, inEvent.getData(0));
+                        Assert.assertEquals(200, inEvent.getData(1));
+                    }
+
                 }
 
             }
@@ -235,8 +268,8 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{50});
         inputHandler.send(new Object[]{20});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(2, count);
     }
 
     @Test
@@ -260,10 +293,17 @@ public class IfThenElseFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof Double);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof String);
-                    System.out.println("Event : " + count + ",sensorValue : " + inEvent.getData(0) + " °C ,status : "
-                            + inEvent.getData(1));
+                    Assert.assertTrue(inEvent.getData(0) instanceof Double);
+                    Assert.assertTrue(inEvent.getData(1) instanceof String);
+                    if (count == 1) {
+                        Assert.assertEquals(50.4, inEvent.getData(0));
+                        Assert.assertEquals("High", inEvent.getData(1));
+                    }
+                    if (count == 2) {
+                        Assert.assertEquals(20.4, inEvent.getData(0));
+                        Assert.assertEquals("Low", inEvent.getData(1));
+                    }
+
                 }
 
             }
@@ -274,8 +314,8 @@ public class IfThenElseFunctionTestCase {
         inputHandler.send(new Object[]{50.4});
         inputHandler.send(new Object[]{20.4});
         Thread.sleep(100);
-        Assert.assertEquals(2, count);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(2, count);
     }
 
 

@@ -22,9 +22,6 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-/**
- * Created by sajithd on 11/24/15.
- */
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
 
     Attribute.Type returnType ;
@@ -33,12 +30,15 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
                         ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
+            // check whether all the arguments passed
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to ifThenElse() function, " +
                     "required only 3, but found " + attributeExpressionExecutors.length);
         }else if(!attributeExpressionExecutors[0].getReturnType().equals(Attribute.Type.BOOL)){
+            // check whether first argument Boolean or not
             throw new ExecutionPlanValidationException("Input type of ifThenElse function executor " + attributeExpressionExecutors[0].toString() + " should be of type BOOL. " +
                     "Actual Type: " + attributeExpressionExecutors[0].getReturnType().toString());
         }else if(!attributeExpressionExecutors[1].getReturnType().equals(attributeExpressionExecutors[2].getReturnType())){
+            // check whether second and thirds argument's return type are equivalent.
             throw new ExecutionPlanValidationException("Return type of ifThenElse function executor " + attributeExpressionExecutors[1].toString() +
                     " and ifThenElse function executor" + attributeExpressionExecutors[2].toString() + "should be of equivalent type. Left executor: " +
                     attributeExpressionExecutors[1].getReturnType() + " Right executor: " + attributeExpressionExecutors[2].getReturnType());
@@ -50,6 +50,7 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
+        //check whether first argument true or null
         if (data[0]!=null & data[0].equals(Boolean.TRUE))
             return data[1];
         else
