@@ -29,9 +29,6 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-/**
- * Created by sajithd on 11/26/15.
- */
 public class IfThenElseFunctionTestCase {
     static final Logger log = Logger.getLogger(IfThenElseFunctionTestCase.class);
 
