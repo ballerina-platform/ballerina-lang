@@ -27,21 +27,30 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  */
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
 
-    Attribute.Type returnType = Attribute.Type.OBJECT;
+    Attribute.Type returnType ;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
                         ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to Conditionals() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to ifThenElse() function, " +
                     "required only 3, but found " + attributeExpressionExecutors.length);
+        }else if(!attributeExpressionExecutors[0].getReturnType().equals(Attribute.Type.BOOL)){
+            throw new ExecutionPlanValidationException("Input type of ifThenElse function executor " + attributeExpressionExecutors[0].toString() + " should be of type BOOL. " +
+                    "Actual Type: " + attributeExpressionExecutors[0].getReturnType().toString());
+        }else if(!attributeExpressionExecutors[1].getReturnType().equals(attributeExpressionExecutors[2].getReturnType())){
+            throw new ExecutionPlanValidationException("Return type of ifThenElse function executor " + attributeExpressionExecutors[1].toString() +
+                    " and ifThenElse function executor" + attributeExpressionExecutors[2].toString() + "should be of equivalent type. Left executor: " +
+                    attributeExpressionExecutors[1].getReturnType() + " Right executor: " + attributeExpressionExecutors[2].getReturnType());
+        }else{
+            returnType = attributeExpressionExecutors[1].getReturnType();
         }
+
     }
 
     @Override
     protected Object execute(Object[] data) {
-        Boolean sentinel = true;
-        if (data[0].equals(sentinel))
+        if (data[0]!=null & data[0].equals(Boolean.TRUE))
             return data[1];
         else
             return data[2];
