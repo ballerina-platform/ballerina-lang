@@ -23,8 +23,8 @@ import org.apache.log4j.Logger;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.transport.http.netty.common.CarbonTransportServerInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
@@ -94,11 +94,11 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
     }
 
     @Override
-    public void initChannel(Object ch) {
+    public void initChannel(SocketChannel ch) {
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
-        ChannelPipeline p = ((SocketChannel) ch).pipeline();
+        ChannelPipeline p = ch.pipeline();
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
         try {
