@@ -179,7 +179,10 @@
                             javax.xml.validation.*,
                             javax.net.ssl.*,
                             org.wso2.carbon.kernel.startupresolver.*,
-                            org.wso2.carbon.messaging.*
+                            org.wso2.carbon.messaging.*,
+                            org.apache.log4j.*,
+                            org.apache.commons.pool.*,
+                            com.lmax.disruptor.*,
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>

@@ -174,7 +174,11 @@
                             javax.xml.bind.*,
                             javax.xml.transform.*,
                             javax.xml.validation.*,
-                            javax.net.ssl.*
+                            javax.net.ssl.*,
+                            org.wso2.carbon.messaging.*,
+                            org.apache.log4j.*,
+                            org.apache.commons.pool.*,
+                            com.lmax.disruptor.*,
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
