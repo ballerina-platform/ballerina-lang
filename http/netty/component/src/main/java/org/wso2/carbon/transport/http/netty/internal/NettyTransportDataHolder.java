@@ -22,7 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.transport.http.netty.common.CarbonTransportServerInitializer;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
