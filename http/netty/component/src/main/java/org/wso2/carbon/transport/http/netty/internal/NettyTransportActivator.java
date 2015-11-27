@@ -22,7 +22,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.config.TransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
 
 import java.util.HashSet;
@@ -48,7 +48,7 @@ public class NettyTransportActivator implements BundleActivator {
     private Set<NettyListener> createNettyListeners() {
         Set<NettyListener> listeners = new HashSet<>();
         Set<ListenerConfiguration> listenerConfigurations =
-                TransportConfigurationBuilder.build().getListenerConfigurations();
+                YAMLTransportConfigurationBuilder.build().getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             listeners.add(new NettyListener(listenerConfiguration));
         }

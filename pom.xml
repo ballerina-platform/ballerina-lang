@@ -72,6 +72,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${org.snakeyaml.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -243,6 +248,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
         <carbon.transport.osgi.version>1.0.0.SNAPSHOT</carbon.transport.osgi.version>
+        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
     </properties>
 
 </project>
