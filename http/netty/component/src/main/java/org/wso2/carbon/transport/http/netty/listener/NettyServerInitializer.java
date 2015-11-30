@@ -22,7 +22,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.common.CarbonTransportServerInitializer;
+import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.listener.ssl.SSLHandlerFactory;
