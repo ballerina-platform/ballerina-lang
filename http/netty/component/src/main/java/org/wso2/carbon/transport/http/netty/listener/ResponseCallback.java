@@ -21,8 +21,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.HTTPContentChunk;
 import org.wso2.carbon.messaging.Pipe;
-import org.wso2.carbon.transport.http.netty.common.HTTPContentChunk;
 import org.wso2.carbon.transport.http.netty.common.Util;
 
 /**
