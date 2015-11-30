@@ -21,10 +21,11 @@ package org.wso2.carbon.transport.http.netty.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.OverrideInitializer;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
-import org.wso2.carbon.transport.http.netty.listener.OverrideInitializer;
+import org.wso2.carbon.transport.http.netty.listener.OverrideInitializerImpl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class NettyTransportActivator implements BundleActivator {
         for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
-        bundleContext.registerService(OverrideInitializer.class, OverrideInitializer.getInstance(), null);
+        bundleContext.registerService(OverrideInitializer.class, OverrideInitializerImpl.getInstance(), null);
         NettyTransportDataHolder.getInstance().setBundleContext(bundleContext);
     }
 
