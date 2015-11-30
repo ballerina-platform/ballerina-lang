@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.CarbonTransportServerInitializer;
-import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class NettyTransportDataHolder {
     private static final Logger log = LoggerFactory.getLogger(NettyTransportDataHolder.class);
 
     private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
-    private Map<String, CarbonNettyServerInitializer> channelInitializers = new HashMap<>();
+    private Map<String, CarbonTransportServerInitializer> channelInitializers = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor engine;
     private CarbonTransportServerInitializer carbonNettyInitializer;
@@ -56,7 +55,7 @@ public class NettyTransportDataHolder {
         return instance;
     }
 
-    public synchronized void addNettyChannelInitializer(String key, CarbonNettyServerInitializer initializer) {
+    public synchronized void addNettyChannelInitializer(String key, CarbonTransportServerInitializer initializer) {
         if (channelInitializers.get(key) == null) {
             this.channelInitializers.put(key, initializer);
         } else {
@@ -64,7 +63,7 @@ public class NettyTransportDataHolder {
         }
     }
 
-    public CarbonNettyServerInitializer getChannelInitializer(String key) {
+    public CarbonTransportServerInitializer getChannelInitializer(String key) {
         return channelInitializers.get(key);
     }
 
