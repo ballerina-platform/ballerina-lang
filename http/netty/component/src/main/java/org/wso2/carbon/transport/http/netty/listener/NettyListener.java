@@ -100,7 +100,7 @@ public class NettyListener extends TransportListener {
 
             channelInitializer.setup(paramMap);
         }
-        NettyTransportDataHolder.getInstance().setCarbonNettyInitializer(channelInitializer);
+        NettyTransportDataHolder.getInstance().addNettyChannelInitializer(nettyConfig.getId(), channelInitializer);
     }
 
     private void addChannelInitializer() {

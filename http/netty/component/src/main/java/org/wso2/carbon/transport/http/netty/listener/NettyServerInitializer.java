@@ -56,7 +56,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
 
         // Add the rest of the handlers to the pipeline
         CarbonTransportServerInitializer initializer =
-                NettyTransportDataHolder.getInstance().getCarbonNettyInitializer();
+                NettyTransportDataHolder.getInstance().getChannelInitializer(transportID);
 
         if (initializer != null) {
             if (log.isDebugEnabled()) {
