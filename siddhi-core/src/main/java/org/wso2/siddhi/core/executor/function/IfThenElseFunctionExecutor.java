@@ -35,13 +35,11 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
                     "required only 3, but found " + attributeExpressionExecutors.length);
         }else if(!attributeExpressionExecutors[0].getReturnType().equals(Attribute.Type.BOOL)){
             // check whether first argument Boolean or not
-            throw new ExecutionPlanValidationException("Input type of ifThenElse function executor " + attributeExpressionExecutors[0].toString() + " should be of type BOOL. " +
-                    "Actual Type: " + attributeExpressionExecutors[0].getReturnType().toString());
+            throw new ExecutionPlanValidationException("Input type of if in ifThenElse function should be of type BOOL, but found " + attributeExpressionExecutors[0].getReturnType());
         }else if(!attributeExpressionExecutors[1].getReturnType().equals(attributeExpressionExecutors[2].getReturnType())){
             // check whether second and thirds argument's return type are equivalent.
-            throw new ExecutionPlanValidationException("Return type of ifThenElse function executor " + attributeExpressionExecutors[1].toString() +
-                    " and ifThenElse function executor" + attributeExpressionExecutors[2].toString() + "should be of equivalent type. Left executor: " +
-                    attributeExpressionExecutors[1].getReturnType() + " Right executor: " + attributeExpressionExecutors[2].getReturnType());
+            throw new ExecutionPlanValidationException("Input type of then in ifThenElse function and else in ifThenElse function should be of equivalent type. but found then type: " +
+                    attributeExpressionExecutors[1].getReturnType() + " and else type: " + attributeExpressionExecutors[2].getReturnType());
         }else{
             returnType = attributeExpressionExecutors[1].getReturnType();
         }
@@ -51,7 +49,7 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
         //check whether first argument true or null
-        if (data[0]!=null & data[0].equals(Boolean.TRUE))
+        if (data[0]!=null && data[0].equals(Boolean.TRUE))
             return data[1];
         else
             return data[2];
