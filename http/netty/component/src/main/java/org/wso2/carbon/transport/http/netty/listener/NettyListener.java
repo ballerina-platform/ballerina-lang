@@ -130,10 +130,6 @@ public class NettyListener extends CarbonTransport {
         startTransport();
     }
 
-    public String getState() {
-        return serverState;
-    }
-
     private void shutdownEventLoops() {
         Future<?> f = workerGroup.shutdownGracefully();
         f.addListener(new GenericFutureListener<Future<Object>>() {
