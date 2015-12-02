@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.wso2.orbit.com.lmax</groupId>
             <artifactId>disruptor</artifactId>
-            <version>3.3.2.wso2v2</version>
+            <version>${disruptor.version}</version>
         </dependency>
     </dependencies>
 
@@ -252,6 +252,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
         <carbon.transport.osgi.version>1.0.0.SNAPSHOT</carbon.transport.osgi.version>
+        <disruptor.version>3.3.2.wso2v2</disruptor.version>
     </properties>
 
 </project>
