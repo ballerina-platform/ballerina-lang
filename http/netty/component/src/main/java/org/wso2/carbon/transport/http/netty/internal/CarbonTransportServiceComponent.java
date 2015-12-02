@@ -17,6 +17,7 @@ import java.util.Map;
         immediate = true
 )
 public class CarbonTransportServiceComponent {
+    public static final String CHANNEL_ID_KEY = "channel.id";
 
     @Reference(
             name = "transport-initializer",
@@ -27,7 +28,7 @@ public class CarbonTransportServiceComponent {
     )
     protected void addTransportInitializer(CarbonTransportServerInitializer serverInitializer, Map<String, ?> ref) {
         NettyTransportDataHolder.getInstance()
-                .addNettyChannelInitializer((String)ref.get("channel.id"), serverInitializer);
+                .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }
 
     protected void removeTransportInitializer(CarbonTransportServerInitializer serverInitializer) {

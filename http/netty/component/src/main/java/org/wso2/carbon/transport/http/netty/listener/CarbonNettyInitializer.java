@@ -108,11 +108,6 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
         }
     }
 
-    @Override
-    public String getName() {
-        return "default";
-    }
-
     static class Tempinit implements CarbonMessageProcessor {
         @Override
         public boolean receive(CarbonMessage carbonMessage,
