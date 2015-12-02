@@ -13,7 +13,7 @@ import java.util.Map;
  * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.messaging.service.MessagingServiceComponent",
+        name = "org.wso2.carbon.transport.http.netty.internal.CarbonTransportServiceComponent",
         immediate = true
 )
 public class CarbonTransportServiceComponent {
@@ -27,6 +27,7 @@ public class CarbonTransportServiceComponent {
             unbind = "removeTransportInitializer"
     )
     protected void addTransportInitializer(CarbonTransportServerInitializer serverInitializer, Map<String, ?> ref) {
+        NettyTransportDataHolder.getInstance().removeNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY));
         NettyTransportDataHolder.getInstance()
                 .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }
