@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.query.extension.util.StringConcatAggregatorString;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class ExtensionTestCase {
     static final Logger log = Logger.getLogger(ExtensionTestCase.class);
@@ -119,7 +120,7 @@ public class ExtensionTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test
+    @Test(expected = ExecutionPlanValidationException.class)
     public void extensionTest3() throws InterruptedException {
         log.info("extension test3");
         SiddhiManager siddhiManager = new SiddhiManager();
