@@ -119,4 +119,41 @@ public class ExtensionTestCase {
         executionPlanRuntime.shutdown();
     }
 
+    @Test
+    public void extensionTest3() throws InterruptedException {
+        log.info("extension test3");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
+        siddhiManager.setExtension("email:getAll", StringConcatAggregatorString.class);
+
+        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
+        String query = ("@info(name = 'query1') from cseEventStream select price , email:getAll(symbol,'') as toConcat " +
+                "group by volume insert into mailOutput;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                count = count + inEvents.length;
+                if (count == 3) {
+                    Assert.assertEquals("WSO2ABC", inEvents[inEvents.length - 1].getData(1));
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
+        Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
 }
