@@ -19,7 +19,8 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -41,7 +42,7 @@ import java.util.Map;
  */
 public class CarbonNettyInitializer implements CarbonTransportServerInitializer {
 
-    private static final Logger log = Logger.getLogger(CarbonNettyInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(CarbonNettyInitializer.class);
     private int queueSize = 32544;
     private ConnectionManager connectionManager;
 
@@ -88,7 +89,7 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
                                                   disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error initializing the transport ", e);
             throw new RuntimeException(e);
         }
     }

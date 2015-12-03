@@ -21,7 +21,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.HTTPContentChunk;
 import org.wso2.carbon.messaging.Pipe;
@@ -43,7 +44,7 @@ import java.util.Map;
  * A Class responsible for handle  incoming message through netty inbound pipeline.
  */
 public class SourceHandler extends ChannelInboundHandlerAdapter {
-    private static Logger log = Logger.getLogger(SourceHandler.class);
+    private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     private RingBuffer disruptor;
     private ChannelHandlerContext ctx;
