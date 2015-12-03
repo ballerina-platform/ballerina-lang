@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.transport.http.netty.listener.CarbonNettyInitializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +60,10 @@ public class NettyTransportDataHolder {
         if (channelInitializers.get(key) == null) {
             this.channelInitializers.put(key, initializer);
         } else {
-            log.error("Netty transport listener " + key + " already registered");
+            if (channelInitializers.get(key) instanceof CarbonNettyInitializer) {
+                channelInitializers.remove(key);
+                this.channelInitializers.put(key, initializer);
+            }
         }
     }
 

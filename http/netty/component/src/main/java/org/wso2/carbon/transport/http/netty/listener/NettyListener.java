@@ -100,7 +100,6 @@ public class NettyListener extends TransportListener {
 
             channelInitializer.setup(paramMap);
         }
-        NettyTransportDataHolder.getInstance().removeNettyChannelInitializer(nettyConfig.getId());
         NettyTransportDataHolder.getInstance().addNettyChannelInitializer(nettyConfig.getId(), channelInitializer);
     }
 

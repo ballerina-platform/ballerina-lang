@@ -27,7 +27,6 @@ public class CarbonTransportServiceComponent {
             unbind = "removeTransportInitializer"
     )
     protected void addTransportInitializer(CarbonTransportServerInitializer serverInitializer, Map<String, ?> ref) {
-        NettyTransportDataHolder.getInstance().removeNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY));
         NettyTransportDataHolder.getInstance()
                 .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }
