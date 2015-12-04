@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class OuterJoinTestCase {
     private static final Logger log = Logger.getLogger(OuterJoinTestCase.class);
@@ -222,6 +223,203 @@ public class OuterJoinTestCase {
         Thread.sleep(500);
         Assert.assertEquals(3, inEventCount);
         Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expected = SiddhiParserException.class)
+    public void joinTest4() throws InterruptedException {
+        log.info("Outer Join test4");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, symbol string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec) outer join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.symbol " +
+                "select * " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.start();
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expected = ExecutionPlanValidationException.class)
+    public void joinTest5() throws InterruptedException {
+        log.info("Outer Join test5");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, symbol string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.time(1 sec) full outer join twitterStream#window.time(1 sec) " +
+                "on cseEventStream.symbol== twitterStream.symbol " +
+                "select * " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.start();
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void joinTest6() throws InterruptedException {
+        log.info("Outer Join test6");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.length(2) right outer join twitterStream " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"IBM", 57.6f, 100});
+        cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
+        Thread.sleep(500);
+        Assert.assertFalse(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void joinTest7() throws InterruptedException {
+        log.info("Outer Join test7");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream left outer join twitterStream#window.length(2) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+
+        });
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+        twitterStreamHandler.send(new Object[]{"User2", "Welcome", "BMW"});
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+        Thread.sleep(500);
+        Assert.assertFalse(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void joinTest8() throws InterruptedException {
+        log.info("Outer Join test8");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.length(3) inner join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        twitterStreamHandler.send(new Object[]{"User", "Hello World", "WSO2"});
+        cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
+        Thread.sleep(500);
+        cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
+        Thread.sleep(2000);
+        Assert.assertEquals(2, inEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void joinTest9() throws InterruptedException {
+        log.info("Outer Join test9");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.length(3) join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+            }
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+        cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        twitterStreamHandler.send(new Object[]{"User", "Hello World", "BMW"});
+        cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
+        cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
+        Thread.sleep(500);
+        Assert.assertFalse(eventArrived);
         executionPlanRuntime.shutdown();
     }
 }
