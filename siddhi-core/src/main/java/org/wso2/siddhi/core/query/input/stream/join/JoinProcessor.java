@@ -35,6 +35,7 @@ public class JoinProcessor implements Processor {
     private boolean trigger;
     private boolean leftJoinProcessor = false;
     private boolean preJoinProcessor = false;
+    private boolean outerJoinProcessor = false;
     private ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
     private ComplexEventChunk currentEventChunk = new ComplexEventChunk();
 
@@ -45,9 +46,10 @@ public class JoinProcessor implements Processor {
     private QuerySelector selector;
 
 
-    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor) {
+    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor) {
         this.leftJoinProcessor = leftJoinProcessor;
         this.preJoinProcessor = preJoinProcessor;
+        this.outerJoinProcessor = outerJoinProcessor;
     }
 
     /**
@@ -81,24 +83,20 @@ public class JoinProcessor implements Processor {
                     }
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
-                while (foundStreamEvent != null) {
-                    StateEvent returnEvent = stateEventPool.borrowEvent();
-                    if (leftJoinProcessor) {
-                        returnEvent.setEvent(0, streamEvent);
-                        returnEvent.setEvent(1, foundStreamEvent);
-
-                    } else {
-                        returnEvent.setEvent(0, foundStreamEvent);
-                        returnEvent.setEvent(1, streamEvent);
+                if(foundStreamEvent == null){
+                    if(outerJoinProcessor && !leftJoinProcessor)
+                        joinBuilder(foundStreamEvent, streamEvent);
+                    else if(outerJoinProcessor && leftJoinProcessor)
+                        joinBuilder(streamEvent, foundStreamEvent);
+                }else{
+                    while (foundStreamEvent != null) {
+                        if (!leftJoinProcessor) {
+                            joinBuilder(foundStreamEvent, streamEvent);
+                        }else{
+                            joinBuilder(streamEvent, foundStreamEvent);
+                        }
+                        foundStreamEvent = foundStreamEvent.getNext();
                     }
-                    if (preJoinProcessor) {
-                        returnEvent.setType(ComplexEvent.Type.CURRENT);
-                    } else {
-                        returnEvent.setType(ComplexEvent.Type.EXPIRED);
-                    }
-                    returnEvent.setTimestamp(streamEvent.getTimestamp());
-                    returnEventChunk.add(returnEvent);
-                    foundStreamEvent = foundStreamEvent.getNext();
                 }
                 if (returnEventChunk.getFirst() != null) {
                     selector.process(returnEventChunk);
@@ -162,7 +160,7 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor);
+        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor,outerJoinProcessor);
         joinProcessor.setTrigger(trigger);
         joinProcessor.setFinder(finder.cloneFinder());
         return joinProcessor;
@@ -188,4 +186,25 @@ public class JoinProcessor implements Processor {
         this.stateEventPool = stateEventPool;
     }
 
+    /**
+     * Join the given two event streams
+     * @param stream1 event stream 1
+     * @param stream2 event stream 2
+     */
+    public void joinBuilder(StreamEvent stream1,StreamEvent stream2){
+        StateEvent returnEvent = stateEventPool.borrowEvent();
+        returnEvent.setEvent(0, stream1);
+        returnEvent.setEvent(1, stream2);
+        if (preJoinProcessor) {
+            returnEvent.setType(ComplexEvent.Type.CURRENT);
+        } else {
+            returnEvent.setType(ComplexEvent.Type.EXPIRED);
+        }
+        if (!leftJoinProcessor) {
+            returnEvent.setTimestamp(stream2.getTimestamp());
+        }else{
+            returnEvent.setTimestamp(stream1.getTimestamp());
+        }
+        returnEventChunk.add(returnEvent);
+    }
 }
