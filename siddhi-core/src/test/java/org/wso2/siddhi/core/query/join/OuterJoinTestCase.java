@@ -363,8 +363,18 @@ public class OuterJoinTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if (inEvents != null) {
-                    inEventCount = inEventCount + inEvents.length;
+                for (Event inEvent : inEvents) {
+                    inEventCount++;
+                    if (inEventCount == 1) {
+                        Assert.assertEquals("WSO2", inEvent.getData(0));
+                        Assert.assertEquals("Hello World", inEvent.getData(1));
+                        Assert.assertEquals(55.6f, inEvent.getData(2));
+                    }
+                    if (inEventCount == 2) {
+                        Assert.assertEquals("WSO2", inEvent.getData(0));
+                        Assert.assertEquals("Hello World", inEvent.getData(1));
+                        Assert.assertEquals(57.6f, inEvent.getData(2));
+                    }
                 }
                 eventArrived = true;
             }
