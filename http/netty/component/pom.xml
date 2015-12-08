@@ -159,7 +159,8 @@
                             javax.xml.bind.*,
                             javax.xml.transform.*,
                             javax.xml.validation.*,
-                            javax.net.ssl.*
+                            javax.net.ssl.*,
+                            org.yaml.snakeyaml.*
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
