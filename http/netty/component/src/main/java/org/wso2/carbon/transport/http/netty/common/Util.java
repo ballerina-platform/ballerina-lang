@@ -109,7 +109,8 @@ public class Util {
         } else {
             httpVersion = new HttpVersion(DEFAULT_VERSION_HTTP_1_1, true);
         }
-        HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod, msg.getURI(), false);
+        HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
+                (String) msg.getProperty("TO"), false);
         Map headers = (Map) msg.getProperty(Constants.TRANSPORT_HEADERS);
         Util.setHeaders(outgoingRequest, headers);
         return outgoingRequest;

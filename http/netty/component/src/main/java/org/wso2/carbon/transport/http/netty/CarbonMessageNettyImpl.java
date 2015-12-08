@@ -21,8 +21,6 @@ package org.wso2.carbon.transport.http.netty;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Pipe;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,11 +38,11 @@ public class CarbonMessageNettyImpl extends CarbonMessage {
     private String to;
     private Pipe pipe;
 
+   // byte[] messageBody;
+
     private CarbonCallback carbonCallback;
 
     private int direction;
-
-    private Map<String, Object> properties = new HashMap<>();
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -80,7 +78,6 @@ public class CarbonMessageNettyImpl extends CarbonMessage {
         this.to = to;
     }
 
-
     public int getDirection() {
         return direction;
     }
@@ -91,19 +88,6 @@ public class CarbonMessageNettyImpl extends CarbonMessage {
 
     public String getProtocol() {
         return protocol;
-    }
-
-
-    public void setProperty(String key, Object value) {
-        properties.put(key, value);
-    }
-
-    public Object getProperty(String key) {
-        if (properties != null) {
-            return properties.get(key);
-        } else {
-            return null;
-        }
     }
 
     public CarbonCallback getCarbonCallback() {
@@ -120,14 +104,6 @@ public class CarbonMessageNettyImpl extends CarbonMessage {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
-    }
-
-    Map<String, String> getHeaders() {
-        return (Map<String, String>) getProperty("TRANSPORT_HEADERS");
-    }
-
-    Object getPropertie(String key) {
-        return (String) properties.get(key);
     }
 
 }

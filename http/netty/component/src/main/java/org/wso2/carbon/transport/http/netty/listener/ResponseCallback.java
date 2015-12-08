@@ -15,15 +15,15 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.HTTPContentChunk;
-import org.wso2.carbon.messaging.Pipe;
 import org.wso2.carbon.transport.http.netty.common.Util;
+
+import java.util.Iterator;
 
 /**
  * A Class responsible for handling the response.
@@ -37,17 +37,15 @@ public class ResponseCallback implements CarbonCallback {
     }
 
     public void done(CarbonMessage cMsg) {
-        final Pipe pipe = cMsg.getPipe();
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
-        while (true) {
-            HTTPContentChunk chunk = (HTTPContentChunk) pipe.getContent();
-            HttpContent httpContent = chunk.getHttpContent();
-            if (httpContent instanceof LastHttpContent) {
-                ctx.writeAndFlush(httpContent);
-                break;
-            }
-            ctx.write(httpContent);
+
+        Iterator<byte[]> messageBody = cMsg.getMessageBody();
+        while (messageBody.hasNext()) {
+            byte[] bytes = messageBody.next();
+            ctx.write(Unpooled.copiedBuffer(bytes));
         }
+        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
     }
 }

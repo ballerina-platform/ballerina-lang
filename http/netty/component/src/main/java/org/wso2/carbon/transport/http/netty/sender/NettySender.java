@@ -16,8 +16,8 @@
 package org.wso2.carbon.transport.http.netty.sender;
 
 import com.lmax.disruptor.RingBuffer;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.EngineException;
-import org.wso2.carbon.messaging.HTTPContentChunk;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
@@ -36,6 +35,8 @@ import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+
+import java.util.Iterator;
 
 /**
  * A class creates connections with BE and send messages.
@@ -57,7 +58,7 @@ public class NettySender implements TransportSender {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
 
-        final HttpRoute route = new HttpRoute(msg.getHost(), msg.getPort());
+        final HttpRoute route = new HttpRoute((String) msg.getProperty("HOST"), (Integer) msg.getProperty("PORT"));
 
 
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
@@ -76,7 +77,6 @@ public class NettySender implements TransportSender {
             outboundChannel = targetChannel.getChannel();
             targetChannel.getTargetHandler().setCallback(callback);
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
-            targetChannel.getTargetHandler().setQueuesize(config.queueSize);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
 
@@ -90,17 +90,13 @@ public class NettySender implements TransportSender {
 
     private boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
         channel.write(httpRequest);
-        while (true) {
-            HTTPContentChunk chunk = (HTTPContentChunk) carbonMessage.getPipe().getContent();
-            HttpContent httpContent = chunk.getHttpContent();
-            if (httpContent instanceof LastHttpContent) {
-                channel.writeAndFlush(httpContent);
-                break;
-            }
-            if (httpContent != null) {
-                channel.write(httpContent);
-            }
+
+        Iterator<byte[]> messageBody = carbonMessage.getMessageBody();
+        while (messageBody.hasNext()) {
+            byte[] messageBytes = messageBody.next();
+            channel.write(Unpooled.copiedBuffer(messageBytes));
         }
+        channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
         return true;
     }
 

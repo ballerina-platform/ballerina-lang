@@ -21,6 +21,7 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisruptorEvent;
 
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Event Consumer of the Disruptor.
@@ -36,22 +37,22 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
     @Override
     public void onEvent(CarbonDisruptorEvent carbonDisruptorEvent, long l, boolean b) throws Exception {
         CarbonMessage carbonMessage = (CarbonMessage) carbonDisruptorEvent.getEvent();
-        Lock lock = carbonMessage.getLock();
-        if (carbonMessage.getDirection() == CarbonMessage.REQUEST) {
+        Lock lock  = new ReentrantLock();
+        if (carbonMessage.getProperty("DIRECTION") == null) {
             // Mechanism to process each event from only one event handler
             if (lock.tryLock()) {
-                CarbonCallback carbonCallback = carbonMessage.getCarbonCallback();
+                CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty("CALL_BACK");
                 carbonMessageProcessor.receive(carbonMessage, carbonCallback);
                 // lock.unlock() does not used because if there are multiple event handlers and same event
                 // should not processed by multiple event handlers .If  unlock happens too early for a event before
                 // other Event handler object reads that event then there will be a probability of executing
                 // same event by multiple event handlers.
             }
-        } else if (carbonMessage.getDirection() == CarbonMessage.RESPONSE) {
+        } else if ("response".equals(carbonMessage.getProperty("DIRECTION"))) {
 
             if (lock.tryLock()) {
 
-                CarbonCallback carbonCallback = carbonMessage.getCarbonCallback();
+                CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty("CALL_BACK");
                 carbonCallback.done(carbonMessage);
 
             }
