@@ -66,7 +66,6 @@ public class JoinInputStreamParser {
         boolean leftOuterJoinProcessor = false;
         boolean rightOuterJoinProcessor = false;
 
-
         if (joinInputStream.getAllStreamIds().size() == 2) {
             if (!streamDefinitionMap.containsKey(leftInputStreamId)) {
                 leftMetaStreamEvent.setTableEvent(true);

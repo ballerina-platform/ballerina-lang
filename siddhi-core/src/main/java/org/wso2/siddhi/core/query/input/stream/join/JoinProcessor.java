@@ -85,15 +85,15 @@ public class JoinProcessor implements Processor {
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
                 if(foundStreamEvent == null){
                     if(outerJoinProcessor && !leftJoinProcessor)
-                        joinBuilder(foundStreamEvent, streamEvent);
+                        returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
                     else if(outerJoinProcessor && leftJoinProcessor)
-                        joinBuilder(streamEvent, foundStreamEvent);
+                        returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
                 }else{
                     while (foundStreamEvent != null) {
                         if (!leftJoinProcessor) {
-                            joinBuilder(foundStreamEvent, streamEvent);
+                            returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
                         }else{
-                            joinBuilder(streamEvent, foundStreamEvent);
+                            returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
                         }
                         foundStreamEvent = foundStreamEvent.getNext();
                     }
@@ -160,7 +160,7 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor,outerJoinProcessor);
+        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor);
         joinProcessor.setTrigger(trigger);
         joinProcessor.setFinder(finder.cloneFinder());
         return joinProcessor;
@@ -191,7 +191,7 @@ public class JoinProcessor implements Processor {
      * @param stream1 event stream 1
      * @param stream2 event stream 2
      */
-    public void joinBuilder(StreamEvent stream1,StreamEvent stream2){
+    public StateEvent joinBuilder(StreamEvent stream1,StreamEvent stream2){
         StateEvent returnEvent = stateEventPool.borrowEvent();
         returnEvent.setEvent(0, stream1);
         returnEvent.setEvent(1, stream2);
@@ -205,6 +205,6 @@ public class JoinProcessor implements Processor {
         }else{
             returnEvent.setTimestamp(stream1.getTimestamp());
         }
-        returnEventChunk.add(returnEvent);
+        return returnEvent;
     }
 }

@@ -1720,7 +1720,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             }else if(ctx.LEFT() != null){
                 return JoinInputStream.Type.LEFT_OUTER_JOIN;
             }else {
-                throw newSiddhiParserException(ctx);
+                throw newSiddhiParserException(ctx, "Found "+ctx.getText()+" but only FULL OUTER JOIN, RIGHT OUTER JOIN, LEFT OUTER JOIN are supported!");
             }
         }
         return JoinInputStream.Type.JOIN;
