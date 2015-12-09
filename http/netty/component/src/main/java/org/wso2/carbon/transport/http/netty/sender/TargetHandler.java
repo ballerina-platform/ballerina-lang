@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.PipeImpl;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
@@ -57,7 +57,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
-            cMsg = new CarbonMessage();
+            cMsg = new NettyCarbonMessage();
             cMsg.setProperty("PORT", ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty("HOST", ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             cMsg.setProperty("DIRECTION", "response");
@@ -66,12 +66,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
             cMsg.setProperty(Constants.TRANSPORT_HEADERS, Util.getHeaders(httpResponse));
-            PipeImpl pipe = new PipeImpl(queuesize);
-            cMsg.setProperty("PIPE", pipe);
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
-                PipeImpl pipe = (PipeImpl) cMsg.getProperty("PIPE");
+
                 HttpContent httpContent;
                 if (msg instanceof LastHttpContent) {
                     httpContent = (LastHttpContent) msg;
@@ -79,8 +77,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     httpContent = (DefaultHttpContent) msg;
                 }
-                pipe.addContentChunk(httpContent);
-
+                ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
             }
         }
     }

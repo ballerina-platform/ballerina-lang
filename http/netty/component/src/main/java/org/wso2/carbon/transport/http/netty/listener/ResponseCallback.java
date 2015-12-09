@@ -18,16 +18,19 @@ package org.wso2.carbon.transport.http.netty.listener;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.PipeImpl;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 
 /**
  * A Class responsible for handling the response.
@@ -36,32 +39,35 @@ public class ResponseCallback implements CarbonCallback {
 
     private ChannelHandlerContext ctx;
 
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseCallback.class);
+
     public ResponseCallback(ChannelHandlerContext channelHandlerContext) {
         this.ctx = channelHandlerContext;
     }
 
     public void done(CarbonMessage cMsg) {
-        final PipeImpl pipe = (PipeImpl) cMsg.getProperty("PIPE");
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
-        Object pipeContent;
-
         while (true) {
-            pipeContent = pipe.getContent();
-            if (pipeContent instanceof HttpContent) {
-                HttpContent httpContent = (HttpContent) pipeContent;
+            if (cMsg instanceof NettyCarbonMessage) {
+                HttpContent httpContent = ((NettyCarbonMessage) cMsg).getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ctx.writeAndFlush(httpContent);
                     break;
                 }
                 ctx.write(httpContent);
 
-            } else if (pipeContent instanceof String) {
-                String errorMessage = (String) pipeContent;
-                ByteBuf bbuf = Unpooled.copiedBuffer(errorMessage, StandardCharsets.UTF_8);
-                DefaultLastHttpContent lastHttpContent = new DefaultLastHttpContent(bbuf);
-                ctx.writeAndFlush(lastHttpContent);
-                break;
+            } else if (cMsg instanceof DefaultCarbonMessage) {
+                ByteBuffer byteBuffer = cMsg.getMessageBody();
+                ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
+                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+                ctx.write(httpContent);
+                if (cMsg.isEomAdded() && cMsg.isEmpty()) {
+                    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    break;
+
+                }
+
             }
         }
     }

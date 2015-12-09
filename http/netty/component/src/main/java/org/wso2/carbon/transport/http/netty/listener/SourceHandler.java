@@ -23,8 +23,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.PipeImpl;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -46,7 +45,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     private RingBuffer disruptor;
     private ChannelHandlerContext ctx;
-    private CarbonMessage cMsg;
+    private NettyCarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
 
@@ -72,7 +71,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            cMsg = new CarbonMessage();
+            cMsg = new NettyCarbonMessage();
             cMsg.setProperty("PORT", ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty("HOST", ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
@@ -95,9 +94,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
-                    PipeImpl pipe = new PipeImpl(queueSize);
-                    pipe.addContentChunk(httpContent);
-                    cMsg.setProperty("PIPE", pipe);
+                    cMsg.addHttpContent(httpContent);
                 }
             }
         }

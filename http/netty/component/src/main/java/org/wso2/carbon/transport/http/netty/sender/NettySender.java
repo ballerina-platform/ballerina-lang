@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.EngineException;
-import org.wso2.carbon.messaging.PipeImpl;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -90,9 +90,9 @@ public class NettySender implements TransportSender {
 
     private boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
         channel.write(httpRequest);
+        NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
         while (true) {
-            PipeImpl pipe = (PipeImpl) carbonMessage.getProperty("PIPE");
-            HttpContent httpContent = (HttpContent) pipe.getContent();
+            HttpContent httpContent = nettyCMsg.getHttpContent();
             if (httpContent instanceof LastHttpContent) {
                 channel.writeAndFlush(httpContent);
                 break;
