@@ -95,11 +95,11 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
     }
 
     @Override
-    public void initChannel(SocketChannel ch) {
+    public void initChannel(Object ch) {
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
-        ChannelPipeline p = ch.pipeline();
+        ChannelPipeline p = ((SocketChannel) ch).pipeline();
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
         try {

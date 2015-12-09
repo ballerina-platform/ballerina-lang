@@ -16,16 +16,15 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import com.lmax.disruptor.RingBuffer;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.PipeImpl;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -80,6 +79,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty("CALL_BACK", responseCallback);
             HttpRequest httpRequest = (HttpRequest) msg;
 
+
             cMsg.setProperty("TO", httpRequest.getUri());
             cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
             cMsg.setProperty(Constants.SRC_HNDLR, this);
@@ -95,21 +95,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
-                    ByteBuf buf = httpContent.content();
-                    byte[] bytes;
-                    int length = buf.readableBytes();
-
-                    if (buf.hasArray()) {
-                        bytes = buf.array();
-                    } else {
-                        bytes = new byte[length];
-                        buf.getBytes(buf.readerIndex(), bytes);
-                    }
-
-                    cMsg.setMessageBody(bytes);
-                    if (httpContent instanceof LastHttpContent) {
-                        cMsg.setEndOfMessageAdded(true);
-                    }
+                    PipeImpl pipe = new PipeImpl(queueSize);
+                    pipe.addContentChunk(httpContent);
+                    cMsg.setProperty("PIPE", pipe);
                 }
             }
         }

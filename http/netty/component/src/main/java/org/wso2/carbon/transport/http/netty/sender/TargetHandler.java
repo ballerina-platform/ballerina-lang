@@ -15,9 +15,9 @@
 package org.wso2.carbon.transport.http.netty.sender;
 
 import com.lmax.disruptor.RingBuffer;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.HTTPContentChunk;
+import org.wso2.carbon.messaging.PipeImpl;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
@@ -43,6 +43,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private CarbonCallback callback;
     private RingBuffer ringBuffer;
     private CarbonMessage cMsg;
+    private int queuesize;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
 
@@ -65,28 +66,21 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
             cMsg.setProperty(Constants.TRANSPORT_HEADERS, Util.getHeaders(httpResponse));
-
+            PipeImpl pipe = new PipeImpl(queuesize);
+            cMsg.setProperty("PIPE", pipe);
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
-            HTTPContentChunk chunk;
             if (cMsg != null) {
+                PipeImpl pipe = (PipeImpl) cMsg.getProperty("PIPE");
+                HttpContent httpContent;
                 if (msg instanceof LastHttpContent) {
-                    cMsg.setEndOfMessageAdded(true);
+                    httpContent = (LastHttpContent) msg;
                     connectionManager.returnChannel(targetChannel);
-                }
-                HttpContent httpContent = (HttpContent) msg;
-                ByteBuf buf = httpContent.content();
-                byte[] bytes;
-                int length = buf.readableBytes();
-
-                if (buf.hasArray()) {
-                    bytes = buf.array();
                 } else {
-                    bytes = new byte[length];
-                    buf.getBytes(buf.readerIndex(), bytes);
+                    httpContent = (DefaultHttpContent) msg;
                 }
+                pipe.addContentChunk(httpContent);
 
-                cMsg.setMessageBody(bytes);
             }
         }
     }
@@ -102,6 +96,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public void setRingBuffer(RingBuffer ringBuffer) {
         this.ringBuffer = ringBuffer;
+    }
+
+    public void setQueuesize(int queuesize) {
+        this.queuesize = queuesize;
     }
 
     public void setConnectionManager(ConnectionManager connectionManager) {
