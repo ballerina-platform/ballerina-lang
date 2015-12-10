@@ -26,6 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * create(key1,value1,key2,value2,.....,keyN,valueN) or create()
@@ -34,9 +35,8 @@ import java.util.HashMap;
  * Return Type(s): HashMap
  */
 public class CreateFunctionExtension extends FunctionExecutor {
-
-    Attribute.Type returnType = Attribute.Type.STRING;
-    HashMap<Object, Object> hashMap = new HashMap<Object, Object>();
+    Attribute.Type returnType = Attribute.Type.OBJECT;
+    private Map<Object, Object> hashMap = new HashMap<>();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -51,7 +51,7 @@ public class CreateFunctionExtension extends FunctionExecutor {
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-        if (data.length < 2) {
+        if ((data.length % 2) == 1) {
             throw new ExecutionPlanRuntimeException("Number of values for data should be a multiple of 2");
         }
         for (int i = 0; i < data.length; i += 2) {

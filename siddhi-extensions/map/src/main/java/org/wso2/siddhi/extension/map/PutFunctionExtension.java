@@ -26,6 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * put(HashMap , key , value)
@@ -34,9 +35,8 @@ import java.util.HashMap;
  * Return Type(s): HashMap
  */
 public class PutFunctionExtension extends FunctionExecutor {
-
-    Attribute.Type returnType = Attribute.Type.STRING;
-    HashMap hashMap;
+    Attribute.Type returnType = Attribute.Type.OBJECT;
+    private Map hashMap;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {

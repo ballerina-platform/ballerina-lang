@@ -26,6 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * get(HashMap , Key , Type)
@@ -34,9 +35,8 @@ import java.util.HashMap;
  * Return Type(s): Object
  */
 public class GetFunctionExtension extends FunctionExecutor {
-    static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.STRING;
-    private HashMap hashMap;
+    Attribute.Type returnType = Attribute.Type.OBJECT;
+    private Map hashMap;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -51,35 +51,37 @@ public class GetFunctionExtension extends FunctionExecutor {
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-        hashMap = (HashMap) data[0];
+        if(data[0] instanceof HashMap) {
+            hashMap = (HashMap) data[0];
+        }
+        else {
+            throw new ExecutionPlanRuntimeException("First attribute value must be a hashmap.");
+        }
         String type = (String) data[2];
         Object tmpVal = hashMap.get(data[1]);
-        Object value = null;
+        Object value;
+        String tmpStr = tmpVal.toString();
 
         if (type.toLowerCase().equals("int")) {
             try {
-                String tmpStr = tmpVal.toString();
                 value = Integer.parseInt(tmpStr);
             } catch (ExecutionPlanRuntimeException e) {
                 throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to INTEGER");
             }
         } else if (type.toLowerCase().equals("double")) {
             try {
-                String tmpStr = tmpVal.toString();
                 value = Double.parseDouble(tmpStr);
             } catch (ExecutionPlanRuntimeException e) {
                 throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to DOUBLE");
             }
         } else if (type.toLowerCase().equals("long")) {
             try {
-                String tmpStr = tmpVal.toString();
                 value = Long.parseLong(tmpStr);
             } catch (ExecutionPlanRuntimeException e) {
                 throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to LONG");
             }
         } else if (type.toLowerCase().equals("bool")) {
             try {
-                String tmpStr = tmpVal.toString();
                 value = Boolean.parseBoolean(tmpStr);
             } catch (ExecutionPlanRuntimeException e) {
                 throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to BOOLEAN");
@@ -98,7 +100,6 @@ public class GetFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        log.info("checked");
         return null;
     }
 

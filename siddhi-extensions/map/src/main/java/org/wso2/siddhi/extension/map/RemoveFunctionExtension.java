@@ -26,6 +26,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * remove(HashMap , key)
@@ -34,9 +35,9 @@ import java.util.HashMap;
  * Return Type(s): HashMap
  */
 public class RemoveFunctionExtension extends FunctionExecutor {
-    static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RemoveFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.STRING;
-    HashMap hashMap;
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RemoveFunctionExtension.class);
+    Attribute.Type returnType = Attribute.Type.OBJECT;
+    private Map hashMap;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -67,7 +68,6 @@ public class RemoveFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        log.info("checked");
         return null;
     }
 

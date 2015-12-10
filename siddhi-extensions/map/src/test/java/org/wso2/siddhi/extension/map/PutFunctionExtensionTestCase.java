@@ -119,13 +119,11 @@ public class PutFunctionExtensionTestCase {
                     if (count.get() == 1) {
                         HashMap map = (HashMap) event.getData(3);
                         Assert.assertEquals(1000, map.get("CHECK ID"));
-                        //Assert.assertEquals("IBM", (Object)100);
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
                         HashMap map = (HashMap) event.getData(3);
                         Assert.assertEquals(100, map.get("IBM"));
-                        //Assert.assertEquals("IBM", (Object)100);
                         eventArrived = true;
                     }
                     if (count.get() == 3) {

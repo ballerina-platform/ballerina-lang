@@ -27,19 +27,16 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * isMap(Object)
- * Returns true if the object is a hashmap, false if it is not .
+ * Returns boolean true if the object is a hashmap, boolean false if it is not .
  * Accept Type(s): (Object)
- * Return Type(s): BOOLEAN
+ * Return Type(s): boolean
  */
 public class IsMapFunctionExtension extends FunctionExecutor {
-    static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RemoveFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.STRING;
-    HashMap hashMap;//=MapObject.getMapInstance();
-    private ArrayList<String> expressionAttributes = new ArrayList<String>();
-    private boolean isMapCreated = false;
+    Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -47,9 +44,6 @@ public class IsMapFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:get() function, " +
                     "required only one, but found " + attributeExpressionExecutors.length);
         }
-        /*for(int i=0;i<attributeExpressionExecutors.length;i++){
-            expressionAttributes.add(attributeExpressionExecutors[i].toString());
-        }*/
     }
 
     @Override
@@ -58,12 +52,11 @@ public class IsMapFunctionExtension extends FunctionExecutor {
     }
 
     @Override
-    protected Object execute(Object data) {
+    protected Boolean execute(Object data) {
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
         if (data instanceof HashMap) {
-            log.info("hashmap checked");
             return Boolean.TRUE;
         }
 
