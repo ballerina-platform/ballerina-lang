@@ -88,6 +88,11 @@ public class NettySender implements TransportSender {
         return false;
     }
 
+    @Override
+    public String getId() {
+        return "netty-sender";
+    }
+
     private boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
         channel.write(httpRequest);
         NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;

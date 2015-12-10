@@ -120,5 +120,10 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
         public void setTransportSender(TransportSender transportSender) {
             //do nothing
         }
+
+        @Override
+        public String getId() {
+            return "todo";
+        }
     }
 }
