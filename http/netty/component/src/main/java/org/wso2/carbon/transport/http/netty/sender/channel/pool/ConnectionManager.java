@@ -136,8 +136,6 @@ public class ConnectionManager {
             } catch (Exception e) {
                 log.error("Cannot borrow free channel from pool ", e);
             }
-
-
         } else {
             // manage connections according to per inbound channel caching method
             if (!isRouteExists(httpRoute, sourceHandler)) {
@@ -165,10 +163,7 @@ public class ConnectionManager {
                     channel = ChannelUtils.openChannel(future, httpRoute);
                     targetChannel.setChannel(channel);
                 }
-
             }
-
-
         }
         if (targetChannel != null) {
             targetChannel.setHttpRoute(httpRoute);
@@ -186,7 +181,6 @@ public class ConnectionManager {
             try {
                 if (targetChannel.getChannel().isActive()) {
                     pool.returnObject(targetChannel);
-
                 }
             } catch (Exception e) {
                 log.error("Cannot return channel to pool", e);
@@ -228,7 +222,6 @@ public class ConnectionManager {
     public enum PoolManagementPolicy {
         PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
         GLOBAL_ENDPOINT_CONNECTION_CACHING
-
     }
 
 }

@@ -56,10 +56,7 @@ public class NettySender implements TransportSender {
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws EngineException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
-
         final HttpRoute route = new HttpRoute((String) msg.getProperty("HOST"), (Integer) msg.getProperty("PORT"));
-
-
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
@@ -70,7 +67,6 @@ public class NettySender implements TransportSender {
         }
 
         Channel outboundChannel = null;
-
         try {
             TargetChannel targetChannel = connectionManager.getTargetChannel(route, srcHandler);
             outboundChannel = targetChannel.getChannel();
