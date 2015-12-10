@@ -53,7 +53,6 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
     @Override
     public void setup(Map<String, String> parameters) {
 
-
         BootstrapConfiguration.createBootStrapConfiguration(parameters);
         PoolConfiguration.createPoolConfiguration(parameters);
 

@@ -46,15 +46,10 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
                 // same event by multiple event handlers.
             }
         } else if ("response".equals(carbonMessage.getProperty("DIRECTION"))) {
-
             if (lock.tryLock()) {
-
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty("CALL_BACK");
                 carbonCallback.done(carbonMessage);
-
             }
-
-
         }
     }
 }
