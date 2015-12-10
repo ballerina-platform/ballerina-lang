@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 
@@ -57,7 +56,7 @@ public class ResponseCallback implements CarbonCallback {
                 }
                 ctx.write(httpContent);
 
-            } else if (cMsg instanceof DefaultCarbonMessage) {
+            } else {
                 ByteBuffer byteBuffer = cMsg.getMessageBody();
                 ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
