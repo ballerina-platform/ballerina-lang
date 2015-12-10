@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
+import org.wso2.siddhi.core.util.statistics.StatManager;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
@@ -85,6 +86,11 @@ public class SiddhiManager {
     public void setDataSource(String dataSourceName, DataSource dataSource) {
         siddhiContext.addSiddhiDataSource(dataSourceName, dataSource);
     }
+
+    public void setStatManager(StatManager statManager){
+        siddhiContext.setStatManager(statManager);
+    }
+
 
     public void shutdown() {
         List<String> executionPlanNames = new ArrayList<String>(executionPlanRuntimeMap.keySet());

@@ -10,15 +10,15 @@ import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
  */
 public class MetricsFactory implements StatisticsTrackerFactory{
 
-    public LatencyTracker createLatencyTracker(String name, MetricRegistryHolder registryHolder){
-        return new LatencyMetric(name, registryHolder);
+    public LatencyTracker createLatencyTracker(String name){
+        return new LatencyMetric(name);
     }
 
-    public ThroughputTracker createThroughputTracker(String name, MetricRegistryHolder registryHolder){
-        return new ThroughputMetric(name, registryHolder);
+    public ThroughputTracker createThroughputTracker(String name){
+        return new ThroughputMetric(name);
     }
 
-    public MemoryUsageTracker createMemoryUsageTracker(MetricRegistryHolder registryHolder){
-        return new MemoryUsageMetric(registryHolder);
+    public MemoryUsageTracker createMemoryUsageTracker(){
+        return new MemoryUsageMetric();
     }
 }

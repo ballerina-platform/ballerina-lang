@@ -33,7 +33,9 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     }
 
     public PassThroughOutputRateLimiter clone(String key) {
-        return new PassThroughOutputRateLimiter(id + key);
+        PassThroughOutputRateLimiter instance = new PassThroughOutputRateLimiter(id + key);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override

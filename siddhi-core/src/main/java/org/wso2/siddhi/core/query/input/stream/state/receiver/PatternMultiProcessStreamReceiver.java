@@ -20,12 +20,13 @@ package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
 import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class PatternMultiProcessStreamReceiver extends MultiProcessStreamReceiver {
 
 
-    public PatternMultiProcessStreamReceiver(String streamId, int processCount) {
-        super(streamId, processCount);
+    public PatternMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
+        super(streamId, processCount, latencyTracker);
         eventSequence = new int[processCount];
         int count=0;
         for (int i = eventSequence.length - 1; i >= 0; i--) {
@@ -35,7 +36,7 @@ public class PatternMultiProcessStreamReceiver extends MultiProcessStreamReceive
     }
 
     public PatternMultiProcessStreamReceiver clone(String key) {
-        return new PatternMultiProcessStreamReceiver(streamId + key, processCount);
+        return new PatternMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
     }
 
     protected void stabilizeStates() {

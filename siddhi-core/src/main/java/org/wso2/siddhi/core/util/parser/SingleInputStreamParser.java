@@ -41,6 +41,7 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.StreamFunctionProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.StreamProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.WindowProcessorExtensionHolder;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
@@ -71,7 +72,7 @@ public class SingleInputStreamParser {
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
                                                        Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
-                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing) {
+                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, LatencyTracker latencyTracker) {
         Processor processor = null;
         SingleThreadEntryValveProcessor singleThreadValve = null;
         boolean first = true;
@@ -99,7 +100,7 @@ public class SingleInputStreamParser {
                         }
                     }
                     Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), singleThreadValve);
-                    scheduler.init(executionPlanContext);
+                    scheduler.init(executionPlanContext, latencyTracker);
                     ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
                 }
                 if (first) {

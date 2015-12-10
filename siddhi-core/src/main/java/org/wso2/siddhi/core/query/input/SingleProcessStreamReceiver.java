@@ -19,17 +19,18 @@ package org.wso2.siddhi.core.query.input;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
 
     protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>();
 
-    public SingleProcessStreamReceiver(String streamId) {
-        super(streamId);
+    public SingleProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
+        super(streamId, latencyTracker);
     }
 
     public SingleProcessStreamReceiver clone(String key) {
-        return new SingleProcessStreamReceiver(streamId + key);
+        return new SingleProcessStreamReceiver(streamId + key, latencyTracker);
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {

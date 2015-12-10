@@ -29,6 +29,8 @@ import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutpu
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.metrics.LatencyMetric;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
@@ -61,10 +63,24 @@ public class QueryParser {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
+        LatencyTracker latencyTracker = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
+            if (executionPlanContext.isStatsEnabled()) {
+                if (element != null) {
+                    String metricName = "org.wso2.cep.siddhi.execplan." + executionPlanContext.getName() + "." + element.getValue();
+                    latencyTracker = executionPlanContext.getSiddhiContext()
+                            .getStatManager()
+                            .getFactory()
+                            .createLatencyTracker(metricName);
+
+                    if (latencyTracker instanceof LatencyMetric) {
+                        ((LatencyMetric) latencyTracker).init(executionPlanContext.getMetricRegistryHolder());
+                    }
+                }
+            }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker);
 
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
@@ -82,7 +98,7 @@ public class QueryParser {
 
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
                     query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow, executionPlanContext.getScheduledExecutorService());
-            outputRateLimiter.init(executionPlanContext);
+            outputRateLimiter.init(executionPlanContext, latencyTracker);
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),

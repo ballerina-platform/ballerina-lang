@@ -54,7 +54,9 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new FirstGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        FirstGroupByPerTimeOutputRateLimiter instance = new FirstGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+import org.wso2.siddhi.core.util.statistics.metrics.MetricRegistryHolder;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
@@ -40,13 +41,16 @@ public class ExecutionPlanContext {
     private boolean playback;
     private boolean enforceOrder;
     private boolean parallel;
+    private boolean statsEnabled = false;
+    private MetricRegistryHolder metricRegistryHolder = null;
+
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
 
-    public static boolean statEnable = false;
+    //public static boolean statEnable = false;
 
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;
@@ -97,6 +101,19 @@ public class ExecutionPlanContext {
 
     public void setEnforceOrder(boolean enforceOrder) {
         this.enforceOrder = enforceOrder;
+    }
+
+    public boolean isStatsEnabled() { return statsEnabled; }
+
+    public void setStatsEnabled(boolean statsEnabled) { this.statsEnabled = statsEnabled; }
+
+    public MetricRegistryHolder getMetricRegistryHolder(){
+        return metricRegistryHolder;
+    }
+
+
+    public void setMetricRegistryHolder(MetricRegistryHolder metricRegistryHolder){
+        this.metricRegistryHolder = metricRegistryHolder;
     }
 
     public ScheduledExecutorService getScheduledExecutorService() {
@@ -174,4 +191,6 @@ public class ExecutionPlanContext {
     public Map<String, EvalScript> getScriptFunctionMap() {
         return scriptFunctionMap;
     }
+
+
 }

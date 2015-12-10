@@ -51,7 +51,9 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        LastPerTimeOutputRateLimiter instance = new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override

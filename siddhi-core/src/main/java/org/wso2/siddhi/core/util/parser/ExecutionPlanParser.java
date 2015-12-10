@@ -29,6 +29,8 @@ import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+import org.wso2.siddhi.core.util.statistics.StatManager;
+import org.wso2.siddhi.core.util.statistics.metrics.MetricRegistryHolder;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -90,6 +92,19 @@ public class ExecutionPlanParser {
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 executionPlanContext.setParallel(true);
+            }
+
+            element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_ENABLE_STATISTICS, null,
+                    executionPlan.getAnnotations());
+
+            if (siddhiContext.getStatManager() != null && element != null && element.getValue().equalsIgnoreCase("true")){
+                executionPlanContext.setStatsEnabled(true);
+
+                /* There will be a separate metric registry for each execution plan when running with Siddhi alone
+                   for other cases a single metric registry will be used for all matrices */
+                if (siddhiContext.getStatManager().getRunningMode() == StatManager.RunningMode.SIDDHI_ONLY) {
+                    executionPlanContext.setMetricRegistryHolder(new MetricRegistryHolder(siddhiContext.getStatManager().getReporterType()));
+                }
             }
 
             if (!executionPlanContext.isPlayback() && !executionPlanContext.isEnforceOrder() && !executionPlanContext.isParallel()) {

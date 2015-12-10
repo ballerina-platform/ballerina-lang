@@ -7,17 +7,19 @@ import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
  * Created by sajith on 11/20/15.
  */
 public class ThroughputMetric implements ThroughputTracker {
-    private final Meter eventMarker;
+    private Meter eventMeter = null;
+    private String name;
 
-    public ThroughputMetric(String streamName){
-        eventMarker = MetricRegistryHolder.getMetricRegistry().meter(streamName);
+    public ThroughputMetric(String name){
+        this.name = name + ".throughput";
     }
+
     /**
      * This method is to notify receive of events to calculate the throughput
      */
     @Override
     public void eventIn() {
-        eventMarker.mark();
+        eventMeter.mark();
     }
 
     /**
@@ -27,7 +29,7 @@ public class ThroughputMetric implements ThroughputTracker {
      */
     @Override
     public void eventsIn(int eventCount) {
-        eventMarker.mark(eventCount);
+        eventMeter.mark(eventCount);
     }
 
     /**
@@ -35,6 +37,11 @@ public class ThroughputMetric implements ThroughputTracker {
      */
     @Override
     public String getName() {
-        return null;
+        return name;
+    }
+
+
+    public void init(MetricRegistryHolder registryHolder){
+        eventMeter = registryHolder.getRegistry().meter(this.name);
     }
 }

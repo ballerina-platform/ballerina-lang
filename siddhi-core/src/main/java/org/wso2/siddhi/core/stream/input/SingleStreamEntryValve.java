@@ -124,12 +124,6 @@ public class SingleStreamEntryValve implements InputProcessor {
          */
         @Override
         public void onEvent(IndexedEventFactory.IndexedEvent indexedEvent, long sequence, boolean endOfBatch) throws Exception {
-            if (ExecutionPlanContext.statEnable) {
-                count++;
-                if (count % 1000000 == 0) {
-                    log.info("Number of events in the disruptor:" + eventSizeInDisruptor.get() + "\nThread:" + Thread.currentThread().getName());
-                }
-            }
             eventSizeInDisruptor.decrementAndGet();
             int streamIndex = indexedEvent.getStreamIndex();
             if (currentIndex != streamIndex) {

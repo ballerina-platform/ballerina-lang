@@ -39,7 +39,9 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new AllPerEventOutputRateLimiter(id + key, value);
+        AllPerEventOutputRateLimiter instance = new AllPerEventOutputRateLimiter(id + key, value);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override

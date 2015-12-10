@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +36,25 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
     protected OutputCallback outputCallback = null;
     private boolean hasCallBack = false;
     private String elementId;
+    protected LatencyTracker latencyTracker;
 
-    public void init(ExecutionPlanContext executionPlanContext) {
+    public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
+        this.latencyTracker = latencyTracker;
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(this);
     }
 
+    protected void setLatencyTracker(LatencyTracker latencyTracker){
+        this.latencyTracker = latencyTracker;
+    }
+
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
+        if (latencyTracker != null) {
+            latencyTracker.markOut();
+        }
+
         if (!queryCallbacks.isEmpty()) {
             for (QueryCallback callback : queryCallbacks) {
                 callback.receiveStreamEvent(complexEventChunk);
@@ -52,13 +63,14 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
         if (outputCallback != null && complexEventChunk.getFirst() != null) {
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
-                ComplexEvent complexEvent = complexEventChunk.next();
-                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                ComplexEvent complexEvent = complexEventChunk.next();                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+
                     complexEvent.setType(ComplexEvent.Type.CURRENT);
                 }
             }
             outputCallback.send(complexEventChunk);
         }
+
     }
 
     public void addQueryCallback(QueryCallback callback) {
