@@ -70,6 +70,9 @@ public class JoinInputStreamParser {
         String leftInputStreamId = ((SingleInputStream) joinInputStream.getLeftInputStream()).getStreamId();
         String rightInputStreamId = ((SingleInputStream) joinInputStream.getRightInputStream()).getStreamId();
 
+        boolean leftOuterJoinProcessor = false;
+        boolean rightOuterJoinProcessor = false;
+
         if (joinInputStream.getAllStreamIds().size() == 2) {
             if (!streamDefinitionMap.containsKey(leftInputStreamId)) {
                 leftMetaStreamEvent.setTableEvent(true);
@@ -124,13 +127,24 @@ public class JoinInputStreamParser {
         metaStateEvent.addEvent(leftMetaStreamEvent);
         metaStateEvent.addEvent(rightMetaStreamEvent);
 
-        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true);
-        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false);
+        switch (joinInputStream.getType()) {
+            case FULL_OUTER_JOIN:
+                leftOuterJoinProcessor = true;
+            case RIGHT_OUTER_JOIN:
+                rightOuterJoinProcessor = true;
+                break;
+            case LEFT_OUTER_JOIN:
+                leftOuterJoinProcessor = true;
+                break;
+        }
+
+        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true,leftOuterJoinProcessor);
+        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false,leftOuterJoinProcessor);
 
         FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime, executionPlanContext);
 
-        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true);
-        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false);
+        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true,rightOuterJoinProcessor);
+        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false,rightOuterJoinProcessor);
 
         FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime, executionPlanContext);
 
