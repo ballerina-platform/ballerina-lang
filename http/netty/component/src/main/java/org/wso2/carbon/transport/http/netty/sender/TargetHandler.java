@@ -73,6 +73,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 HttpContent httpContent;
                 if (msg instanceof LastHttpContent) {
                     httpContent = (LastHttpContent) msg;
+                    cMsg.setEomAdded(true);
                     connectionManager.returnChannel(targetChannel);
                 } else {
                     httpContent = (DefaultHttpContent) msg;
