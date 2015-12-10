@@ -38,6 +38,7 @@
         <module>regex</module>
         <module>time</module>
         <module>timeseries</module>
+        <module>map</module>
         <module>ooh</module>
     </modules>
 
