@@ -17,8 +17,8 @@ package org.wso2.carbon.transport.http.netty.common.disruptor.handler;
 
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisruptorEvent;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -28,10 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
 
-    private CarbonMessageProcessor carbonMessageProcessor;
-
-    public CarbonDisruptorEventHandler(CarbonMessageProcessor  engine) {
-        carbonMessageProcessor = engine;
+    public CarbonDisruptorEventHandler() {
     }
 
     @Override
@@ -42,7 +39,7 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
             // Mechanism to process each event from only one event handler
             if (lock.tryLock()) {
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty("CALL_BACK");
-                carbonMessageProcessor.receive(carbonMessage, carbonCallback);
+                NettyTransportDataHolder.getInstance().getEngine().receive(carbonMessage, carbonCallback);
                 // lock.unlock() does not used because if there are multiple event handlers and same event
                 // should not processed by multiple event handlers .If  unlock happens too early for a event before
                 // other Event handler object reads that event then there will be a probability of executing

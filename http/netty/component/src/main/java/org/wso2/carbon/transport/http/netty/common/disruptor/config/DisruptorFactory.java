@@ -61,7 +61,7 @@ public class DisruptorFactory {
             ExceptionHandler exh = new GenericExceptionHandler();
             EventHandler[] eventHandlers = new EventHandler[disruptorConfig.getNoOfEventHandlersPerDisruptor()];
             for (int j = 0; j < disruptorConfig.getNoOfEventHandlersPerDisruptor(); j++) {
-                EventHandler eventHandler = new CarbonDisruptorEventHandler(engine);
+                EventHandler eventHandler = new CarbonDisruptorEventHandler();
                 eventHandlers[j] = eventHandler;
             }
             disruptor.handleEventsWith(eventHandlers);
