@@ -22,8 +22,9 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
-import org.wso2.carbon.transport.http.netty.listener.CarbonNettyInitializer;
+import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
+import org.wso2.carbon.transport.http.netty.sender.CarbonNettyClientInitializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,8 @@ public class NettyTransportDataHolder {
     private static final Logger log = LoggerFactory.getLogger(NettyTransportDataHolder.class);
 
     private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
-    private Map<String, CarbonTransportServerInitializer> channelInitializers = new HashMap<>();
+    private Map<String, CarbonTransportInitializer> channelServerInitializers = new HashMap<>();
+    private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor engine;
 //    private CarbonTransportServerInitializer carbonNettyInitializer;
@@ -56,24 +58,39 @@ public class NettyTransportDataHolder {
         return instance;
     }
 
-    public synchronized void addNettyChannelInitializer(String key, CarbonTransportServerInitializer initializer) {
-        if (channelInitializers.get(key) == null) {
-            this.channelInitializers.put(key, initializer);
+    public synchronized void addNettyChannelInitializer(String key, CarbonTransportInitializer initializer) {
+        if (initializer.isServerInitializer()) {
+            if (channelServerInitializers.get(key) == null) {
+                this.channelServerInitializers.put(key, initializer);
+            } else {
+                if (channelServerInitializers.get(key) instanceof CarbonNettyServerInitializer) {
+                    channelServerInitializers.remove(key);
+                    this.channelServerInitializers.put(key, initializer);
+                }
+            }
         } else {
-            if (channelInitializers.get(key) instanceof CarbonNettyInitializer) {
-                channelInitializers.remove(key);
-                this.channelInitializers.put(key, initializer);
+            if (channelClientInitializers.get(key) == null) {
+                this.channelClientInitializers.put(key, initializer);
+            } else {
+                if (channelClientInitializers.get(key) instanceof CarbonNettyClientInitializer) {
+                    channelClientInitializers.remove(key);
+                    this.channelClientInitializers.put(key, initializer);
+                }
             }
         }
     }
 
-    public CarbonTransportServerInitializer getChannelInitializer(String key) {
-        return channelInitializers.get(key);
+
+    public CarbonTransportInitializer getServerChannelInitializer(String key) {
+        return channelServerInitializers.get(key);
+    }
+    public CarbonTransportInitializer getClientChannelInitializer(String key) {
+        return channelClientInitializers.get(key);
     }
 
 
     public void removeNettyChannelInitializer(String key) {
-        channelInitializers.remove(key);
+        channelServerInitializers.remove(key);
     }
 
     public void setBundleContext(BundleContext bundleContext) {

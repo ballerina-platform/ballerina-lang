@@ -21,9 +21,12 @@ package org.wso2.carbon.transport.http.netty.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.TransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
+import org.wso2.carbon.transport.http.netty.sender.NettySender;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +41,9 @@ public class NettyTransportActivator implements BundleActivator {
         for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
+        for (NettySender sender : createNettySenders()) {
+            bundleContext.registerService(TransportSender.class, sender, null);
+        }
         NettyTransportDataHolder.getInstance().setBundleContext(bundleContext);
     }
 
@@ -49,12 +55,28 @@ public class NettyTransportActivator implements BundleActivator {
     private Set<NettyListener> createNettyListeners() {
         Set<NettyListener> listeners = new HashSet<>();
         Set<ListenerConfiguration> listenerConfigurations =
-                TransportConfigurationBuilder.build().getListenerConfigurations();
+                   TransportConfigurationBuilder.build().getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             listeners.add(new NettyListener(listenerConfiguration));
         }
         return listeners;
     }
+
+    /**
+     * Parse the  netty-transports.xml config file & create the Netty transport instances
+     *
+     * @return Netty transport instances
+     */
+    private Set<NettySender> createNettySenders() {
+        Set<NettySender> senders = new HashSet<>();
+        Set<SenderConfiguration> senderConfigurations =
+                   TransportConfigurationBuilder.build().getSenderConfigurations();
+        for (SenderConfiguration senderConfiguration : senderConfigurations) {
+            senders.add(new NettySender(senderConfiguration));
+        }
+        return senders;
+    }
+
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {

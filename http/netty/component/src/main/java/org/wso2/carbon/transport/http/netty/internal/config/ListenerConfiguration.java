@@ -18,7 +18,9 @@
  */
 package org.wso2.carbon.transport.http.netty.internal.config;
 
-import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
+
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+
 
 import java.io.File;
 import java.util.List;
@@ -27,6 +29,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+
+
 
 /**
  * JAXB representation of a transport listener.
@@ -189,14 +193,14 @@ public class ListenerConfiguration {
         }
         if (keyStoreFile == null || keyStorePass == null) {
             throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " +
-                    "HTTPS scheme");
+                                               "HTTPS scheme");
         }
         File keyStore = new File(keyStoreFile);
         if (!keyStore.exists()) {
             throw new IllegalArgumentException("KeyStore File " + keyStoreFile + " not found");
         }
         SSLConfig sslConfig =
-                new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+                   new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         if (trustStoreFile != null) {
             File trustStore = new File(trustStoreFile);
             if (!trustStore.exists()) {

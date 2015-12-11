@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
+import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
@@ -73,7 +74,7 @@ public class ConnectionManager {
 
 
     private GenericObjectPool createPoolForRoute(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-                                                 Class eventLoopClass) {
+                                                 Class eventLoopClass, NettyClientInitializer nettyClientInitializer) {
         GenericObjectPool.Config config = new GenericObjectPool.Config();
         config.maxActive = poolConfiguration.getMaxActivePerPool();
         config.maxIdle = poolConfiguration.getMaxIdlePerPool();
@@ -83,7 +84,8 @@ public class ConnectionManager {
         config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
-        return new GenericObjectPool(new PoolableTargetChannelFactory(httpRoute, eventLoopGroup, eventLoopClass),
+        return new GenericObjectPool(new PoolableTargetChannelFactory(httpRoute, eventLoopGroup,
+                                                                      eventLoopClass, nettyClientInitializer),
                                      config);
 
 
@@ -111,7 +113,8 @@ public class ConnectionManager {
      * @return TargetChannel
      * @throws Exception   Exception to notify any errors occur during retrieving the target channel
      */
-    public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler)
+    public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler ,
+                                                                  NettyClientInitializer nettyClientInitializer)
                throws Exception {
         Channel channel = null;
         TargetChannel targetChannel = null;
@@ -124,14 +127,14 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = sourceHandler.getTargetChannelPool();
             GenericObjectPool pool = objectPoolMap.get(httpRoute.toString());
             if (pool == null) {
-                pool = createPoolForRoute(httpRoute, group, cl);
+                pool = createPoolForRoute(httpRoute, group, cl, nettyClientInitializer);
                 objectPoolMap.put(httpRoute.toString(), pool);
             }
             try {
                 Object obj = pool.borrowObject();
                 if (obj != null) {
                     targetChannel = (TargetChannel) obj;
-                    targetChannel.setTargetHandler(targetChannel.getTargetInitializer().getTargetHandler());
+                    targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
                 }
             } catch (Exception e) {
                 log.error("Cannot borrow free channel from pool ", e);
@@ -140,7 +143,8 @@ public class ConnectionManager {
             // manage connections according to per inbound channel caching method
             if (!isRouteExists(httpRoute, sourceHandler)) {
                 targetChannel = new TargetChannel();
-                ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute);
+                ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute ,
+                                                                                             nettyClientInitializer);
 
                 try {
                     channel = ChannelUtils.openChannel(future, httpRoute);
@@ -149,7 +153,7 @@ public class ConnectionManager {
                 } finally {
                     if (channel != null) {
                         targetChannel.setChannel(channel);
-                        targetChannel.setTargetHandler(targetChannel.getTargetInitializer().getTargetHandler());
+                        targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
                         sourceHandler.addTargetChannel(httpRoute, targetChannel);
                     }
                 }
@@ -159,7 +163,8 @@ public class ConnectionManager {
                 if (tempc.isActive()) {
                     channel = tempc;
                 } else {
-                    ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute);
+                    ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute,
+                                                                                            nettyClientInitializer);
                     channel = ChannelUtils.openChannel(future, httpRoute);
                     targetChannel.setChannel(channel);
                 }

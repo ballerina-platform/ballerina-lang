@@ -4,7 +4,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.messaging.CarbonTransportInitializer;
 
 import java.util.Map;
 
@@ -21,17 +21,17 @@ public class CarbonTransportServiceComponent {
 
     @Reference(
             name = "transport-initializer",
-            service = CarbonTransportServerInitializer.class,
+            service = CarbonTransportInitializer.class,
             cardinality = ReferenceCardinality.OPTIONAL,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "removeTransportInitializer"
     )
-    protected void addTransportInitializer(CarbonTransportServerInitializer serverInitializer, Map<String, ?> ref) {
+    protected void addTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
         NettyTransportDataHolder.getInstance()
                 .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }
 
-    protected void removeTransportInitializer(CarbonTransportServerInitializer serverInitializer) {
+    protected void removeTransportInitializer(CarbonTransportInitializer serverInitializer) {
        //// TODO: 11/30/15
     }
 }
