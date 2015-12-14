@@ -51,6 +51,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         // e.g. SSL handler
         if (sslConfig != null) {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
+            sslHandler.engine().setUseClientMode(true);
             ch.pipeline().addLast("ssl", sslHandler);
         }
 

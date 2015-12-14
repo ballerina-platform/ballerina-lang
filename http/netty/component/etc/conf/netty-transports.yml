@@ -52,3 +52,22 @@ listenerConfigurations:
     -
      name: "disruptor.eventhandler.count"
      value: 1
+senderConfigurations:
+ -
+  id: "netty-gw"
+  parameters:
+    -
+     name: "connection.pool.count"
+     value: 0
+# -
+#  id: "https-sender"
+#  scheme: "https"
+#  trustStoreFile: "repository/resources/security/wso2carbon.jks"
+#  trustStorePass: "wso2carbon"
+#  keyStoreFile: "repository/resources/security/wso2carbon.jks"
+#  keyStorePass: "wso2carbon"
+#  certPass: "wso2carbon"
+#  parameters:
+#    -
+#     name: "connection.pool.count"
+#     value: 0

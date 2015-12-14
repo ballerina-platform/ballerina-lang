@@ -64,7 +64,7 @@
                 <xs:element name="senders">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="sender">
+                            <xs:element name="sender"  maxOccurs="unbounded" minOccurs="1">
                                 <xs:complexType mixed="true">
                                     <xs:sequence>
                                         <xs:element name="parameters" minOccurs="0">
