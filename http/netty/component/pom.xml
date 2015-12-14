@@ -179,6 +179,7 @@
                             org.apache.log4j.*,
                             org.apache.commons.pool.*,
                             com.lmax.disruptor.*,
+                            org.yaml.snakeyaml.*
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>

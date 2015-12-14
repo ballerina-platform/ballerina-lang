@@ -45,7 +45,7 @@
                             <bundles>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
-                                    <version>${carbon.transport.osgi.version}</version>
+                                    <version>${carbon.transport.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
