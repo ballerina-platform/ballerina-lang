@@ -22,10 +22,11 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
-import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
-import org.wso2.carbon.transport.http.netty.listener.ssl.SSLHandlerFactory;
+
 
 /**
  * Handles initialization of the Netty Channel pipeline.
@@ -55,8 +56,8 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         }
 
         // Add the rest of the handlers to the pipeline
-        CarbonTransportServerInitializer initializer =
-                NettyTransportDataHolder.getInstance().getChannelInitializer(transportID);
+        CarbonTransportInitializer initializer =
+                NettyTransportDataHolder.getInstance().getServerChannelInitializer(transportID);
 
         if (initializer != null) {
             if (log.isDebugEnabled()) {

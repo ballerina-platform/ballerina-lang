@@ -65,13 +65,32 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="sender">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="xs:string">
-                                            <xs:attribute type="xs:string" name="id"/>
-                                            <xs:attribute type="xs:short" name="queueSize"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
+                                <xs:complexType mixed="true">
+                                    <xs:sequence>
+                                        <xs:element name="parameters" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="parameter" maxOccurs="unbounded" minOccurs="0">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:string">
+                                                                    <xs:attribute type="xs:string"
+                                                                                  name="name" use="optional"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute type="xs:string" name="id"/>
+                                    <xs:attribute type="xs:string" name="scheme" use="optional"/>
+                                    <xs:attribute type="xs:string" name="keyStoreFile" use="optional"/>
+                                    <xs:attribute type="xs:string" name="keyStorePass" use="optional"/>
+                                    <xs:attribute type="xs:string" name="trustStoreFile" use="optional"/>
+                                    <xs:attribute type="xs:string" name="trustStorePass" use="optional"/>
+                                    <xs:attribute type="xs:string" name="certPass" use="optional"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>

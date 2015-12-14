@@ -41,6 +41,10 @@ public class TransportsConfiguration {
         HashSet<ListenerConfiguration> listenerConfigurations = new HashSet<>();
         listenerConfigurations.add(listenerConfiguration);
         defaultConfig.setListenerConfigurations(listenerConfigurations);
+        SenderConfiguration senderConfiguration = SenderConfiguration.getDefault();
+        HashSet<SenderConfiguration> senderConfigurations =  new HashSet<>();
+        senderConfigurations.add(senderConfiguration);
+        defaultConfig.setSenderConfigurations(senderConfigurations);
         return defaultConfig;
     }
 
@@ -48,14 +52,24 @@ public class TransportsConfiguration {
     @XmlElement(name = "listener")
     private Set<ListenerConfiguration> listenerConfigurations;
 
-//    private List<SenderConfiguration> senders;
 
+    @XmlElementWrapper(name = "senders")
+    @XmlElement(name = "sender")
+    private Set<SenderConfiguration> senderConfigurations;
 
     public Set<ListenerConfiguration> getListenerConfigurations() {
         return Collections.unmodifiableSet(listenerConfigurations);
     }
 
+    public Set<SenderConfiguration> getSenderConfigurations() {
+        return Collections.unmodifiableSet(senderConfigurations);
+    }
+
     public void setListenerConfigurations(Set<ListenerConfiguration> listenerConfigurations) {
         this.listenerConfigurations = Collections.unmodifiableSet(listenerConfigurations);
+    }
+
+    public void setSenderConfigurations(Set<SenderConfiguration> senderConfigurations) {
+        this.senderConfigurations = Collections.unmodifiableSet(senderConfigurations);
     }
 }

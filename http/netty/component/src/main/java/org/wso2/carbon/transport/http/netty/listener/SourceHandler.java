@@ -20,12 +20,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.log4j.Logger;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.HTTPContentChunk;
-import org.wso2.carbon.messaging.Pipe;
-import org.wso2.carbon.messaging.PipeImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -43,11 +42,11 @@ import java.util.Map;
  * A Class responsible for handle  incoming message through netty inbound pipeline.
  */
 public class SourceHandler extends ChannelInboundHandlerAdapter {
-    private static Logger log = Logger.getLogger(SourceHandler.class);
+    private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     private RingBuffer disruptor;
     private ChannelHandlerContext ctx;
-    private CarbonMessage cMsg;
+    private NettyCarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
 
@@ -55,7 +54,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private DisruptorConfig disruptorConfig;
     private Map<String, GenericObjectPool> targetChannelPool;
 
-    public SourceHandler(int queueSize , ConnectionManager connectionManager) throws Exception {
+    public SourceHandler(int queueSize, ConnectionManager connectionManager) throws Exception {
         this.queueSize = queueSize;
         this.connectionManager = connectionManager;
     }
@@ -73,33 +72,33 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            cMsg = new CarbonMessage(Constants.PROTOCOL_NAME);
-            cMsg.setPort(((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setHost(((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+            cMsg = new NettyCarbonMessage();
+            cMsg.setProperty("PORT", ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+            cMsg.setProperty("HOST", ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-            cMsg.setCarbonCallback(responseCallback);
+            cMsg.setProperty("CALL_BACK", responseCallback);
             HttpRequest httpRequest = (HttpRequest) msg;
-            cMsg.setURI(httpRequest.getUri());
-            Pipe pipe = new PipeImpl(queueSize);
-            cMsg.setPipe(pipe);
 
+
+            cMsg.setProperty("TO", httpRequest.getUri());
             cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
             cMsg.setProperty(Constants.SRC_HNDLR, this);
             cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
             cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-            cMsg.setProperty(Constants.TRANSPORT_HEADERS, Util.getHeaders(httpRequest));
+            cMsg.setHeaders(Util.getHeaders(httpRequest));
 
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }
             disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
-            HTTPContentChunk chunk;
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
-                    chunk = new HTTPContentChunk(httpContent);
-                    cMsg.getPipe().addContentChunk(chunk);
+                    cMsg.addHttpContent(httpContent);
+                    if (msg instanceof LastHttpContent) {
+                        cMsg.setEomAdded(true);
+                    }
                 }
             }
         }
@@ -124,8 +123,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return channelFutureMap.get(route.toString());
     }
 
-
-
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         return targetChannelPool;
     }
@@ -137,7 +134,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        log.error("Exception caught in Netty Source handler" , cause);
+        log.error("Exception caught in Netty Source handler", cause);
     }
 }
 

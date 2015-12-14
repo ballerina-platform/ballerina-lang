@@ -19,17 +19,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.apache.log4j.Logger;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
-import org.wso2.carbon.messaging.TransportSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
-import org.wso2.carbon.transport.http.netty.sender.NettySender;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
@@ -39,31 +35,24 @@ import java.util.Map;
 /**
  * A class that responsible for create server side channels.
  */
-public class CarbonNettyInitializer implements CarbonTransportServerInitializer {
+public class CarbonNettyServerInitializer implements CarbonTransportInitializer {
 
-    private static final Logger log = Logger.getLogger(CarbonNettyInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private int queueSize = 32544;
     private ConnectionManager connectionManager;
 
-    public CarbonNettyInitializer() {
+    public CarbonNettyServerInitializer() {
 
     }
 
     @Override
     public void setup(Map<String, String> parameters) {
 
-
         BootstrapConfiguration.createBootStrapConfiguration(parameters);
         PoolConfiguration.createPoolConfiguration(parameters);
 
         try {
             connectionManager = ConnectionManager.getInstance();
-
-            NettySender.Config config = new NettySender.Config("netty-gw-sender").setQueueSize(this.queueSize);
-            TransportSender sender = new NettySender(config, connectionManager);
-
-            NettyTransportDataHolder.getInstance().getBundleContext()
-                    .registerService(TransportSender.class, sender, null);
 
             if (parameters != null) {
                 DisruptorConfig disruptorConfig =
@@ -88,17 +77,17 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
                                                   disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error initializing the transport ", e);
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void initChannel(SocketChannel ch) {
+    public void initChannel(Object ch) {
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
-        ChannelPipeline p = ch.pipeline();
+        ChannelPipeline p = ((SocketChannel) ch).pipeline();
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
         try {
@@ -109,20 +98,9 @@ public class CarbonNettyInitializer implements CarbonTransportServerInitializer 
     }
 
     @Override
-    public String getName() {
-        return "default";
+    public boolean isServerInitializer() {
+        return true;
     }
 
-    static class Tempinit implements CarbonMessageProcessor {
-        @Override
-        public boolean receive(CarbonMessage carbonMessage,
-                CarbonCallback carbonCallback) throws Exception {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
-        }
 
-        @Override
-        public void setTransportSender(TransportSender transportSender) {
-            //do nothing
-        }
-    }
 }

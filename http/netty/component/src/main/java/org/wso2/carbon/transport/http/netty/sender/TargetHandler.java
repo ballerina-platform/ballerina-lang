@@ -18,15 +18,14 @@ import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.HTTPContentChunk;
-import org.wso2.carbon.messaging.Pipe;
-import org.wso2.carbon.messaging.PipeImpl;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
@@ -44,7 +43,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private CarbonCallback callback;
     private RingBuffer ringBuffer;
     private CarbonMessage cMsg;
-    private int queuesize;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
 
@@ -58,33 +56,28 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
-            cMsg = new CarbonMessage(Constants.PROTOCOL_NAME);
-            cMsg.setPort(((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setHost(((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-            cMsg.setDirection(CarbonMessage.RESPONSE);
-            cMsg.setCarbonCallback(callback);
-            Pipe pipe = new PipeImpl(queuesize);
-            cMsg.setPipe(pipe);
+            cMsg = new NettyCarbonMessage();
+            cMsg.setProperty("PORT", ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+            cMsg.setProperty("HOST", ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+            cMsg.setProperty("DIRECTION", "response");
+            cMsg.setProperty("CALL_BACK", callback);
             HttpResponse httpResponse = (HttpResponse) msg;
-            cMsg.setDirection(CarbonMessage.RESPONSE);
-
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-            cMsg.setProperty(Constants.TRANSPORT_HEADERS, Util.getHeaders(httpResponse));
-
+            cMsg.setHeaders(Util.getHeaders(httpResponse));
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
-            HTTPContentChunk chunk;
             if (cMsg != null) {
+
+                HttpContent httpContent;
                 if (msg instanceof LastHttpContent) {
-                    LastHttpContent lastHttpContent = (LastHttpContent) msg;
-                    chunk = new HTTPContentChunk(lastHttpContent);
+                    httpContent = (LastHttpContent) msg;
+                    cMsg.setEomAdded(true);
                     connectionManager.returnChannel(targetChannel);
                 } else {
-                    DefaultHttpContent httpContent = (DefaultHttpContent) msg;
-                    chunk = new HTTPContentChunk(httpContent);
+                    httpContent = (DefaultHttpContent) msg;
                 }
-                cMsg.getPipe().addContentChunk(chunk);
+                ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
             }
         }
     }
@@ -100,10 +93,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public void setRingBuffer(RingBuffer ringBuffer) {
         this.ringBuffer = ringBuffer;
-    }
-
-    public void setQueuesize(int queuesize) {
-        this.queuesize = queuesize;
     }
 
     public void setConnectionManager(ConnectionManager connectionManager) {

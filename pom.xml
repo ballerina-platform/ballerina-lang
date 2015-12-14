@@ -31,6 +31,8 @@
         </pluginRepository>
     </pluginRepositories>
 
+
+    <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
@@ -43,34 +45,39 @@
             <version>${equinox.osgi.services.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
             <version>${org.wso2.carbon.core.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging</artifactId>
+            <version>${org.wso2.carbon.messaging.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.wso2.orbit.com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool.wso2</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>${commons.pool.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
@@ -83,6 +90,7 @@
             <version>3.3.2.wso2v2</version>
         </dependency>
     </dependencies>
+    </dependencyManagement>
 
     <build>
         <extensions>
@@ -183,6 +191,7 @@
                             org.apache.log4j.*,
                             org.apache.commons.pool.*,
                             com.lmax.disruptor.*,
+                            org.yaml.snakeyaml.*
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
@@ -248,16 +257,22 @@
         <maven.javadocplugin.version>2.10.3</maven.javadocplugin.version>
 
         <!-- Dependencies -->
-        <netty.version>4.0.30.Final</netty.version>
+        <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <org.wso2.carbon.core.version>5.0.0-beta</org.wso2.carbon.core.version>
+        <org.wso2.carbon.core.version>5.0.0-alpha</org.wso2.carbon.core.version>
+        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
+        <netty.version>4.0.30.Final</netty.version>
+        <disruptor.version>3.3.2.wso2v2</disruptor.version>
+        <slf4j.version>1.7.5</slf4j.version>
+        <org.wso2.carbon.transport.http.netty.version>1.0.0-SNAPSHOT</org.wso2.carbon.transport.http.netty.version>
+        <org.wso2.carbon.transport.http.netty.osgi.version>1.0.0.SNAPSHOT</org.wso2.carbon.transport.http.netty.osgi.version>
+
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
-        <slf4j.version>1.7.5</slf4j.version>
-        <carbon.p2.plugin.version>2.0.0-beta</carbon.p2.plugin.version>
-        <carbon.transport.version>1.0.0.SNAPSHOT</carbon.transport.version>
-        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
+        <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
+        <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
+        <org.wso2.carbon.messaging.version>1.0.0-SNAPSHOT</org.wso2.carbon.messaging.version>
     </properties>
 
 </project>
