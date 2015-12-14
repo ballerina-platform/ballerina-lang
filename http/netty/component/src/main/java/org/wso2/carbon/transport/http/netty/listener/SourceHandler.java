@@ -85,7 +85,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(Constants.SRC_HNDLR, this);
             cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
             cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-            cMsg.setProperty(Constants.TRANSPORT_HEADERS, Util.getHeaders(httpRequest));
+            cMsg.setHeaders(Util.getHeaders(httpRequest));
 
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);

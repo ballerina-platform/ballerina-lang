@@ -65,7 +65,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             HttpResponse httpResponse = (HttpResponse) msg;
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-            cMsg.setProperty(Constants.TRANSPORT_HEADERS, Util.getHeaders(httpResponse));
+            cMsg.setHeaders(Util.getHeaders(httpResponse));
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {

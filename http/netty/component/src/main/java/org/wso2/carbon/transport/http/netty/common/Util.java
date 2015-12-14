@@ -88,7 +88,7 @@ public class Util {
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion,
                 httpResponseStatus, false);
 
-        Map<String, String> headerMap = (Map) msg.getProperty(Constants.TRANSPORT_HEADERS);
+        Map<String, String> headerMap = msg.getHeaders();
 
         Util.setHeaders(outgoingResponse, headerMap);
 
@@ -111,7 +111,7 @@ public class Util {
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) msg.getProperty("TO"), false);
-        Map headers = (Map) msg.getProperty(Constants.TRANSPORT_HEADERS);
+        Map headers = msg.getHeaders();
         Util.setHeaders(outgoingRequest, headers);
         return outgoingRequest;
     }
