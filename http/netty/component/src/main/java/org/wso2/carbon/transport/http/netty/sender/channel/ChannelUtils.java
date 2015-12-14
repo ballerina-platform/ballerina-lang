@@ -23,7 +23,7 @@ import io.netty.channel.EventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.sender.TargetInitializer;
+import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -48,7 +48,8 @@ public class ChannelUtils {
      */
     @SuppressWarnings("unchecked")
     public static ChannelFuture getNewChannelFuture(TargetChannel targetChannel, EventLoopGroup eventLoopGroup,
-                                                    Class eventLoopClass, HttpRoute httpRoute) {
+                                                    Class eventLoopClass, HttpRoute httpRoute ,
+                                                                         NettyClientInitializer channelInitializer) {
         BootstrapConfiguration bootstrapConfiguration = BootstrapConfiguration.getInstance();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.channel(eventLoopClass);
@@ -59,9 +60,9 @@ public class ChannelUtils {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
 
         // set the pipeline factory, which creates the pipeline for each newly created channels
-        TargetInitializer targetInitializer = new TargetInitializer();
-        targetChannel.setTargetInitializer(targetInitializer);
-        clientBootstrap.handler(targetInitializer);
+
+        targetChannel.setNettyClientInitializer(channelInitializer);
+        clientBootstrap.handler(channelInitializer);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}",
                       httpRoute.getHost(), httpRoute.getPort(), clientBootstrap);

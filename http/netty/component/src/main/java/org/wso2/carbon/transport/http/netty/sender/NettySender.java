@@ -32,10 +32,15 @@ import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
+import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
-import org.wso2.carbon.transport.http.netty.listener.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A class creates connections with BE and send messages.
@@ -43,14 +48,30 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 public class NettySender implements TransportSender {
 
     private static final Logger log = LoggerFactory.getLogger(NettySender.class);
-    private Config config;
-
+    private SenderConfiguration senderConfiguration;
+    private String id;
+    private NettyClientInitializer nettyClientInitializer;
     private ConnectionManager connectionManager;
 
-    public NettySender(Config conf, ConnectionManager connectionManager) {
-        this.config = conf;
-        this.connectionManager = connectionManager;
+    public NettySender(SenderConfiguration senderConfiguration) {
+        this.senderConfiguration = senderConfiguration;
+        this.id = senderConfiguration.getId();
+        Map<String, String> paramMap = new HashMap<>(senderConfiguration.getParameters().size());
+        if (senderConfiguration.getParameters() != null && !senderConfiguration.getParameters().isEmpty()) {
+
+            for (Parameter parameter : senderConfiguration.getParameters()) {
+                paramMap.put(parameter.getName(), parameter.getValue());
+            }
+
+        }
+        this.connectionManager = ConnectionManager.getInstance();
+        nettyClientInitializer = new NettyClientInitializer(senderConfiguration.getId());
+        nettyClientInitializer.setSslConfig(senderConfiguration.getSslConfig());
+        CarbonNettyClientInitializer carbonNettyClientInitializer = new CarbonNettyClientInitializer();
+        NettyTransportDataHolder.getInstance().addNettyChannelInitializer(id, carbonNettyClientInitializer);
+        carbonNettyClientInitializer.setup(paramMap);
     }
+
 
     @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws EngineException {
@@ -62,17 +83,17 @@ public class NettySender implements TransportSender {
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
         if (ringBuffer == null) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
-                    getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
+                       getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
         }
 
         Channel outboundChannel = null;
         try {
-            TargetChannel targetChannel = connectionManager.getTargetChannel(route, srcHandler);
+            TargetChannel targetChannel = connectionManager.getTargetChannel
+                       (route, srcHandler, nettyClientInitializer);
             outboundChannel = targetChannel.getChannel();
             targetChannel.getTargetHandler().setCallback(callback);
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
-            targetChannel.getTargetHandler().setQueuesize(config.queueSize);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
 
@@ -86,7 +107,7 @@ public class NettySender implements TransportSender {
 
     @Override
     public String getId() {
-        return "netty-sender";
+        return id;
     }
 
     private boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
@@ -97,7 +118,7 @@ public class NettySender implements TransportSender {
             if (httpContent instanceof LastHttpContent) {
                 channel.writeAndFlush(httpContent);
                 break;
-        }
+            }
             if (httpContent != null) {
                 channel.write(httpContent);
             }
@@ -105,46 +126,5 @@ public class NettySender implements TransportSender {
         return true;
     }
 
-    /**
-     * Class representing configs related to Transport Sender.
-     */
-    public static class Config {
-
-        private String id;
-
-        private SSLConfig sslConfig;
-
-        private int queueSize;
-
-        public Config(String id) {
-            if (id == null) {
-                throw new IllegalArgumentException("Netty transport ID is null");
-            }
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public Config enableSsl(SSLConfig sslConfig) {
-            this.sslConfig = sslConfig;
-            return this;
-        }
-
-        public SSLConfig getSslConfig() {
-            return sslConfig;
-        }
-
-        public int getQueueSize() {
-            return queueSize;
-        }
-
-        public Config setQueueSize(int queuesize) {
-            this.queueSize = queuesize;
-            return this;
-        }
-
-    }
 
 }

@@ -41,6 +41,15 @@
     <senders>
         <sender
                 id="netty-gw"
-                queueSize="32244"/>
+                scheme="https"
+                keyStoreFile="repository/resources/security/cert.jks"
+                trustStoreFile="repository/resources/security/cert.jks"
+                trustStorePass="secret"
+                keyStorePass="secret"
+                certPass="secret">
+        <parameters>
+            <parameter name="connection.pool.count">0</parameter>
+        </parameters>
+        </sender>
     </senders>
 </transports>

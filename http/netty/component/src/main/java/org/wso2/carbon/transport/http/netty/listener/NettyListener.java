@@ -27,7 +27,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportServerInitializer;
+import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.transport.http.netty.Constants;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
@@ -89,7 +89,7 @@ public class NettyListener extends TransportListener {
     }
 
     private void setupChannelInitializer() {
-        CarbonTransportServerInitializer channelInitializer = new CarbonNettyInitializer();
+        CarbonTransportInitializer channelInitializer = new CarbonNettyServerInitializer();
 
         List<Parameter> parameters = nettyConfig.getParameters();
         if (parameters != null && !parameters.isEmpty()) {

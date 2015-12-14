@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.transport.http.netty.listener.ssl;
+package org.wso2.carbon.transport.http.netty.common.ssl;
 
 import java.io.File;
 

@@ -10,32 +10,46 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
+import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
+
+import java.util.Map;
 
 /**
- * A class that responsible for initialize target server pipeline.
+ * Default ClientInitializer class used in netty gw
  */
-public class TargetInitializer extends ChannelInitializer<SocketChannel> {
+public class CarbonNettyClientInitializer implements CarbonTransportInitializer {
     protected static final String HANDLER = "handler";
     private TargetHandler handler;
 
+    @Override
+    public void setup(Map<String, String> map) {
+
+        PoolConfiguration.createPoolConfiguration(map);
+    }
 
     @Override
-    protected void initChannel(SocketChannel ch) throws Exception {
-        ChannelPipeline p = ch.pipeline();
+    public void initChannel(Object o) {
+        ChannelPipeline p = ((SocketChannel) o).pipeline();
         p.addLast("decoder", new HttpResponseDecoder());
         p.addLast("encoder", new HttpRequestEncoder());
         handler = new TargetHandler();
         p.addLast(HANDLER, handler);
+    }
+
+    @Override
+    public boolean isServerInitializer() {
+        return false;
     }
 
     public TargetHandler getTargetHandler() {

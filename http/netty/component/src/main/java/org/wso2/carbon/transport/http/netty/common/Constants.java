@@ -59,6 +59,9 @@ public class Constants {
 
     public static final String SLEEP_WAITING = "SLEEP_WAITING";
 
+
+    public static final String TRANSPORT_ID = "netty-gw";
+
     public static final String WAIT_STRATEGY = "disruptor.wait.strategy";
 
     public static final String DISRUPTOR_BUFFER_SIZE = "disruptor.buffer.size";

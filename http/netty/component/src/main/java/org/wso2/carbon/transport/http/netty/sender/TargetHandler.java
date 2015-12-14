@@ -43,7 +43,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private CarbonCallback callback;
     private RingBuffer ringBuffer;
     private CarbonMessage cMsg;
-    private int queuesize;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
 
@@ -96,9 +95,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.ringBuffer = ringBuffer;
     }
 
-    public void setQueuesize(int queuesize) {
-        this.queuesize = queuesize;
-    }
 
     public void setConnectionManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
