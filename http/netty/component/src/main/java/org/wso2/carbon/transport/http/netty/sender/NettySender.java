@@ -38,6 +38,7 @@ import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,12 +65,12 @@ public class NettySender implements TransportSender {
             }
 
         }
+        PoolConfiguration.createPoolConfiguration(paramMap);
         this.connectionManager = ConnectionManager.getInstance();
         nettyClientInitializer = new NettyClientInitializer(senderConfiguration.getId());
         nettyClientInitializer.setSslConfig(senderConfiguration.getSslConfig());
         CarbonNettyClientInitializer carbonNettyClientInitializer = new CarbonNettyClientInitializer();
         NettyTransportDataHolder.getInstance().addNettyChannelInitializer(id, carbonNettyClientInitializer);
-        carbonNettyClientInitializer.setup(paramMap);
     }
 
 
