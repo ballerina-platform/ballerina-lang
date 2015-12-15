@@ -22,8 +22,10 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
+import org.wso2.carbon.transport.http.netty.listener.TransportsMetadata;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,9 +37,11 @@ public class NettyTransportActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        for (NettyListener listener : createNettyListeners()) {
+        TransportsMetadata trpMetadata = new TransportsMetadata();
+        for (NettyListener listener : createNettyListeners(trpMetadata)) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
+        bundleContext.registerService(TransportsMetadata.class, trpMetadata, null);
     }
 
     /**
@@ -45,12 +49,14 @@ public class NettyTransportActivator implements BundleActivator {
      *
      * @return Netty transport instances
      */
-    private Set<NettyListener> createNettyListeners() {
+    private Set<NettyListener> createNettyListeners(TransportsMetadata trpMetadata) {
         Set<NettyListener> listeners = new HashSet<>();
+        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations =
-                YAMLTransportConfigurationBuilder.build().getListenerConfigurations();
+                trpConfig.getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             listeners.add(new NettyListener(listenerConfiguration));
+            trpMetadata.addTransportID(listenerConfiguration.getId());
         }
         return listeners;
     }
