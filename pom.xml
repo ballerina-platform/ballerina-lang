@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>${org.wso2.carbon.kernel.version}</version>
+            <version>${org.wso2.carbon.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
@@ -79,8 +79,16 @@
             <artifactId>commons-pool</artifactId>
             <version>${commons.pool.version}</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${org.snakeyaml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.2.wso2v2</version>
+        </dependency>
     </dependencies>
     </dependencyManagement>
 
@@ -183,6 +191,7 @@
                             org.apache.log4j.*,
                             org.apache.commons.pool.*,
                             com.lmax.disruptor.*,
+                            org.yaml.snakeyaml.*
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
@@ -248,11 +257,11 @@
         <maven.javadocplugin.version>2.10.3</maven.javadocplugin.version>
 
         <!-- Dependencies -->
-        <org.wso2.carbon.kernel.version>5.0.0-alpha</org.wso2.carbon.kernel.version>
-
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
+        <org.wso2.carbon.core.version>5.0.0-alpha</org.wso2.carbon.core.version>
+        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <netty.version>4.0.30.Final</netty.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <slf4j.version>1.7.5</slf4j.version>

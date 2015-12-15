@@ -137,10 +137,6 @@ public class NettyListener extends TransportListener {
         startTransport();
     }
 
-    public String getState() {
-        return serverState;
-    }
-
     private void shutdownEventLoops() {
         Future<?> f = workerGroup.shutdownGracefully();
         f.addListener(new GenericFutureListener<Future<Object>>() {

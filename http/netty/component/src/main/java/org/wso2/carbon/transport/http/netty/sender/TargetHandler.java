@@ -95,7 +95,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.ringBuffer = ringBuffer;
     }
 
-
     public void setConnectionManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }

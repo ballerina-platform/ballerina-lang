@@ -123,7 +123,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return channelFutureMap.get(route.toString());
     }
 
-
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         return targetChannelPool;
     }

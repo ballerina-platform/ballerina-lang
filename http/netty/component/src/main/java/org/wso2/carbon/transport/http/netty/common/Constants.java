@@ -59,9 +59,6 @@ public class Constants {
 
     public static final String SLEEP_WAITING = "SLEEP_WAITING";
 
-
-    public static final String TRANSPORT_ID = "netty-gw";
-
     public static final String WAIT_STRATEGY = "disruptor.wait.strategy";
 
     public static final String DISRUPTOR_BUFFER_SIZE = "disruptor.buffer.size";
@@ -100,6 +97,9 @@ public class Constants {
     public static final String MIN_EVICTION_IDLE_TIME = "min.eviction.idle.time";
 
     public static final String ENABLE_GLOBAL_CONNECTION_POOLING = "enable.global.client.connection.pooling";
+
+
+    public static final String NO_THREADS_IN_EXECUTOR_SERVICE = "sender.thread.count";
 
 }
 

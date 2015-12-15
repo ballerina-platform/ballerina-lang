@@ -52,6 +52,10 @@
             <groupId>org.wso2.orbit.com.lmax</groupId>
             <artifactId>disruptor</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,6 +125,11 @@
                                 <bundle>
                                     <symbolicName>commons-pool</symbolicName>
                                     <version>${commons.pool.version}</version>
+                                </bundle>
+
+                                <bundle>
+                                    <symbolicName>snakeyaml</symbolicName>
+                                    <version>${org.snakeyaml.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
