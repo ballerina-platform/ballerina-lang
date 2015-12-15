@@ -25,7 +25,6 @@ import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguratio
 import org.wso2.carbon.transport.http.netty.internal.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
-import org.wso2.carbon.transport.http.netty.listener.TransportsMetadata;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,11 +36,9 @@ public class NettyTransportActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        TransportsMetadata trpMetadata = new TransportsMetadata();
-        for (NettyListener listener : createNettyListeners(trpMetadata)) {
+        for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
-        bundleContext.registerService(TransportsMetadata.class, trpMetadata, null);
     }
 
     /**
@@ -49,14 +46,13 @@ public class NettyTransportActivator implements BundleActivator {
      *
      * @return Netty transport instances
      */
-    private Set<NettyListener> createNettyListeners(TransportsMetadata trpMetadata) {
+    private Set<NettyListener> createNettyListeners() {
         Set<NettyListener> listeners = new HashSet<>();
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations =
                 trpConfig.getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             listeners.add(new NettyListener(listenerConfiguration));
-            trpMetadata.addTransportID(listenerConfiguration.getId());
         }
         return listeners;
     }
