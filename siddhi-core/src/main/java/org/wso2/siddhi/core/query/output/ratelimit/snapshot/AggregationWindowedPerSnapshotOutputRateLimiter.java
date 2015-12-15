@@ -196,12 +196,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     }
 
     protected ComplexEvent createSendEvent(ComplexEvent originalEvent, Map<Integer, Object> aggregateAttributeValueMap) {
-        ComplexEvent copiedEvent = null;
-        if (originalEvent instanceof StreamEvent) {
-            copiedEvent = streamEventCloner.copyStreamEvent((StreamEvent) originalEvent);
-        } else if (originalEvent instanceof StateEvent) {
-            copiedEvent = stateEventCloner.copyStateEvent((StateEvent) originalEvent);
-        }
+        ComplexEvent copiedEvent = cloneComplexEvent(originalEvent);
 
         for (Integer position : aggregateAttributePositionList) {
             copiedEvent.getOutputData()[position] = aggregateAttributeValueMap.get(position);
