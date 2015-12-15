@@ -18,19 +18,25 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class AttributeAggregatorExtensionHolder extends AbstractExtensionHolder {
-    private static AttributeAggregatorExtensionHolder instance;
+    private static Class clazz =AttributeAggregator.class;
 
     private AttributeAggregatorExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(AttributeAggregator.class, executionPlanContext);
+        super(clazz, executionPlanContext);
     }
 
     public static AttributeAggregatorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        if (instance == null) {
-            instance = new AttributeAggregatorExtensionHolder(executionPlanContext);
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
+        if (abstractExtensionHolder == null) {
+            abstractExtensionHolder = new AttributeAggregatorExtensionHolder(executionPlanContext);
+            extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
-        return instance;
+        return (AttributeAggregatorExtensionHolder) extensionHolderMap.get(clazz);
     }
 }

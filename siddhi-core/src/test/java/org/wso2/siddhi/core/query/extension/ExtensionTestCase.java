@@ -120,16 +120,22 @@ public class ExtensionTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test
     public void extensionTest3() throws InterruptedException {
         log.info("extension test3");
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
-        siddhiManager.setExtension("email:getAll", StringConcatAggregatorString.class);
+        siddhiManager.setExtension("email:getAllNew", StringConcatAggregatorString.class);
 
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
-        String query = ("@info(name = 'query1') from cseEventStream select price , email:getAll(symbol,'') as toConcat " +
-                "group by volume insert into mailOutput;");
+        String cseEventStream = "" +
+                "@config(async = 'true')" +
+                "define stream cseEventStream (symbol string, price float, volume long);";
+        String query = ("" +
+                "@info(name = 'query1') " +
+                "from cseEventStream " +
+                "select price , email:getAllNew(symbol,'') as toConcat " +
+                "group by volume " +
+                "insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
