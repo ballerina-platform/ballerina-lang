@@ -46,6 +46,8 @@ public class PoolConfiguration {
 
     private int numberOfPools = 0;
 
+    private int executorServiceThreads = 20;
+
 
     private PoolConfiguration(Map<String, String> parameters) {
 
@@ -61,6 +63,8 @@ public class PoolConfiguration {
                              Integer.parseInt(parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL)) : 100;
             minEvictableIdleTime = parameters.get(Constants.MIN_EVICTION_IDLE_TIME) != null ?
                                    Integer.parseInt(parameters.get(Constants.MIN_EVICTION_IDLE_TIME)) : 5 * 60 * 1000L;
+            executorServiceThreads = parameters.get(Constants.NO_THREADS_IN_EXECUTOR_SERVICE) != null ?
+                                     Integer.parseInt(parameters.get(Constants.NO_THREADS_IN_EXECUTOR_SERVICE)) : 20;
 
         }
 
@@ -111,5 +115,9 @@ public class PoolConfiguration {
 
     public int getNumberOfPools() {
         return numberOfPools;
+    }
+
+    public int getExecutorServiceThreads() {
+        return executorServiceThreads;
     }
 }
