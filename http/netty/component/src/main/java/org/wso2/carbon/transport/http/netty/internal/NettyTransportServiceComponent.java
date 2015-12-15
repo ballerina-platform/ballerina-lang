@@ -18,12 +18,15 @@
  */
 package org.wso2.carbon.transport.http.netty.internal;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.Map;
@@ -34,16 +37,25 @@ import java.util.Map;
  */
 @Component(
         name = "org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent",
-        immediate = true
+        immediate = true,
+        property = {
+                "capability-name=org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer",
+                "component-key=netty-transports-mgt"
+        }
 )
 @SuppressWarnings("unused")
-public class NettyTransportServiceComponent {
+public class NettyTransportServiceComponent implements RequiredCapabilityListener {
 
     private static final Logger log = LoggerFactory.getLogger(NettyTransportServiceComponent.class);
 
     private static final String CHANNEL_ID_KEY = "channel.id";
 
     private NettyTransportDataHolder dataHolder = NettyTransportDataHolder.getInstance();
+
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        // Nothing to do
+    }
 
     @Reference(
             name = "netty-channel.initializer",
@@ -70,5 +82,12 @@ public class NettyTransportServiceComponent {
     protected void removeNettyChannelInitializer(CarbonNettyServerInitializer initializer, Map<String, ?> properties) {
         String channelId = (String) properties.get(CHANNEL_ID_KEY);
         dataHolder.removeNettyChannelInitializer(channelId);
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        NettyTransportDataHolder.getInstance().getBundleContext().
+                registerService(NettyTransportServiceComponent.class, this, null);
+        log.info("All CarbonNettyServerInitializers are available");
     }
 }
