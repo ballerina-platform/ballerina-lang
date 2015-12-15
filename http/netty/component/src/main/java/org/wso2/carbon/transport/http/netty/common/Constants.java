@@ -98,6 +98,9 @@ public class Constants {
 
     public static final String ENABLE_GLOBAL_CONNECTION_POOLING = "enable.global.client.connection.pooling";
 
+
+    public static final String NO_THREADS_IN_EXECUTOR_SERVICE = "sender.thread.count";
+
 }
 
 

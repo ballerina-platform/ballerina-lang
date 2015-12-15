@@ -20,8 +20,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
@@ -123,4 +128,22 @@ public class ChannelUtils {
         }
         return channel;
     }
+
+    public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
+        channel.write(httpRequest);
+        NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
+        while (true) {
+            HttpContent httpContent = nettyCMsg.getHttpContent();
+            if (httpContent instanceof LastHttpContent) {
+                channel.writeAndFlush(httpContent);
+                break;
+            }
+            if (httpContent != null) {
+                channel.write(httpContent);
+            }
+        }
+        return true;
+    }
+
+
 }

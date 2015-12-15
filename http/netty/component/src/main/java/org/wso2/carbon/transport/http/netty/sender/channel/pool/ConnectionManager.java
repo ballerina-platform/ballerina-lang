@@ -16,23 +16,28 @@
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
 
+import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
+import org.wso2.carbon.transport.http.netty.sender.ClientRequestWorker;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
-import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -54,10 +59,13 @@ public class ConnectionManager {
 
     private AtomicInteger index = new AtomicInteger(1);
 
+    private ExecutorService executorService;
+
 
     private ConnectionManager(PoolConfiguration poolConfiguration) {
         this.poolConfiguration = poolConfiguration;
         this.poolCount = poolConfiguration.getNumberOfPools();
+        this.executorService = Executors.newFixedThreadPool(poolConfiguration.getExecutorServiceThreads());
         if (poolConfiguration.getNumberOfPools() == 0) {
             this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
         } else {
@@ -113,8 +121,10 @@ public class ConnectionManager {
      * @return TargetChannel
      * @throws Exception   Exception to notify any errors occur during retrieving the target channel
      */
-    public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler ,
-                                                                  NettyClientInitializer nettyClientInitializer)
+    public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
+                                          NettyClientInitializer nettyClientInitializer,
+                                          HttpRequest httpRequest, CarbonMessage carbonMessage,
+                                          CarbonCallback carbonCallback, RingBuffer ringBuffer)
                throws Exception {
         Channel channel = null;
         TargetChannel targetChannel = null;
@@ -131,42 +141,29 @@ public class ConnectionManager {
                 objectPoolMap.put(httpRoute.toString(), pool);
             }
             try {
-                Object obj = pool.borrowObject();
-                if (obj != null) {
-                    targetChannel = (TargetChannel) obj;
-                    targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
-                }
+                executorService.submit(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
+                                                               httpRequest, carbonMessage,
+                                                               carbonCallback, true,
+                                                               pool, this, ringBuffer));
             } catch (Exception e) {
                 log.error("Cannot borrow free channel from pool ", e);
             }
         } else {
             // manage connections according to per inbound channel caching method
             if (!isRouteExists(httpRoute, sourceHandler)) {
-                targetChannel = new TargetChannel();
-                ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute ,
-                                                                                             nettyClientInitializer);
-
-                try {
-                    channel = ChannelUtils.openChannel(future, httpRoute);
-                } catch (Exception failedCause) {
-                    throw failedCause;
-                } finally {
-                    if (channel != null) {
-                        targetChannel.setChannel(channel);
-                        targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
-                        sourceHandler.addTargetChannel(httpRoute, targetChannel);
-                    }
-                }
+               executorService.
+                        execute(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
+                                                        httpRequest, carbonMessage,
+                                                        carbonCallback, false,
+                                                        null, this, ringBuffer));
             } else {
                 targetChannel = sourceHandler.getChannel(httpRoute);
                 Channel tempc = targetChannel.getChannel();
-                if (tempc.isActive()) {
-                    channel = tempc;
-                } else {
-                    ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute,
-                                                                                            nettyClientInitializer);
-                    channel = ChannelUtils.openChannel(future, httpRoute);
-                    targetChannel.setChannel(channel);
+                if (!tempc.isActive()) {
+                    executorService.
+                               execute(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
+                                                               httpRequest, carbonMessage,
+                                                               carbonCallback, false, null, this, ringBuffer));
                 }
             }
         }

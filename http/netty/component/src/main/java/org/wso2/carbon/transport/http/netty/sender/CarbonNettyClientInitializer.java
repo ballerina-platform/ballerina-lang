@@ -21,6 +21,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.Map;
 
@@ -33,8 +34,7 @@ public class CarbonNettyClientInitializer implements CarbonTransportInitializer 
 
     @Override
     public void setup(Map<String, String> map) {
-
-
+        PoolConfiguration.createPoolConfiguration(map);
     }
 
     @Override
