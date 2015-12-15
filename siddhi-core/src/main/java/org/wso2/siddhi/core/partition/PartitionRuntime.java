@@ -61,11 +61,11 @@ public class PartitionRuntime implements Snapshotable {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap;
     private ConcurrentMap<String, StreamJunction> streamJunctionMap;
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private List<PartitionInstanceRuntime> partitionInstanceRuntimeList = new ArrayList<PartitionInstanceRuntime>();
+    private ConcurrentMap<String, PartitionInstanceRuntime> partitionInstanceRuntimeMap = new ConcurrentHashMap<String, PartitionInstanceRuntime>();
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
     private ExecutionPlanContext executionPlanContext;
 
-    public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,ConcurrentMap<String, StreamJunction> streamJunctionMap, Partition partition, ExecutionPlanContext executionPlanContext) {
+    public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, Partition partition, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         try {
             Element element = AnnotationHelper.getAnnotationElement("info", "name", partition.getAnnotations());
@@ -177,14 +177,13 @@ public class PartitionRuntime implements Snapshotable {
      * @param key partition key
      */
     public void cloneIfNotExist(String key) {
-        PartitionInstanceRuntime partitionInstance = this.getPartitionInstanceRuntime(key);
-        if (partitionInstance == null) {
+        if (!partitionInstanceRuntimeMap.containsKey(key)) {
             clonePartition(key);
         }
     }
 
     private synchronized void clonePartition(String key) {
-        PartitionInstanceRuntime partitionInstance = this.getPartitionInstanceRuntime(key);
+        PartitionInstanceRuntime partitionInstance = this.partitionInstanceRuntimeMap.get(key);
 
         if (partitionInstance == null) {
             List<QueryRuntime> queryRuntimeList = new ArrayList<QueryRuntime>();
@@ -216,7 +215,7 @@ public class PartitionRuntime implements Snapshotable {
                     partitionedQueryRuntimeList.add(clonedQueryRuntime);
                 }
             }
-            addPartitionInstance(new PartitionInstanceRuntime(key, queryRuntimeList));
+            partitionInstanceRuntimeMap.putIfAbsent(key, new PartitionInstanceRuntime(key, queryRuntimeList));
             updatePartitionStreamReceivers(key, partitionedQueryRuntimeList);
 
         }
@@ -229,21 +228,14 @@ public class PartitionRuntime implements Snapshotable {
         }
     }
 
-    public void addPartitionInstance(PartitionInstanceRuntime partitionInstanceRuntime) {
-        partitionInstanceRuntimeList.add(partitionInstanceRuntime);
-    }
-
-    public PartitionInstanceRuntime getPartitionInstanceRuntime(String key) {
-        for (PartitionInstanceRuntime partitionInstanceRuntime : partitionInstanceRuntimeList) {
-            if (key.equals(partitionInstanceRuntime.getKey())) {
-                return partitionInstanceRuntime;
-            }
-        }
-        return null;
-    }
-
     public void addStreamJunction(String key, StreamJunction streamJunction) {
         localStreamJunctionMap.put(key, streamJunction);
+    }
+
+    public void init() {
+        for (PartitionStreamReceiver partitionStreamReceiver : partitionStreamReceivers.values()) {
+            partitionStreamReceiver.init();
+        }
     }
 
     public String getPartitionId() {
@@ -260,10 +252,7 @@ public class PartitionRuntime implements Snapshotable {
 
     @Override
     public Object[] currentState() {
-        List<String> partitionKeys = new ArrayList<String>();
-        for (PartitionInstanceRuntime partitionInstanceRuntime : partitionInstanceRuntimeList) {
-            partitionKeys.add(partitionInstanceRuntime.getKey());
-        }
+        List<String> partitionKeys = new ArrayList<String>(partitionInstanceRuntimeMap.keySet());
         return new Object[]{partitionKeys};
     }
 

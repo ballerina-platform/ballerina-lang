@@ -97,6 +97,13 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     @Override
+    public void send(List<Event> events, int streamIndex) {
+        for (Event event : events) {
+            send(event, streamIndex);
+        }
+    }
+
+    @Override
     public void send(long timeStamp, Object[] data, int streamIndex) {
         send(new Event(timeStamp, data), streamIndex);
     }

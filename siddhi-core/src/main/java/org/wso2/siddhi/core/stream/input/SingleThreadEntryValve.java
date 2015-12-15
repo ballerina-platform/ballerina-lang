@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.stream.input;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -53,6 +54,16 @@ public class SingleThreadEntryValve implements InputProcessor {
 
     @Override
     public void send(Event[] events, int streamIndex) {
+        lock.lock();
+        try {
+            inputProcessor.send(events, streamIndex);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void send(List<Event> events, int streamIndex) {
         lock.lock();
         try {
             inputProcessor.send(events, streamIndex);

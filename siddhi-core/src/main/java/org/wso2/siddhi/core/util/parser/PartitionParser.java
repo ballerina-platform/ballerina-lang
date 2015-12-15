@@ -52,11 +52,13 @@ public class PartitionParser {
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);
+            QueryParserHelper.reduceMetaComplexEvent(metaStateEvent);
             if (queryRuntime.getMetaComplexEvent() instanceof MetaStateEvent) {
                 QueryParserHelper.updateVariablePosition(metaStateEvent, executors);
             } else {
                 QueryParserHelper.updateVariablePosition(metaStateEvent.getMetaStreamEvent(0), executors);
             }
+            partitionRuntime.init();
 
         }
         return partitionRuntime;
