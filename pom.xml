@@ -31,6 +31,19 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <repositories>
+        <repository>
+            <id>wso2-nexus-staging</id>
+            <name>WSO2 staging Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/orgwso2carbon-177/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
+
 
     <dependencyManagement>
     <dependencies>
@@ -260,7 +273,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <org.wso2.carbon.core.version>5.0.0-beta</org.wso2.carbon.core.version>
+        <org.wso2.carbon.core.version>5.0.0</org.wso2.carbon.core.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <netty.version>4.0.30.Final</netty.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
