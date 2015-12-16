@@ -21,8 +21,8 @@ package org.wso2.siddhi.core.query.output.ratelimit.event;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,32 +31,34 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
     private volatile int counter = 0;
-    Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();
+    private Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();
 
-    public LastGroupByPerEventOutputRateLimiter(String id,Integer value){
+    public LastGroupByPerEventOutputRateLimiter(String id, Integer value) {
         this.id = id;
         this.value = value;
     }
 
     @Override
     public OutputRateLimiter clone(String key) {
-        LastGroupByPerEventOutputRateLimiter lastGroupByPerEventOutputRateLimiter = new LastGroupByPerEventOutputRateLimiter(id+key,value);
+        LastGroupByPerEventOutputRateLimiter lastGroupByPerEventOutputRateLimiter = new LastGroupByPerEventOutputRateLimiter(id + key, value);
         return lastGroupByPerEventOutputRateLimiter;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-        allGroupByKeyEvents.put(groupByKey+complexEvent.getType(),complexEvent);
-        if (++counter == value) {
-            sendEvents();
+        complexEventChunk.reset();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+            if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                complexEventChunk.remove();
+                GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
+                allGroupByKeyEvents.put(groupedComplexEvent.getGroupKey(), groupedComplexEvent.getComplexEvent());
+                if (++counter == value) {
+                    counter = 0;
+                    sendEvents();
+                }
+            }
         }
-
     }
 
     private void sendEvents() {
@@ -66,10 +68,9 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
             for (ComplexEvent complexEvent : allGroupByKeyEvents.values()) {
                 complexEventChunk.add(complexEvent);
             }
+            allGroupByKeyEvents.clear();
             sendToCallBacks(complexEventChunk);
         }
-        counter = 0;
-        allGroupByKeyEvents.clear();
     }
 
     @Override

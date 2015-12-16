@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.Scheduler;
 
 import java.util.*;
@@ -33,12 +34,11 @@ import java.util.concurrent.locks.ReentrantLock;
 public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     protected String id;
     protected final Long value;
-    protected LinkedList<Object> eventList;
+    protected LinkedList<ComplexEvent> eventList;
     protected Comparator<ComplexEvent> comparator;
     protected final ScheduledExecutorService scheduledExecutorService;
     protected List<Integer> aggregateAttributePositionList;
     private Map<Integer, Object> aggregateAttributeValueMap;
-    protected ComplexEventChunk<ComplexEvent> eventChunk;
     protected Scheduler scheduler;
     protected long scheduledTime;
     protected Lock lock;
@@ -48,12 +48,11 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
-        this.eventList = new LinkedList<Object>();
+        this.eventList = new LinkedList<ComplexEvent>();
         this.aggregateAttributePositionList = aggregateAttributePositionList;
         Collections.sort(aggregateAttributePositionList);
         lock = new ReentrantLock();
         aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
-        eventChunk = new ComplexEventChunk<ComplexEvent>();
         this.comparator = new Comparator<ComplexEvent>() {
             Integer[] aggregateAttributePositions = aggregateAttributePositionList.toArray(new Integer[aggregateAttributePositionList.size()]);
             int ignoreIndexLength = aggregateAttributePositions.length;
@@ -85,62 +84,32 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if (firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
-                }
-            } else {
-                processAndSend(eventChunk, aggregateAttributeValueMap, "");
-                eventChunk.clear();
-            }
-
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            eventChunk.add(complexEvent);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    protected void processAndSend(ComplexEventChunk complexEventChunk, Map<Integer, Object> aggregateAttributeValueMap, String groupByKey) {
-        ComplexEvent complexEvent = complexEventChunk.getFirst();
-
-        while (complexEvent != null) {
-            ComplexEvent next = complexEvent.getNext();
-            complexEvent.setNext(null);
-
-            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-                addEventToList(complexEvent, groupByKey);
-                for (Integer position : aggregateAttributePositionList) {
-                    aggregateAttributeValueMap.put(position, (complexEvent).getOutputData()[position]);
-                }
-            } else if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-                for (Iterator iterator = eventList.iterator(); iterator.hasNext(); ) {
-                    ComplexEvent event = getEventFromList(iterator.next());
-                    if (comparator.compare(event, complexEvent) == 0) {
-                        iterator.remove();
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else {
+                    complexEventChunk.remove();
+                    if (event.getType() == ComplexEvent.Type.CURRENT) {
+                        eventList.add(event);
                         for (Integer position : aggregateAttributePositionList) {
                             aggregateAttributeValueMap.put(position, event.getOutputData()[position]);
                         }
-                        break;
+                    } else if (event.getType() == ComplexEvent.Type.EXPIRED) {
+                        eventList.clear();
                     }
                 }
             }
-            complexEvent = next;
+        } finally {
+            lock.unlock();
         }
-
     }
 
     @Override
@@ -159,49 +128,26 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public Object[] currentState() {
-        return new Object[]{eventList, aggregateAttributeValueMap, eventChunk};
+        return new Object[]{eventList, aggregateAttributeValueMap};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        eventList = (LinkedList<Object>) state[0];
+        eventList = (LinkedList<ComplexEvent>) state[0];
         aggregateAttributeValueMap = (Map<Integer, Object>) state[1];
-        eventChunk = (ComplexEventChunk<ComplexEvent>) state[2];
     }
 
-    protected synchronized void sendEvents() {
-        ComplexEvent firstEvent = null;
-        ComplexEvent lastEvent = null;
-
-        for (Object originalComplexEvent : eventList) {
-            ComplexEvent complexEvent = constructSendEvent(originalComplexEvent);
-            if (firstEvent == null) {
-                firstEvent = complexEvent;
-            } else {
-                lastEvent.setNext(complexEvent);
-            }
-            lastEvent = complexEvent;
-        }
-
+    private synchronized void sendEvents() {
         ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
-        if (firstEvent != null) {
-            complexEventChunk.add(firstEvent);
-        }
 
+        for (ComplexEvent originalComplexEvent : eventList) {
+            ComplexEvent eventCopy = cloneComplexEvent(originalComplexEvent);
+            for (Integer position : aggregateAttributePositionList) {
+                eventCopy.getOutputData()[position] = aggregateAttributeValueMap.get(position);
+            }
+            complexEventChunk.add(eventCopy);
+        }
         sendToCallBacks(complexEventChunk);
-    }
-
-    protected ComplexEvent constructSendEvent(Object originalEvent) {
-        return createSendEvent((ComplexEvent) originalEvent, aggregateAttributeValueMap);
-    }
-
-    protected ComplexEvent createSendEvent(ComplexEvent originalEvent, Map<Integer, Object> aggregateAttributeValueMap) {
-        ComplexEvent copiedEvent = cloneComplexEvent(originalEvent);
-
-        for (Integer position : aggregateAttributePositionList) {
-            copiedEvent.getOutputData()[position] = aggregateAttributeValueMap.get(position);
-        }
-        return copiedEvent;
     }
 
     @Override
@@ -209,12 +155,5 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
         return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter);
     }
 
-    protected ComplexEvent getEventFromList(Object eventObject) {
-        return (ComplexEvent) eventObject;
-    }
-
-    protected void addEventToList(ComplexEvent event, String groupByKey) {
-        eventList.add(event);
-    }
 
 }

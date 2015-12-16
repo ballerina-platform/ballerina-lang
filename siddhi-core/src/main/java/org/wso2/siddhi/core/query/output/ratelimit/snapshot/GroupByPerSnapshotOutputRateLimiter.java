@@ -20,13 +20,11 @@ package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.Scheduler;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
@@ -52,39 +50,29 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
 
     /**
      * Sends the collected unique outputs per group by key upon arrival of timer event from scheduler.
+     *
      * @param complexEventChunk Incoming {@link org.wso2.siddhi.core.event.ComplexEventChunk}
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else if (event.getType() == ComplexEvent.Type.CURRENT) {
+                    complexEventChunk.remove();
+                    GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
+                    groupByKeyEvents.put(groupedComplexEvent.getGroupKey(), groupedComplexEvent.getComplexEvent());
                 }
             }
-        } finally {
-            lock.unlock();
-        }
-    }
 
-    /**
-     * Stores the given complex event to send upon notification of the scheduler.
-     * If there is already an event with same group by key it will be replaced leaving
-     * most recent event per group by key.
-     * @param complexEvent {@link org.wso2.siddhi.core.event.ComplexEvent} to be added.
-     */
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-                String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-                groupByKeyEvents.put(groupByKey, complexEvent);
-            }
         } finally {
             lock.unlock();
         }
@@ -93,7 +81,7 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;
@@ -118,7 +106,7 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
 
         ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
         for (ComplexEvent complexEvent : groupByKeyEvents.values()) {
-                complexEventChunk.add(cloneComplexEvent(complexEvent));
+            complexEventChunk.add(cloneComplexEvent(complexEvent));
         }
         sendToCallBacks(complexEventChunk);
 

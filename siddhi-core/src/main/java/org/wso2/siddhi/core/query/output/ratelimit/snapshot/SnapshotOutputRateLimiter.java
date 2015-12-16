@@ -40,8 +40,6 @@ public abstract class SnapshotOutputRateLimiter implements Schedulable {
 
     public abstract void process(ComplexEventChunk complexEventChunk);
 
-    public abstract void add(ComplexEvent complexEvent);
-
     public abstract SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter);
 
     public void setStreamEventCloner(StreamEventCloner streamEventCloner) {
@@ -70,7 +68,6 @@ public abstract class SnapshotOutputRateLimiter implements Schedulable {
             return stateEventCloner.copyStateEvent((StateEvent) complexEvent);
         }
     }
-
 
     public abstract void start();
 

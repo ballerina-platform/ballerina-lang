@@ -50,28 +50,23 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else if (event.getType() == ComplexEvent.Type.CURRENT) {
+                    complexEventChunk.remove();
+                    lastEvent = event;
                 }
             }
-        } finally {
-            lock.unlock();
-        }
-    }
 
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-                lastEvent = complexEvent;
-            }
         } finally {
             lock.unlock();
         }
@@ -85,7 +80,7 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;
@@ -104,7 +99,6 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     @Override
     public void restoreState(Object[] state) {
         eventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
-        //endOfChunk = (Boolean) state[1];
     }
 
     public synchronized void sendEvents() {
