@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulator;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
@@ -68,52 +69,81 @@ public class QuerySelector implements Processor {
         if (log.isTraceEnabled()) {
             log.trace("event is processed by selector " + id + this);
         }
-
-        if(!containsAggregator) {
-            boolean isEventSent = false;
-            complexEventChunk.reset();
-
-            while (complexEventChunk.hasNext()) {
-                ComplexEvent event = complexEventChunk.next();
-
-                if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
-
-                    eventPopulator.populateStateEvent(event);
-
-                    if (isGroupBy) {
-                        keyThreadLocal.set(groupByKeyGenerator.constructEventKey(event));
-                    }
-
-                    for (AttributeProcessor attributeProcessor : attributeProcessorList) {
-                        attributeProcessor.process(event);
-                    }
-                    complexEventChunk.remove();
-
-                    if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
-                        if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
-                            outputRateLimiter.add(event);
-                            isEventSent = true;
-                        }
-                    }
-
-                    if (isGroupBy) {
-                        keyThreadLocal.remove();
-                    }
-                }
-            }
-
-            if (isEventSent) {
-                complexEventChunk.clear();
-                outputRateLimiter.process(complexEventChunk);
+        if (!containsAggregator) {
+            if (!isGroupBy) {
+                processNoAggregatorNoGroupBy(complexEventChunk);
+            } else {
+                processNoAggregatorGroupBy(complexEventChunk);
             }
         } else {
-            processInBatches(complexEventChunk);
+            if (!isGroupBy) {
+                processAggregatorNoGroupBy(complexEventChunk);
+            } else {
+                processAggregatorGroupBy(complexEventChunk);
+            }
+        }
+
+    }
+
+    private void processNoAggregatorNoGroupBy(ComplexEventChunk complexEventChunk) {
+        complexEventChunk.reset();
+
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
+
+                eventPopulator.populateStateEvent(event);
+
+                for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                    attributeProcessor.process(event);
+                }
+                if (((event.getType() != StreamEvent.Type.CURRENT || !currentOn) && (event.getType() != StreamEvent.Type.EXPIRED || !expiredOn)) || ((havingConditionExecutor != null && !havingConditionExecutor.execute(event)))) {
+                    complexEventChunk.remove();
+                }
+            } else {
+                complexEventChunk.remove();
+            }
+        }
+        complexEventChunk.reset();
+        if(complexEventChunk.hasNext()) {
+            outputRateLimiter.process(complexEventChunk);
         }
     }
 
-    public void processInBatches(ComplexEventChunk complexEventChunk) {
-        Map<String, ComplexEvent> groupedEvents = new LinkedHashMap<String, ComplexEvent>();
-        boolean isEventSent = false;
+    private void processNoAggregatorGroupBy(ComplexEventChunk complexEventChunk) {
+        complexEventChunk.reset();
+
+        ComplexEventChunk currentComplexEventChunk = new ComplexEventChunk();
+
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
+
+                eventPopulator.populateStateEvent(event);
+
+                String groupedByKey = groupByKeyGenerator.constructEventKey(event);
+                keyThreadLocal.set(groupedByKey);
+
+                for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                    attributeProcessor.process(event);
+                }
+                if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
+                    if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                        complexEventChunk.remove();
+                        currentComplexEventChunk.add(new GroupedComplexEvent(groupedByKey, event));
+                    }
+                }
+                keyThreadLocal.remove();
+            } else {
+                complexEventChunk.remove();
+                currentComplexEventChunk.add(event);
+            }
+        }
+        currentComplexEventChunk.reset();
+        outputRateLimiter.process(currentComplexEventChunk);
+    }
+
+    private void processAggregatorNoGroupBy(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         ComplexEvent lastEvent = null;
 
@@ -123,46 +153,63 @@ public class QuerySelector implements Processor {
             if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
 
                 eventPopulator.populateStateEvent(event);
-                String groupByKey = "";
-                if (isGroupBy) {
-                    groupByKey = groupByKeyGenerator.constructEventKey(event);
-                    keyThreadLocal.set(groupByKey);
-                }
 
                 for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                     attributeProcessor.process(event);
                 }
-                complexEventChunk.remove();
 
                 if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
                     if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
-                        if (isGroupBy) {
-                            groupedEvents.put(groupByKey, event);
-                        } else {
-                            lastEvent = event;
-                        }
-                        isEventSent = true;
+                        complexEventChunk.remove();
+                        lastEvent = event;
                     }
-                }
-
-                if (isGroupBy) {
-                    keyThreadLocal.remove();
                 }
             }
 
         }
 
-        if (isEventSent) {
-            if (isGroupBy) {
-                for (Map.Entry<String,ComplexEvent> groupedEventEntry : groupedEvents.entrySet()) {
-                    keyThreadLocal.set(groupedEventEntry.getKey());
-                    outputRateLimiter.add(groupedEventEntry.getValue());
-                    keyThreadLocal.remove();
-                }
-            } else {
-                outputRateLimiter.add(lastEvent);
-            }
+        if (lastEvent != null) {
             complexEventChunk.clear();
+            complexEventChunk.add(lastEvent);
+            outputRateLimiter.process(complexEventChunk);
+        }
+    }
+
+    private void processAggregatorGroupBy(ComplexEventChunk complexEventChunk) {
+        Map<String, ComplexEvent> groupedEvents = new LinkedHashMap<String, ComplexEvent>();
+        complexEventChunk.reset();
+
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+
+            if (event.getType() == StreamEvent.Type.CURRENT || event.getType() == StreamEvent.Type.EXPIRED) {
+
+                eventPopulator.populateStateEvent(event);
+
+                String groupByKey = groupByKeyGenerator.constructEventKey(event);
+                keyThreadLocal.set(groupByKey);
+
+                for (AttributeProcessor attributeProcessor : attributeProcessorList) {
+                    attributeProcessor.process(event);
+                }
+
+                if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
+                    if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                        complexEventChunk.remove();
+                        groupedEvents.put(groupByKey, event);
+                    }
+                }
+                keyThreadLocal.remove();
+            }
+
+        }
+
+        if (groupedEvents.size() != 0) {
+            complexEventChunk.clear();
+            for (Map.Entry<String, ComplexEvent> groupedEventEntry : groupedEvents.entrySet()) {
+                complexEventChunk.add(new GroupedComplexEvent(groupedEventEntry.getKey(), groupedEventEntry.getValue()));
+            }
+            complexEventChunk.reset();
             outputRateLimiter.process(complexEventChunk);
         }
     }

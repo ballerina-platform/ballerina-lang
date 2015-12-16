@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.config;
 
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
+import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.core.util.statistics.StatManager;
 
@@ -34,11 +35,13 @@ public class SiddhiContext {
     private PersistenceStore persistenceStore = null;
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
     private StatManager statManager;
+    private ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap;
 
     public SiddhiContext() {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
         eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
-        this.siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
+        siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
+        extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
     }
 
     public int getEventBufferSize() {
@@ -85,4 +88,7 @@ public class SiddhiContext {
         this.statManager = statManager;
     }
 
+    public ConcurrentHashMap<Class, AbstractExtensionHolder> getExtensionHolderMap() {
+        return extensionHolderMap;
+    }
 }

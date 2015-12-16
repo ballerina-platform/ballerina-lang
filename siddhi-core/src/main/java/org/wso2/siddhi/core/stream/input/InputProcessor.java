@@ -20,11 +20,15 @@ package org.wso2.siddhi.core.stream.input;
 
 import org.wso2.siddhi.core.event.Event;
 
+import java.util.List;
+
 public interface InputProcessor {
 
     public void send(Event event, int streamIndex);
 
     public void send(Event[] events, int streamIndex);
+
+    public void send(List<Event> events, int streamIndex);
 
     public void send(long timeStamp, Object[] data, int streamIndex);
 

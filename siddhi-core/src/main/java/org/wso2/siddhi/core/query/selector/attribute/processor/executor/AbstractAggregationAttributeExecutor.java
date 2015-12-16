@@ -20,9 +20,11 @@ package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-public abstract class AbstractAggregationAttributeExecutor implements ExpressionExecutor {
+public abstract class AbstractAggregationAttributeExecutor implements ExpressionExecutor, Snapshotable {
+    private String elementId;
     protected AttributeAggregator attributeAggregator;
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
@@ -35,6 +37,10 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.attributeAggregator = attributeAggregator;
         this.size = attributeExpressionExecutors.length;
+        if (elementId == null) {
+            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        }
+        executionPlanContext.getSnapshotService().addSnapshotable(this);
     }
 
     @Override
@@ -42,5 +48,9 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
         return attributeAggregator.getReturnType();
     }
 
+    @Override
+    public String getElementId() {
+        return elementId;
+    }
 }
 

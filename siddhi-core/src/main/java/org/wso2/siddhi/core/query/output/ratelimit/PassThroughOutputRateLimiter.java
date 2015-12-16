@@ -25,11 +25,9 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
     private static final Logger log = Logger.getLogger(PassThroughOutputRateLimiter.class);
     private String id;
-    private ComplexEventChunk<ComplexEvent> eventChunk;
 
     public PassThroughOutputRateLimiter(String id) {
         this.id = id;
-        eventChunk = new ComplexEventChunk<ComplexEvent>();
     }
 
     public PassThroughOutputRateLimiter clone(String key) {
@@ -40,13 +38,7 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        sendToCallBacks(eventChunk);
-        eventChunk.clear();
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        eventChunk.add(complexEvent);
+        sendToCallBacks(complexEventChunk);
     }
 
     @Override
@@ -61,12 +53,12 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{eventChunk};
+        return new Object[0];
     }
 
     @Override
     public void restoreState(Object[] state) {
-        eventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
+
     }
 
 }

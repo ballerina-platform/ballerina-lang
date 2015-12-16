@@ -57,6 +57,7 @@ public class StreamJunction {
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
     private ThroughputTracker throughputTracker = null;
+    private boolean isTraceEnabled;
 
     public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize,
                           ExecutionPlanContext executionPlanContext) {
@@ -88,11 +89,16 @@ public class StreamJunction {
             throw new DuplicateAnnotationException(e.getMessage() + " for the same Stream " +
                     streamDefinition.getId());
         }
+        isTraceEnabled = log.isTraceEnabled();
 
     }
 
     public void sendEvent(ComplexEvent complexEvent) {
-        ComplexEvent complexEventList = complexEvent;
+        if (isTraceEnabled) {
+            log.trace("event is received by streamJunction " + this);
+        }
+        
+	ComplexEvent complexEventList = complexEvent;
         if (disruptor != null) {
             while (complexEventList != null) {
                 if (throughputTracker != null) {
@@ -131,7 +137,7 @@ public class StreamJunction {
             throughputTracker.eventIn();
         }
 
-        if (log.isTraceEnabled()) {
+        if (isTraceEnabled) {
             log.trace(event + " event is received by streamJunction " + this);
         }
         if (disruptor != null) {
@@ -155,7 +161,7 @@ public class StreamJunction {
             throughputTracker.eventsIn(events.length);
         }
 
-        if (log.isTraceEnabled()) {
+        if (isTraceEnabled) {
             log.trace("event is received by streamJunction " + this);
         }
         if (disruptor != null) {
@@ -171,6 +177,27 @@ public class StreamJunction {
         } else {
             for (Receiver receiver : receivers) {
                 receiver.receive(events);
+            }
+        }
+    }
+
+    private void sendEvent(List<Event> events) {
+        if (isTraceEnabled) {
+            log.trace("event is received by streamJunction " + this);
+        }
+        if (disruptor != null) {
+            for (Event event : events) {   //todo optimize for arrays
+                long sequenceNo = ringBuffer.next();
+                try {
+                    Event existingEvent = ringBuffer.get(sequenceNo);
+                    existingEvent.copyFrom(event);
+                } finally {
+                    ringBuffer.publish(sequenceNo);
+                }
+            }
+        } else {
+            for (Receiver receiver : receivers) {
+                receiver.receive(events.toArray(new Event[events.size()]));
             }
         }
     }
@@ -323,6 +350,11 @@ public class StreamJunction {
 
         @Override
         public void send(Event[] events, int streamIndex) {
+            streamJunction.sendEvent(events);
+        }
+
+        @Override
+        public void send(List<Event> events, int streamIndex) {
             streamJunction.sendEvent(events);
         }
 

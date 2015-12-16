@@ -22,9 +22,9 @@ package org.wso2.siddhi.core.query.output.ratelimit.time;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 
@@ -34,7 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable{
+public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     private String id;
     private final Long value;
     private Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();
@@ -61,14 +61,21 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                }else {
+                    complexEventChunk.remove();
+                    GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
+                    allGroupByKeyEvents.put(groupedComplexEvent.getGroupKey(), groupedComplexEvent.getComplexEvent());
                 }
             }
         } finally {
@@ -79,7 +86,7 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;
@@ -100,17 +107,6 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
         allGroupByKeyEvents = (Map<String, ComplexEvent>) state[0];
     }
 
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-            allGroupByKeyEvents.put(groupByKey + complexEvent.getType(), complexEvent);
-        } finally {
-            lock.unlock();
-        }
-    }
-
     private synchronized void sendEvents() {
         if (allGroupByKeyEvents.size() != 0) {
             ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
@@ -120,17 +116,6 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
 
             sendToCallBacks(complexEventChunk);
             allGroupByKeyEvents.clear();
-        }
-    }
-
-    private class EventSender implements Runnable {
-        @Override
-        public void run() {
-            try {
-                sendEvents();
-            } catch (Throwable t) {
-                log.error(t.getMessage(), t);
-            }
         }
     }
 }
