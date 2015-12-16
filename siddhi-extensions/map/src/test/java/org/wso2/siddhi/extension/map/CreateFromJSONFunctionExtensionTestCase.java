@@ -35,8 +35,8 @@ import org.wso2.siddhi.extension.string.ConcatFunctionExtension;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CreateFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(CreateFunctionExtensionTestCase.class);
+public class CreateFromJSONFunctionExtensionTestCase {
+    static final Logger log = Logger.getLogger(CreateFromJSONFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
@@ -46,37 +46,87 @@ public class CreateFunctionExtensionTestCase {
         eventArrived = false;
     }
 
+    //str:concat('{','symbol :',symbol,'price :',price,'volume :',volume,'}')
+//    {"id":1234,"name":"user1", "country":"Sri Lanka","Age":25}
     @Test
-    public void testCreatetFunctionExtension() throws InterruptedException {
-        log.info("CreateFunctionExtension TestCase");
+    public void testCreateFromJSONFunctionExtension() throws InterruptedException {
+        log.info("CreateFromJSONFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
-
+        siddhiManager.setExtension("str:concat",ConcatFunctionExtension.class);
 
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
-        String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                + "map:create(symbol,price) as hashMap insert into outputStream;");
+        String query = ("@info(name = 'query1') from inputStream select "
+                + "map:createFromJSON(\"{'symbol':'IBM','price':100,'volume':100 }\") as hashMap insert into outputStream;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(Event[] inEvents) {
+                EventPrinter.print(inEvents);
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        HashMap map = (HashMap) event.getData(2);
-                        Assert.assertEquals(100, map.get("IBM"));
+                        HashMap map = (HashMap) event.getData(0);
+                        Assert.assertEquals("IBM", map.get("symbol"));
                         eventArrived = true;
                     }
-                    if (count.get() == 2) {
-                        HashMap map = (HashMap) event.getData(2);
-                        Assert.assertEquals(200, map.get("WSO2"));
+                    /*if (count.get() == 2) {
+                        HashMap map = (HashMap) event.getData(0);
+                        Assert.assertEquals("WSO2", map.get("symbol"));
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
-                        HashMap map = (HashMap) event.getData(2);
-                        Assert.assertEquals(300, map.get("XYZ"));
+                        HashMap map = (HashMap) event.getData(0);
+                        Assert.assertEquals("XYZ", map.get("symbol"));
+                        eventArrived = true;
+                    }*/
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 100, 100l});
+        inputHandler.send(new Object[]{"WSO2", 200, 200l});
+        inputHandler.send(new Object[]{"XYZ", 300, 200l});
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertEquals(3, count.get());
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void testCreateFromJSONFunctionExtension2() throws InterruptedException {
+        log.info("CreateFromJSONFunctionExtension TestCase 2");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("str:concat",ConcatFunctionExtension.class);
+
+        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String query = ("@info(name = 'query1') from inputStream select "
+                + "map:createFromJSON(str:concat('{','symbol :',symbol,'price :',price,'volume :',volume,'}')) as hashMap insert into outputStream;");
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] inEvents) {
+                EventPrinter.print(inEvents);
+                for (Event event : inEvents) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
+                        HashMap map = (HashMap) event.getData(0);
+                        Assert.assertEquals("IBM", map.get("symbol"));
+                        eventArrived = true;
+                    }
+                    if (count.get() == 2) {
+                        HashMap map = (HashMap) event.getData(0);
+                        Assert.assertEquals("WSO2", map.get("symbol"));
+                        eventArrived = true;
+                    }
+                    if (count.get() == 3) {
+                        HashMap map = (HashMap) event.getData(0);
+                        Assert.assertEquals("XYZ", map.get("symbol"));
                         eventArrived = true;
                     }
                 }
@@ -94,11 +144,10 @@ public class CreateFunctionExtensionTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    @Test
+   /* @Test
     public void testCreatetFunctionExtension2() throws InterruptedException {
         log.info("CreateFunctionExtension TestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
-
 
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
@@ -191,5 +240,5 @@ public class CreateFunctionExtensionTestCase {
         Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
-    }
+    }*/
 }

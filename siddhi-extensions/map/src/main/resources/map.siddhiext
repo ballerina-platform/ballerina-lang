@@ -17,6 +17,7 @@
 #
 
 create=org.wso2.siddhi.extension.map.CreateFunctionExtension
+createFromJSON=org.wso2.siddhi.extension.map.CreateFromJSONFunctionExtension
 remove=org.wso2.siddhi.extension.map.RemoveFunctionExtension
 put=org.wso2.siddhi.extension.map.PutFunctionExtension
 get=org.wso2.siddhi.extension.map.GetFunctionExtension
