@@ -144,11 +144,12 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     public Object[] currentState() {
-        return new Object[]{expiredEventChunk};
+        return new Object[]{expiredEventChunk.getFirst()};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        expiredEventChunk.clear();
+        expiredEventChunk.add((StreamEvent) state[0]);
     }
 }

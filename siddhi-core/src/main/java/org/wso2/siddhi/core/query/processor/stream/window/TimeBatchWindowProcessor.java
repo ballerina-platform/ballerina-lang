@@ -147,12 +147,13 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public Object[] currentState() {
-        return new Object[]{expiredEventChunk};
+        return new Object[]{expiredEventChunk.getFirst()};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        expiredEventChunk.clear();
+        expiredEventChunk.add((StreamEvent) state[0]);
     }
 
     @Override
@@ -162,6 +163,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }
