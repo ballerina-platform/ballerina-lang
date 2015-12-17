@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PutFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(PutFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(PutFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
@@ -46,7 +46,7 @@ public class PutFunctionExtensionTestCase {
 
     @Test
     public void testPutFunctionExtension() throws InterruptedException {
-        log.info("RemoveFunctionExtension TestCase");
+        log.info("PutFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
@@ -98,7 +98,7 @@ public class PutFunctionExtensionTestCase {
 
     @Test
     public void testPutFunctionExtension2() throws InterruptedException {
-        log.info("RemoveFunctionExtension TestCase");
+        log.info("PutFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
@@ -116,23 +116,17 @@ public class PutFunctionExtensionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     count.incrementAndGet();
+                    HashMap map = (HashMap) event.getData(3);
+                    Assert.assertEquals(1000, map.get("CHECK ID"));
                     if (count.get() == 1) {
-                        HashMap map = (HashMap) event.getData(3);
-                        Assert.assertEquals(1000, map.get("CHECK ID"));
-                        eventArrived = true;
-                    }
-                    if (count.get() == 2) {
-                        HashMap map = (HashMap) event.getData(3);
                         Assert.assertEquals(100, map.get("IBM"));
                         eventArrived = true;
                     }
-                    if (count.get() == 3) {
-                        HashMap map = (HashMap) event.getData(3);
+                    if (count.get() == 2) {
                         Assert.assertEquals(200, map.get("WSO2"));
                         eventArrived = true;
                     }
-                    if (count.get() == 4) {
-                        HashMap map = (HashMap) event.getData(3);
+                    if (count.get() == 3) {
                         Assert.assertEquals(300, map.get("XYZ"));
                         eventArrived = true;
                     }

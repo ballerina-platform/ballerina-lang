@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateFromJSONFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(CreateFromJSONFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(CreateFromJSONFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 

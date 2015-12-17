@@ -35,14 +35,13 @@ import java.util.Map;
  * Return Type(s): HashMap
  */
 public class PutFunctionExtension extends FunctionExecutor {
-    Attribute.Type returnType = Attribute.Type.OBJECT;
-    private Map hashMap;
+    private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 3) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:() function, " +
-                    "required only 3, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:put() function, " +
+                    "required 3 parameters, but found " + attributeExpressionExecutors.length);
         }
     }
 
@@ -51,14 +50,14 @@ public class PutFunctionExtension extends FunctionExecutor {
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-        hashMap = (HashMap) data[0];
+        Map<Object, Object> hashMap = (HashMap<Object, Object>) data[0];
         hashMap.put(data[1], data[2]);
         return hashMap;
     }
 
     @Override
     protected Object execute(Object data) {
-        return null;  //Since the charAt function takes in 2 parameters, this method does not get called. Hence, not implemented.
+        return null;  //Since the map:put() function takes in 3 parameters, this method does not get called. Hence, not implemented.
     }
 
     @Override

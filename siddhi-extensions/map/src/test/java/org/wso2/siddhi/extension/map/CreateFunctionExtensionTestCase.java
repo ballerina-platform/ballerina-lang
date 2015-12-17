@@ -30,13 +30,12 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
-import org.wso2.siddhi.extension.string.ConcatFunctionExtension;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(CreateFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(CreateFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
@@ -158,23 +157,17 @@ public class CreateFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     HashMap hashMap = (HashMap) event.getData(0);
+                    Assert.assertEquals("value1", hashMap.get("key1"));
+                    Assert.assertEquals("value2", hashMap.get("key2"));
                     if (count.get() == 1) {
-                        Assert.assertEquals("value1", hashMap.get("key1"));
-                        eventArrived = true;
-                    }
-                    if (count.get() == 2) {
-                        Assert.assertEquals("value2", hashMap.get("key2"));
-                        eventArrived = true;
-                    }
-                    if (count.get() == 3) {
                         Assert.assertEquals(100, hashMap.get("IBM"));
                         eventArrived = true;
                     }
-                    if (count.get() == 4) {
+                    if (count.get() == 2) {
                         Assert.assertEquals(200, hashMap.get("WSO2"));
                         eventArrived = true;
                     }
-                    if (count.get() == 5) {
+                    if (count.get() == 3) {
                         Assert.assertEquals(300, hashMap.get("XYZ"));
                         eventArrived = true;
                     }

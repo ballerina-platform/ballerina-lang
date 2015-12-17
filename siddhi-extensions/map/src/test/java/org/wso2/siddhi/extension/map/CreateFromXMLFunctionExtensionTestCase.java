@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateFromXMLFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(CreateFromXMLFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(CreateFromXMLFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 

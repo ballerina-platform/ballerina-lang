@@ -25,9 +25,7 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * isMap(Object)
@@ -36,7 +34,7 @@ import java.util.Map;
  * Return Type(s): boolean
  */
 public class IsMapFunctionExtension extends FunctionExecutor {
-    Attribute.Type returnType = Attribute.Type.BOOL;
+    private Attribute.Type returnType = Attribute.Type.BOOL;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {

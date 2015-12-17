@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoveFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(RemoveFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(RemoveFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 

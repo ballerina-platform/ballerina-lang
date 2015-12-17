@@ -33,7 +33,7 @@ import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IsMapFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(IsMapFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(IsMapFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 

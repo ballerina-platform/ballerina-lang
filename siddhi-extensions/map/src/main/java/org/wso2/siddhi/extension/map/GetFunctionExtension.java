@@ -35,8 +35,7 @@ import java.util.Map;
  * Return Type(s): Object
  */
 public class GetFunctionExtension extends FunctionExecutor {
-    Attribute.Type returnType = Attribute.Type.OBJECT;
-    private Map hashMap;
+    private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -48,14 +47,14 @@ public class GetFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
+        Map hashMap;
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-        if(data[0] instanceof HashMap) {
+        if (data[0] instanceof HashMap) {
             hashMap = (HashMap) data[0];
-        }
-        else {
-            throw new ExecutionPlanRuntimeException("First attribute value must be a hashmap.");
+        } else {
+            throw new ExecutionPlanRuntimeException("First attribute value must be a hash map.");
         }
         String type = (String) data[2];
         Object tmpVal = hashMap.get(data[1]);

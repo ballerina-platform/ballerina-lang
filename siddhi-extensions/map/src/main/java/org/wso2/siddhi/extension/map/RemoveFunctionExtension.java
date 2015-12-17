@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.map;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -35,9 +36,8 @@ import java.util.Map;
  * Return Type(s): HashMap
  */
 public class RemoveFunctionExtension extends FunctionExecutor {
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RemoveFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.OBJECT;
-    private Map hashMap;
+    private static final Logger log = Logger.getLogger(RemoveFunctionExtension.class);
+    private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -55,10 +55,10 @@ public class RemoveFunctionExtension extends FunctionExecutor {
         if (data.length < 2) {
             throw new ExecutionPlanRuntimeException("Too few values for data");
         }
-        hashMap = (HashMap) data[0];
+        Map<Object, Object> hashMap = (HashMap) data[0];
         for (int i = 1; i < data.length; i++) {
             if (hashMap.get(data[i]) == null) {
-                log.warn("Key value '" + data[i] + "' is not existed.");
+                log.warn("Cannot remove entry from map. No values exists for key '" + data[i] + "'.");
             } else {
                 hashMap.remove(data[i]);
             }
