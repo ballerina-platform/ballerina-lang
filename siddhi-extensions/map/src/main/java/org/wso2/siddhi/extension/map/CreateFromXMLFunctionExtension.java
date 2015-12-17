@@ -43,11 +43,12 @@ import java.util.Map;
  */
 public class CreateFromXMLFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
+    private NumberFormat nf = NumberFormat.getInstance();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if ((attributeExpressionExecutors.length) != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:create() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:createFromXML() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
@@ -83,7 +84,6 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
                         if (elementText.equals("true") || elementText.equals("false")) {
                             value = Boolean.parseBoolean(elementText);
                         } else {
-                            NumberFormat nf = NumberFormat.getInstance();
                             try {
                                 value = nf.parse(elementText);
                             } catch (ParseException e) {
