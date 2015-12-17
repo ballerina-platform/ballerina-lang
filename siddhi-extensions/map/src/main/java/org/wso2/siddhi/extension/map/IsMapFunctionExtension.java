@@ -39,7 +39,7 @@ public class IsMapFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:get() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:isMap() function, " +
                     "required only one, but found " + attributeExpressionExecutors.length);
         }
     }
