@@ -75,8 +75,6 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
 
     public abstract void process(ComplexEventChunk complexEventChunk);
 
-    public abstract void add(ComplexEvent complexEvent);
-
     public OutputCallback getOutputCallback() {
         return outputCallback;
     }

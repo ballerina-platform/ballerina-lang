@@ -1713,7 +1713,15 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public JoinInputStream.Type visitJoin(@NotNull SiddhiQLParser.JoinContext ctx) {
         if (ctx.OUTER() != null) {
-            throw newSiddhiParserException(ctx, "OUTER JOIN not yet supported!");
+            if(ctx.FULL() != null){
+                return JoinInputStream.Type.FULL_OUTER_JOIN;
+            }else if(ctx.RIGHT() != null){
+                return JoinInputStream.Type.RIGHT_OUTER_JOIN;
+            }else if(ctx.LEFT() != null){
+                return JoinInputStream.Type.LEFT_OUTER_JOIN;
+            }else {
+                throw newSiddhiParserException(ctx, "Found "+ctx.getText()+" but only FULL OUTER JOIN, RIGHT OUTER JOIN, LEFT OUTER JOIN are supported!");
+            }
         }
         return JoinInputStream.Type.JOIN;
     }

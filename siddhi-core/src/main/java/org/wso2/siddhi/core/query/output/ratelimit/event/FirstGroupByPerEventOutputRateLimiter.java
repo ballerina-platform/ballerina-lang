@@ -20,8 +20,8 @@ package org.wso2.siddhi.core.query.output.ratelimit.event;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,26 +47,42 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
-        for (ComplexEvent complexEvent : complexEventList) {
-            eventChunk.add(complexEvent);
-        }
-        complexEventList.clear();
-        sendToCallBacks(eventChunk);
-    }
+        complexEventChunk.reset();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+            if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
+                if (!groupByKeys.contains(groupedComplexEvent.getGroupKey())) {
+                    complexEventChunk.remove();
+                    groupByKeys.add(groupedComplexEvent.getGroupKey());
+                    complexEventList.add(groupedComplexEvent.getComplexEvent());
+                }
+                if (++counter == value) {
+                    if (complexEventList.size() != 0) {
+                        ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
+                        for (ComplexEvent complexEvent : complexEventList) {
+                            eventChunk.add(complexEvent);
+                        }
+                        complexEventList.clear();
+                        counter = 0;
+                        groupByKeys.clear();
+                        sendToCallBacks(eventChunk);
+                    } else {
+                        counter = 0;
+                        groupByKeys.clear();
+                    }
 
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-        if (!groupByKeys.contains(groupByKey)) {
-            groupByKeys.add(groupByKey);
-            complexEventList.add(complexEvent);
+                }
+            }
         }
-        if (++counter == value) {
-            counter = 0;
-            groupByKeys.clear();
+        if (complexEventList.size() != 0) {
+            ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
+            for (ComplexEvent complexEvent : complexEventList) {
+                eventChunk.add(complexEvent);
+            }
+            complexEventList.clear();
+            sendToCallBacks(eventChunk);
         }
-
     }
 
     @Override

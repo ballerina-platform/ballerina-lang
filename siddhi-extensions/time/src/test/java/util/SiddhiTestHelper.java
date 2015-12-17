@@ -16,21 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input;
+package util;
 
-import org.wso2.siddhi.core.event.Event;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import java.util.List;
-
-public interface InputProcessor {
-
-    public void send(Event event, int streamIndex);
-
-    public void send(Event[] events, int streamIndex);
-
-    public void send(List<Event> events, int streamIndex);
-
-    public void send(long timeStamp, Object[] data, int streamIndex);
-
+public class SiddhiTestHelper {
+    public static void waitForEvents(long sleepTime, int expectedCount, AtomicInteger actualCount, long timeout) throws InterruptedException {
+        long currentWaitTime = 0;
+        long startTime = System.currentTimeMillis();
+        while ((actualCount.get() < expectedCount) && (currentWaitTime <= timeout)) {
+            Thread.sleep(sleepTime);
+            currentWaitTime = System.currentTimeMillis() - startTime;
+        }
+    }
 }
-

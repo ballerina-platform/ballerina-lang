@@ -122,11 +122,6 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         outputRateLimiter.process(complexEventChunk);
     }
 
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        outputRateLimiter.add(complexEvent);
-    }
-
     public void passToCallBacks(ComplexEventChunk complexEventChunk) {
         sendToCallBacks(complexEventChunk);
     }

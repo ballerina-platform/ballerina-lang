@@ -18,19 +18,25 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class StreamFunctionProcessorExtensionHolder extends AbstractExtensionHolder {
-    private static StreamFunctionProcessorExtensionHolder instance;
+    private static Class clazz = StreamFunctionProcessor.class;
 
     private StreamFunctionProcessorExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(StreamFunctionProcessor.class, executionPlanContext);
+        super(clazz, executionPlanContext);
     }
 
     public static StreamFunctionProcessorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        if (instance == null) {
-            instance = new StreamFunctionProcessorExtensionHolder(executionPlanContext);
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
+        if (abstractExtensionHolder == null) {
+            abstractExtensionHolder = new StreamFunctionProcessorExtensionHolder(executionPlanContext);
+            extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
-        return instance;
+        return (StreamFunctionProcessorExtensionHolder) extensionHolderMap.get(clazz);
     }
 }

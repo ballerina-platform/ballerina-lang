@@ -21,6 +21,8 @@ package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.util.Scheduler;
 
@@ -33,7 +35,7 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private final Long value;
     private ScheduledExecutorService scheduledExecutorService;
     private ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
-    private boolean endOfChunk = false;
+    private ComplexEvent lastEvent;
     private Scheduler scheduler;
     private long scheduledTime;
     private Lock lock;
@@ -48,34 +50,23 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else if (event.getType() == ComplexEvent.Type.CURRENT) {
+                    complexEventChunk.remove();
+                    lastEvent = event;
                 }
-            } else {
-                endOfChunk = true;
             }
-        } finally {
-            lock.unlock();
-        }
-    }
 
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            if (endOfChunk) {
-                eventChunk.clear();
-                endOfChunk = false;
-            }
-            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-                eventChunk.add(complexEvent);
-            }
         } finally {
             lock.unlock();
         }
@@ -89,7 +80,7 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;
@@ -102,18 +93,20 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{eventChunk, endOfChunk};
+        return new Object[]{eventChunk};
     }
 
     @Override
     public void restoreState(Object[] state) {
         eventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
-        endOfChunk = (Boolean) state[1];
     }
 
     public synchronized void sendEvents() {
-        eventChunk.reset();
-        sendToCallBacks(eventChunk);
+        if (lastEvent != null) {
+            ComplexEventChunk<ComplexEvent> snapshotChunk = new ComplexEventChunk<ComplexEvent>();
+            snapshotChunk.add(cloneComplexEvent(lastEvent));
+            sendToCallBacks(snapshotChunk);
+        }
     }
 
 }

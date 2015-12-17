@@ -55,30 +55,28 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    resetEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if(event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        if (firstEvent != null) {
+                            firstEvent = null;
+                        }
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                }else {
+                    if (firstEvent == null) {
+                        complexEventChunk.remove();
+                        firstEvent = event;
+                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>();
+                        firstPerEventChunk.add(event);
+                        sendToCallBacks(firstPerEventChunk);
+                    }
                 }
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            if (firstEvent == null) {
-                firstEvent = complexEvent;
-                ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>();
-                firstPerEventChunk.add(complexEvent);
-                sendToCallBacks(firstPerEventChunk);
             }
         } finally {
             lock.unlock();
@@ -107,12 +105,6 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
     @Override
     public void restoreState(Object[] state) {
         firstEvent = (ComplexEvent) state[0];
-    }
-
-    private synchronized void resetEvents() {
-        if (firstEvent != null) {
-            firstEvent = null;
-        }
     }
 
 }
