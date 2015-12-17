@@ -19,22 +19,17 @@
 package org.wso2.siddhi.extension.map;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.json.*;
 
-
-import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-
 
 
 /**
@@ -44,13 +39,11 @@ import java.util.Set;
  * Return Type(s): HashMap
  */
 public class CreateFromJSONFunctionExtension extends FunctionExecutor {
-    static final Logger log = Logger.getLogger(CreateFromJSONFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.OBJECT;
-    private Map<Object, Object> hashMap = new HashMap<>();
+    private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if ((attributeExpressionExecutors.length)  != 1) {
+        if ((attributeExpressionExecutors.length) != 1) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:create() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
@@ -58,45 +51,28 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
-        if ((data.length % 2) == 1) {
-            throw new ExecutionPlanRuntimeException("Number of values for data should be a multiple of 2");
-        }
-        for (int i = 0; i < data.length; i += 2) {
-            hashMap.put(data[i], data[i + 1]);
-        }
-        return hashMap;
+        throw new ExecutionPlanRuntimeException("Cannot process with arguments > 1");
     }
 
     @Override
     protected Object execute(Object data) {
-
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
+        if (data instanceof String) {
+            Map<Object, Object> hashMap = new HashMap<>();
+            JSONObject jsonObject = new JSONObject(data.toString());
+            Iterator<String> keys = jsonObject.keys();
 
-        if(data instanceof String) {
-
-            JSONObject jsonObject=new JSONObject(data.toString());
-            Iterator<String> keys=jsonObject.keys();
-
-            while(keys.hasNext()){
-
-                String key=keys.next();
-                Object value=jsonObject.get(key);
-
-                hashMap.put(key,value);
-
+            while (keys.hasNext()) {
+                String key = keys.next();
+                Object value = jsonObject.get(key);
+                hashMap.put(key, value);
             }
-
-        }
-        else{
+            return hashMap;
+        } else {
             throw new ExecutionPlanRuntimeException("Data should be a string");
         }
-        return hashMap;
     }
 
     @Override

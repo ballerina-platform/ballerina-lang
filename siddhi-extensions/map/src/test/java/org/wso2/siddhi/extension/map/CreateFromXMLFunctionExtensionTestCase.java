@@ -34,8 +34,8 @@ import org.wso2.siddhi.extension.string.ConcatFunctionExtension;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CreateFromJSONFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(CreateFromJSONFunctionExtensionTestCase.class);
+public class CreateFromXMLFunctionExtensionTestCase {
+    static final Logger log = Logger.getLogger(CreateFromXMLFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
@@ -46,14 +46,23 @@ public class CreateFromJSONFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCreateFromJSONFunctionExtension() throws InterruptedException {
-        log.info("CreateFromJSONFunctionExtension TestCase");
+    public void testCreateFromXMLFunctionExtension() throws InterruptedException {
+        log.info("CreateFromXMLFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select "
-                + "map:createFromJSON(\"{'symbol':'IBM','price':100,'volume':100 }\") as hashMap insert into outputStream;");
+                + "map:createFromXML(\"<sensor>" +
+                "<commonAttr1>19</commonAttr1>" +
+                "<commonAttr2>11.45</commonAttr2>" +
+                "<commonAttr3>true</commonAttr3>" +
+                "<commonAttr4>ELEMENT_TEXT</commonAttr4>" +
+                "<specAttributesObj>" +
+                "<specAttr1>111</specAttr1>" +
+                "<specAttr2>222</specAttr2>" +
+                "</specAttributesObj>" +
+                "</sensor>\") as hashMap insert into outputStream;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -65,7 +74,10 @@ public class CreateFromJSONFunctionExtensionTestCase {
                     count.incrementAndGet();
                     if (count.get() == 1) {
                         HashMap map = (HashMap) event.getData(0);
-                        Assert.assertEquals("IBM", map.get("symbol"));
+                        Assert.assertEquals(map.get("commonAttr1"), 19l);
+                        Assert.assertEquals(map.get("commonAttr2"), 11.45d);
+                        Assert.assertEquals(map.get("commonAttr3"), true);
+                        Assert.assertEquals(map.get("commonAttr4"), "ELEMENT_TEXT");
                         eventArrived = true;
                     }
                 }
@@ -84,17 +96,17 @@ public class CreateFromJSONFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCreateFromJSONFunctionExtension2() throws InterruptedException {
-        log.info("CreateFromJSONFunctionExtension TestCase 2");
+    public void testCreateFromXMLFunctionExtension2() throws InterruptedException {
+        log.info("CreateFromXMLFunctionExtension TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
-        String query = ("@info(name = 'query1') from inputStream select "
-                + "map:createFromJSON(str:concat('{symbol :',symbol,', price :',price,', volume :',volume,'}')) as hashMap insert into outputStream;");
+        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (longAttr long, doubleAttr double, booleanAttr bool, strAttr string);";
+        String query = ("@info(name = 'query1') from inputStream select " +
+                "map:createFromXML(str:concat('<sensor><commonAttr1>',longAttr,'</commonAttr1><commonAttr2>'," +
+                "doubleAttr,'</commonAttr2><commonAttr3>',booleanAttr,'</commonAttr3><commonAttr4>',strAttr,'</commonAttr4></sensor>')) as hashMap insert into outputStream;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] inEvents) {
@@ -103,15 +115,24 @@ public class CreateFromJSONFunctionExtensionTestCase {
                     count.incrementAndGet();
                     HashMap map = (HashMap) event.getData(0);
                     if (count.get() == 1) {
-                        Assert.assertEquals("IBM", map.get("symbol"));
+                        Assert.assertEquals(map.get("commonAttr1"), 25l);
+                        Assert.assertEquals(map.get("commonAttr2"), 100.1d);
+                        Assert.assertEquals(map.get("commonAttr3"), true);
+                        Assert.assertEquals(map.get("commonAttr4"), "Event1");
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
-                        Assert.assertEquals("WSO2", map.get("symbol"));
+                        Assert.assertEquals(map.get("commonAttr1"), 35l);
+                        Assert.assertEquals(map.get("commonAttr2"), 100.11d);
+                        Assert.assertEquals(map.get("commonAttr3"), false);
+                        Assert.assertEquals(map.get("commonAttr4"), "Event2");
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
-                        Assert.assertEquals("XYZ", map.get("symbol"));
+                        Assert.assertEquals(map.get("commonAttr1"), 45l);
+                        Assert.assertEquals(map.get("commonAttr2"), 100.13456d);
+                        Assert.assertEquals(map.get("commonAttr3"), true);
+                        Assert.assertEquals(map.get("commonAttr4"), "Event3");
                         eventArrived = true;
                     }
                 }
@@ -120,9 +141,9 @@ public class CreateFromJSONFunctionExtensionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 100, 100l});
-        inputHandler.send(new Object[]{"WSO2", 200, 200l});
-        inputHandler.send(new Object[]{"XYZ", 300, 200l});
+        inputHandler.send(new Object[]{25, 100.1, true, "Event1"});
+        inputHandler.send(new Object[]{35, 100.11, false, "Event2"});
+        inputHandler.send(new Object[]{45, 100.13456, true, "Event3"});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);

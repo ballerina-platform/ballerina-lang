@@ -18,11 +18,8 @@
 
 package org.wso2.siddhi.extension.map;
 
-import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -30,6 +27,9 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import javax.xml.stream.XMLStreamException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,13 +42,12 @@ import java.util.Map;
  * Return Type(s): HashMap
  */
 public class CreateFromXMLFunctionExtension extends FunctionExecutor {
-    static final Logger log = Logger.getLogger(CreateFromXMLFunctionExtension.class);
-    Attribute.Type returnType = Attribute.Type.OBJECT;
+    private Attribute.Type returnType = Attribute.Type.OBJECT;
     private Map<Object, Object> hashMap = new HashMap<>();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if ((attributeExpressionExecutors.length)  != 1) {
+        if ((attributeExpressionExecutors.length) != 1) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:create() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
@@ -56,41 +55,53 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-
-        return hashMap;
+        throw new ExecutionPlanRuntimeException("Cannot process with arguments > 1");
     }
 
     @Override
     protected Object execute(Object data) {
-
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-
-        if(data instanceof String) {
-            try{
-                OMElement element=AXIOMUtil.stringToOM(data.toString());
-                Iterator i=element.getChildren();
-
-                while (i.hasNext()) {
-                    OMElement ome=(OMElement)i.next();
-                    String key = ome.getQName().toString();
-                    Object value = ome.getText();  // getText() returns a string
-
-                    // have to get the type of value and put into the hash map
-
+        if (data instanceof String) {
+            Map<Object, Object> hashMap = new HashMap<>();
+            try {
+                OMElement parentElement = AXIOMUtil.stringToOM(data.toString());
+                Iterator iterator = parentElement.getChildElements();
+                while (iterator.hasNext()) {
+                    OMElement streamAtrributeElement = (OMElement) iterator.next();
+                    String key = streamAtrributeElement.getQName().toString();
+                    Iterator childIterator = streamAtrributeElement.getChildElements();
+                    Object value;
+                    if (childIterator.hasNext()) {
+                        value = "";
+                        do {
+                            OMElement childElement = (OMElement) childIterator.next();
+                            value = value + childElement.toString();
+                        } while (childIterator.hasNext());
+                    } else {
+                        String elementText = streamAtrributeElement.getText();  // getText() returns a string
+                        if (elementText.equals("true") || elementText.equals("false")) {
+                            value = Boolean.parseBoolean(elementText);
+                        } else {
+                            NumberFormat nf = NumberFormat.getInstance();
+                            try {
+                                value = nf.parse(elementText);
+                            } catch (ParseException e) {
+                                value = elementText;
+                            }
+                        }
+                    }
+                    hashMap.put(key, value);
                 }
+                return hashMap;
+            } catch (XMLStreamException e) {
+                throw new ExecutionPlanRuntimeException("Input data cannot be parsed to xml: " + e.getMessage(), e);
             }
-            catch(Exception e){
-                throw new ExecutionPlanRuntimeException("Input data cannot be parsed to xml");
-            }
-        }
-        else{
+        } else {
             throw new ExecutionPlanRuntimeException("Data should be a string");
         }
-        return hashMap;
     }
-
 
 
     @Override
