@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class CreateFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.OBJECT;
-    private Map<Object, Object> hashMap = new HashMap<>();
+    private Map<Object, Object> hashMap = new HashMap<Object, Object>();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {

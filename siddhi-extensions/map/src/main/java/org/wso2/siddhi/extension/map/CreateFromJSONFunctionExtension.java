@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.extension.map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
@@ -60,7 +59,7 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
         if (data instanceof String) {
-            Map<Object, Object> hashMap = new HashMap<>();
+            Map<Object, Object> hashMap = new HashMap<Object, Object>();
             JSONObject jsonObject = new JSONObject(data.toString());
             Iterator<String> keys = jsonObject.keys();
 

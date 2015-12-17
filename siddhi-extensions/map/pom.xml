@@ -33,7 +33,6 @@
     <artifactId>siddhi-extension-map</artifactId>
     <name>Siddhi Extension - Map</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
@@ -53,9 +52,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
+            <groupId>org.json.wso2</groupId>
             <artifactId>json</artifactId>
-            <version>20151123</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
@@ -64,15 +62,11 @@
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-api</artifactId>
-            <version>1.2.16</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
             <artifactId>axiom-impl</artifactId>
-            <version>1.2.16</version>
         </dependency>
-
-
     </dependencies>
 
     <build>

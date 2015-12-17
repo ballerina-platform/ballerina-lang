@@ -43,7 +43,6 @@ import java.util.Map;
  */
 public class CreateFromXMLFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
-    private Map<Object, Object> hashMap = new HashMap<>();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -64,7 +63,7 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
         if (data instanceof String) {
-            Map<Object, Object> hashMap = new HashMap<>();
+            Map<Object, Object> hashMap = new HashMap<Object, Object>();
             try {
                 OMElement parentElement = AXIOMUtil.stringToOM(data.toString());
                 Iterator iterator = parentElement.getChildElements();
