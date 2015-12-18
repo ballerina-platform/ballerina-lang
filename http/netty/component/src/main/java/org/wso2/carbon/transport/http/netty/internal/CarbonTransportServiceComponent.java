@@ -4,6 +4,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 
 import java.util.Map;
@@ -34,5 +35,20 @@ public class CarbonTransportServiceComponent {
 
     protected void removeTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
         NettyTransportDataHolder.getInstance().removeNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY));
+    }
+
+    @Reference(
+            name = "message-processor",
+            service = CarbonMessageProcessor.class,
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "removeMessageProcessor"
+    )
+    protected void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        NettyTransportDataHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
+    }
+
+    protected void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        NettyTransportDataHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
     }
 }

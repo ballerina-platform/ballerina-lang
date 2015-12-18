@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 import org.wso2.carbon.transport.http.netty.sender.CarbonNettyClientInitializer;
 
@@ -38,6 +39,7 @@ public class NettyTransportDataHolder {
     private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
     private Map<String, CarbonTransportInitializer> channelServerInitializers = new HashMap<>();
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
+    private Map<String, TransportListener> transportListeners = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor engine;
 
@@ -75,6 +77,7 @@ public class NettyTransportDataHolder {
     public CarbonTransportInitializer getServerChannelInitializer(String key) {
         return channelServerInitializers.get(key);
     }
+
     public CarbonTransportInitializer getClientChannelInitializer(String key) {
         return channelClientInitializers.get(key);
     }
@@ -98,5 +101,25 @@ public class NettyTransportDataHolder {
 
     public void setEngine(CarbonMessageProcessor engine) {
         this.engine = engine;
+    }
+
+
+    public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        if (!transportListeners.isEmpty()) {
+            transportListeners.forEach((k, v) -> v.setEngine(carbonMessageProcessor));
+        }
+    }
+
+    public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        if (carbonMessageProcessor.getId().equals(engine.getId())) {
+            engine = null;
+        }
+    }
+
+    public void addTransportListener(TransportListener transportListener) {
+        if (engine != null) {
+            transportListener.setEngine(engine);
+        }
+        transportListeners.put(transportListener.getId(), transportListener);
     }
 }
