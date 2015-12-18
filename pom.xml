@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1</version>
+        <version>2</version>
     </parent>
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
@@ -100,54 +100,6 @@
                 <version>${maven.wagon.ssh.version}</version>
             </extension>
         </extensions>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>validate</id>
-                            <phase>validate</phase>
-                            <configuration>
-                                <configLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
-                                </configLocation>
-                                <suppressionsLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
-                                </suppressionsLocation>
-                                <encoding>UTF-8</encoding>
-                                <consoleOutput>true</consoleOutput>
-                                <failsOnError>true</failsOnError>
-                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            </configuration>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <configuration>
-                        <effort>Max</effort>
-                        <threshold>Low</threshold>
-                        <xmlOutput>true</xmlOutput>
-                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>analyze-compile</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -155,46 +107,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.5.4</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>org.wso2.carbon.transport.http.netty.internal.NettyTransportActivator
-                        </Bundle-Activator>
-                        <Private-Package>
-                            org.wso2.carbon.transport.http.netty.internal
-                        </Private-Package>
-                        <Export-Package>
-                            !org.wso2.carbon.transport.http.netty.internal,
-                            org.wso2.carbon.transport.http.netty.*
-                        </Export-Package>
-                        <Import-Package>
-                            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-                            org.osgi.util.tracker; version="${osgi.service.tracker.import.version.range}",
-                            io.netty.*,
-                            org.wso2.carbon.transports.*,
-                            org.slf4j.*,
-                            org.xml.sax.*,
-                            javax.xml.bind.*,
-                            javax.xml.transform.*,
-                            javax.xml.validation.*,
-                            javax.net.ssl.*,
-                            org.wso2.carbon.kernel.startupresolver.*,
-                            org.wso2.carbon.messaging.*,
-                            org.apache.log4j.*,
-                            org.apache.commons.pool.*,
-                            com.lmax.disruptor.*,
-                            org.yaml.snakeyaml.*
-                        </Import-Package>
-                        <_dsannotations>*</_dsannotations>
-                    </instructions>
                 </configuration>
             </plugin>
             <plugin>
@@ -235,7 +147,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadocplugin.version}</version>
                 <executions>
                     <execution>
                         <id>docs</id>
@@ -251,23 +162,19 @@
 
     <properties>
         <!-- Maven plugins -->
-        <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
-        <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
-        <maven.javadocplugin.version>2.10.3</maven.javadocplugin.version>
 
         <!-- Dependencies -->
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <org.wso2.carbon.core.version>5.0.0-alpha</org.wso2.carbon.core.version>
+        <org.wso2.carbon.core.version>5.0.0</org.wso2.carbon.core.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <netty.version>4.0.30.Final</netty.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <slf4j.version>1.7.5</slf4j.version>
         <org.wso2.carbon.transport.http.netty.version>1.0.0-SNAPSHOT</org.wso2.carbon.transport.http.netty.version>
         <org.wso2.carbon.transport.http.netty.osgi.version>1.0.0.SNAPSHOT</org.wso2.carbon.transport.http.netty.osgi.version>
-
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>

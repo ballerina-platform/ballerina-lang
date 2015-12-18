@@ -41,8 +41,7 @@ public class YAMLTransportConfigurationBuilder {
         TransportsConfiguration transportsConfiguration;
         String nettyTransportsConfigFile =
                 System.getProperty(NETTY_TRANSPORT_CONF,
-                        "repository" + File.separator + "conf" + File.separator + "transports" +
-                                File.separator + "netty-transports.yml");
+                        "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
         File file = new File(nettyTransportsConfigFile);
         if (file.exists()) {
             try (Reader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1)) {

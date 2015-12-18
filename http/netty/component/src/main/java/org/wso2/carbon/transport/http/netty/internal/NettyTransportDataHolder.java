@@ -40,15 +40,6 @@ public class NettyTransportDataHolder {
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor engine;
-//    private CarbonTransportServerInitializer carbonNettyInitializer;
-
-//    public CarbonTransportServerInitializer getCarbonNettyInitializer() {
-//        return carbonNettyInitializer;
-//    }
-
-//    public void setCarbonNettyInitializer(CarbonTransportServerInitializer carbonNettyInitializer) {
-//        this.carbonNettyInitializer = carbonNettyInitializer;
-//    }
 
     private NettyTransportDataHolder() {
 

@@ -173,45 +173,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>org.wso2.carbon.transport.http.netty.internal.NettyTransportActivator
-                        </Bundle-Activator>
-                        <Private-Package>
-                            org.wso2.carbon.transport.http.netty.internal
-                        </Private-Package>
-                        <Export-Package>
-                            !org.wso2.carbon.transport.http.netty.internal,
-                            org.wso2.carbon.transport.http.netty.*
-                        </Export-Package>
-                        <Import-Package>
-                            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-                            org.osgi.util.tracker; version="${osgi.service.tracker.import.version.range}",
-                            io.netty.*,
-                            org.wso2.carbon.kernel.transports.*,
-                            org.wso2.carbon.kernel.startupresolver.*,
-                            org.slf4j.*,
-                            org.xml.sax.*,
-                            javax.xml.bind.*,
-                            javax.xml.transform.*,
-                            javax.xml.validation.*,
-                            javax.net.ssl.*,
-                            org.wso2.carbon.messaging.*,
-                            org.apache.log4j.*,
-                            org.apache.commons.pool.*,
-                            com.lmax.disruptor.*,
-                            org.yaml.snakeyaml.*
-                        </Import-Package>
-                        <_dsannotations>*</_dsannotations>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
@@ -249,4 +210,35 @@
         </plugins>
     </build>
 
+    <properties>
+        <bundle.activator>org.wso2.carbon.transport.http.netty.internal.NettyTransportActivator</bundle.activator>
+        <private.package>org.wso2.carbon.transport.http.netty.internal</private.package>
+        <export.package>
+            !org.wso2.carbon.transport.http.netty.internal,
+            org.wso2.carbon.transport.http.netty.*
+        </export.package>
+        <import.package>
+            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+            org.osgi.util.tracker; version="${osgi.service.tracker.import.version.range}",
+            io.netty.*,
+            org.wso2.carbon.kernel.transports.*,
+            org.wso2.carbon.kernel.startupresolver.*,
+            org.slf4j.*,
+            org.xml.sax.*,
+            javax.xml.bind.*,
+            javax.xml.transform.*,
+            javax.xml.validation.*,
+            javax.net.ssl.*,
+            org.wso2.carbon.messaging.*,
+            org.apache.log4j.*,
+            org.apache.commons.pool.*,
+            com.lmax.disruptor.*,
+            org.yaml.snakeyaml.*
+        </import.package>
+        <provide.capability>
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";
+            dependent-component-key="carbon-transport-mgt",
+        </provide.capability>
+    </properties>
 </project>

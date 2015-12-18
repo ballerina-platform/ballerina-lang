@@ -24,6 +24,7 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
 import org.wso2.carbon.transport.http.netty.sender.NettySender;
@@ -54,8 +55,9 @@ public class NettyTransportActivator implements BundleActivator {
      */
     private Set<NettyListener> createNettyListeners() {
         Set<NettyListener> listeners = new HashSet<>();
+        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations =
-                YAMLTransportConfigurationBuilder.build().getListenerConfigurations();
+                trpConfig.getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             listeners.add(new NettyListener(listenerConfiguration));
         }
