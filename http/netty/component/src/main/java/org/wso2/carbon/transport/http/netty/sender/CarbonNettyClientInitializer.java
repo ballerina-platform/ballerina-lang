@@ -20,6 +20,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
@@ -42,6 +43,7 @@ public class CarbonNettyClientInitializer implements CarbonTransportInitializer 
         ChannelPipeline p = ((SocketChannel) o).pipeline();
         p.addLast("decoder", new HttpResponseDecoder());
         p.addLast("encoder", new HttpRequestEncoder());
+        p.addLast("chunkWriter", new ChunkedWriteHandler());
         handler = new TargetHandler();
         p.addLast(HANDLER, handler);
     }
