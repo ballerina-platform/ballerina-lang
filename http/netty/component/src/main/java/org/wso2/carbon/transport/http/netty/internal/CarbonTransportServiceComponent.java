@@ -27,11 +27,12 @@ public class CarbonTransportServiceComponent {
             unbind = "removeTransportInitializer"
     )
     protected void addTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
+        serverInitializer.setup((Map<String, String>) ref);
         NettyTransportDataHolder.getInstance()
                 .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }
 
-    protected void removeTransportInitializer(CarbonTransportInitializer serverInitializer) {
-       //// TODO: 11/30/15
+    protected void removeTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
+        NettyTransportDataHolder.getInstance().removeNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY));
     }
 }

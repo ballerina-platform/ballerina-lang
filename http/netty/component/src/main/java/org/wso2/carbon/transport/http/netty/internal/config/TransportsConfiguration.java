@@ -62,6 +62,9 @@ public class TransportsConfiguration {
     }
 
     public Set<SenderConfiguration> getSenderConfigurations() {
+        if (senderConfigurations == null) {
+            return Collections.EMPTY_SET;
+        }
         return Collections.unmodifiableSet(senderConfigurations);
     }
 

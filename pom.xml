@@ -31,6 +31,19 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <repositories>
+        <repository>
+            <id>wso2-nexus-staging</id>
+            <name>WSO2 staging Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/orgwso2carbon-177/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
+
 
     <dependencyManagement>
     <dependencies>
@@ -178,7 +191,7 @@
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
-        <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>2.0.0-beta</carbon.p2.plugin.version>
         <org.wso2.carbon.messaging.version>1.0.0-SNAPSHOT</org.wso2.carbon.messaging.version>
     </properties>
 

@@ -89,7 +89,12 @@ public class NettyListener extends TransportListener {
     }
 
     private void setupChannelInitializer() {
-        CarbonTransportInitializer channelInitializer = new CarbonNettyServerInitializer();
+        CarbonTransportInitializer channelInitializer = NettyTransportDataHolder.getInstance()
+                .getServerChannelInitializer(nettyConfig.getId());
+        if (channelInitializer == null) {
+            // start with the default initializer
+            channelInitializer = new CarbonNettyServerInitializer();
+        }
 
         List<Parameter> parameters = nettyConfig.getParameters();
         if (parameters != null && !parameters.isEmpty()) {
