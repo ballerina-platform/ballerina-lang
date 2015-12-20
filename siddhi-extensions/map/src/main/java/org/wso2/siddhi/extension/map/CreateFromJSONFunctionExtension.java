@@ -35,8 +35,9 @@ import java.util.Map;
  * createFromJSON(String)
  * Returns the created hashmap
  * Accept Type(s): (String)
- * Return Type(s): HashMap
+ * Return Type(s): Map
  */
+//TODO Implement map of a map (nested maps)
 public class CreateFromJSONFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
 
@@ -50,14 +51,11 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        throw new ExecutionPlanRuntimeException("Cannot process with arguments > 1");
+        return null;
     }
 
     @Override
     protected Object execute(Object data) {
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
         if (data instanceof String) {
             Map<Object, Object> hashMap = new HashMap<Object, Object>();
             JSONObject jsonObject = new JSONObject(data.toString());
@@ -65,6 +63,7 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
 
             while (keys.hasNext()) {
                 String key = keys.next();
+                //TODO put the value.toString() to map for json objects
                 Object value = jsonObject.get(key);
                 hashMap.put(key, value);
             }

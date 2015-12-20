@@ -50,9 +50,9 @@ public class CreateFunctionExtension extends FunctionExecutor {
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-        if ((data.length % 2) == 1) {
-            throw new ExecutionPlanRuntimeException("Number of values for data should be a multiple of 2");
-        }
+//        if ((data.length % 2) == 1) {
+//            throw new ExecutionPlanRuntimeException("Number of values for data should be a multiple of 2");
+//        }
         Map<Object, Object> hashMap = new HashMap<Object, Object>();
         for (int i = 0; i < data.length; i += 2) {
             hashMap.put(data[i], data[i + 1]);

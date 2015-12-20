@@ -25,7 +25,6 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -50,7 +49,7 @@ public class PutFunctionExtension extends FunctionExecutor {
         if (data == null) {
             throw new ExecutionPlanRuntimeException("Data can not be null.");
         }
-        Map<Object, Object> hashMap = (HashMap<Object, Object>) data[0];
+        Map<Object, Object> hashMap = (Map<Object, Object>) data[0];
         hashMap.put(data[1], data[2]);
         return hashMap;
     }

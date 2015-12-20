@@ -20,13 +20,11 @@ package org.wso2.siddhi.extension.map;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,29 +39,19 @@ public class RemoveFunctionExtension extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.length < 1) {
+        if (attributeExpressionExecutors.length < 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:remove() function, " +
-                    "required one or more, but found " + attributeExpressionExecutors.length);
+                    "required one or more keys, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
-        if (data.length < 2) {
-            throw new ExecutionPlanRuntimeException("Too few values for data");
-        }
-        Map<Object, Object> hashMap = (HashMap) data[0];
+        Map<Object, Object> map = (Map<Object, Object>) data[0];
         for (int i = 1; i < data.length; i++) {
-            if (hashMap.get(data[i]) == null) {
-                log.warn("Cannot remove entry from map. No values exists for key '" + data[i] + "'.");
-            } else {
-                hashMap.remove(data[i]);
-            }
+            map.remove(data[i]);
         }
-        return hashMap;
+        return map;
     }
 
     @Override

@@ -25,13 +25,12 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * get(HashMap , Key , Type)
  * Returns required attribute value'.
- * Accept Type(s): (HashMap , ValidAttributeType , ValidAttributeType)
+ * Accept Type(s): (HashMap , ValidKey)
  * Return Type(s): Object
  */
 public class GetFunctionExtension extends FunctionExecutor {
@@ -39,62 +38,21 @@ public class GetFunctionExtension extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if (attributeExpressionExecutors.length != 3) {
+        if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:get() function, " +
-                    "required 3, but found " + attributeExpressionExecutors.length);
+                    "required 2, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        Map hashMap;
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
-        if (data[0] instanceof HashMap) {
-            hashMap = (HashMap) data[0];
+        Map map;
+        if (data[0] instanceof Map) {
+            map = (Map) data[0];
         } else {
-            throw new ExecutionPlanRuntimeException("First attribute value must be a hash map.");
+            throw new ExecutionPlanRuntimeException("First attribute value must be of type java.util.Map");
         }
-        String type = (String) data[2];
-        Object tmpVal = hashMap.get(data[1]);
-        Object value;
-        String tmpStr = tmpVal.toString();
-
-        if (type.toLowerCase().equals("int")) {
-            try {
-                value = Integer.parseInt(tmpStr);
-            } catch (ExecutionPlanRuntimeException e) {
-                throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to INTEGER");
-            }
-        } else if (type.toLowerCase().equals("double")) {
-            try {
-                value = Double.parseDouble(tmpStr);
-            } catch (ExecutionPlanRuntimeException e) {
-                throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to DOUBLE");
-            }
-        } else if (type.toLowerCase().equals("long")) {
-            try {
-                value = Long.parseLong(tmpStr);
-            } catch (ExecutionPlanRuntimeException e) {
-                throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to LONG");
-            }
-        } else if (type.toLowerCase().equals("bool")) {
-            try {
-                value = Boolean.parseBoolean(tmpStr);
-            } catch (ExecutionPlanRuntimeException e) {
-                throw new ExecutionPlanRuntimeException("Attribute value cannot be parsed to BOOLEAN");
-            }
-        } else if (type.toLowerCase().equals("string")) {
-            try {
-                value = tmpVal.toString();
-            } catch (ExecutionPlanRuntimeException e) {
-                throw new ExecutionPlanRuntimeException("Attribute value cannot be converted to STRING");
-            }
-        } else {
-            value = tmpVal;
-        }
-        return value;
+        return map.get(data[1]);
     }
 
     @Override

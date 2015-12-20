@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.common.CastFunctionExtension;
 import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,10 +46,10 @@ public class GetFunctionExtensionTestCase {
 
     @Test
     public void testGetFunctionExtension() throws InterruptedException {
+        //TODO Cast using siddhi and send the value
         log.info("GetFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
-
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price double, volume long);";
 
         String query = ("@info(name = 'query1') from inputStream " +
                 "select symbol,price,map:create() as tmpMap" +
@@ -57,9 +58,8 @@ public class GetFunctionExtensionTestCase {
                 "from tmpStream  " +
                 "select symbol,price,tmpMap,map:put(tmpMap,symbol,price) as map1" +
                 " insert into outputStream;" +
-                "@info(name = 'query3') from outputStream  select map1, map:get(map1,symbol,'int') as map2" +
+                "@info(name = 'query3') from outputStream  select map1, map:get(map1,symbol) as price" +
                 " insert into outputStream2;"
-
         );
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
@@ -72,15 +72,15 @@ public class GetFunctionExtensionTestCase {
                     count.incrementAndGet();
 
                     if (count.get() == 1) {
-                        Assert.assertEquals(100, event.getData(1));
+                        Assert.assertEquals(100d, event.getData(1));
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
-                        Assert.assertEquals(200, event.getData(1));
+                        Assert.assertEquals(200d, event.getData(1));
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
-                        Assert.assertEquals(300, event.getData(1));
+                        Assert.assertEquals(300d, event.getData(1));
                         eventArrived = true;
                     }
                 }
@@ -88,9 +88,9 @@ public class GetFunctionExtensionTestCase {
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"IBM", 100, 100l});
-        inputHandler.send(new Object[]{"WSO2", 200, 200l});
-        inputHandler.send(new Object[]{"XYZ", 300, 200l});
+        inputHandler.send(new Object[]{"IBM", 100d, 100l});
+        inputHandler.send(new Object[]{"WSO2", 200d, 200l});
+        inputHandler.send(new Object[]{"XYZ", 300d, 200l});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
@@ -102,7 +102,7 @@ public class GetFunctionExtensionTestCase {
     public void testGetFunctionExtension2() throws InterruptedException {
         log.info("GetFunctionExtension TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
-
+        siddhiManager.setExtension("common:cast", CastFunctionExtension.class);
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream" +
                 " select symbol,price,map:create() as tmpMap " +
@@ -110,7 +110,7 @@ public class GetFunctionExtensionTestCase {
                 "@info(name = 'query2') from tmpStream  " +
                 "select symbol,price,tmpMap, map:put(tmpMap,symbol,price) as map1" +
                 " insert into outputStream;" +
-                "@info(name = 'query3') from outputStream  select map1, map:get(map1,symbol,'string') as map2" +
+                "@info(name = 'query3') from outputStream  select map1, convert(common:cast(map:get(map1,symbol), 'int'), 'string') as priceInString" +
                 " insert into outputStream2;"
         );
 

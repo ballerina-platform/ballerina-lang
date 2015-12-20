@@ -19,13 +19,12 @@
 package org.wso2.siddhi.extension.map;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * isMap(Object)
@@ -51,10 +50,7 @@ public class IsMapFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Boolean execute(Object data) {
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
-        if (data instanceof HashMap) {
+        if (data instanceof Map) {
             return Boolean.TRUE;
         }
 

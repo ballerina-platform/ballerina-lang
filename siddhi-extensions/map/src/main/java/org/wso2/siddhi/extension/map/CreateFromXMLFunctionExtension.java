@@ -60,18 +60,16 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
         if (data instanceof String) {
             Map<Object, Object> hashMap = new HashMap<Object, Object>();
             try {
                 OMElement parentElement = AXIOMUtil.stringToOM(data.toString());
                 Iterator iterator = parentElement.getChildElements();
                 while (iterator.hasNext()) {
-                    OMElement streamAtrributeElement = (OMElement) iterator.next();
-                    String key = streamAtrributeElement.getQName().toString();
-                    Iterator childIterator = streamAtrributeElement.getChildElements();
+                    OMElement streamAttributeElement = (OMElement) iterator.next();
+                    String key = streamAttributeElement.getQName().toString();
+                    Iterator childIterator = streamAttributeElement.getChildElements();
+                    //TODO Implement map of a map
                     Object value;
                     if (childIterator.hasNext()) {
                         value = "";
@@ -80,7 +78,7 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
                             value = value + childElement.toString();
                         } while (childIterator.hasNext());
                     } else {
-                        String elementText = streamAtrributeElement.getText();  // getText() returns a string
+                        String elementText = streamAttributeElement.getText();
                         if (elementText.equals("true") || elementText.equals("false")) {
                             value = Boolean.parseBoolean(elementText);
                         } else {
