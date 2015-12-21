@@ -52,8 +52,6 @@ public class NettyListener extends CarbonTransport {
     public NettyListener(ListenerConfiguration nettyConfig) {
         super(nettyConfig.getId());
         this.nettyConfig = nettyConfig;
-        bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
-        workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
     }
 
     public void start() {
@@ -62,6 +60,8 @@ public class NettyListener extends CarbonTransport {
     }
 
     private void startTransport() {
+        bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
+        workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
         bootstrap = new ServerBootstrap();
         bootstrap.option(ChannelOption.SO_BACKLOG, 100);
         bootstrap.group(bossGroup, workerGroup)
