@@ -82,21 +82,26 @@
         <private.package>org.wso2.carbon.transport.http.netty.internal</private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.internal,
-            org.wso2.carbon.transport.http.netty.*;version=${netty.transport.package.export.version}
+            org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}"
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-            org.osgi.util.tracker; version="${osgi.service.tracker.import.version.range}",
-            io.netty.*,
-            org.wso2.carbon.kernel.transports.*,
-            org.wso2.carbon.kernel.startupresolver.*,
-            org.slf4j.*,
-            org.xml.sax.*,
-            javax.xml.bind.*,
-            javax.xml.transform.*,
-            javax.xml.validation.*,
-            javax.net.ssl.*,
-            org.yaml.snakeyaml.*
+            org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
+            io.netty.buffer.*;version="${netty.package.import.version.range}",
+            io.netty.handler.codec.*;version="${netty.package.import.version.range}",
+            io.netty.util.*;version="${netty.package.import.version.range}",
+            io.netty.handler.*;version="${netty.package.import.version.range}",
+            io.netty.bootstrap.*;version="${netty.package.import.version.range}",
+            io.netty.channel.*;version="${netty.package.import.version.range}",
+            org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
+            org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.xml.sax.*;version="${org.xml.sax.import.version.range}",
+            javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",
+            javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",
+            javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
+            javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
         </import.package>
         <provide.capability>
             osgi.service;effective:=active;
