@@ -19,7 +19,6 @@
 package org.wso2.siddhi.extension.map;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -47,17 +46,11 @@ public class CreateFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        if (data == null) {
-            throw new ExecutionPlanRuntimeException("Data can not be null.");
-        }
-//        if ((data.length % 2) == 1) {
-//            throw new ExecutionPlanRuntimeException("Number of values for data should be a multiple of 2");
-//        }
-        Map<Object, Object> hashMap = new HashMap<Object, Object>();
+        Map<Object, Object> map = new HashMap<Object, Object>();
         for (int i = 0; i < data.length; i += 2) {
-            hashMap.put(data[i], data[i + 1]);
+            map.put(data[i], data[i + 1]);
         }
-        return hashMap;
+        return map;
     }
 
     @Override

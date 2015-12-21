@@ -46,7 +46,7 @@ public class CreateFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCreatetFunctionExtension() throws InterruptedException {
+    public void testCreateFunctionExtension() throws InterruptedException {
         log.info("CreateFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -94,7 +94,7 @@ public class CreateFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCreatetFunctionExtension2() throws InterruptedException {
+    public void testCreateFunctionExtension2() throws InterruptedException {
         log.info("CreateFunctionExtension TestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -139,7 +139,7 @@ public class CreateFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCreatetFunctionExtension3() throws InterruptedException {
+    public void testCreateFunctionExtension3() throws InterruptedException {
         log.info("CreateFunctionExtension TestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
