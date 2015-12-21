@@ -19,6 +19,9 @@
 package org.wso2.siddhi.extension.map;
 
 import junit.framework.Assert;
+import org.apache.axiom.om.impl.exception.XMLComparisonException;
+import org.apache.axiom.om.impl.llom.util.XMLComparator;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +34,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.extension.string.ConcatFunctionExtension;
 
+import javax.xml.stream.XMLStreamException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ToXMLFunctionExtensionTestCase {
@@ -75,13 +79,19 @@ public class ToXMLFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals("<sensor>" +
-                                "<commonAttr1>19</commonAttr1>" +
-                                "<commonAttr2>11.45</commonAttr2>" +
-                                "<commonAttr3>true</commonAttr3>" +
-                                "<commonAttr4>ELEMENT_TEXT</commonAttr4>" +
-                                "<specAttributesObj><specAttributesObj><specAttr1>111</specAttr1><specAttr2>222</specAttr2></specAttributesObj></specAttributesObj>" +
-                                "</sensor>", event.getData(0));
+                        try {
+                            Assert.assertEquals(true, new XMLComparator().compare(AXIOMUtil.stringToOM("<sensor>" +
+                                    "<commonAttr1>19</commonAttr1>" +
+                                    "<commonAttr2>11.45</commonAttr2>" +
+                                    "<commonAttr3>true</commonAttr3>" +
+                                    "<commonAttr4>ELEMENT_TEXT</commonAttr4>" +
+                                    "<specAttributesObj><specAttr1>111</specAttr1><specAttr2>222</specAttr2></specAttributesObj>" +
+                                    "</sensor>"), AXIOMUtil.stringToOM((String) event.getData(0))));
+                        } catch (XMLStreamException e) {
+                            log.error("Error parsing XML:" + e.getMessage(), e);
+                        } catch (XMLComparisonException e) {
+                            log.error("Error comparing two XML elements:" + e.getMessage(), e);
+                        }
                         eventArrived = true;
                     }
                 }
@@ -122,30 +132,48 @@ public class ToXMLFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals("<sensor>" +
-                                "<commonAttr1>25</commonAttr1>" +
-                                "<commonAttr2>100.1</commonAttr2>" +
-                                "<commonAttr3>true</commonAttr3>" +
-                                "<commonAttr4>Event1</commonAttr4>" +
-                                "</sensor>", event.getData(0));
+                        try {
+                            Assert.assertEquals(true, new XMLComparator().compare(AXIOMUtil.stringToOM("<sensor>" +
+                                    "<commonAttr1>25</commonAttr1>" +
+                                    "<commonAttr2>100.1</commonAttr2>" +
+                                    "<commonAttr3>true</commonAttr3>" +
+                                    "<commonAttr4>Event1</commonAttr4>" +
+                                    "</sensor>"), AXIOMUtil.stringToOM((String) event.getData(0))));
+                        } catch (XMLComparisonException e) {
+                            log.error("Error comparing two XML elements:" + e.getMessage(), e);
+                        } catch (XMLStreamException e) {
+                            log.error("Error parsing XML:" + e.getMessage(), e);
+                        }
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
-                        Assert.assertEquals("<sensor>" +
-                                "<commonAttr1>35</commonAttr1>" +
-                                "<commonAttr2>100.11</commonAttr2>" +
-                                "<commonAttr3>false</commonAttr3>" +
-                                "<commonAttr4>Event2</commonAttr4>" +
-                                "</sensor>", event.getData(0));
+                        try {
+                            Assert.assertEquals(true, new XMLComparator().compare(AXIOMUtil.stringToOM("<sensor>" +
+                                    "<commonAttr1>35</commonAttr1>" +
+                                    "<commonAttr2>100.11</commonAttr2>" +
+                                    "<commonAttr3>false</commonAttr3>" +
+                                    "<commonAttr4>Event2</commonAttr4>" +
+                                    "</sensor>"), AXIOMUtil.stringToOM((String) event.getData(0))));
+                        } catch (XMLComparisonException e) {
+                            log.error("Error comparing two XML elements:" + e.getMessage(), e);
+                        } catch (XMLStreamException e) {
+                            log.error("Error parsing XML:" + e.getMessage(), e);
+                        }
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
-                        Assert.assertEquals("<sensor>" +
-                                "<commonAttr1>45</commonAttr1>" +
-                                "<commonAttr2>100.13456</commonAttr2>" +
-                                "<commonAttr3>true</commonAttr3>" +
-                                "<commonAttr4>Event3</commonAttr4>" +
-                                "</sensor>", event.getData(0));
+                        try {
+                            Assert.assertEquals(true, new XMLComparator().compare(AXIOMUtil.stringToOM("<sensor>" +
+                                    "<commonAttr1>45</commonAttr1>" +
+                                    "<commonAttr2>100.13456</commonAttr2>" +
+                                    "<commonAttr3>true</commonAttr3>" +
+                                    "<commonAttr4>Event3</commonAttr4>" +
+                                    "</sensor>"), AXIOMUtil.stringToOM((String) event.getData(0))));
+                        } catch (XMLComparisonException e) {
+                            log.error("Error comparing two XML elements:" + e.getMessage(), e);
+                        } catch (XMLStreamException e) {
+                            log.error("Error parsing XML:" + e.getMessage(), e);
+                        }
                         eventArrived = true;
                     }
                 }

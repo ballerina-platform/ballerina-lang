@@ -42,7 +42,7 @@ public class CastFunctionExtension extends FunctionExecutor {
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new ExecutionPlanValidationException("The second argument has to be a string constant specifying " +
-                    "one of the supported data types");
+                    "one of the supported data types (int, long, float, double, string, bool)");
         } else {
             String type = attributeExpressionExecutors[1].execute(null).toString();
             if (type.toLowerCase().equals("int")) {
@@ -65,24 +65,7 @@ public class CastFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        Object inputValue = data[0];
-        String type = (String) data[1];
-
-        if (type.toLowerCase().equals("int")) {
-            return (Integer) inputValue;
-        } else if (type.toLowerCase().equals("long")) {
-            return (Long) inputValue;
-        } else if (type.toLowerCase().equals("float")) {
-            return (Float) inputValue;
-        } else if (type.toLowerCase().equals("double")) {
-            return (Double) inputValue;
-        } else if (type.toLowerCase().equals("bool")) {
-            return (Boolean) inputValue;
-        } else if (type.toLowerCase().equals("string")) {
-            return (String) inputValue;
-        }
-
-        return inputValue;
+        return data[0];
     }
 
     @Override

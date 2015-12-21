@@ -30,10 +30,10 @@ import java.util.Map;
 
 
 /**
- * createFromJSON(String)
- * Returns the created hashmap
- * Accept Type(s): (String)
- * Return Type(s): Map
+ * toJSON(Map)
+ * Returns a string representation of the map in JSON format
+ * Accept Type(s): (Map)
+ * Return Type(s): String
  */
 public class ToJSONFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.STRING;
@@ -41,7 +41,7 @@ public class ToJSONFunctionExtension extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if ((attributeExpressionExecutors.length) != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:create() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:toJSON() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }

@@ -30,8 +30,8 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import javax.xml.stream.XMLStreamException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -39,11 +39,11 @@ import java.util.Map;
  * createFromXML(String)
  * Returns the created hashmap
  * Accept Type(s): (String)
- * Return Type(s): HashMap
+ * Return Type(s): Map
  */
 public class CreateFromXMLFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
-    private NumberFormat nf = NumberFormat.getInstance();
+    private NumberFormat numberFormat = NumberFormat.getInstance();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -55,14 +55,17 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        throw new ExecutionPlanRuntimeException("Cannot process with arguments > 1");
+        return null;
     }
 
     @Override
     protected Object execute(Object data) {
         if (data instanceof String) {
             try {
-                return getMapFromXML(data.toString());
+                Map<Object, Object> topLevelMap = new HashMap<Object, Object>();
+                OMElement parentElement = AXIOMUtil.stringToOM(data.toString());
+                topLevelMap.put(parentElement.getQName().toString(), getMapFromXML(parentElement));
+                return topLevelMap;
             } catch (XMLStreamException e) {
                 throw new ExecutionPlanRuntimeException("Input data cannot be parsed to xml: " + e.getMessage(), e);
             }
@@ -71,24 +74,22 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
         }
     }
 
-    private Object getMapFromXML(String data) throws XMLStreamException {
-        Map<Object, Object> topLevelMap = new LinkedHashMap<Object, Object>();
-        Map<Object, Object> map = new LinkedHashMap<Object, Object>();
-        OMElement parentElement = AXIOMUtil.stringToOM(data);
+    private Object getMapFromXML(OMElement parentElement) throws XMLStreamException {
+        Map<Object, Object> map = new HashMap<Object, Object>();
         Iterator iterator = parentElement.getChildElements();
         while (iterator.hasNext()) {
             OMElement streamAttributeElement = (OMElement) iterator.next();
             String key = streamAttributeElement.getQName().toString();
             Object value;
             if (streamAttributeElement.getFirstElement() != null) {
-                value = getMapFromXML(streamAttributeElement.toString());
+                value = getMapFromXML(streamAttributeElement);
             } else {
                 String elementText = streamAttributeElement.getText();
                 if (elementText.equals("true") || elementText.equals("false")) {
                     value = Boolean.parseBoolean(elementText);
                 } else {
                     try {
-                        value = nf.parse(elementText);
+                        value = numberFormat.parse(elementText);
                     } catch (ParseException e) {
                         value = elementText;
                     }
@@ -96,8 +97,7 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
             }
             map.put(key, value);
         }
-        topLevelMap.put(parentElement.getQName().toString(), map);
-        return topLevelMap;
+        return map;
     }
 
 

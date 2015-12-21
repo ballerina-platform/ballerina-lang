@@ -64,7 +64,7 @@ public class CastFunctionExtensionTestCase {
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
-                        Assert.assertEquals(null, event.getData(2));
+                        Assert.assertEquals(true, event.getData(2));
                         eventArrived = true;
                     }
                     if (count.get() == 3) {

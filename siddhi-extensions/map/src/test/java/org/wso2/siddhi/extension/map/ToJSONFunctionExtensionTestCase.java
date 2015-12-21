@@ -110,18 +110,21 @@ public class ToJSONFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
+                        Assert.assertEquals(event.getData(0) instanceof String, true);
                         JSONAssert.assertEquals(new JSONObject("{\"volume\":100,\"symbol\":\"IBM\",\"price\":100}"),
-                                new JSONObject(event.getData(0)), false);
+                                new JSONObject((String) event.getData(0)), false);
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
+                        Assert.assertEquals(event.getData(0) instanceof String, true);
                         JSONAssert.assertEquals(new JSONObject("{\"volume\":200,\"symbol\":\"WSO2\",\"price\":200}"),
-                                new JSONObject(event.getData(0)), false);
+                                new JSONObject((String) event.getData(0)), false);
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
+                        Assert.assertEquals(event.getData(0) instanceof String, true);
                         JSONAssert.assertEquals(new JSONObject("{\"volume\":200,\"symbol\":\"XYZ\",\"price\":300}"),
-                                new JSONObject(event.getData(0)), false);
+                                new JSONObject((String) event.getData(0)), false);
                         eventArrived = true;
                     }
                 }

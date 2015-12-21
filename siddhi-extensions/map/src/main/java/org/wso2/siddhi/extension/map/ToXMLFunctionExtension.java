@@ -25,31 +25,29 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.text.NumberFormat;
 import java.util.Map;
 
 
 /**
- * createFromXML(String)
- * Returns the created hashmap
- * Accept Type(s): (String)
- * Return Type(s): HashMap
+ * toXML(Map)
+ * Returns the string representation of the map in XML format
+ * Accept Type(s): (Map)
+ * Return Type(s): String
  */
 public class ToXMLFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.STRING;
-    private NumberFormat nf = NumberFormat.getInstance();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if ((attributeExpressionExecutors.length) != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:createFromXML() function, " +
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:toXML() function, " +
                     "required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        throw new ExecutionPlanRuntimeException("Cannot process with arguments > 1");
+        return null;
     }
 
     @Override

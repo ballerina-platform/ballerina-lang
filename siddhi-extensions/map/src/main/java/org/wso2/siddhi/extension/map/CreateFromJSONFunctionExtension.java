@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * createFromJSON(String)
- * Returns the created hashmap
+ * Returns the created map
  * Accept Type(s): (String)
  * Return Type(s): Map
  */
