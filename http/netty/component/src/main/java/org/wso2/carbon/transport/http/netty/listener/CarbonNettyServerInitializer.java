@@ -26,7 +26,6 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
@@ -64,8 +63,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
                                 parameters.get(Constants.WAIT_STRATEGY),
                                 Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
-                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND,
-                        disruptorConfig, NettyTransportContextHolder.getInstance().getEngine());
+                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
                 String queueSize = parameters.get(Constants.CONTENT_QUEUE_SIZE);
                 if (queueSize != null) {
                     this.queueSize = Integer.parseInt(queueSize);
@@ -74,8 +72,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
                 log.warn("Disruptor specific parameters are not specified in " +
                          "configuration hence using default configs");
                 DisruptorConfig disruptorConfig = new DisruptorConfig();
-                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig,
-                        NettyTransportContextHolder.getInstance().getEngine());
+                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             }
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);

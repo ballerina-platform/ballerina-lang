@@ -41,8 +41,6 @@ public class Constants {
 
     public static final String SRC_HNDLR = "SRC_HNDLR";
 
-    public static final String ENGINE = "Engine";
-
     public static final String RESPONSE_CALLBACK = "RESPONSE_CALLBACK";
 
     public static final String DISRUPTOR = "Disruptor";

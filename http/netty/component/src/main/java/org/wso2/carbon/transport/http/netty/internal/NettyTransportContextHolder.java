@@ -39,7 +39,7 @@ public class NettyTransportContextHolder {
     private Map<String, CarbonTransportInitializer> channelServerInitializers = new HashMap<>();
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
-    private CarbonMessageProcessor engine;
+    private CarbonMessageProcessor messageProcessor;
 
     private NettyTransportContextHolder() {
 
@@ -93,17 +93,17 @@ public class NettyTransportContextHolder {
         return this.bundleContext;
     }
 
-    public CarbonMessageProcessor getEngine() {
-        return engine;
+    public CarbonMessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 
     public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        this.engine = carbonMessageProcessor;
+        this.messageProcessor = carbonMessageProcessor;
     }
 
     public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        if (carbonMessageProcessor.getId().equals(engine.getId())) {
-            engine = null;
+        if (carbonMessageProcessor.getId().equals(messageProcessor.getId())) {
+            messageProcessor = null;
         }
     }
 }

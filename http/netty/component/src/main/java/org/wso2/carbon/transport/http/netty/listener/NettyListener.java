@@ -156,7 +156,7 @@ public class NettyListener extends TransportListener {
     }
 
     @Override
-    public void setEngine(CarbonMessageProcessor carbonMessageProcessor) {
+    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
 
     }
 }

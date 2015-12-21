@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.EngineException;
+import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
@@ -72,7 +72,7 @@ public class NettySender implements TransportSender {
 
 
     @Override
-    public boolean send(CarbonMessage msg, CarbonCallback callback) throws EngineException {
+    public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
         final HttpRoute route = new HttpRoute((String) msg.getProperty("HOST"), (Integer) msg.getProperty("PORT"));
@@ -99,7 +99,7 @@ public class NettySender implements TransportSender {
                 ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
             }
         } catch (Exception failedCause) {
-            throw new EngineException(failedCause.getMessage(), failedCause);
+            throw new MessageProcessorException(failedCause.getMessage(), failedCause);
         }
 
         return false;
