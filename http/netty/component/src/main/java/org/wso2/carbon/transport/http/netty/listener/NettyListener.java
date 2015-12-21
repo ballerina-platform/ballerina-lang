@@ -45,7 +45,6 @@ public class NettyListener extends CarbonTransport {
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private String serverState = Constants.STATE_STOPPED;
     private ServerBootstrap bootstrap;
     private ListenerConfiguration nettyConfig;
 
