@@ -41,12 +41,11 @@ public class NettyTransportActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
         for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
-            NettyTransportDataHolder.getInstance().addTransportListener(listener);
         }
         for (NettySender sender : createNettySenders()) {
             bundleContext.registerService(TransportSender.class, sender, null);
         }
-        NettyTransportDataHolder.getInstance().setBundleContext(bundleContext);
+        NettyTransportContextHolder.getInstance().setBundleContext(bundleContext);
     }
 
     /**

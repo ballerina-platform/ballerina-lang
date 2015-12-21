@@ -30,7 +30,7 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.transport.http.netty.Constants;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 
@@ -89,7 +89,7 @@ public class NettyListener extends TransportListener {
     }
 
     private void setupChannelInitializer() {
-        CarbonTransportInitializer channelInitializer = NettyTransportDataHolder.getInstance()
+        CarbonTransportInitializer channelInitializer = NettyTransportContextHolder.getInstance()
                 .getServerChannelInitializer(nettyConfig.getId());
         if (channelInitializer == null) {
             // start with the default initializer
@@ -105,7 +105,7 @@ public class NettyListener extends TransportListener {
 
             channelInitializer.setup(paramMap);
         }
-        NettyTransportDataHolder.getInstance().addNettyChannelInitializer(nettyConfig.getId(), channelInitializer);
+        NettyTransportContextHolder.getInstance().addNettyChannelInitializer(nettyConfig.getId(), channelInitializer);
     }
 
     private void addChannelInitializer() {
@@ -157,6 +157,6 @@ public class NettyListener extends TransportListener {
 
     @Override
     public void setEngine(CarbonMessageProcessor carbonMessageProcessor) {
-        NettyTransportDataHolder.getInstance().setEngine(carbonMessageProcessor);
+
     }
 }

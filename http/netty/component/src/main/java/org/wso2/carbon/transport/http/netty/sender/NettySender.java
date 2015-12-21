@@ -33,7 +33,7 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
@@ -67,7 +67,7 @@ public class NettySender implements TransportSender {
         nettyClientInitializer = new NettyClientInitializer(senderConfiguration.getId());
         nettyClientInitializer.setSslConfig(senderConfiguration.getSslConfig());
         CarbonNettyClientInitializer carbonNettyClientInitializer = new CarbonNettyClientInitializer();
-        NettyTransportDataHolder.getInstance().addNettyChannelInitializer(id, carbonNettyClientInitializer);
+        NettyTransportContextHolder.getInstance().addNettyChannelInitializer(id, carbonNettyClientInitializer);
         carbonNettyClientInitializer.setup(paramMap);
         this.connectionManager = ConnectionManager.getInstance();
     }

@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 import org.wso2.carbon.transport.http.netty.sender.CarbonNettyClientInitializer;
 
@@ -33,21 +32,20 @@ import java.util.Map;
 /**
  * DataHolder for the Netty transport.
  */
-public class NettyTransportDataHolder {
-    private static final Logger log = LoggerFactory.getLogger(NettyTransportDataHolder.class);
+public class NettyTransportContextHolder {
+    private static final Logger log = LoggerFactory.getLogger(NettyTransportContextHolder.class);
 
-    private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
+    private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
     private Map<String, CarbonTransportInitializer> channelServerInitializers = new HashMap<>();
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
-    private Map<String, TransportListener> transportListeners = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor engine;
 
-    private NettyTransportDataHolder() {
+    private NettyTransportContextHolder() {
 
     }
 
-    public static NettyTransportDataHolder getInstance() {
+    public static NettyTransportContextHolder getInstance() {
         return instance;
     }
 
@@ -99,27 +97,13 @@ public class NettyTransportDataHolder {
         return engine;
     }
 
-    public void setEngine(CarbonMessageProcessor engine) {
-        this.engine = engine;
-    }
-
-
     public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        if (!transportListeners.isEmpty()) {
-            transportListeners.forEach((k, v) -> v.setEngine(carbonMessageProcessor));
-        }
+        this.engine = carbonMessageProcessor;
     }
 
     public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         if (carbonMessageProcessor.getId().equals(engine.getId())) {
             engine = null;
         }
-    }
-
-    public void addTransportListener(TransportListener transportListener) {
-        if (engine != null) {
-            transportListener.setEngine(engine);
-        }
-        transportListeners.put(transportListener.getId(), transportListener);
     }
 }

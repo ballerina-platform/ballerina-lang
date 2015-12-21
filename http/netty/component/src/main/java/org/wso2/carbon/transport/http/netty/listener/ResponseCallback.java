@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 
@@ -47,21 +48,26 @@ public class ResponseCallback implements CarbonCallback {
     public void done(CarbonMessage cMsg) {
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
-        while (true) {
-            if (cMsg instanceof NettyCarbonMessage) {
-                HttpContent httpContent = ((NettyCarbonMessage) cMsg).getHttpContent();
+
+
+        if (cMsg instanceof NettyCarbonMessage) {
+            NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
+            while (true) {
+                HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ctx.writeAndFlush(httpContent);
                     break;
                 }
                 ctx.write(httpContent);
-
-            } else {
-                ByteBuffer byteBuffer = cMsg.getMessageBody();
+            }
+        } else if (cMsg instanceof DefaultCarbonMessage) {
+            DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
+            while (true) {
+                ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
                 ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 ctx.write(httpContent);
-                if (cMsg.isEomAdded() && cMsg.isEmpty()) {
+                if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
                     ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;
 
