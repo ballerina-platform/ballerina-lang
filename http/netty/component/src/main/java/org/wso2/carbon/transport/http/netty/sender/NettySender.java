@@ -17,16 +17,13 @@ package org.wso2.carbon.transport.http.netty.sender;
 
 import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.EngineException;
 import org.wso2.carbon.messaging.TransportSender;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -37,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
+import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -98,7 +96,7 @@ public class NettySender implements TransportSender {
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
 
-                writeContent(outboundChannel, httpRequest, msg);
+                ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
             }
         } catch (Exception failedCause) {
             throw new EngineException(failedCause.getMessage(), failedCause);
@@ -112,21 +110,6 @@ public class NettySender implements TransportSender {
         return id;
     }
 
-    private boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
-        channel.write(httpRequest);
-        NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
-        while (true) {
-            HttpContent httpContent = nettyCMsg.getHttpContent();
-            if (httpContent instanceof LastHttpContent) {
-                channel.writeAndFlush(httpContent);
-                break;
-            }
-            if (httpContent != null) {
-                channel.write(httpContent);
-            }
-        }
-        return true;
-    }
 
     /**
      * Class representing configs related to Transport Sender.
