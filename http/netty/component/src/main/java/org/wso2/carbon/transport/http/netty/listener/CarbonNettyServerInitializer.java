@@ -23,13 +23,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
@@ -42,7 +42,6 @@ import java.util.Map;
 public class CarbonNettyServerInitializer implements CarbonTransportInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
-    private int queueSize = 32544;
     private ConnectionManager connectionManager;
 
     public CarbonNettyServerInitializer() {
@@ -67,18 +66,12 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
                                 parameters.get(Constants.WAIT_STRATEGY),
                                 Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
-                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND,
-                        disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
-                String queueSize = parameters.get(Constants.CONTENT_QUEUE_SIZE);
-                if (queueSize != null) {
-                    this.queueSize = Integer.parseInt(queueSize);
-                }
+                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else {
                 log.warn("Disruptor specific parameters are not specified in " +
                          "configuration hence using default configs");
                 DisruptorConfig disruptorConfig = new DisruptorConfig();
-                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND,
-                                                  disruptorConfig, NettyTransportDataHolder.getInstance().getEngine());
+                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             }
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);
@@ -94,8 +87,9 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         ChannelPipeline p = ((SocketChannel) ch).pipeline();
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
+        p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            p.addLast("handler", new SourceHandler(queueSize, connectionManager));
+            p.addLast("handler", new SourceHandler(connectionManager));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

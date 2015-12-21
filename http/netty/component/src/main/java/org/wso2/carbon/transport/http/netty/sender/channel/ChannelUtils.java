@@ -16,22 +16,27 @@
 package org.wso2.carbon.transport.http.netty.sender.channel;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -131,19 +136,34 @@ public class ChannelUtils {
 
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
         channel.write(httpRequest);
-        NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
-        while (true) {
-            HttpContent httpContent = nettyCMsg.getHttpContent();
-            if (httpContent instanceof LastHttpContent) {
-                channel.writeAndFlush(httpContent);
-                break;
+
+        if (carbonMessage instanceof NettyCarbonMessage) {
+            while (true) {
+                NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
+                HttpContent httpContent = nettyCMsg.getHttpContent();
+                if (httpContent instanceof LastHttpContent) {
+                    channel.writeAndFlush(httpContent);
+                    break;
+                }
+                if (httpContent != null) {
+                    channel.write(httpContent);
+                }
             }
-            if (httpContent != null) {
+        } else if (carbonMessage instanceof DefaultCarbonMessage) {
+            DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) carbonMessage;
+            while (true) {
+                ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
+                ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
+                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 channel.write(httpContent);
+                if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
+                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    break;
+                }
             }
         }
+
         return true;
     }
-
 
 }

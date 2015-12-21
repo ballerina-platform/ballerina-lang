@@ -45,7 +45,7 @@ public class NettyTransportActivator implements BundleActivator {
         for (NettySender sender : createNettySenders()) {
             bundleContext.registerService(TransportSender.class, sender, null);
         }
-        NettyTransportDataHolder.getInstance().setBundleContext(bundleContext);
+        NettyTransportContextHolder.getInstance().setBundleContext(bundleContext);
     }
 
     /**

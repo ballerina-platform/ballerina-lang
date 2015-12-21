@@ -32,20 +32,20 @@ import java.util.Map;
 /**
  * DataHolder for the Netty transport.
  */
-public class NettyTransportDataHolder {
-    private static final Logger log = LoggerFactory.getLogger(NettyTransportDataHolder.class);
+public class NettyTransportContextHolder {
+    private static final Logger log = LoggerFactory.getLogger(NettyTransportContextHolder.class);
 
-    private static NettyTransportDataHolder instance = new NettyTransportDataHolder();
+    private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
     private Map<String, CarbonTransportInitializer> channelServerInitializers = new HashMap<>();
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
-    private CarbonMessageProcessor engine;
+    private CarbonMessageProcessor messageProcessor;
 
-    private NettyTransportDataHolder() {
+    private NettyTransportContextHolder() {
 
     }
 
-    public static NettyTransportDataHolder getInstance() {
+    public static NettyTransportContextHolder getInstance() {
         return instance;
     }
 
@@ -75,6 +75,7 @@ public class NettyTransportDataHolder {
     public CarbonTransportInitializer getServerChannelInitializer(String key) {
         return channelServerInitializers.get(key);
     }
+
     public CarbonTransportInitializer getClientChannelInitializer(String key) {
         return channelClientInitializers.get(key);
     }
@@ -92,11 +93,17 @@ public class NettyTransportDataHolder {
         return this.bundleContext;
     }
 
-    public CarbonMessageProcessor getEngine() {
-        return engine;
+    public CarbonMessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 
-    public void setEngine(CarbonMessageProcessor engine) {
-        this.engine = engine;
+    public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        this.messageProcessor = carbonMessageProcessor;
+    }
+
+    public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        if (carbonMessageProcessor.getId().equals(messageProcessor.getId())) {
+            messageProcessor = null;
+        }
     }
 }

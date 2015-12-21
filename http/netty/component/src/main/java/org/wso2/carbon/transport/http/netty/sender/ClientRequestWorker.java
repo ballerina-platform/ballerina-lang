@@ -121,7 +121,6 @@ public class ClientRequestWorker implements Runnable {
             ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
         } else {
             log.error("Cannot write request to BackEnd underlying channel cannot be fetched ");
-            return;
         }
     }
 }

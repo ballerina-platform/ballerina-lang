@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -57,10 +57,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
             cMsg = new NettyCarbonMessage();
-            cMsg.setProperty("PORT", ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty("HOST", ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-            cMsg.setProperty("DIRECTION", "response");
-            cMsg.setProperty("CALL_BACK", callback);
+            cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+            cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+            cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+            cMsg.setProperty(Constants.CALL_BACK, callback);
             HttpResponse httpResponse = (HttpResponse) msg;
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
