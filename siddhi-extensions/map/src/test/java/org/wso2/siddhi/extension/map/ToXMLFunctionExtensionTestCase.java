@@ -31,11 +31,10 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.extension.string.ConcatFunctionExtension;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CreateFromXMLFunctionExtensionTestCase {
-    private static final Logger log = Logger.getLogger(CreateFromXMLFunctionExtensionTestCase.class);
+public class ToXMLFunctionExtensionTestCase {
+    private static final Logger log = Logger.getLogger(ToXMLFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
@@ -46,8 +45,8 @@ public class CreateFromXMLFunctionExtensionTestCase {
     }
 
     @Test
-    public void testCreateFromXMLFunctionExtension() throws InterruptedException {
-        log.info("CreateFromXMLFunctionExtension TestCase");
+    public void testToXMLFunctionExtension() throws InterruptedException {
+        log.info("ToXMLFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
@@ -62,22 +61,27 @@ public class CreateFromXMLFunctionExtensionTestCase {
                 "<specAttr1>111</specAttr1>" +
                 "<specAttr2>222</specAttr2>" +
                 "</specAttributesObj>" +
-                "</sensor>\") as hashMap insert into outputStream;");
+                "</sensor>\") as hashMap insert into outputStream;" +
+                "from outputStream " +
+                "select map:toXML(hashMap) as xmlString " +
+                "insert into outputStream2;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        executionPlanRuntime.addCallback("outputStream2", new StreamCallback() {
             @Override
             public void receive(Event[] inEvents) {
                 EventPrinter.print(inEvents);
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Map map = (Map) ((Map) event.getData(0)).get("sensor");
-                        Assert.assertEquals(map.get("commonAttr1"), 19l);
-                        Assert.assertEquals(map.get("commonAttr2"), 11.45d);
-                        Assert.assertEquals(map.get("commonAttr3"), true);
-                        Assert.assertEquals(map.get("commonAttr4"), "ELEMENT_TEXT");
+                        Assert.assertEquals("<sensor>" +
+                                "<commonAttr1>19</commonAttr1>" +
+                                "<commonAttr2>11.45</commonAttr2>" +
+                                "<commonAttr3>true</commonAttr3>" +
+                                "<commonAttr4>ELEMENT_TEXT</commonAttr4>" +
+                                "<specAttributesObj><specAttributesObj><specAttr1>111</specAttr1><specAttr2>222</specAttr2></specAttributesObj></specAttributesObj>" +
+                                "</sensor>", event.getData(0));
                         eventArrived = true;
                     }
                 }
@@ -105,35 +109,43 @@ public class CreateFromXMLFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream select " +
                 "map:createFromXML(str:concat('<sensor><commonAttr1>',longAttr,'</commonAttr1><commonAttr2>'," +
                 "doubleAttr,'</commonAttr2><commonAttr3>',booleanAttr,'</commonAttr3><commonAttr4>',strAttr,'</commonAttr4></sensor>')) " +
-                "as hashMap insert into outputStream;");
+                "as hashMap insert into outputStream;" +
+                "from outputStream " +
+                "select map:toXML(hashMap) as xmlString " +
+                "insert into outputStream2");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        executionPlanRuntime.addCallback("outputStream2", new StreamCallback() {
             @Override
             public void receive(Event[] inEvents) {
                 EventPrinter.print(inEvents);
                 for (Event event : inEvents) {
                     count.incrementAndGet();
-                    Map map = (Map) ((Map) event.getData(0)).get("sensor");
                     if (count.get() == 1) {
-                        Assert.assertEquals(map.get("commonAttr1"), 25l);
-                        Assert.assertEquals(map.get("commonAttr2"), 100.1d);
-                        Assert.assertEquals(map.get("commonAttr3"), true);
-                        Assert.assertEquals(map.get("commonAttr4"), "Event1");
+                        Assert.assertEquals("<sensor>" +
+                                "<commonAttr1>25</commonAttr1>" +
+                                "<commonAttr2>100.1</commonAttr2>" +
+                                "<commonAttr3>true</commonAttr3>" +
+                                "<commonAttr4>Event1</commonAttr4>" +
+                                "</sensor>", event.getData(0));
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
-                        Assert.assertEquals(map.get("commonAttr1"), 35l);
-                        Assert.assertEquals(map.get("commonAttr2"), 100.11d);
-                        Assert.assertEquals(map.get("commonAttr3"), false);
-                        Assert.assertEquals(map.get("commonAttr4"), "Event2");
+                        Assert.assertEquals("<sensor>" +
+                                "<commonAttr1>35</commonAttr1>" +
+                                "<commonAttr2>100.11</commonAttr2>" +
+                                "<commonAttr3>false</commonAttr3>" +
+                                "<commonAttr4>Event2</commonAttr4>" +
+                                "</sensor>", event.getData(0));
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
-                        Assert.assertEquals(map.get("commonAttr1"), 45l);
-                        Assert.assertEquals(map.get("commonAttr2"), 100.13456d);
-                        Assert.assertEquals(map.get("commonAttr3"), true);
-                        Assert.assertEquals(map.get("commonAttr4"), "Event3");
+                        Assert.assertEquals("<sensor>" +
+                                "<commonAttr1>45</commonAttr1>" +
+                                "<commonAttr2>100.13456</commonAttr2>" +
+                                "<commonAttr3>true</commonAttr3>" +
+                                "<commonAttr4>Event3</commonAttr4>" +
+                                "</sensor>", event.getData(0));
                         eventArrived = true;
                     }
                 }

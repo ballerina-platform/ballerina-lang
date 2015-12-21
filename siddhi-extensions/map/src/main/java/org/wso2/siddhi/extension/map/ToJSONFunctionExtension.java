@@ -26,8 +26,6 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -37,8 +35,8 @@ import java.util.Map;
  * Accept Type(s): (String)
  * Return Type(s): Map
  */
-public class CreateFromJSONFunctionExtension extends FunctionExecutor {
-    private Attribute.Type returnType = Attribute.Type.OBJECT;
+public class ToJSONFunctionExtension extends FunctionExecutor {
+    private Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -55,27 +53,13 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        if (data instanceof String) {
-            Map<Object, Object> map = new HashMap<Object, Object>();
-            JSONObject jsonObject = new JSONObject(data.toString());
-            return getMapFromJson(map, jsonObject);
+        if (data instanceof Map) {
+            Map<Object, Object> map = (Map) data;
+            JSONObject jsonObject = new JSONObject(map);
+            return jsonObject.toString();
         } else {
             throw new ExecutionPlanRuntimeException("Data should be a string");
         }
-    }
-
-    private Map<Object, Object> getMapFromJson(Map<Object, Object> map, JSONObject jsonObject) {
-        Iterator<String> keys = jsonObject.keys();
-
-        while (keys.hasNext()) {
-            String key = keys.next();
-            Object value = jsonObject.get(key);
-            if (value instanceof JSONObject) {
-                value = getMapFromJson(new HashMap<Object, Object>(), (JSONObject) value);
-            }
-            map.put(key, value);
-        }
-        return map;
     }
 
     @Override

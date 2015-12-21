@@ -23,3 +23,5 @@ remove=org.wso2.siddhi.extension.map.RemoveFunctionExtension
 put=org.wso2.siddhi.extension.map.PutFunctionExtension
 get=org.wso2.siddhi.extension.map.GetFunctionExtension
 isMap=org.wso2.siddhi.extension.map.IsMapFunctionExtension
+toJSON=org.wso2.siddhi.extension.map.ToJSONFunctionExtension
+toXML=org.wso2.siddhi.extension.map.ToXMLFunctionExtension

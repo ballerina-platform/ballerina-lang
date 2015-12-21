@@ -18,8 +18,6 @@
 
 package org.wso2.siddhi.extension.map;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.util.AXIOMUtil;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -27,11 +25,7 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import javax.xml.stream.XMLStreamException;
 import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -41,8 +35,8 @@ import java.util.Map;
  * Accept Type(s): (String)
  * Return Type(s): HashMap
  */
-public class CreateFromXMLFunctionExtension extends FunctionExecutor {
-    private Attribute.Type returnType = Attribute.Type.OBJECT;
+public class ToXMLFunctionExtension extends FunctionExecutor {
+    private Attribute.Type returnType = Attribute.Type.STRING;
     private NumberFormat nf = NumberFormat.getInstance();
 
     @Override
@@ -60,46 +54,27 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        if (data instanceof String) {
-            try {
-                return getMapFromXML(data.toString());
-            } catch (XMLStreamException e) {
-                throw new ExecutionPlanRuntimeException("Input data cannot be parsed to xml: " + e.getMessage(), e);
-            }
+        if (data instanceof Map) {
+            Map<Object, Object> map = (Map<Object, Object>) data;
+            return getXmlFromMap(map);
         } else {
             throw new ExecutionPlanRuntimeException("Data should be a string");
         }
     }
 
-    private Object getMapFromXML(String data) throws XMLStreamException {
-        Map<Object, Object> topLevelMap = new LinkedHashMap<Object, Object>();
-        Map<Object, Object> map = new LinkedHashMap<Object, Object>();
-        OMElement parentElement = AXIOMUtil.stringToOM(data);
-        Iterator iterator = parentElement.getChildElements();
-        while (iterator.hasNext()) {
-            OMElement streamAttributeElement = (OMElement) iterator.next();
-            String key = streamAttributeElement.getQName().toString();
-            Object value;
-            if (streamAttributeElement.getFirstElement() != null) {
-                value = getMapFromXML(streamAttributeElement.toString());
+    private Object getXmlFromMap(Map<Object, Object> map) {
+        String xmlValue = "";
+        for (Map.Entry<Object, Object> mapEntry : map.entrySet()) {
+            xmlValue += "<" + mapEntry.getKey().toString() + ">";
+            if (mapEntry.getValue() instanceof Map) {
+                xmlValue += getXmlFromMap((Map<Object, Object>) mapEntry.getValue());
             } else {
-                String elementText = streamAttributeElement.getText();
-                if (elementText.equals("true") || elementText.equals("false")) {
-                    value = Boolean.parseBoolean(elementText);
-                } else {
-                    try {
-                        value = nf.parse(elementText);
-                    } catch (ParseException e) {
-                        value = elementText;
-                    }
-                }
+                xmlValue += mapEntry.getValue().toString();
             }
-            map.put(key, value);
+            xmlValue += "</" + mapEntry.getKey().toString() + ">";
         }
-        topLevelMap.put(parentElement.getQName().toString(), map);
-        return topLevelMap;
+        return xmlValue;
     }
-
 
     @Override
     public void start() {
