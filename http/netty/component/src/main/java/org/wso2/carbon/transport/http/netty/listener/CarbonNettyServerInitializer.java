@@ -38,7 +38,6 @@ import java.util.Map;
 public class CarbonNettyServerInitializer implements CarbonTransportInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
-    private int queueSize = 32544;
     private ConnectionManager connectionManager;
 
     public CarbonNettyServerInitializer() {
@@ -64,10 +63,6 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
                                 Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
-                String queueSize = parameters.get(Constants.CONTENT_QUEUE_SIZE);
-                if (queueSize != null) {
-                    this.queueSize = Integer.parseInt(queueSize);
-                }
             } else {
                 log.warn("Disruptor specific parameters are not specified in " +
                          "configuration hence using default configs");
@@ -90,7 +85,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         p.addLast("encoder", new HttpResponseEncoder());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            p.addLast("handler", new SourceHandler(queueSize, connectionManager));
+            p.addLast("handler", new SourceHandler(connectionManager));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

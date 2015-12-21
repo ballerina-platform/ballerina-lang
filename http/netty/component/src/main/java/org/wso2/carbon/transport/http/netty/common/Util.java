@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,7 +111,7 @@ public class Util {
             httpVersion = new HttpVersion(DEFAULT_VERSION_HTTP_1_1, true);
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
-                (String) msg.getProperty("TO"), false);
+                (String) msg.getProperty(Constants.TO), false);
         Map headers = msg.getHeaders();
         Util.setHeaders(outgoingRequest, headers);
         return outgoingRequest;

@@ -22,14 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
@@ -47,13 +46,11 @@ import java.util.Map;
 public class NettySender implements TransportSender {
 
     private static final Logger log = LoggerFactory.getLogger(NettySender.class);
-    private SenderConfiguration senderConfiguration;
     private String id;
     private NettyClientInitializer nettyClientInitializer;
     private ConnectionManager connectionManager;
 
     public NettySender(SenderConfiguration senderConfiguration) {
-        this.senderConfiguration = senderConfiguration;
         this.id = senderConfiguration.getId();
         Map<String, String> paramMap = new HashMap<>(senderConfiguration.getParameters().size());
         if (senderConfiguration.getParameters() != null && !senderConfiguration.getParameters().isEmpty()) {
@@ -75,7 +72,8 @@ public class NettySender implements TransportSender {
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
-        final HttpRoute route = new HttpRoute((String) msg.getProperty("HOST"), (Integer) msg.getProperty("PORT"));
+        final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
+                (Integer) msg.getProperty(Constants.PORT));
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
@@ -108,49 +106,6 @@ public class NettySender implements TransportSender {
     @Override
     public String getId() {
         return id;
-    }
-
-
-    /**
-     * Class representing configs related to Transport Sender.
-     */
-    public static class Config {
-
-        private String id;
-
-        private SSLConfig sslConfig;
-
-        private int queueSize;
-
-        public Config(String id) {
-            if (id == null) {
-                throw new IllegalArgumentException("Netty transport ID is null");
-            }
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public Config enableSsl(SSLConfig sslConfig) {
-            this.sslConfig = sslConfig;
-            return this;
-        }
-
-        public SSLConfig getSslConfig() {
-            return sslConfig;
-        }
-
-        public int getQueueSize() {
-            return queueSize;
-        }
-
-        public Config setQueueSize(int queuesize) {
-            this.queueSize = queuesize;
-            return this;
-        }
-
     }
 
 }

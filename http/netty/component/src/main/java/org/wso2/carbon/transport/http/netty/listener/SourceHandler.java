@@ -24,8 +24,8 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
@@ -54,8 +54,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private DisruptorConfig disruptorConfig;
     private Map<String, GenericObjectPool> targetChannelPool;
 
-    public SourceHandler(int queueSize, ConnectionManager connectionManager) throws Exception {
-        this.queueSize = queueSize;
+    public SourceHandler(ConnectionManager connectionManager) throws Exception {
         this.connectionManager = connectionManager;
     }
 
@@ -73,14 +72,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             cMsg = new NettyCarbonMessage();
-            cMsg.setProperty("PORT", ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty("HOST", ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+            cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+            cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-            cMsg.setProperty("CALL_BACK", responseCallback);
+            cMsg.setProperty(Constants.CALL_BACK, responseCallback);
             HttpRequest httpRequest = (HttpRequest) msg;
 
 
-            cMsg.setProperty("TO", httpRequest.getUri());
+            cMsg.setProperty(Constants.TO, httpRequest.getUri());
             cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
             cMsg.setProperty(Constants.SRC_HNDLR, this);
             cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());

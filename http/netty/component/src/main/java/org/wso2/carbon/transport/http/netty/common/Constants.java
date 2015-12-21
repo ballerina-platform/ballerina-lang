@@ -18,33 +18,17 @@ package org.wso2.carbon.transport.http.netty.common;
 /**
  * Common Constants used by gate way.
  */
-public class Constants {
-    public static final String PROTOCOL_NAME = "http";
+public final class Constants {
 
-    public static final String HTTP_VERSION = "HTTP_VERSION";
 
-    public static final String HTTP_METHOD = "HTTP_METHOD";
+    // Server state constants
+    public static final String STATE_TRANSITION = "STATE_TRANSITION";
 
-    public static final String HTTP_CONTENT_TYPE = "Content-Type";
+    public static final String STATE_STARTED = "STATE_STARTED";
 
-    public static final String HTTP_SOAP_ACTION = "SOAPAction";
+    public static final String STATE_STOPPED = "STATE_STOPPED";
 
-    public static final String HTTP_CONTENT_ENCODING = "Accept-Encoding";
-
-    public static final String HTTP_HOST = "Host";
-
-    public static final String TRANSPORT_HEADERS = "TRANSPORT_HEADERS";
-
-    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
-
-    public static final String CHNL_HNDLR_CTX = "CHNL_HNDLR_CTX";
-
-    public static final String SRC_HNDLR = "SRC_HNDLR";
-
-    public static final String RESPONSE_CALLBACK = "RESPONSE_CALLBACK";
-
-    public static final String DISRUPTOR = "Disruptor";
-
+    // Disruptor related constants
     public static final String BUSY_SPIN = "BUSY_SPIN";
 
     public static final String BLOCKING_WAIT = "BLOCKING_WAIT";
@@ -65,8 +49,6 @@ public class Constants {
 
     public static final String DISRUPTOR_EVENT_HANDLER_COUNT = "disruptor.eventhandler.count";
 
-    public static final String CONTENT_QUEUE_SIZE = "content.queue.size";
-
     public static final String SHARE_DISRUPTOR_WITH_OUTBOUND = "share.disruptor.with.outbound";
 
     // Bootstrap related
@@ -83,7 +65,6 @@ public class Constants {
     public static final String CLINET_BOOTSTRAP_SO_REUSE = "client.bootstrap.socket.reuse";
 
     // Connection Pool parameters
-
     public static final String NUMBER_OF_POOLS = "connection.pool.count";
 
     public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "max.active.connections.per.pool";
@@ -96,8 +77,10 @@ public class Constants {
 
     public static final String ENABLE_GLOBAL_CONNECTION_POOLING = "enable.global.client.connection.pooling";
 
-
     public static final String NO_THREADS_IN_EXECUTOR_SERVICE = "sender.thread.count";
+
+    private Constants() {
+    }
 
 }
 
