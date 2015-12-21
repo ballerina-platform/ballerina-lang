@@ -159,7 +159,7 @@
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
-        <carbon.p2.plugin.version>2.0.0-beta</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>2.0.0</carbon.p2.plugin.version>
         <carbon.transport.version>1.0.0.SNAPSHOT</carbon.transport.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
     </properties>
