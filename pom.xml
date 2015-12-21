@@ -33,6 +33,13 @@
         <module>http/netty</module>
     </modules>
 
+    <scm>
+        <url>https://github.com/wso2/carbon-transports.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
