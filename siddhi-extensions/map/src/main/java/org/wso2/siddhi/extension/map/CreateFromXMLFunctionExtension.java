@@ -61,43 +61,41 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object data) {
         if (data instanceof String) {
-            Map<Object, Object> hashMap = new HashMap<Object, Object>();
             try {
-                OMElement parentElement = AXIOMUtil.stringToOM(data.toString());
-                Iterator iterator = parentElement.getChildElements();
-                while (iterator.hasNext()) {
-                    OMElement streamAttributeElement = (OMElement) iterator.next();
-                    String key = streamAttributeElement.getQName().toString();
-                    Iterator childIterator = streamAttributeElement.getChildElements();
-                    //TODO Implement map of a map
-                    Object value;
-                    if (childIterator.hasNext()) {
-                        value = "";
-                        do {
-                            OMElement childElement = (OMElement) childIterator.next();
-                            value = value + childElement.toString();
-                        } while (childIterator.hasNext());
-                    } else {
-                        String elementText = streamAttributeElement.getText();
-                        if (elementText.equals("true") || elementText.equals("false")) {
-                            value = Boolean.parseBoolean(elementText);
-                        } else {
-                            try {
-                                value = nf.parse(elementText);
-                            } catch (ParseException e) {
-                                value = elementText;
-                            }
-                        }
-                    }
-                    hashMap.put(key, value);
-                }
-                return hashMap;
+                return getMapFromXML(data.toString());
             } catch (XMLStreamException e) {
                 throw new ExecutionPlanRuntimeException("Input data cannot be parsed to xml: " + e.getMessage(), e);
             }
         } else {
             throw new ExecutionPlanRuntimeException("Data should be a string");
         }
+    }
+
+    private Object getMapFromXML(String data) throws XMLStreamException {
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        OMElement parentElement = AXIOMUtil.stringToOM(data);
+        Iterator iterator = parentElement.getChildElements();
+        while (iterator.hasNext()) {
+            OMElement streamAttributeElement = (OMElement) iterator.next();
+            String key = streamAttributeElement.getQName().toString();
+            Object value;
+            if (streamAttributeElement.getFirstElement() != null) {
+                value = getMapFromXML(streamAttributeElement.getFirstElement().toString());
+            } else {
+                String elementText = streamAttributeElement.getText();
+                if (elementText.equals("true") || elementText.equals("false")) {
+                    value = Boolean.parseBoolean(elementText);
+                } else {
+                    try {
+                        value = nf.parse(elementText);
+                    } catch (ParseException e) {
+                        value = elementText;
+                    }
+                }
+            }
+            map.put(key, value);
+        }
+        return map;
     }
 
 

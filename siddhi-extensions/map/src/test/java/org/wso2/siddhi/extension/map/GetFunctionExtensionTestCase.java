@@ -46,7 +46,6 @@ public class GetFunctionExtensionTestCase {
 
     @Test
     public void testGetFunctionExtension() throws InterruptedException {
-        //TODO Cast using siddhi and send the value
         log.info("GetFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price double, volume long);";
