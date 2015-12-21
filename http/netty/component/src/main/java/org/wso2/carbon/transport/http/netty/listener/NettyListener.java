@@ -78,7 +78,6 @@ public class NettyListener extends CarbonTransport {
         setupChannelInitializer();
         try {
             bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort())).sync();
-            serverState = Constants.STATE_STARTED;
             log.info("Netty Listener starting on port " + nettyConfig.getPort());
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
@@ -108,21 +107,18 @@ public class NettyListener extends CarbonTransport {
 
     @Override
     public void stop() {
-        serverState = Constants.STATE_TRANSITION;
         log.info("Stopping Netty transport " + id + " on port " + nettyConfig.getPort());
         shutdownEventLoops();
     }
 
     @Override
     public void beginMaintenance() {
-        serverState = Constants.STATE_TRANSITION;
         log.info("Putting Netty transport " + id + " on port " + nettyConfig.getPort() + " into maintenance mode");
         shutdownEventLoops();
     }
 
     @Override
     public void endMaintenance() {
-        serverState = Constants.STATE_TRANSITION;
         log.info("Ending maintenance mode for Netty transport " + id + " running on port " + nettyConfig.getPort());
         bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
@@ -140,7 +136,6 @@ public class NettyListener extends CarbonTransport {
                     public void operationComplete(Future<Object> future) throws Exception {
                         log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
                                 " stopped successfully");
-                        serverState = Constants.STATE_STOPPED;
                     }
                 });
             }
