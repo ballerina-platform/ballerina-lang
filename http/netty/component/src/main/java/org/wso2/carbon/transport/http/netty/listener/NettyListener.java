@@ -1,13 +1,13 @@
 /**
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
+ * Copyright (c) 2015, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListener;
-import org.wso2.carbon.transport.http.netty.Constants;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportDataHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
@@ -47,15 +46,12 @@ public class NettyListener extends TransportListener {
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private String serverState = Constants.STATE_STOPPED;
     private ServerBootstrap bootstrap;
     private ListenerConfiguration nettyConfig;
 
     public NettyListener(ListenerConfiguration nettyConfig) {
         super(nettyConfig.getId());
         this.nettyConfig = nettyConfig;
-        bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
-        workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
     }
 
     public void start() {
@@ -64,6 +60,8 @@ public class NettyListener extends TransportListener {
     }
 
     private void startTransport() {
+        bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
+        workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
         bootstrap = new ServerBootstrap();
         bootstrap.option(ChannelOption.SO_BACKLOG, 100);
         bootstrap.group(bossGroup, workerGroup)
@@ -81,7 +79,6 @@ public class NettyListener extends TransportListener {
         setupChannelInitializer();
         try {
             bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort())).sync();
-            serverState = Constants.STATE_STARTED;
             log.info("Netty Listener starting on port " + nettyConfig.getPort());
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
@@ -116,21 +113,18 @@ public class NettyListener extends TransportListener {
 
     @Override
     public void stop() {
-        serverState = Constants.STATE_TRANSITION;
         log.info("Stopping Netty transport " + id + " on port " + nettyConfig.getPort());
         shutdownEventLoops();
     }
 
     @Override
     public void beginMaintenance() {
-        serverState = Constants.STATE_TRANSITION;
         log.info("Putting Netty transport " + id + " on port " + nettyConfig.getPort() + " into maintenance mode");
         shutdownEventLoops();
     }
 
     @Override
     public void endMaintenance() {
-        serverState = Constants.STATE_TRANSITION;
         log.info("Ending maintenance mode for Netty transport " + id + " running on port " + nettyConfig.getPort());
         bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
@@ -148,7 +142,6 @@ public class NettyListener extends TransportListener {
                     public void operationComplete(Future<Object> future) throws Exception {
                         log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
                                 " stopped successfully");
-                        serverState = Constants.STATE_STOPPED;
                     }
                 });
             }
