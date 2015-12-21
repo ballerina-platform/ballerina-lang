@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
+import org.wso2.siddhi.extension.common.test.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
