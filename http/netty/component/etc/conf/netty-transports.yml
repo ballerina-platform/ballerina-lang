@@ -29,7 +29,7 @@ listenerConfigurations:
   workerThreadPoolSize: 250
   execHandlerThreadPoolSize: 60
   scheme: https
-  keyStoreFile: "repository/resources/security/cert.jks"
+  keyStoreFile: "resources/security/cert.jks"
   keyStorePass: secret
   certPass: secret
  -
@@ -62,9 +62,9 @@ senderConfigurations:
 # -
 #  id: "https-sender"
 #  scheme: "https"
-#  trustStoreFile: "repository/resources/security/wso2carbon.jks"
+#  trustStoreFile: "resources/security/wso2carbon.jks"
 #  trustStorePass: "wso2carbon"
-#  keyStoreFile: "repository/resources/security/wso2carbon.jks"
+#  keyStoreFile: "resources/security/wso2carbon.jks"
 #  keyStorePass: "wso2carbon"
 #  certPass: "wso2carbon"
 #  parameters:
