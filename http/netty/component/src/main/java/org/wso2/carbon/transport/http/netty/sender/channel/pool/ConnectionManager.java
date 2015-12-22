@@ -116,10 +116,15 @@ public class ConnectionManager {
     /**
      * Provide target channel for given http route.
      *
-     * @param httpRoute     BE address
+     * @param httpRoute BE address
      * @param sourceHandler Incoming channel
+     * @param nettyClientInitializer netty initializer
+     * @param httpRequest http request
+     * @param carbonMessage carbon message
+     * @param carbonCallback carbon call back
+     * @param ringBuffer ring buffer
      * @return TargetChannel
-     * @throws Exception   Exception to notify any errors occur during retrieving the target channel
+     * @throws Exception to notify any errors occur during retrieving the target channel
      */
     public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
                                           NettyClientInitializer nettyClientInitializer,

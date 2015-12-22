@@ -31,7 +31,6 @@
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-<<<<<<< HEAD
         </dependency>
 
         <dependency>
@@ -71,8 +70,6 @@
         <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-=======
->>>>>>> upstream/master
         </dependency>
     </dependencies>
 
@@ -129,12 +126,6 @@
                                     <symbolicName>commons-pool</symbolicName>
                                     <version>${commons.pool.version}</version>
                                 </bundle>
-
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
-                                    <version>${org.wso2.carbon.transport.http.netty.osgi.version}</version>
-                                </bundle>
-
                                 <bundle>
                                     <symbolicName>disruptor</symbolicName>
                                     <version>${disruptor.version}</version>
@@ -148,6 +139,10 @@
                                 <bundle>
                                     <symbolicName>snakeyaml</symbolicName>
                                     <version>${org.snakeyaml.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
+                                    <version>${carbon.transport.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

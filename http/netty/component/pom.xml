@@ -82,11 +82,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
@@ -129,8 +124,10 @@
             javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",
             javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             org.wso2.carbon.messaging.*,
-            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
+            org.apache.commons.pool.*,
+            com.lmax.disruptor.*,
         </import.package>
         <provide.capability>
             osgi.service;effective:=active;

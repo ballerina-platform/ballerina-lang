@@ -49,11 +49,11 @@ public class ChannelUtils {
 
     /**
      * Provides incomplete Netty channel future.
-     *
-     * @param targetChannel  Target channel which has channel specific parameters such as handler
+     * @param targetChannel Target channel which has channel specific parameters such as handler
      * @param eventLoopGroup Event loop group of inbound IO workers
      * @param eventLoopClass Event loop class if Inbound IO Workers
-     * @param httpRoute      Http Route which represents BE connections
+     * @param httpRoute  Http Route which represents BE connections
+     * @param channelInitializer channel Initializer
      * @return ChannelFuture
      */
     @SuppressWarnings("unchecked")
