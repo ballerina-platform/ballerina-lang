@@ -125,9 +125,9 @@
             javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
-            org.wso2.carbon.messaging.*,
-            org.apache.commons.pool.*,
-            com.lmax.disruptor.*,
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
+            org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
+            com.lmax.disruptor.*;version="${disruptor.package.import.version.range}"
         </import.package>
         <provide.capability>
             osgi.service;effective:=active;

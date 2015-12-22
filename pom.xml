@@ -98,7 +98,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
                 <artifactId>org.wso2.carbon.messaging</artifactId>
-                <version>${org.wso2.carbon.messaging.version}</version>
+                <version>${carbon.messaging.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.com.lmax</groupId>
@@ -201,8 +201,13 @@
         <javax.xml.validation.import.version.range>[0.0.0, 1.0.0)</javax.xml.validation.import.version.range>
         <javax.net.ssl.import.version.range>[0.0.0, 1.0.0)</javax.net.ssl.import.version.range>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
+        <disruptor.package.import.version.range>[3.3.2, 3.5.0)</disruptor.package.import.version.range>
+
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
-        <org.wso2.carbon.messaging.version>1.0.0-alpha</org.wso2.carbon.messaging.version>
+        <commons.pool.package.import.version.range>[1.5.6, 2.0.0)</commons.pool.package.import.version.range>
+
+        <carbon.messaging.version>1.0.0-alpha</carbon.messaging.version>
+        <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
 
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
@@ -214,7 +219,7 @@
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
 
         <!-- Package exports -->
-        <netty.transport.package.export.version>1.0.0</netty.transport.package.export.version>
+        <netty.transport.package.export.version>2.0.0</netty.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
