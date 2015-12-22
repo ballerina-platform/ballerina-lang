@@ -27,7 +27,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
     <modules>
         <module>http/netty</module>
@@ -202,14 +202,14 @@
         <javax.net.ssl.import.version.range>[0.0.0, 1.0.0)</javax.net.ssl.import.version.range>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
-        <org.wso2.carbon.messaging.version>1.0.0-SNAPSHOT</org.wso2.carbon.messaging.version>
+        <org.wso2.carbon.messaging.version>1.0.0-alpha</org.wso2.carbon.messaging.version>
 
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
 
         <carbon.p2.plugin.version>2.0.0</carbon.p2.plugin.version>
-        <carbon.transport.version>1.0.0-SNAPSHOT</carbon.transport.version>
+        <carbon.transport.version>2.0.0-SNAPSHOT</carbon.transport.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
 
