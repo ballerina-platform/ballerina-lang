@@ -68,16 +68,14 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
-
-                HttpContent httpContent;
                 if (msg instanceof LastHttpContent) {
-                    httpContent = (LastHttpContent) msg;
-                    cMsg.setEomAdded(true);
+                    HttpContent httpContent = (LastHttpContent) msg;
+                    ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     connectionManager.returnChannel(targetChannel);
                 } else {
-                    httpContent = (DefaultHttpContent) msg;
+                    HttpContent httpContent = (DefaultHttpContent) msg;
+                    ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                 }
-                ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
             }
         }
     }
