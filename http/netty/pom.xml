@@ -24,6 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <artifactId>org.wso2.carbon.transport.http.netty.parent</artifactId>
+    <name>WSO2 Carbon Transport HTTP Netty Parent</name>
     <modules>
         <module>component</module>
         <module>feature</module>
