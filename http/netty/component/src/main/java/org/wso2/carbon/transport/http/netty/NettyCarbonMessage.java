@@ -19,7 +19,6 @@
 package org.wso2.carbon.transport.http.netty;
 
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -53,23 +52,11 @@ public class NettyCarbonMessage extends CarbonMessage {
 
     @Override
     public ByteBuffer getMessageBody() {
-        try {
-            HttpContent httpContent = httpContentQueue.take();
 
-            if (httpContent instanceof LastHttpContent) {
-                this.setEomAdded(true);
-                return httpContent.content().nioBuffer();
-            } else {
-                return httpContent.content().nioBuffer();
-            }
-        } catch (InterruptedException e) {
-            LOG.error("Error while retrieving message body from queue.", e);
-            return null;
+        for (HttpContent httpContent : httpContentQueue) {
+            super.addMessageBody(httpContent.content().nioBuffer());
         }
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.httpContentQueue.isEmpty();
+        httpContentQueue.clear();
+        return super.getMessageBody();
     }
 }
