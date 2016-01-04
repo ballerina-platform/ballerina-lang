@@ -95,9 +95,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
-                    if (msg instanceof LastHttpContent) {
-                        cMsg.setEomAdded(true);
-                    }
                 }
             }
         }
