@@ -16,9 +16,6 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -37,18 +34,20 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @since Dec 23, 2015
- *
  */
 
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements FindableProcessor {
-    
+
     private long timeToKeep;
 
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-    
+
     static final Logger log = Logger.getLogger(ExternalTimeBatchWindowProcessor.class);
     private VariableExpressionExecutor timeStampVariableExpressionExecutor;
 
@@ -74,13 +73,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             throw new ExecutionPlanValidationException("ExternalTime window should only have two parameter (<long> timeStamp, <int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
         }
     }
-    
+
     /**
-     * Here an assumption is taken: 
-     * Parameter: timestamp: The time which the window determines as current time and will act upon, 
-     *              the value of this parameter should be monotonically increasing. 
+     * Here an assumption is taken:
+     * Parameter: timestamp: The time which the window determines as current time and will act upon,
+     * the value of this parameter should be monotonically increasing.
      * from https://docs.wso2.com/display/CEP400/Inbuilt+Windows#InbuiltWindows-externalTime
-     * 
      */
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
@@ -94,12 +92,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             lastSendTime = (Long) streamEventChunk.getFirst().getAttribute(timeStampVariableExpressionExecutor.getPosition());
         }
 
-        while(streamEventChunk.hasNext()) {
+        while (streamEventChunk.hasNext()) {
             StreamEvent currStreamEvent = streamEventChunk.next();
             if (currStreamEvent.getType() != ComplexEvent.Type.CURRENT) {
                 continue;
             }
-            
+
             long currentTime = (Long) currStreamEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
             if (currentTime < lastSendTime + timeToKeep) {
                 cloneAppend(streamEventCloner, currStreamEvent);
@@ -129,7 +127,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         if (expiredEventChunk.getFirst() != null) {
             newEventChunk.add(expiredEventChunk.getFirst());
         }
-        
+
         // make current event chunk as expired in expiredChunk
         expiredEventChunk.clear();
         while (currentEventChunk.hasNext()) {

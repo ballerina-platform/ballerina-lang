@@ -16,16 +16,8 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import java.text.MessageFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.AfterClass;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -33,36 +25,36 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.text.MessageFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @since Dec 23, 2015
- *
  */
 public class ExternalTimeBatchWindowTestCase {
 
+    private static Logger logger = Logger.getLogger(ExternalTimeBatchWindowTestCase.class);
     private static SiddhiManager siddhiManager;
-    
-    @BeforeClass
-    public static void beforeClass() {
-        siddhiManager = new SiddhiManager();
-    }
-    
-    @AfterClass
-    public static void afterClass() {
-        siddhiManager.shutdown();
-    }
 
     @Test
     public void test02NoMsg() throws Exception {
+        siddhiManager = new SiddhiManager();
+
         ExecutionPlanRuntime runtime = simpleQueryRuntime();
 
         final AtomicBoolean recieved = new AtomicBoolean();
         runtime.addCallback("query", new QueryCallback() {
 
             @Override
-            public void receive(long arg0, Event[] arg1, Event[] arg2) {
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 recieved.set(true);
-                System.out.println(arg1);
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
             }
         });
 
@@ -73,9 +65,9 @@ public class ExternalTimeBatchWindowTestCase {
         long now = System.currentTimeMillis();
         int length = 5;
         for (int i = 0; i < length; i++) {
-            input.send(new Object[] { 15, now + i * 1000 });
+            input.send(new Object[]{15, now + i * 1000});
         }
-        
+
         Thread.sleep(1000);
         Assert.assertFalse("Event happens inner external time batch window, should not have event recieved in callback!", recieved.get());
 
@@ -83,48 +75,40 @@ public class ExternalTimeBatchWindowTestCase {
     }
 
     private ExecutionPlanRuntime simpleQueryRuntime() {
-        String query = "define stream jmxMetric(cpu int, timestamp long); " 
+        String query = "define stream jmxMetric(cpu int, timestamp long); "
                 + "@info(name='query')"
-                + "from jmxMetric#window.externalTimeBatch(timestamp, 10 sec) " 
+                + "from jmxMetric#window.externalTimeBatch(timestamp, 10 sec) "
                 + "select avg(cpu) as avgCpu, count(1) as count insert into tmp;";
 
         return siddhiManager.createExecutionPlanRuntime(query);
     }
 
-    /**
-     * This case try to capture the case that the window get a chunk of event that exceed the time batch.
-     * In this case, two next processor should be triggered.
-     */
-    @Test
-    public void test03BunchChunkExceedBatch() {
-        // TODO 
-    }
     // for test findable
     @Test
     public void test04ExternalJoin() {
         // TODOs
     }
-    
+
     @Test
     public void test05EdgeCase() throws Exception {
+        siddhiManager = new SiddhiManager();
+
         // every 10 sec
         ExecutionPlanRuntime runtime = simpleQueryRuntime();
 
         final AtomicInteger recCount = new AtomicInteger(0);
-//        final CountDownLatch latch = new CountDownLatch(2);// for debug
         runtime.addCallback("query", new QueryCallback() {
             @Override
-            public void receive(long arg0, Event[] arg1, Event[] arg2) {
-//                latch.countDown();
-                Assert.assertEquals(1, arg1.length);
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                Assert.assertEquals(1, inEvents.length);
                 recCount.incrementAndGet();
-                int avgCpu = (Integer)arg1[0].getData()[0];
+                double avgCpu = (Double) inEvents[0].getData()[0];
                 if (recCount.get() == 1) {
-                    Assert.assertEquals(15, avgCpu);
+                    Assert.assertEquals(15, avgCpu, 0);
                 } else if (recCount.get() == 2) {
-                    Assert.assertEquals(85, avgCpu);
+                    Assert.assertEquals(85, avgCpu, 0);
                 }
-                int count = (Integer) arg1[0].getData()[1];
+                long count = (Long) inEvents[0].getData()[1];
                 Assert.assertEquals(3, count);
             }
         });
@@ -135,26 +119,28 @@ public class ExternalTimeBatchWindowTestCase {
         long now = 0;
         int length = 3;
         for (int i = 0; i < length; i++) {
-            input.send(new Object[] { 15, now + i * 10 });
+            input.send(new Object[]{15, now + i * 10});
         }
-        
+
         // second round
         // if the trigger event mix with the last window, we should see the avgValue is not expected
         for (int i = 0; i < length; i++) {
-            input.send(new Object[] { 85, now + 10000 + i * 10 }); // the first entity of the second round
+            input.send(new Object[]{85, now + 10000 + i * 10}); // the first entity of the second round
         }
         // to trigger second round
-        input.send(new Object[] { 10000, now + 10 * 10000 });
-        
+        input.send(new Object[]{10000, now + 10 * 10000});
+
 //        latch.await();// for debug
 
         Thread.sleep(1000);
-        
+
         Assert.assertEquals(2, recCount.get());
     }
 
     @Test
     public void test06Pull76() throws Exception {
+        siddhiManager = new SiddhiManager();
+
         String defaultStream = "define stream LoginEvents (myTime long, ip string, phone string,price int);";
 
         String query = " @info(name='pull76') "
@@ -162,7 +148,7 @@ public class ExternalTimeBatchWindowTestCase {
                 + " select myTime, phone, ip, price, count(ip) as cntip , "
                 + " min(myTime) as mintime, max(myTime) as maxtime "
                 + " insert into events ;";
-        
+
         ExecutionPlanRuntime runtime = siddhiManager.createExecutionPlanRuntime(defaultStream + query);
 
         InputHandler inputHandler = runtime.getInputHandler("LoginEvents");
@@ -171,50 +157,52 @@ public class ExternalTimeBatchWindowTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 if (inEvents != null) {
-                    System.out.println("======================== START ===============================");
-                    int i = 0;
-                    System.out.println(" Events Size:" + inEvents.length);
+                    logger.info("======================== START ===============================");
+                    int i;
+                    logger.info(" Events Size:" + inEvents.length);
                     for (i = 0; i < inEvents.length; i++) {
                         Event e = inEvents[i];
-                        System.out.println("----------------------------");
-                        System.out.println(new Date((Long) e.getData(0)));
-                        System.out.println("IP:" + e.getData(2));
-                        System.out.println("price :" + e.getData(3));
-                        System.out.println("count :" + e.getData(4));
-                        System.out.println("mintime :" + new Date((Long) e.getData(5)) );
-                        System.out.println("maxtime :" + new Date((Long) e.getData(6)) );
-                        System.out.println("----------------------------");
+                        logger.info("----------------------------");
+                        logger.info(new Date((Long) e.getData(0)));
+                        logger.info("IP:" + e.getData(2));
+                        logger.info("price :" + e.getData(3));
+                        logger.info("count :" + e.getData(4));
+                        logger.info("mintime :" + new Date((Long) e.getData(5)));
+                        logger.info("maxtime :" + new Date((Long) e.getData(6)));
+                        logger.info("----------------------------");
                     }
-                    System.out.println("======================== END  ===============================");
+                    logger.info("======================== END  ===============================");
 
                 }
             }
         });
-        
-        
+
+
         runtime.start();
-        
+
         long start = System.currentTimeMillis();
         Calendar c = Calendar.getInstance();
         c.add(Calendar.HOUR, 1);
         c.add(Calendar.SECOND, 1);
-        int i = 0;
+        int i;
         for (i = 0; i <= 10000; i++) {
             c.add(Calendar.SECOND, 1);
             inputHandler.send(c.getTime().getTime(),
-                    new Object[] { c.getTime().getTime(), new String("192.10.1.1"), "1", new Random().nextInt(1000) });
+                    new Object[]{c.getTime().getTime(), "192.10.1.1", "1", new Random().nextInt(1000)});
         }
         long end = System.currentTimeMillis();
-        System.out.printf("End : %d ", end - start);
+        logger.info("End : " + (end - start));
 
         Thread.sleep(1000);
         runtime.shutdown();
     }
-    
+
     @Test
     public void test01DownSampling() throws Exception {
+        siddhiManager = new SiddhiManager();
+
         String stream = "define stream jmxMetric(cpu int, memory int, bytesIn long, bytesOut long, timestamp long);";
-        String query = "@info(name = 'downSample') " 
+        String query = "@info(name = 'downSample') "
                 + "from jmxMetric#window.externalTimeBatch(timestamp, 10 sec) "
                 + "select "
                 + "avg(cpu) as avgCpu, max(cpu) as maxCpu, min(cpu) as minCpu, "
@@ -223,7 +211,7 @@ public class ExternalTimeBatchWindowTestCase {
                 + " '|' as s1, "
                 + " avg(bytesIn) as avgBytesIn, max(bytesIn) as maxBytesIn, min(bytesIn) as minBytesIn, "
                 + " '|' as s2, "
-                + " avg(bytesOut) as avgBytesOut, max(bytesOut) as maxBytesOut, min(bytesOut) as minBytesOut, " 
+                + " avg(bytesOut) as avgBytesOut, max(bytesOut) as maxBytesOut, min(bytesOut) as minBytesOut, "
                 + " '|' as s3, "
                 + " timestamp as timeWindowEnds, "
                 + " '|' as s4, "
@@ -250,19 +238,12 @@ public class ExternalTimeBatchWindowTestCase {
         {
             plan.addCallback("downSample", new QueryCallback() {
                 @Override
-                public void receive(long arg0, Event[] inevents, Event[] removeevents) {
+                public void receive(long timeStamp, Event[] inevents, Event[] removevents) {
                     int currentCount = queryWideCounter.addAndGet(inevents.length);
-                    System.out.println(MessageFormat.format("Round {0} ====", currentCount));
-                    System.out.println(" events count " + inevents.length);
+                    logger.info(MessageFormat.format("Round {0} ====", currentCount));
+                    logger.info(" events count " + inevents.length);
 
-                    for (Event e : inevents) {
-                        Object[] tranformedData = e.getData();
-                        for (Object o : tranformedData) {
-                            System.out.print(o);
-                            System.out.print(' ');
-                        }
-                        System.out.println(" events endendend");
-                    }
+                    EventPrinter.print(inevents);
                 }
 
             });
@@ -271,7 +252,7 @@ public class ExternalTimeBatchWindowTestCase {
         plan.start();
 
         int round = 4;
-        int eventsPerRound= 0;
+        int eventsPerRound = 0;
         long externalTs = System.currentTimeMillis();
         for (int i = 0; i < round; i++) {
             eventsPerRound = sendEvent(input, i, externalTs);
@@ -293,7 +274,7 @@ public class ExternalTimeBatchWindowTestCase {
         for (int i = 0; i < len; i++) {
             // cpu int, memory int, bytesIn long, bytesOut long, timestamp long
             events[i] = new Event(externalTs,
-                    new Object[] { 15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i * 50 });
+                    new Object[]{15 + 10 * i * ite, 1500 + 10 * i * ite, 1000L, 2000L, externalTs + ite * 10000 + i * 50});
         }
 
         input.send(events);
