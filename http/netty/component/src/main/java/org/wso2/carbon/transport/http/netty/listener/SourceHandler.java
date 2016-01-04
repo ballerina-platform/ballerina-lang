@@ -20,7 +20,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,9 +94,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
-                    if (msg instanceof LastHttpContent) {
-                        cMsg.setEomAdded(true);
-                    }
                 }
             }
         }
