@@ -71,7 +71,6 @@ public class ResponseCallback implements CarbonCallback {
                     ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;
                 }
-
             }
         }
     }

@@ -151,7 +151,9 @@ public class ConnectionManager {
                                                                carbonCallback, true,
                                                                pool, this, ringBuffer));
             } catch (Exception e) {
-                log.error("Cannot borrow free channel from pool ", e);
+                String msg = "Cannot borrow free channel from pool ";
+                log.error(msg, e);
+                throw new Exception(msg, e);
             }
         } else {
             // manage connections according to per inbound channel caching method
@@ -181,7 +183,7 @@ public class ConnectionManager {
 
 
     //Add connection to Pool back
-    public void returnChannel(TargetChannel targetChannel) {
+    public void returnChannel(TargetChannel targetChannel) throws Exception {
         if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             GenericObjectPool pool = objectPoolMap.get(targetChannel.getHttpRoute().toString());
@@ -190,7 +192,9 @@ public class ConnectionManager {
                     pool.returnObject(targetChannel);
                 }
             } catch (Exception e) {
-                log.error("Cannot return channel to pool", e);
+                String msg = "Cannot return channel to pool";
+                log.error(msg, e);
+                throw new Exception(msg, e);
             }
 
         }

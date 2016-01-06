@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -91,7 +92,13 @@ public class ClientRequestWorker implements Runnable {
                     targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
                 }
             } catch (Exception e) {
-                log.error("Cannot borrow free channel from pool ", e);
+                String msg = "Cannot borrow free channel from pool";
+                log.error(msg, e);
+               FaultHandler  faultHandler = carbonMessage.getFaultHandlerStack().pop();
+                if (faultHandler != null) {
+                    faultHandler.handleFault(msg);
+                    carbonMessage.getFaultHandlerStack().push(faultHandler);
+                }
             }
         } else {
             targetChannel = new TargetChannel();
@@ -101,8 +108,14 @@ public class ClientRequestWorker implements Runnable {
             try {
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
-                log.error("Error when creating channel for route " + httpRoute);
-                return;
+                String msg = "Error when creating channel for route " + httpRoute;
+                log.error(msg);
+                FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
+                targetChannel = null;
+                if (faultHandler != null) {
+                    faultHandler.handleFault("404", failedCause, carbonCallback);
+                    carbonMessage.getFaultHandlerStack().push(faultHandler);
+                }
             } finally {
                 if (channel != null) {
                     targetChannel.setChannel(channel);
@@ -119,8 +132,6 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
             ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
-        } else {
-            log.error("Cannot write request to BackEnd underlying channel cannot be fetched ");
         }
     }
 }
