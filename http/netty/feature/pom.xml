@@ -23,6 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>org.wso2.carbon.transport.http.netty.feature</artifactId>
+    <name>WSO2 Carbon Transport HTTP Netty Feature</name>
     <packaging>carbon-feature</packaging>
 
     <dependencies>
