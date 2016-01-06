@@ -66,12 +66,11 @@ public class ResponseCallback implements CarbonCallback {
                 ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
                 ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+                ctx.write(httpContent);
                 if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
                     ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;
                 }
-                ctx.write(httpContent);
-
             }
         }
     }
