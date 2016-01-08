@@ -96,7 +96,7 @@ public class ClientRequestWorker implements Runnable {
                 log.error(msg, e);
                FaultHandler  faultHandler = carbonMessage.getFaultHandlerStack().pop();
                 if (faultHandler != null) {
-                    faultHandler.handleFault(msg);
+                    faultHandler.handleFault("502", e, carbonCallback);
                     carbonMessage.getFaultHandlerStack().push(faultHandler);
                 }
             }
@@ -113,7 +113,7 @@ public class ClientRequestWorker implements Runnable {
                 FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
                 targetChannel = null;
                 if (faultHandler != null) {
-                    faultHandler.handleFault("404", failedCause, carbonCallback);
+                    faultHandler.handleFault("502", failedCause, carbonCallback);
                     carbonMessage.getFaultHandlerStack().push(faultHandler);
                 }
             } finally {
