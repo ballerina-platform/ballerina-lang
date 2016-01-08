@@ -52,7 +52,7 @@ public class KalmanFilterTestCase {
                                             "timestamp long); " +
                 "@info(name = 'query1') " +
                     "from cleanedStream " +
-                    "select kf:kalmanFilter(latitude, measurementNoiseSD) as kalmanEstimatedValue " +
+                    "select kf:kalmanFilter(latitude) as kalmanEstimatedValue " +
                     "insert into dataOut;");
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
@@ -65,10 +65,10 @@ public class KalmanFilterTestCase {
                         Assert.assertEquals(-74.178444d, event.getData(0));
                         eventArrived = true;
                     }else if (count == 2) {
-                        Assert.assertEquals(-74.178146983904078d, event.getData(0));
+                        Assert.assertEquals(-74.178158000143d, event.getData(0));
                         eventArrived = true;
                     }else if (count == 3) {
-                        Assert.assertEquals(-74.17731166846966d, event.getData(0));
+                        Assert.assertEquals(-74.1773396670348d, event.getData(0));
                         eventArrived = true;
                     }
                 }
@@ -114,10 +114,10 @@ public class KalmanFilterTestCase {
                         Assert.assertEquals(-74.178444d, event.getData(0));
                         eventArrived = true;
                     }else if (count == 2) {
-                        Assert.assertEquals(-74.178146983904078d, event.getData(0));
+                        Assert.assertEquals(-74.17815800142999d, event.getData(0));
                         eventArrived = true;
                     }else if (count == 3) {
-                        Assert.assertEquals(-74.17731166846966d, event.getData(0));
+                        Assert.assertEquals(-74.17733967034776d, event.getData(0));
                         eventArrived = true;
                     }
                 }
@@ -209,13 +209,13 @@ public class KalmanFilterTestCase {
                 for (Event event : inEvents) {
                     count++;
                     if (count == 1) {
-                        Assert.assertEquals(40.6958810299994, event.getData(0));
+                        Assert.assertEquals(40.6958810299994d, event.getData(0));
                         eventArrived = true;
                     } else if (count == 2) {
-                        Assert.assertEquals(40.69711415696983, event.getData(0));
+                        Assert.assertEquals(40.69711415696983d, event.getData(0));
                         eventArrived = true;
                     } else if (count == 3) {
-                        Assert.assertEquals(40.69632380976617, event.getData(0));
+                        Assert.assertEquals(40.69632380976617d, event.getData(0));
                         eventArrived = true;
                     }
                 }

@@ -138,30 +138,16 @@ public class KalmanFilter extends FunctionExecutor {
             throw new ExecutionPlanRuntimeException("Invalid input given to kf:kalmanFilter() " +
                                                     "function. First argument should be a double");
         }
-
-        if (data.length == 1) {
-            double measuredValue = (Double) data[0]; //to remain as the initial state
-            if (transition == 0) {
-                transition = 1;
-                variance = 1000;
-                measurementNoiseSD = 0.001d;
-                prevEstimatedValue = measuredValue;
-            }
-            prevEstimatedValue = transition * prevEstimatedValue;
-            double kalmanGain = variance / (variance + measurementNoiseSD);
-            prevEstimatedValue = prevEstimatedValue + kalmanGain * (measuredValue - prevEstimatedValue);
-            variance = (1 - kalmanGain) * variance;
-            return prevEstimatedValue;
-        } else if (data.length == 2) {
-            if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to kf:kalmanFilter() " +
-                                                        "function. Second argument should be a double");
-            }
+        if (data[1] == null) {
+            throw new ExecutionPlanRuntimeException("Invalid input given to kf:kalmanFilter() " +
+                                                    "function. Second argument should be a double");
+        }
+        if (data.length == 2) {
             double measuredValue = (Double) data[0]; //to remain as the initial state
             if (prevEstimatedValue == 0) {
                 transition = 1;
                 variance = 1000;
-                measurementNoiseSD = (Double) data[0];
+                measurementNoiseSD = (Double) data[1];
                 prevEstimatedValue = measuredValue;
             }
             prevEstimatedValue = transition * prevEstimatedValue;
@@ -170,10 +156,6 @@ public class KalmanFilter extends FunctionExecutor {
             variance = (1 - kalmanGain) * variance;
             return prevEstimatedValue;
         } else {
-            if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to kf:kalmanFilter() " +
-                                                        "function. Second argument should be a double");
-            }
             if (data[2] == null) {
                 throw new ExecutionPlanRuntimeException("Invalid input given to kf:kalmanFilter() " +
                                                         "function. Third argument should be a double");
@@ -234,7 +216,22 @@ public class KalmanFilter extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        return null;
+        if (data == null) {
+            throw new ExecutionPlanRuntimeException("Invalid input given to kf:kalmanFilter() " +
+                                                    "function. Argument should be a double");
+        }
+        double measuredValue = (Double) data; //to remain as the initial state
+        if (transition == 0) {
+            transition = 1;
+            variance = 1000;
+            measurementNoiseSD = 0.001d;
+            prevEstimatedValue = measuredValue;
+        }
+        prevEstimatedValue = transition * prevEstimatedValue;
+        double kalmanGain = variance / (variance + measurementNoiseSD);
+        prevEstimatedValue = prevEstimatedValue + kalmanGain * (measuredValue - prevEstimatedValue);
+        variance = (1 - kalmanGain) * variance;
+        return prevEstimatedValue;
     }
 
     @Override
