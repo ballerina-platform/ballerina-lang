@@ -1,18 +1,19 @@
 package org.wso2.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.*;
+import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * Each execution plan will have one metric registry and placed in execution plan context
  */
-public class MetricManager {
+public class SiddhiStatisticsManager implements StatisticsManager {
     private MetricRegistry metricRegistry = new MetricRegistry();
-    private Class<?> reporterType;
     private Reporter reporter;
+    private Class<? extends Reporter> reporterType;
 
-    public MetricManager(Class<?> reporterType) {
+    public SiddhiStatisticsManager(Class<? extends Reporter> reporterType) {
         this.reporterType = reporterType;
     }
 
@@ -46,5 +47,10 @@ public class MetricManager {
         } else {
             throw new UnsupportedOperationException("Only 'ConsoleReporter' and 'JmxReporter' is supported, Reporter type '" + reporter.getClass().getName() + "' is not supported");
         }
+    }
+
+    @Override
+    public void cleanup() {
+
     }
 }

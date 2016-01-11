@@ -18,11 +18,12 @@
 
 package org.wso2.siddhi.core.config;
 
+import com.codahale.metrics.ConsoleReporter;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.core.util.statistics.StatisticsConfiguration;
+import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class SiddhiContext {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
         eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
+        statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory(ConsoleReporter.class));
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
     }
 
@@ -72,7 +74,6 @@ public class SiddhiContext {
         if (dataSourceName != null) {
             return siddhiDataSources.get(dataSourceName);
         }
-
         return null;
     }
 

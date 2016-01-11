@@ -68,16 +68,12 @@ public class ExecutionPlanRuntime {
         this.executionPlanContext = executionPlanContext;
         this.executionPlanRuntimeMap = executionPlanRuntimeMap;
 
-        if (executionPlanContext.isStatsEnabled()){
+        if (executionPlanContext.isStatsEnabled()) {
             memoryUsageTracker = executionPlanContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
                     .getFactory()
-                    .createMemoryUsageTracker();
-
-            if (memoryUsageTracker instanceof SiddhiMemoryUsageMetric){
-                ((SiddhiMemoryUsageMetric)memoryUsageTracker).init(executionPlanContext.getMetricManager());
-            }
+                    .createMemoryUsageTracker(executionPlanContext.getStatisticsManager());
 
             monitorQueryMemoryUsage();
         }
@@ -153,14 +149,15 @@ public class ExecutionPlanRuntime {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }
 
-        if (executionPlanContext.getMetricManager() != null) {
-            executionPlanContext.getMetricManager().stopReporting();
+        if (executionPlanContext.getStatisticsManager() != null) {
+            executionPlanContext.getStatisticsManager().stopReporting();
+            executionPlanContext.getStatisticsManager().cleanup();
         }
     }
 
     public synchronized void start() {
-        if (executionPlanContext.getMetricManager() != null) {
-            executionPlanContext.getMetricManager().startReporting();
+        if (executionPlanContext.getStatisticsManager() != null) {
+            executionPlanContext.getStatisticsManager().startReporting();
         }
 
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
@@ -192,18 +189,18 @@ public class ExecutionPlanRuntime {
         executionPlanContext.getSnapshotService().restore(snapshot);
     }
 
-    private void monitorQueryMemoryUsage(){
+    private void monitorQueryMemoryUsage() {
 
-        for(Map.Entry entry : queryProcessorMap.entrySet()){
+        for (Map.Entry entry : queryProcessorMap.entrySet()) {
             memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + entry.getKey());
         }
 
-        for (Map.Entry entry : partitionMap.entrySet()){
-            ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime)entry.getValue()).getMetaQueryRuntimeMap();
-            for (Map.Entry query : queryRuntime.entrySet()){
+        for (Map.Entry entry : partitionMap.entrySet()) {
+            ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime) entry.getValue()).getMetaQueryRuntimeMap();
+            for (Map.Entry query : queryRuntime.entrySet()) {
                 memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + query.getKey());
             }
         }
     }
-    
+
 }

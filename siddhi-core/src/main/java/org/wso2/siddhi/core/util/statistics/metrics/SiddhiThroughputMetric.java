@@ -1,14 +1,16 @@
 package org.wso2.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
 
 public class SiddhiThroughputMetric implements ThroughputTracker {
     private Meter eventMeter = null;
     private String name;
 
-    public SiddhiThroughputMetric(String name){
+    public SiddhiThroughputMetric(String name, MetricRegistry metricRegistry){
         this.name = name + ".throughput";
+        eventMeter = metricRegistry.meter(this.name);
     }
 
     /**
@@ -37,8 +39,4 @@ public class SiddhiThroughputMetric implements ThroughputTracker {
         return name;
     }
 
-
-    public void init(MetricManager registryHolder){
-        eventMeter = registryHolder.getRegistry().meter(this.name);
-    }
 }

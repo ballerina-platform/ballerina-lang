@@ -1,22 +1,31 @@
 package org.wso2.siddhi.core.util.statistics.metrics;
 
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
+import com.codahale.metrics.Reporter;
+import org.wso2.siddhi.core.util.statistics.*;
 
 
-public class SiddhiMetricsFactory implements StatisticsTrackerFactory{
+public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
+    Class<? extends Reporter > reporterType;
 
-    public LatencyTracker createLatencyTracker(String name){
-        return new SiddhiLatencyMetric(name);
+    public SiddhiMetricsFactory(Class<? extends Reporter > reporterType) {
+        this.reporterType = reporterType;
     }
 
-    public ThroughputTracker createThroughputTracker(String name){
-        return new SiddhiThroughputMetric(name);
+    public LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager) {
+        return new SiddhiLatencyMetric(name, statisticsManager.getRegistry());
     }
 
-    public MemoryUsageTracker createMemoryUsageTracker(){
-        return new SiddhiMemoryUsageMetric();
+    public ThroughputTracker createThroughputTracker(String name, StatisticsManager statisticsManager) {
+        return new SiddhiThroughputMetric(name, statisticsManager.getRegistry());
     }
+
+    public MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager){
+        return new SiddhiMemoryUsageMetric(statisticsManager.getRegistry());
+    }
+
+    @Override
+    public StatisticsManager createStatisticsManager() {
+        return new SiddhiStatisticsManager(reporterType);
+    }
+
 }

@@ -73,11 +73,7 @@ public class QueryParser {
                     latencyTracker = executionPlanContext.getSiddhiContext()
                             .getStatisticsConfiguration()
                             .getFactory()
-                            .createLatencyTracker(metricName);
-
-                    if (latencyTracker instanceof SiddhiLatencyMetric) {
-                        ((SiddhiLatencyMetric) latencyTracker).init(executionPlanContext.getMetricManager());
-                    }
+                            .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
                 }
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),

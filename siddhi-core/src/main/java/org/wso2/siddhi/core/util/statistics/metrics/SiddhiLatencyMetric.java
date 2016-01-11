@@ -1,5 +1,6 @@
 package org.wso2.siddhi.core.util.statistics.metrics;
 
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
@@ -9,17 +10,13 @@ public class SiddhiLatencyMetric implements LatencyTracker {
     private ThreadLocal<Timer.Context> context;
     private String metricName;
 
-    public SiddhiLatencyMetric(String name){
+    public SiddhiLatencyMetric(String name, final MetricRegistry metricRegistry){
         this.metricName = name + ".latency";
-    }
-
-    public void init(final MetricManager registryHolder){
         execLatencyTimer = new ThreadLocal<Timer>(){
             protected Timer initialValue() {
-                return registryHolder.getRegistry().timer(metricName);
+                return metricRegistry.timer(metricName);
             }
         };
-
         context = new ThreadLocal<Timer.Context>(){
             protected Timer.Context initialValue() {
                 return null;

@@ -1,6 +1,7 @@
 package org.wso2.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.core.util.statistics.memory.measurer.MemoryMeasurerUtil;
 import org.wso2.siddhi.core.util.statistics.memory.measurer.ObjectGraphMeasurer;
@@ -10,7 +11,11 @@ import java.util.concurrent.ConcurrentMap;
 
 public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
     private ConcurrentMap<Object, ObjectMetric> registeredObjects = new ConcurrentHashMap<Object, ObjectMetric>();
-    private MetricManager metricManager = null;
+    private MetricRegistry metricRegistry;
+
+    public SiddhiMemoryUsageMetric(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
+    }
 
     /**
      * Register the object that needs to be measured the memory usage
@@ -37,10 +42,6 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
         }
     }
 
-    public void init(MetricManager registryHolder) {
-        this.metricManager = registryHolder;
-    }
-
     class ObjectMetric {
 
         private final Object object;
@@ -57,7 +58,7 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
         }
 
         private void initMetric() {
-            metricManager.getRegistry().register(name,
+            metricRegistry.register(name,
                     new Gauge<Long>() {
                         @Override
                         public Long getValue() {

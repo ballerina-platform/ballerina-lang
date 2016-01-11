@@ -37,13 +37,10 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_PLAYBACK = "Playback";
     public static final String ANNOTATION_ENFORCE_ORDER = "EnforceOrder";
     public static final String ANNOTATION_PARALLEL = "Parallel";
-    public static final String ANNOTATION_ENABLE_STATISTICS = "Statistics";
+    public static final String ANNOTATION_STATISTICS = "Statistics";
 
     public static final String ANNOTATION_INDEX_BY = "IndexBy";
 
-    //    public static final String ANNOTATION_CONFIG = "config";
-//    public static final String ANNOTATION_INFO = "info";
-//    public static final String ASYNC = "async";
     public static final String TRUE = "true";
 
 

@@ -71,11 +71,7 @@ public class StreamJunction {
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
                     .getFactory()
-                    .createThroughputTracker(metricName);
-
-            if (throughputTracker instanceof SiddhiThroughputMetric) {
-                ((SiddhiThroughputMetric) throughputTracker).init(executionPlanContext.getMetricManager());
-            }
+                    .createThroughputTracker(metricName, executionPlanContext.getStatisticsManager());
         }
 
         try {
