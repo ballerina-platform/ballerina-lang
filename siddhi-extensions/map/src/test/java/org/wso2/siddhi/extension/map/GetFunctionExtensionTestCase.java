@@ -28,7 +28,6 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.common.CastFunctionExtension;
 import org.wso2.siddhi.extension.map.test.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -101,7 +100,6 @@ public class GetFunctionExtensionTestCase {
     public void testGetFunctionExtension2() throws InterruptedException {
         log.info("GetFunctionExtension TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("common:cast", CastFunctionExtension.class);
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream" +
                 " select symbol,price,map:create() as tmpMap " +
@@ -109,7 +107,7 @@ public class GetFunctionExtensionTestCase {
                 "@info(name = 'query2') from tmpStream  " +
                 "select symbol,price,tmpMap, map:put(tmpMap,symbol,price) as map1" +
                 " insert into outputStream;" +
-                "@info(name = 'query3') from outputStream  select map1, convert(common:cast(map:get(map1,symbol), 'int'), 'string') as priceInString" +
+                "@info(name = 'query3') from outputStream  select map1, convert(cast(map:get(map1,symbol), 'int'), 'string') as priceInString" +
                 " insert into outputStream2;"
         );
 
