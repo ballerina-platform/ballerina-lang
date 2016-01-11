@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 import org.wso2.carbon.transport.http.netty.sender.CarbonNettyClientInitializer;
 
@@ -40,6 +41,15 @@ public class NettyTransportContextHolder {
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor messageProcessor;
+    private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
+
+    public ListenerConfiguration getListenerConfiguration(String id) {
+        return listenerConfigurations.get(id);
+    }
+
+    public void setListenerConfiguration(String id, ListenerConfiguration config) {
+        listenerConfigurations.put(id, config);
+    }
 
     private NettyTransportContextHolder() {
 

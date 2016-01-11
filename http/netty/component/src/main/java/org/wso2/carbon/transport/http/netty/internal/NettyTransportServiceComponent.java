@@ -29,8 +29,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,7 +98,17 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
             unbind = "removeTransportInitializer"
     )
     protected void addTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
-        serverInitializer.setup((Map<String, String>) ref);
+        ListenerConfiguration listenerConfiguration = NettyTransportContextHolder.getInstance()
+                .getListenerConfiguration((String) ref.get(CHANNEL_ID_KEY));
+
+        List<Parameter> parameters = listenerConfiguration.getParameters();
+        if (parameters != null && !parameters.isEmpty()) {
+            Map<String, String> paramMap = new HashMap<>(parameters.size());
+            for (Parameter parameter : parameters) {
+                paramMap.put(parameter.getName(), parameter.getValue());
+            }
+            serverInitializer.setup(paramMap);
+        }
         NettyTransportContextHolder.getInstance()
                 .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }

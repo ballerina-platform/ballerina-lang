@@ -59,6 +59,8 @@ public class NettyTransportActivator implements BundleActivator {
         Set<ListenerConfiguration> listenerConfigurations =
                 trpConfig.getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
+            NettyTransportContextHolder.getInstance()
+                    .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
             listeners.add(new NettyListener(listenerConfiguration));
         }
         return listeners;
