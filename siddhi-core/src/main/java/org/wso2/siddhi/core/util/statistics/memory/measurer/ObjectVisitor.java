@@ -26,7 +26,7 @@ public interface ObjectVisitor<T> {
   Traversal visit(Chain chain);
 
   /**
-   * Returns an arbitrary value (presumably constructed during the object
+   * @return  an arbitrary value (presumably constructed during the object
    * graph traversal).
    */
   T result();

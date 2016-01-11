@@ -67,6 +67,7 @@ public class SingleInputStreamParser {
      * @param eventTableMap               EventTable Map
      * @param metaComplexEvent            MetaComplexEvent
      * @param processStreamReceiver       ProcessStreamReceiver
+     * @param latencyTracker              latency tracker
      * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,

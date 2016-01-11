@@ -40,7 +40,7 @@ public abstract class Chain {
   }
 
   /**
-   * Returns whether this chain has a parent. This returns false only when
+   * @return whether this chain has a parent. This returns false only when
    * this chain represents the root object itself.
    */
   public boolean hasParent() {
@@ -48,7 +48,7 @@ public abstract class Chain {
   }
 
   /**
-   * Returns the parent chain, from which this chain was created.
+   * @return the parent chain, from which this chain was created.
    * @throws IllegalStateException if {@code !hasParent()}, then an
    */
   public /*@Nonnull*/ Chain getParent() {
@@ -57,7 +57,7 @@ public abstract class Chain {
   }
 
   /**
-   * Returns the value that this chain leads to. If the value is a primitive,
+   * @return the value that this chain leads to. If the value is a primitive,
    * a wrapper object is returned instead.
    */
   public /*@Nullable*/ Object getValue() {
@@ -67,7 +67,7 @@ public abstract class Chain {
   public abstract /*@Nonnull*/ Class<?> getValueType();
 
   /**
-   * Returns whether the connection of the parent chain and this chain is
+   * @return whether the connection of the parent chain and this chain is
    * through a field (of the getParent().getValue().getClass() class).
    */
   public boolean isThroughField() {
@@ -75,7 +75,7 @@ public abstract class Chain {
   }
 
   /**
-   * Returns whether the connection of the parent chain and this chain is
+   * @return whether the connection of the parent chain and this chain is
    * through an array index, i.e. the parent leads to an array, and this
    * chain leads to an element of that array.
    */
@@ -84,14 +84,14 @@ public abstract class Chain {
   }
 
   /**
-   * Returns whether the value of this chain represents a primitive.
+   * @return whether the value of this chain represents a primitive.
    */
   public boolean isPrimitive() {
     return getValueType().isPrimitive();
   }
 
   /**
-   * Returns the root object of this chain.
+   * @return the root object of this chain.
    */
   public /*@Nonnull*/ Object getRoot() {
     Chain current = this;

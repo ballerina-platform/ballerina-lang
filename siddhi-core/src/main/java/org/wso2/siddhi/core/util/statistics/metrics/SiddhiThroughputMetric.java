@@ -22,7 +22,7 @@ public class SiddhiThroughputMetric implements ThroughputTracker {
     /**
      * This method is to notify receive of events to calculate the throughput
      *
-     * @param eventCount
+     * @param eventCount events passed through
      */
     @Override
     public void eventsIn(int eventCount) {

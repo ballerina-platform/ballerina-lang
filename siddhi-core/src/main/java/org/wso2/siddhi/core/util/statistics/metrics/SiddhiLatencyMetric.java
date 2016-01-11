@@ -42,8 +42,8 @@ public class SiddhiLatencyMetric implements LatencyTracker {
     /**
      * This is called to when the processing of an event is finished. This is called at
      * two places,
-     * 1. OutputRateLimiter#sendToCallBacks -> When the event is processed and by the full chain and emitted out
-     * 2. ProcessStreamReceiver#receive -> When event is not processed by full process chain(e.g. Filtered out by a filter)
+     * 1. OutputRateLimiter#sendToCallBacks - When the event is processed and by the full chain and emitted out
+     * 2. ProcessStreamReceiver#receive - When event is not processed by full process chain(e.g. Filtered out by a filter)
      */
     @Override
     public void markOut() {
