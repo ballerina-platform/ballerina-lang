@@ -42,7 +42,9 @@ public class InputStreamParser {
      * @param streamDefinitionMap  map containing user given stream definitions
      * @param tableDefinitionMap   table definition map
      * @param eventTableMap        EventTable Map
-     * @param executors            List to hold VariableExpressionExecutors to update after query parsing  @return
+     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
+     * @param latencyTracker       latency tracker
+     * @return StreamRuntime Stream Runtime
      */
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,
                                       Map<String, AbstractDefinition> streamDefinitionMap,

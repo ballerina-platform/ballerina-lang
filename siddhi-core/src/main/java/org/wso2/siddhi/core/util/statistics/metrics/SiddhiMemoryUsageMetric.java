@@ -8,12 +8,9 @@ import org.wso2.siddhi.core.util.statistics.memory.measurer.ObjectGraphMeasurer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * Created by sajith on 11/26/15.
- */
-public class MemoryUsageMetric implements MemoryUsageTracker {
+public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
     private ConcurrentMap<Object, ObjectMetric> registeredObjects = new ConcurrentHashMap<Object, ObjectMetric>();
-    private  MetricRegistryHolder metricRegistry = null;
+    private MetricManager metricManager = null;
 
     /**
      * Register the object that needs to be measured the memory usage
@@ -36,12 +33,12 @@ public class MemoryUsageMetric implements MemoryUsageTracker {
         if (registeredObjects.get(object) != null) {
             return registeredObjects.get(object).getName();
         } else {
-           return null;
+            return null;
         }
     }
 
-    public void init(MetricRegistryHolder registryHolder){
-        this.metricRegistry = registryHolder;
+    public void init(MetricManager registryHolder) {
+        this.metricManager = registryHolder;
     }
 
     class ObjectMetric {
@@ -49,24 +46,26 @@ public class MemoryUsageMetric implements MemoryUsageTracker {
         private final Object object;
         private String name;
 
-        public ObjectMetric(final Object object, String name){
+        public ObjectMetric(final Object object, String name) {
             this.object = object;
             this.name = name;
             initMetric();
         }
 
-        public String getName() { return name;}
+        public String getName() {
+            return name;
+        }
 
-        private void initMetric(){
-            metricRegistry.getRegistry().register(name ,
+        private void initMetric() {
+            metricManager.getRegistry().register(name,
                     new Gauge<Long>() {
                         @Override
                         public Long getValue() {
                             ObjectGraphMeasurer.Footprint footprint = ObjectGraphMeasurer.measure(object);
-                            return MemoryMeasurerUtil.FootprintSizeEstimate(footprint);
+                            return MemoryMeasurerUtil.footprintSizeEstimate(footprint);
                         }
                     });
         }
     }
-    
+
 }

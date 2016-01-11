@@ -83,16 +83,16 @@ public class JoinProcessor implements Processor {
                     }
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
-                if(foundStreamEvent == null){
-                    if(outerJoinProcessor && !leftJoinProcessor)
+                if (foundStreamEvent == null) {
+                    if (outerJoinProcessor && !leftJoinProcessor)
                         returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
-                    else if(outerJoinProcessor && leftJoinProcessor)
+                    else if (outerJoinProcessor && leftJoinProcessor)
                         returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
-                }else{
+                } else {
                     while (foundStreamEvent != null) {
                         if (!leftJoinProcessor) {
                             returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
-                        }else{
+                        } else {
                             returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
                         }
                         foundStreamEvent = foundStreamEvent.getNext();
@@ -188,10 +188,12 @@ public class JoinProcessor implements Processor {
 
     /**
      * Join the given two event streams
+     *
      * @param stream1 event stream 1
      * @param stream2 event stream 2
+     * @return StateEvent joint event
      */
-    public StateEvent joinBuilder(StreamEvent stream1,StreamEvent stream2){
+    public StateEvent joinBuilder(StreamEvent stream1, StreamEvent stream2) {
         StateEvent returnEvent = stateEventPool.borrowEvent();
         returnEvent.setEvent(0, stream1);
         returnEvent.setEvent(1, stream2);
@@ -202,7 +204,7 @@ public class JoinProcessor implements Processor {
         }
         if (!leftJoinProcessor) {
             returnEvent.setTimestamp(stream2.getTimestamp());
-        }else{
+        } else {
             returnEvent.setTimestamp(stream1.getTimestamp());
         }
         return returnEvent;

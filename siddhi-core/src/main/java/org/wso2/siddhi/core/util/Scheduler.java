@@ -88,7 +88,6 @@ public class Scheduler implements Snapshotable {
 
     public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
         this.latencyTracker = latencyTracker;
-
         this.executionPlanContext = executionPlanContext;
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
@@ -134,7 +133,7 @@ public class Scheduler implements Snapshotable {
          * to create a thread, starting the thread causes the object's
          * <code>run</code> method to be called in that separately executing
          * thread.
-         * <p/>
+         * <p>
          * The general contract of the method <code>run</code> is that it may
          * take any action whatsoever.
          *
@@ -153,9 +152,12 @@ public class Scheduler implements Snapshotable {
                 timerEvent.setTimestamp(currentTime);
                 streamEventChunk.add(timerEvent);
                 if (latencyTracker != null) {
-                    latencyTracker.markIn();
-                    singleThreadEntryValve.process(streamEventChunk);
-                    latencyTracker.markOut();
+                    try {
+                        latencyTracker.markIn();
+                        singleThreadEntryValve.process(streamEventChunk);
+                    } finally {
+                        latencyTracker.markOut();
+                    }
                 } else {
                     singleThreadEntryValve.process(streamEventChunk);
                 }

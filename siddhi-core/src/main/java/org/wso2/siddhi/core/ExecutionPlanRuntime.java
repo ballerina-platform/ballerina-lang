@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.metrics.MemoryUsageMetric;
+import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMemoryUsageMetric;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.Map;
@@ -71,12 +71,12 @@ public class ExecutionPlanRuntime {
         if (executionPlanContext.isStatsEnabled()){
             memoryUsageTracker = executionPlanContext
                     .getSiddhiContext()
-                    .getStatManager()
+                    .getStatisticsConfiguration()
                     .getFactory()
                     .createMemoryUsageTracker();
 
-            if (memoryUsageTracker instanceof MemoryUsageMetric){
-                ((MemoryUsageMetric)memoryUsageTracker).init(executionPlanContext.getMetricRegistryHolder());
+            if (memoryUsageTracker instanceof SiddhiMemoryUsageMetric){
+                ((SiddhiMemoryUsageMetric)memoryUsageTracker).init(executionPlanContext.getMetricManager());
             }
 
             monitorQueryMemoryUsage();
@@ -153,14 +153,14 @@ public class ExecutionPlanRuntime {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }
 
-        if (executionPlanContext.getMetricRegistryHolder() != null) {
-            executionPlanContext.getMetricRegistryHolder().stopReporting();
+        if (executionPlanContext.getMetricManager() != null) {
+            executionPlanContext.getMetricManager().stopReporting();
         }
     }
 
     public synchronized void start() {
-        if (executionPlanContext.getMetricRegistryHolder() != null) {
-            executionPlanContext.getMetricRegistryHolder().startReport();
+        if (executionPlanContext.getMetricManager() != null) {
+            executionPlanContext.getMetricManager().startReporting();
         }
 
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
@@ -193,14 +193,15 @@ public class ExecutionPlanRuntime {
     }
 
     private void monitorQueryMemoryUsage(){
+
         for(Map.Entry entry : queryProcessorMap.entrySet()){
-            memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.cep.siddhi.execplan." + getName() + "." + entry.getKey());
+            memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + entry.getKey());
         }
 
         for (Map.Entry entry : partitionMap.entrySet()){
             ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime)entry.getValue()).getMetaQueryRuntimeMap();
             for (Map.Entry query : queryRuntime.entrySet()){
-                memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.cep.siddhi.execplan." + getName() + "." + query.getKey());
+                memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + query.getKey());
             }
         }
     }

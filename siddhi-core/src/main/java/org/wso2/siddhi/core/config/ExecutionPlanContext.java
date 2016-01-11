@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-import org.wso2.siddhi.core.util.statistics.metrics.MetricRegistryHolder;
+import org.wso2.siddhi.core.util.statistics.metrics.MetricManager;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
@@ -42,15 +42,12 @@ public class ExecutionPlanContext {
     private boolean enforceOrder;
     private boolean parallel;
     private boolean statsEnabled = false;
-    private MetricRegistryHolder metricRegistryHolder = null;
-
+    private MetricManager metricManager = null;
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
-
-    //public static boolean statEnable = false;
 
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;
@@ -107,13 +104,12 @@ public class ExecutionPlanContext {
 
     public void setStatsEnabled(boolean statsEnabled) { this.statsEnabled = statsEnabled; }
 
-    public MetricRegistryHolder getMetricRegistryHolder(){
-        return metricRegistryHolder;
+    public MetricManager getMetricManager(){
+        return metricManager;
     }
 
-
-    public void setMetricRegistryHolder(MetricRegistryHolder metricRegistryHolder){
-        this.metricRegistryHolder = metricRegistryHolder;
+    public void setMetricManager(MetricManager metricManager){
+        this.metricManager = metricManager;
     }
 
     public ScheduledExecutorService getScheduledExecutorService() {

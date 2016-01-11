@@ -165,7 +165,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
      *
-     * @return
+     * @return Processor next processor
      */
     @Override
     public Processor getNextProcessor() {

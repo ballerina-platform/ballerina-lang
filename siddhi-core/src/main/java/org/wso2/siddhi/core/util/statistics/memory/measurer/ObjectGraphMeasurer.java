@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.util.statistics.memory.measurer;//import ObjectExplorer.Feature;
+package org.wso2.siddhi.core.util.statistics.memory.measurer;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;

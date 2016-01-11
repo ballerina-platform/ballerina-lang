@@ -46,7 +46,7 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
         executionPlanContext.getSnapshotService().addSnapshotable(this);
     }
 
-    protected void setLatencyTracker(LatencyTracker latencyTracker){
+    protected void setLatencyTracker(LatencyTracker latencyTracker) {
         this.latencyTracker = latencyTracker;
     }
 
@@ -63,8 +63,8 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
         if (outputCallback != null && complexEventChunk.getFirst() != null) {
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
-                ComplexEvent complexEvent = complexEventChunk.next();                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-
+                ComplexEvent complexEvent = complexEventChunk.next();
+                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
                     complexEvent.setType(ComplexEvent.Type.CURRENT);
                 }
             }

@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
-import org.wso2.siddhi.core.util.statistics.metrics.ThroughputMetric;
+import org.wso2.siddhi.core.util.statistics.metrics.SiddhiThroughputMetric;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
@@ -43,7 +43,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-// TODO: Add the check for if stats are enabled
 public class StreamJunction {
 
     private static final Logger log = Logger.getLogger(StreamJunction.class);
@@ -67,27 +66,25 @@ public class StreamJunction {
         this.executionPlanContext = executionPlanContext;
 
         if (executionPlanContext.isStatsEnabled()) {
-            String metricName =  "org.wso2.cep.siddhi.stream." + streamDefinition.getId();
+            String metricName = executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() + ".stream." + streamDefinition.getId();
             this.throughputTracker = executionPlanContext
                     .getSiddhiContext()
-                    .getStatManager()
+                    .getStatisticsConfiguration()
                     .getFactory()
                     .createThroughputTracker(metricName);
 
-            if (throughputTracker instanceof ThroughputMetric){
-                ((ThroughputMetric)throughputTracker).init(executionPlanContext.getMetricRegistryHolder());
+            if (throughputTracker instanceof SiddhiThroughputMetric) {
+                ((SiddhiThroughputMetric) throughputTracker).init(executionPlanContext.getMetricManager());
             }
         }
 
         try {
-            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
-                    streamDefinition.getAnnotations());
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL, streamDefinition.getAnnotations());
             if (annotation != null) {
                 parallel = true;
             }
         } catch (DuplicateAnnotationException e) {
-            throw new DuplicateAnnotationException(e.getMessage() + " for the same Stream " +
-                    streamDefinition.getId());
+            throw new DuplicateAnnotationException(e.getMessage() + " for the same Stream " + streamDefinition.getId());
         }
         isTraceEnabled = log.isTraceEnabled();
 
@@ -97,8 +94,8 @@ public class StreamJunction {
         if (isTraceEnabled) {
             log.trace("event is received by streamJunction " + this);
         }
-        
-	ComplexEvent complexEventList = complexEvent;
+
+        ComplexEvent complexEventList = complexEvent;
         if (disruptor != null) {
             while (complexEventList != null) {
                 if (throughputTracker != null) {

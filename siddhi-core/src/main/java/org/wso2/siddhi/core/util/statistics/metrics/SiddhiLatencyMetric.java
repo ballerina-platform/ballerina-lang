@@ -3,20 +3,17 @@ package org.wso2.siddhi.core.util.statistics.metrics;
 import com.codahale.metrics.Timer;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
-/**
- * Created by sajith on 11/20/15.
- */
-public class LatencyMetric implements LatencyTracker {
+public class SiddhiLatencyMetric implements LatencyTracker {
     // Using thread local variables to keep the timer track the time of the same execution path by different threads.
     private ThreadLocal<Timer> execLatencyTimer;
     private ThreadLocal<Timer.Context> context;
     private String metricName;
 
-    public LatencyMetric(String name){
+    public SiddhiLatencyMetric(String name){
         this.metricName = name + ".latency";
     }
 
-    public void init(final MetricRegistryHolder registryHolder){
+    public void init(final MetricManager registryHolder){
         execLatencyTimer = new ThreadLocal<Timer>(){
             protected Timer initialValue() {
                 return registryHolder.getRegistry().timer(metricName);

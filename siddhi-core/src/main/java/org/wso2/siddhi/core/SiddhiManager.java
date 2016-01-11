@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.core.util.statistics.StatManager;
+import org.wso2.siddhi.core.util.statistics.StatisticsConfiguration;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
@@ -87,8 +87,8 @@ public class SiddhiManager {
         siddhiContext.addSiddhiDataSource(dataSourceName, dataSource);
     }
 
-    public void setStatManager(StatManager statManager){
-        siddhiContext.setStatManager(statManager);
+    public void setStatManager(StatisticsConfiguration statisticsConfiguration){
+        siddhiContext.setStatisticsConfiguration(statisticsConfiguration);
     }
 
 

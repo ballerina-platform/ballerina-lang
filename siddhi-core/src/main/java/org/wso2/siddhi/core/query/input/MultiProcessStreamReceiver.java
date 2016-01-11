@@ -63,9 +63,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     private void process(int eventSequence, StreamEvent borrowedEvent){
         if (latencyTracker != null){
-            latencyTracker.markIn();
-            processAndClear(eventSequence, borrowedEvent);
-            latencyTracker.markOut();
+            try {
+                latencyTracker.markIn();
+                processAndClear(eventSequence, borrowedEvent);
+            }finally {
+                latencyTracker.markOut();
+            }
         } else {
             processAndClear(eventSequence, borrowedEvent);
         }

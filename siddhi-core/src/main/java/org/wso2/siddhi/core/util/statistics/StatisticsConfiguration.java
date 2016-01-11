@@ -1,18 +1,16 @@
 package org.wso2.siddhi.core.util.statistics;
 
-/**
- * Created by sajith on 12/3/15.
- */
-public class StatManager {
+public class StatisticsConfiguration {
     public enum RunningMode{
         SIDDHI_ONLY, CEP, DISTRIBUTED
     }
 
+    String matricPrefix= "org.wso2.siddhi";
     StatisticsTrackerFactory factory;
     Class<?> reporterType;
     RunningMode runningMode;
 
-    public StatManager(StatisticsTrackerFactory factory, Class<?> reporterType, RunningMode runningMode){
+    public StatisticsConfiguration(StatisticsTrackerFactory factory, Class<?> reporterType, RunningMode runningMode){
         this.factory = factory;
         this.reporterType = reporterType;
         this.runningMode = runningMode;
@@ -28,6 +26,14 @@ public class StatManager {
 
     public RunningMode getRunningMode(){
         return this.runningMode;
+    }
+
+    public String getMatricPrefix() {
+        return matricPrefix;
+    }
+
+    public void setMatricPrefix(String matricPrefix) {
+        this.matricPrefix = matricPrefix;
     }
 }
 

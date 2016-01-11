@@ -8,7 +8,7 @@ import com.google.common.collect.Multiset;
 public class MemoryMeasurerUtil {
     public static final int WORD_LENGTH = Integer.parseInt(System.getProperty("sun.arch.data.model")) / 8;
 
-    public static long FootprintSizeEstimate(ObjectGraphMeasurer.Footprint footprint){
+    public static long footprintSizeEstimate(ObjectGraphMeasurer.Footprint footprint){
         long referencesMemory = WORD_LENGTH * footprint.getReferences();
         long primitivesMemory = 0;
 
@@ -21,7 +21,7 @@ public class MemoryMeasurerUtil {
             } else if (dataType.equalsIgnoreCase("short") || dataType.equalsIgnoreCase("char")){
                 primitivesMemory += 2 * entry.getCount();
             } else if (dataType.equalsIgnoreCase("byte") || dataType.equalsIgnoreCase("boolean")){
-                primitivesMemory += 1 * entry.getCount();
+                primitivesMemory += entry.getCount();
             }
         }
 

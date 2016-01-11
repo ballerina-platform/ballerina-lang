@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.core.util.statistics.StatManager;
+import org.wso2.siddhi.core.util.statistics.StatisticsConfiguration;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class SiddhiContext {
     private Map<String, Class> siddhiExtensions;
     private PersistenceStore persistenceStore = null;
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
-    private StatManager statManager;
+    private StatisticsConfiguration statisticsConfiguration;
     private ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap;
 
     public SiddhiContext() {
@@ -80,12 +80,12 @@ public class SiddhiContext {
         this.siddhiDataSources.put(dataSourceName, dataSource);
     }
 
-    public StatManager getStatManager() {
-        return statManager;
+    public StatisticsConfiguration getStatisticsConfiguration() {
+        return statisticsConfiguration;
     }
 
-    public void setStatManager(StatManager statManager) {
-        this.statManager = statManager;
+    public void setStatisticsConfiguration(StatisticsConfiguration statisticsConfiguration) {
+        this.statisticsConfiguration = statisticsConfiguration;
     }
 
     public ConcurrentHashMap<Class, AbstractExtensionHolder> getExtensionHolderMap() {

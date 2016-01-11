@@ -57,11 +57,14 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         return new ProcessStreamReceiver(streamId + key, latencyTracker);
     }
 
-    private void process(){
-        if (latencyTracker != null){
-            latencyTracker.markIn();
-            processAndClear(streamEventChunk);
-            latencyTracker.markOut();
+    private void process() {
+        if (latencyTracker != null) {
+            try {
+                latencyTracker.markIn();
+                processAndClear(streamEventChunk);
+            } finally {
+                latencyTracker.markOut();
+            }
         } else {
             processAndClear(streamEventChunk);
         }
