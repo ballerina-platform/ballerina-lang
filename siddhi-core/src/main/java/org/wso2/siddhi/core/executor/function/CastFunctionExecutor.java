@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.common;
+package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  * Accept Type(s): Object , String
  * Return Type(s): (Int,Long,Float,Double,String,Bool)
  */
-public class CastFunctionExtension extends FunctionExecutor {
+public class CastFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
 
     @Override

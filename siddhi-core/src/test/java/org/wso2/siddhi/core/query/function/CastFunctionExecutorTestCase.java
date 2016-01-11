@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.common;
+package org.wso2.siddhi.core.query.function;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -27,13 +27,13 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.common.test.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CastFunctionExtensionTestCase {
-    private static final Logger log = Logger.getLogger(CastFunctionExtensionTestCase.class);
+public class CastFunctionExecutorTestCase {
+    private static final Logger log = Logger.getLogger(CastFunctionExecutorTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
@@ -45,11 +45,11 @@ public class CastFunctionExtensionTestCase {
 
     @Test
     public void testCastFunctionExtension() throws InterruptedException {
-        log.info("CastFunctionExtension TestCase");
+        log.info("CastFunctionExecutor TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                + "common:cast(price, 'double') as priceInDouble insert into outputStream;");
+                + "cast(price, 'double') as priceInDouble insert into outputStream;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 

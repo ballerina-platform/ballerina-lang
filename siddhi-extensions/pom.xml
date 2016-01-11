@@ -40,8 +40,7 @@
         <module>timeseries</module>
         <module>ooh</module>
         <module>map</module>
-        <module>common</module>
-        <module>kf</module>
+        <module>kalman-filter</module>
     </modules>
 
 </project>
