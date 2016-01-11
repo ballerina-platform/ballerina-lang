@@ -1,5 +1,9 @@
 package org.wso2.siddhi.core.util.statistics;
 
+import org.wso2.siddhi.query.api.annotation.Element;
+
+import java.util.List;
+
 public interface StatisticsTrackerFactory {
 
     LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager);
@@ -8,6 +12,6 @@ public interface StatisticsTrackerFactory {
 
     MemoryUsageTracker createMemoryUsageTracker(StatisticsManager statisticsManager);
 
-    StatisticsManager createStatisticsManager();
+    StatisticsManager createStatisticsManager(List<Element> elements);
 
 }

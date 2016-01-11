@@ -11,6 +11,9 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 public class StatisticsTestCase {
 
     static final Logger log = Logger.getLogger(StatisticsTestCase.class);
@@ -34,7 +37,7 @@ public class StatisticsTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:statistics" +
+                "@plan:statistics(reporter = 'console', interval = '5' )" +
                 " " +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +
@@ -66,14 +69,35 @@ public class StatisticsTestCase {
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        PrintStream old = System.out;
+        System.setOut(ps);
+
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
 
-        Thread.sleep(100);
+        Thread.sleep(5010);
         executionPlanRuntime.shutdown();
         Assert.assertTrue(eventArrived);
         Assert.assertEquals(3, count);
+
+        System.out.flush();
+        System.setOut(old);
+
+        String output= baos.toString();
+
+        Assert.assertTrue(output.contains("Gauges"));
+        Assert.assertTrue(output.contains("org.wso2.siddhi.executionplan"));
+        Assert.assertTrue(output.contains("query1.memory"));
+        Assert.assertTrue(output.contains("Meters"));
+        Assert.assertTrue(output.contains("org.wso2.siddhi.stream.cseEventStream"));
+        Assert.assertTrue(output.contains("Timers"));
+        Assert.assertTrue(output.contains("query1.latency"));
+
+        System.out.println(output);
 
     }
 }

@@ -2,14 +2,12 @@ package org.wso2.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.Reporter;
 import org.wso2.siddhi.core.util.statistics.*;
+import org.wso2.siddhi.query.api.annotation.Element;
+
+import java.util.List;
 
 
 public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
-    Class<? extends Reporter > reporterType;
-
-    public SiddhiMetricsFactory(Class<? extends Reporter > reporterType) {
-        this.reporterType = reporterType;
-    }
 
     public LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager) {
         return new SiddhiLatencyMetric(name, statisticsManager.getRegistry());
@@ -24,8 +22,8 @@ public class SiddhiMetricsFactory implements StatisticsTrackerFactory {
     }
 
     @Override
-    public StatisticsManager createStatisticsManager() {
-        return new SiddhiStatisticsManager(reporterType);
+    public StatisticsManager createStatisticsManager(List<Element> elements) {
+        return new SiddhiStatisticsManager(elements);
     }
 
 }

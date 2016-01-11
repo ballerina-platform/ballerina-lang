@@ -2,7 +2,9 @@ package org.wso2.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.*;
 import org.wso2.siddhi.core.util.statistics.StatisticsManager;
+import org.wso2.siddhi.query.api.annotation.Element;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -11,10 +13,17 @@ import java.util.concurrent.TimeUnit;
 public class SiddhiStatisticsManager implements StatisticsManager {
     private MetricRegistry metricRegistry = new MetricRegistry();
     private Reporter reporter;
-    private Class<? extends Reporter> reporterType;
+    private String reporterName = "console";
+    private int interval = 60;
 
-    public SiddhiStatisticsManager(Class<? extends Reporter> reporterType) {
-        this.reporterType = reporterType;
+    public SiddhiStatisticsManager(List<Element> elements) {
+        for (Element element : elements) {
+            if ("reporter".equals(element.getKey())) {
+                reporterName = element.getValue();
+            } else if ("interval".equals(element.getKey())) {
+                interval = Integer.parseInt(element.getValue());
+            }
+        }
     }
 
     public MetricRegistry getRegistry() {
@@ -22,13 +31,13 @@ public class SiddhiStatisticsManager implements StatisticsManager {
     }
 
     public void startReporting() {
-        if (reporterType == ConsoleReporter.class) {
+        if (reporterName.equalsIgnoreCase("console")) {
             reporter = ConsoleReporter.forRegistry(metricRegistry)
                     .convertRatesTo(TimeUnit.SECONDS)
                     .convertDurationsTo(TimeUnit.MILLISECONDS)
                     .build();
-            ((ConsoleReporter) reporter).start(60, TimeUnit.SECONDS);
-        } else if (reporterType == JmxReporter.class) {
+            ((ConsoleReporter) reporter).start(interval, TimeUnit.SECONDS);
+        } else if (reporterName.equalsIgnoreCase("jmx")) {
             reporter = JmxReporter.forRegistry(metricRegistry)
                     .convertRatesTo(TimeUnit.SECONDS)
                     .convertDurationsTo(TimeUnit.MILLISECONDS)

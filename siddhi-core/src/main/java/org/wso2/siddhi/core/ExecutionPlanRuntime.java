@@ -68,7 +68,7 @@ public class ExecutionPlanRuntime {
         this.executionPlanContext = executionPlanContext;
         this.executionPlanRuntimeMap = executionPlanRuntimeMap;
 
-        if (executionPlanContext.isStatsEnabled()) {
+        if (executionPlanContext.getStatisticsManager()!=null) {
             memoryUsageTracker = executionPlanContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()

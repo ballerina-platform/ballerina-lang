@@ -100,10 +100,6 @@ public class ExecutionPlanContext {
         this.enforceOrder = enforceOrder;
     }
 
-    public boolean isStatsEnabled() { return statsEnabled; }
-
-    public void setStatsEnabled(boolean statsEnabled) { this.statsEnabled = statsEnabled; }
-
     public StatisticsManager getStatisticsManager(){
         return statisticsManager;
     }

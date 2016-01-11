@@ -42,7 +42,7 @@ public class SiddhiContext {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
         eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
-        statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory(ConsoleReporter.class));
+        statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
     }
 

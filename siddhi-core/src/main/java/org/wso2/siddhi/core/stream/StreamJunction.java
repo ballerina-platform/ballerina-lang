@@ -65,7 +65,7 @@ public class StreamJunction {
         this.executorService = executorService;
         this.executionPlanContext = executionPlanContext;
 
-        if (executionPlanContext.isStatsEnabled()) {
+        if (executionPlanContext.getStatisticsManager()!=null) {
             String metricName = executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() + ".stream." + streamDefinition.getId();
             this.throughputTracker = executionPlanContext
                     .getSiddhiContext()
