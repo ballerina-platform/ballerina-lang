@@ -104,12 +104,13 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
 
     @Override
     public Object[] currentState() {
-        return new Object[]{expiredEventChunk, count};
+        return new Object[]{expiredEventChunk.getFirst(), count};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
+        expiredEventChunk.clear();
+        expiredEventChunk.add((StreamEvent) state[0]);
         count = (Integer) state[1];
     }
 }
