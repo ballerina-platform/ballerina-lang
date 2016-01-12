@@ -49,10 +49,11 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
         //check whether first argument true or null
-        if (data[0]!=null && data[0].equals(Boolean.TRUE))
+        if (data[0]!=null && data[0].equals(Boolean.TRUE)) {
             return data[1];
-        else
+        }else {
             return data[2];
+        }
     }
 
     @Override

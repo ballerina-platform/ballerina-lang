@@ -84,10 +84,12 @@ public class JoinProcessor implements Processor {
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
                 if(foundStreamEvent == null){
-                    if(outerJoinProcessor && !leftJoinProcessor)
+                    if(outerJoinProcessor && !leftJoinProcessor) {
                         returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
-                    else if(outerJoinProcessor && leftJoinProcessor)
+                    }
+                    else if(outerJoinProcessor && leftJoinProcessor) {
                         returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
+                    }
                 }else{
                     while (foundStreamEvent != null) {
                         if (!leftJoinProcessor) {
@@ -188,22 +190,22 @@ public class JoinProcessor implements Processor {
 
     /**
      * Join the given two event streams
-     * @param stream1 event stream 1
-     * @param stream2 event stream 2
+     * @param leftStream event left stream
+     * @param rightStream event right stream
      */
-    public StateEvent joinBuilder(StreamEvent stream1,StreamEvent stream2){
+    public StateEvent joinBuilder(StreamEvent leftStream,StreamEvent rightStream){
         StateEvent returnEvent = stateEventPool.borrowEvent();
-        returnEvent.setEvent(0, stream1);
-        returnEvent.setEvent(1, stream2);
+        returnEvent.setEvent(0, leftStream);
+        returnEvent.setEvent(1, rightStream);
         if (preJoinProcessor) {
             returnEvent.setType(ComplexEvent.Type.CURRENT);
         } else {
             returnEvent.setType(ComplexEvent.Type.EXPIRED);
         }
         if (!leftJoinProcessor) {
-            returnEvent.setTimestamp(stream2.getTimestamp());
+            returnEvent.setTimestamp(rightStream.getTimestamp());
         }else{
-            returnEvent.setTimestamp(stream1.getTimestamp());
+            returnEvent.setTimestamp(leftStream.getTimestamp());
         }
         return returnEvent;
     }
