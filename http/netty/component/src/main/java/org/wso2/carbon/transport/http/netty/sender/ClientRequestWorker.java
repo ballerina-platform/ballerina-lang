@@ -120,7 +120,6 @@ public class ClientRequestWorker implements Runnable {
                 if (channel != null) {
                     targetChannel.setChannel(channel);
                     targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
-                    sourceHandler.addTargetChannel(httpRoute, targetChannel);
                 }
             }
         }
@@ -132,6 +131,7 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
             ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
+            sourceHandler.addTargetChannel(httpRoute, targetChannel);
         }
     }
 }
