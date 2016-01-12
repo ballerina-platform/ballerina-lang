@@ -60,21 +60,23 @@ public class NettyListener extends TransportListener {
     }
 
     private void startTransport() {
+        ServerBootstrapConfiguration.createBootStrapConfiguration(nettyConfig.getParameters());
+        ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
         bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
         bootstrap = new ServerBootstrap();
-        bootstrap.option(ChannelOption.SO_BACKLOG, 100);
+        bootstrap.option(ChannelOption.SO_BACKLOG, serverBootstrapConfiguration.getSoBackLog());
         bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class);
         addChannelInitializer();
-        bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, serverBootstrapConfiguration.isKeepAlive());
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, serverBootstrapConfiguration.getConnectTimeOut());
 
-        bootstrap.option(ChannelOption.SO_SNDBUF, 1048576);
-        bootstrap.option(ChannelOption.SO_RCVBUF, 1048576);
-        bootstrap.childOption(ChannelOption.SO_RCVBUF, 1048576);
-        bootstrap.childOption(ChannelOption.SO_SNDBUF, 1048576);
+        bootstrap.option(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
+        bootstrap.option(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReciveBufferSize());
+        bootstrap.childOption(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReciveBufferSize());
+        bootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
 
         setupChannelInitializer();
         try {
