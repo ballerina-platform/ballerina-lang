@@ -96,6 +96,7 @@ public class ExpressionParser {
      * @param eventTableMap           Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
      * @param executionPlanContext    ExecutionPlanContext
+     * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return ExpressionExecutor
      */

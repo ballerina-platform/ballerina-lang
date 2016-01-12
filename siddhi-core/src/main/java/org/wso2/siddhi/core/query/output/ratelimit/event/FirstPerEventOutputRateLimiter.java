@@ -34,23 +34,25 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new FirstPerEventOutputRateLimiter(id + key, value);
+        FirstPerEventOutputRateLimiter instance = new FirstPerEventOutputRateLimiter(id + key, value);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        if (counter == 0) {
-            ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>();
-            firstPerEventChunk.add(complexEvent);
-            sendToCallBacks(firstPerEventChunk);
-        }
-        if (++counter == value) {
-            counter = 0;
+        complexEventChunk.reset();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+            if (counter == 0) {
+                complexEventChunk.remove();
+                ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>();
+                firstPerEventChunk.add(event);
+                sendToCallBacks(firstPerEventChunk);
+            }
+            if (++counter == value) {
+                counter = 0;
+            }
         }
     }
 

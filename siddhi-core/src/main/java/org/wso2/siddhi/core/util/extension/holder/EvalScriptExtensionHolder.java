@@ -21,18 +21,22 @@ package org.wso2.siddhi.core.util.extension.holder;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.function.EvalScript;
 
-public class EvalScriptExtensionHolder extends AbstractExtensionHolder {
+import java.util.concurrent.ConcurrentHashMap;
 
-    private static EvalScriptExtensionHolder instance;
+public class EvalScriptExtensionHolder extends AbstractExtensionHolder {
+    private static Class clazz =EvalScript.class;
 
     protected EvalScriptExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(EvalScript.class, executionPlanContext);
+        super(clazz, executionPlanContext);
     }
 
     public static EvalScriptExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        if (instance == null) {
-            instance = new EvalScriptExtensionHolder(executionPlanContext);
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
+        if (abstractExtensionHolder == null) {
+            abstractExtensionHolder = new EvalScriptExtensionHolder(executionPlanContext);
+            extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
-        return instance;
+        return (EvalScriptExtensionHolder) extensionHolderMap.get(clazz);
     }
 }

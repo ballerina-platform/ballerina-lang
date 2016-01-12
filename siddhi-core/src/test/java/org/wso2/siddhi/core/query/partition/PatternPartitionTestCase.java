@@ -26,18 +26,21 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PatternPartitionTestCase {
     static final Logger log = Logger.getLogger(PatternPartitionTestCase.class);
-    private int inEventCount;
-    private int removeEventCount;
+    private AtomicInteger inEventCount;
+    private AtomicInteger removeEventCount;
     private boolean eventArrived;
 
     @Before
     public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
+        inEventCount = new AtomicInteger(0);
+        removeEventCount = new AtomicInteger(0);
         eventArrived = false;
     }
 
@@ -71,9 +74,9 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", "IBM"}, event.getData());
                         eventArrived = true;
                     }
@@ -91,10 +94,11 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -129,9 +133,9 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", "IBM"}, event.getData());
                         eventArrived = true;
                     }
@@ -151,10 +155,11 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 55.6f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -189,10 +194,10 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "IBM"}, event.getData());
                                 break;
@@ -206,7 +211,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{"GOOG", "IBM"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(4, inEventCount);
+                                Assert.assertSame(4, inEventCount.get());
                         }
                         eventArrived = true;
                     }
@@ -232,10 +237,11 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 55.6f, 150});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 150});
-        Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 4, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
+
+        Assert.assertEquals("Number of success events", 4, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -270,9 +276,9 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -291,10 +297,11 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 54f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -329,10 +336,10 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f}, event.getData());
                                 break;
@@ -340,7 +347,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -364,10 +371,11 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 53f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -403,10 +411,10 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{55.7f, 54f, 57.7f}, event.getData());
                                 break;
@@ -414,7 +422,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -439,10 +447,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 53f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 57.7f, 100});
-        Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -474,10 +482,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{55.6f, 57.6f}, event.getData());
                                 break;
@@ -485,7 +493,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{54f, 53.6f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -505,10 +513,9 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 54f, 100});
         Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
-        Thread.sleep(100);
-
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -538,10 +545,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{55.6f}, event.getData());
                                 break;
@@ -549,7 +556,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{57.6f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -564,10 +571,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"MSFT", 55.6f, 100});
         Thread.sleep(100);
         stream1.send(new Object[]{"WSO2", 57.6f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -599,9 +606,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 47.8f, null, 45.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -638,10 +645,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 10});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 10});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -673,9 +680,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, null, null, 45.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -699,10 +706,9 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
-
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -734,9 +740,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, 47.8f, null, null, 55.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -756,10 +762,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -791,9 +797,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                     }
                     eventArrived = true;
                 }
@@ -810,8 +816,8 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
 
-        Assert.assertEquals("Number of success events", 0, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 0, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", false, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -843,9 +849,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 23.7f, 24.7f, 45.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -875,10 +881,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 47.8f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -909,9 +915,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 55.7f}, event.getData());
                         ;
                     }
@@ -932,10 +938,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -966,9 +972,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{null, null, 45.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -982,10 +988,10 @@ public class PatternPartitionTestCase {
         executionPlanRuntime.start();
 
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1016,9 +1022,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, null, 45.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -1036,10 +1042,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"GOOG", 7.6f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 45.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1070,15 +1076,15 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"IBM", "GOOG", "WSO2"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1094,10 +1100,10 @@ public class PatternPartitionTestCase {
         Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 81, 5});
         eventStream.send(new Object[]{"WSO2", 176.6f, 65, 5});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1128,15 +1134,15 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"IBM", null, "GOOG"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1152,10 +1158,10 @@ public class PatternPartitionTestCase {
         Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 61, 2});
         eventStream.send(new Object[]{"WSO2", 21f, 61, 2});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1186,15 +1192,15 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"IBM", null, "GOOG"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1210,10 +1216,10 @@ public class PatternPartitionTestCase {
         Thread.sleep(100);
         eventStream.send(new Object[]{"GOOG", 21f, 61, 4});
         eventStream.send(new Object[]{"WSO2", 21f, 61, 4});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1244,15 +1250,15 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1269,10 +1275,10 @@ public class PatternPartitionTestCase {
         eventStream.send(new Object[]{"GOOG", 21f, 91, 1});
         eventStream.send(new Object[]{"FB", 21f, 81, 1});
         eventStream.send(new Object[]{"WSO2", 21f, 61, 1});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1303,9 +1309,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG"}, event.getData());
                     }
                     eventArrived = true;
@@ -1323,10 +1329,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"GOOG", 59.6f, 200});
         Thread.sleep(100);
         stream2.send(new Object[]{"GOOG", 59.6f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1357,9 +1363,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", null}, event.getData());
                     }
                     eventArrived = true;
@@ -1375,10 +1381,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 10.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1409,9 +1415,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, null}, event.getData());
                     }
                     eventArrived = true;
@@ -1429,10 +1435,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 72.7f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1463,10 +1469,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 4.7f}, event.getData());
                                 break;
@@ -1474,7 +1480,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{"IBM", 72.7f, 4.7f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1497,10 +1503,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"GOOG", 72.7f, 10});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 4.7f, 10});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1531,9 +1537,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 72.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -1551,10 +1557,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 72.7f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1585,9 +1591,9 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", 72.7f, 75.7f}, event.getData());
                     }
                     eventArrived = true;
@@ -1605,10 +1611,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 72.7f, 100});
         Thread.sleep(100);
         stream1.send(new Object[]{"IBM", 75.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1640,10 +1646,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{55.6f, 55.7f, null, 57.7f}, event.getData());
                                 break;
@@ -1651,7 +1657,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{54.0f, 57.7f, null, 59.7f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1676,10 +1682,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"IBM", 57.7f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 59.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1710,15 +1716,15 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{55.6f, 54.0f, 53.6f, 57.0f}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1738,10 +1744,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"WSO2", 53.6f, 100});
         Thread.sleep(100);
         stream1.send(new Object[]{"GOOG", 57f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1773,10 +1779,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"IBM", "FB", "WSO2"}, event.getData());
                                 break;
@@ -1787,7 +1793,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "QQQ", "CSCO"}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(3, inEventCount);
+                                Assert.assertSame(3, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1814,10 +1820,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"QQQ", 24.6f, 45, 1});
         stream1.send(new Object[]{"CSCO", 181.6f, 40, 1});
         stream1.send(new Object[]{"WSO2", 53.7f, 200, 1});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 3, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 3, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1849,10 +1855,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
                                 break;
@@ -1860,7 +1866,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "DDD", 60}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1884,10 +1890,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 60, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
         stream2.send(new Object[]{"DOX", 16.2f, 25, 1});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1920,15 +1926,15 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(1, inEventCount);
+                                Assert.assertSame(1, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -1954,10 +1960,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 60, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
         stream2.send(new Object[]{"DOX", 16.2f, 25, 1});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -1989,10 +1995,10 @@ public class PatternPartitionTestCase {
                 EventPrinter.print(events);
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
-                        switch (inEventCount) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
                             case 1:
                                 Assert.assertArrayEquals(new Object[]{"WSO2", "GOOG", 65}, event.getData());
                                 break;
@@ -2000,7 +2006,7 @@ public class PatternPartitionTestCase {
                                 Assert.assertArrayEquals(new Object[]{"IBN", "DDD", 70}, event.getData());
                                 break;
                             default:
-                                Assert.assertSame(2, inEventCount);
+                                Assert.assertSame(2, inEventCount.get());
                         }
                     }
                     eventArrived = true;
@@ -2026,10 +2032,10 @@ public class PatternPartitionTestCase {
         stream2.send(new Object[]{"WSO2", 176.6f, 90, 1});
         stream1.send(new Object[]{"AMBA", 126.6f, 165, 1});
         stream2.send(new Object[]{"DOX", 16.2f, 25, 1});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 2, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
@@ -2068,9 +2074,9 @@ public class PatternPartitionTestCase {
 
                 for (Event event : events) {
                     if (event.isExpired()) {
-                        removeEventCount++;
+                        removeEventCount.incrementAndGet();
                     } else {
-                        inEventCount++;
+                        inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{"WSO2", "IBM"}, event.getData());
                         eventArrived = true;
                     }
@@ -2088,10 +2094,10 @@ public class PatternPartitionTestCase {
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(100);
         stream2.send(new Object[]{"IBM", 55.7f, 100});
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
 
-        Assert.assertEquals("Number of success events", 1, inEventCount);
-        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Number of success events", 1, inEventCount.get());
+        Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();

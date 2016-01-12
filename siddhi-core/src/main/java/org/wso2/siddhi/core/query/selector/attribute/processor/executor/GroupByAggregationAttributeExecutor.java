@@ -54,4 +54,26 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     }
 
 
+    @Override
+    public Object[] currentState() {
+        HashMap<String, Object[]> data = new HashMap<String, Object[]>();
+        for (Map.Entry<String, AttributeAggregator> entry : aggregatorMap.entrySet()) {
+            data.put(entry.getKey(), entry.getValue().currentState());
+        }
+        return new Object[]{data};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        HashMap<String, Object[]> data = (HashMap<String, Object[]>) state[0];
+
+        for (Map.Entry<String, Object[]> entry : data.entrySet()) {
+            String key = entry.getKey();
+            AttributeAggregator aAttributeAggregator = attributeAggregator.cloneAggregator(key);
+            aAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
+            aAttributeAggregator.start();
+            aAttributeAggregator.restoreState(entry.getValue());
+            aggregatorMap.put(key, aAttributeAggregator);
+        }
+    }
 }

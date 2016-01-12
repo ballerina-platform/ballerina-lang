@@ -52,31 +52,29 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new AllPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if (firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else {
+                    complexEventChunk.remove();
+                    allComplexEventChunk.add(event);
                 }
             }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            allComplexEventChunk.add(complexEvent);
         } finally {
             lock.unlock();
         }
@@ -109,7 +107,6 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
 
     private void sendEvents() {
         ComplexEvent first = allComplexEventChunk.getFirst();
-
         if (first != null) {
             allComplexEventChunk.clear();
             ComplexEventChunk<ComplexEvent> allEventChunk = new ComplexEventChunk<ComplexEvent>();

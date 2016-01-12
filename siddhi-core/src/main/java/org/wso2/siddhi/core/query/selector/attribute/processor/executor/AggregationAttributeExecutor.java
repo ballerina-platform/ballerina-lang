@@ -28,7 +28,6 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
                                         ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         super(attributeAggregator, attributeExpressionExecutors, executionPlanContext);
         attributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
-
     }
 
     @Override
@@ -40,4 +39,13 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
         return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext);
     }
 
+    @Override
+    public Object[] currentState() {
+        return new Object[]{attributeAggregator.currentState()};
+    }
+
+    @Override
+    public void restoreState(Object[] state) {
+        attributeAggregator.restoreState((Object[]) state[0]);
+    }
 }

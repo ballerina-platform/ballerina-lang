@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
@@ -40,13 +41,13 @@ public class ExecutionPlanContext {
     private boolean playback;
     private boolean enforceOrder;
     private boolean parallel;
+    private boolean statsEnabled = false;
+    private StatisticsManager statisticsManager = null;
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
-
-    public static boolean statEnable = false;
 
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;
@@ -97,6 +98,14 @@ public class ExecutionPlanContext {
 
     public void setEnforceOrder(boolean enforceOrder) {
         this.enforceOrder = enforceOrder;
+    }
+
+    public StatisticsManager getStatisticsManager(){
+        return statisticsManager;
+    }
+
+    public void setStatisticsManager(StatisticsManager statisticsManager){
+        this.statisticsManager = statisticsManager;
     }
 
     public ScheduledExecutorService getScheduledExecutorService() {
@@ -174,4 +183,6 @@ public class ExecutionPlanContext {
     public Map<String, EvalScript> getScriptFunctionMap() {
         return scriptFunctionMap;
     }
+
+
 }

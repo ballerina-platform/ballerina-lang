@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.*;
 
@@ -41,24 +42,27 @@ public class InputStreamParser {
      * @param streamDefinitionMap  map containing user given stream definitions
      * @param tableDefinitionMap   table definition map
      * @param eventTableMap        EventTable Map
-     * @param executors            List to hold VariableExpressionExecutors to update after query parsing  @return
+     * @param executors            List to hold VariableExpressionExecutors to update after query parsing
+     * @param latencyTracker       latency tracker
+     * @return StreamRuntime Stream Runtime
      */
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,
                                       Map<String, AbstractDefinition> streamDefinitionMap,
                                       Map<String, AbstractDefinition> tableDefinitionMap,
-                                      Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executors) {
+                                      Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executors,
+                                      LatencyTracker latencyTracker) {
 
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
-            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId());
+            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(), latencyTracker);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, executors, streamDefinitionMap, null, eventTableMap, new MetaStreamEvent(), processStreamReceiver, true);
+                    executionPlanContext, executors, streamDefinitionMap, null, eventTableMap, new MetaStreamEvent(), processStreamReceiver, true, latencyTracker);
         } else if (inputStream instanceof JoinInputStream) {
-            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors);
+            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
-                    metaStateEvent, streamDefinitionMap, null, eventTableMap, executors);
+                    metaStateEvent, streamDefinitionMap, null, eventTableMap, executors, latencyTracker);
         } else {
             throw new OperationNotSupportedException();
         }

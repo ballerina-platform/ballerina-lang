@@ -39,20 +39,22 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new AllPerEventOutputRateLimiter(id + key, value);
+        AllPerEventOutputRateLimiter instance = new AllPerEventOutputRateLimiter(id + key, value);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        allComplexEventChunk.add(complexEvent);
-        counter++;
-        if (counter == value) {
-            sendEvents();
+        complexEventChunk.reset();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent event = complexEventChunk.next();
+            complexEventChunk.remove();
+            allComplexEventChunk.add(event);
+            counter++;
+            if (counter == value) {
+                sendEvents();
+            }
         }
     }
 
@@ -67,9 +69,11 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
     }
 
     private void sendEvents() {
-        sendToCallBacks(allComplexEventChunk);
+        ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
+        complexEventChunk.add(allComplexEventChunk.getFirst());
         allComplexEventChunk.clear();
         counter = 0;
+        sendToCallBacks(complexEventChunk);
     }
 
     @Override

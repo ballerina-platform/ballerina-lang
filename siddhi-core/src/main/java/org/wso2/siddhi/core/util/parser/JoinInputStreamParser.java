@@ -39,6 +39,7 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
@@ -52,7 +53,13 @@ import java.util.Map;
 public class JoinInputStreamParser {
 
 
-    public static StreamRuntime parseInputStream(JoinInputStream joinInputStream, ExecutionPlanContext executionPlanContext, Map<String, AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executors) {
+    public static StreamRuntime parseInputStream(JoinInputStream joinInputStream,
+                                                 ExecutionPlanContext executionPlanContext,
+                                                 Map<String, AbstractDefinition> streamDefinitionMap,
+                                                 Map<String, AbstractDefinition> tableDefinitionMap,
+                                                 Map<String, EventTable> eventTableMap,
+                                                 List<VariableExpressionExecutor> executors,
+                                                 LatencyTracker latencyTracker) {
 
         ProcessStreamReceiver leftProcessStreamReceiver;
         ProcessStreamReceiver rightProcessStreamReceiver;
@@ -73,14 +80,14 @@ public class JoinInputStreamParser {
             if (!streamDefinitionMap.containsKey(rightInputStreamId)) {
                 rightMetaStreamEvent.setTableEvent(true);
             }
-            leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId);
-            rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId);
+            leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId, latencyTracker);
+            rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId, latencyTracker);
             if (leftMetaStreamEvent.isTableEvent() && rightMetaStreamEvent.isTableEvent()) {
                 throw new ExecutionPlanCreationException("Both inputs of join are from static sources " + leftInputStreamId + " and " + rightInputStreamId);
             }
         } else {
             if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
-                rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), 2);
+                rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), 2, latencyTracker);
                 leftProcessStreamReceiver = rightProcessStreamReceiver;
             } else {
                 throw new ExecutionPlanCreationException("Input of join is from static source " + leftInputStreamId + " and " + rightInputStreamId);
@@ -89,7 +96,7 @@ public class JoinInputStreamParser {
 
         SingleStreamRuntime leftStreamRuntime = SingleInputStreamParser.parseInputStream(
                 (SingleInputStream) joinInputStream.getLeftInputStream(), executionPlanContext, executors, streamDefinitionMap,
-                !leftMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, eventTableMap, leftMetaStreamEvent, leftProcessStreamReceiver, true);
+                !leftMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, eventTableMap, leftMetaStreamEvent, leftProcessStreamReceiver, true, latencyTracker);
 
         for (VariableExpressionExecutor variableExpressionExecutor : executors) {
             variableExpressionExecutor.getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = 0;
@@ -98,7 +105,7 @@ public class JoinInputStreamParser {
 
         SingleStreamRuntime rightStreamRuntime = SingleInputStreamParser.parseInputStream(
                 (SingleInputStream) joinInputStream.getRightInputStream(), executionPlanContext, executors, streamDefinitionMap,
-                !rightMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, eventTableMap, rightMetaStreamEvent, rightProcessStreamReceiver, true);
+                !rightMetaStreamEvent.isTableEvent() ? null : tableDefinitionMap, eventTableMap, rightMetaStreamEvent, rightProcessStreamReceiver, true, latencyTracker);
 
         for (int i = size; i < executors.size(); i++) {
             VariableExpressionExecutor variableExpressionExecutor = executors.get(i);

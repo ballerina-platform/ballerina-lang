@@ -97,6 +97,13 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     @Override
+    public void send(List<Event> events, int streamIndex) {
+        for (Event event : events) {
+            send(event, streamIndex);
+        }
+    }
+
+    @Override
     public void send(long timeStamp, Object[] data, int streamIndex) {
         send(new Event(timeStamp, data), streamIndex);
     }
@@ -124,12 +131,6 @@ public class SingleStreamEntryValve implements InputProcessor {
          */
         @Override
         public void onEvent(IndexedEventFactory.IndexedEvent indexedEvent, long sequence, boolean endOfBatch) throws Exception {
-            if (ExecutionPlanContext.statEnable) {
-                count++;
-                if (count % 1000000 == 0) {
-                    log.info("Number of events in the disruptor:" + eventSizeInDisruptor.get() + "\nThread:" + Thread.currentThread().getName());
-                }
-            }
             eventSizeInDisruptor.decrementAndGet();
             int streamIndex = indexedEvent.getStreamIndex();
             if (currentIndex != streamIndex) {

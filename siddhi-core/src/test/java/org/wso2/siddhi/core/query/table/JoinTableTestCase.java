@@ -389,4 +389,68 @@ public class JoinTableTestCase {
 
     }
 
+    @Test
+    public void testTableJoinQuery6() throws InterruptedException {
+        log.info("testTableJoinQuery6 recursive join");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream RequestStream (start string, end string); " +
+                "define stream TimeTableStream (start string, end string, elapsedTime int, startTime string); " +
+                "define stream ResultStream (totalElapsedTime int); " +
+                "define table TimeTable (start string, end string, elapsedTime int, startTime string);";
+
+        String query = "" +
+                "from TimeTableStream " +
+                "select * " +
+                "insert into TimeTable; " +
+                "" +
+                "from RequestStream join TimeTable " +
+                "on TimeTable.start == RequestStream.start " +
+                "select TimeTable.start as start, TimeTable.end as end, TimeTable.elapsedTime as elapsedTime, RequestStream.end as destination " +
+                "insert into intermediateResultStream;" +
+                "" +
+                "@info(name = 'query1') " +
+                "from intermediateResultStream[end==destination] " +
+                "select intermediateResultStream.elapsedTime as totalElapsedTime " +
+                "insert into ResultStream;" +
+                "" +
+                "from intermediateResultStream[end!=destination] " +
+                "insert into intermediateResultStream2; " +
+                "" +
+                "from intermediateResultStream2 join TimeTable " +
+                "on TimeTable.start == intermediateResultStream2.end " +
+                "select TimeTable.start as start, TimeTable.end as end, (intermediateResultStream2.elapsedTime + TimeTable.elapsedTime) as elapsedTime, destination " +
+                "insert into intermediateResultStream; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived=true;
+            }
+        });
+
+        InputHandler timeTableStream = executionPlanRuntime.getInputHandler("TimeTableStream");
+        InputHandler requestStream = executionPlanRuntime.getInputHandler("RequestStream");
+
+        executionPlanRuntime.start();
+
+        timeTableStream.send(new Object[]{"A","B",25,"1.27PM"});
+        timeTableStream.send(new Object[]{"B","C",10,"1.52PM"});
+        timeTableStream.send(new Object[]{"C","D",60,"2.52PM"});
+        Thread.sleep(1000);
+
+        requestStream.send(new Object[]{"A","D"});
+
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+        Assert.assertTrue("Events arrived", eventArrived);
+
+    }
+
 }

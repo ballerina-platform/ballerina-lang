@@ -20,14 +20,15 @@ package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
 import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SequenceMultiProcessStreamReceiver extends MultiProcessStreamReceiver {
 
 
     private StateStreamRuntime stateStreamRuntime;
 
-    public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime) {
-        super(streamId, processCount);
+    public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime, LatencyTracker latencyTracker) {
+        super(streamId, processCount, latencyTracker);
         this.stateStreamRuntime = stateStreamRuntime;
         eventSequence = new int[processCount];
         int count=0;
@@ -38,7 +39,7 @@ public class SequenceMultiProcessStreamReceiver extends MultiProcessStreamReceiv
     }
 
     public SequenceMultiProcessStreamReceiver clone(String key) {
-        return new SequenceMultiProcessStreamReceiver(streamId + key, processCount, null);
+        return new SequenceMultiProcessStreamReceiver(streamId + key, processCount, null, latencyTracker);
     }
 
     public void setStateStreamRuntime(StateStreamRuntime stateStreamRuntime) {

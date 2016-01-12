@@ -30,6 +30,8 @@ import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMemoryUsageMetric;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.Map;
@@ -52,6 +54,8 @@ public class ExecutionPlanRuntime {
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ExecutionPlanContext executionPlanContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
+    private MemoryUsageTracker memoryUsageTracker;
+
 
     public ExecutionPlanRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager, ConcurrentMap<String, QueryRuntime> queryProcessorMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ConcurrentMap<String, EventTable> eventTableMap, ConcurrentMap<String, PartitionRuntime> partitionMap, ExecutionPlanContext executionPlanContext, ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
@@ -63,6 +67,16 @@ public class ExecutionPlanRuntime {
         this.partitionMap = partitionMap;
         this.executionPlanContext = executionPlanContext;
         this.executionPlanRuntimeMap = executionPlanRuntimeMap;
+
+        if (executionPlanContext.getStatisticsManager()!=null) {
+            memoryUsageTracker = executionPlanContext
+                    .getSiddhiContext()
+                    .getStatisticsConfiguration()
+                    .getFactory()
+                    .createMemoryUsageTracker(executionPlanContext.getStatisticsManager());
+
+            monitorQueryMemoryUsage();
+        }
     }
 
     public String getName() {
@@ -134,9 +148,18 @@ public class ExecutionPlanRuntime {
         if (executionPlanRuntimeMap != null) {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }
+
+        if (executionPlanContext.getStatisticsManager() != null) {
+            executionPlanContext.getStatisticsManager().stopReporting();
+            executionPlanContext.getStatisticsManager().cleanup();
+        }
     }
 
     public synchronized void start() {
+        if (executionPlanContext.getStatisticsManager() != null) {
+            executionPlanContext.getStatisticsManager().startReporting();
+        }
+
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
@@ -166,8 +189,18 @@ public class ExecutionPlanRuntime {
         executionPlanContext.getSnapshotService().restore(snapshot);
     }
 
-    public void enableStatistics() {
-        ExecutionPlanContext.statEnable = true;
+    private void monitorQueryMemoryUsage() {
+
+        for (Map.Entry entry : queryProcessorMap.entrySet()) {
+            memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + entry.getKey());
+        }
+
+        for (Map.Entry entry : partitionMap.entrySet()) {
+            ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime) entry.getValue()).getMetaQueryRuntimeMap();
+            for (Map.Entry query : queryRuntime.entrySet()) {
+                memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + query.getKey());
+            }
+        }
     }
 
 }

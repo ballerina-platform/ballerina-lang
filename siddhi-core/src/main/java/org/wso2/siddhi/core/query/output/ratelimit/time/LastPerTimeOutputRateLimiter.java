@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable{
+public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     private String id;
     private final Long value;
     private ComplexEvent lastevent = null;
@@ -51,31 +51,29 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        LastPerTimeOutputRateLimiter instance = new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else {
+                    complexEventChunk.remove();
+                    lastevent = event;
                 }
             }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            lastevent = complexEvent;
         } finally {
             lock.unlock();
         }
@@ -85,15 +83,15 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
         if (lastevent != null) {
             ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
             complexEventChunk.add(lastevent);
-            sendToCallBacks(complexEventChunk);
             lastevent = null;
+            sendToCallBacks(complexEventChunk);
         }
     }
 
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;

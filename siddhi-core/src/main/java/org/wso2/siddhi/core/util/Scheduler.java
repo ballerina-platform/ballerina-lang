@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,6 +48,7 @@ public class Scheduler implements Snapshotable {
     private ComplexEventChunk<StreamEvent> streamEventChunk;
     private ExecutionPlanContext executionPlanContext;
     private String elementId;
+    private LatencyTracker latencyTracker;
 
 
     public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve) {
@@ -84,7 +86,8 @@ public class Scheduler implements Snapshotable {
         streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
-    public void init(ExecutionPlanContext executionPlanContext) {
+    public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
+        this.latencyTracker = latencyTracker;
         this.executionPlanContext = executionPlanContext;
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
@@ -113,7 +116,7 @@ public class Scheduler implements Snapshotable {
     public Scheduler clone(String key, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {
         Scheduler scheduler = new Scheduler(scheduledExecutorService, singleThreadEntryValveProcessor);
         scheduler.elementId = elementId + "-" + key;
-        scheduler.init(executionPlanContext);
+        scheduler.init(executionPlanContext, latencyTracker);
         return scheduler;
     }
 
@@ -130,7 +133,7 @@ public class Scheduler implements Snapshotable {
          * to create a thread, starting the thread causes the object's
          * <code>run</code> method to be called in that separately executing
          * thread.
-         * <p/>
+         * <p>
          * The general contract of the method <code>run</code> is that it may
          * take any action whatsoever.
          *
@@ -148,7 +151,16 @@ public class Scheduler implements Snapshotable {
                 timerEvent.setType(StreamEvent.Type.TIMER);
                 timerEvent.setTimestamp(currentTime);
                 streamEventChunk.add(timerEvent);
-                singleThreadEntryValve.process(streamEventChunk);
+                if (latencyTracker != null) {
+                    try {
+                        latencyTracker.markIn();
+                        singleThreadEntryValve.process(streamEventChunk);
+                    } finally {
+                        latencyTracker.markOut();
+                    }
+                } else {
+                    singleThreadEntryValve.process(streamEventChunk);
+                }
                 streamEventChunk.clear();
 
                 toNotifyTime = toNotifyQueue.peek();

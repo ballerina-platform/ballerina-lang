@@ -38,9 +38,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
-    private final StreamEventConverter streamEventConverter;
     private final StreamEventPool eventPool;
+    private StreamEventConverter streamEventConverter;
     private String streamId;
+    private MetaStreamEvent metaStreamEvent;
     private StreamDefinition streamDefinition;
     private ExecutionPlanContext executionPlanContext;
     private PartitionRuntime partitionRuntime;
@@ -52,16 +53,20 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     public PartitionStreamReceiver(ExecutionPlanContext executionPlanContext, MetaStreamEvent metaStreamEvent, StreamDefinition streamDefinition,
                                    List<PartitionExecutor> partitionExecutors,
                                    PartitionRuntime partitionRuntime) {
+        this.metaStreamEvent = metaStreamEvent;
         this.streamDefinition = streamDefinition;
         this.partitionRuntime = partitionRuntime;
         this.partitionExecutors = partitionExecutors;
         this.executionPlanContext = executionPlanContext;
         streamId = streamDefinition.getId();
         this.eventPool = new StreamEventPool(metaStreamEvent, 5);
-        this.streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
         this.streamEventChunk = new ComplexEventChunk<ComplexEvent>();
 
     }
+
+   public void init(){
+       streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
+   }
 
     @Override
     public String getStreamId() {

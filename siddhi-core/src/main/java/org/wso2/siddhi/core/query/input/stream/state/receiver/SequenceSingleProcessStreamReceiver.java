@@ -20,14 +20,15 @@ package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
 import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
 
     private StateStreamRuntime stateStreamRuntime;
 
-    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime) {
-        super(streamId);
+    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, LatencyTracker latencyTracker) {
+        super(streamId, latencyTracker);
         this.stateStreamRuntime = stateStreamRuntime;
     }
 
@@ -36,7 +37,7 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
     }
 
     public SequenceSingleProcessStreamReceiver clone(String key) {
-        return new SequenceSingleProcessStreamReceiver(streamId + key, null);
+        return new SequenceSingleProcessStreamReceiver(streamId + key, null, latencyTracker);
     }
 
     protected void stabilizeStates() {

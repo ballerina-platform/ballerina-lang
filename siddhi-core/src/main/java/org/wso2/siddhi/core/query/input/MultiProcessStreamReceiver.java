@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     private List<Event> eventBuffer = new ArrayList<Event>(0);
     protected int[] eventSequence;
 
-    public MultiProcessStreamReceiver(String streamId, int processCount) {
-        super(streamId);
+    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
+        super(streamId, latencyTracker);
         this.processCount = processCount;
         nextProcessors = new Processor[processCount];
         metaStreamEvents = new MetaStreamEvent[processCount];
@@ -57,7 +58,20 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        return new MultiProcessStreamReceiver(streamId + key, processCount);
+        return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
+    }
+
+    private void process(int eventSequence, StreamEvent borrowedEvent){
+        if (latencyTracker != null){
+            try {
+                latencyTracker.markIn();
+                processAndClear(eventSequence, borrowedEvent);
+            }finally {
+                latencyTracker.markOut();
+            }
+        } else {
+            processAndClear(eventSequence, borrowedEvent);
+        }
     }
 
     @Override
@@ -70,7 +84,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
                 StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
                 aStreamEventConverter.convertStreamEvent(aComplexEvent, borrowedEvent);
-                processAndClear(anEventSequence, borrowedEvent);
+                process(anEventSequence, borrowedEvent);
+
             }
             aComplexEvent = aComplexEvent.getNext();
         }
@@ -84,7 +99,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
             StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
             StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
             aStreamEventConverter.convertEvent(event, borrowedEvent);
-            processAndClear(anEventSequence, borrowedEvent);
+            process(anEventSequence, borrowedEvent);
         }
     }
 
@@ -97,7 +112,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
                 StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                 StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
                 aStreamEventConverter.convertEvent(event, borrowedEvent);
-                processAndClear(anEventSequence, borrowedEvent);
+                process(anEventSequence, borrowedEvent);
             }
         }
     }
@@ -113,7 +128,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
                     StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                     StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
                     aStreamEventConverter.convertEvent(aEvent, borrowedEvent);
-                    processAndClear(anEventSequence, borrowedEvent);
+                    process(anEventSequence, borrowedEvent);
                 }
             }
             eventBuffer.clear();
@@ -128,7 +143,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
             StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
             StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
             aStreamEventConverter.convertData(timeStamp, data, borrowedEvent);
-            processAndClear(anEventSequence, borrowedEvent);
+            process(anEventSequence, borrowedEvent);
         }
     }
 

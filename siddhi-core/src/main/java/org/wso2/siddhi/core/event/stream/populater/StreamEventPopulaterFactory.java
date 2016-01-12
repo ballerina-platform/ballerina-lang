@@ -35,6 +35,7 @@ public class StreamEventPopulaterFactory {
      *
      * @param metaStreamEvent       info for populating the StreamEvent
      * @param streamEventChainIndex StreamEvent chain index
+     * @param attributes            mapped attributes
      * @return StateEventPopulater
      */
     public static ComplexEventPopulater constructEventPopulator(MetaStreamEvent metaStreamEvent, int streamEventChainIndex, List<Attribute> attributes) {

@@ -29,6 +29,8 @@ import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutpu
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.statistics.metrics.SiddhiLatencyMetric;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
@@ -52,6 +54,7 @@ public class QueryParser {
      * @param executionPlanContext associated Execution Plan context
      * @param streamDefinitionMap  map containing user given stream definitions
      * @param tableDefinitionMap   map containing table definitions
+     * @param eventTableMap        map containing event tables
      * @return queryRuntime
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
@@ -61,17 +64,27 @@ public class QueryParser {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element element = null;
+        LatencyTracker latencyTracker = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
+            if (executionPlanContext.getStatisticsManager()!=null) {
+                if (element != null) {
+                    String metricName = executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() + ".executionplan." + executionPlanContext.getName() + "." + element.getValue();
+                    latencyTracker = executionPlanContext.getSiddhiContext()
+                            .getStatisticsConfiguration()
+                            .getFactory()
+                            .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
+                }
+            }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker);
 
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
 
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
 
-            if(!isWindow && query.getInputStream() instanceof  SingleInputStream) {
+            if (!isWindow && query.getInputStream() instanceof SingleInputStream) {
                 for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {
                     if (streamHandler instanceof Window) {
                         isWindow = true;
@@ -82,7 +95,7 @@ public class QueryParser {
 
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
                     query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow, executionPlanContext.getScheduledExecutorService());
-            outputRateLimiter.init(executionPlanContext);
+            outputRateLimiter.init(executionPlanContext, latencyTracker);
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
@@ -96,8 +109,8 @@ public class QueryParser {
 
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, outputCallback, streamRuntime.getMetaComplexEvent());
 
-            if(outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter){
-               ((WrappedSnapshotOutputRateLimiter) outputRateLimiter).init(streamRuntime.getMetaComplexEvent().getOutputStreamDefinition().getAttributeList().size(),selector.getAttributeProcessorList(),streamRuntime.getMetaComplexEvent());
+            if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
+                ((WrappedSnapshotOutputRateLimiter) outputRateLimiter).init(streamRuntime.getMetaComplexEvent().getOutputStreamDefinition().getAttributeList().size(), selector.getAttributeProcessorList(), streamRuntime.getMetaComplexEvent());
             }
 
         } catch (DuplicateDefinitionException e) {

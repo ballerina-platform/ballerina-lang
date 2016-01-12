@@ -18,16 +18,17 @@
 package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
 import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
 
-    public PatternSingleProcessStreamReceiver(String streamId) {
-        super(streamId);
+    public PatternSingleProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
+        super(streamId, latencyTracker);
     }
 
     public PatternSingleProcessStreamReceiver clone(String key) {
-        return new PatternSingleProcessStreamReceiver(streamId + key);
+        return new PatternSingleProcessStreamReceiver(streamId + key, latencyTracker);
     }
 
     protected void stabilizeStates() {

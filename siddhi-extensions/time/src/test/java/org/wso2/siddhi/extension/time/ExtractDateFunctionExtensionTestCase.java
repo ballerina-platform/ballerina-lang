@@ -28,16 +28,19 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExtractDateFunctionExtensionTestCase {
 
     static final Logger log = Logger.getLogger(ExtractDateFunctionExtensionTestCase.class);
-    private volatile int count;
+    private volatile AtomicInteger count;
     private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
+        count = new AtomicInteger(0);
         eventArrived = false;
     }
 
@@ -61,8 +64,8 @@ public class ExtractDateFunctionExtensionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for(int cnt=0;cnt<inEvents.length;cnt++){
-                    count++;
-                    log.info("Event : " + count + ",dateExtracted : " + inEvents[cnt].getData(1));
+                    count.incrementAndGet();
+                    log.info("Event : " + count.get() + ",dateExtracted : " + inEvents[cnt].getData(1));
 
                 }
             }
@@ -73,9 +76,10 @@ public class ExtractDateFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"IBM", "2014-11-11 13:23:44.657", "yyyy-MM-dd HH:mm:ss.SSS"});
         inputHandler.send(new Object[]{"WSO2", "2014-11-11 13:23:44", "yyyy-MM-dd HH:mm:ss"});
         inputHandler.send(new Object[]{"XYZ", "2014-11-11", "yyyy-MM-dd"});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
-        Assert.assertTrue(eventArrived);
+        SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
         executionPlanRuntime.shutdown();
+        Assert.assertEquals(3, count.get());
+        Assert.assertTrue(eventArrived);
+
     }
 }

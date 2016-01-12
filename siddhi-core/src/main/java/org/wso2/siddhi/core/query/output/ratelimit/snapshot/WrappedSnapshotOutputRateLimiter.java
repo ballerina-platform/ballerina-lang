@@ -57,6 +57,7 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     public OutputRateLimiter clone(String key) {
         WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter = new WrappedSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, groupBy, windowed);
         wrappedSnapshotOutputRateLimiter.outputRateLimiter = this.outputRateLimiter.clone(key, wrappedSnapshotOutputRateLimiter);
+        wrappedSnapshotOutputRateLimiter.setLatencyTracker(latencyTracker);
         return wrappedSnapshotOutputRateLimiter;
     }
 
@@ -120,11 +121,6 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         outputRateLimiter.process(complexEventChunk);
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        outputRateLimiter.add(complexEvent);
     }
 
     public void passToCallBacks(ComplexEventChunk complexEventChunk) {

@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +41,11 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     private StreamEventPool streamEventPool;
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
     protected int stateProcessorsSize;
+    protected LatencyTracker latencyTracker;
 
-
-    public ProcessStreamReceiver(String streamId) {
+    public ProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
         this.streamId = streamId;
+        this.latencyTracker = latencyTracker;
     }
 
     @Override
@@ -52,25 +54,38 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public ProcessStreamReceiver clone(String key) {
-        return new ProcessStreamReceiver(streamId + key);
+        return new ProcessStreamReceiver(streamId + key, latencyTracker);
+    }
+
+    private void process() {
+        if (latencyTracker != null) {
+            try {
+                latencyTracker.markIn();
+                processAndClear(streamEventChunk);
+            } finally {
+                latencyTracker.markOut();
+            }
+        } else {
+            processAndClear(streamEventChunk);
+        }
     }
 
     @Override
     public void receive(ComplexEvent complexEvent) {
         streamEventChunk.convertAndAssign(complexEvent);
-        processAndClear(streamEventChunk);
+        process();
     }
 
     @Override
     public void receive(Event event) {
         streamEventChunk.convertAndAssign(event);
-        processAndClear(streamEventChunk);
+        process();
     }
 
     @Override
     public void receive(Event[] events) {
         streamEventChunk.convertAndAssign(events);
-        processAndClear(streamEventChunk);
+        process();
     }
 
 
@@ -78,14 +93,15 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     public void receive(Event event, boolean endOfBatch) {
         streamEventChunk.convertAndAdd(event);
         if (endOfBatch) {
-            processAndClear(streamEventChunk);
+            process();
         }
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
         streamEventChunk.convertAndAssign(timeStamp, data);
-        processAndClear(streamEventChunk);
+        process();
+
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {

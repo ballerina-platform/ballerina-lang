@@ -92,6 +92,14 @@ public class ExecutionPlanParser {
                 executionPlanContext.setParallel(true);
             }
 
+            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STATISTICS,
+                    executionPlan.getAnnotations());
+            if (annotation != null) {
+                if (siddhiContext.getStatisticsConfiguration() != null) {
+                    executionPlanContext.setStatisticsManager(siddhiContext.getStatisticsConfiguration().getFactory().createStatisticsManager(annotation.getElements()));
+                }
+            }
+
             if (!executionPlanContext.isPlayback() && !executionPlanContext.isEnforceOrder() && !executionPlanContext.isParallel()) {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
