@@ -171,7 +171,7 @@ public class ConnectionManager {
                                execute(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
                                                                httpRequest, carbonMessage,
                                                                carbonCallback, false, null, this, ringBuffer));
-                    targetChannel=null;
+                    targetChannel = null;
                 }
             }
         }
