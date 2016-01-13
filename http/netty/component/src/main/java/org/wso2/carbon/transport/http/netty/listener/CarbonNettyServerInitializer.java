@@ -30,7 +30,6 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
@@ -44,6 +43,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private ConnectionManager connectionManager;
 
+
     public CarbonNettyServerInitializer() {
 
     }
@@ -51,20 +51,18 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     @Override
     public void setup(Map<String, String> parameters) {
 
-        BootstrapConfiguration.createBootStrapConfiguration(parameters);
         PoolConfiguration.createPoolConfiguration(parameters);
-
         try {
             connectionManager = ConnectionManager.getInstance();
 
             if (parameters != null) {
                 DisruptorConfig disruptorConfig =
-                        new DisruptorConfig(
-                                parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
-                                parameters.get(Constants.DISRUPTOR_COUNT),
-                                parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                                parameters.get(Constants.WAIT_STRATEGY),
-                                Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
+                           new DisruptorConfig(
+                                      parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
+                                      parameters.get(Constants.DISRUPTOR_COUNT),
+                                      parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                                      parameters.get(Constants.WAIT_STRATEGY),
+                                      Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else {

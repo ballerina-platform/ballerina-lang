@@ -127,6 +127,7 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.setHttpRoute(httpRoute);
             targetChannel.setCorrelatedSource(sourceHandler);
             targetChannel.getTargetHandler().setCallback(carbonCallback);
+            targetChannel.getTargetHandler().setIncomingMsg(carbonMessage);
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);

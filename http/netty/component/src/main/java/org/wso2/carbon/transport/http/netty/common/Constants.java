@@ -64,6 +64,8 @@ public final class Constants {
 
     public static final String CLINET_BOOTSTRAP_SO_REUSE = "client.bootstrap.socket.reuse";
 
+    public static final String CLINET_BOOTSTRAP_SO_TIMEOUT = "client.bootstrap.socket.timeout";
+
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -79,6 +81,8 @@ public final class Constants {
     public static final String SERVER_BOOTSTRAP_SO_REUSE = "server.bootstrap.socket.reuse";
 
     public static final String SERVER_BOOTSTRAP_SO_BACKLOG = "server.bootstrap.socket.backlog";
+
+    public static final String SERVER_BOOTSTRAP_SO_TIMEOUT = "server.bootstrap.socket.timeout";
 
 
     // Connection Pool parameters

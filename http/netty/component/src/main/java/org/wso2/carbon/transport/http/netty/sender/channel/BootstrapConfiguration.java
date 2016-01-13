@@ -39,6 +39,8 @@ public class BootstrapConfiguration {
 
     private boolean socketReuse = false;
 
+    private int socketTimeout = 15;
+
 
     private BootstrapConfiguration(Map<String, String> parameters) {
 
@@ -52,6 +54,8 @@ public class BootstrapConfiguration {
                                           (parameters.get(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE)) : 1048576;
             sendBufferSize = parameters.get(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE) != null ?
                              Integer.parseInt(parameters.get(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE)) : 1048576;
+            socketTimeout = parameters.get(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT) != null ?
+                             Integer.parseInt(parameters.get(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT)) : 15;
             keepAlive = parameters.get(Constants.CLINET_BOOTSTRAP_KEEPALIVE) == null ||
                         Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_KEEPALIVE));
             socketReuse = Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_SO_REUSE));
@@ -82,6 +86,10 @@ public class BootstrapConfiguration {
 
     public boolean isSocketReuse() {
         return socketReuse;
+    }
+
+    public int getSocketTimeout() {
+        return socketTimeout;
     }
 
     public static BootstrapConfiguration getInstance() {

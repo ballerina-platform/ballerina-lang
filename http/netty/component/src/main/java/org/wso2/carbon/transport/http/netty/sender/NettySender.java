@@ -90,6 +90,7 @@ public class NettySender implements TransportSender {
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);
+                targetChannel.getTargetHandler().setIncomingMsg(msg);
                 targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);

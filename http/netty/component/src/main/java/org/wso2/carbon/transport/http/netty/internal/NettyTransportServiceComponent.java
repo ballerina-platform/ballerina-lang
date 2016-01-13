@@ -31,7 +31,6 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
-import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
 import java.util.List;
