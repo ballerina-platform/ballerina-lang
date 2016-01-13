@@ -29,13 +29,14 @@ import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
+import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,11 +48,12 @@ public class NettySender implements TransportSender {
 
     private static final Logger log = LoggerFactory.getLogger(NettySender.class);
     private String id;
-    private NettyClientInitializer nettyClientInitializer;
     private ConnectionManager connectionManager;
+    private SenderConfiguration senderConfiguration;
 
     public NettySender(SenderConfiguration senderConfiguration) {
         this.id = senderConfiguration.getId();
+        this.senderConfiguration = senderConfiguration;
         Map<String, String> paramMap = new HashMap<>(senderConfiguration.getParameters().size());
         if (senderConfiguration.getParameters() != null && !senderConfiguration.getParameters().isEmpty()) {
             for (Parameter parameter : senderConfiguration.getParameters()) {
@@ -59,11 +61,8 @@ public class NettySender implements TransportSender {
             }
 
         }
-        nettyClientInitializer = new NettyClientInitializer(senderConfiguration.getId());
-        nettyClientInitializer.setSslConfig(senderConfiguration.getSslConfig());
-        CarbonNettyClientInitializer carbonNettyClientInitializer = new CarbonNettyClientInitializer();
-        NettyTransportContextHolder.getInstance().addNettyChannelInitializer(id, carbonNettyClientInitializer);
-        carbonNettyClientInitializer.setup(paramMap);
+        PoolConfiguration.createPoolConfiguration(paramMap);
+        BootstrapConfiguration.createBootStrapConfiguration(paramMap);
         this.connectionManager = ConnectionManager.getInstance();
     }
 
@@ -73,7 +72,7 @@ public class NettySender implements TransportSender {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
-                (Integer) msg.getProperty(Constants.PORT));
+                                              (Integer) msg.getProperty(Constants.PORT));
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
@@ -86,7 +85,7 @@ public class NettySender implements TransportSender {
         Channel outboundChannel = null;
         try {
             TargetChannel targetChannel = connectionManager.getTargetChannel
-                       (route, srcHandler, nettyClientInitializer, httpRequest, msg, callback, ringBuffer);
+                       (route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);
@@ -95,7 +94,10 @@ public class NettySender implements TransportSender {
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
 
-                ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
+                boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
+                if (written) {
+                    targetChannel.setRequestWritten(true);
+                }
             }
         } catch (Exception failedCause) {
             throw new MessageProcessorException(failedCause.getMessage(), failedCause);

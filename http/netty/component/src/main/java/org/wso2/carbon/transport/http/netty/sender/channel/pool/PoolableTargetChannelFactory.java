@@ -23,7 +23,7 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
@@ -37,14 +37,14 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private EventLoopGroup eventLoopGroup;
     private Class eventLoopClass;
     private HttpRoute httpRoute;
-    private NettyClientInitializer nettyClientInitializer;
+    private SenderConfiguration senderConfiguration;
 
     public PoolableTargetChannelFactory(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-                                        Class eventLoopClass, NettyClientInitializer nettyClientInitializer) {
+                                        Class eventLoopClass, SenderConfiguration senderConfiguration) {
         this.eventLoopGroup = eventLoopGroup;
         this.eventLoopClass = eventLoopClass;
         this.httpRoute = httpRoute;
-        this.nettyClientInitializer = nettyClientInitializer;
+        this.senderConfiguration = senderConfiguration;
     }
 
 
@@ -52,7 +52,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         TargetChannel targetChannel = new TargetChannel();
         ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
-                eventLoopGroup, eventLoopClass, httpRoute, nettyClientInitializer);
+                eventLoopGroup, eventLoopClass, httpRoute, senderConfiguration);
         Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
         log.debug("Created channel: {}", channel);
         targetChannel.setChannel(channel);

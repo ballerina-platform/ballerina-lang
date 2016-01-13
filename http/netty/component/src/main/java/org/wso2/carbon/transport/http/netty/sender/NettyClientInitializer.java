@@ -17,12 +17,15 @@ package org.wso2.carbon.transport.http.netty.sender;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpRequestEncoder;
+import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -32,16 +35,16 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyClientInitializer.class);
 
-    private String transportID;
-    private SSLConfig sslConfig;
-    private CarbonNettyClientInitializer initializer;
 
-    public NettyClientInitializer(String transportID) {
-        this.transportID = transportID;
-    }
+    private SenderConfiguration senderConfiguration;
 
-    public void setSslConfig(SSLConfig sslConfig) {
-        this.sslConfig = sslConfig;
+    protected static final String HANDLER = "handler";
+    private TargetHandler handler;
+    private int soTimeOut;
+
+    public NettyClientInitializer(SenderConfiguration senderConfiguration) {
+        this.senderConfiguration = senderConfiguration;
+        soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
     }
 
 
@@ -49,27 +52,22 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel ch) throws Exception {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
-        if (sslConfig != null) {
-            SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
+        if (senderConfiguration.getSslConfig() != null) {
+            SslHandler sslHandler = new SSLHandlerFactory(senderConfiguration.getSslConfig()).create();
             sslHandler.engine().setUseClientMode(true);
             ch.pipeline().addLast("ssl", sslHandler);
         }
 
-        // Add the rest of the handlers to the pipeline
-        initializer =
-                   (CarbonNettyClientInitializer) NettyTransportContextHolder.getInstance().
-                              getClientChannelInitializer(transportID);
+        ch.pipeline().addLast("decoder", new HttpResponseDecoder());
+        ch.pipeline().addLast("encoder", new HttpRequestEncoder());
+        ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
+        handler = new TargetHandler(soTimeOut);
+        ch.pipeline().addLast(HANDLER, handler);
 
-        if (initializer != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Calling CarbonNettyServerInitializer OSGi service " + initializer);
-            }
-            initializer.initChannel(ch);
-        }
 
     }
 
     public TargetHandler getTargetHandler() {
-        return initializer.getTargetHandler();
+        return handler;
     }
 }

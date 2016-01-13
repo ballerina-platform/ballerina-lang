@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.ClientRequestWorker;
-import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class ConnectionManager {
 
 
     private GenericObjectPool createPoolForRoute(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
-                                                 Class eventLoopClass, NettyClientInitializer nettyClientInitializer) {
+                                                 Class eventLoopClass, SenderConfiguration senderConfiguration) {
         GenericObjectPool.Config config = new GenericObjectPool.Config();
         config.maxActive = poolConfiguration.getMaxActivePerPool();
         config.maxIdle = poolConfiguration.getMaxIdlePerPool();
@@ -93,7 +93,7 @@ public class ConnectionManager {
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
         return new GenericObjectPool(new PoolableTargetChannelFactory(httpRoute, eventLoopGroup,
-                                                                      eventLoopClass, nettyClientInitializer),
+                                                                      eventLoopClass, senderConfiguration),
                                      config);
 
 
@@ -116,18 +116,18 @@ public class ConnectionManager {
     /**
      * Provide target channel for given http route.
      *
-     * @param httpRoute BE address
-     * @param sourceHandler Incoming channel
-     * @param nettyClientInitializer netty initializer
-     * @param httpRequest http request
-     * @param carbonMessage carbon message
-     * @param carbonCallback carbon call back
-     * @param ringBuffer ring buffer
+     * @param httpRoute           BE address
+     * @param sourceHandler       Incoming channel
+     * @param senderConfiguration netty sender config
+     * @param httpRequest         http request
+     * @param carbonMessage       carbon message
+     * @param carbonCallback      carbon call back
+     * @param ringBuffer          ring buffer
      * @return TargetChannel
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
     public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
-                                          NettyClientInitializer nettyClientInitializer,
+                                          SenderConfiguration senderConfiguration,
                                           HttpRequest httpRequest, CarbonMessage carbonMessage,
                                           CarbonCallback carbonCallback, RingBuffer ringBuffer)
                throws Exception {
@@ -142,11 +142,11 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = sourceHandler.getTargetChannelPool();
             GenericObjectPool pool = objectPoolMap.get(httpRoute.toString());
             if (pool == null) {
-                pool = createPoolForRoute(httpRoute, group, cl, nettyClientInitializer);
+                pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
                 objectPoolMap.put(httpRoute.toString(), pool);
             }
             try {
-                executorService.submit(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
+                executorService.submit(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration,
                                                                httpRequest, carbonMessage,
                                                                carbonCallback, true,
                                                                pool, this, ringBuffer));
@@ -158,20 +158,21 @@ public class ConnectionManager {
         } else {
             // manage connections according to per inbound channel caching method
             if (!isRouteExists(httpRoute, sourceHandler)) {
-               executorService.
-                        execute(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
-                                                        httpRequest, carbonMessage,
-                                                        carbonCallback, false,
-                                                        null, this, ringBuffer));
+                executorService.
+                           execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration,
+                                                           httpRequest, carbonMessage,
+                                                           carbonCallback, false,
+                                                           null, this, ringBuffer));
             } else {
                 targetChannel = sourceHandler.getChannel(httpRoute);
                 Channel tempc = targetChannel.getChannel();
                 if (!tempc.isActive()) {
                     executorService.
-                               execute(new ClientRequestWorker(httpRoute, sourceHandler, nettyClientInitializer,
+                               execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration,
                                                                httpRequest, carbonMessage,
                                                                carbonCallback, false, null, this, ringBuffer));
                     targetChannel = null;
+                    sourceHandler.removeChannelFuture(httpRoute);
                 }
             }
         }
@@ -215,7 +216,7 @@ public class ConnectionManager {
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
             int ind = index.getAndIncrement() % poolCount;
-                return mapList.get(ind);
+            return mapList.get(ind);
         }
         return null;
     }

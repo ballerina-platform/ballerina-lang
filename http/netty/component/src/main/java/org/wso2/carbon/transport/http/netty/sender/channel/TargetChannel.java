@@ -38,6 +38,11 @@ public class TargetChannel {
 
     private SourceHandler correlatedSource;
 
+    private boolean isRequestWritten;
+
+    public boolean isRequestWritten() {
+        return isRequestWritten;
+    }
 
     public Channel getChannel() {
         return channel;
@@ -78,5 +83,9 @@ public class TargetChannel {
 
     public void setCorrelatedSource(SourceHandler correlatedSource) {
         this.correlatedSource = correlatedSource;
+    }
+
+    public void setRequestWritten(boolean isRequestWritten) {
+        this.isRequestWritten = isRequestWritten;
     }
 }

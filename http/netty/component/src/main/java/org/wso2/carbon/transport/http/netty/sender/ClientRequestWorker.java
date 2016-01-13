@@ -30,6 +30,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -47,7 +48,7 @@ public class ClientRequestWorker implements Runnable {
 
     private HttpRoute httpRoute;
     private SourceHandler sourceHandler;
-    private NettyClientInitializer nettyClientInitializer;
+    private SenderConfiguration senderConfig;
     private CarbonMessage carbonMessage;
     private HttpRequest httpRequest;
     private CarbonCallback carbonCallback;
@@ -57,14 +58,14 @@ public class ClientRequestWorker implements Runnable {
 
 
     public ClientRequestWorker(HttpRoute httpRoute, SourceHandler sourceHandler,
-                               NettyClientInitializer nettyClientInitializer, HttpRequest httpRequest,
+                               SenderConfiguration senderConfig, HttpRequest httpRequest,
                                CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                                boolean globalEndpointPooling, GenericObjectPool genericObjectPool,
                                ConnectionManager connectionManager, RingBuffer ringBuffer) {
         this.globalEndpointPooling = globalEndpointPooling;
         this.httpRequest = httpRequest;
         this.sourceHandler = sourceHandler;
-        this.nettyClientInitializer = nettyClientInitializer;
+        this.senderConfig = senderConfig;
         this.carbonCallback = carbonCallback;
         this.carbonMessage = carbonMessage;
         this.httpRoute = httpRoute;
@@ -94,7 +95,7 @@ public class ClientRequestWorker implements Runnable {
             } catch (Exception e) {
                 String msg = "Cannot borrow free channel from pool";
                 log.error(msg, e);
-               FaultHandler  faultHandler = carbonMessage.getFaultHandlerStack().pop();
+                FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
                 if (faultHandler != null) {
                     faultHandler.handleFault("502", e, carbonCallback);
                     carbonMessage.getFaultHandlerStack().push(faultHandler);
@@ -102,8 +103,7 @@ public class ClientRequestWorker implements Runnable {
             }
         } else {
             targetChannel = new TargetChannel();
-            ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute,
-                                                                    nettyClientInitializer);
+            ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute, senderConfig);
 
             try {
                 channel = ChannelUtils.openChannel(future, httpRoute);
@@ -131,7 +131,10 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-            ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
+            boolean written = ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
+            if (written) {
+                targetChannel.setRequestWritten(true);
+            }
             sourceHandler.addTargetChannel(httpRoute, targetChannel);
         }
     }
