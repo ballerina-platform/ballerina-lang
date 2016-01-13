@@ -32,6 +32,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
 import java.net.ConnectException;
@@ -53,13 +54,13 @@ public class ChannelUtils {
      * @param eventLoopGroup Event loop group of inbound IO workers
      * @param eventLoopClass Event loop class if Inbound IO Workers
      * @param httpRoute  Http Route which represents BE connections
-     * @param channelInitializer channel Initializer
+     * @param senderConfiguration sender configuration
      * @return ChannelFuture
      */
     @SuppressWarnings("unchecked")
     public static ChannelFuture getNewChannelFuture(TargetChannel targetChannel, EventLoopGroup eventLoopGroup,
                                                     Class eventLoopClass, HttpRoute httpRoute ,
-                                                                         NettyClientInitializer channelInitializer) {
+                                                                         SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfiguration = BootstrapConfiguration.getInstance();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.channel(eventLoopClass);
@@ -70,9 +71,9 @@ public class ChannelUtils {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
 
         // set the pipeline factory, which creates the pipeline for each newly created channels
-
-        targetChannel.setNettyClientInitializer(channelInitializer);
-        clientBootstrap.handler(channelInitializer);
+        NettyClientInitializer nettyClientInitializer = new NettyClientInitializer(senderConfiguration);
+        targetChannel.setNettyClientInitializer(nettyClientInitializer);
+        clientBootstrap.handler(nettyClientInitializer);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}",
                       httpRoute.getHost(), httpRoute.getPort(), clientBootstrap);

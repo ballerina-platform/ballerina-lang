@@ -25,7 +25,6 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
-import org.wso2.carbon.transport.http.netty.sender.CarbonNettyClientInitializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,15 +66,6 @@ public class NettyTransportContextHolder {
                 if (channelServerInitializers.get(key) instanceof CarbonNettyServerInitializer) {
                     channelServerInitializers.remove(key);
                     this.channelServerInitializers.put(key, initializer);
-                }
-            }
-        } else {
-            if (channelClientInitializers.get(key) == null) {
-                this.channelClientInitializers.put(key, initializer);
-            } else {
-                if (channelClientInitializers.get(key) instanceof CarbonNettyClientInitializer) {
-                    channelClientInitializers.remove(key);
-                    this.channelClientInitializers.put(key, initializer);
                 }
             }
         }
