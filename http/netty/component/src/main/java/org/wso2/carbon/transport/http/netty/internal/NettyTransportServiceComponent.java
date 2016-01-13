@@ -45,7 +45,7 @@ import java.util.Map;
         name = "org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent",
         immediate = true,
         property = {
-                "capability-name=org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer",
+                "capability-name=org.wso2.carbon.messaging.CarbonTransportInitializer",
                 "component-key=netty-transports-mgt"
         }
 )
@@ -61,33 +61,6 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     @Activate
     protected void activate(BundleContext bundleContext) {
         // Nothing to do
-    }
-
-    @Reference(
-            name = "netty-channel.initializer",
-            service = CarbonNettyServerInitializer.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeNettyChannelInitializer"
-    )
-    protected void addNettyChannelInitializer(CarbonNettyServerInitializer initializer, Map<String, ?> properties) {
-        try {
-            String channelId = (String) properties.get(CHANNEL_ID_KEY);
-            if (channelId != null) {
-                dataHolder.addNettyChannelInitializer(channelId, initializer);
-            } else {
-                throw new IllegalArgumentException(CHANNEL_ID_KEY + " not specified for ChannelInitializer " +
-                        initializer);
-            }
-        } catch (Throwable e) {
-            log.error("Cannot add CarbonNettyServerInitializer", e);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    protected void removeNettyChannelInitializer(CarbonNettyServerInitializer initializer, Map<String, ?> properties) {
-        String channelId = (String) properties.get(CHANNEL_ID_KEY);
-        dataHolder.removeNettyChannelInitializer(channelId);
     }
 
     @Reference(
