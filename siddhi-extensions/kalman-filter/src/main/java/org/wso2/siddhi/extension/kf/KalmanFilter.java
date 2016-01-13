@@ -86,12 +86,20 @@ public class KalmanFilter extends FunctionExecutor {
 
     @Override
     public Object[] currentState() {
-        return new Object[0];
+        return new Object[]{transition, measurementNoiseSD, prevEstimatedValue, variance, measurementMatrixH,
+                            varianceMatrixP, prevMeasuredMatrix, prevTimestamp};
     }
 
     @Override
     public void restoreState(Object[] state) {
-
+        transition = (Double) state[0];
+        measurementNoiseSD = (Double) state[1];
+        prevEstimatedValue = (Double) state[2];
+        variance = (Double) state[3];
+        measurementMatrixH = (RealMatrix) state[4];
+        varianceMatrixP = (RealMatrix) state[5];
+        prevMeasuredMatrix = (RealMatrix) state[6];
+        prevTimestamp = (Long) state[7];
     }
 
     @Override
