@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.Map;
@@ -32,10 +33,13 @@ import java.util.Map;
 public class CarbonNettyClientInitializer implements CarbonTransportInitializer {
     protected static final String HANDLER = "handler";
     private TargetHandler handler;
+    private int soTimeOut;
 
     @Override
     public void setup(Map<String, String> map) {
         PoolConfiguration.createPoolConfiguration(map);
+        BootstrapConfiguration.createBootStrapConfiguration(map);
+        soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
     }
 
     @Override
@@ -44,7 +48,7 @@ public class CarbonNettyClientInitializer implements CarbonTransportInitializer 
         p.addLast("decoder", new HttpResponseDecoder());
         p.addLast("encoder", new HttpRequestEncoder());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
-        handler = new TargetHandler();
+        handler = new TargetHandler(soTimeOut);
         p.addLast(HANDLER, handler);
     }
 

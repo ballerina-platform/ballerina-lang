@@ -16,28 +16,34 @@ package org.wso2.carbon.transport.http.netty.sender;
 
 import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
+import org.wso2.carbon.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A class responsible for handling responses coming from BE.
  */
-public class TargetHandler extends ChannelInboundHandlerAdapter {
+public class TargetHandler extends ReadTimeoutHandler {
     private static Logger log = LoggerFactory.getLogger(TargetHandler.class);
 
     private CarbonCallback callback;
@@ -45,6 +51,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private CarbonMessage cMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
+    private CarbonMessage incomingMsg;
+
+    public TargetHandler(int timeoutSeconds) {
+        super(timeoutSeconds);
+    }
 
 
     @Override
@@ -97,7 +108,45 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
+    public void setIncomingMsg(CarbonMessage incomingMsg) {
+        this.incomingMsg = incomingMsg;
+    }
+
     public void setTargetChannel(TargetChannel targetChannel) {
         this.targetChannel = targetChannel;
+    }
+
+    @Override
+    protected void readTimedOut(ChannelHandlerContext ctx) {
+
+        String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint" + targetChannel.
+                   getHttpRoute().toString() + "</errorMessage>";
+        FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
+        if (faultHandler != null) {
+            faultHandler.handleFault("504", new EndpointTimeOutException(payload), callback);
+            incomingMsg.getFaultHandlerStack().push(faultHandler);
+        } else {
+
+            DefaultCarbonMessage response = new DefaultCarbonMessage();
+
+
+            response.setStringMessageBody(payload);
+            byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+
+            Map<String, String> transportHeaders = new HashMap<>();
+            transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+            transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
+
+            transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
+
+            transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
+
+            response.setHeaders(transportHeaders);
+
+            response.setProperty(Constants.HTTP_STATUS_CODE, 504);
+            response.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+            response.setProperty(Constants.CALL_BACK, callback);
+            ringBuffer.publishEvent(new CarbonEventPublisher(response));
+        }
     }
 }

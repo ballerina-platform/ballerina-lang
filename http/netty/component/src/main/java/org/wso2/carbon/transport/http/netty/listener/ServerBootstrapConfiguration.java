@@ -42,6 +42,8 @@ public class ServerBootstrapConfiguration {
 
     private int soBackLog = 100;
 
+    private int socketTimeOut = 15;
+
 
     private ServerBootstrapConfiguration(List<Parameter> parameters) {
 
@@ -61,6 +63,8 @@ public class ServerBootstrapConfiguration {
                     socketReuse = Boolean.parseBoolean(parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_SO_BACKLOG.equals(parameter.getName())) {
                     soBackLog = Integer.parseInt(parameter.getValue());
+                } else if (Constants.SERVER_BOOTSTRAP_SO_TIMEOUT.equals(parameter.getName())) {
+                    socketTimeOut = Integer.parseInt(parameter.getValue());
                 }
             }
         }
@@ -97,6 +101,10 @@ public class ServerBootstrapConfiguration {
 
     public static ServerBootstrapConfiguration getInstance() {
         return bootstrapConfig;
+    }
+
+    public int getSoTimeOut() {
+        return socketTimeOut;
     }
 
     public static void createBootStrapConfiguration(List<Parameter> parameters) {
