@@ -76,4 +76,9 @@ public class LFUCacheManager implements CacheManager {
         }
     }
 
+    @Override
+    public void invalidateCache() {
+        cacheList.clear();
+    }
+
 }

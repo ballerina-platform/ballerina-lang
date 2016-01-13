@@ -111,4 +111,8 @@ public class CachingTable {
         return list;
     }
 
+    public void invalidateCache(){
+        cacheManager.invalidateCache();
+    }
+
 }

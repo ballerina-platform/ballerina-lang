@@ -51,6 +51,7 @@
                 <element key="deleteTableRow">DELETE FROM $TABLE_NAME WHERE $CONDITION</element>
                 <element key="selectTableRow">SELECT * FROM $TABLE_NAME WHERE $CONDITION</element>
                 <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION limit 1</element>
+                <element key="limitSelectRow">SELECT * FROM $TABLE_NAME limit 0 , $VALUES</element>
                 <element key="comma">,</element>
                 <element key="questionMark">?</element>
                 <element key="equal">=</element>

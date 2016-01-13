@@ -46,12 +46,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RDBMSEventTable implements EventTable {
 
     private TableDefinition tableDefinition;
     private DBHandler dbHandler;
     private CachingTable cachedTable;
+    private String cacheSizeInString;
     private boolean isCachingEnabled;
     private static final Logger log = Logger.getLogger(RDBMSEventTable.class);
 
@@ -97,7 +100,7 @@ public class RDBMSEventTable implements EventTable {
             if (connectionAnnotation != null) {
                 connectionPropertyElements = connectionAnnotation.getElements();
             }
-            dataSource = PooledDataSource.getPoolDataSource(driverName,jdbcConnectionUrl,username,password,connectionPropertyElements);
+            dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password, connectionPropertyElements);
         }
 
         if (dataSource == null || tableName == null) {
@@ -105,8 +108,11 @@ public class RDBMSEventTable implements EventTable {
         }
 
         String cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
-        String cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
+        cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
+        String cacheLoadingType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_LOADING);
+        String cacheValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
         String bloomsEnabled = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
+        String bloomFilterValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
 
         try {
             this.dbHandler = new DBHandler(dataSource, tableName, attributeList, tableDefinition);
@@ -118,6 +124,18 @@ public class RDBMSEventTable implements EventTable {
             if (cacheType != null) {
                 cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
                 isCachingEnabled = true;
+
+                if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(RDBMSEventTableConstants.EAGER_CACHE_LOADING_ELEMENT)) {
+                    dbHandler.loadDBCache(cachedTable, cacheSizeInString);
+                }
+
+                if (cacheValidityInterval != null) {
+                    Long cacheTimeInterval = Long.parseLong(cacheValidityInterval);
+                    Timer timer = new Timer();
+                    CacheUpdateTask cacheUpdateTask = new CacheUpdateTask();
+                    timer.schedule(cacheUpdateTask, cacheTimeInterval);
+                }
+
             } else if (bloomsEnabled != null && bloomsEnabled.equalsIgnoreCase("enable")) {
                 String bloomsFilterSize = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
                 String bloomsFilterHash = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
@@ -130,6 +148,12 @@ public class RDBMSEventTable implements EventTable {
 
                 dbHandler.setBloomFilterProperties(bloomFilterSize, bloomFilterHashFunctions);
                 dbHandler.buildBloomFilters();
+                if (bloomFilterValidityInterval != null) {
+                    Long bloomTimeInterval = Long.parseLong(bloomFilterValidityInterval);
+                    Timer timer = new Timer();
+                    BloomsUpdateTask bloomsUpdateTask = new BloomsUpdateTask();
+                    timer.schedule(bloomsUpdateTask, bloomTimeInterval);
+                }
             }
 
         } catch (SQLException e) {
@@ -162,7 +186,8 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when deleting an event chunk from event table
-     *  @param deletingEventChunk Event list for deletion
+     *
+     * @param deletingEventChunk Event list for deletion
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
@@ -175,7 +200,8 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when updating the event table entries
-     *  @param updatingEventChunk Event list that needs to be updated
+     *
+     * @param updatingEventChunk Event list that needs to be updated
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
@@ -225,5 +251,18 @@ public class RDBMSEventTable implements EventTable {
         return RDBMSOperatorParser.parse(dbHandler, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);
     }
 
+
+    class CacheUpdateTask extends TimerTask {
+        public void run() {
+            cachedTable.invalidateCache();
+            dbHandler.loadDBCache(cachedTable, cacheSizeInString);
+        }
+    }
+
+    class BloomsUpdateTask extends TimerTask {
+        public void run() {
+            dbHandler.buildBloomFilters();
+        }
+    }
 
 }
