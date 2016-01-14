@@ -17,6 +17,7 @@ package org.wso2.carbon.transport.http.netty.sender;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.ssl.SslHandler;
@@ -57,7 +58,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
             sslHandler.engine().setUseClientMode(true);
             ch.pipeline().addLast("ssl", sslHandler);
         }
-
+        ch.pipeline().addLast("compressor", new HttpContentCompressor());
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
