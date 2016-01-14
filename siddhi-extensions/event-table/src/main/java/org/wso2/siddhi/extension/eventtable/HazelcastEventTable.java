@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Hazelcast event table implementation of SiddhiQL
+ * Hazelcast event table implementation of SiddhiQL.
  */
 public class HazelcastEventTable implements EventTable {
     private static final Logger logger = Logger.getLogger(HazelcastEventTable.class);
@@ -62,7 +62,6 @@ public class HazelcastEventTable implements EventTable {
     private ExecutionPlanContext executionPlanContext;
     private StreamEventCloner streamEventCloner;
     private StreamEventPool streamEventPool;
-    private HazelcastInstance hcInstance;
     private ConcurrentMap<Object, StreamEvent> eventsMap = null;
     private List<StreamEvent> eventsList = null;
     private String indexAttribute = null;
@@ -72,8 +71,8 @@ public class HazelcastEventTable implements EventTable {
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
      *
-     * @param tableDefinition      Definition of event table
-     * @param executionPlanContext ExecutionPlan related meta information
+     * @param tableDefinition      Definition of event table.
+     * @param executionPlanContext ExecutionPlan related meta information.
      */
     @Override
     public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -86,7 +85,7 @@ public class HazelcastEventTable implements EventTable {
         String clusterAddresses = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
         String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
 
-        hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
+        HazelcastInstance hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
         eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX +
                 executionPlanContext.getName() + '_' + tableDefinition.getId());
         eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
@@ -98,7 +97,8 @@ public class HazelcastEventTable implements EventTable {
             metaStreamEvent.addOutputData(attribute);
         }
 
-        Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY, tableDefinition.getAnnotations());
+        Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
+                tableDefinition.getAnnotations());
         if (annotation != null) {
             if (annotation.getElements().size() != 1) {
                 throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation of table " +
@@ -108,7 +108,6 @@ public class HazelcastEventTable implements EventTable {
             indexAttribute = annotation.getElements().get(0).getValue();
             indexPosition = tableDefinition.getAttributePosition(indexAttribute);
         }
-
         streamEventPool = new StreamEventPool(metaStreamEvent, HazelcastEventTableConstants.STREAM_EVENT_POOL_SIZE);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
         if (elementId == null) {
@@ -117,57 +116,50 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called to get the most suitable Hazelcast Instance for the given set of parameters
+     * Called to get the most suitable Hazelcast Instance for the given set of parameters.
      *
-     * @param clusterName      Hazelcast cluster name
-     * @param clusterPassword  Hazelcast cluster password
-     * @param clusterAddresses Hazelcast node addresses (ip:port)
-     * @param instanceName     Hazelcast instance name
+     * @param clusterName      Hazelcast cluster name.
+     * @param clusterPassword  Hazelcast cluster password.
+     * @param clusterAddresses Hazelcast node addresses (ip:port).
+     * @param instanceName     Hazelcast instance name.
      * @return Hazelcast Instance
      */
     protected HazelcastInstance getHazelcastInstance(String clusterName, String clusterPassword, String clusterAddresses,
                                                      String instanceName) {
         HazelcastInstance hazelcastInstance;
-
         if (instanceName == null) {
             instanceName = HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + this.executionPlanContext.getName();
         }
 
         if (clusterAddresses == null) {
             if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
-                // take instance from osgi
+                // Take instance from osgi.
                 hazelcastInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
                 logger.info("shared hazelcast server instance retrieved : " + hazelcastInstance.getName());
             } else {
-                // create a new server with default cluster name
+                // Create a new server with default cluster name.
                 Config config = new Config();
                 config.setInstanceName(instanceName);
                 config.setProperty("hazelcast.logging.type", "log4j");
-
                 if (clusterName != null && !clusterName.isEmpty()) {
                     config.getGroupConfig().setName(clusterName);
                 }
-
                 if (clusterPassword != null && !clusterPassword.isEmpty()) {
                     config.getGroupConfig().setPassword(clusterPassword);
                 }
-
                 hazelcastInstance = Hazelcast.getOrCreateHazelcastInstance(config);
                 logger.info("hazelcast server instance started: " + instanceName);
             }
         } else {
-            // client
+            // Client mode.
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.setProperty("hazelcast.logging.type", "log4j");
-
             if (clusterName != null && !clusterName.isEmpty()) {
                 clientConfig.getGroupConfig().setName(clusterName);
             }
-
             if (clusterPassword != null && !clusterPassword.isEmpty()) {
                 clientConfig.getGroupConfig().setPassword(clusterPassword);
             }
-
             clientConfig.setNetworkConfig(clientConfig.getNetworkConfig().addAddress(clusterAddresses.split(",")));
             hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
         }
@@ -180,9 +172,9 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called when adding an event to the event table
+     * Called when adding an event to the event table.
      *
-     * @param addingEventChunk input event list
+     * @param addingEventChunk input event list.
      */
     @Override
     public synchronized void add(ComplexEventChunk addingEventChunk) {
@@ -200,10 +192,10 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called when deleting an event chunk from event table
+     * Called when deleting an event chunk from event table.
      *
-     * @param deletingEventChunk Event list for deletion
-     * @param operator           Operator that perform Hazelcast related operations
+     * @param deletingEventChunk Event list for deletion.
+     * @param operator           Operator that perform Hazelcast related operations.
      */
     @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
@@ -215,10 +207,10 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called when updating the event table entries
+     * Called when updating the event table entries.
      *
-     * @param updatingEventChunk Event list that needs to be updated
-     * @param operator           Operator that perform Hazelcast related operations
+     * @param updatingEventChunk Event list that needs to be updated.
+     * @param operator           Operator that perform Hazelcast related operations.
      */
     @Override
     public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
@@ -230,11 +222,11 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called when having "in" condition, to check the existence of the event
+     * Called when having "in" condition, to check the existence of the event.
      *
-     * @param matchingEvent Event that need to be check for existence
-     * @param finder        Operator that perform Hazelcast related search
-     * @return boolean      whether event exists or not
+     * @param matchingEvent Event that need to be check for existence.
+     * @param finder        Operator that perform Hazelcast related search.
+     * @return boolean      whether event exists or not.
      */
     @Override
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
@@ -246,12 +238,12 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called to find a event from event table
+     * Called to find a event from event table.
      *
-     * @param matchingEvent the event to be matched with the events at the processor
-     * @param finder        the execution element responsible for finding the corresponding events that matches
-     *                      the matchingEvent based on pool of events at Processor
-     * @return StreamEvent  event found
+     * @param matchingEvent the event to be matched with the events at the processor.
+     * @param finder        the execution element responsible for finding the corresponding events that matches.
+     *                      the matchingEvent based on pool of events at Processor.
+     * @return StreamEvent  event found.
      */
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
@@ -263,16 +255,16 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called to construct a operator to perform search operations
+     * Called to construct a operator to perform search operations.
      *
-     * @param expression                  the matching expression
-     * @param metaComplexEvent            the meta structure of the incoming matchingEvent
-     * @param executionPlanContext        current execution plan context
-     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
-     * @param eventTableMap               map of event tables
-     * @param matchingStreamIndex         the stream index of the incoming matchingEvent
-     * @param withinTime                  the maximum time gap between the events to be matched
-     * @return HazelcastOperator
+     * @param expression                  the matching expression.
+     * @param metaComplexEvent            the meta structure of the incoming matchingEvent.
+     * @param executionPlanContext        current execution plan context.
+     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created.
+     * @param eventTableMap               map of event tables.
+     * @param matchingStreamIndex         the stream index of the incoming matchingEvent.
+     * @param withinTime                  the maximum time gap between the events to be matched.
+     * @return HazelcastOperator.
      */
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
@@ -285,15 +277,15 @@ public class HazelcastEventTable implements EventTable {
     }
 
     /**
-     * Called to construct a operator to perform delete and update operations
+     * Called to construct a operator to perform delete and update operations.
      *
-     * @param expression                  the matching expression
-     * @param metaComplexEvent            the meta structure of the incoming matchingEvent
-     * @param executionPlanContext        current execution plan context
-     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
-     * @param eventTableMap               map of event tables
-     * @param matchingStreamIndex         the stream index of the incoming matchingEvent
-     * @param withinTime                  the maximum time gap between the events to be matched
+     * @param expression                  the matching expression.
+     * @param metaComplexEvent            the meta structure of the incoming matchingEvent.
+     * @param executionPlanContext        current execution plan context.
+     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created.
+     * @param eventTableMap               map of event tables.
+     * @param matchingStreamIndex         the stream index of the incoming matchingEvent.
+     * @param withinTime                  the maximum time gap between the events to be matched.
      * @return HazelcastOperator
      */
     @Override

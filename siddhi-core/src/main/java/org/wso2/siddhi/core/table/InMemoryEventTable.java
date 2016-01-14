@@ -41,24 +41,26 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class InMemoryEventTable implements EventTable, Snapshotable {
 
     private final TableDefinition tableDefinition;
     private final ExecutionPlanContext executionPlanContext;
+    private final StreamEventCloner streamEventCloner;
+    private final StreamEventPool streamEventPool;
+    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     private List<StreamEvent> list = new LinkedList<StreamEvent>();
     private SortedMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
     private String indexAttribute = null;
     private int indexPosition;
-    private final StreamEventCloner streamEventCloner;
-    private final StreamEventPool streamEventPool;
-    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     private String elementId;
 
-
     public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
-
         this.tableDefinition = tableDefinition;
         this.executionPlanContext = executionPlanContext;
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
@@ -66,21 +68,22 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         for (Attribute attribute : tableDefinition.getAttributeList()) {
             metaStreamEvent.addOutputData(attribute);
         }
-
-        //Adding indexes
+        // Adding indexes.
         Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
                 tableDefinition.getAnnotations());
         if (annotation != null) {
             if (annotation.getElements().size() > 1) {
-                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " + annotation.getElements().size() + " elements, Siddhi in-memory table only supports indexing based on a single attribute");
+                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
+                        annotation.getElements().size() +
+                        " elements, Siddhi in-memory table only supports indexing based on a single attribute");
             }
             if (annotation.getElements().size() == 0) {
-                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " + annotation.getElements().size() + " element");
+                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains "
+                        + annotation.getElements().size() + " element");
             }
             indexAttribute = annotation.getElements().get(0).getValue();
             indexPosition = tableDefinition.getAttributePosition(indexAttribute);
         }
-
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
     }
@@ -148,17 +151,26 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         } else {
             return finder.find(matchingEvent, list, streamEventCloner);
         }
-
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
+    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
+                                  ExecutionPlanContext executionPlanContext,
+                                  List<VariableExpressionExecutor> variableExpressionExecutors,
+                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
+                indexAttribute);
     }
 
     @Override
-    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, indexAttribute);
+    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent,
+                                      ExecutionPlanContext executionPlanContext,
+                                      List<VariableExpressionExecutor> variableExpressionExecutors,
+                                      Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
+                indexAttribute);
     }
 
     @Override
