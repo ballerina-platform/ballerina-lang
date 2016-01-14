@@ -33,9 +33,6 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
-/**
- * Created on 12/8/14.
- */
 public class SimpleOperator implements Operator {
     private final ZeroStreamEventConverter streamEventConverter;
     private final StreamEvent matchingEvent;
@@ -47,18 +44,17 @@ public class SimpleOperator implements Operator {
     private FinderStateEvent event;
     private int matchingEventOutputSize;
 
-    public SimpleOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition, int streamEventSize, long withinTime, int matchingEventOutputSize) {
+    public SimpleOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition,
+                          int streamEventSize, long withinTime, int matchingEventOutputSize) {
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
         this.matchingEventPosition = matchingEventPosition;
         this.streamEventSize = streamEventSize;
         this.withinTime = withinTime;
         this.matchingEventOutputSize = matchingEventOutputSize;
-
         this.event = new FinderStateEvent(streamEventSize, 0);
         this.matchingEvent = new StreamEvent(0, 0, matchingEventOutputSize);
         this.streamEventConverter = new ZeroStreamEventConverter();
-
     }
 
     private boolean execute(StreamEvent candidateEvent) {
@@ -80,12 +76,12 @@ public class SimpleOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEventSize, withinTime, matchingEventOutputSize);
+        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEventSize,
+                withinTime, matchingEventOutputSize);
     }
 
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
-
         try {
             if (matchingEvent instanceof StreamEvent) {
                 this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
@@ -99,7 +95,8 @@ public class SimpleOperator implements Operator {
             } else if (candidateEvents instanceof Collection) {
                 return find((Collection) candidateEvents, streamEventCloner);
             } else {
-                throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         } finally {
             if (matchingEvent instanceof StreamEvent) {
@@ -126,7 +123,8 @@ public class SimpleOperator implements Operator {
                 } else if (candidateEvents instanceof Collection) {
                     delete((Collection) candidateEvents);
                 } else {
-                    throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                    throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() +
+                            " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
             } finally {
                 this.event.setEvent(matchingEventPosition, null);
@@ -174,7 +172,8 @@ public class SimpleOperator implements Operator {
                 } else if (candidateEvents instanceof Collection) {
                     update((Collection) candidateEvents, mappingPosition);
                 } else {
-                    throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                    throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() +
+                            " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
             } finally {
                 this.event.setEvent(matchingEventPosition, null);
@@ -191,7 +190,8 @@ public class SimpleOperator implements Operator {
             }
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
                 }
             }
         }
@@ -204,7 +204,8 @@ public class SimpleOperator implements Operator {
             }
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
                 }
             }
         }
@@ -225,7 +226,8 @@ public class SimpleOperator implements Operator {
             } else if (candidateEvents instanceof Collection) {
                 return contains((Collection) candidateEvents);
             } else {
-                throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(SimpleOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         } finally {
             if (matchingEvent instanceof StreamEvent) {
@@ -237,7 +239,6 @@ public class SimpleOperator implements Operator {
     }
 
     private boolean contains(Collection<StreamEvent> candidateEvents) {
-
         for (StreamEvent streamEvent : candidateEvents) {
             if (outsideTimeWindow(streamEvent)) {
                 break;
@@ -300,7 +301,8 @@ public class SimpleOperator implements Operator {
 
         public void setEvent(StateEvent matchingStateEvent) {
             if (matchingStateEvent != null) {
-                System.arraycopy(matchingStateEvent.getStreamEvents(), 0, streamEvents, 0, matchingStateEvent.getStreamEvents().length);
+                System.arraycopy(matchingStateEvent.getStreamEvents(), 0, streamEvents, 0,
+                        matchingStateEvent.getStreamEvents().length);
             } else {
                 for (int i = 0; i < streamEvents.length - 1; i++) {
                     streamEvents[i] = null;

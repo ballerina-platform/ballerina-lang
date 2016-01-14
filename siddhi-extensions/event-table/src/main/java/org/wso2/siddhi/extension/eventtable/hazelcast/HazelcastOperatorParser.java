@@ -40,7 +40,7 @@ import java.util.Map;
 
 /**
  * HazelcastOperatorParser will parse an expression and constructs the most appropriate
- * Operator for the expression to perform hazelcast event table related operations
+ * Operator for the expression to perform Hazelcast event table related operations.
  */
 public class HazelcastOperatorParser {
 
@@ -48,16 +48,16 @@ public class HazelcastOperatorParser {
     }
 
     /**
-     * Method that constructs the Operator for non-indexed Hazelcast event table related operations
+     * Method that constructs the Operator for non-indexed Hazelcast event table related operations.
      *
-     * @param expression                  Expression
+     * @param expression                  Expression.
      * @param metaComplexEvent            Meta information about ComplexEvent.
-     * @param executionPlanContext        Execution plan context
-     * @param variableExpressionExecutors Variable expression executors
-     * @param eventTableMap               Event table map
-     * @param matchingStreamIndex         Matching stream index
-     * @param candidateDefinition         candidate definition
-     * @param withinTime                  Within time frame
+     * @param executionPlanContext        Execution plan context.
+     * @param variableExpressionExecutors Variable expression executors.
+     * @param eventTableMap               Event table map.
+     * @param matchingStreamIndex         Matching stream index.
+     * @param candidateDefinition         candidate definition.
+     * @param withinTime                  Within time frame.
      * @return HazelcastOperator
      */
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext,
@@ -107,18 +107,18 @@ public class HazelcastOperatorParser {
     }
 
     /**
-     * Method that constructs the Operator for Indexed Hazelcast event table related operations
+     * Method that constructs the Operator for Indexed Hazelcast event table related operations.
      *
-     * @param expression                  Expression
+     * @param expression                  Expression.
      * @param metaComplexEvent            Meta information about ComplexEvent.
-     * @param executionPlanContext        Execution plan context
-     * @param variableExpressionExecutors Variable expression executors
-     * @param eventTableMap               Event table map
-     * @param matchingStreamIndex         Matching stream index
-     * @param candidateDefinition         candidate definition
-     * @param withinTime                  Within time frame
-     * @param indexedAttribute            Indexed attribute
-     * @return HazelcastIndexedOperator or a HazelcastOperator
+     * @param executionPlanContext        Execution plan context.
+     * @param variableExpressionExecutors Variable expression executors.
+     * @param eventTableMap               Event table map.
+     * @param matchingStreamIndex         Matching stream index.
+     * @param candidateDefinition         candidate definition.
+     * @param withinTime                  Within time frame.
+     * @param indexedAttribute            Indexed attribute.
+     * @return HazelcastIndexedOperator or a HazelcastOperator.
      */
     public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext,
                                  List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap,
@@ -157,14 +157,14 @@ public class HazelcastOperatorParser {
     }
 
     /**
-     * Checks whether a give expression is a table index variable
+     * Checks whether a give expression is a table index variable.
      *
      * @param metaComplexEvent    Meta information about ComplexEvent.
-     * @param matchingStreamIndex Matching stream index
-     * @param expression          Expression
-     * @param candidateDefinition candidate definition
-     * @param indexedAttribute    Indexed attribute
-     * @return boolean representing whether an expression is a indexed variable
+     * @param matchingStreamIndex Matching stream index.
+     * @param expression          Expression.
+     * @param candidateDefinition candidate definition.
+     * @param indexedAttribute    Indexed attribute.
+     * @return boolean representing whether an expression is a indexed variable.
      */
     private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, Expression expression,
                                                 AbstractDefinition candidateDefinition, String indexedAttribute) {
@@ -190,12 +190,12 @@ public class HazelcastOperatorParser {
     }
 
     /**
-     * Returns the table meta stream event
+     * Returns the table meta stream event.
      *
      * @param metaComplexEvent    Meta information about ComplexEvent.
-     * @param matchingStreamIndex Matching stream index
-     * @param candidateDefinition candidate definition
-     * @return Meta stream event
+     * @param matchingStreamIndex Matching stream index.
+     * @param candidateDefinition candidate definition.
+     * @return Meta stream event.
      */
     private static MetaStreamEvent getTableMetaStreamEvent(MetaComplexEvent metaComplexEvent, int matchingStreamIndex,
                                                            AbstractDefinition candidateDefinition) {
