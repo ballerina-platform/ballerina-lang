@@ -47,8 +47,6 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
-    private boolean isAdded = false;
-    private boolean isLengthExpired = false;
     private boolean flag = false;
 
     public void setTimeInMilliSeconds(long timeInMilliSeconds) {
@@ -70,7 +68,6 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
         this.executionPlanContext = executionPlanContext;
         expiredEventChunk = new ComplexEventChunk<StreamEvent>();
         if (attributeExpressionExecutors.length == 2) {
-            // time = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
             length = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -93,9 +90,7 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         while (streamEventChunk.hasNext()) {
 
-            isAdded = false;
             flag = false;
-
             StreamEvent streamEvent = streamEventChunk.next();
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
@@ -114,34 +109,41 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
                     expiredEventChunk.remove();
                     count--;
                     streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    flag = true;
                 } else {
-                    scheduler.notifyAt(expiredEvent.getTimestamp());
+                   scheduler.notifyAt(expiredEvent.getTimestamp());
                     expiredEventChunk.reset();
                     eventScheduled = true;
                     break;
                 }
             }
+
             expiredEventChunk.reset();
 
-            if (streamEvent.getType() != StreamEvent.Type.TIMER) {
+            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
                 if (count < length) {
                     count++;
                     this.expiredEventChunk.add(clonedEvent);
                 } else {
                     StreamEvent firstEvent = this.expiredEventChunk.poll();
-                    count--;
                     if (firstEvent != null) {
-                        streamEventChunk.insertBeforeCurrent(firstEvent);
+                        if(!flag) {
+                            streamEventChunk.insertBeforeCurrent(firstEvent);
+                            flag = true;
+                        }
                         this.expiredEventChunk.add(clonedEvent);
-                    } else {
+                    } else if(!flag) {
                         streamEventChunk.insertBeforeCurrent(clonedEvent);
+                        flag = true;
                     }
                 }
             }
+
             if (!eventScheduled) {
-                if(clonedEvent!=null)
-                scheduler.notifyAt(clonedEvent.getTimestamp());
-            }
+                if(clonedEvent != null){
+                    scheduler.notifyAt(clonedEvent.getTimestamp());
+                }
+              }
         }
         expiredEventChunk.reset();
         nextProcessor.process(streamEventChunk);
@@ -150,12 +152,12 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
+        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 
     @Override
@@ -177,4 +179,6 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
     public void restoreState(Object[] state) {
         expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
     }
+
 }
+
