@@ -91,7 +91,7 @@ public class ExecutionPlanRuntime {
         streamCallback.setStreamId(streamId);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
-            throw new DefinitionNotExistException("No stream fund with name: " + streamId);
+            throw new DefinitionNotExistException("No stream found with name: " + streamId);
         }
         streamCallback.setStreamDefinition(streamDefinitionMap.get(streamId));
         streamCallback.setContext(executionPlanContext);
@@ -102,7 +102,7 @@ public class ExecutionPlanRuntime {
         callback.setContext(executionPlanContext);
         QueryRuntime queryRuntime = queryProcessorMap.get(queryName);
         if (queryRuntime == null) {
-            throw new QueryNotExistException("No query fund with name: " + queryName);
+            throw new QueryNotExistException("No query found with name: " + queryName);
         }
         callback.setQuery(queryRuntime.getQuery());
         queryRuntime.addCallback(callback);
