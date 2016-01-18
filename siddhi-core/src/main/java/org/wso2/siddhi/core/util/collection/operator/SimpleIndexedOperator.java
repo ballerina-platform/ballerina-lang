@@ -30,9 +30,6 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
-/**
- * Created on 12/8/14.
- */
 public class SimpleIndexedOperator implements Operator {
     private final long withinTime;
     private ExpressionExecutor expressionExecutor;
@@ -73,9 +70,9 @@ public class SimpleIndexedOperator implements Operator {
                 return streamEventCloner.copyStreamEvent(streamEvent);
             }
         } else {
-            throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+            throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
+                    " does not support " + candidateEvents.getClass().getCanonicalName());
         }
-
     }
 
     @Override
@@ -93,7 +90,8 @@ public class SimpleIndexedOperator implements Operator {
                     ((Map<Object, StreamEvent>) candidateEvents).remove(matchingKey);
                 }
             } else {
-                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         }
     }
@@ -115,7 +113,8 @@ public class SimpleIndexedOperator implements Operator {
                     }
                 }
             } else {
-                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         }
     }
@@ -133,7 +132,8 @@ public class SimpleIndexedOperator implements Operator {
             StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
             return streamEvent != null && !outsideTimeWindow(matchingStreamEvent, streamEvent);
         } else {
-            throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+            throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
+                    " does not support " + candidateEvents.getClass().getCanonicalName());
         }
     }
 }

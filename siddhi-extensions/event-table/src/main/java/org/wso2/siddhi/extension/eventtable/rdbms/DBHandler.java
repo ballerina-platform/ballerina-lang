@@ -562,4 +562,59 @@ public class DBHandler {
         }
     }
 
+
+    //Pre loading the cache ---------------------------------------------------------------------------------------------------------
+
+    public void loadDBCache(CachingTable cachingTable, String cacheSizeInString) {
+
+        Connection con = null;
+        Statement stmt = null;
+        try {
+            con = dataSource.getConnection();
+            stmt = con.createStatement();
+            con = dataSource.getConnection();
+            stmt = con.createStatement();
+            String selectTableRowQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_LIMIT_SELECT_TABLE), null, null, new StringBuilder(cacheSizeInString), null, null);
+            ResultSet resultSet = stmt.executeQuery(selectTableRowQuery);
+            while (resultSet.next()) {
+                Object[] data = new Object[attributeList.size()];
+                for (int i = 0; i < attributeList.size(); i++) {
+                    switch (attributeList.get(i).getType()) {
+                        case BOOL:
+                            data[i] = resultSet.getBoolean(attributeList.get(i).getName());
+                            break;
+                        case DOUBLE:
+                            data[i] = resultSet.getDouble(attributeList.get(i).getName());
+                            break;
+                        case FLOAT:
+                            data[i] = resultSet.getFloat(attributeList.get(i).getName());
+                            break;
+                        case INT:
+                            data[i] = resultSet.getInt(attributeList.get(i).getName());
+                            break;
+                        case LONG:
+                            data[i] = resultSet.getLong(attributeList.get(i).getName());
+                            break;
+                        case STRING:
+                            data[i] = resultSet.getString(attributeList.get(i).getName());
+                            break;
+                        default:
+                            data[i] = resultSet.getObject(attributeList.get(i).getName());
+
+                    }
+                }
+                StreamEvent streamEvent = new StreamEvent(0, 0, attributeList.size());
+                streamEvent.setOutputData(data);
+                cachingTable.add(streamEvent);
+            }
+            resultSet.close();
+
+        } catch (SQLException ex) {
+            throw new ExecutionPlanRuntimeException("Error while loading cache with db data, " + ex.getMessage(), ex);
+        } finally {
+            cleanUpConnections(stmt, con);
+        }
+    }
+
+
 }

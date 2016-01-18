@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
 /**
- * Operator which is related to Indexed Hazelcast table operations
+ * Operator which is related to Indexed Hazelcast table operations.
  */
 public class HazelcastIndexedOperator implements Operator {
     private final long withinTime;
@@ -47,11 +47,11 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     /**
-     * Checks whether a Stream event resides with in the current window
+     * Checks whether a Stream event resides with in the current window.
      *
-     * @param complexEvent Complex event to compare
-     * @param streamEvent  Stream event to compare
-     * @return whether two events are within the time window
+     * @param complexEvent Complex event to compare.
+     * @param streamEvent  Stream event to compare.
+     * @return whether two events are within the time window.
      */
     private boolean outsideTimeWindow(ComplexEvent complexEvent, StreamEvent streamEvent) {
         if (withinTime != ANY) {
@@ -69,12 +69,12 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     /**
-     * Called to find a event from event table
+     * Called to find a event from event table.
      *
-     * @param matchingEvent     the event to be matched with the events at the processor
-     * @param candidateEvents   Map of candidate events
-     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent
-     * @return StreamEvent  event found
+     * @param matchingEvent     the event to be matched with the events at the processor.
+     * @param candidateEvents   Map of candidate events.
+     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent.
+     * @return StreamEvent  event found.
      */
     @Override
     public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
@@ -96,10 +96,10 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     /**
-     * Called when deleting an event chunk from event table
+     * Called when deleting an event chunk from event table.
      *
-     * @param deletingEventChunk Event list for deletion
-     * @param candidateEvents    Map of candidate events
+     * @param deletingEventChunk Event list for deletion.
+     * @param candidateEvents    Map of candidate events.
      */
     @Override
     public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
@@ -123,11 +123,11 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     /**
-     * Called when updating the event table entries
+     * Called when updating the event table entries.
      *
-     * @param updatingEventChunk Event list that needs to be updated
-     * @param candidateEvents    Map of candidate events
-     * @param mappingPosition    Mapping positions array
+     * @param updatingEventChunk Event list that needs to be updated.
+     * @param candidateEvents    Map of candidate events.
+     * @param mappingPosition    Mapping positions array.
      */
     @Override
     public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
@@ -154,11 +154,11 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     /**
-     * Called when having "in" condition, to check the existence of the event
+     * Called when having "in" condition, to check the existence of the event.
      *
-     * @param matchingEvent   Event that need to be check for existence
-     * @param candidateEvents Map of candidate events
-     * @return existence of the event
+     * @param matchingEvent   Event that need to be check for existence.
+     * @param candidateEvents Map of candidate events.
+     * @return existence of the event.
      */
     @Override
     public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {

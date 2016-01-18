@@ -49,6 +49,7 @@ public interface RDBMSEventTableConstants {
     public static final String EVENT_TABLE_GENERIC_RDBMS_UPDATE_TABLE = "updateTableRow";
     public static final String EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE = "deleteTableRow";
     public static final String EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE = "selectTableRow";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_LIMIT_SELECT_TABLE = "limitSelectRow";
     public static final String EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST = "isTableRowExist";
     public static final String EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER = " ";
 
@@ -56,6 +57,11 @@ public interface RDBMSEventTableConstants {
     public static final String ANNOTATION_ELEMENT_TABLE_NAME = "table.name";
     public static final String ANNOTATION_ELEMENT_CACHE = "cache";
     public static final String ANNOTATION_ELEMENT_CACHE_SIZE = "cache.size";
+    public static final String ANNOTATION_ELEMENT_CACHE_LOADING = "cache.loading";
+    public static final String ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD = "cache.validity";
+    public static final String ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD = "bloom.validity";
+    public static final String EAGER_CACHE_LOADING_ELEMENT = "eager";
+
     public static final String ANNOTATION_ELEMENT_BLOOM_FILTERS = "bloom.filters";
     public static final String RDBMS_TABLE_CONFIG_FILE = "rdbms-table-config.xml";
 

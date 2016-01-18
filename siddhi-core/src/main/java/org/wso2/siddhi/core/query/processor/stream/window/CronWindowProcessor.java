@@ -87,12 +87,18 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
         try {
             SchedulerFactory schedFact = new StdSchedulerFactory();
             scheduler = schedFact.getScheduler();
+            jobName = "EventRemoverJob_" + elementId;
+            JobKey jobKey = new JobKey(jobName, jobGroup);
+
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.deleteJob(jobKey);
+            }
+
             scheduler.start();
 
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("windowProcessor", this);
 
-            jobName = "EventRemoverJob_" + elementId;
             JobDetail job = org.quartz.JobBuilder.newJob(CronWindowProcessor.class)
                     .withIdentity(jobName, jobGroup)
                     .usingJobData(dataMap)

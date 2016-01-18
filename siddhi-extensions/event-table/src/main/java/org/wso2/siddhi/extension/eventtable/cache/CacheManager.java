@@ -31,5 +31,7 @@ public interface CacheManager {
 
     public void update(StreamEvent item);
 
+    public void invalidateCache();
+
 
 }
