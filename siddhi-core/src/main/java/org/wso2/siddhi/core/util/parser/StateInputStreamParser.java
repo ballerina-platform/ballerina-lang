@@ -54,19 +54,21 @@ public class StateInputStreamParser {
 
         StateStreamRuntime stateStreamRuntime = new StateStreamRuntime(executionPlanContext, metaStateEvent);
 
+        String defaultLockKey = "";
+
         for (String streamId : stateInputStream.getAllStreamIds()) {
             int streamCount = stateInputStream.getStreamCount(streamId);
             if (streamCount == 1) {
                 if (stateInputStream.getStateType() == StateInputStream.Type.SEQUENCE) {
-                    processStreamReceiverMap.put(streamId, new SequenceSingleProcessStreamReceiver(streamId, stateStreamRuntime, latencyTracker));
+                    processStreamReceiverMap.put(streamId, new SequenceSingleProcessStreamReceiver(streamId, stateStreamRuntime, defaultLockKey, latencyTracker));
                 } else {
-                    processStreamReceiverMap.put(streamId, new PatternSingleProcessStreamReceiver(streamId, latencyTracker));
+                    processStreamReceiverMap.put(streamId, new PatternSingleProcessStreamReceiver(streamId, defaultLockKey, latencyTracker));
                 }
             } else {
                 if (stateInputStream.getStateType() == StateInputStream.Type.SEQUENCE) {
-                    processStreamReceiverMap.put(streamId, new SequenceMultiProcessStreamReceiver(streamId, streamCount, stateStreamRuntime, latencyTracker));
+                    processStreamReceiverMap.put(streamId, new SequenceMultiProcessStreamReceiver(streamId, streamCount, stateStreamRuntime, defaultLockKey, latencyTracker));
                 } else {
-                    processStreamReceiverMap.put(streamId, new PatternMultiProcessStreamReceiver(streamId, streamCount, latencyTracker));
+                    processStreamReceiverMap.put(streamId, new PatternMultiProcessStreamReceiver(streamId, streamCount, defaultLockKey, latencyTracker));
                 }
             }
         }
@@ -213,7 +215,7 @@ public class StateInputStreamParser {
             logicalPreStateProcessor2.init(executionPlanContext);
             LogicalPostStateProcessor logicalPostStateProcessor2 = new LogicalPostStateProcessor(type);
 
-            if(stateElement.getWithin()!=null){
+            if (stateElement.getWithin() != null) {
                 withinStates.remove(0);
             }
 
@@ -274,7 +276,7 @@ public class StateInputStreamParser {
             countPreStateProcessor.init(executionPlanContext);
             CountPostStateProcessor countPostStateProcessor = new CountPostStateProcessor(minCount, maxCount);
 
-            if(stateElement.getWithin()!=null){
+            if (stateElement.getWithin() != null) {
                 withinStates.remove(0);
             }
 
