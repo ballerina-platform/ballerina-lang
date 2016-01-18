@@ -138,13 +138,13 @@ public class JoinInputStreamParser {
                 break;
         }
 
-        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true,leftOuterJoinProcessor);
-        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false,leftOuterJoinProcessor);
+        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true, leftOuterJoinProcessor);
+        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false, leftOuterJoinProcessor);
 
         FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime, executionPlanContext);
 
-        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true,rightOuterJoinProcessor);
-        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false,rightOuterJoinProcessor);
+        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true, rightOuterJoinProcessor);
+        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false, rightOuterJoinProcessor);
 
         FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime, executionPlanContext);
 

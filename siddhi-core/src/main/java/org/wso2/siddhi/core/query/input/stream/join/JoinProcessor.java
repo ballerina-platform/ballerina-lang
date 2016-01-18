@@ -83,18 +83,17 @@ public class JoinProcessor implements Processor {
                     }
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
-                if(foundStreamEvent == null){
-                    if(outerJoinProcessor && !leftJoinProcessor) {
+                if (foundStreamEvent == null) {
+                    if (outerJoinProcessor && !leftJoinProcessor) {
                         returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
-                    }
-                    else if(outerJoinProcessor && leftJoinProcessor) {
+                    } else if (outerJoinProcessor && leftJoinProcessor) {
                         returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
                     }
-                }else{
+                } else {
                     while (foundStreamEvent != null) {
                         if (!leftJoinProcessor) {
                             returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
-                        }else{
+                        } else {
                             returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
                         }
                         foundStreamEvent = foundStreamEvent.getNext();
@@ -190,10 +189,11 @@ public class JoinProcessor implements Processor {
 
     /**
      * Join the given two event streams
-     * @param leftStream event left stream
+     *
+     * @param leftStream  event left stream
      * @param rightStream event right stream
      */
-    public StateEvent joinBuilder(StreamEvent leftStream,StreamEvent rightStream){
+    public StateEvent joinBuilder(StreamEvent leftStream, StreamEvent rightStream) {
         StateEvent returnEvent = stateEventPool.borrowEvent();
         returnEvent.setEvent(0, leftStream);
         returnEvent.setEvent(1, rightStream);
@@ -204,7 +204,7 @@ public class JoinProcessor implements Processor {
         }
         if (!leftJoinProcessor) {
             returnEvent.setTimestamp(rightStream.getTimestamp());
-        }else{
+        } else {
             returnEvent.setTimestamp(leftStream.getTimestamp());
         }
         return returnEvent;
