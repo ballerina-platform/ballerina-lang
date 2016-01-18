@@ -47,7 +47,6 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
-    private boolean flag = false;
 
     public void setTimeInMilliSeconds(long timeInMilliSeconds) {
         this.timeInMilliSeconds = timeInMilliSeconds;
@@ -88,6 +87,8 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        boolean flag;
+
         while (streamEventChunk.hasNext()) {
 
             flag = false;
