@@ -29,7 +29,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Netty based implementation for Carbon Message
+ * Netty based implementation for Carbon Message.
  */
 public class NettyCarbonMessage extends CarbonMessage {
 
