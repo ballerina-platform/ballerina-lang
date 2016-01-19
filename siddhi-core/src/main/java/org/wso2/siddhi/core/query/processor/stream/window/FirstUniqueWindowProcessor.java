@@ -97,11 +97,11 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, map.values(),streamEventCloner);
+        return finder.find(matchingEvent, map.values(), streamEventCloner);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 }

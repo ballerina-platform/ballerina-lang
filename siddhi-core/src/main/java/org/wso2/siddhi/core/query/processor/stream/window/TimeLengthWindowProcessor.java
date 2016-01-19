@@ -87,32 +87,28 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        boolean flag;
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
         while (streamEventChunk.hasNext()) {
 
-            flag = false;
+            boolean flag = false;
             StreamEvent streamEvent = streamEventChunk.next();
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-            StreamEvent clonedEvent = null;
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                clonedEvent.setType(StreamEvent.Type.EXPIRED);
-                clonedEvent.setTimestamp(currentTime + timeInMilliSeconds);
-            }
+            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
             boolean eventScheduled = false;
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
-                long timeDiff = expiredEvent.getTimestamp() - currentTime;
+                long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
                 if (timeDiff <= 0) {
                     expiredEventChunk.remove();
                     count--;
+                    expiredEvent.setTimestamp(currentTime);
                     streamEventChunk.insertBeforeCurrent(expiredEvent);
                     flag = true;
                 } else {
-                   scheduler.notifyAt(expiredEvent.getTimestamp());
+                    scheduler.notifyAt(expiredEvent.getTimestamp() + timeInMilliSeconds);
                     expiredEventChunk.reset();
                     eventScheduled = true;
                     break;
@@ -128,23 +124,22 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
                 } else {
                     StreamEvent firstEvent = this.expiredEventChunk.poll();
                     if (firstEvent != null) {
-                        if(!flag) {
+                        if (!flag) {
+                            firstEvent.setTimestamp(currentTime);
                             streamEventChunk.insertBeforeCurrent(firstEvent);
-                            flag = true;
                         }
                         this.expiredEventChunk.add(clonedEvent);
-                    } else if(!flag) {
+                    } else if (!flag) {
                         streamEventChunk.insertBeforeCurrent(clonedEvent);
-                        flag = true;
                     }
                 }
             }
 
             if (!eventScheduled) {
-                if(clonedEvent != null){
-                    scheduler.notifyAt(clonedEvent.getTimestamp());
+                if (clonedEvent != null) {
+                    scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
                 }
-              }
+            }
         }
         expiredEventChunk.reset();
         nextProcessor.process(streamEventChunk);

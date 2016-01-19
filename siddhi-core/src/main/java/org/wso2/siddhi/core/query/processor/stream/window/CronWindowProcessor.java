@@ -121,10 +121,10 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
         ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>();
 
         if (currentEventChunk.getFirst() != null) {
-
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
-                expiredEvent.setTimestamp(executionPlanContext.getTimestampGenerator().currentTime());
+                expiredEvent.setTimestamp(currentTime);
             }
             if (expiredEventChunk.getFirst() != null) {
                 streamEventChunk.add(expiredEventChunk.getFirst());

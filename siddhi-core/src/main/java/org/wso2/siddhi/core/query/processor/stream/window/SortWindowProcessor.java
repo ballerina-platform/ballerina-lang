@@ -112,6 +112,7 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
         while (streamEvent != null) {
@@ -125,7 +126,9 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
             sortedWindow.add(clonedEvent);
             if (sortedWindow.size() > lengthToKeep) {
                 Collections.sort(sortedWindow, eventComparator);
-                complexEventChunk.add(sortedWindow.remove(sortedWindow.size() - 1));
+                StreamEvent expiredEvent = sortedWindow.remove(sortedWindow.size() - 1);
+                expiredEvent.setTimestamp(currentTime);
+                complexEventChunk.add(expiredEvent);
             }
 
             streamEvent = next;

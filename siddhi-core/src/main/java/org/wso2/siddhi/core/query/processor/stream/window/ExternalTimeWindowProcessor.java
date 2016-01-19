@@ -73,18 +73,16 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
             StreamEvent streamEvent = streamEventChunk.next();
             long currentTime = (Long) streamEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
 
-            StreamEvent clonedEvent = null;
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                clonedEvent.setType(StreamEvent.Type.EXPIRED);
-                clonedEvent.setTimestamp(currentTime + timeToKeep);
-            }
+            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
-                long timeDiff = expiredEvent.getTimestamp() - currentTime;
+                long expiredEventTime= (Long) expiredEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
+                long timeDiff = expiredEventTime - currentTime + timeToKeep;
                 if (timeDiff <= 0) {
                     expiredEventChunk.remove();
+                    expiredEvent.setTimestamp(currentTime);
                     streamEventChunk.insertBeforeCurrent(expiredEvent);
                 } else {
                     expiredEventChunk.reset();

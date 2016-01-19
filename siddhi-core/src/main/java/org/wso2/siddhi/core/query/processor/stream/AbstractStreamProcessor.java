@@ -134,6 +134,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             abstractStreamProcessor.attributeExpressionLength = attributeExpressionLength;
             abstractStreamProcessor.additionalAttributes = additionalAttributes;
             abstractStreamProcessor.complexEventPopulater = complexEventPopulater;
+            abstractStreamProcessor.executionPlanContext = executionPlanContext;
             abstractStreamProcessor.elementId = elementId + "-" + key;
             abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
             abstractStreamProcessor.start();

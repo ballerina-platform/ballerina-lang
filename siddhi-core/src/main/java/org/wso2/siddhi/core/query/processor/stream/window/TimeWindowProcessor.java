@@ -84,27 +84,24 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
         while (streamEventChunk.hasNext()) {
 
             StreamEvent streamEvent = streamEventChunk.next();
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-            StreamEvent clonedEvent = null;
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                clonedEvent.setType(StreamEvent.Type.EXPIRED);
-                clonedEvent.setTimestamp(currentTime + timeInMilliSeconds);
-            }
+            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
             boolean eventScheduled = false;
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
-                long timeDiff = expiredEvent.getTimestamp() - currentTime;
+                long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
                 if (timeDiff <= 0) {
                     expiredEventChunk.remove();
+                    expiredEvent.setTimestamp(currentTime);
                     streamEventChunk.insertBeforeCurrent(expiredEvent);
                 } else {
-                    scheduler.notifyAt(expiredEvent.getTimestamp());
+                    scheduler.notifyAt(expiredEvent.getTimestamp() + timeInMilliSeconds);
                     expiredEventChunk.reset();
                     eventScheduled = true;
                     break;
@@ -115,7 +112,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 this.expiredEventChunk.add(clonedEvent);
 
                 if (!eventScheduled) {
-                    scheduler.notifyAt(clonedEvent.getTimestamp());
+                    scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
                 }
             }
             expiredEventChunk.reset();
@@ -125,12 +122,12 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, expiredEventChunk,streamEventCloner);
+        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 
     @Override

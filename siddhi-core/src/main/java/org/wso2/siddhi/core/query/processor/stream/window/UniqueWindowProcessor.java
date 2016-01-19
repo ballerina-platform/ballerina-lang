@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class UniqueWindowProcessor extends WindowProcessor implements FindableProcessor{
+public class UniqueWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
 
@@ -51,7 +51,7 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length];
         for (int i = 0; i < attributeExpressionExecutors.length; i++) {
-            variableExpressionExecutors[i] =(VariableExpressionExecutor) attributeExpressionExecutors[i];
+            variableExpressionExecutors[i] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
         }
     }
 
@@ -65,6 +65,7 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
         while (streamEvent != null) {
@@ -73,6 +74,7 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
 
             StreamEvent oldEvent = map.put(generateKey(clonedEvent), clonedEvent);
             if (oldEvent != null) {
+                oldEvent.setTimestamp(currentTime);
                 complexEventChunk.add(oldEvent);
             }
             StreamEvent next = streamEvent.getNext();
@@ -137,7 +139,7 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
      */
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, map.values(),streamEventCloner);
+        return finder.find(matchingEvent, map.values(), streamEventCloner);
     }
 
     /**

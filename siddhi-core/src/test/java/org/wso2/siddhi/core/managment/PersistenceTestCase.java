@@ -518,7 +518,7 @@ public class PersistenceTestCase {
                 "" +
                 "@info(name = 'query1')" +
                 "from StockStream#window.externalTime(timestamp,3 sec) " +
-                "select symbol, price, sum(volume) as totalVol " +
+                "select symbol, price, sum(volume) as totalVol, timestamp " +
                 "group by symbol " +
                 "insert into OutStream ";
 
