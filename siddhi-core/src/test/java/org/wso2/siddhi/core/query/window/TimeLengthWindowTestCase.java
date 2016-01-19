@@ -248,7 +248,7 @@ public class TimeLengthWindowTestCase {
         Thread.sleep(500);
         inputHandler.send(new Object[]{"id6", 60d});
 
-        Thread.sleep(2000);
+        Thread.sleep(4000);
 
         Assert.assertEquals(6, inEventCount);
         Assert.assertEquals(6, removeEventCount);
