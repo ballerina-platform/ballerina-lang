@@ -19,7 +19,7 @@
 package org.wso2.carbon.transport.http.netty.exception;
 
 /**
- * A class that represent EndpointTimeout Exception
+ * A class that represent EndpointTimeout Exception.
  */
 public class EndpointTimeOutException extends Exception {
 

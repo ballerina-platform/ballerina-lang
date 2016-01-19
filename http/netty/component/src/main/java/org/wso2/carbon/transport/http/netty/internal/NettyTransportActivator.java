@@ -49,7 +49,7 @@ public class NettyTransportActivator implements BundleActivator {
     }
 
     /**
-     * Parse the  netty-transports.xml config file & create the Netty transport instances
+     * Parse the  netty-transports.xml config file & create the Netty transport instances.
      *
      * @return Netty transport instances
      */
@@ -67,7 +67,7 @@ public class NettyTransportActivator implements BundleActivator {
     }
 
     /**
-     * Parse the  netty-transports.xml config file & create the Netty transport instances
+     * Parse the  netty-transports.xml config file & create the Netty transport instances.
      *
      * @return Netty transport instances
      */
