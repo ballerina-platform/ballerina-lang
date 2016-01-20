@@ -152,7 +152,7 @@ public class RDBMSEventTable implements EventTable {
                     Long bloomTimeInterval = Long.parseLong(bloomFilterValidityInterval);
                     Timer timer = new Timer();
                     BloomsUpdateTask bloomsUpdateTask = new BloomsUpdateTask();
-                    timer.schedule(bloomsUpdateTask, bloomTimeInterval);
+                    timer.schedule(bloomsUpdateTask, bloomTimeInterval, bloomTimeInterval);
                 }
             }
 
