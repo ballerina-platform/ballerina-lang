@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,9 +28,9 @@ import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.statistics.metrics.SiddhiLatencyMetric;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
@@ -48,14 +48,14 @@ import java.util.Map;
 public class QueryParser {
 
     /**
-     * Parse a query and return corresponding QueryRuntime
+     * Parse a query and return corresponding QueryRuntime.
      *
-     * @param query                query to be parsed
-     * @param executionPlanContext associated Execution Plan context
-     * @param streamDefinitionMap  map containing user given stream definitions
-     * @param tableDefinitionMap   map containing table definitions
-     * @param eventTableMap        map containing event tables
-     * @return queryRuntime
+     * @param query                query to be parsed.
+     * @param executionPlanContext associated Execution Plan context.
+     * @param streamDefinitionMap  map containing user given stream definitions.
+     * @param tableDefinitionMap   map containing table definitions.
+     * @param eventTableMap        map containing event tables.
+     * @return queryRuntime.
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
                                      Map<String, AbstractDefinition> streamDefinitionMap,
@@ -67,9 +67,15 @@ public class QueryParser {
         LatencyTracker latencyTracker = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
-            if (executionPlanContext.getStatisticsManager()!=null) {
+            if (executionPlanContext.getStatisticsManager() != null) {
                 if (element != null) {
-                    String metricName = executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() + ".executionplan." + executionPlanContext.getName() + "." + element.getValue();
+                    String metricName =
+                            executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                                    SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
+                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                                    SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_QUERIES +
+                                    SiddhiConstants.METRIC_DELIMITER + element.getValue();
                     latencyTracker = executionPlanContext.getSiddhiContext()
                             .getStatisticsConfiguration()
                             .getFactory()
@@ -78,12 +84,9 @@ public class QueryParser {
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
                     executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker);
-
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
-
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
-
             if (!isWindow && query.getInputStream() instanceof SingleInputStream) {
                 for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {
                     if (streamHandler instanceof Window) {
@@ -94,25 +97,28 @@ public class QueryParser {
             }
 
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
-                    query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow, executionPlanContext.getScheduledExecutorService());
-            outputRateLimiter.init(executionPlanContext, latencyTracker);
+                    query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow,
+                    executionPlanContext.getScheduledExecutorService());
+            if (outputRateLimiter != null) {
+                outputRateLimiter.init(executionPlanContext, latencyTracker);
+            }
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
                     streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, executionPlanContext);
-
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);
             QueryParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent());
-
             selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime.getMetaComplexEvent()));
 
-            queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter, outputCallback, streamRuntime.getMetaComplexEvent());
+            queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter,
+                    outputCallback, streamRuntime.getMetaComplexEvent());
 
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
-                ((WrappedSnapshotOutputRateLimiter) outputRateLimiter).init(streamRuntime.getMetaComplexEvent().getOutputStreamDefinition().getAttributeList().size(), selector.getAttributeProcessorList(), streamRuntime.getMetaComplexEvent());
+                ((WrappedSnapshotOutputRateLimiter) outputRateLimiter)
+                        .init(streamRuntime.getMetaComplexEvent().getOutputStreamDefinition().getAttributeList().size(),
+                                selector.getAttributeProcessorList(), streamRuntime.getMetaComplexEvent());
             }
-
         } catch (DuplicateDefinitionException e) {
             if (element != null) {
                 throw new DuplicateDefinitionException(e.getMessage() + ", when creating query " + element.getValue(), e);
@@ -126,10 +132,6 @@ public class QueryParser {
                 throw new ExecutionPlanCreationException(e.getMessage(), e);
             }
         }
-
         return queryRuntime;
-
     }
-
-
 }

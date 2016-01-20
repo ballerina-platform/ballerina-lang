@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.siddhi.core.managment;
 
 import org.apache.log4j.Logger;
@@ -10,12 +28,12 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 public class StatisticsTestCase {
-
     static final Logger log = Logger.getLogger(StatisticsTestCase.class);
     private int count;
     private boolean eventArrived;
@@ -33,9 +51,7 @@ public class StatisticsTestCase {
     @Test
     public void statisticsTest1() throws InterruptedException {
         log.info("statistics test 1");
-
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String executionPlan = "" +
                 "@plan:statistics(reporter = 'console', interval = '5' )" +
                 " " +
@@ -53,9 +69,7 @@ public class StatisticsTestCase {
                 "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
-
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -65,11 +79,9 @@ public class StatisticsTestCase {
                     Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
                 }
             }
-
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         PrintStream old = System.out;
@@ -86,18 +98,17 @@ public class StatisticsTestCase {
 
         System.out.flush();
         System.setOut(old);
-
-        String output= baos.toString();
+        String output = baos.toString();
 
         Assert.assertTrue(output.contains("Gauges"));
-        Assert.assertTrue(output.contains("org.wso2.siddhi.executionplan"));
+        Assert.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS));
         Assert.assertTrue(output.contains("query1.memory"));
         Assert.assertTrue(output.contains("Meters"));
-        Assert.assertTrue(output.contains("org.wso2.siddhi.stream.cseEventStream"));
+        Assert.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                SiddhiConstants.METRIC_INFIX_STREAMS + SiddhiConstants.METRIC_DELIMITER + "cseEventStream"));
         Assert.assertTrue(output.contains("Timers"));
         Assert.assertTrue(output.contains("query1.latency"));
 
-        System.out.println(output);
-
+        log.info(output);
     }
 }
