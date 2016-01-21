@@ -18,3 +18,5 @@
 regress=org.wso2.siddhi.extension.timeseries.LinearRegressionStreamProcessor
 forecast=org.wso2.siddhi.extension.timeseries.LinearRegressionForecastStreamProcessor
 outlier=org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierStreamProcessor
+kalmanMinMax=org.wso2.siddhi.extension.timeseries.extrema.KalmanMinMaxStreamProcessor
+kernelMinMax=org.wso2.siddhi.extension.timeseries.extrema.KernelMinMaxStreamProcessor

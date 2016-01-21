@@ -156,23 +156,9 @@ public class ExternalTimeBatchWindowTestCase {
         runtime.addCallback("pull76", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    logger.info("======================== START ===============================");
-                    int i;
-                    logger.info(" Events Size:" + inEvents.length);
-                    for (i = 0; i < inEvents.length; i++) {
-                        Event e = inEvents[i];
-                        logger.info("----------------------------");
-                        logger.info(new Date((Long) e.getData(0)));
-                        logger.info("IP:" + e.getData(2));
-                        logger.info("price :" + e.getData(3));
-                        logger.info("count :" + e.getData(4));
-                        logger.info("mintime :" + new Date((Long) e.getData(5)));
-                        logger.info("maxtime :" + new Date((Long) e.getData(6)));
-                        logger.info("----------------------------");
-                    }
-                    logger.info("======================== END  ===============================");
-
+                    logger.info("In Events Size:" + inEvents.length);
                 }
             }
         });

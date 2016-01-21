@@ -57,16 +57,16 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
             StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
-//            clonedStreamEvent.setExpired(true);
             currentEventChunk.add(clonedStreamEvent);
             count++;
             if (count == length) {
                 while (expiredEventChunk.hasNext()) {
                     StreamEvent expiredEvent = expiredEventChunk.next();
-                    expiredEvent.setTimestamp(executionPlanContext.getTimestampGenerator().currentTime());
+                    expiredEvent.setTimestamp(currentTime);
                 }
                 if (expiredEventChunk.getFirst() != null) {
                     streamEventChunk.insertBeforeCurrent(expiredEventChunk.getFirst());

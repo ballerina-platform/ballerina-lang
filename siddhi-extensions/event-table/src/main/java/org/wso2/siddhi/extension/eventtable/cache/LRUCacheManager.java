@@ -68,4 +68,9 @@ public class LRUCacheManager implements CacheManager {
     public void update(StreamEvent item) {
         eventTimestamps.put(item, System.currentTimeMillis());
     }
+
+    @Override
+    public void invalidateCache() {
+        cacheList.clear();
+    }
 }

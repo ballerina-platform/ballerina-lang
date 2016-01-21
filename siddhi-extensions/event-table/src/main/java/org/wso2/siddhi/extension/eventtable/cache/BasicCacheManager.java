@@ -53,4 +53,9 @@ public class BasicCacheManager implements CacheManager {
     public void update(StreamEvent item) {
         //No implementation Required
     }
+
+    @Override
+    public void invalidateCache() {
+        cacheList.clear();
+    }
 }

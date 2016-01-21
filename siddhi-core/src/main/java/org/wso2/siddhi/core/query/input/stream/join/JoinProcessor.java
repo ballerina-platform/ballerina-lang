@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied. See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 package org.wso2.siddhi.core.query.input.stream.join;
 
@@ -84,10 +84,11 @@ public class JoinProcessor implements Processor {
                 }
                 StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
                 if (foundStreamEvent == null) {
-                    if (outerJoinProcessor && !leftJoinProcessor)
+                    if (outerJoinProcessor && !leftJoinProcessor) {
                         returnEventChunk.add(joinBuilder(foundStreamEvent, streamEvent));
-                    else if (outerJoinProcessor && leftJoinProcessor)
+                    } else if (outerJoinProcessor && leftJoinProcessor) {
                         returnEventChunk.add(joinBuilder(streamEvent, foundStreamEvent));
+                    }
                 } else {
                     while (foundStreamEvent != null) {
                         if (!leftJoinProcessor) {
@@ -189,23 +190,22 @@ public class JoinProcessor implements Processor {
     /**
      * Join the given two event streams
      *
-     * @param stream1 event stream 1
-     * @param stream2 event stream 2
-     * @return StateEvent joint event
+     * @param leftStream  event left stream
+     * @param rightStream event right stream
      */
-    public StateEvent joinBuilder(StreamEvent stream1, StreamEvent stream2) {
+    public StateEvent joinBuilder(StreamEvent leftStream, StreamEvent rightStream) {
         StateEvent returnEvent = stateEventPool.borrowEvent();
-        returnEvent.setEvent(0, stream1);
-        returnEvent.setEvent(1, stream2);
+        returnEvent.setEvent(0, leftStream);
+        returnEvent.setEvent(1, rightStream);
         if (preJoinProcessor) {
             returnEvent.setType(ComplexEvent.Type.CURRENT);
         } else {
             returnEvent.setType(ComplexEvent.Type.EXPIRED);
         }
         if (!leftJoinProcessor) {
-            returnEvent.setTimestamp(stream2.getTimestamp());
+            returnEvent.setTimestamp(rightStream.getTimestamp());
         } else {
-            returnEvent.setTimestamp(stream1.getTimestamp());
+            returnEvent.setTimestamp(leftStream.getTimestamp());
         }
         return returnEvent;
     }

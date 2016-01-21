@@ -135,8 +135,8 @@ public class DefinitionParserHelper {
                         }
                     }
                 }
-            }else if(triggerDefinition.getAt()!=null){
-                throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' must either have trigger time in cron or 'start' or time interval defined, and it cannot have more than one defined as '"+triggerDefinition+"'");
+            } else if (triggerDefinition.getAt() != null) {
+                throw new ExecutionPlanValidationException("Trigger Definition '" + triggerDefinition.getId() + "' must either have trigger time in cron or 'start' or time interval defined, and it cannot have more than one defined as '" + triggerDefinition + "'");
             }
         } else {
             throw new ExecutionPlanValidationException("Trigger Definition id cannot be null");
@@ -153,8 +153,8 @@ public class DefinitionParserHelper {
             } else {
                 eventTrigger = new CronEventTrigger();
             }
-            StreamJunction streamJunction=streamJunctionMap.get(triggerDefinition.getId());
-            eventTrigger.init(triggerDefinition,executionPlanContext,streamJunction);
+            StreamJunction streamJunction = streamJunctionMap.get(triggerDefinition.getId());
+            eventTrigger.init(triggerDefinition, executionPlanContext, streamJunction);
             executionPlanContext.getEternalReferencedHolders().add(eventTrigger);
             eventTriggerMap.putIfAbsent(eventTrigger.getId(), eventTrigger);
         }

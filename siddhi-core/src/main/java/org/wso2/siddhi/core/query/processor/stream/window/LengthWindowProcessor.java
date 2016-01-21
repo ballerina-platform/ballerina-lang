@@ -62,6 +62,7 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
@@ -72,6 +73,7 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
             } else {
                 StreamEvent firstEvent = this.expiredEventChunk.poll();
                 if (firstEvent != null) {
+                    firstEvent.setTimestamp(currentTime);
                     streamEventChunk.insertBeforeCurrent(firstEvent);
                     this.expiredEventChunk.add(clonedEvent);
                 } else {

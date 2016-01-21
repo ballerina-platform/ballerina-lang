@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -39,9 +39,11 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
-public class TimeWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
+public class TimeLengthWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
+    private int length;
+    private int count = 0;
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
@@ -63,8 +65,9 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        if (attributeExpressionExecutors.length == 1) {
+        expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        if (attributeExpressionExecutors.length == 2) {
+            length = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
                     timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
@@ -72,21 +75,23 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
                     timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
                 } else {
-                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                    throw new ExecutionPlanValidationException("TimeLength window's first parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                throw new ExecutionPlanValidationException("TimeLength window should have constant parameter attributes but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
         } else {
-            throw new ExecutionPlanValidationException("Time window should only have one parameter (<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("TimeLength window should only have two parameters (<int> windowTime,<int> windowLength), but found " + attributeExpressionExecutors.length + " input attributes");
         }
     }
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+
         while (streamEventChunk.hasNext()) {
 
+            boolean flag = false;
             StreamEvent streamEvent = streamEventChunk.next();
 
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
@@ -98,8 +103,10 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
                 if (timeDiff <= 0) {
                     expiredEventChunk.remove();
+                    count--;
                     expiredEvent.setTimestamp(currentTime);
                     streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    flag = true;
                 } else {
                     scheduler.notifyAt(expiredEvent.getTimestamp() + timeInMilliSeconds);
                     expiredEventChunk.reset();
@@ -108,17 +115,36 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 }
             }
 
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                this.expiredEventChunk.add(clonedEvent);
+            expiredEventChunk.reset();
 
-                if (!eventScheduled) {
+            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
+                if (count < length) {
+                    count++;
+                    this.expiredEventChunk.add(clonedEvent);
+                } else {
+                    StreamEvent firstEvent = this.expiredEventChunk.poll();
+                    if (firstEvent != null) {
+                        if (!flag) {
+                            firstEvent.setTimestamp(currentTime);
+                            streamEventChunk.insertBeforeCurrent(firstEvent);
+                        }
+                        this.expiredEventChunk.add(clonedEvent);
+                    } else if (!flag) {
+                        streamEventChunk.insertBeforeCurrent(clonedEvent);
+                    }
+                }
+            }
+
+            if (!eventScheduled) {
+                if (clonedEvent != null) {
                     scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
                 }
             }
-            expiredEventChunk.reset();
         }
+        expiredEventChunk.reset();
         nextProcessor.process(streamEventChunk);
     }
+
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
@@ -142,12 +168,13 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
 
     @Override
     public Object[] currentState() {
-        return new Object[]{expiredEventChunk.getFirst()};
+        return new Object[]{expiredEventChunk};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        expiredEventChunk.clear();
-        expiredEventChunk.add((StreamEvent) state[0]);
+        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
     }
+
 }
+

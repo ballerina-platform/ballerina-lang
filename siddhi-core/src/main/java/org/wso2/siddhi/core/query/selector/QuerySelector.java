@@ -158,8 +158,8 @@ public class QuerySelector implements Processor {
                     attributeProcessor.process(event);
                 }
 
-                if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
-                    if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                    if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
                         complexEventChunk.remove();
                         lastEvent = event;
                     }
@@ -193,8 +193,8 @@ public class QuerySelector implements Processor {
                     attributeProcessor.process(event);
                 }
 
-                if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
-                    if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                if (!(havingConditionExecutor != null && !havingConditionExecutor.execute(event))) {
+                    if ((event.getType() == StreamEvent.Type.CURRENT && currentOn) || (event.getType() == StreamEvent.Type.EXPIRED && expiredOn)) {
                         complexEventChunk.remove();
                         groupedEvents.put(groupByKey, event);
                     }
@@ -261,8 +261,9 @@ public class QuerySelector implements Processor {
         this.groupByKeyGenerator = groupByKeyGenerator;
     }
 
-    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor) {
+    public void setHavingConditionExecutor(ConditionExpressionExecutor havingConditionExecutor, boolean containsAggregator) {
         this.havingConditionExecutor = havingConditionExecutor;
+        this.containsAggregator = this.containsAggregator || containsAggregator ;
     }
 
     public QuerySelector clone(String key) {

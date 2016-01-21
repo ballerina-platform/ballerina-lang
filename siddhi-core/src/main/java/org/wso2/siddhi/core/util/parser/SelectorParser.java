@@ -78,7 +78,8 @@ public class SelectorParser {
         containsAggregatorThreadLocal.remove();
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(),
                 metaComplexEvent, executionPlanContext, eventTableMap, variableExpressionExecutors);
-        querySelector.setHavingConditionExecutor(havingCondition);
+        querySelector.setHavingConditionExecutor(havingCondition, "true".equals(containsAggregatorThreadLocal.get()));
+        containsAggregatorThreadLocal.remove();
         if (!selector.getGroupByList().isEmpty()) {
             querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaComplexEvent, null, variableExpressionExecutors, executionPlanContext));
         }

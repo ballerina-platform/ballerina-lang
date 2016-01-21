@@ -18,6 +18,8 @@
 
 package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
@@ -26,10 +28,12 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
 
 
     private StateStreamRuntime stateStreamRuntime;
+    private final String lockKey;
 
-    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, LatencyTracker latencyTracker) {
+    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, String lockKey, LatencyTracker latencyTracker) {
         super(streamId, latencyTracker);
         this.stateStreamRuntime = stateStreamRuntime;
+        this.lockKey = lockKey;
     }
 
     public void setStateStreamRuntime(StateStreamRuntime stateStreamRuntime) {
@@ -37,10 +41,45 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
     }
 
     public SequenceSingleProcessStreamReceiver clone(String key) {
-        return new SequenceSingleProcessStreamReceiver(streamId + key, null, latencyTracker);
+        return new SequenceSingleProcessStreamReceiver(streamId + key, null, key, latencyTracker);
     }
 
     protected void stabilizeStates() {
         stateStreamRuntime.resetAndUpdate();
+    }
+
+    @Override
+    public void receive(ComplexEvent complexEvent) {
+        synchronized (lockKey) {
+            super.receive(complexEvent);
+        }
+    }
+
+    @Override
+    public void receive(Event event) {
+        synchronized (lockKey) {
+            super.receive(event);
+        }
+    }
+
+    @Override
+    public void receive(Event[] events) {
+        synchronized (lockKey) {
+            super.receive(events);
+        }
+    }
+
+    @Override
+    public void receive(Event event, boolean endOfBatch) {
+        synchronized (lockKey) {
+            super.receive(event, endOfBatch);
+        }
+    }
+
+    @Override
+    public void receive(long timeStamp, Object[] data) {
+        synchronized (lockKey) {
+            super.receive(timeStamp, data);
+        }
     }
 }

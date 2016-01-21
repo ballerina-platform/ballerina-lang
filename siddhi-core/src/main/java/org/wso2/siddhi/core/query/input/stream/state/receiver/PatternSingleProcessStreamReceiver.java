@@ -17,23 +17,63 @@
  */
 package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
 
-    public PatternSingleProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
+    private final String lockKey;
+
+    public PatternSingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker) {
         super(streamId, latencyTracker);
+        this.lockKey = lockKey;
     }
 
     public PatternSingleProcessStreamReceiver clone(String key) {
-        return new PatternSingleProcessStreamReceiver(streamId + key, latencyTracker);
+        return new PatternSingleProcessStreamReceiver(streamId + key, key, latencyTracker);
     }
 
     protected void stabilizeStates() {
         if (stateProcessorsSize != 0) {
             stateProcessors.get(0).updateState();
+        }
+    }
+
+    @Override
+    public void receive(ComplexEvent complexEvent) {
+        synchronized (lockKey) {
+            super.receive(complexEvent);
+        }
+    }
+
+    @Override
+    public void receive(Event event) {
+        synchronized (lockKey) {
+            super.receive(event);
+        }
+    }
+
+    @Override
+    public void receive(Event[] events) {
+        synchronized (lockKey) {
+            super.receive(events);
+        }
+    }
+
+    @Override
+    public void receive(Event event, boolean endOfBatch) {
+        synchronized (lockKey) {
+            super.receive(event, endOfBatch);
+        }
+    }
+
+    @Override
+    public void receive(long timeStamp, Object[] data) {
+        synchronized (lockKey) {
+            super.receive(timeStamp, data);
         }
     }
 }
