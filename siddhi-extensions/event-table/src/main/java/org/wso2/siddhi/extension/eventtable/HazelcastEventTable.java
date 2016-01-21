@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -79,10 +79,13 @@ public class HazelcastEventTable implements EventTable {
         this.tableDefinition = tableDefinition;
         this.executionPlanContext = executionPlanContext;
 
-        Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations());
+        Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+                tableDefinition.getAnnotations());
         String clusterName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_NAME);
-        String clusterPassword = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
-        String clusterAddresses = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
+        String clusterPassword = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
+        String clusterAddresses = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
         String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
 
         HazelcastInstance hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
@@ -135,7 +138,7 @@ public class HazelcastEventTable implements EventTable {
             if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
                 // Take instance from osgi.
                 hazelcastInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
-                logger.info("shared hazelcast server instance retrieved : " + hazelcastInstance.getName());
+                logger.info("Shared hazelcast server instance retrieved : " + hazelcastInstance.getName());
             } else {
                 // Create a new server with default cluster name.
                 Config config = new Config();
@@ -148,7 +151,7 @@ public class HazelcastEventTable implements EventTable {
                     config.getGroupConfig().setPassword(clusterPassword);
                 }
                 hazelcastInstance = Hazelcast.getOrCreateHazelcastInstance(config);
-                logger.info("hazelcast server instance started: " + instanceName);
+                logger.info("Hazelcast server instance started: " + instanceName);
             }
         } else {
             // Client mode.
