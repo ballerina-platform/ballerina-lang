@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.extension.eventtable.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -41,14 +42,10 @@ import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 public class DefineTableTestCase {
-    static final Logger log = Logger.getLogger(DefineTableTestCase.class);
+    private static final Logger log = Logger.getLogger(DefineTableTestCase.class);
     private static final long RESULT_WAIT = 500;
 
     @Test
@@ -56,25 +53,40 @@ public class DefineTableTestCase {
         log.info("testTableDefinition1 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        TableDefinition tableDefinition = TableDefinition.id("cseEventStream").annotation(Annotation.annotation("from").element("eventtable", "hazelcast")).attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        TableDefinition tableDefinition = TableDefinition
+                .id("cseEventStream")
+                .annotation(Annotation.annotation("from")
+                        .element("eventtable", "hazelcast"))
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineTable(tableDefinition);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        List<String> hciNames = new ArrayList<String>();
-        for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-            hciNames.add(hci.getName());
+        try {
+            List<String> hciNames = new ArrayList<String>();
+            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
+                hciNames.add(hci.getName());
+            }
+            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName()));
+        } finally {
+            executionPlanRuntime.shutdown();
         }
-        Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName()));
-        executionPlanRuntime.shutdown();
     }
 
     @Test
     public void testQuery2() throws InterruptedException {
         log.info("testTableDefinition2 - OUT 0");
-
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        TableDefinition tableDefinition = TableDefinition.id("StockTable").annotation(Annotation.annotation("from").element("eventtable", "hazelcast")).attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition
+                .id("StockStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT);
+        TableDefinition tableDefinition = TableDefinition
+                .id("StockTable")
+                .annotation(Annotation.annotation("from").element("eventtable", "hazelcast"))
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT);
         Query query = Query.query();
         query.from(InputStream.stream("StockStream"));
         query.insertInto("StockTable");
@@ -83,22 +95,35 @@ public class DefineTableTestCase {
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineTable(tableDefinition);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        try {
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f});
+            stockStream.send(new Object[]{"IBM", 75.6f});
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
-        stockStream.send(new Object[]{"WSO2", 55.6f});
-        stockStream.send(new Object[]{"IBM", 75.6f});
-        Thread.sleep(500);
+            Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
+            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
+                instanceMap.put(hci.getName(), hci);
+            }
+            Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName()));
+            HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName());
+            List<StreamEvent> streamEvents = instance.getList(
+                    HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName() + '_' + tableDefinition.getId());
 
-        Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
-        for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-            instanceMap.put(hci.getName(), hci);
+            SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
+            List<Object[]> expected = Arrays.asList(new Object[]{"WSO2", 55.6f}, new Object[]{"IBM", 75.6f});
+            List<Object[]> actual = new ArrayList<Object[]>();
+            for (StreamEvent event : streamEvents) {
+                actual.add(event.getOutputData());
+            }
+            Assert.assertEquals(2, streamEvents.size());
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual, expected));
+        } finally {
+            executionPlanRuntime.shutdown();
         }
-        Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName()));
-        HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName());
-        List<StreamEvent> streamEvents = instance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX + executionPlanRuntime.getName() + '_' + tableDefinition.getId());
-        Assert.assertEquals(2, streamEvents.size());
-        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -110,12 +135,16 @@ public class DefineTableTestCase {
                 "@from(eventtable = 'hazelcast')" +
                 "define table EventTable(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        List<String> hciNames = new ArrayList<String>();
-        for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-            hciNames.add(hci.getName());
+        try {
+            List<String> hciNames = new ArrayList<String>();
+            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
+                hciNames.add(hci.getName());
+            }
+            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName()));
+        } finally {
+            executionPlanRuntime.shutdown();
         }
-        Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName()));
-        executionPlanRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -157,12 +186,16 @@ public class DefineTableTestCase {
                 "@from(eventtable = 'hazelcast')" +
                 "define table TestEventTable(symbol string, price int, volume float); ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        List<String> hciNames = new ArrayList<String>();
-        for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-            hciNames.add(hci.getName());
+        try {
+            List<String> hciNames = new ArrayList<String>();
+            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
+                hciNames.add(hci.getName());
+            }
+            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName()));
+        } finally {
+            executionPlanRuntime.shutdown();
         }
-        Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName()));
-        executionPlanRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -339,17 +372,20 @@ public class DefineTableTestCase {
                 "@from(eventtable = 'hazelcast', cluster.name = '" + clusterName + "')" +
                 "define table EventTable(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        try {
+            Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
+            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
+                instanceMap.put(hci.getName(), hci);
+            }
+            Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName()));
 
-        Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
-        for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-            instanceMap.put(hci.getName(), hci);
+            HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName());
+            Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
+        } finally {
+            executionPlanRuntime.shutdown();
         }
-        Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName()));
-
-        HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName());
-        Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
-
-        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -358,24 +394,27 @@ public class DefineTableTestCase {
 
         String clusterName = "siddhi_cluster_t18";
         String clusterPassword = "cluster_pw";
-
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "" +
-                "@from(eventtable = 'hazelcast', cluster.name = '" + clusterName + "', cluster.password = '" + clusterPassword + "')" +
+                "@from(eventtable = 'hazelcast', cluster.name = '" + clusterName +
+                "', cluster.password = '" + clusterPassword + "')" +
                 "define table EventTable(symbol string, price int, volume float) ";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        try {
+            Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
+            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
+                instanceMap.put(hci.getName(), hci);
+            }
+            Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName()));
 
-        Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
-        for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-            instanceMap.put(hci.getName(), hci);
+            HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName());
+            Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
+            Assert.assertEquals(clusterPassword, instance.getConfig().getGroupConfig().getPassword());
+        } finally {
+            executionPlanRuntime.shutdown();
         }
-        Assert.assertTrue(instanceMap.containsKey(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName()));
-
-        HazelcastInstance instance = instanceMap.get(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX + executionPlanRuntime.getName());
-        Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
-        Assert.assertEquals(clusterPassword, instance.getConfig().getGroupConfig().getPassword());
-
-        executionPlanRuntime.shutdown();
     }
 
     @Test
@@ -403,7 +442,10 @@ public class DefineTableTestCase {
         addresses = StringUtils.removeEnd(addresses, ",");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition
+                .id("StockStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
                 .annotation(Annotation.annotation("from")
                         .element("eventtable", "hazelcast")
@@ -420,16 +462,26 @@ public class DefineTableTestCase {
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineTable(tableDefinition);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        try {
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f});
+            stockStream.send(new Object[]{"IBM", 75.6f});
+            List<StreamEvent> streamEvents = instance_2.getList(
+                    HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName() + '_' + tableDefinition.getId());
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
-        stockStream.send(new Object[]{"WSO2", 55.6f});
-        stockStream.send(new Object[]{"IBM", 75.6f});
-        Thread.sleep(RESULT_WAIT * 4);
-
-        List<StreamEvent> streamEvents = instance_2.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX + executionPlanRuntime.getName() + '_' + tableDefinition.getId());
-        Assert.assertEquals(2, streamEvents.size());
-        executionPlanRuntime.shutdown();
+            SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
+            List<Object[]> expected = Arrays.asList(new Object[]{"WSO2", 55.6f}, new Object[]{"IBM", 75.6f});
+            List<Object[]> actual = new ArrayList<Object[]>();
+            for (StreamEvent event : streamEvents) {
+                actual.add(event.getOutputData());
+            }
+            Assert.assertEquals(2, streamEvents.size());
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual, expected));
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
     }
 
     @Test
@@ -437,9 +489,11 @@ public class DefineTableTestCase {
         log.info("testTableDefinition20 - OUT 0");
 
         String instanceName = "siddhi_instance_t20";
-
         SiddhiManager siddhiManager = new SiddhiManager();
-        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition
+                .id("StockStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
                 .annotation(Annotation.annotation("from")
                         .element("eventtable", "hazelcast")
@@ -454,18 +508,29 @@ public class DefineTableTestCase {
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineTable(tableDefinition);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        try {
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f});
+            stockStream.send(new Object[]{"IBM", 75.6f});
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
-        stockStream.send(new Object[]{"WSO2", 55.6f});
-        stockStream.send(new Object[]{"IBM", 75.6f});
-        Thread.sleep(RESULT_WAIT * 4);
+            Config cfg = new Config(instanceName);
+            cfg.setProperty("hazelcast.logging.type", "log4j");
+            HazelcastInstance hci = Hazelcast.getOrCreateHazelcastInstance(cfg);
+            List<StreamEvent> streamEvents = hci.getList(
+                    HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
+                    executionPlanRuntime.getName() + '_' + tableDefinition.getId());
 
-        Config cfg = new Config(instanceName);
-        cfg.setProperty("hazelcast.logging.type", "log4j");
-        HazelcastInstance hci = Hazelcast.getOrCreateHazelcastInstance(cfg);
-        List<StreamEvent> streamEvents = hci.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX + executionPlanRuntime.getName() + '_' + tableDefinition.getId());
-        Assert.assertEquals(2, streamEvents.size());
-        executionPlanRuntime.shutdown();
+            SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
+            List<Object[]> expected = Arrays.asList(new Object[]{"WSO2", 55.6f}, new Object[]{"IBM", 75.6f});
+            List<Object[]> actual = new ArrayList<Object[]>();
+            for (StreamEvent event : streamEvents) {
+                actual.add(event.getOutputData());
+            }
+            Assert.assertEquals(2, streamEvents.size());
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual, expected));
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
     }
 }
