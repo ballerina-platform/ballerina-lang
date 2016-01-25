@@ -1,10 +1,8 @@
-package org.wso2.siddhi.core.util.statistics.memory.measurer;
+package org.wso2.siddhi.core.util.statistics.memory.nonhotspot;
 
 import com.google.common.collect.Multiset;
 
-/**
- * Created by sajith on 12/8/15.
- */
+
 public class MemoryMeasurerUtil {
     public static final int WORD_LENGTH = Integer.parseInt(System.getProperty("sun.arch.data.model")) / 8;
 

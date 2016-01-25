@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.util.statistics.memory.measurer;
+package org.wso2.siddhi.core.util.statistics.memory.nonhotspot;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.util.statistics.memory.measurer;
+package org.wso2.siddhi.core.util.statistics.memory.nonhotspot;
 
 /**
  * A visitor that controls an object traversal. Implementations

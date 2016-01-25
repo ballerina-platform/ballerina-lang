@@ -3,8 +3,9 @@ package org.wso2.siddhi.core.util.statistics.metrics;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.memory.measurer.MemoryMeasurerUtil;
-import org.wso2.siddhi.core.util.statistics.memory.measurer.ObjectGraphMeasurer;
+import org.wso2.siddhi.core.util.statistics.memory.hotspot.ObjectSizeCalculator;
+import org.wso2.siddhi.core.util.statistics.memory.nonhotspot.MemoryMeasurerUtil;
+import org.wso2.siddhi.core.util.statistics.memory.nonhotspot.ObjectGraphMeasurer;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -62,8 +63,13 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
                     new Gauge<Long>() {
                         @Override
                         public Long getValue() {
-                            ObjectGraphMeasurer.Footprint footprint = ObjectGraphMeasurer.measure(object);
-                            return MemoryMeasurerUtil.footprintSizeEstimate(footprint);
+                            try {
+                                return ObjectSizeCalculator.getObjectSize(object);
+                            } catch (UnsupportedOperationException e) {
+                                // Fallback for non Hotspot JVMs.
+                                ObjectGraphMeasurer.Footprint footprint = ObjectGraphMeasurer.measure(object);
+                                return MemoryMeasurerUtil.footprintSizeEstimate(footprint);
+                            }
                         }
                     });
         }
