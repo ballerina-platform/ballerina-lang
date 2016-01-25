@@ -46,7 +46,7 @@ public final class SiddhiConstants {
     public static final int LAST = -2;
     public static final int ANY = -1;
 
-    public static final String METRIC_INFIX_EXECUTION_PLANS = "Execution Plans";
+    public static final String METRIC_INFIX_EXECUTION_PLANS = "ExecutionPlans";
     public static final String METRIC_INFIX_STREAMS = "Streams";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
     public static final String METRIC_INFIX_QUERIES = "Queries";
