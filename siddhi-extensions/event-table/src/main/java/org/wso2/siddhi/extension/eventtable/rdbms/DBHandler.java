@@ -500,10 +500,9 @@ public class DBHandler {
 
 
     //Bloom Filter Operations  -----------------------------------------------------------------------------------------
-
     public void buildBloomFilters() {
-        this.bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
-        this.isBloomFilterEnabled = true;
+        CountingBloomFilter[]   bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
+
         for (int i = 0; i < bloomFilters.length; i++) {
             bloomFilters[i] = new CountingBloomFilter(bloomFilterSize, bloomFilterHashFunction, Hash.MURMUR_HASH);
         }
@@ -540,7 +539,8 @@ public class DBHandler {
                 }
             }
             results.close();
-
+            this.bloomFilters=bloomFilters;
+            this.isBloomFilterEnabled = true;
         } catch (SQLException ex) {
             throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex.getMessage(), ex);
         } finally {
