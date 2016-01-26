@@ -224,6 +224,11 @@ public class HazelcastEventTable implements EventTable {
         }
     }
 
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+        throw new OperationNotSupportedException("'Overwrite Or Add' Operation not supported on Hazelcast Event Table '" + tableDefinition.getId() + "'");
+    }
+
     /**
      * Called when having "in" condition, to check the existence of the event.
      *
@@ -261,7 +266,7 @@ public class HazelcastEventTable implements EventTable {
      * Called to construct a operator to perform search operations.
      *
      * @param expression                  the matching expression.
-     * @param metaComplexEvent            the meta structure of the incoming matchingEvent.
+     * @param matchingMetaComplexEvent    the meta structure of the incoming matchingEvent.
      * @param executionPlanContext        current execution plan context.
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created.
      * @param eventTableMap               map of event tables.
@@ -270,11 +275,11 @@ public class HazelcastEventTable implements EventTable {
      * @return HazelcastOperator.
      */
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent,
                                   ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
                                   Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+        return HazelcastOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
                 indexAttribute);
     }

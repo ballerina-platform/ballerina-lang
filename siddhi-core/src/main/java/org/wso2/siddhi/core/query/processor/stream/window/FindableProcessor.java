@@ -50,7 +50,7 @@ public interface FindableProcessor {
      * matchingEvent and the given matching expression logic.
      *
      * @param expression                  the matching expression
-     * @param metaComplexEvent            the meta structure of the incoming matchingEvent
+     * @param matchingMetaComplexEvent            the meta structure of the incoming matchingEvent
      * @param executionPlanContext        current execution plan context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
      * @param eventTableMap               map of event tables
@@ -59,6 +59,6 @@ public interface FindableProcessor {
      * @return finder having the capability of finding events at the processor against the expression and incoming
      * matchingEvent
      */
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
 
 }

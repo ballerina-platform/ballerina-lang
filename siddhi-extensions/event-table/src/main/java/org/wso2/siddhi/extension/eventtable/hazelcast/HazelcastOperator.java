@@ -294,6 +294,11 @@ public class HazelcastOperator implements Operator {
         }
     }
 
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+
+    }
+
     /**
      * Called when updating list of events in a ComplexEventChunk.
      *

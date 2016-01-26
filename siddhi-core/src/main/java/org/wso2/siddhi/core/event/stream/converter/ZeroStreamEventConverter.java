@@ -26,25 +26,25 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
  */
 public class ZeroStreamEventConverter implements StreamEventConverter {
 
-    private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
+    private void convertToStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
         System.arraycopy(data, 0, borrowedEvent.getOutputData(), 0, data.length);
         borrowedEvent.setType(type);
         borrowedEvent.setTimestamp(timestamp);
     }
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+        convertToStreamEvent(event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
                 event.getTimestamp(), borrowedEvent);
     }
 
     public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(complexEvent.getOutputData(), complexEvent.getType(),
+        convertToStreamEvent(complexEvent.getOutputData(), complexEvent.getType(),
                 complexEvent.getTimestamp(), borrowedEvent);
     }
 
     @Override
     public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(data, StreamEvent.Type.CURRENT, timeStamp, borrowedEvent);
+        convertToStreamEvent(data, StreamEvent.Type.CURRENT, timeStamp, borrowedEvent);
     }
 
 }

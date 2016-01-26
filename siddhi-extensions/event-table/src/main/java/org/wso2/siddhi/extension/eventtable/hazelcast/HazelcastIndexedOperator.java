@@ -153,6 +153,11 @@ public class HazelcastIndexedOperator implements Operator {
         }
     }
 
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+
+    }
+
     /**
      * Called when having "in" condition, to check the existence of the event.
      *

@@ -184,6 +184,11 @@ public class CacheInMemoryOperator implements Operator {
         }
     }
 
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+
+    }
+
     private void update(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition) {
         candidateEventChunk.reset();
         while (candidateEventChunk.hasNext()) {

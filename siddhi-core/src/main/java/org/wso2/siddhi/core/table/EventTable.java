@@ -44,6 +44,8 @@ public interface EventTable extends FindableProcessor {
 
     void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition);
 
+    void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition);
+
     boolean contains(ComplexEvent matchingEvent, Finder finder);
 
     public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);

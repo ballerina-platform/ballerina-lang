@@ -23,6 +23,8 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
@@ -32,13 +34,21 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
 public class SimpleIndexedOperator implements Operator {
     private final long withinTime;
+    private int outputAttributeSize;
+    private final StreamEventPool streamEventPool;
     private ExpressionExecutor expressionExecutor;
     private int matchingEventPosition;
+    private final ZeroStreamEventConverter streamEventConverter;
 
-    public SimpleIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime) {
+
+    public SimpleIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime, int matchingStreamOutputAttributeSize) {
         this.expressionExecutor = expressionExecutor;
         this.matchingEventPosition = matchingEventPosition;
         this.withinTime = withinTime;
+        this.outputAttributeSize = matchingStreamOutputAttributeSize;
+        this.streamEventPool = new StreamEventPool(0, 0, matchingStreamOutputAttributeSize, 10);
+        this.streamEventConverter = new ZeroStreamEventConverter();
+
     }
 
     private boolean outsideTimeWindow(ComplexEvent matchingEvent, StreamEvent streamEvent) {
@@ -53,7 +63,7 @@ public class SimpleIndexedOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new SimpleIndexedOperator(expressionExecutor, matchingEventPosition, withinTime);
+        return new SimpleIndexedOperator(expressionExecutor, matchingEventPosition, withinTime, outputAttributeSize);
     }
 
     @Override
@@ -111,6 +121,33 @@ public class SimpleIndexedOperator implements Operator {
                     for (int i = 0, size = mappingPosition.length; i < size; i++) {
                         streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
                     }
+                }
+            } else {
+                throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
+            }
+        }
+    }
+
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+        overwritingOrAddingEventChunk.reset();
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+            Object matchingKey = expressionExecutor.execute(overwritingOrAddingEvent);
+            if (candidateEvents instanceof Map) {
+                StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
+                if (streamEvent != null) {
+                    if (outsideTimeWindow(overwritingOrAddingEvent, streamEvent)) {
+                        return;
+                    }
+                    for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                        streamEvent.setOutputData(overwritingOrAddingEvent.getOutputData()[i], mappingPosition[i]);
+                    }
+                } else {
+                    StreamEvent insertStreamEvent = streamEventPool.borrowEvent();
+                    streamEventConverter.convertStreamEvent(overwritingOrAddingEvent, insertStreamEvent);
+                    ((Map<Object, StreamEvent>) candidateEvents).put(matchingKey, insertStreamEvent);
                 }
             } else {
                 throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
