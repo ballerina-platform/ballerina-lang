@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -49,8 +49,9 @@ public class HazelcastOperator implements Operator {
     private FinderStateEvent event;
     private int matchingEventOutputSize;
 
-    public HazelcastOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int matchingEventPosition,
-                             int streamEventSize, long withinTime, int matchingEventOutputSize) {
+    public HazelcastOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition,
+                             int matchingEventPosition, int streamEventSize, long withinTime,
+                             int matchingEventOutputSize) {
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
         this.matchingEventPosition = matchingEventPosition;
@@ -77,7 +78,8 @@ public class HazelcastOperator implements Operator {
      */
     private boolean outsideTimeWindow(StreamEvent streamEvent) {
         if (withinTime != ANY) {
-            long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+            long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() -
+                    streamEvent.getTimestamp();
             if ((0 > timeDifference) || (timeDifference > withinTime)) {
                 return true;
             }
@@ -87,8 +89,8 @@ public class HazelcastOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEventSize,
-                withinTime, matchingEventOutputSize);
+        return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition,
+                streamEventSize, withinTime, matchingEventOutputSize);
     }
 
     /**
@@ -133,13 +135,15 @@ public class HazelcastOperator implements Operator {
      * @param streamEventCloner   StreamEventCloner to copy new StreamEvent from existing StreamEvent.
      * @return StreamEvent  event found.
      */
-    private StreamEvent findInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner) {
+    private StreamEvent findInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk,
+                                                StreamEventCloner streamEventCloner) {
         candidateEventChunk.reset();
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
-                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp();
+                long timeDifference = event.getStreamEvent(matchingEventPosition).getTimestamp() -
+                        streamEvent.getTimestamp();
                 if ((0 > timeDifference) || (timeDifference > withinTime)) {
                     break;
                 }
@@ -161,7 +165,8 @@ public class HazelcastOperator implements Operator {
      * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent.
      * @return StreamEvent  event found.
      */
-    protected StreamEvent findInCollection(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
+    protected StreamEvent findInCollection(Collection<StreamEvent> candidateEvents,
+                                           StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
         for (StreamEvent streamEvent : candidateEvents) {
             if (outsideTimeWindow(streamEvent)) {
@@ -304,7 +309,8 @@ public class HazelcastOperator implements Operator {
             }
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
                 }
             }
         }
@@ -323,7 +329,8 @@ public class HazelcastOperator implements Operator {
             }
             if (execute(streamEvent)) {
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
                 }
             }
         }
@@ -343,7 +350,8 @@ public class HazelcastOperator implements Operator {
             if (execute(streamEvent)) {
                 int streamEventIndex = candidateEvents.indexOf(streamEvent);
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
                 }
                 candidateEvents.set(streamEventIndex, streamEvent);
             }
