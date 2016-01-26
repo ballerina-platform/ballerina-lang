@@ -301,11 +301,11 @@ math_operation
     ;
 
 function_operation
-    : (function_namespace ':')? function_id '('attribute_list?')'
+    : (function_namespace ':')? function_id '(' attribute_list?  ')'
     ;
 
 attribute_list
-    :attribute (','attribute)*
+    :( attribute (',' attribute)* )  | '*'
     ;
 
 null_check

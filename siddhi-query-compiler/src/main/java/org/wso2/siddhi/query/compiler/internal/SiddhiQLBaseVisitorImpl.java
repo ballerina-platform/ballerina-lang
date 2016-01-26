@@ -1428,14 +1428,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             if (ctx.attribute_list() != null) {
                 return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()), (Expression[]) visit(ctx.attribute_list()));
             } else {
-                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()));
+                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()), null);
             }
 
         } else {
             if (ctx.attribute_list() != null) {
                 return Expression.function((String) visit(ctx.function_id()), (Expression[]) visit(ctx.attribute_list()));
             } else {
-                return Expression.function((String) visit(ctx.function_id()));
+                return Expression.function((String) visit(ctx.function_id()), null);
             }
         }
     }

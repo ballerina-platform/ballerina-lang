@@ -68,6 +68,7 @@ import org.wso2.siddhi.core.util.extension.holder.FunctionExecutorExtensionHolde
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
+import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -77,6 +78,7 @@ import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.expression.math.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -107,7 +109,8 @@ public class ExpressionParser {
             return new AndConditionExpressionExecutor(
                     parseExpression(((And) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext,
                             groupBy, defaultStreamEventIndex),
-                    parseExpression(((And) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex));
+                    parseExpression(((And) expression).getRightExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex)
+            );
         } else if (expression instanceof Or) {
             return new OrConditionExpressionExecutor(
                     parseExpression(((Or) expression).getLeftExpression(), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex),
@@ -251,10 +254,8 @@ public class ExpressionParser {
             if (executor instanceof FunctionExecutor) {
                 FunctionExecutor expressionExecutor = (FunctionExecutor) executor;
                 Expression[] innerExpressions = ((AttributeFunctionExtension) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
-                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
-                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
-                }
+                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
+                        executionPlanContext, groupBy, defaultStreamEventIndex);
                 expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
                 if (expressionExecutor.getReturnType() == Attribute.Type.BOOL) {
                     return new BoolConditionExpressionExecutor(expressionExecutor);
@@ -263,10 +264,8 @@ public class ExpressionParser {
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
                 Expression[] innerExpressions = ((AttributeFunctionExtension) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
-                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
-                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
-                }
+                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
+                        executionPlanContext, groupBy, defaultStreamEventIndex);
                 attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
@@ -298,14 +297,9 @@ public class ExpressionParser {
             }
 
             if (executor instanceof AttributeAggregator) {
-                if (((AttributeFunction) expression).getParameters().length > 1) {
-                    throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " can only have one parameter");
-                }
                 Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
-                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
-                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
-                }
+                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
+                        executionPlanContext, groupBy, defaultStreamEventIndex);
                 ((AttributeAggregator) executor).initAggregator(innerExpressionExecutors, executionPlanContext);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
@@ -318,10 +312,8 @@ public class ExpressionParser {
             } else {
                 FunctionExecutor functionExecutor = (FunctionExecutor) executor;
                 Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
-                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
-                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
-                }
+                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
+                        executionPlanContext, groupBy, defaultStreamEventIndex);
                 functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
                 if (functionExecutor.getReturnType() == Attribute.Type.BOOL) {
                     return new BoolConditionExpressionExecutor(functionExecutor);
@@ -1118,5 +1110,62 @@ public class ExpressionParser {
         }
     }
 
+    /**
+     * Parse the set of inner expression of AttributeFunctionExtensions and  handling all (*) cases
+     * @param innerExpressions        InnerExpressions to be parsed
+     * @param metaEvent               Meta Event
+     * @param currentState            Current state number
+     * @param eventTableMap           Event Table Map
+     * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
+     * @param executionPlanContext    ExecutionPlanContext
+     * @param groupBy                 is for groupBy expression
+     * @param defaultStreamEventIndex Default StreamEvent Index
+     * @return  List of expressionExecutors
+     */
+    private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent metaEvent, int currentState,
+                                                             Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executorList,
+                                                             ExecutionPlanContext executionPlanContext, boolean groupBy, int defaultStreamEventIndex) {
+        ExpressionExecutor[] innerExpressionExecutors;
+        if (innerExpressions != null) {
+            if (innerExpressions.length > 0) {
+                innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
+                for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
+                    innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
+                }
+            } else {
+                List<Expression> outputAttributes = new ArrayList<Expression>();
+                if (metaEvent instanceof MetaStreamEvent) {
+
+                    List<Attribute> attributeList = ((MetaStreamEvent) metaEvent).getLastInputDefinition().getAttributeList();
+                    for (Attribute attribute : attributeList) {
+                        outputAttributes.add(new Variable(attribute.getName()));
+                    }
+                } else {
+                    for (MetaStreamEvent metaStreamEvent : ((MetaStateEvent) metaEvent).getMetaStreamEvents()) {
+                        List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
+                        for (Attribute attribute : attributeList) {
+                            Expression outputAttribute = new Variable(attribute.getName());
+                            if (!outputAttributes.contains(outputAttribute)) {
+                                outputAttributes.add(outputAttribute);
+                            } else {
+                                List<AbstractDefinition> definitions = new ArrayList<AbstractDefinition>();
+                                for (MetaStreamEvent aMetaStreamEvent : ((MetaStateEvent) metaEvent).getMetaStreamEvents()) {
+                                    definitions.add(aMetaStreamEvent.getLastInputDefinition());
+                                }
+                                throw new DuplicateAttributeException("Duplicate attribute exist in streams " + definitions);
+                            }
+                        }
+                    }
+                }
+                innerExpressionExecutors = new ExpressionExecutor[outputAttributes.size()];
+                for (int i = 0, innerExpressionsLength = outputAttributes.size(); i < innerExpressionsLength; i++) {
+                    innerExpressionExecutors[i] = parseExpression(outputAttributes.get(i), metaEvent, currentState, eventTableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex);
+                }
+            }
+        } else {
+            innerExpressionExecutors = new ExpressionExecutor[0];
+        }
+        return innerExpressionExecutors;
+    }
 
 }

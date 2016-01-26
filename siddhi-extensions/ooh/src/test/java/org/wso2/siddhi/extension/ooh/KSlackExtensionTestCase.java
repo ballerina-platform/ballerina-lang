@@ -128,4 +128,92 @@ public class KSlackExtensionTestCase {
         executionPlanRuntime.shutdown();
         Assert.assertEquals("Event count", 9, count);
     }
+
+    @Test
+    public void OrderTest2() throws InterruptedException {
+        log.info("KSlackExtensionTestCase TestCase");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "" +
+                "@config(async = 'true')" +
+                "define stream inputStream (eventTimestamp long);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from inputStream#ooh:kslack(*) " +
+                "select * " +
+                "insert into outputStream;";
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
+            @Override
+            public void receive(org.wso2.siddhi.core.event.Event[] events) {
+                EventPrinter.print(events);
+                for (org.wso2.siddhi.core.event.Event event : events) {
+                    count++;
+
+                    if (count == 1) {
+                        Assert.assertEquals(1l, event.getData()[0]);
+                    }
+
+                    if (count == 2) {
+                        Assert.assertEquals(4l, event.getData()[0]);
+                    }
+
+                    if (count == 3) {
+                        Assert.assertEquals(3l, event.getData()[0]);
+                    }
+
+                    if (count == 4) {
+                        Assert.assertEquals(5l, event.getData()[0]);
+                    }
+
+                    if (count == 5) {
+                        Assert.assertEquals(6l, event.getData()[0]);
+                    }
+
+                    if (count == 6) {
+                        Assert.assertEquals(7l, event.getData()[0]);
+                    }
+
+                    if (count == 7) {
+                        Assert.assertEquals(8l, event.getData()[0]);
+                    }
+
+                    if (count == 8) {
+                        Assert.assertEquals(9l, event.getData()[0]);
+                    }
+
+                    if (count == 9) {
+                        Assert.assertEquals(10l, event.getData()[0]);
+                    }
+
+                    if (count == 10) {
+                        Assert.assertEquals(13l, event.getData()[0]);
+                    }
+                }
+            }
+        });
+
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        //The following implements the out-of-order disorder handling scenario described in the
+        //http://dl.acm.org/citation.cfm?doid=2675743.2771828
+        inputHandler.send(new Object[]{1l});
+        inputHandler.send(new Object[]{4l});
+        inputHandler.send(new Object[]{3l});
+        inputHandler.send(new Object[]{5l});
+        inputHandler.send(new Object[]{6l});
+        inputHandler.send(new Object[]{9l});
+        inputHandler.send(new Object[]{7l});
+        inputHandler.send(new Object[]{8l});
+        inputHandler.send(new Object[]{10l});
+        inputHandler.send(new Object[]{13l});
+
+        Thread.sleep(1000);
+        executionPlanRuntime.shutdown();
+        Assert.assertEquals("Event count", 9, count);
+    }
 }

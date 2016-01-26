@@ -43,12 +43,14 @@ import org.wso2.siddhi.core.util.extension.holder.StreamProcessorExtensionHolder
 import org.wso2.siddhi.core.util.extension.holder.WindowProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.List;
@@ -120,7 +122,6 @@ public class SingleInputStreamParser {
 
 
     private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap, boolean supportsBatchProcessing) {
-        ExpressionExecutor[] attributeExpressionExecutors = new ExpressionExecutor[streamHandler.getParameters().length];
         Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
         int stateIndex = SiddhiConstants.UNKNOWN_STATE;
@@ -130,10 +131,28 @@ public class SingleInputStreamParser {
         } else {
             metaStreamEvent = (MetaStreamEvent) metaEvent;
         }
-        for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                    executionPlanContext, false, SiddhiConstants.CURRENT);
+
+        ExpressionExecutor[] attributeExpressionExecutors;
+        if (parameters != null) {
+            if (parameters.length > 0) {
+                attributeExpressionExecutors = new ExpressionExecutor[parameters.length];
+                for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
+                    attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
+                            executionPlanContext, false, SiddhiConstants.CURRENT);
+                }
+            } else {
+                List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
+                int parameterSize = attributeList.size();
+                attributeExpressionExecutors = new ExpressionExecutor[parameterSize];
+                for (int i = 0; i < parameterSize; i++) {
+                    attributeExpressionExecutors[i] = ExpressionParser.parseExpression(new Variable(attributeList.get(i).getName()), metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
+                            executionPlanContext, false, SiddhiConstants.CURRENT);
+                }
+            }
+        } else {
+            attributeExpressionExecutors = new ExpressionExecutor[0];
         }
+
         if (streamHandler instanceof Filter) {
             return new FilterProcessor(attributeExpressionExecutors[0]);
 
