@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.memory.hotspot;
+package org.wso2.siddhi.core.util.statistics.memory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -45,10 +45,9 @@ import java.util.Set;
  * It can only make an educated guess at whether compressed OOPs are used,
  * though; specifically, it knows what the JVM's default choice of OOP
  * compression would be based on HotSpot version and maximum heap sizes, but if
- * the choice is explicitly overridden with the <tt>-XX:{+|-}UseCompressedOops</tt> command line
- * switch, it can not detect
- * this fact and will report incorrect sizes, as it will presume the default JVM
- * behavior.
+ * the choice is explicitly overridden with the <tt>-XX:{+|-}UseCompressedOops</tt>
+ * command line switch, it can not detect this fact and will report incorrect sizes,
+ * as it will presume the default JVM behavior.
  *
  * @author Attila Szegedi
  */
@@ -176,8 +175,7 @@ public class ObjectSizeCalculator {
         }
 
         final String strVmVersion = System.getProperty("java.vm.version");
-        final int vmVersion = Integer.parseInt(strVmVersion.substring(0,
-                strVmVersion.indexOf('.')));
+        final int vmVersion = Integer.parseInt(strVmVersion.substring(0, strVmVersion.indexOf('.')));
         if (vmVersion >= 17) {
             long maxMemory = 0;
             for (MemoryPoolMXBean mp : ManagementFactory.getMemoryPoolMXBeans()) {
