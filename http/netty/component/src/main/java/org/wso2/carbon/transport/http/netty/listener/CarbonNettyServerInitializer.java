@@ -28,7 +28,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -59,11 +59,11 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
             if (parameters != null) {
                 DisruptorConfig disruptorConfig =
                            new DisruptorConfig(
-                                      parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
-                                      parameters.get(Constants.DISRUPTOR_COUNT),
-                                      parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                                      parameters.get(Constants.WAIT_STRATEGY),
-                                      Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
+                                      parameters.get(TransportConstants.DISRUPTOR_BUFFER_SIZE),
+                                      parameters.get(TransportConstants.DISRUPTOR_COUNT),
+                                      parameters.get(TransportConstants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                                      parameters.get(TransportConstants.WAIT_STRATEGY),
+                                      Boolean.parseBoolean(TransportConstants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else {

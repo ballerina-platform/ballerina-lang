@@ -26,6 +26,8 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.latency.metrics.MetricReporter;
+import org.wso2.carbon.transport.http.netty.latency.metrics.Metrics;
 
 
 /**
@@ -54,6 +56,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
             socketChannel.pipeline().addLast("ssl", sslHandler);
         }
+        Metrics.init(MetricReporter.CONSOLE, MetricReporter.JMX);
 
         // Add the rest of the handlers to the pipeline
         CarbonTransportInitializer initializer =

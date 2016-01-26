@@ -116,6 +116,17 @@
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
             </dependency>
+            <!-- Carbon Metrics Dependency -->
+            <dependency>
+                <groupId>org.wso2.carbon.metrics</groupId>
+                <artifactId>org.wso2.carbon.metrics.manager</artifactId>
+                <version>${carbon.metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.metrics</groupId>
+                <artifactId>org.wso2.carbon.metrics.impl</artifactId>
+                <version>${carbon.metrics.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -214,7 +225,7 @@
 
         <carbon.messaging.version>1.0.0-alpha2</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
-
+        <carbon.metrics.version>1.2.0-SNAPSHOT</carbon.metrics.version>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>

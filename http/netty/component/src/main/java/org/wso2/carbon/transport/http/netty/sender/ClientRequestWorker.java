@@ -30,11 +30,13 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+
 
 /**
  * Class Which handover incoming requests to be written to BE asynchronously.
@@ -106,6 +108,7 @@ public class ClientRequestWorker implements Runnable {
             ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute, senderConfig);
 
             try {
+                sourceHandler.getClientConnectionMetricsHolder().startTimer();
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;
@@ -131,11 +134,26 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
+            sourceHandler.getClientRequestMetricsHolder().startTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
             boolean written = ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
+            sourceHandler.getClientRequestMetricsHolder().stopTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
             if (written) {
                 targetChannel.setRequestWritten(true);
             }
             sourceHandler.addTargetChannel(httpRoute, targetChannel);
+            // Transfer the metrics data holders to the Target handler
+            targetChannel.getTargetHandler().
+                    setServerConnectionMetricHolder(sourceHandler.getServerConnectionMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setClientConnectionMetricHolder(sourceHandler.getClientConnectionMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setServerRequestMetricsHolder(sourceHandler.getServerRequestMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setClientRequestMetricsHolder(sourceHandler.getClientRequestMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setServerResponseMetricsHolder(sourceHandler.getServerResponseMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setClientResponseMetricsHolder(sourceHandler.getClientResponseMetricsHolder());
         }
     }
 }

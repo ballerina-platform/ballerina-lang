@@ -29,9 +29,13 @@ import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
+import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.exception.EndpointTimeOutException;
+import org.wso2.carbon.transport.http.netty.latency.metrics.ConnectionMetricsHolder;
+import org.wso2.carbon.transport.http.netty.latency.metrics.RequestMetricsHolder;
+import org.wso2.carbon.transport.http.netty.latency.metrics.ResponseMetricsHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -52,6 +56,12 @@ public class TargetHandler extends ReadTimeoutHandler {
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private CarbonMessage incomingMsg;
+    private ConnectionMetricsHolder clientConnectionMetricHolder;
+    private ConnectionMetricsHolder serverConnectionMetricHolder;
+    private RequestMetricsHolder clientRequestMetricsHolder;
+    private RequestMetricsHolder serverRequestMetricsHolder;
+    private ResponseMetricsHolder clientResponseMetricsHolder;
+    private ResponseMetricsHolder serverResponseMetricsHolder;
 
     public TargetHandler(int timeoutSeconds) {
         super(timeoutSeconds);
@@ -67,6 +77,7 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
+            this.clientResponseMetricsHolder.startTimer(TransportConstants.RESPONSE_LIFE_TIMER);
             cMsg = new NettyCarbonMessage();
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
@@ -75,11 +86,17 @@ public class TargetHandler extends ReadTimeoutHandler {
             HttpResponse httpResponse = (HttpResponse) msg;
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
+            this.clientResponseMetricsHolder.startTimer(TransportConstants.RESPONSE_HEADER_READ_TIMER);
             cMsg.setHeaders(Util.getHeaders(httpResponse));
+            this.clientResponseMetricsHolder.stopTimer(TransportConstants.RESPONSE_HEADER_READ_TIMER);
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
+                if (this.clientResponseMetricsHolder.getResBodyReadContext() == null) {
+                    this.clientResponseMetricsHolder.startTimer(TransportConstants.RESPONSE_BODY_READ_TIMER);
+                }
                 if (msg instanceof LastHttpContent) {
+                    this.clientResponseMetricsHolder.stopTimer(TransportConstants.RESPONSE_BODY_READ_TIMER);
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
@@ -94,6 +111,8 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        // Set the client channel close metric
+        this.clientConnectionMetricHolder.stopTimer();
         log.debug("Target channel closed.");
     }
 
@@ -116,6 +135,30 @@ public class TargetHandler extends ReadTimeoutHandler {
     public void setTargetChannel(TargetChannel targetChannel) {
         this.targetChannel = targetChannel;
     }
+
+    public void setClientConnectionMetricHolder(ConnectionMetricsHolder clientConnectionMetricHolder) {
+                this.clientConnectionMetricHolder = clientConnectionMetricHolder;
+            }
+
+                public void setServerConnectionMetricHolder(ConnectionMetricsHolder serverConnectionMetricHolder) {
+                this.serverConnectionMetricHolder = serverConnectionMetricHolder;
+            }
+
+                public void setClientRequestMetricsHolder(RequestMetricsHolder clientRequestMetricsHolder) {
+                this.clientRequestMetricsHolder = clientRequestMetricsHolder;
+            }
+
+                public void setServerRequestMetricsHolder(RequestMetricsHolder serverRequestMetricsHolder) {
+                this.serverRequestMetricsHolder = serverRequestMetricsHolder;
+            }
+
+                public void setClientResponseMetricsHolder(ResponseMetricsHolder clientResponseMetricsHolder) {
+                this.clientResponseMetricsHolder = clientResponseMetricsHolder;
+            }
+
+                public void setServerResponseMetricsHolder(ResponseMetricsHolder serverResponseMetricsHolder) {
+                this.serverResponseMetricsHolder = serverResponseMetricsHolder;
+            }
 
     @Override
     protected void readTimedOut(ChannelHandlerContext ctx) {

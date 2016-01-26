@@ -16,7 +16,7 @@
 package org.wso2.carbon.transport.http.netty.sender.channel;
 
 
-import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 
 import java.util.Map;
 
@@ -45,20 +45,23 @@ public class BootstrapConfiguration {
     private BootstrapConfiguration(Map<String, String> parameters) {
 
         if (parameters != null) {
-            tcpNoDelay = parameters.get(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY) == null ||
-                         Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY));
-            connectTimeOut = parameters.get(Constants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT) != null ?
-                             Integer.parseInt(parameters.get(Constants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT)) : 15000;
-            reciveBufferSize = parameters.get(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE) != null ?
+            tcpNoDelay = parameters.get(TransportConstants.CLINET_BOOTSTRAP_TCP_NO_DELY) == null ||
+                         Boolean.parseBoolean(parameters.get(TransportConstants.CLINET_BOOTSTRAP_TCP_NO_DELY));
+            connectTimeOut = parameters.get(TransportConstants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT) != null ?
+                             Integer.parseInt(parameters.get(TransportConstants.
+                                     CLINET_BOOTSTRAP_CONNECT_TIME_OUT)) : 15000;
+            reciveBufferSize = parameters.get(TransportConstants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE) != null ?
                                Integer.parseInt
-                                          (parameters.get(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE)) : 1048576;
-            sendBufferSize = parameters.get(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE) != null ?
-                             Integer.parseInt(parameters.get(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE)) : 1048576;
-            socketTimeout = parameters.get(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT) != null ?
-                             Integer.parseInt(parameters.get(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT)) : 15;
-            keepAlive = parameters.get(Constants.CLINET_BOOTSTRAP_KEEPALIVE) == null ||
-                        Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_KEEPALIVE));
-            socketReuse = Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_SO_REUSE));
+                                          (parameters.get(TransportConstants.
+                                                  CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE)) : 1048576;
+            sendBufferSize = parameters.get(TransportConstants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE) != null ?
+                             Integer.parseInt(parameters.get(TransportConstants.
+                                     CLINET_BOOTSTRAP_SEND_BUFFER_SIZE)) : 1048576;
+            socketTimeout = parameters.get(TransportConstants.CLINET_BOOTSTRAP_SO_TIMEOUT) != null ?
+                             Integer.parseInt(parameters.get(TransportConstants.CLINET_BOOTSTRAP_SO_TIMEOUT)) : 15;
+            keepAlive = parameters.get(TransportConstants.CLINET_BOOTSTRAP_KEEPALIVE) == null ||
+                        Boolean.parseBoolean(parameters.get(TransportConstants.CLINET_BOOTSTRAP_KEEPALIVE));
+            socketReuse = Boolean.parseBoolean(parameters.get(TransportConstants.CLINET_BOOTSTRAP_SO_REUSE));
 
         }
     }
