@@ -102,7 +102,20 @@ public class RDBMSOperator implements Operator {
 
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
-
+        overwritingOrAddingEventChunk.reset();
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+            Object[] incomingEvent = overwritingOrAddingEvent.getOutputData();
+            Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
+            System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
+            int count = incomingEvent.length;
+            for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
+                Object value = expressionExecutor.execute(overwritingOrAddingEvent);
+                obj[count] = value;
+                count++;
+            }
+            dbHandler.overwriteOrAddEvent(overwritingOrAddingEventChunk, obj, executionInfo);
+        }
     }
 
     @Override

@@ -33,5 +33,7 @@ public interface CacheManager {
 
     public void invalidateCache();
 
+    public boolean isContains(StreamEvent item);
+
 
 }

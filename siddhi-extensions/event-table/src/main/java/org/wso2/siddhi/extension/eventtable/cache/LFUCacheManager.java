@@ -81,4 +81,9 @@ public class LFUCacheManager implements CacheManager {
         cacheList.clear();
     }
 
+    @Override
+    public boolean isContains(StreamEvent item) {
+        return eventAccessFrequencies.contains(item);
+    }
+
 }
