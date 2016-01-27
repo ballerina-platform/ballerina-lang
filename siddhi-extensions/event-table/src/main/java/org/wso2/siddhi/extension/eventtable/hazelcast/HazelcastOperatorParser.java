@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -60,8 +60,10 @@ public class HazelcastOperatorParser {
      * @param withinTime                  Within time frame.
      * @return HazelcastOperator
      */
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext,
-                                 List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap,
+    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent,
+                                 ExecutionPlanContext executionPlanContext,
+                                 List<VariableExpressionExecutor> variableExpressionExecutors,
+                                 Map<String, EventTable> eventTableMap,
                                  int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
         int candidateEventPosition = 0;
         int streamEventSize = 0;
@@ -81,10 +83,11 @@ public class HazelcastOperatorParser {
             streamEventSize = 2;
         } else {
             MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
-            //for join
+            // For join.
             for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
-                if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
+                if (candidateEventPosition != matchingStreamIndex &&
+                        metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) metaComplexEvent);
                     streamEventSize = metaStreamEvents.length;
                     break;
@@ -100,10 +103,11 @@ public class HazelcastOperatorParser {
                 streamEventSize = metaStreamEvents.length + 1;
             }
         }
-        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression, metaStateEvent,
+                matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
         return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize,
-                withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
+                withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex)
+                .getLastInputDefinition().getAttributeList().size());
     }
 
     /**
@@ -120,23 +124,29 @@ public class HazelcastOperatorParser {
      * @param indexedAttribute            Indexed attribute.
      * @return HazelcastIndexedOperator or a HazelcastOperator.
      */
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext,
-                                 List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap,
-                                 int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute) {
+    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent,
+                                 ExecutionPlanContext executionPlanContext,
+                                 List<VariableExpressionExecutor> variableExpressionExecutors,
+                                 Map<String, EventTable> eventTableMap,
+                                 int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime,
+                                 String indexedAttribute) {
         if (indexedAttribute == null) {
-            return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors,
-                    eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
+            return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+                    variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
         }
         if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
             Compare compare = (Compare) expression;
-            if ((compare.getLeftExpression() instanceof Variable || compare.getLeftExpression() instanceof Constant)
-                    && (compare.getRightExpression() instanceof Variable || compare.getRightExpression() instanceof Constant)) {
+            if ((compare.getLeftExpression() instanceof Variable || compare.getLeftExpression() instanceof Constant) &&
+                    (compare.getRightExpression() instanceof Variable ||
+                    compare.getRightExpression() instanceof Constant)) {
                 boolean leftSideIndexed = false;
                 boolean rightSideIndexed = false;
-                if (isTableIndexVariable(metaComplexEvent, matchingStreamIndex, compare.getLeftExpression(), candidateDefinition, indexedAttribute)) {
+                if (isTableIndexVariable(metaComplexEvent, matchingStreamIndex, compare.getLeftExpression(),
+                        candidateDefinition, indexedAttribute)) {
                     leftSideIndexed = true;
                 }
-                if (isTableIndexVariable(metaComplexEvent, matchingStreamIndex, compare.getRightExpression(), candidateDefinition, indexedAttribute)) {
+                if (isTableIndexVariable(metaComplexEvent, matchingStreamIndex, compare.getRightExpression(),
+                        candidateDefinition, indexedAttribute)) {
                     rightSideIndexed = true;
                 }
                 if (leftSideIndexed && !rightSideIndexed) {
@@ -152,8 +162,8 @@ public class HazelcastOperatorParser {
                 }
             }
         }
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors,
-                eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
+        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
     }
 
     /**
@@ -166,16 +176,20 @@ public class HazelcastOperatorParser {
      * @param indexedAttribute    Indexed attribute.
      * @return boolean representing whether an expression is a indexed variable.
      */
-    private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, Expression expression,
-                                                AbstractDefinition candidateDefinition, String indexedAttribute) {
+    private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex,
+                                                Expression expression, AbstractDefinition candidateDefinition,
+                                                String indexedAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;
             if (variable.getStreamId() != null) {
-                MetaStreamEvent tableStreamEvent = getTableMetaStreamEvent(metaComplexEvent, matchingStreamIndex, candidateDefinition);
+                MetaStreamEvent tableStreamEvent = getTableMetaStreamEvent(metaComplexEvent, matchingStreamIndex,
+                        candidateDefinition);
                 if (tableStreamEvent != null) {
-                    if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(tableStreamEvent.getInputReferenceId())) ||
+                    if ((tableStreamEvent.getInputReferenceId() != null &&
+                            variable.getStreamId().equals(tableStreamEvent.getInputReferenceId())) ||
                             (tableStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
-                        if (Arrays.asList(tableStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains(indexedAttribute)) {
+                        if (Arrays.asList(tableStreamEvent.getLastInputDefinition().getAttributeNameArray())
+                                .contains(indexedAttribute)) {
                             return true;
                         }
                     }
@@ -202,10 +216,11 @@ public class HazelcastOperatorParser {
         if (metaComplexEvent instanceof MetaStateEvent) {
             MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
             int candidateEventPosition = 0;
-            //for join
+            // For join.
             for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
-                if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
+                if (candidateEventPosition != matchingStreamIndex &&
+                        metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
                     return metaStreamEvent;
                 }
             }

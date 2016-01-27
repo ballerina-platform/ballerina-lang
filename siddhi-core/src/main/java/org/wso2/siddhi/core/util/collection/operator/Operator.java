@@ -29,4 +29,5 @@ public interface Operator extends Finder {
 
     void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition);
 
+    void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition);
 }

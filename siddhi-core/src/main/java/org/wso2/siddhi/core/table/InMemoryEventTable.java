@@ -54,11 +54,14 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     private final StreamEventCloner streamEventCloner;
     private final StreamEventPool streamEventPool;
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
-    private List<StreamEvent> list = new LinkedList<StreamEvent>();
-    private SortedMap<Object, StreamEvent> treeMap = new TreeMap<Object, StreamEvent>();
+    private List<StreamEvent> list;
+    private String elementId;
+
+    //For indexed table
     private String indexAttribute = null;
     private int indexPosition;
-    private String elementId;
+    private SortedMap<Object, StreamEvent> treeMap;
+
 
     public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
@@ -83,6 +86,9 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
             }
             indexAttribute = annotation.getElements().get(0).getValue();
             indexPosition = tableDefinition.getAttributePosition(indexAttribute);
+            treeMap = new TreeMap<Object, StreamEvent>();
+        } else {
+            list = new LinkedList<StreamEvent>();
         }
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
@@ -136,6 +142,15 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+        if (indexAttribute != null) {
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, treeMap, mappingPosition);
+        } else {
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, list, mappingPosition);
+        }
+    }
+
+    @Override
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
             return finder.contains(matchingEvent, treeMap);
@@ -154,13 +169,13 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent,
                                   ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
                                   Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute);
+                indexAttribute, indexPosition);
     }
 
     @Override
@@ -170,7 +185,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
                                       Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute);
+                indexAttribute, indexPosition);
     }
 
     @Override

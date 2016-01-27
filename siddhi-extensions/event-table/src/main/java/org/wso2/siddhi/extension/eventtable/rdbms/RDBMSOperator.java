@@ -101,6 +101,11 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+
+    }
+
+    @Override
     public Finder cloneFinder() {
         return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator);
     }

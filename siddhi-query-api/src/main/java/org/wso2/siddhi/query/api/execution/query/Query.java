@@ -109,6 +109,14 @@ public class Query implements ExecutionElement {
         this.outputStream = new UpdateStream(outputTableId, outputEventType, onUpdateExpression);
     }
 
+    public void insertOverwriteBy(String outputTableId, Expression onUpdateExpression) {
+        this.outputStream = new InsertOverwriteStream(outputTableId, onUpdateExpression);
+    }
+
+    public void insertOverwriteBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression onUpdateExpression) {
+        this.outputStream = new InsertOverwriteStream(outputTableId, outputEventType, onUpdateExpression);
+    }
+
     public OutputStream getOutputStream() {
         return outputStream;
     }

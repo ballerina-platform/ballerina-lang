@@ -274,4 +274,65 @@ public class MaximumFunctionExtensionTestCase {
         executionPlanRuntime.shutdown();
 
     }
+
+    @Test
+    public void testMaxFunctionExtension6() throws InterruptedException {
+        log.info("MaximumFunctionExecutor TestCase 6");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price1 double,price2 double, price3 double);";
+        String query = ("@info(name = 'query1') from inputStream " +
+                "select maximum(*) as max " +
+                "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                        case 1:
+                            Assert.assertEquals(36.75, event.getData(0));
+                            break;
+                        case 2:
+                            Assert.assertEquals(38.12, event.getData(0));
+                            break;
+                        case 3:
+                            Assert.assertEquals(39.25, event.getData(0));
+                            break;
+                        case 4:
+                            Assert.assertEquals(37.75, event.getData(0));
+                            break;
+                        case 5:
+                            Assert.assertEquals(38.12, event.getData(0));
+                            break;
+                        case 6:
+                            Assert.assertEquals(40.0, event.getData(0));
+                            break;
+                        default:
+                            org.junit.Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{36, 36.75, 35.75});
+        inputHandler.send(new Object[]{37.88, 38.12, 37.62});
+        inputHandler.send(new Object[]{39.00, 39.25, 38.62});
+        inputHandler.send(new Object[]{36.88, 37.75, 36.75});
+        inputHandler.send(new Object[]{38.12, 38.12, 37.75});
+        inputHandler.send(new Object[]{38.12, 40, 37.75});
+
+        Thread.sleep(300);
+        Assert.assertEquals(6, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
 }

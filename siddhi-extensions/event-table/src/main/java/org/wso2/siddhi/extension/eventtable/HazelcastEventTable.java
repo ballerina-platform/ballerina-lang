@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -79,10 +79,13 @@ public class HazelcastEventTable implements EventTable {
         this.tableDefinition = tableDefinition;
         this.executionPlanContext = executionPlanContext;
 
-        Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations());
+        Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
+                tableDefinition.getAnnotations());
         String clusterName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_NAME);
-        String clusterPassword = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
-        String clusterAddresses = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
+        String clusterPassword = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_PASSWORD);
+        String clusterAddresses = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
         String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
 
         HazelcastInstance hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
@@ -135,7 +138,7 @@ public class HazelcastEventTable implements EventTable {
             if (HazelcastEventTableServiceValueHolder.getHazelcastInstance() != null) {
                 // Take instance from osgi.
                 hazelcastInstance = HazelcastEventTableServiceValueHolder.getHazelcastInstance();
-                logger.info("shared hazelcast server instance retrieved : " + hazelcastInstance.getName());
+                logger.info("Shared hazelcast server instance retrieved : " + hazelcastInstance.getName());
             } else {
                 // Create a new server with default cluster name.
                 Config config = new Config();
@@ -148,7 +151,7 @@ public class HazelcastEventTable implements EventTable {
                     config.getGroupConfig().setPassword(clusterPassword);
                 }
                 hazelcastInstance = Hazelcast.getOrCreateHazelcastInstance(config);
-                logger.info("hazelcast server instance started: " + instanceName);
+                logger.info("Hazelcast server instance started: " + instanceName);
             }
         } else {
             // Client mode.
@@ -221,6 +224,11 @@ public class HazelcastEventTable implements EventTable {
         }
     }
 
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+        throw new OperationNotSupportedException("'Overwrite Or Add' Operation not supported on Hazelcast Event Table '" + tableDefinition.getId() + "'");
+    }
+
     /**
      * Called when having "in" condition, to check the existence of the event.
      *
@@ -258,7 +266,7 @@ public class HazelcastEventTable implements EventTable {
      * Called to construct a operator to perform search operations.
      *
      * @param expression                  the matching expression.
-     * @param metaComplexEvent            the meta structure of the incoming matchingEvent.
+     * @param matchingMetaComplexEvent    the meta structure of the incoming matchingEvent.
      * @param executionPlanContext        current execution plan context.
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created.
      * @param eventTableMap               map of event tables.
@@ -267,11 +275,11 @@ public class HazelcastEventTable implements EventTable {
      * @return HazelcastOperator.
      */
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent,
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent,
                                   ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
                                   Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
+        return HazelcastOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
                 indexAttribute);
     }

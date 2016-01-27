@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,14 +19,26 @@
 package org.wso2.siddhi.extension.eventtable.test.util;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SiddhiTestHelper {
-    public static void waitForEvents(long sleepTime, int expectedCount, AtomicInteger actualCount, long timeout) throws InterruptedException {
+    public static void waitForEvents(long sleepTime, int expectedCount, AtomicInteger actualCount, long timeout)
+            throws InterruptedException {
         long currentWaitTime = 0;
         long startTime = System.currentTimeMillis();
         while ((actualCount.get() < expectedCount) && (currentWaitTime <= timeout)) {
+            Thread.sleep(sleepTime);
+            currentWaitTime = System.currentTimeMillis() - startTime;
+        }
+    }
+
+    public static void waitForEvents(long sleepTime, int expectedSize, Collection<?> collection, long timeout)
+            throws InterruptedException {
+        long currentWaitTime = 0;
+        long startTime = System.currentTimeMillis();
+        while ((collection.size() < expectedSize) && (currentWaitTime <= timeout)) {
             Thread.sleep(sleepTime);
             currentWaitTime = System.currentTimeMillis() - startTime;
         }

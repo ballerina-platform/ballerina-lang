@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.query.extension.util.StringConcatAggregatorString;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class ExtensionTestCase {
     static final Logger log = Logger.getLogger(ExtensionTestCase.class);
@@ -158,6 +157,49 @@ public class ExtensionTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"ABC", 60.5f, 200l});
+        Thread.sleep(100);
+        Assert.assertEquals(3, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void extensionTest4() throws InterruptedException, ClassNotFoundException {
+        log.info("extension test4");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("custom:plus", CustomFunctionExtension.class);
+        siddhiManager.setExtension("email:getAll", StringConcatAggregatorString.class);
+
+
+        String cseEventStream = "@config(async = 'true')define stream cseEventStream (price long, volume long);";
+        String query = ("@info(name = 'query1') from cseEventStream select  custom:plus(*) as totalCount " +
+                "insert into mailOutput;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                for (Event inEvent : inEvents) {
+                    count++;
+                    if (count == 1) {
+                        Assert.assertEquals(800l, inEvent.getData(0));
+                    } else if (count == 2) {
+                        Assert.assertEquals(805l, inEvent.getData(0));
+                    } else if (count == 3) {
+                        Assert.assertEquals(260l, inEvent.getData(0));
+                    }
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{700l, 100l});
+        inputHandler.send(new Object[]{605l, 200l});
+        inputHandler.send(new Object[]{60l, 200l});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
