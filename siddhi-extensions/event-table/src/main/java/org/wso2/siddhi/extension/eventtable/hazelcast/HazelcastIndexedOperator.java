@@ -23,6 +23,8 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
@@ -37,13 +39,20 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
  */
 public class HazelcastIndexedOperator implements Operator {
     private final long withinTime;
+    private final StreamEventPool streamEventPool;
+    private final ZeroStreamEventConverter streamEventConverter;
+    private int outputAttributeSize;
     private ExpressionExecutor expressionExecutor;
     private int matchingEventPosition;
 
-    public HazelcastIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime) {
+    public HazelcastIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition,
+                                    long withinTime, int matchingStreamOutputAttributeSize) {
         this.expressionExecutor = expressionExecutor;
         this.matchingEventPosition = matchingEventPosition;
         this.withinTime = withinTime;
+        this.outputAttributeSize = matchingStreamOutputAttributeSize;
+        this.streamEventPool = new StreamEventPool(0, 0, matchingStreamOutputAttributeSize, 10);
+        this.streamEventConverter = new ZeroStreamEventConverter();
     }
 
     /**
@@ -65,7 +74,7 @@ public class HazelcastIndexedOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime);
+        return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime, outputAttributeSize);
     }
 
     /**
@@ -155,7 +164,30 @@ public class HazelcastIndexedOperator implements Operator {
 
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
-
+        overwritingOrAddingEventChunk.reset();
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+            Object matchingKey = expressionExecutor.execute(overwritingOrAddingEvent);
+            if (candidateEvents instanceof ConcurrentMap) {
+                StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
+                if (streamEvent != null) {
+                    if (outsideTimeWindow(overwritingOrAddingEvent, streamEvent)) {
+                        return;
+                    }
+                    for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                        streamEvent.setOutputData(overwritingOrAddingEvent.getOutputData()[i], mappingPosition[i]);
+                        ((ConcurrentMap<Object, StreamEvent>) candidateEvents).replace(matchingKey, streamEvent);
+                    }
+                } else {
+                    StreamEvent insertStreamEvent = streamEventPool.borrowEvent();
+                    streamEventConverter.convertStreamEvent(overwritingOrAddingEvent, insertStreamEvent);
+                    ((ConcurrentMap<Object, StreamEvent>) candidateEvents).put(matchingKey, insertStreamEvent);
+                }
+            } else {
+                throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
+            }
+        }
     }
 
     /**
