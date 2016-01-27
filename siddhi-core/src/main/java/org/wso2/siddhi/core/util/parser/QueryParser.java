@@ -67,7 +67,7 @@ public class QueryParser {
         LatencyTracker latencyTracker = null;
         try {
             element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
-            if (executionPlanContext.getStatisticsManager() != null) {
+            if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
                 if (element != null) {
                     String metricName =
                             executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +

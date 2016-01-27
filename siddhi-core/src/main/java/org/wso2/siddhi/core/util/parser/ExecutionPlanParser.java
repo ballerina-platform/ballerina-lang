@@ -96,6 +96,7 @@ public class ExecutionPlanParser {
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 if (siddhiContext.getStatisticsConfiguration() != null) {
+                    executionPlanContext.setStatsEnabled(true);
                     executionPlanContext.setStatisticsManager(siddhiContext.getStatisticsConfiguration().getFactory().createStatisticsManager(annotation.getElements()));
                 }
             }

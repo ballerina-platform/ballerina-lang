@@ -72,7 +72,7 @@ public class ExecutionPlanRuntime {
         this.partitionMap = partitionMap;
         this.executionPlanContext = executionPlanContext;
         this.executionPlanRuntimeMap = executionPlanRuntimeMap;
-        if (executionPlanContext.getStatisticsManager() != null) {
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
             memoryUsageTracker = executionPlanContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
@@ -153,14 +153,14 @@ public class ExecutionPlanRuntime {
         if (executionPlanRuntimeMap != null) {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }
-        if (executionPlanContext.getStatisticsManager() != null) {
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
             executionPlanContext.getStatisticsManager().stopReporting();
             executionPlanContext.getStatisticsManager().cleanup();
         }
     }
 
     public synchronized void start() {
-        if (executionPlanContext.getStatisticsManager() != null) {
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
             executionPlanContext.getStatisticsManager().startReporting();
         }
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
