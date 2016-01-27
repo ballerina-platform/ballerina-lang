@@ -314,6 +314,7 @@ public class InsertOverwriteTableTestCase {
 
     }
 
+    @Ignore
     @Test(expected = DuplicateDefinitionException.class)
     public void insertOverwriteTableTest5() throws InterruptedException {
         log.info("insertOverwriteTableTest5");
