@@ -62,22 +62,6 @@
             <artifactId>commons-pool</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.wso2.orbit.com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.metrics</groupId>
-            <artifactId>org.wso2.carbon.metrics.manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.metrics</groupId>
-            <artifactId>org.wso2.carbon.metrics.impl</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -151,14 +135,7 @@
                                     <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
                                     <version>${carbon.transport.version}</version>
                                 </bundle>
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.metrics.manager</symbolicName>
-                                    <version>${carbon.metrics.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.metrics.impl</symbolicName>
-                                    <version>${carbon.metrics.version}</version>
-                                </bundle>
+
                             </bundles>
                         </configuration>
                     </execution>

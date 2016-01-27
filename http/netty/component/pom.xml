@@ -111,10 +111,9 @@
         <private.package>org.wso2.carbon.transport.http.netty.internal</private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.internal,
-            org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}"
-            org.wso2.carbon.transport.http.netty.latency.metrics.*,
+            org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
             org.wso2.carbon.metrics.manager.*,
-            org.wso2.carbon.metrics.impl.*,
+            org.wso2.carbon.metrics.impl.*
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
