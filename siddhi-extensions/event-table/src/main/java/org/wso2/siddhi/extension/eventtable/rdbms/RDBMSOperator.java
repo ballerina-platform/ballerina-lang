@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
@@ -42,12 +43,18 @@ public class RDBMSOperator implements Operator {
     private boolean isBloomEnabled;
     private final int[] attributeIndexArray;
     private ExecutionInfo executionInfo;
+    private final StreamEvent matchingEvent;
+    private final ZeroStreamEventConverter streamEventConverter;
+    private int matchingEventOutputSize;
 
-    public RDBMSOperator(ExecutionInfo executionInfo, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator) {
+    public RDBMSOperator(ExecutionInfo executionInfo, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator, int matchingEventOutputSize) {
         this.expressionExecutorList = expressionExecutorList;
         this.dbHandler = dbHandler;
         this.inMemoryEventTableOperator = inMemoryEventTableOperator;
         this.executionInfo = executionInfo;
+        this.matchingEventOutputSize = matchingEventOutputSize;
+        this.matchingEvent = new StreamEvent(0, 0, matchingEventOutputSize);
+        this.streamEventConverter = new ZeroStreamEventConverter();
 
         if (dbHandler.isBloomFilterEnabled() && executionInfo.isBloomFilterCompatible()) {
             this.isBloomEnabled = true;
@@ -67,18 +74,19 @@ public class RDBMSOperator implements Operator {
         while (deletingEventChunk.hasNext()) {
             Object[] obj;
             ComplexEvent deletingEvent = deletingEventChunk.next();
+            streamEventConverter.convertStreamEvent(deletingEvent, matchingEvent);
             if (expressionExecutorList != null) {
                 obj = new Object[expressionExecutorList.size()];
                 int count = 0;
                 for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
-                    Object value = expressionExecutor.execute(deletingEvent);
+                    Object value = expressionExecutor.execute(matchingEvent);
                     obj[count] = value;
                     count++;
                 }
             } else {
                 obj = new Object[]{};
             }
-            dbHandler.deleteEvent(obj, deletingEvent, executionInfo);
+            dbHandler.deleteEvent(obj, matchingEvent, executionInfo);
         }
     }
 
@@ -87,12 +95,13 @@ public class RDBMSOperator implements Operator {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
-            Object[] incomingEvent = updatingEvent.getOutputData();
+            streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
+            Object[] incomingEvent = matchingEvent.getOutputData();
             Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
             System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
             int count = incomingEvent.length;
             for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
-                Object value = expressionExecutor.execute(updatingEvent);
+                Object value = expressionExecutor.execute(matchingEvent);
                 obj[count] = value;
                 count++;
             }
@@ -105,12 +114,13 @@ public class RDBMSOperator implements Operator {
         overwritingOrAddingEventChunk.reset();
         while (overwritingOrAddingEventChunk.hasNext()) {
             ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
-            Object[] incomingEvent = overwritingOrAddingEvent.getOutputData();
+            streamEventConverter.convertStreamEvent(overwritingOrAddingEvent, matchingEvent);
+            Object[] incomingEvent = matchingEvent.getOutputData();
             Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
             System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
             int count = incomingEvent.length;
             for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
-                Object value = expressionExecutor.execute(overwritingOrAddingEvent);
+                Object value = expressionExecutor.execute(matchingEvent);
                 obj[count] = value;
                 count++;
             }
@@ -120,7 +130,7 @@ public class RDBMSOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator);
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingEventOutputSize);
     }
 
     @Override

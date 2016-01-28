@@ -656,12 +656,10 @@ public class InsertOverwriteTableTestCase {
 
     }
 
-    @Ignore
     @Test
     public void insertOverwriteTableTest9() throws InterruptedException {
         log.info("insertOverwriteTableTest9");
 
-        //TODO, need to dig further
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
@@ -735,7 +733,7 @@ public class InsertOverwriteTableTestCase {
                 checkStockStream.send(new Object[]{"IBM", 200l, 55.6f});
                 checkStockStream.send(new Object[]{"WSO2", 100l, 155.6f});
 
-                Thread.sleep(500000);
+                Thread.sleep(1000);
 
                 Assert.assertEquals("Number of success events", 2, inEventCount);
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);

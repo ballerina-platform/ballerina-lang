@@ -90,6 +90,7 @@ public class RDBMSOperatorParser {
         if (metaComplexEvent instanceof MetaStreamEvent) {
             metaStateEvent = new MetaStateEvent(1);
             metaStateEvent.addEvent(((MetaStreamEvent) metaComplexEvent));
+            matchingStreamIndex = 0;
         } else {
             metaStateEvent = ((MetaStateEvent) metaComplexEvent);
         }
@@ -120,7 +121,7 @@ public class RDBMSOperatorParser {
             isTableStreamMap.put(candidateDefinition.getId(), true);
         }
 
-        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo);
+        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo);
 
         //Constructing query to delete a table row
         String deleteTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
@@ -157,7 +158,7 @@ public class RDBMSOperatorParser {
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
         Operator inMemoryEventTableOperator = parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime, cachingTable);
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator);
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
     }
 
 
