@@ -18,6 +18,9 @@
 
 package org.wso2.siddhi.core.test.util;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SiddhiTestHelper {
@@ -27,6 +30,29 @@ public class SiddhiTestHelper {
         while ((actualCount.get() < expectedCount) && (currentWaitTime <= timeout)) {
             Thread.sleep(sleepTime);
             currentWaitTime = System.currentTimeMillis() - startTime;
+        }
+    }
+
+    public static void waitForEvents(long sleepTime, int expectedSize, Collection<?> collection, long timeout)
+            throws InterruptedException {
+        long currentWaitTime = 0;
+        long startTime = System.currentTimeMillis();
+        while ((collection.size() < expectedSize) && (currentWaitTime <= timeout)) {
+            Thread.sleep(sleepTime);
+            currentWaitTime = System.currentTimeMillis() - startTime;
+        }
+    }
+
+    public static boolean isEventsMatch(List<Object[]> actual, List<Object[]> expected) {
+        if (actual.size() != expected.size()) {
+            return false;
+        } else {
+            for (int i = 0; i < actual.size(); i++) {
+                if (!Arrays.equals(actual.get(i), expected.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

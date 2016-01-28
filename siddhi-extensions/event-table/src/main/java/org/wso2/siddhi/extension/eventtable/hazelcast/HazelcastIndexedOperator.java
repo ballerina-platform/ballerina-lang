@@ -23,11 +23,14 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
@@ -37,13 +40,22 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
  */
 public class HazelcastIndexedOperator implements Operator {
     private final long withinTime;
+    private final StreamEventPool streamEventPool;
+    private final ZeroStreamEventConverter streamEventConverter;
+    private int outputAttributeSize;
     private ExpressionExecutor expressionExecutor;
     private int matchingEventPosition;
+    private int indexPosition;
 
-    public HazelcastIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime) {
+    public HazelcastIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition,
+                                    long withinTime, int matchingStreamOutputAttributeSize, int indexPosition) {
         this.expressionExecutor = expressionExecutor;
         this.matchingEventPosition = matchingEventPosition;
         this.withinTime = withinTime;
+        this.outputAttributeSize = matchingStreamOutputAttributeSize;
+        this.streamEventPool = new StreamEventPool(0, 0, matchingStreamOutputAttributeSize, 10);
+        this.streamEventConverter = new ZeroStreamEventConverter();
+        this.indexPosition = indexPosition;
     }
 
     /**
@@ -65,7 +77,8 @@ public class HazelcastIndexedOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime);
+        return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime, outputAttributeSize,
+                indexPosition);
     }
 
     /**
@@ -154,8 +167,21 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
-
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents,
+                               int[] mappingPosition) {
+        overwritingOrAddingEventChunk.reset();
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            if (candidateEvents instanceof Map) {
+                ComplexEvent complexEvent = overwritingOrAddingEventChunk.next();
+                StreamEvent streamEvent = streamEventPool.borrowEvent();
+                streamEventConverter.convertStreamEvent(complexEvent, streamEvent);
+                ((Map<Object, StreamEvent>) candidateEvents).put(streamEvent.getOutputData()[indexPosition],
+                        streamEvent);
+            } else {
+                throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName() +
+                        " does not support " + candidateEvents.getClass().getCanonicalName());
+            }
+        }
     }
 
     /**

@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -41,6 +42,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 public class HazelcastOperator implements Operator {
     private final ZeroStreamEventConverter streamEventConverter;
     private final StreamEvent matchingEvent;
+    private final StreamEventPool streamEventPool;
     protected ExpressionExecutor expressionExecutor;
     protected int candidateEventPosition;
     protected int matchingEventPosition;
@@ -48,18 +50,21 @@ public class HazelcastOperator implements Operator {
     protected long withinTime;
     private FinderStateEvent event;
     private int matchingEventOutputSize;
+    private int indexedPosition;
 
     public HazelcastOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition,
                              int matchingEventPosition, int streamEventSize, long withinTime,
-                             int matchingEventOutputSize) {
+                             int matchingEventOutputSize, int indexedPosition) {
         this.expressionExecutor = expressionExecutor;
         this.candidateEventPosition = candidateEventPosition;
         this.matchingEventPosition = matchingEventPosition;
         this.streamEventSize = streamEventSize;
         this.withinTime = withinTime;
         this.matchingEventOutputSize = matchingEventOutputSize;
+        this.indexedPosition = indexedPosition;
         this.event = new FinderStateEvent(streamEventSize, 0);
         this.matchingEvent = new StreamEvent(0, 0, matchingEventOutputSize);
+        this.streamEventPool = new StreamEventPool(0, 0, matchingEventOutputSize, 10);
         this.streamEventConverter = new ZeroStreamEventConverter();
     }
 
@@ -90,7 +95,7 @@ public class HazelcastOperator implements Operator {
     @Override
     public Finder cloneFinder() {
         return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition,
-                streamEventSize, withinTime, matchingEventOutputSize);
+                streamEventSize, withinTime, matchingEventOutputSize, indexedPosition);
     }
 
     /**
@@ -294,11 +299,6 @@ public class HazelcastOperator implements Operator {
         }
     }
 
-    @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
-
-    }
-
     /**
      * Called when updating list of events in a ComplexEventChunk.
      *
@@ -433,6 +433,122 @@ public class HazelcastOperator implements Operator {
             }
         }
         return false;
+    }
+
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk,
+                               Object candidateEvents, int[] mappingPosition) {
+        overwritingOrAddingEventChunk.reset();
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+            try {
+                streamEventConverter.convertStreamEvent(overwritingOrAddingEvent, matchingEvent);
+                this.event.setEvent(matchingEventPosition, matchingEvent);
+                if (candidateEvents instanceof ComplexEventChunk) {
+                    overwriteOrAddInComplexEventChunk((ComplexEventChunk) candidateEvents, mappingPosition);
+                } else if (candidateEvents instanceof List) {
+                    overwriteOrAddInList((List) candidateEvents, mappingPosition);
+                } else if (candidateEvents instanceof Map) {
+                    overwriteOrAddInMap(((Map) candidateEvents), mappingPosition);
+                } else if (candidateEvents instanceof Collection) {
+                    overwriteOrAddInCollection((Collection) candidateEvents, mappingPosition);
+                } else {
+                    throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
+                            " does not support " + candidateEvents.getClass().getCanonicalName());
+                }
+            } finally {
+                this.event.setEvent(matchingEventPosition, null);
+            }
+        }
+    }
+
+    private void overwriteOrAddInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk,
+                                                   int[] mappingPosition) {
+        candidateEventChunk.reset();
+        boolean updated = false;
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
+            if (outsideTimeWindow(streamEvent)) {
+                break;
+            }
+            if (execute(streamEvent)) {
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
+                }
+                updated = true;
+            }
+        }
+        if (!updated) {
+            StreamEvent insertEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            candidateEventChunk.add(insertEvent);
+        }
+    }
+
+    private void overwriteOrAddInList(List<StreamEvent> candidateEvents, int[] mappingPosition) {
+        boolean updated = false;
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (outsideTimeWindow(streamEvent)) {
+                break;
+            }
+            if (execute(streamEvent)) {
+                int streamEventIndex = candidateEvents.indexOf(streamEvent);
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
+                }
+                candidateEvents.set(streamEventIndex, streamEvent);
+                updated = true;
+            }
+        }
+        if (!updated) {
+            StreamEvent insertEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            candidateEvents.add(insertEvent);
+        }
+    }
+
+    private void overwriteOrAddInCollection(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
+        boolean updated = false;
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (outsideTimeWindow(streamEvent)) {
+                break;
+            }
+            if (execute(streamEvent)) {
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
+                }
+                updated = true;
+            }
+        }
+        if (!updated) {
+            StreamEvent insertEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            candidateEvents.add(insertEvent);
+        }
+    }
+
+    private void overwriteOrAddInMap(Map candidateEvents, int[] mappingPosition) {
+        boolean updated = false;
+        for (StreamEvent streamEvent : (Collection<StreamEvent>) candidateEvents.values()) {
+            if (outsideTimeWindow(streamEvent)) {
+                break;
+            }
+            if (execute(streamEvent)) {
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i],
+                            mappingPosition[i]);
+                }
+                updated = true;
+            }
+        }
+        if (!updated) {
+            StreamEvent insertEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            candidateEvents.put(insertEvent.getOutputData()[indexedPosition], insertEvent);
+        }
     }
 
     protected class FinderStateEvent extends StateEvent {

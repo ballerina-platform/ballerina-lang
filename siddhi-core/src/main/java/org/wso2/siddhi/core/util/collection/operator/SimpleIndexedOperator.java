@@ -39,16 +39,18 @@ public class SimpleIndexedOperator implements Operator {
     private ExpressionExecutor expressionExecutor;
     private int matchingEventPosition;
     private final ZeroStreamEventConverter streamEventConverter;
+    private int indexPosition;
 
 
-    public SimpleIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime, int matchingStreamOutputAttributeSize) {
+    public SimpleIndexedOperator(ExpressionExecutor expressionExecutor, int matchingEventPosition, long withinTime,
+                                 int matchingStreamOutputAttributeSize, int indexPosition) {
         this.expressionExecutor = expressionExecutor;
         this.matchingEventPosition = matchingEventPosition;
         this.withinTime = withinTime;
         this.outputAttributeSize = matchingStreamOutputAttributeSize;
         this.streamEventPool = new StreamEventPool(0, 0, matchingStreamOutputAttributeSize, 10);
         this.streamEventConverter = new ZeroStreamEventConverter();
-
+        this.indexPosition = indexPosition;
     }
 
     private boolean outsideTimeWindow(ComplexEvent matchingEvent, StreamEvent streamEvent) {
@@ -63,7 +65,8 @@ public class SimpleIndexedOperator implements Operator {
 
     @Override
     public Finder cloneFinder() {
-        return new SimpleIndexedOperator(expressionExecutor, matchingEventPosition, withinTime, outputAttributeSize);
+        return new SimpleIndexedOperator(expressionExecutor, matchingEventPosition, withinTime, outputAttributeSize,
+                indexPosition);
     }
 
     @Override
@@ -130,25 +133,16 @@ public class SimpleIndexedOperator implements Operator {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents,
+                               int[] mappingPosition) {
         overwritingOrAddingEventChunk.reset();
         while (overwritingOrAddingEventChunk.hasNext()) {
-            ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
-            Object matchingKey = expressionExecutor.execute(overwritingOrAddingEvent);
             if (candidateEvents instanceof Map) {
-                StreamEvent streamEvent = ((Map<Object, StreamEvent>) candidateEvents).get(matchingKey);
-                if (streamEvent != null) {
-                    if (outsideTimeWindow(overwritingOrAddingEvent, streamEvent)) {
-                        return;
-                    }
-                    for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                        streamEvent.setOutputData(overwritingOrAddingEvent.getOutputData()[i], mappingPosition[i]);
-                    }
-                } else {
-                    StreamEvent insertStreamEvent = streamEventPool.borrowEvent();
-                    streamEventConverter.convertStreamEvent(overwritingOrAddingEvent, insertStreamEvent);
-                    ((Map<Object, StreamEvent>) candidateEvents).put(matchingKey, insertStreamEvent);
-                }
+                ComplexEvent complexEvent = overwritingOrAddingEventChunk.next();
+                StreamEvent streamEvent = streamEventPool.borrowEvent();
+                streamEventConverter.convertStreamEvent(complexEvent, streamEvent);
+                ((Map<Object, StreamEvent>) candidateEvents).put(streamEvent.getOutputData()[indexPosition],
+                        streamEvent);
             } else {
                 throw new OperationNotSupportedException(SimpleIndexedOperator.class.getCanonicalName() +
                         " does not support " + candidateEvents.getClass().getCanonicalName());

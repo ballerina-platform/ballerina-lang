@@ -62,11 +62,13 @@ public class HazelcastEventTable implements EventTable {
     private ExecutionPlanContext executionPlanContext;
     private StreamEventCloner streamEventCloner;
     private StreamEventPool streamEventPool;
-    private ConcurrentMap<Object, StreamEvent> eventsMap = null;
     private List<StreamEvent> eventsList = null;
+    private String elementId;
+
+    // For Indexed table
+    private ConcurrentMap<Object, StreamEvent> eventsMap = null;
     private String indexAttribute = null;
     private int indexPosition;
-    private String elementId;
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
@@ -87,12 +89,7 @@ public class HazelcastEventTable implements EventTable {
         String clusterAddresses = fromAnnotation.getElement(
                 HazelcastEventTableConstants.ANNOTATION_ELEMENT_CLUSTER_ADDRESSES);
         String instanceName = fromAnnotation.getElement(HazelcastEventTableConstants.ANNOTATION_ELEMENT_INSTANCE_NAME);
-
         HazelcastInstance hcInstance = getHazelcastInstance(clusterName, clusterPassword, clusterAddresses, instanceName);
-        eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX +
-                executionPlanContext.getName() + '_' + tableDefinition.getId());
-        eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
-                executionPlanContext.getName() + '_' + tableDefinition.getId());
 
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addInputDefinition(tableDefinition);
@@ -110,6 +107,11 @@ public class HazelcastEventTable implements EventTable {
             }
             indexAttribute = annotation.getElements().get(0).getValue();
             indexPosition = tableDefinition.getAttributePosition(indexAttribute);
+            eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX +
+                    executionPlanContext.getName() + '_' + tableDefinition.getId());
+        } else {
+            eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
+                    executionPlanContext.getName() + '_' + tableDefinition.getId());
         }
         streamEventPool = new StreamEventPool(metaStreamEvent, HazelcastEventTableConstants.STREAM_EVENT_POOL_SIZE);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
@@ -224,9 +226,19 @@ public class HazelcastEventTable implements EventTable {
         }
     }
 
+    /**
+     * Called when insert or overwriting the event table entries.
+     *
+     * @param overwritingOrAddingEventChunk Event list that needs to be inserted or updated.
+     * @param operator                      Operator that perform Hazelcast related operations.
+     */
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
-        throw new OperationNotSupportedException("'Overwrite Or Add' Operation not supported on Hazelcast Event Table '" + tableDefinition.getId() + "'");
+        if (indexAttribute != null) {
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
+        } else {
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, mappingPosition);
+        }
     }
 
     /**
@@ -281,7 +293,7 @@ public class HazelcastEventTable implements EventTable {
                                   Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return HazelcastOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute);
+                indexAttribute, indexPosition);
     }
 
     /**
@@ -303,6 +315,6 @@ public class HazelcastEventTable implements EventTable {
                                       Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
         return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute);
+                indexAttribute, indexPosition);
     }
 }
