@@ -127,12 +127,12 @@ public class CollectionOperatorParser {
                 if (leftSideIndexed && !rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
                             matchingMetaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime, matchingStreamDefinition.getAttributeList().size());
+                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime, matchingStreamDefinition.getAttributeList().size(), indexedPosition);
 
                 } else if (!leftSideIndexed && rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
                             matchingMetaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime, matchingStreamDefinition.getAttributeList().size());
+                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime, matchingStreamDefinition.getAttributeList().size(), indexedPosition);
 
                 }
 

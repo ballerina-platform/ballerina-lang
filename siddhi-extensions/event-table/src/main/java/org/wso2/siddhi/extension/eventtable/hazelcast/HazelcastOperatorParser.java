@@ -166,13 +166,13 @@ public class HazelcastOperatorParser {
                             matchingMetaComplexEvent, matchingStreamIndex, eventTableMap,
                             variableExpressionExecutors, executionPlanContext, false, 0);
                     return new HazelcastIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime,
-                            matchingStreamDefinition.getAttributeList().size());
+                            matchingStreamDefinition.getAttributeList().size(), indexedPosition);
                 } else if (!leftSideIndexed && rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
                             matchingMetaComplexEvent, matchingStreamIndex, eventTableMap,
                             variableExpressionExecutors, executionPlanContext, false, 0);
                     return new HazelcastIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime,
-                            matchingStreamDefinition.getAttributeList().size());
+                            matchingStreamDefinition.getAttributeList().size(), indexedPosition);
                 }
             }
         }
