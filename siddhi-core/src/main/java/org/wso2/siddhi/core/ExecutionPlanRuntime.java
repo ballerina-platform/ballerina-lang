@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,9 +29,9 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMemoryUsageMetric;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.Map;
@@ -39,25 +39,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
+ * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
  * and streamJunctions and inputHandlers used
  */
 public class ExecutionPlanRuntime {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
-
-    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
-    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
+    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); // Contains stream definition.
+    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String, AbstractDefinition>(); // Contains table definition.
     private InputManager inputManager;
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
-    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
-    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
+    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); // Contains stream junctions.
+    private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); // Contains event tables.
+    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
 
-
-    public ExecutionPlanRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager, ConcurrentMap<String, QueryRuntime> queryProcessorMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, ConcurrentMap<String, EventTable> eventTableMap, ConcurrentMap<String, PartitionRuntime> partitionMap, ExecutionPlanContext executionPlanContext, ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
+    public ExecutionPlanRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
+                                ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
+                                ConcurrentMap<String, QueryRuntime> queryProcessorMap,
+                                ConcurrentMap<String, StreamJunction> streamJunctionMap,
+                                ConcurrentMap<String, EventTable> eventTableMap,
+                                ConcurrentMap<String, PartitionRuntime> partitionMap,
+                                ExecutionPlanContext executionPlanContext,
+                                ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
         this.tableDefinitionMap = tableDefinitionMap;
         this.inputManager = inputManager;
@@ -67,14 +72,12 @@ public class ExecutionPlanRuntime {
         this.partitionMap = partitionMap;
         this.executionPlanContext = executionPlanContext;
         this.executionPlanRuntimeMap = executionPlanRuntimeMap;
-
-        if (executionPlanContext.getStatisticsManager()!=null) {
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
             memoryUsageTracker = executionPlanContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
                     .getFactory()
                     .createMemoryUsageTracker(executionPlanContext.getStatisticsManager());
-
             monitorQueryMemoryUsage();
         }
     }
@@ -117,7 +120,8 @@ public class ExecutionPlanRuntime {
             try {
                 eternalReferencedHolder.stop();
             } catch (Throwable t) {
-                log.error("Error in shutting down Execution Plan '" + executionPlanContext.getName() + "', " + t.getMessage(), t);
+                log.error("Error in shutting down Execution Plan '" + executionPlanContext.getName() +
+                        "', " + t.getMessage(), t);
             }
         }
         inputManager.disconnect();
@@ -145,21 +149,20 @@ public class ExecutionPlanRuntime {
             }
         }, "Siddhi-ExecutionPlan-" + executionPlanContext.getName() + "-Shutdown-Cleaner");
         thread.start();
+
         if (executionPlanRuntimeMap != null) {
             executionPlanRuntimeMap.remove(executionPlanContext.getName());
         }
-
-        if (executionPlanContext.getStatisticsManager() != null) {
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
             executionPlanContext.getStatisticsManager().stopReporting();
             executionPlanContext.getStatisticsManager().cleanup();
         }
     }
 
     public synchronized void start() {
-        if (executionPlanContext.getStatisticsManager() != null) {
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
             executionPlanContext.getStatisticsManager().startReporting();
         }
-
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
@@ -190,17 +193,26 @@ public class ExecutionPlanRuntime {
     }
 
     private void monitorQueryMemoryUsage() {
-
         for (Map.Entry entry : queryProcessorMap.entrySet()) {
-            memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + entry.getKey());
+            memoryUsageTracker.registerObject(entry.getValue(),
+                    executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                            SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
+                            SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                            SiddhiConstants.METRIC_INFIX_QUERIES + SiddhiConstants.METRIC_DELIMITER +
+                            entry.getKey());
         }
-
         for (Map.Entry entry : partitionMap.entrySet()) {
             ConcurrentMap<String, QueryRuntime> queryRuntime = ((PartitionRuntime) entry.getValue()).getMetaQueryRuntimeMap();
             for (Map.Entry query : queryRuntime.entrySet()) {
-                memoryUsageTracker.registerObject(entry.getValue(), "org.wso2.siddhi.executionplan." + getName() + "." + query.getKey());
+                memoryUsageTracker.registerObject(entry.getValue(),
+                        executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                                SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
+                                SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
+                                SiddhiConstants.METRIC_INFIX_QUERIES + SiddhiConstants.METRIC_DELIMITER +
+                                query.getKey());
             }
         }
     }
-
 }

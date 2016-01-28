@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.query.join;
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -195,7 +196,8 @@ public class JoinTestCase {
     // It will be re-enabled once the bug get fixed.
     // JIRA for the TimeWindowProcessor bug (https://wso2.org/jira/browse/CEP-1413).
     // JIRA for re-enabling the test case (https://wso2.org/jira/browse/CEP-1452).
-    // @Test
+    @Ignore("Due to a bug in TimeWindowProcessor, below test case was disabled.")
+    @Test
     public void joinTest4() throws InterruptedException {
         log.info("Join test4");
 
