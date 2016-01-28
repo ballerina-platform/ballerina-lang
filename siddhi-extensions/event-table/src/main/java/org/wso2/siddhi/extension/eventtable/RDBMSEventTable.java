@@ -182,7 +182,7 @@ public class RDBMSEventTable implements EventTable {
      */
     @Override
     public void add(ComplexEventChunk addingEventChunk) {
-        dbHandler.addEvent(addingEventChunk, cachedTable);
+        dbHandler.addEvent(addingEventChunk);
     }
 
     /**
@@ -215,7 +215,10 @@ public class RDBMSEventTable implements EventTable {
 
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
-        throw new OperationNotSupportedException("'Overwrite Or Add' Operation not supported on RDBMS Event Table '" + tableDefinition.getId() + "'");
+        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null);
+        if(isCachingEnabled){
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), mappingPosition);
+        }
     }
 
     /**

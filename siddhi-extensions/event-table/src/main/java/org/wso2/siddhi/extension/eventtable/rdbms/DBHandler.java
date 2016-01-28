@@ -53,6 +53,7 @@ public class DBHandler {
     private TableDefinition tableDefinition;
     private int bloomFilterSize;
     private int bloomFilterHashFunction;
+    private CachingTable cachingTable;
     private static final Logger log = Logger.getLogger(DBHandler.class);
 
 
@@ -113,7 +114,7 @@ public class DBHandler {
         return bloomFilters;
     }
 
-    public void addEvent(ComplexEventChunk addingEventChunk, CachingTable cachingTable) {
+    public void addEvent(ComplexEventChunk addingEventChunk) {
         addingEventChunk.reset();
         PreparedStatement stmt = null;
 
@@ -204,6 +205,60 @@ public class DBHandler {
         if (isBloomFilterEnabled && updatedRows > 0) {
             buildBloomFilters();
         }
+    }
+
+    public void overwriteOrAddEvent(ComplexEventChunk addingEventChunk, Object[] obj, ExecutionInfo executionInfo) {
+
+        PreparedStatement stmt = null;
+        Connection con = null;
+        ArrayList<ComplexEvent> bloomFilterInsertionList = null;
+        int updatedRows = 0;
+        try {
+
+            con = dataSource.getConnection();
+            con.setAutoCommit(false);
+            stmt = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
+            populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
+            updatedRows = stmt.executeUpdate();
+            if (updatedRows == 0) {
+                addingEventChunk.reset();
+                if (isBloomFilterEnabled) {
+                    bloomFilterInsertionList = new ArrayList<ComplexEvent>();
+                }
+                while (addingEventChunk.hasNext()) {
+                    ComplexEvent complexEvent = addingEventChunk.next();
+                    try {
+                        stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
+                        populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
+                        stmt.executeUpdate();
+
+                        if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
+                            bloomFilterInsertionList.add(complexEvent);
+                        }
+                        if (cachingTable != null) {
+                            cachingTable.add(complexEvent);
+                        }
+                    } catch (SQLException e) {
+                        throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
+                    }
+                }
+            }
+            con.commit();
+
+        } catch (SQLException e) {
+            throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
+        } finally {
+            cleanUpConnections(stmt, con);
+        }
+
+        if (isBloomFilterEnabled) {
+            if (updatedRows > 0) {
+                buildBloomFilters();
+            } else {
+                addToBloomFilters(bloomFilterInsertionList);
+            }
+        }
+
     }
 
     public StreamEvent selectEvent(Object[] obj, ExecutionInfo executionInfo) {
@@ -500,8 +555,9 @@ public class DBHandler {
 
 
     //Bloom Filter Operations  -----------------------------------------------------------------------------------------
+
     public void buildBloomFilters() {
-        CountingBloomFilter[]   bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
+        CountingBloomFilter[] bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
 
         for (int i = 0; i < bloomFilters.length; i++) {
             bloomFilters[i] = new CountingBloomFilter(bloomFilterSize, bloomFilterHashFunction, Hash.MURMUR_HASH);
@@ -539,7 +595,7 @@ public class DBHandler {
                 }
             }
             results.close();
-            this.bloomFilters=bloomFilters;
+            this.bloomFilters = bloomFilters;
             this.isBloomFilterEnabled = true;
         } catch (SQLException ex) {
             throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex.getMessage(), ex);
@@ -567,6 +623,7 @@ public class DBHandler {
 
     public void loadDBCache(CachingTable cachingTable, String cacheSizeInString) {
 
+        this.cachingTable = cachingTable;
         Connection con = null;
         Statement stmt = null;
         try {

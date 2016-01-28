@@ -58,4 +58,9 @@ public class BasicCacheManager implements CacheManager {
     public void invalidateCache() {
         cacheList.clear();
     }
+
+    @Override
+    public boolean isContains(StreamEvent item) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

@@ -73,4 +73,9 @@ public class LRUCacheManager implements CacheManager {
     public void invalidateCache() {
         cacheList.clear();
     }
+
+    @Override
+    public boolean isContains(StreamEvent item) {
+        return cacheList.contains(item);
+    }
 }

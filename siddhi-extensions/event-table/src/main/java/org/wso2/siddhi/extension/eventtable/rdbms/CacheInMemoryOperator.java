@@ -186,6 +186,25 @@ public class CacheInMemoryOperator implements Operator {
 
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+        overwritingOrAddingEventChunk.reset();
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            ComplexEvent updatingEvent = overwritingOrAddingEventChunk.next();
+            try {
+                streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
+                this.event.setEvent(matchingEventPosition, matchingEvent);
+                if (candidateEvents instanceof ComplexEventChunk) {
+                    overwriteOrAdd((ComplexEventChunk) candidateEvents, mappingPosition);
+                } else if (candidateEvents instanceof Map) {
+                    overwriteOrAdd(((Map) candidateEvents).values(), mappingPosition);
+                } else if (candidateEvents instanceof Collection) {
+                    overwriteOrAdd((Collection) candidateEvents, mappingPosition);
+                } else {
+                    throw new OperationNotSupportedException(CacheInMemoryOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
+                }
+            } finally {
+                this.event.setEvent(matchingEventPosition, null);
+            }
+        }
 
     }
 
@@ -208,6 +227,25 @@ public class CacheInMemoryOperator implements Operator {
         }
     }
 
+    private void overwriteOrAdd(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition) {
+        candidateEventChunk.reset();
+        while (candidateEventChunk.hasNext()) {
+            StreamEvent streamEvent = candidateEventChunk.next();
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                cachingTable.overwriteOrAdd(streamEvent);
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                }
+            }
+        }
+    }
+
     private void update(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
@@ -218,6 +256,24 @@ public class CacheInMemoryOperator implements Operator {
             }
             if (execute(streamEvent)) {
                 cachingTable.update(streamEvent);
+                for (int i = 0, size = mappingPosition.length; i < size; i++) {
+                    streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
+                }
+            }
+        }
+    }
+
+
+    private void overwriteOrAdd(Collection<StreamEvent> candidateEvents, int[] mappingPosition) {
+        for (StreamEvent streamEvent : candidateEvents) {
+            if (withinTime != ANY) {
+                long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());
+                if (timeDifference > withinTime) {
+                    break;
+                }
+            }
+            if (execute(streamEvent)) {
+                cachingTable.overwriteOrAdd(streamEvent);
                 for (int i = 0, size = mappingPosition.length; i < size; i++) {
                     streamEvent.setOutputData(event.getStreamEvent(matchingEventPosition).getOutputData()[i], mappingPosition[i]);
                 }

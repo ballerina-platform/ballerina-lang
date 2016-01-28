@@ -103,6 +103,23 @@ public class CachingTable {
         }
     }
 
+    public void overwriteOrAdd(StreamEvent updatingEvent) {
+        if (cacheManager.isContains(updatingEvent)) {
+            StreamEvent streamEvent = streamEventPool.borrowEvent();
+            eventConverter.convertStreamEvent(updatingEvent, streamEvent);
+            cacheManager.update(streamEvent);
+        }else {
+            StreamEvent streamEvent = streamEventPool.borrowEvent();
+            eventConverter.convertStreamEvent(updatingEvent, streamEvent);
+            list.add(streamEvent);
+            cacheManager.add(streamEvent);
+        }
+
+        if (log.isTraceEnabled()) {
+            log.trace("list " + elementId + " size " + list.size());
+        }
+    }
+
     public void contains(StreamEvent matchingEvent) {
         cacheManager.read(matchingEvent);
     }
@@ -111,7 +128,7 @@ public class CachingTable {
         return list;
     }
 
-    public void invalidateCache(){
+    public void invalidateCache() {
         cacheManager.invalidateCache();
     }
 
