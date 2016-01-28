@@ -33,3 +33,4 @@ upper=org.wso2.siddhi.extension.string.UpperFunctionExtension
 hex=org.wso2.siddhi.extension.string.HexFunctionExtension
 unhex=org.wso2.siddhi.extension.string.UnhexFunctionExtension
 contains=org.wso2.siddhi.extension.string.ContainsFunctionExtension
+equalsIgnoreCase=org.wso2.siddhi.extension.string.EqualsIgnoreCaseFunctionExtension
