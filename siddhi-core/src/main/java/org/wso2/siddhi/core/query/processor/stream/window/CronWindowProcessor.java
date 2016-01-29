@@ -64,7 +64,9 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
     @Override
     public void stop() {
         try {
-            scheduler.deleteJob(new JobKey(jobName, jobGroup));
+            if (scheduler != null) {
+                scheduler.deleteJob(new JobKey(jobName, jobGroup));
+            }
         } catch (SchedulerException e) {
             log.error("Error while removing the cron job : " + e.getMessage(), e);
         }
@@ -93,9 +95,7 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
             if (scheduler.checkExists(jobKey)) {
                 scheduler.deleteJob(jobKey);
             }
-
             scheduler.start();
-
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("windowProcessor", this);
 

@@ -89,12 +89,16 @@ public class CronEventTrigger implements EventTrigger, Job {
         try {
             SchedulerFactory schedulerFactory = new StdSchedulerFactory();
             scheduler = schedulerFactory.getScheduler();
-            scheduler.start();
+            jobName = "TriggerJob_" + elementId;
+            JobKey jobKey = new JobKey(jobName, jobGroup);
 
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.deleteJob(jobKey);
+            }
+            scheduler.start();
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("trigger", this);
 
-            jobName = "TriggerJob_" + elementId;
             JobDetail job = org.quartz.JobBuilder.newJob(CronEventTrigger.class)
                     .withIdentity(jobName, jobGroup)
                     .usingJobData(dataMap)
