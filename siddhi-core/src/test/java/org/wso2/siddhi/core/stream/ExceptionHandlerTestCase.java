@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class ExceptionHandlerTestCase {
@@ -58,71 +59,50 @@ public class ExceptionHandlerTestCase {
                 "insert into outputStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp,inEvents,removeEvents);
-                count = count + inEvents.length;
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count = count + events.length;
                 eventArrived = true;
             }
         });
-
-//        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
-//            @Override
-//            public void receive(Event[] events) {
-//                EventPrinter.print(events);
-//                count = count + events.length;
-//                eventArrived = true;
-//            }
-//        });
         return executionPlanRuntime;
     }
 
     /**
-     * Send 6 test events (3 batches x 2 events per batch)
+     * Send 6 test events (2 valid -> 2 invalid -> 2 valid)
      *
      * @param inputHandler input handler
      * @throws Exception
      */
     private void sendTestInvalidEvents(InputHandler inputHandler ) throws Exception {
         // Send 2 valid events
-        inputHandler.send(0,new Object[]{"GOOD_0", 700.0f, 100l});
-        Thread.sleep(5);
-        inputHandler.send(1,new Object[]{"GOOD_1", 60.5f, 200l});
-        Thread.sleep(5);
+        inputHandler.send(new Object[]{"GOOD_0", 700.0f, 100l});
+        inputHandler.send(new Object[]{"GOOD_1", 60.5f, 200l});
+        Thread.sleep(10);
         try {
             // Send 2 invalid event
-            inputHandler.send(3,new Object[]{"BAD_2", "EBAY", 200l});
-            Thread.sleep(5);
-            inputHandler.send(4,new Object[]{"BAD_3", "WSO2",700f});
-            Thread.sleep(5);
+            inputHandler.send(new Object[]{"BAD_2", "EBAY", 200l});
+            inputHandler.send(new Object[]{"BAD_3", "WSO2",700f});
+            Thread.sleep(10);
         }catch (Exception ex){
             Assert.fail("Disruptor exception can't be caught by try-catch");
             throw ex;
         }
         // Send 2 valid events
-        inputHandler.send(5,new Object[]{"GOOD_4", 700.0f, 100l});
-        Thread.sleep(5);
-        inputHandler.send(6,new Object[]{"GOOD_5", 60.5f, 200l});
-        Thread.sleep(5);
+        inputHandler.send(new Object[]{"GOOD_4", 700.0f, 100l});
+        inputHandler.send(new Object[]{"GOOD_5", 60.5f, 200l});
+        Thread.sleep(10);
     }
 
     private void sendTestValidEvents(InputHandler inputHandler ) throws Exception {
-        // Send 2 valid events
         inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
-        Thread.sleep(5);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        Thread.sleep(5);
-        // Send 2 valid event
         inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
-        Thread.sleep(5);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        Thread.sleep(5);
-        // Send 2 valid events
         inputHandler.send(new Object[]{"IBM", 700.0f, 100l});
-        Thread.sleep(5);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
-        Thread.sleep(5);
     }
 
     @Test
@@ -153,13 +133,12 @@ public class ExceptionHandlerTestCase {
 
         Thread.sleep(100);
 
-        Assert.assertTrue("Can only get the first 2 events, because disruptor crashes after caught with exception",eventArrived);
-        Assert.assertEquals("Can only get the first 2 events, because disruptor crashes after caught with exception",2, count);
+        Assert.assertTrue("Can only process the first 2 events, because disruptor crashes after caught with exception",eventArrived);
+        Assert.assertEquals("Can only process the first 2 events, because disruptor crashes after caught with exception",2, count);
         Assert.assertFalse("Can't catch disruptor exception by try-catch",failedCaught);
         Assert.assertEquals("Can't catch disruptor exception by try-catch",0, failedCount);
         executionPlanRuntime.shutdown();
     }
-
 
     @Test
     public void callbackTestForInvalidEventWithExceptionHandler() throws Exception {
@@ -190,7 +169,7 @@ public class ExceptionHandlerTestCase {
 
         executionPlanRuntime.start();
         sendTestInvalidEvents(inputHandler);
-        Thread.sleep(Long.MAX_VALUE);
+        Thread.sleep(100);
         // No following events can be processed correctly
         Assert.assertTrue("Should properly process all the 4 valid events",eventArrived);
         Assert.assertEquals("Should properly process all the 4 valid events",4, count);

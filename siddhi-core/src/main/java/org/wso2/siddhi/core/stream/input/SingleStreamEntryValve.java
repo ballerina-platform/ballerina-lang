@@ -149,22 +149,24 @@ public class SingleStreamEntryValve implements InputProcessor {
 
         private void sendEvents() {
             int size = eventBuffer.size();
-            switch (size) {
-                case 0: {
-                    return;
+            try {
+                switch (size) {
+                    case 0: {
+                        return;
+                    }
+                    case 1: {
+                        inputProcessor.send(eventBuffer.get(0), currentIndex);
+                        eventBuffer.clear();
+                        return;
+                    }
+                    default: {
+                        inputProcessor.send(eventBuffer.toArray(new Event[size]), currentIndex);
+                    }
                 }
-                case 1: {
-                    inputProcessor.send(eventBuffer.get(0), currentIndex);
-                    eventBuffer.clear();
-                    return;
-                }
-                default: {
-                    inputProcessor.send(eventBuffer.toArray(new Event[size]), currentIndex);
-                    eventBuffer.clear();
-                }
+            } finally {
+                if(size>0) eventBuffer.clear();
             }
         }
-
     }
 
     public static class IndexedEventFactory implements com.lmax.disruptor.EventFactory<IndexedEventFactory.IndexedEvent> {
