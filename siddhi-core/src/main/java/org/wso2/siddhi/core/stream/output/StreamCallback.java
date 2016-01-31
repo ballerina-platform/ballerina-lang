@@ -155,6 +155,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),
                         executionPlanContext.getExecutorService());
             }
+            disruptor.handleExceptionsWith(executionPlanContext.getExceptionHandler());
             asyncEventHandler = new AsyncEventHandler(this);
             disruptor.handleEventsWith(asyncEventHandler);
             ringBuffer = disruptor.start();

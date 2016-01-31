@@ -229,12 +229,14 @@ public class StreamJunction {
                         disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
                                 bufferSize, executorService, producerType,
                                 PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
+                        disruptor.handleExceptionsWith(executionPlanContext.getExceptionHandler());
                         break;
                     }
                 }
                 if (disruptor == null) {
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
                             bufferSize, executorService);
+                    disruptor.handleExceptionsWith(executionPlanContext.getExceptionHandler());
                 }
                 for (Receiver receiver : receivers) {
                     disruptor.handleEventsWith(new StreamHandler(receiver));

@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core;
 
+import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
@@ -214,5 +215,9 @@ public class ExecutionPlanRuntime {
                                 query.getKey());
             }
         }
+    }
+
+    public void handleExceptionWith(ExceptionHandler<Object> exceptionHandler) {
+        executionPlanContext.setExceptionHandler(exceptionHandler);
     }
 }

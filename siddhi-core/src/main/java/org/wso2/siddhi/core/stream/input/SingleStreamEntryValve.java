@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SingleStreamEntryValve implements InputProcessor {
 
+    private final SingleEntryValveHandler singleEntryValveHandler;
     private Disruptor<IndexedEventFactory.IndexedEvent> singleEntryDisruptor;
     private RingBuffer<IndexedEventFactory.IndexedEvent> ringBuffer;
     private ExecutionPlanContext executionPlanContext;
@@ -51,7 +52,7 @@ public class SingleStreamEntryValve implements InputProcessor {
     public SingleStreamEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
         this.executionPlanContext = executionPlanContext;
         this.inputProcessor = inputProcessor;
-        SingleEntryValveHandler singleEntryValveHandler = new SingleEntryValveHandler();
+        this.singleEntryValveHandler = new SingleEntryValveHandler();
         for (Constructor constructor : Disruptor.class.getConstructors()) {
             if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
                 singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
@@ -67,7 +68,6 @@ public class SingleStreamEntryValve implements InputProcessor {
                     executionPlanContext.getSiddhiContext().getEventBufferSize(),
                     executionPlanContext.getExecutorService());
         }
-        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
     }
 
     @Override
@@ -109,6 +109,8 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     public synchronized void startProcessing() {
+        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getExceptionHandler());
+        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
         ringBuffer = singleEntryDisruptor.start();
     }
 

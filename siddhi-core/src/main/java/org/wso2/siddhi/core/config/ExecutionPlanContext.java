@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.config;
 
+import com.lmax.disruptor.ExceptionHandler;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -54,6 +55,7 @@ public class ExecutionPlanContext {
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
     private Map<String, EvalScript> scriptFunctionMap;
+    private ExceptionHandler<Object> exceptionHandler;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -189,4 +191,11 @@ public class ExecutionPlanContext {
     }
 
 
+    public void setExceptionHandler(ExceptionHandler<Object> exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
+
+    public ExceptionHandler<Object> getExceptionHandler() {
+        return this.exceptionHandler;
+    }
 }
