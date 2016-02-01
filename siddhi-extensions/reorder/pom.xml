@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>siddhi-extension-ooh</artifactId>
+    <artifactId>siddhi-extension-reorder</artifactId>
     <name>Siddhi Extension - Out-of-order Handler</name>
 
     <dependencies>
@@ -60,8 +60,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.ooh,
-                            org.wso2.siddhi.extension.ooh.*
+                            org.wso2.siddhi.extension.reoder,
+                            org.wso2.siddhi.extension.reorder.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

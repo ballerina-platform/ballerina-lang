@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-kslack=org.wso2.siddhi.extension.ooh.KSlackExtension
+kslack=org.wso2.siddhi.extension.reorder.KSlackExtension
