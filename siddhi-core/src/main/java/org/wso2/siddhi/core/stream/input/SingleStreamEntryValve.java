@@ -164,7 +164,9 @@ public class SingleStreamEntryValve implements InputProcessor {
                     }
                 }
             } finally {
-                if(size>0) eventBuffer.clear();
+                if(size>0) {
+                    eventBuffer.clear();
+                }
             }
         }
     }
