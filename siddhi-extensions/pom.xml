@@ -38,7 +38,7 @@
         <module>regex</module>
         <module>time</module>
         <module>timeseries</module>
-        <module>ooh</module>
+        <module>reorder</module>
         <module>map</module>
         <module>kalman-filter</module>
     </modules>

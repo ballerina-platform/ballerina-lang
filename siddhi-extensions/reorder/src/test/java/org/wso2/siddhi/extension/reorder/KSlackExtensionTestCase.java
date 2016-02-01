@@ -1,22 +1,4 @@
-/*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
-package org.wso2.siddhi.extension.ooh;
+package org.wso2.siddhi.extension.reorder;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -26,41 +8,37 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.EventPrinter;
 
 /**
  * This is the test case for KSlackExtension.
+ * Created by miyurud on 8/10/15.
  */
-
 public class KSlackExtensionTestCase {
     static final Logger log = Logger.getLogger(KSlackExtensionTestCase.class);
     private volatile int count;
+    private volatile boolean eventArrived;
 
     @Before
     public void init() {
         count = 0;
+        eventArrived = false;
     }
 
     @Test
     public void OrderTest() throws InterruptedException {
-        log.info("KSlackExtensionTestCase TestCase");
+        log.info("KSlackExtensionTestCase TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "" +
-                "@config(async = 'true')" +
-                "define stream inputStream (eventTimestamp long, price long, volume long);";
-        String query = "" +
-                "@info(name = 'query1') " +
-                "from inputStream#ooh:kslack(eventTimestamp) " +
-                "select eventTimestamp, price, volume " +
-                "insert into outputStream;";
+        String inStreamDefinition = "@config(async = 'true')define stream inputStream (eventtt long, price long, volume long);";
+        String query = ("@info(name = 'query1') from inputStream#reorder:kslack(eventtt) select eventtt, price, volume " +
+                "insert into outputStream;");
+
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
 
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
-                EventPrinter.print(events);
                 for (org.wso2.siddhi.core.event.Event event : events) {
                     count++;
 
@@ -124,31 +102,26 @@ public class KSlackExtensionTestCase {
         inputHandler.send(new Object[]{10l, 60.5f, 200l});
         inputHandler.send(new Object[]{13l, 60.5f, 200l});
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         executionPlanRuntime.shutdown();
         Assert.assertEquals("Event count", 9, count);
     }
 
     @Test
     public void OrderTest2() throws InterruptedException {
-        log.info("KSlackExtensionTestCase TestCase");
+        log.info("KSlackExtensionTestCase TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "" +
-                "@config(async = 'true')" +
-                "define stream inputStream (eventTimestamp long);";
-        String query = "" +
-                "@info(name = 'query1') " +
-                "from inputStream#ooh:kslack(*) " +
-                "select * " +
-                "insert into outputStream;";
+        String inStreamDefinition = "@config(async = 'true')define stream inputStream (eventtt long, price long, volume long);";
+        String query = ("@info(name = 'query1') from inputStream#reorder:kslack(eventtt, 1000l) select eventtt, price, volume " +
+                "insert into outputStream;");
+
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
 
             @Override
             public void receive(org.wso2.siddhi.core.event.Event[] events) {
-                EventPrinter.print(events);
                 for (org.wso2.siddhi.core.event.Event event : events) {
                     count++;
 
@@ -201,19 +174,19 @@ public class KSlackExtensionTestCase {
 
         //The following implements the out-of-order disorder handling scenario described in the
         //http://dl.acm.org/citation.cfm?doid=2675743.2771828
-        inputHandler.send(new Object[]{1l});
-        inputHandler.send(new Object[]{4l});
-        inputHandler.send(new Object[]{3l});
-        inputHandler.send(new Object[]{5l});
-        inputHandler.send(new Object[]{6l});
-        inputHandler.send(new Object[]{9l});
-        inputHandler.send(new Object[]{7l});
-        inputHandler.send(new Object[]{8l});
-        inputHandler.send(new Object[]{10l});
-        inputHandler.send(new Object[]{13l});
+        inputHandler.send(new Object[]{1l, 700f, 100l});
+        inputHandler.send(new Object[]{4l, 60.5f, 200l});
+        inputHandler.send(new Object[]{3l, 60.5f, 200l});
+        inputHandler.send(new Object[]{5l, 700f, 100l});
+        inputHandler.send(new Object[]{6l, 60.5f, 200l});
+        inputHandler.send(new Object[]{9l, 60.5f, 200l});
+        inputHandler.send(new Object[]{7l, 700f, 100l});
+        inputHandler.send(new Object[]{8l, 60.5f, 200l});
+        inputHandler.send(new Object[]{10l, 60.5f, 200l});
+        inputHandler.send(new Object[]{13l, 60.5f, 200l});
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         executionPlanRuntime.shutdown();
-        Assert.assertEquals("Event count", 9, count);
+        Assert.assertEquals("Event count", 10, count);
     }
 }
