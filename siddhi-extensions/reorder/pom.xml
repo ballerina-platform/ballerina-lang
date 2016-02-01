@@ -27,16 +27,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
-
-<<<<<<< HEAD:modules/siddhi-extensions/reorder/pom.xml
     <artifactId>siddhi-extension-reorder</artifactId>
     <name>Siddhi Extension - Out-of-order Handler</name>
-=======
-    <artifactId>siddhi-extension-ooh</artifactId>
-    <name>Siddhi Extension - Out of Order Handler</name>
->>>>>>> upstream/master:modules/siddhi-extensions/ooh/pom.xml
-
-    <dependencies>
+    
+<dependencies>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-core</artifactId>

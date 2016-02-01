@@ -38,13 +38,9 @@
         <module>regex</module>
         <module>time</module>
         <module>timeseries</module>
-<<<<<<< HEAD
         <module>reorder</module>
-=======
-        <module>ooh</module>
         <module>map</module>
         <module>kalman-filter</module>
->>>>>>> upstream/master
     </modules>
 
 </project>
