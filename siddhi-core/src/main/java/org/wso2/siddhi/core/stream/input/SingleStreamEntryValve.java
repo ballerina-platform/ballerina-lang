@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.stream.input;
@@ -37,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SingleStreamEntryValve implements InputProcessor {
 
+    private final SingleEntryValveHandler singleEntryValveHandler;
     private Disruptor<IndexedEventFactory.IndexedEvent> singleEntryDisruptor;
     private RingBuffer<IndexedEventFactory.IndexedEvent> ringBuffer;
     private ExecutionPlanContext executionPlanContext;
@@ -49,7 +52,7 @@ public class SingleStreamEntryValve implements InputProcessor {
     public SingleStreamEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
         this.executionPlanContext = executionPlanContext;
         this.inputProcessor = inputProcessor;
-        SingleEntryValveHandler singleEntryValveHandler = new SingleEntryValveHandler();
+        this.singleEntryValveHandler = new SingleEntryValveHandler();
         for (Constructor constructor : Disruptor.class.getConstructors()) {
             if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
                 singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
@@ -65,7 +68,6 @@ public class SingleStreamEntryValve implements InputProcessor {
                     executionPlanContext.getSiddhiContext().getEventBufferSize(),
                     executionPlanContext.getExecutorService());
         }
-        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
     }
 
     @Override
@@ -95,11 +97,20 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     @Override
+    public void send(List<Event> events, int streamIndex) {
+        for (Event event : events) {
+            send(event, streamIndex);
+        }
+    }
+
+    @Override
     public void send(long timeStamp, Object[] data, int streamIndex) {
         send(new Event(timeStamp, data), streamIndex);
     }
 
     public synchronized void startProcessing() {
+        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getExceptionHandler());
+        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
         ringBuffer = singleEntryDisruptor.start();
     }
 
@@ -122,12 +133,6 @@ public class SingleStreamEntryValve implements InputProcessor {
          */
         @Override
         public void onEvent(IndexedEventFactory.IndexedEvent indexedEvent, long sequence, boolean endOfBatch) throws Exception {
-            if (ExecutionPlanContext.statEnable) {
-                count++;
-                if (count % 1000000 == 0) {
-                    log.info("Number of events in the disruptor:" + eventSizeInDisruptor.get() + "\nThread:" + Thread.currentThread().getName());
-                }
-            }
             eventSizeInDisruptor.decrementAndGet();
             int streamIndex = indexedEvent.getStreamIndex();
             if (currentIndex != streamIndex) {
@@ -144,22 +149,26 @@ public class SingleStreamEntryValve implements InputProcessor {
 
         private void sendEvents() {
             int size = eventBuffer.size();
-            switch (size) {
-                case 0: {
-                    return;
+            try {
+                switch (size) {
+                    case 0: {
+                        return;
+                    }
+                    case 1: {
+                        inputProcessor.send(eventBuffer.get(0), currentIndex);
+                        eventBuffer.clear();
+                        return;
+                    }
+                    default: {
+                        inputProcessor.send(eventBuffer.toArray(new Event[size]), currentIndex);
+                    }
                 }
-                case 1: {
-                    inputProcessor.send(eventBuffer.get(0), currentIndex);
-                    eventBuffer.clear();
-                    return;
-                }
-                default: {
-                    inputProcessor.send(eventBuffer.toArray(new Event[size]), currentIndex);
+            } finally {
+                if(size>0) {
                     eventBuffer.clear();
                 }
             }
         }
-
     }
 
     public static class IndexedEventFactory implements com.lmax.disruptor.EventFactory<IndexedEventFactory.IndexedEvent> {

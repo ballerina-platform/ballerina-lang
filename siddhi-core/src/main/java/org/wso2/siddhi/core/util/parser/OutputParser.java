@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -39,10 +41,7 @@ import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRat
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.TimeOutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -64,11 +63,11 @@ public class OutputParser {
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition);
             }
-        } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream) {
+        } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
             EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
 
-                if (outStream instanceof UpdateStream) {
+                if (outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
                     TableDefinition eventTableDefinition = eventTable.getTableDefinition();
                     for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                         if (!eventTableDefinition.getAttributeList().contains(attribute)) {
@@ -92,12 +91,20 @@ public class OutputParser {
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create delete for table '" + outStream.getId() + "', " + e.getMessage(), e);
                     }
-                } else {
+                } else if (outStream instanceof UpdateStream) {
                     try {
                         Operator operator = eventTable.constructOperator(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
                         return new UpdateTableCallback(eventTable, operator, matchingTableDefinition);
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create update for table '" + outStream.getId() + "', " + e.getMessage(), e);
+                    }
+                } else  {
+                    DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
+                    try {
+                        Operator operator = eventTable.constructOperator(((InsertOverwriteStream) outStream).getOnOverwriteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
+                        return new InsertOverwriteTableCallback(eventTable, operator, matchingTableDefinition);
+                    } catch (ExecutionPlanValidationException e) {
+                        throw new ExecutionPlanCreationException("Cannot create insert overwrite for table '" + outStream.getId() + "', " + e.getMessage(), e);
                     }
                 }
             } else {

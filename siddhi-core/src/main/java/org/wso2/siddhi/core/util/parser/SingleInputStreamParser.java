@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -39,13 +41,16 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.StreamFunctionProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.StreamProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.WindowProcessorExtensionHolder;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.List;
@@ -59,16 +64,18 @@ public class SingleInputStreamParser {
      * @param inputStream                 single input stream to be parsed
      * @param executionPlanContext        query to be parsed
      * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
-     * @param streamDefinitionMap
-     * @param tableDefinitionMap
-     * @param eventTableMap
-     * @param metaComplexEvent
-     * @param processStreamReceiver
+     * @param streamDefinitionMap         Stream Definition Map
+     * @param tableDefinitionMap          Table Definition Map
+     * @param eventTableMap               EventTable Map
+     * @param metaComplexEvent            MetaComplexEvent
+     * @param processStreamReceiver       ProcessStreamReceiver
+     * @param latencyTracker              latency tracker
+     * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
                                                        Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
-                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing) {
+                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, LatencyTracker latencyTracker) {
         Processor processor = null;
         SingleThreadEntryValveProcessor singleThreadValve = null;
         boolean first = true;
@@ -96,7 +103,7 @@ public class SingleInputStreamParser {
                         }
                     }
                     Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), singleThreadValve);
-                    scheduler.init(executionPlanContext);
+                    scheduler.init(executionPlanContext, latencyTracker);
                     ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
                 }
                 if (first) {
@@ -115,7 +122,6 @@ public class SingleInputStreamParser {
 
 
     private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap, boolean supportsBatchProcessing) {
-        ExpressionExecutor[] attributeExpressionExecutors = new ExpressionExecutor[streamHandler.getParameters().length];
         Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
         int stateIndex = SiddhiConstants.UNKNOWN_STATE;
@@ -125,10 +131,28 @@ public class SingleInputStreamParser {
         } else {
             metaStreamEvent = (MetaStreamEvent) metaEvent;
         }
-        for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-            attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                    executionPlanContext, false, SiddhiConstants.CURRENT);
+
+        ExpressionExecutor[] attributeExpressionExecutors;
+        if (parameters != null) {
+            if (parameters.length > 0) {
+                attributeExpressionExecutors = new ExpressionExecutor[parameters.length];
+                for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
+                    attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
+                            executionPlanContext, false, SiddhiConstants.CURRENT);
+                }
+            } else {
+                List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
+                int parameterSize = attributeList.size();
+                attributeExpressionExecutors = new ExpressionExecutor[parameterSize];
+                for (int i = 0; i < parameterSize; i++) {
+                    attributeExpressionExecutors[i] = ExpressionParser.parseExpression(new Variable(attributeList.get(i).getName()), metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
+                            executionPlanContext, false, SiddhiConstants.CURRENT);
+                }
+            }
+        } else {
+            attributeExpressionExecutors = new ExpressionExecutor[0];
         }
+
         if (streamHandler instanceof Filter) {
             return new FilterProcessor(attributeExpressionExecutors[0]);
 
@@ -183,10 +207,10 @@ public class SingleInputStreamParser {
      * Method to generate MetaStreamEvent reagent to the given input stream. Empty definition will be created and
      * definition and reference is will be set accordingly in this method.
      *
-     * @param inputStream
-     * @param streamDefinitionMap
-     * @param tableDefinitionMap
-     * @param metaStreamEvent     @return
+     * @param inputStream         InputStream
+     * @param streamDefinitionMap StreamDefinition Map
+     * @param tableDefinitionMap  TableDefinition Map
+     * @param metaStreamEvent     MetaStreamEvent
      */
     private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
             AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, MetaStreamEvent metaStreamEvent) {

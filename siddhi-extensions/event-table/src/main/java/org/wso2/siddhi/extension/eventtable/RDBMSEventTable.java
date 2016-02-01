@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 
@@ -25,6 +27,7 @@ import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -44,12 +47,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RDBMSEventTable implements EventTable {
 
     private TableDefinition tableDefinition;
     private DBHandler dbHandler;
     private CachingTable cachedTable;
+    private String cacheSizeInString;
     private boolean isCachingEnabled;
     private static final Logger log = Logger.getLogger(RDBMSEventTable.class);
 
@@ -95,7 +101,7 @@ public class RDBMSEventTable implements EventTable {
             if (connectionAnnotation != null) {
                 connectionPropertyElements = connectionAnnotation.getElements();
             }
-            dataSource = PooledDataSource.getPoolDataSource(driverName,jdbcConnectionUrl,username,password,connectionPropertyElements);
+            dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password, connectionPropertyElements);
         }
 
         if (dataSource == null || tableName == null) {
@@ -103,8 +109,11 @@ public class RDBMSEventTable implements EventTable {
         }
 
         String cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
-        String cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
+        cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
+        String cacheLoadingType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_LOADING);
+        String cacheValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
         String bloomsEnabled = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
+        String bloomFilterValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
 
         try {
             this.dbHandler = new DBHandler(dataSource, tableName, attributeList, tableDefinition);
@@ -116,6 +125,18 @@ public class RDBMSEventTable implements EventTable {
             if (cacheType != null) {
                 cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
                 isCachingEnabled = true;
+
+                if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(RDBMSEventTableConstants.EAGER_CACHE_LOADING_ELEMENT)) {
+                    dbHandler.loadDBCache(cachedTable, cacheSizeInString);
+                }
+
+                if (cacheValidityInterval != null) {
+                    Long cacheTimeInterval = Long.parseLong(cacheValidityInterval);
+                    Timer timer = new Timer();
+                    CacheUpdateTask cacheUpdateTask = new CacheUpdateTask();
+                    timer.schedule(cacheUpdateTask, cacheTimeInterval);
+                }
+
             } else if (bloomsEnabled != null && bloomsEnabled.equalsIgnoreCase("enable")) {
                 String bloomsFilterSize = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
                 String bloomsFilterHash = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
@@ -128,6 +149,12 @@ public class RDBMSEventTable implements EventTable {
 
                 dbHandler.setBloomFilterProperties(bloomFilterSize, bloomFilterHashFunctions);
                 dbHandler.buildBloomFilters();
+                if (bloomFilterValidityInterval != null) {
+                    Long bloomTimeInterval = Long.parseLong(bloomFilterValidityInterval);
+                    Timer timer = new Timer();
+                    BloomsUpdateTask bloomsUpdateTask = new BloomsUpdateTask();
+                    timer.schedule(bloomsUpdateTask, bloomTimeInterval, bloomTimeInterval);
+                }
             }
 
         } catch (SQLException e) {
@@ -155,12 +182,13 @@ public class RDBMSEventTable implements EventTable {
      */
     @Override
     public void add(ComplexEventChunk addingEventChunk) {
-        dbHandler.addEvent(addingEventChunk, cachedTable);
+        dbHandler.addEvent(addingEventChunk);
     }
 
     /**
      * Called when deleting an event chunk from event table
-     *  @param deletingEventChunk Event list for deletion
+     *
+     * @param deletingEventChunk Event list for deletion
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
@@ -173,7 +201,8 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Called when updating the event table entries
-     *  @param updatingEventChunk Event list that needs to be updated
+     *
+     * @param updatingEventChunk Event list that needs to be updated
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
@@ -181,6 +210,14 @@ public class RDBMSEventTable implements EventTable {
         operator.update(updatingEventChunk, null, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), mappingPosition);
+        }
+    }
+
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null);
+        if(isCachingEnabled){
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), mappingPosition);
         }
     }
 
@@ -219,9 +256,22 @@ public class RDBMSEventTable implements EventTable {
      * Called to construct a operator to perform search operations
      */
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime, cachedTable);
     }
 
+
+    class CacheUpdateTask extends TimerTask {
+        public void run() {
+            cachedTable.invalidateCache();
+            dbHandler.loadDBCache(cachedTable, cacheSizeInString);
+        }
+    }
+
+    class BloomsUpdateTask extends TimerTask {
+        public void run() {
+            dbHandler.buildBloomFilters();
+        }
+    }
 
 }

@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.processor.stream.window;
@@ -40,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This is the implementation of a counting algorithm based on
  * Misra-Gries counting algorithm
  */
-public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor{
+public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
@@ -49,7 +51,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)attributeExpressionExecutors[0]).getValue()));
+        mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
         for (int i = 1; i < attributeExpressionExecutors.length; i++) {
             variableExpressionExecutors[i - 1] = (VariableExpressionExecutor) attributeExpressionExecutors[i];
@@ -61,7 +63,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
-
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
         while (streamEvent != null) {
             StreamEvent next = streamEvent.getNext();
             streamEvent.setNext(null);
@@ -69,20 +71,22 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
             clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            StreamEvent oldEvent = map.put(generateKey(streamEvent), clonedEvent);
+            String key = generateKey(streamEvent);
+            StreamEvent oldEvent = map.put(key, clonedEvent);
             if (oldEvent != null) {
-                countMap.put(generateKey(streamEvent), countMap.get(generateKey(streamEvent)) + 1);
+                countMap.put(key, countMap.get(key) + 1);
                 complexEventChunk.add(streamEvent);
             } else {
                 //  This is a new event
                 if (map.size() > mostFrequentCount) {
-                    List<String> keys = new ArrayList<String>();
-                    keys.addAll(countMap.keySet());
+                    List<String> keys = new ArrayList<String>(countMap.keySet());
                     for (int i = 0; i < mostFrequentCount; i++) {
                         int count = countMap.get(keys.get(i)) - 1;
                         if (count == 0) {
                             countMap.remove(keys.get(i));
-                            complexEventChunk.add(map.remove(keys.get(i)));
+                            StreamEvent expiredEvent = map.remove(keys.get(i));
+                            expiredEvent.setTimestamp(currentTime);
+                            complexEventChunk.add(expiredEvent);
                         } else {
                             countMap.put(keys.get(i), count);
                         }
@@ -91,12 +95,12 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
                     if (map.size() > mostFrequentCount) {
                         //nothing happend by the attempt to remove one from the
                         // map so we are ignoring this event
-                        map.remove(generateKey(streamEvent));
+                        map.remove(key);
                         // Here we do nothing just drop the message
                     } else {
                         // we got some space, event is already there in map object
                         // we just have to add it to the countMap
-                        countMap.put(generateKey(streamEvent), 1);
+                        countMap.put(key, 1);
                         complexEventChunk.add(streamEvent);
                     }
 
@@ -149,12 +153,12 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, map.values(),streamEventCloner);
+        return finder.find(matchingEvent, map.values(), streamEventCloner);
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse( expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
 
     }
 }

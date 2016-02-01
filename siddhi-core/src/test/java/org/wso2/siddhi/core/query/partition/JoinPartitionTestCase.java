@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.query.partition;
 
@@ -24,18 +26,19 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class JoinPartitionTestCase {
     private static final Logger log = Logger.getLogger(JoinPartitionTestCase.class);
-    private int inEventCount;
-    private int removeEventCount;
+    private AtomicInteger count = new AtomicInteger(0);
     private boolean eventArrived;
 
     @Before
     public void init() {
-        inEventCount = 0;
-        removeEventCount = 0;
+        count.set(0);
         eventArrived = false;
     }
 
@@ -60,10 +63,8 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                    eventArrived = true;
-                }
+                count.addAndGet(events.length);
+                eventArrived = true;
             }
         });
 
@@ -75,8 +76,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         twitterStreamHandler.send(new Object[]{"User1", "Hellno World", "WSO2"});
 
-        Thread.sleep(2000);
-        Assert.assertEquals(4, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         executionPlanRuntime.shutdown();
 
     }
@@ -102,10 +103,8 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                    eventArrived = true;
-                }
+                count.addAndGet(events.length);
+                eventArrived = true;
             }
         });
 
@@ -120,8 +119,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
-        Thread.sleep(2000);
-        Assert.assertEquals(8, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        Assert.assertEquals(8, count.get());
         executionPlanRuntime.shutdown();
 
     }
@@ -149,10 +148,8 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                    eventArrived = true;
-                }
+                count.addAndGet(events.length);
+                eventArrived = true;
             }
         });
 
@@ -168,8 +165,8 @@ public class JoinPartitionTestCase {
 
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
-        Thread.sleep(2000);
-        Assert.assertEquals(8, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        Assert.assertEquals(8, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -197,10 +194,8 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                    eventArrived = true;
-                }
+                count.addAndGet(events.length);
+                eventArrived = true;
             }
         });
 
@@ -221,9 +216,8 @@ public class JoinPartitionTestCase {
         outputStreamStreamHandler.send(new Object[]{"GOOG", "new_user_1"});
         outputStreamStreamHandler.send(new Object[]{"GOOG", "new_user_2"});
 
-        Thread.sleep(2000);
-
-        Assert.assertEquals(10, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 10, count, 60000);
+        Assert.assertEquals(10, count.get());
         executionPlanRuntime.shutdown();
 
     }
@@ -255,9 +249,7 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                }
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -272,9 +264,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User3", "Hello World", "GOOG"});
 
-        Thread.sleep(2000);
-
-        Assert.assertEquals(4, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -302,7 +293,7 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                inEventCount = events.length + inEventCount;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -316,10 +307,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
 
-
-        Thread.sleep(2000);
-
-        Assert.assertEquals(4, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -346,9 +335,7 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                }
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -366,9 +353,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2", 10});
         twitterStreamHandler.send(new Object[]{"User1", "World", "IBM", 10});
 
-        Thread.sleep(1000);
-
-        Assert.assertEquals(4, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        Assert.assertEquals(8, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -395,10 +381,8 @@ public class JoinPartitionTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                for (Event event : events) {
-                    inEventCount++;
-                    eventArrived = true;
-                }
+                count.addAndGet(events.length);
+                eventArrived = true;
             }
         });
 
@@ -411,8 +395,8 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Hellno World", "WSO2"});
         twitterStreamHandler.send(new Object[]{"User3", "Hellno World", "WSO2"});
 
-        Thread.sleep(2000);
-        Assert.assertEquals(6, inEventCount);
+        SiddhiTestHelper.waitForEvents(100, 6, count, 60000);
+        Assert.assertEquals(6, count.get());
         executionPlanRuntime.shutdown();
 
     }

@@ -1,26 +1,30 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.config;
 
+import com.lmax.disruptor.ExceptionHandler;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
@@ -38,19 +42,20 @@ public class ExecutionPlanContext {
     private boolean playback;
     private boolean enforceOrder;
     private boolean parallel;
+    private boolean statsEnabled = false;
+    private StatisticsManager statisticsManager = null;
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduledExecutorService;
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
 
-    public static boolean statEnable = false;
-
     private Lock sharedLock = null;
     private TimestampGenerator timestampGenerator=null;
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
     private Map<String, EvalScript> scriptFunctionMap;
+    private ExceptionHandler<Object> exceptionHandler;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new ArrayList<EternalReferencedHolder>();
@@ -95,6 +100,18 @@ public class ExecutionPlanContext {
 
     public void setEnforceOrder(boolean enforceOrder) {
         this.enforceOrder = enforceOrder;
+    }
+
+    public boolean isStatsEnabled() { return statsEnabled; }
+
+    public void setStatsEnabled(boolean statsEnabled) { this.statsEnabled = statsEnabled; }
+
+    public StatisticsManager getStatisticsManager(){
+        return statisticsManager;
+    }
+
+    public void setStatisticsManager(StatisticsManager statisticsManager){
+        this.statisticsManager = statisticsManager;
     }
 
     public ScheduledExecutorService getScheduledExecutorService() {
@@ -171,5 +188,14 @@ public class ExecutionPlanContext {
 
     public Map<String, EvalScript> getScriptFunctionMap() {
         return scriptFunctionMap;
+    }
+
+
+    public void setExceptionHandler(ExceptionHandler<Object> exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
+
+    public ExceptionHandler<Object> getExceptionHandler() {
+        return this.exceptionHandler;
     }
 }

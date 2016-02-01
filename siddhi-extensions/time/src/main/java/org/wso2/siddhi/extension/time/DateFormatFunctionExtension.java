@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.time;
@@ -39,12 +41,12 @@ import java.util.Date;
  * timestampInMilliseconds - date value in milliseconds.(from the epoch) eg: 1415712224000L
  * dateTargetFormat - Date format which need to be converted to. eg: yyyy/MM/dd HH:mm:ss
  * Accept Type(s) for dateFormat(dateValue,dateTargetFormat,dateSourceFormat):
- *         dateValue : STRING
- *         dateTargetFormat : STRING
- *         dateSourceFormat : STRING
+ * dateValue : STRING
+ * dateTargetFormat : STRING
+ * dateSourceFormat : STRING
  * Accept Type(s) for dateFormat(timestampInMilliseconds,dateTargetFormat):
- *         timestampInMilliseconds : LONG
- *         dateTargetFormat : STRING
+ * timestampInMilliseconds : LONG
+ * dateTargetFormat : STRING
  * Return Type(s): STRING
  */
 public class DateFormatFunctionExtension extends FunctionExecutor {
@@ -56,10 +58,10 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-            ExecutionPlanContext executionPlanContext) {
+                        ExecutionPlanContext executionPlanContext) {
 
-        if(attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
-                .length == 2){
+        if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG && attributeExpressionExecutors
+                .length == 2) {
             useDefaultDateFormat = true;
             sourceDateFormat = TimeExtensionConstants.EXTENSION_TIME_DEFAULT_DATE_FORMAT;
         }
@@ -84,7 +86,7 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
         } else if (attributeExpressionExecutors.length == 2) {
-            if(useDefaultDateFormat){
+            if (useDefaultDateFormat) {
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
                             "time:dateFormat(dateValue,dateTargetFormat,dateSourceFormat) function, " + "required "
@@ -97,7 +99,7 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
                             + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
-            } else{
+            } else {
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
                             "time:dateFormat(timestampInMilliseconds,dateTargetFormat) function, " +
@@ -139,7 +141,7 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
                     throw new ExecutionPlanRuntimeException("Invalid input given to time:dateFormat(dateValue," +
                             "dateTargetFormat,dateSourceFormat) function" + ". Second " + "argument cannot be null");
                 }
-                if(!useDefaultDateFormat){
+                if (!useDefaultDateFormat) {
                     if (data[2] == null) {
                         throw new ExecutionPlanRuntimeException("Invalid input given to time:dateFormat(dateValue," +
                                 "dateTargetFormat,dateSourceFormat) function" + ". Third " + "argument cannot be null");
@@ -156,13 +158,13 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
                 return targetFormat.format(userSpecifiedSourceDate);
             } catch (ParseException e) {
                 String errorMsg = "Provided format " + sourceDateFormat + " does not match with the timestamp " +
-                        sourceDate +" "+ e.getMessage();
-                throw new ExecutionPlanRuntimeException(errorMsg,e);
-            } catch (ClassCastException e){
-                String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-                throw new ExecutionPlanRuntimeException(errorMsg,e);
+                        sourceDate + " " + e.getMessage();
+                throw new ExecutionPlanRuntimeException(errorMsg, e);
+            } catch (ClassCastException e) {
+                String errorMsg = "Provided Data type cannot be cast to desired format. " + e.getMessage();
+                throw new ExecutionPlanRuntimeException(errorMsg, e);
             }
-        } else if(data.length == 2){
+        } else if (data.length == 2) {
 
             if (data[0] == null) {
                 throw new ExecutionPlanRuntimeException("Invalid input given to dateFormat(timestampInMilliseconds," +
@@ -190,15 +192,10 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
                 calInstance.setTimeInMillis(dateInMills);
                 userSpecifiedSourceDate = calInstance.getTime();
                 formattedNewDateValue = targetFormat.format(userSpecifiedSourceDate);
-                long newFormattedDateInUnix = targetFormat.parse(formattedNewDateValue).getTime();
-                return  String.valueOf(newFormattedDateInUnix);
-            } catch (ParseException e) {
-                String errorMsg = "Provided format " + targetDataFormat + " does not match with the timestamp " +
-                        formattedNewDateValue +" "+ e.getMessage();
-                throw new ExecutionPlanRuntimeException(errorMsg,e);
-            } catch (ClassCastException e){
-                String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
-                throw new ExecutionPlanRuntimeException(errorMsg,e);
+                return formattedNewDateValue;
+            } catch (ClassCastException e) {
+                String errorMsg = "Provided Data type cannot be cast to desired format. " + e.getMessage();
+                throw new ExecutionPlanRuntimeException(errorMsg, e);
             }
 
         } else {

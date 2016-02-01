@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.eventtable.rdbms;
@@ -37,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class which act as layer between the database and Siddhi. This class performs all the RDBMS related operations & Blooms Filter
+ * Class which act as layer between the database and Siddhi. This class performs all the RDBMS related operations and Blooms Filter
  */
 public class DBHandler {
 
@@ -51,6 +53,7 @@ public class DBHandler {
     private TableDefinition tableDefinition;
     private int bloomFilterSize;
     private int bloomFilterHashFunction;
+    private CachingTable cachingTable;
     private static final Logger log = Logger.getLogger(DBHandler.class);
 
 
@@ -111,7 +114,7 @@ public class DBHandler {
         return bloomFilters;
     }
 
-    public void addEvent(ComplexEventChunk addingEventChunk, CachingTable cachingTable) {
+    public void addEvent(ComplexEventChunk addingEventChunk) {
         addingEventChunk.reset();
         PreparedStatement stmt = null;
 
@@ -202,6 +205,60 @@ public class DBHandler {
         if (isBloomFilterEnabled && updatedRows > 0) {
             buildBloomFilters();
         }
+    }
+
+    public void overwriteOrAddEvent(ComplexEventChunk addingEventChunk, Object[] obj, ExecutionInfo executionInfo) {
+
+        PreparedStatement stmt = null;
+        Connection con = null;
+        ArrayList<ComplexEvent> bloomFilterInsertionList = null;
+        int updatedRows = 0;
+        try {
+
+            con = dataSource.getConnection();
+            con.setAutoCommit(false);
+            stmt = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
+            populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
+            updatedRows = stmt.executeUpdate();
+            if (updatedRows == 0) {
+                addingEventChunk.reset();
+                if (isBloomFilterEnabled) {
+                    bloomFilterInsertionList = new ArrayList<ComplexEvent>();
+                }
+                while (addingEventChunk.hasNext()) {
+                    ComplexEvent complexEvent = addingEventChunk.next();
+                    try {
+                        stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
+                        populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
+                        stmt.executeUpdate();
+
+                        if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
+                            bloomFilterInsertionList.add(complexEvent);
+                        }
+                        if (cachingTable != null) {
+                            cachingTable.add(complexEvent);
+                        }
+                    } catch (SQLException e) {
+                        throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
+                    }
+                }
+            }
+            con.commit();
+
+        } catch (SQLException e) {
+            throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
+        } finally {
+            cleanUpConnections(stmt, con);
+        }
+
+        if (isBloomFilterEnabled) {
+            if (updatedRows > 0) {
+                buildBloomFilters();
+            } else {
+                addToBloomFilters(bloomFilterInsertionList);
+            }
+        }
+
     }
 
     public StreamEvent selectEvent(Object[] obj, ExecutionInfo executionInfo) {
@@ -435,6 +492,15 @@ public class DBHandler {
 
     /**
      * Replace attribute values with target build queries
+     *
+     * @param tableName     Table Name
+     * @param query         query  template
+     * @param columnTypes   column types
+     * @param columns       columns
+     * @param values        values
+     * @param column_values column_values
+     * @param condition     condition
+     * @return query as string
      */
     public String constructQuery(String tableName, String query, StringBuilder columnTypes, StringBuilder columns,
                                  StringBuilder values, StringBuilder column_values, StringBuilder condition) {
@@ -491,8 +557,8 @@ public class DBHandler {
     //Bloom Filter Operations  -----------------------------------------------------------------------------------------
 
     public void buildBloomFilters() {
-        this.bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
-        this.isBloomFilterEnabled = true;
+        CountingBloomFilter[] bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
+
         for (int i = 0; i < bloomFilters.length; i++) {
             bloomFilters[i] = new CountingBloomFilter(bloomFilterSize, bloomFilterHashFunction, Hash.MURMUR_HASH);
         }
@@ -529,7 +595,8 @@ public class DBHandler {
                 }
             }
             results.close();
-
+            this.bloomFilters = bloomFilters;
+            this.isBloomFilterEnabled = true;
         } catch (SQLException ex) {
             throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex.getMessage(), ex);
         } finally {
@@ -550,5 +617,61 @@ public class DBHandler {
             bloomFilters[i].delete(new Key(event.getOutputData()[i].toString().getBytes()));
         }
     }
+
+
+    //Pre loading the cache ---------------------------------------------------------------------------------------------------------
+
+    public void loadDBCache(CachingTable cachingTable, String cacheSizeInString) {
+
+        this.cachingTable = cachingTable;
+        Connection con = null;
+        Statement stmt = null;
+        try {
+            con = dataSource.getConnection();
+            stmt = con.createStatement();
+            con = dataSource.getConnection();
+            stmt = con.createStatement();
+            String selectTableRowQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_LIMIT_SELECT_TABLE), null, null, new StringBuilder(cacheSizeInString), null, null);
+            ResultSet resultSet = stmt.executeQuery(selectTableRowQuery);
+            while (resultSet.next()) {
+                Object[] data = new Object[attributeList.size()];
+                for (int i = 0; i < attributeList.size(); i++) {
+                    switch (attributeList.get(i).getType()) {
+                        case BOOL:
+                            data[i] = resultSet.getBoolean(attributeList.get(i).getName());
+                            break;
+                        case DOUBLE:
+                            data[i] = resultSet.getDouble(attributeList.get(i).getName());
+                            break;
+                        case FLOAT:
+                            data[i] = resultSet.getFloat(attributeList.get(i).getName());
+                            break;
+                        case INT:
+                            data[i] = resultSet.getInt(attributeList.get(i).getName());
+                            break;
+                        case LONG:
+                            data[i] = resultSet.getLong(attributeList.get(i).getName());
+                            break;
+                        case STRING:
+                            data[i] = resultSet.getString(attributeList.get(i).getName());
+                            break;
+                        default:
+                            data[i] = resultSet.getObject(attributeList.get(i).getName());
+
+                    }
+                }
+                StreamEvent streamEvent = new StreamEvent(0, 0, attributeList.size());
+                streamEvent.setOutputData(data);
+                cachingTable.add(streamEvent);
+            }
+            resultSet.close();
+
+        } catch (SQLException ex) {
+            throw new ExecutionPlanRuntimeException("Error while loading cache with db data, " + ex.getMessage(), ex);
+        } finally {
+            cleanUpConnections(stmt, con);
+        }
+    }
+
 
 }

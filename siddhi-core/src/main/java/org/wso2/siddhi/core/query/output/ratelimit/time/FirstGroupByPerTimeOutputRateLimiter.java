@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.output.ratelimit.time;
@@ -19,9 +21,9 @@ package org.wso2.siddhi.core.query.output.ratelimit.time;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 
@@ -52,41 +54,51 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
 
     @Override
     public OutputRateLimiter clone(String key) {
-        return new FirstGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        FirstGroupByPerTimeOutputRateLimiter instance = new FirstGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        instance.setLatencyTracker(latencyTracker);
+        return instance;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    resetEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if(event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        if (complexEventList.size() != 0) {
+                            ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
+                            for (ComplexEvent complexEvent : complexEventList) {
+                                eventChunk.add(complexEvent);
+                            }
+                            complexEventList.clear();
+                            groupByKeys.clear();
+                            sendToCallBacks(eventChunk);
+                        } else {
+                            groupByKeys.clear();
+                        }
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else {
+                    GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
+                    if (!groupByKeys.contains(groupedComplexEvent.getGroupKey())) {
+                        complexEventChunk.remove();
+                        groupByKeys.add(groupedComplexEvent.getGroupKey());
+                        complexEventList.add(groupedComplexEvent.getComplexEvent());
+                    }
+
                 }
-            } else {
+            }
+            if(complexEventList.size()!=0){
                 ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
                 for (ComplexEvent complexEvent : complexEventList) {
                     eventChunk.add(complexEvent);
                 }
                 complexEventList.clear();
                 sendToCallBacks(eventChunk);
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-            if (!groupByKeys.contains(groupByKey)) {
-                groupByKeys.add(groupByKey);
-                complexEventList.add(complexEvent);
             }
         } finally {
             lock.unlock();
@@ -117,10 +129,6 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
     public void restoreState(Object[] state) {
         complexEventList = (List<ComplexEvent>) state[0];
         groupByKeys = (List<String>) state[1];
-    }
-
-    private synchronized void resetEvents() {
-        groupByKeys.clear();
     }
 
 }

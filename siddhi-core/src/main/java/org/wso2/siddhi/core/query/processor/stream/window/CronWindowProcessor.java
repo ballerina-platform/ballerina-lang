@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
@@ -25,7 +27,7 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
-public class CronWindowProcessor extends WindowProcessor implements Job{
+public class CronWindowProcessor extends WindowProcessor implements Job {
 
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
@@ -62,7 +64,9 @@ public class CronWindowProcessor extends WindowProcessor implements Job{
     @Override
     public void stop() {
         try {
-            scheduler.deleteJob(new JobKey(jobName, jobGroup));
+            if (scheduler != null) {
+                scheduler.deleteJob(new JobKey(jobName, jobGroup));
+            }
         } catch (SchedulerException e) {
             log.error("Error while removing the cron job : " + e.getMessage(), e);
         }
@@ -70,25 +74,31 @@ public class CronWindowProcessor extends WindowProcessor implements Job{
 
     @Override
     public Object[] currentState() {
-        return new Object[]{currentEventChunk, expiredEventChunk};
+        return new Object[]{currentEventChunk.getFirst(), expiredEventChunk.getFirst()};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        currentEventChunk = (ComplexEventChunk<StreamEvent>) state[0];
-        expiredEventChunk = (ComplexEventChunk<StreamEvent>) state[1];
+        currentEventChunk.clear();
+        currentEventChunk.add((StreamEvent) state[0]);
+        expiredEventChunk.clear();
+        expiredEventChunk.add((StreamEvent) state[1]);
     }
 
     private void scheduleCronJob(String cronString, String elementId) {
         try {
             SchedulerFactory schedFact = new StdSchedulerFactory();
             scheduler = schedFact.getScheduler();
-            scheduler.start();
+            jobName = "EventRemoverJob_" + elementId;
+            JobKey jobKey = new JobKey(jobName, jobGroup);
 
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.deleteJob(jobKey);
+            }
+            scheduler.start();
             JobDataMap dataMap = new JobDataMap();
             dataMap.put("windowProcessor", this);
 
-            jobName = "EventRemoverJob_" + elementId;
             JobDetail job = org.quartz.JobBuilder.newJob(CronWindowProcessor.class)
                     .withIdentity(jobName, jobGroup)
                     .usingJobData(dataMap)
@@ -111,10 +121,10 @@ public class CronWindowProcessor extends WindowProcessor implements Job{
         ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>();
 
         if (currentEventChunk.getFirst() != null) {
-
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
-                expiredEvent.setTimestamp(executionPlanContext.getTimestampGenerator().currentTime());
+                expiredEvent.setTimestamp(currentTime);
             }
             if (expiredEventChunk.getFirst() != null) {
                 streamEventChunk.add(expiredEventChunk.getFirst());

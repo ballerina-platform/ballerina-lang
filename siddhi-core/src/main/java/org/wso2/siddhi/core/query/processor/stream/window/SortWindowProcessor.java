@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.processor.stream.window;
@@ -42,7 +44,7 @@ import java.util.*;
 *
 * Description:
 * In the example query given, 5 is the size of the window.
-* The arguements following the size of the window are optional.
+* The arguments following the size of the window are optional.
 * If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
 * */
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
@@ -110,6 +112,7 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
         while (streamEvent != null) {
@@ -123,7 +126,9 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
             sortedWindow.add(clonedEvent);
             if (sortedWindow.size() > lengthToKeep) {
                 Collections.sort(sortedWindow, eventComparator);
-                complexEventChunk.add(sortedWindow.remove(sortedWindow.size() - 1));
+                StreamEvent expiredEvent = sortedWindow.remove(sortedWindow.size() - 1);
+                expiredEvent.setTimestamp(currentTime);
+                complexEventChunk.add(expiredEvent);
             }
 
             streamEvent = next;
@@ -159,8 +164,8 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
 
     }
 }

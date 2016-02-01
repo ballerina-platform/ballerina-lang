@@ -1,17 +1,19 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied. See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 package org.wso2.siddhi.query.compiler.internal;
 
@@ -59,7 +61,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -72,7 +73,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -113,7 +113,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -126,7 +125,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -173,7 +171,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -186,7 +183,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -200,7 +196,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -213,7 +208,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -226,7 +220,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -245,7 +238,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -258,7 +250,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -271,7 +262,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -301,7 +291,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -314,7 +303,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -337,7 +325,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -364,7 +351,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -383,7 +369,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -396,7 +381,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -409,7 +393,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -445,7 +428,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -464,7 +446,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -484,7 +465,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -501,7 +481,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -539,7 +518,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -583,7 +561,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -620,7 +597,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -638,7 +614,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -692,7 +667,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -728,7 +702,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -768,7 +741,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -797,7 +769,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -826,7 +797,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -861,7 +831,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -888,7 +857,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -905,7 +873,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -936,7 +903,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -975,7 +941,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1018,7 +983,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1031,7 +995,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1049,7 +1012,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1067,7 +1029,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1101,7 +1062,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1118,7 +1078,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1131,7 +1090,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1140,7 +1098,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public OutputStream visitQuery_output(@NotNull SiddhiQLParser.Query_outputContext ctx) {
 //        query_output
-//        :INSERT output_event_type? INTO target
+//        :INSERT OVERWRITE? output_event_type? INTO target
 //        |DELETE target (FOR output_event_type)? (ON expression)?
 //        |UPDATE target (FOR output_event_type)? (ON expression)?
 //        |RETURN output_event_type?
@@ -1148,11 +1106,24 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         if (ctx.INSERT() != null) {
             Source source = (Source) visit(ctx.target());
-            if (ctx.output_event_type() != null) {
-                return new InsertIntoStream(source.streamId, source.isInnerStream,
-                        (OutputStream.OutputEventType) visit(ctx.output_event_type()));
+            if (ctx.OVERWRITE() != null) {
+                if (source.isInnerStream) {
+                    throw newSiddhiParserException(ctx, "INSERT OVERWRITE INTO can be only used with EventTables!");
+                }
+                if (ctx.output_event_type() != null) {
+                    return new InsertOverwriteStream(source.streamId,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                            (Expression) visit(ctx.expression()));
+                } else {
+                    return new InsertOverwriteStream(source.streamId, (Expression) visit(ctx.expression()));
+                }
             } else {
-                return new InsertIntoStream(source.streamId, source.isInnerStream);
+                if (ctx.output_event_type() != null) {
+                    return new InsertIntoStream(source.streamId, source.isInnerStream,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()));
+                } else {
+                    return new InsertIntoStream(source.streamId, source.isInnerStream);
+                }
             }
         } else if (ctx.DELETE() != null) {
             Source source = (Source) visit(ctx.target());
@@ -1191,7 +1162,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1222,7 +1192,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1256,7 +1225,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1283,7 +1251,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1305,7 +1272,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1322,7 +1288,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1339,7 +1304,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1358,7 +1322,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1381,7 +1344,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1400,7 +1362,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1421,7 +1382,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1434,7 +1394,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1447,7 +1406,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1472,7 +1430,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1484,21 +1441,20 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             if (ctx.attribute_list() != null) {
                 return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()), (Expression[]) visit(ctx.attribute_list()));
             } else {
-                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()));
+                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()), null);
             }
 
         } else {
             if (ctx.attribute_list() != null) {
                 return Expression.function((String) visit(ctx.function_id()), (Expression[]) visit(ctx.attribute_list()));
             } else {
-                return Expression.function((String) visit(ctx.function_id()));
+                return Expression.function((String) visit(ctx.function_id()), null);
             }
         }
     }
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1517,7 +1473,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1551,7 +1506,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1572,7 +1526,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1626,7 +1579,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1648,7 +1600,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1666,7 +1617,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1685,7 +1635,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1704,7 +1653,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1731,7 +1679,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1771,7 +1718,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1780,14 +1726,21 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public JoinInputStream.Type visitJoin(@NotNull SiddhiQLParser.JoinContext ctx) {
         if (ctx.OUTER() != null) {
-            throw newSiddhiParserException(ctx, "OUTER JOIN not yet supported!");
+            if (ctx.FULL() != null) {
+                return JoinInputStream.Type.FULL_OUTER_JOIN;
+            } else if (ctx.RIGHT() != null) {
+                return JoinInputStream.Type.RIGHT_OUTER_JOIN;
+            } else if (ctx.LEFT() != null) {
+                return JoinInputStream.Type.LEFT_OUTER_JOIN;
+            } else {
+                throw newSiddhiParserException(ctx, "Found " + ctx.getText() + " but only FULL OUTER JOIN, RIGHT OUTER JOIN, LEFT OUTER JOIN are supported!");
+            }
         }
         return JoinInputStream.Type.JOIN;
     }
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1828,7 +1781,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1841,7 +1793,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1854,7 +1805,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1892,7 +1842,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1905,7 +1854,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1918,7 +1866,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1931,7 +1878,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1944,7 +1890,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1957,7 +1902,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1970,7 +1914,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1983,7 +1926,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -1996,7 +1938,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -2009,7 +1950,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -2022,7 +1962,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -2035,7 +1974,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -2049,7 +1987,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -2062,7 +1999,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *

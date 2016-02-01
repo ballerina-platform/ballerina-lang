@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
@@ -28,9 +30,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private String id;
     private final Long value;
-    private ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
+    private ComplexEvent lastEvent = null;
     private final ScheduledExecutorService scheduledExecutorService;
-    private boolean endOfChunk = false;
     private Scheduler scheduler;
     private long scheduledTime;
     private Lock lock;
@@ -45,33 +46,25 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else {
+                    if (event.getType() == ComplexEvent.Type.CURRENT) {
+                        complexEventChunk.remove();
+                        lastEvent = event;
+                    } else {
+                        lastEvent = null;
+                    }
                 }
-            } else {
-                endOfChunk = true;
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-                if (endOfChunk) {
-                eventChunk.clear();
-                endOfChunk = false;
-            }
-            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-                eventChunk.add(complexEvent);
             }
         } finally {
             lock.unlock();
@@ -86,7 +79,7 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
         scheduler.notifyAt(currentTime);
         scheduledTime = currentTime;
@@ -99,18 +92,20 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
 
     @Override
     public Object[] currentState() {
-        return new Object[]{eventChunk, endOfChunk};
+        return new Object[]{lastEvent};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        eventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
-        endOfChunk = (Boolean) state[1];
+        lastEvent = (ComplexEvent) state[0];
     }
 
     public synchronized void sendEvents() {
-        eventChunk.reset();
-        sendToCallBacks(eventChunk);
+        ComplexEventChunk sendComplexEventChunk = new ComplexEventChunk();
+        if (lastEvent != null) {
+            sendComplexEventChunk.add(cloneComplexEvent(lastEvent));
+        }
+        sendToCallBacks(sendComplexEventChunk);
     }
 
 }

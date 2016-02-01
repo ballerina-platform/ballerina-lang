@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.query.input;
 
@@ -25,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +41,11 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     private StreamEventPool streamEventPool;
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
     protected int stateProcessorsSize;
+    protected LatencyTracker latencyTracker;
 
-
-    public ProcessStreamReceiver(String streamId) {
+    public ProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
         this.streamId = streamId;
+        this.latencyTracker = latencyTracker;
     }
 
     @Override
@@ -50,25 +54,38 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public ProcessStreamReceiver clone(String key) {
-        return new ProcessStreamReceiver(streamId + key);
+        return new ProcessStreamReceiver(streamId + key, latencyTracker);
+    }
+
+    private void process() {
+        if (latencyTracker != null) {
+            try {
+                latencyTracker.markIn();
+                processAndClear(streamEventChunk);
+            } finally {
+                latencyTracker.markOut();
+            }
+        } else {
+            processAndClear(streamEventChunk);
+        }
     }
 
     @Override
     public void receive(ComplexEvent complexEvent) {
         streamEventChunk.convertAndAssign(complexEvent);
-        processAndClear(streamEventChunk);
+        process();
     }
 
     @Override
     public void receive(Event event) {
         streamEventChunk.convertAndAssign(event);
-        processAndClear(streamEventChunk);
+        process();
     }
 
     @Override
     public void receive(Event[] events) {
         streamEventChunk.convertAndAssign(events);
-        processAndClear(streamEventChunk);
+        process();
     }
 
 
@@ -76,14 +93,15 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     public void receive(Event event, boolean endOfBatch) {
         streamEventChunk.convertAndAdd(event);
         if (endOfBatch) {
-            processAndClear(streamEventChunk);
+            process();
         }
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
         streamEventChunk.convertAndAssign(timeStamp, data);
-        processAndClear(streamEventChunk);
+        process();
+
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {

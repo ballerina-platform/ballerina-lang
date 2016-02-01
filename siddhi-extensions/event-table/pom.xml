@@ -3,24 +3,26 @@
 <!--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
   ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.siddhi</groupId>
         <artifactId>siddhi-extensions</artifactId>
-        <version>3.0.2-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -60,6 +62,19 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+
         <!--&lt;!&ndash; Temporary Dependencies&ndash;&gt;-->
         <!--<dependency>-->
         <!--<groupId>com.h2database</groupId>-->
@@ -84,14 +99,28 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            org.wso2.siddhi.extension.eventtable.hazelcast.internal,
+                        </Private-Package>
                         <Export-Package>
-                            org.wso2.siddhi.extension.eventtable,
-                            org.wso2.siddhi.extension.eventtable.*
+                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal.*
+                            !org.wso2.siddhi.extension.eventtable.hazelcast.internal,
+                            org.wso2.siddhi.extension.eventtable;version="${siddhi.version}",
+                            org.wso2.siddhi.extension.eventtable.*;version="${siddhi.version}",
                         </Export-Package>
                         <Import-Package>
-                            org.apache.hadoop.util.bloom,
-                            org.apache.hadoop.util.bloom.*,
-                            *;resolution:=optional
+                            org.apache.hadoop.util.bloom;version="${hadoop.common.version}",
+                            org.osgi.service.component;version="${equinox.osgi.services.imp.pkg.version.range}",
+                            com.hazelcast.*;version="${hazelcast.imp.pkg.version.range}",
+                            org.wso2.siddhi.*;version="${siddhi.version}",
+                            org.apache.hadoop.util.hash;version="${hadoop.common.version}",
+                            org.apache.log4j;version="${log4j.imp.pkg.version.range}",
+                            org.apache.tomcat.jdbc.pool;version="${jdbc-pool.imp.pkg.version.range}",
+                            javax.sql,
+                            javax.xml.bind,
+                            javax.xml.bind.annotation
+                            <!--*;resolution:=optional-->
                         </Import-Package>
                     </instructions>
                 </configuration>

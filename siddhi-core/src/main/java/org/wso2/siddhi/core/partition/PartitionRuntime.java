@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.partition;
 
@@ -59,11 +61,11 @@ public class PartitionRuntime implements Snapshotable {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap;
     private ConcurrentMap<String, StreamJunction> streamJunctionMap;
     private ConcurrentMap<String, QueryRuntime> metaQueryRuntimeMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private List<PartitionInstanceRuntime> partitionInstanceRuntimeList = new ArrayList<PartitionInstanceRuntime>();
+    private ConcurrentMap<String, PartitionInstanceRuntime> partitionInstanceRuntimeMap = new ConcurrentHashMap<String, PartitionInstanceRuntime>();
     private ConcurrentMap<String, PartitionStreamReceiver> partitionStreamReceivers = new ConcurrentHashMap<String, PartitionStreamReceiver>();
     private ExecutionPlanContext executionPlanContext;
 
-    public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,ConcurrentMap<String, StreamJunction> streamJunctionMap, Partition partition, ExecutionPlanContext executionPlanContext) {
+    public PartitionRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, StreamJunction> streamJunctionMap, Partition partition, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         try {
             Element element = AnnotationHelper.getAnnotationElement("info", "name", partition.getAnnotations());
@@ -85,7 +87,7 @@ public class PartitionRuntime implements Snapshotable {
     public QueryRuntime addQuery(QueryRuntime metaQueryRuntime) {
         Query query = metaQueryRuntime.getQuery();
 
-        if (query.getOutputStream() instanceof InsertIntoStream) {
+        if (query.getOutputStream() instanceof InsertIntoStream && metaQueryRuntime.getOutputCallback() instanceof InsertIntoStreamCallback) {
             InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) metaQueryRuntime.getOutputCallback();
             StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
             String id = streamDefinition.getId();
@@ -160,7 +162,7 @@ public class PartitionRuntime implements Snapshotable {
     }
 
     private void addPartitionReceiver(String streamId, boolean isInnerStream, MetaStreamEvent metaStreamEvent, List<PartitionExecutor> partitionExecutors) {
-        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream) {
+        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent()) {
             PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(executionPlanContext, metaStreamEvent,
                     (StreamDefinition) streamDefinitionMap.get(streamId), partitionExecutors, this);
             partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(), partitionStreamReceiver);
@@ -175,14 +177,13 @@ public class PartitionRuntime implements Snapshotable {
      * @param key partition key
      */
     public void cloneIfNotExist(String key) {
-        PartitionInstanceRuntime partitionInstance = this.getPartitionInstanceRuntime(key);
-        if (partitionInstance == null) {
+        if (!partitionInstanceRuntimeMap.containsKey(key)) {
             clonePartition(key);
         }
     }
 
     private synchronized void clonePartition(String key) {
-        PartitionInstanceRuntime partitionInstance = this.getPartitionInstanceRuntime(key);
+        PartitionInstanceRuntime partitionInstance = this.partitionInstanceRuntimeMap.get(key);
 
         if (partitionInstance == null) {
             List<QueryRuntime> queryRuntimeList = new ArrayList<QueryRuntime>();
@@ -214,7 +215,7 @@ public class PartitionRuntime implements Snapshotable {
                     partitionedQueryRuntimeList.add(clonedQueryRuntime);
                 }
             }
-            addPartitionInstance(new PartitionInstanceRuntime(key, queryRuntimeList));
+            partitionInstanceRuntimeMap.putIfAbsent(key, new PartitionInstanceRuntime(key, queryRuntimeList));
             updatePartitionStreamReceivers(key, partitionedQueryRuntimeList);
 
         }
@@ -227,26 +228,21 @@ public class PartitionRuntime implements Snapshotable {
         }
     }
 
-    public void addPartitionInstance(PartitionInstanceRuntime partitionInstanceRuntime) {
-        partitionInstanceRuntimeList.add(partitionInstanceRuntime);
-    }
-
-    public PartitionInstanceRuntime getPartitionInstanceRuntime(String key) {
-        for (PartitionInstanceRuntime partitionInstanceRuntime : partitionInstanceRuntimeList) {
-            if (key.equals(partitionInstanceRuntime.getKey())) {
-                return partitionInstanceRuntime;
-            }
-        }
-        return null;
-    }
-
     public void addStreamJunction(String key, StreamJunction streamJunction) {
         localStreamJunctionMap.put(key, streamJunction);
+    }
+
+    public void init() {
+        for (PartitionStreamReceiver partitionStreamReceiver : partitionStreamReceivers.values()) {
+            partitionStreamReceiver.init();
+        }
     }
 
     public String getPartitionId() {
         return partitionId;
     }
+
+    public ConcurrentMap<String, QueryRuntime> getMetaQueryRuntimeMap(){ return metaQueryRuntimeMap; }
 
     public ConcurrentMap<String, AbstractDefinition> getLocalStreamDefinitionMap() {
         return localStreamDefinitionMap;
@@ -258,10 +254,7 @@ public class PartitionRuntime implements Snapshotable {
 
     @Override
     public Object[] currentState() {
-        List<String> partitionKeys = new ArrayList<String>();
-        for (PartitionInstanceRuntime partitionInstanceRuntime : partitionInstanceRuntimeList) {
-            partitionKeys.add(partitionInstanceRuntime.getKey());
-        }
+        List<String> partitionKeys = new ArrayList<String>(partitionInstanceRuntimeMap.keySet());
         return new Object[]{partitionKeys};
     }
 

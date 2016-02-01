@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -41,8 +43,8 @@ import java.util.Map;
  */
 public class CollectionOperatorParser {
 
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
+    public static Operator parse(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, int indexedPosition) {
 
         int candidateEventPosition = 0;
         int streamEventSize = 0;
@@ -55,22 +57,22 @@ public class CollectionOperatorParser {
         }
 
         MetaStateEvent metaStateEvent = null;
-        if (metaComplexEvent instanceof MetaStreamEvent) {
+        if (matchingMetaComplexEvent instanceof MetaStreamEvent) {
             metaStateEvent = new MetaStateEvent(2);
-            metaStateEvent.addEvent(((MetaStreamEvent) metaComplexEvent));
+            metaStateEvent.addEvent(((MetaStreamEvent) matchingMetaComplexEvent));
             metaStateEvent.addEvent(eventTableStreamEvent);
             candidateEventPosition = 1;
             matchingStreamIndex = 0;
             streamEventSize = 2;
         } else {
 
-            MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
+            MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) matchingMetaComplexEvent).getMetaStreamEvents();
 
             //for join
             for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
                 MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
                 if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
-                    metaStateEvent = ((MetaStateEvent) metaComplexEvent);
+                    metaStateEvent = ((MetaStateEvent) matchingMetaComplexEvent);
                     streamEventSize = metaStreamEvents.length;
                     break;
                 }
@@ -89,14 +91,14 @@ public class CollectionOperatorParser {
 
         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                 metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize, withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
+        return new SimpleOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, streamEventSize, withinTime, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size(), indexedPosition);
     }
 
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute) {
+    public static Operator parse(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, String indexedAttribute, int indexedPosition) {
 
         if (indexedAttribute == null) {
-            return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
+            return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime, indexedPosition);
         }
 
         if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
@@ -107,30 +109,43 @@ public class CollectionOperatorParser {
                 boolean leftSideIndexed = false;
                 boolean rightSideIndexed = false;
 
-                if (isTableIndexVariable(metaComplexEvent, matchingStreamIndex, compare.getLeftExpression(), candidateDefinition, indexedAttribute)) {
+                if (isTableIndexVariable(matchingMetaComplexEvent, matchingStreamIndex, compare.getLeftExpression(), candidateDefinition, indexedAttribute)) {
                     leftSideIndexed = true;
                 }
 
-                if (isTableIndexVariable(metaComplexEvent, matchingStreamIndex, compare.getRightExpression(), candidateDefinition, indexedAttribute)) {
+                if (isTableIndexVariable(matchingMetaComplexEvent, matchingStreamIndex, compare.getRightExpression(), candidateDefinition, indexedAttribute)) {
                     rightSideIndexed = true;
+                }
+
+                AbstractDefinition matchingStreamDefinition;
+                if (matchingMetaComplexEvent instanceof MetaStateEvent) {
+                    matchingStreamDefinition = ((MetaStateEvent) matchingMetaComplexEvent).getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition();
+                } else {
+                    matchingStreamDefinition = ((MetaStreamEvent) matchingMetaComplexEvent).getLastInputDefinition();
                 }
 
                 if (leftSideIndexed && !rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                            metaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime);
+                            matchingMetaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime, matchingStreamDefinition.getAttributeList().size(), indexedPosition);
 
                 } else if (!leftSideIndexed && rightSideIndexed) {
                     ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                            metaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime);
+                            matchingMetaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    return new SimpleIndexedOperator(expressionExecutor, matchingStreamIndex, withinTime, matchingStreamDefinition.getAttributeList().size(), indexedPosition);
 
                 }
 
             }
         }
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime);
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime, indexedPosition);
     }
+
+    public static Operator parse(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
+                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime) {
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime, 0);
+    }
+
 
     private static boolean isTableIndexVariable(MetaComplexEvent metaComplexEvent, int matchingStreamIndex, Expression expression, AbstractDefinition candidateDefinition, String indexedAttribute) {
         if (expression instanceof Variable) {

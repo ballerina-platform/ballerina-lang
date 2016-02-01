@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -44,14 +46,17 @@ import java.util.Map;
 
 public class SelectorParser {
     private static final ThreadLocal<String> containsAggregatorThreadLocal = new ThreadLocal<String>();
+
     /**
      * Parse Selector portion of a query and return corresponding QuerySelector
      *
-     * @param selector             selector to be parsed
-     * @param outputStream
-     *@param executionPlanContext query to be parsed
-     * @param metaComplexEvent     Meta event used to collect execution info of stream associated with query
-     * @param eventTableMap   @return
+     * @param selector                    selector to be parsed
+     * @param outputStream                output stream
+     * @param executionPlanContext        query to be parsed
+     * @param metaComplexEvent            Meta event used to collect execution info of stream associated with query
+     * @param eventTableMap               EventTable Map
+     * @param variableExpressionExecutors variable expression executors
+     * @return QuerySelector
      */
     public static QuerySelector parse(Selector selector, OutputStream outputStream, ExecutionPlanContext executionPlanContext,
                                       MetaComplexEvent metaComplexEvent, Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> variableExpressionExecutors) {
@@ -68,12 +73,13 @@ public class SelectorParser {
 
         id = outputStream.getId();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, executionPlanContext);
-        List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, null, variableExpressionExecutors);
-        querySelector.setAttributeProcessorList(attributeProcessors,"true".equals(containsAggregatorThreadLocal.get()));
+        List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, eventTableMap, variableExpressionExecutors);
+        querySelector.setAttributeProcessorList(attributeProcessors, "true".equals(containsAggregatorThreadLocal.get()));
         containsAggregatorThreadLocal.remove();
         ConditionExpressionExecutor havingCondition = generateHavingExecutor(selector.getHavingExpression(),
                 metaComplexEvent, executionPlanContext, eventTableMap, variableExpressionExecutors);
-        querySelector.setHavingConditionExecutor(havingCondition);
+        querySelector.setHavingConditionExecutor(havingCondition, "true".equals(containsAggregatorThreadLocal.get()));
+        containsAggregatorThreadLocal.remove();
         if (!selector.getGroupByList().isEmpty()) {
             querySelector.setGroupByKeyGenerator(new GroupByKeyGenerator(selector.getGroupByList(), metaComplexEvent, null, variableExpressionExecutors, executionPlanContext));
         }
@@ -85,12 +91,13 @@ public class SelectorParser {
     /**
      * Method to construct AttributeProcessor list for the selector
      *
-     * @param selector
-     * @param id
-     * @param executionPlanContext
-     * @param metaComplexEvent
-     * @param eventTableMap
-     *@param variableExpressionExecutors  @return
+     * @param selector                    Selector
+     * @param id                          stream id
+     * @param executionPlanContext        execution plan context
+     * @param metaComplexEvent            meta ComplexEvent
+     * @param eventTableMap               EventTable Map
+     * @param variableExpressionExecutors list of VariableExpressionExecutors
+     * @return list of AttributeProcessors
      */
     private static List<AttributeProcessor> getAttributeProcessors(Selector selector, String id,
                                                                    ExecutionPlanContext executionPlanContext,

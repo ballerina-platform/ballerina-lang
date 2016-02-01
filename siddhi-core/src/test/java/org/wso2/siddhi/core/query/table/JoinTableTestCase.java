@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.table;
@@ -384,6 +386,70 @@ public class JoinTableTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
 
         executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void testTableJoinQuery6() throws InterruptedException {
+        log.info("testTableJoinQuery6 recursive join");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream RequestStream (start string, end string); " +
+                "define stream TimeTableStream (start string, end string, elapsedTime int, startTime string); " +
+                "define stream ResultStream (totalElapsedTime int); " +
+                "define table TimeTable (start string, end string, elapsedTime int, startTime string);";
+
+        String query = "" +
+                "from TimeTableStream " +
+                "select * " +
+                "insert into TimeTable; " +
+                "" +
+                "from RequestStream join TimeTable " +
+                "on TimeTable.start == RequestStream.start " +
+                "select TimeTable.start as start, TimeTable.end as end, TimeTable.elapsedTime as elapsedTime, RequestStream.end as destination " +
+                "insert into intermediateResultStream;" +
+                "" +
+                "@info(name = 'query1') " +
+                "from intermediateResultStream[end==destination] " +
+                "select intermediateResultStream.elapsedTime as totalElapsedTime " +
+                "insert into ResultStream;" +
+                "" +
+                "from intermediateResultStream[end!=destination] " +
+                "insert into intermediateResultStream2; " +
+                "" +
+                "from intermediateResultStream2 join TimeTable " +
+                "on TimeTable.start == intermediateResultStream2.end " +
+                "select TimeTable.start as start, TimeTable.end as end, (intermediateResultStream2.elapsedTime + TimeTable.elapsedTime) as elapsedTime, destination " +
+                "insert into intermediateResultStream; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived=true;
+            }
+        });
+
+        InputHandler timeTableStream = executionPlanRuntime.getInputHandler("TimeTableStream");
+        InputHandler requestStream = executionPlanRuntime.getInputHandler("RequestStream");
+
+        executionPlanRuntime.start();
+
+        timeTableStream.send(new Object[]{"A","B",25,"1.27PM"});
+        timeTableStream.send(new Object[]{"B","C",10,"1.52PM"});
+        timeTableStream.send(new Object[]{"C","D",60,"2.52PM"});
+        Thread.sleep(1000);
+
+        requestStream.send(new Object[]{"A","D"});
+
+        Thread.sleep(1000);
+
+        executionPlanRuntime.shutdown();
+        Assert.assertTrue("Events arrived", eventArrived);
 
     }
 

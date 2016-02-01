@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.processor.stream.window;
@@ -36,14 +38,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor{
+public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private ConcurrentHashMap<String, LossyCount> countMap = new ConcurrentHashMap<String, LossyCount>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
     private VariableExpressionExecutor[] variableExpressionExecutors;
 
     private int totalCount = 0;
-    private double currentBucketId=1;
+    private double currentBucketId = 1;
     private double support;           // these will be initialize during init
     private double error;             // these will be initialize during init
     private double windowWidth;
@@ -52,7 +54,7 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         support = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
         if (attributeExpressionExecutors.length > 1) {
-            error =  Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+            error = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
         } else {
             error = support / 10; // recommended error is 10% of 20$ of support value;
         }
@@ -72,6 +74,7 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
         StreamEvent streamEvent = streamEventChunk.getFirst();
 
@@ -86,15 +89,15 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
             if (totalCount != 1) {
                 currentBucketId = Math.ceil(totalCount / windowWidth);
             }
-
-            StreamEvent oldEvent = map.put(generateKey(streamEvent), clonedEvent);
+            String currentKey = generateKey(streamEvent);
+            StreamEvent oldEvent = map.put(currentKey, clonedEvent);
             if (oldEvent != null) {    // this event is already in the store
-                countMap.put(generateKey(streamEvent), countMap.get(generateKey(streamEvent)).incrementCount());
+                countMap.put(currentKey, countMap.get(currentKey).incrementCount());
             } else {
                 //  This is a new event
                 LossyCount lCount;
-                lCount = new LossyCount(1, (int)currentBucketId - 1 );
-                countMap.put(generateKey(streamEvent), lCount);
+                lCount = new LossyCount(1, (int) currentBucketId - 1);
+                countMap.put(currentKey, lCount);
             }
             // calculating all the events in the system which match the
             // requirement provided by the user
@@ -104,8 +107,8 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
                 LossyCount lossyCount = countMap.get(key);
                 if (lossyCount.getCount() >= ((support - error) * totalCount)) {
                     // among the selected events, if the newly arrive event is there we mark it as an inEvent
-                    if(key.equals(generateKey(streamEvent))) {
-                       complexEventChunk.add(streamEvent);
+                    if (key.equals(currentKey)) {
+                        complexEventChunk.add(streamEvent);
                     }
                 }
             }
@@ -118,7 +121,9 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
                     if (lossyCount.getCount() + lossyCount.getBucketId() <= currentBucketId) {
                         log.info("Removing the Event: " + key + " from the window");
                         countMap.remove(key);
-                        complexEventChunk.add(map.remove(key));
+                        StreamEvent expirtedEvent = map.remove(key);
+                        expirtedEvent.setTimestamp(currentTime);
+                        complexEventChunk.add(expirtedEvent);
                     }
                 }
             }
@@ -164,12 +169,12 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, map.values(),streamEventCloner);
+        return finder.find(matchingEvent, map.values(), streamEventCloner);
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 
     public class LossyCount {
@@ -197,7 +202,7 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
             this.bucketId = bucketId;
         }
 
-        public LossyCount incrementCount(){
+        public LossyCount incrementCount() {
             this.count++;
             return this;
         }

@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
@@ -19,10 +21,12 @@ package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.Scheduler;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,7 +37,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     private String id;
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;
-    Map<String, LastEventHolder> groupByKeyEvents = new LinkedHashMap<String, LastEventHolder>();
+    private Map<String, LastEventHolder> groupByKeyEvents = new LinkedHashMap<String, LastEventHolder>();
     private Scheduler scheduler;
     private long scheduledTime;
     private Lock lock;
@@ -53,42 +57,40 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        ComplexEvent firstEvent = complexEventChunk.getFirst();
         try {
             lock.lock();
-            if(firstEvent != null && firstEvent.getType() == ComplexEvent.Type.TIMER) {
-                if (firstEvent.getTimestamp() >= scheduledTime) {
-                    sendEvents();
-                    scheduledTime = scheduledTime + value;
-                    scheduler.notifyAt(scheduledTime);
-                }
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
+            complexEventChunk.reset();
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.TIMER) {
+                    if (event.getTimestamp() >= scheduledTime) {
+                        sendEvents();
+                        scheduledTime = scheduledTime + value;
+                        scheduler.notifyAt(scheduledTime);
+                    }
+                } else {
+                    complexEventChunk.remove();
+                    GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
 
-    @Override
-    public void add(ComplexEvent complexEvent) {
-        try {
-            lock.lock();
-            String groupByKey = QuerySelector.getThreadLocalGroupByKey();
-            LastEventHolder lastEventHolder = groupByKeyEvents.get(groupByKey);
-            if (lastEventHolder == null) {
-                lastEventHolder = new LastEventHolder();
-                groupByKeyEvents.put(groupByKey, lastEventHolder);
-            }
-            if (complexEvent.getType() == ComplexEvent.Type.CURRENT) {
-                lastEventHolder.addLastInEvent(complexEvent);
-            } else if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-                lastEventHolder.removeLastInEvent();
-                if (lastEventHolder.lastEvent == null) {
-                    groupByKeyEvents.remove(groupByKey);
+                    LastEventHolder lastEventHolder = groupByKeyEvents.get(groupedComplexEvent.getGroupKey());
+                    if (lastEventHolder == null) {
+                        lastEventHolder = new LastEventHolder();
+                        groupByKeyEvents.put(groupedComplexEvent.getGroupKey(), lastEventHolder);
+                    }
+                    if (groupedComplexEvent.getType() == ComplexEvent.Type.CURRENT) {
+                        lastEventHolder.addLastInEvent(groupedComplexEvent.getComplexEvent());
+                    } else if (groupedComplexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                        lastEventHolder.removeLastInEvent();
+                        if (lastEventHolder.lastEvent == null) {
+                            groupByKeyEvents.remove(groupedComplexEvent.getGroupKey());
+                        }
+                    }
                 }
             }
         } finally {
             lock.unlock();
         }
+
     }
 
     @Override
@@ -119,18 +121,10 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
         ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
         if (groupByKeyEvents.size() > 0) {
             for (LastEventHolder lastEventHolder : groupByKeyEvents.values()) {
-                eventChunk.add(lastEventHolder.lastEvent);
+                eventChunk.add(cloneComplexEvent(lastEventHolder.lastEvent));
             }
         }
-
         sendToCallBacks(eventChunk);
-
-        if (groupByKeyEvents.size() > 0) {
-            for (LastEventHolder lastEventHolder : groupByKeyEvents.values()) {
-                lastEventHolder.lastEvent.setNext(null);
-            }
-        }
-
     }
 
     private class LastEventHolder {

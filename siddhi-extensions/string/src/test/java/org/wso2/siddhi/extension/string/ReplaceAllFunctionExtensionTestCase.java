@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.siddhi.extension.string;
@@ -26,15 +28,18 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.string.test.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReplaceAllFunctionExtensionTestCase {
     static final Logger log = Logger.getLogger(ReplaceAllFunctionExtensionTestCase.class);
-    private volatile int count;
+    private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
+        count.set(0);
         eventArrived = false;
     }
 
@@ -57,16 +62,16 @@ public class ReplaceAllFunctionExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event event : inEvents) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals("test hi test", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 2) {
+                    if (count.get() == 2) {
                         Assert.assertEquals("WSO2 hi test", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 3) {
+                    if (count.get() == 3) {
                         Assert.assertEquals("WSO2 cep", event.getData(1));
                         eventArrived = true;
                     }
@@ -79,8 +84,8 @@ public class ReplaceAllFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"hello hi hello", 700f, 100l});
         inputHandler.send(new Object[]{"WSO2 hi hello", 60.5f, 200l});
         inputHandler.send(new Object[]{"WSO2 cep", 60.5f, 200l});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -104,16 +109,16 @@ public class ReplaceAllFunctionExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event event : inEvents) {
-                    count++;
-                    if (count == 1) {
+                    count.incrementAndGet();
+                    if (count.get() == 1) {
                         Assert.assertEquals("test hi test", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 2) {
+                    if (count.get() == 2) {
                         Assert.assertEquals("WSD3 hi hello", event.getData(1));
                         eventArrived = true;
                     }
-                    if (count == 3) {
+                    if (count.get() == 3) {
                         Assert.assertEquals("WSO2 bam", event.getData(1));
                         eventArrived = true;
                     }
@@ -126,8 +131,8 @@ public class ReplaceAllFunctionExtensionTestCase {
         inputHandler.send(new Object[]{"hello hi hello", "hello", "test"});
         inputHandler.send(new Object[]{"WSO2 hi hello", "O2", "D3"});
         inputHandler.send(new Object[]{"WSO2 cep", "cep", "bam"});
-        Thread.sleep(100);
-        Assert.assertEquals(3, count);
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertEquals(3, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }

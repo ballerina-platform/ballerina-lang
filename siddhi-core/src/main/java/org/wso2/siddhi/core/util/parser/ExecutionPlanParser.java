@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.siddhi.core.util.parser;
 
@@ -55,6 +57,7 @@ public class ExecutionPlanParser {
      * Parse an ExecutionPlan returning ExecutionPlanRuntime
      *
      * @param executionPlan plan to be parsed
+     * @param siddhiContext SiddhiContext
      * @return ExecutionPlanRuntime
      */
     public static ExecutionPlanRuntimeBuilder parse(ExecutionPlan executionPlan, SiddhiContext siddhiContext) {
@@ -89,13 +92,38 @@ public class ExecutionPlanParser {
                 executionPlanContext.setParallel(true);
             }
 
-            if (!executionPlanContext.isPlayback() && !executionPlanContext.isEnforceOrder() && !executionPlanContext.isParallel()) {
+            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STATISTICS,
+                    executionPlan.getAnnotations());
+
+            Element statElement = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_STATISTICS, null,
+                    executionPlan.getAnnotations());
+
+            // Both annotation and statElement should be checked since siddhi uses
+            // @plan:statistics(reporter = 'console', interval = '5' )
+            // where cep uses @plan:statistics('true').
+            if (annotation != null && (statElement == null || Boolean.valueOf(statElement.getValue()))) {
+                if (siddhiContext.getStatisticsConfiguration() != null) {
+                    executionPlanContext.setStatsEnabled(true);
+                    executionPlanContext.setStatisticsManager(siddhiContext
+                            .getStatisticsConfiguration()
+                            .getFactory()
+                            .createStatisticsManager(annotation.getElements()));
+                }
+            }
+
+            if (!executionPlanContext.isPlayback()
+                    && !executionPlanContext.isEnforceOrder()
+                    && !executionPlanContext.isParallel()) {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
 
-            executionPlanContext.setExecutorService(Executors.newCachedThreadPool( new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-executor-thread-%d").build()));
+            executionPlanContext.setExecutorService(Executors.newCachedThreadPool(
+                    new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() +
+                            "-executor-thread-%d").build()));
 
-            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5, new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() + "-scheduler-thread-%d").build()));
+            executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5,
+                    new ThreadFactoryBuilder().setNameFormat("Siddhi-" +
+                            executionPlanContext.getName() + "-scheduler-thread-%d").build()));
             executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
             executionPlanContext.setSnapshotService(new SnapshotService(executionPlanContext));
             executionPlanContext.setPersistenceService(new PersistenceService(executionPlanContext));
@@ -115,11 +143,14 @@ public class ExecutionPlanParser {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
                     QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, executionPlanContext,
-                            executionPlanRuntimeBuilder.getStreamDefinitionMap(), executionPlanRuntimeBuilder.getTableDefinitionMap(), executionPlanRuntimeBuilder.getEventTableMap());
+                            executionPlanRuntimeBuilder.getStreamDefinitionMap(),
+                            executionPlanRuntimeBuilder.getTableDefinitionMap(),
+                            executionPlanRuntimeBuilder.getEventTableMap());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,
-                            (Partition) executionElement, executionPlanContext, executionPlanRuntimeBuilder.getStreamDefinitionMap());
+                            (Partition) executionElement, executionPlanContext,
+                            executionPlanRuntimeBuilder.getStreamDefinitionMap());
                     executionPlanRuntimeBuilder.addPartition(partitionRuntime);
                 }
             }
@@ -136,28 +167,31 @@ public class ExecutionPlanParser {
         return executionPlanRuntimeBuilder;
     }
 
-    private static void defineTriggerDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TriggerDefinition> triggerDefinitionMap) {
+    private static void defineTriggerDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder,
+                                                 Map<String, TriggerDefinition> triggerDefinitionMap) {
         for (TriggerDefinition definition : triggerDefinitionMap.values()) {
             executionPlanRuntimeBuilder.defineTrigger(definition);
         }
     }
 
-    private static void defineFunctionDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, FunctionDefinition> functionDefinitionMap) {
+    private static void defineFunctionDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder,
+                                                  Map<String, FunctionDefinition> functionDefinitionMap) {
         for (FunctionDefinition definition : functionDefinitionMap.values()) {
             executionPlanRuntimeBuilder.defineFunction(definition);
         }
     }
 
-    private static void defineStreamDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, StreamDefinition> streamDefinitionMap) {
+    private static void defineStreamDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder,
+                                                Map<String, StreamDefinition> streamDefinitionMap) {
         for (StreamDefinition definition : streamDefinitionMap.values()) {
             executionPlanRuntimeBuilder.defineStream(definition);
         }
     }
 
-    private static void defineTableDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Map<String, TableDefinition> tableDefinitionMap) {
+    private static void defineTableDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder,
+                                               Map<String, TableDefinition> tableDefinitionMap) {
         for (TableDefinition definition : tableDefinitionMap.values()) {
             executionPlanRuntimeBuilder.defineTable(definition);
         }
     }
-
 }
