@@ -47,6 +47,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+/**
+ * In-memory event table implementation of SiddhiQL.
+ */
 public class InMemoryEventTable implements EventTable, Snapshotable {
 
     private final TableDefinition tableDefinition;
@@ -54,13 +57,13 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     private final StreamEventCloner streamEventCloner;
     private final StreamEventPool streamEventPool;
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
-    private List<StreamEvent> list;
+    private List<StreamEvent> eventsList;
     private String elementId;
 
-    //For indexed table
+    // For indexed table.
     private String indexAttribute = null;
     private int indexPosition;
-    private SortedMap<Object, StreamEvent> treeMap;
+    private SortedMap<Object, StreamEvent> eventsMap;
 
 
     public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -86,9 +89,9 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
             }
             indexAttribute = annotation.getElements().get(0).getValue();
             indexPosition = tableDefinition.getAttributePosition(indexAttribute);
-            treeMap = new TreeMap<Object, StreamEvent>();
+            eventsMap = new TreeMap<Object, StreamEvent>();
         } else {
-            list = new LinkedList<StreamEvent>();
+            eventsList = new LinkedList<StreamEvent>();
         }
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
@@ -115,9 +118,9 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
             eventConverter.convertStreamEvent(complexEvent, streamEvent);
             if (indexAttribute != null) {
-                treeMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+                eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
             } else {
-                list.add(streamEvent);
+                eventsList.add(streamEvent);
             }
         }
     }
@@ -125,46 +128,48 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     @Override
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         if (indexAttribute != null) {
-            operator.delete(deletingEventChunk, treeMap);
+            operator.delete(deletingEventChunk, eventsMap);
         } else {
-            operator.delete(deletingEventChunk, list);
+            operator.delete(deletingEventChunk, eventsList);
         }
 
     }
 
     @Override
-    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
+    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator,
+                                    int[] mappingPosition) {
         if (indexAttribute != null) {
-            operator.update(updatingEventChunk, treeMap, mappingPosition);
+            operator.update(updatingEventChunk, eventsMap, mappingPosition);
         } else {
-            operator.update(updatingEventChunk, list, mappingPosition);
+            operator.update(updatingEventChunk, eventsList, mappingPosition);
         }
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator,
+                               int[] mappingPosition) {
         if (indexAttribute != null) {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, treeMap, mappingPosition);
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
         } else {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, list, mappingPosition);
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, mappingPosition);
         }
     }
 
     @Override
     public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
-            return finder.contains(matchingEvent, treeMap);
+            return finder.contains(matchingEvent, eventsMap);
         } else {
-            return finder.contains(matchingEvent, list);
+            return finder.contains(matchingEvent, eventsList);
         }
     }
 
     @Override
     public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
-            return finder.find(matchingEvent, treeMap, streamEventCloner);
+            return finder.find(matchingEvent, eventsMap, streamEventCloner);
         } else {
-            return finder.find(matchingEvent, list, streamEventCloner);
+            return finder.find(matchingEvent, eventsList, streamEventCloner);
         }
     }
 
@@ -190,13 +195,13 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{list, treeMap};
+        return new Object[]{eventsList, eventsMap};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        list = (LinkedList<StreamEvent>) state[0];
-        treeMap = (TreeMap<Object, StreamEvent>) state[1];
+        eventsList = (LinkedList<StreamEvent>) state[0];
+        eventsMap = (TreeMap<Object, StreamEvent>) state[1];
     }
 
     @Override
