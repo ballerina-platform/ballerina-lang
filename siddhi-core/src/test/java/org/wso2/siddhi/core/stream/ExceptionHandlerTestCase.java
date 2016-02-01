@@ -27,26 +27,30 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExceptionHandlerTestCase {
 
     static final Logger log = Logger.getLogger(CallbackTestCase.class);
-    private volatile int count;
+    private volatile AtomicInteger count;
     private volatile boolean eventArrived;
-    private volatile int failedCount;
+    private volatile AtomicInteger failedCount;
     private volatile boolean failedCaught;
+    private SiddhiManager siddhiManager;
 
     @Before
     public void init() {
-        count = 0;
+        count = new AtomicInteger(0);
         eventArrived = false;
-        failedCount = 0;
+        failedCount = new AtomicInteger(0);
         failedCaught = false;
     }
 
     private ExecutionPlanRuntime createTestExecutionRuntime(){
-        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "@Plan:name('callbackTest1') " +
                 "" +
@@ -63,7 +67,7 @@ public class ExceptionHandlerTestCase {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
-                count = count + events.length;
+                count.addAndGet(events.length);
                 eventArrived = true;
             }
         });
@@ -84,6 +88,7 @@ public class ExceptionHandlerTestCase {
         try {
             // Send 2 invalid event
             inputHandler.send(new Object[]{"BAD_2", "EBAY", 200l});
+            Thread.sleep(10);
             inputHandler.send(new Object[]{"BAD_3", "WSO2",700f});
             Thread.sleep(10);
         }catch (Exception ex){
@@ -114,12 +119,12 @@ public class ExceptionHandlerTestCase {
 
         sendTestValidEvents(inputHandler);
 
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 6, count, 60000);
 
         Assert.assertTrue(eventArrived);
-        Assert.assertEquals(6, count);
+        Assert.assertEquals(6, count.get());
         Assert.assertFalse(failedCaught);
-        Assert.assertEquals(0, failedCount);
+        Assert.assertEquals(0, failedCount.get());
         executionPlanRuntime.shutdown();
     }
 
@@ -134,9 +139,9 @@ public class ExceptionHandlerTestCase {
         Thread.sleep(100);
 
         Assert.assertTrue("Can only process the first 2 events, because disruptor crashes after caught with exception",eventArrived);
-        Assert.assertEquals("Can only process the first 2 events, because disruptor crashes after caught with exception",2, count);
+        Assert.assertEquals("Can only process the first 2 events, because disruptor crashes after caught with exception",2, count.get());
         Assert.assertFalse("Can't catch disruptor exception by try-catch",failedCaught);
-        Assert.assertEquals("Can't catch disruptor exception by try-catch",0, failedCount);
+        Assert.assertEquals("Can't catch disruptor exception by try-catch",0, failedCount.get());
         executionPlanRuntime.shutdown();
     }
 
@@ -148,33 +153,34 @@ public class ExceptionHandlerTestCase {
         executionPlanRuntime.handleExceptionWith(new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object o) {
-                failedCount ++;
+                failedCount.incrementAndGet();
                 failedCaught = true;
                 log.info(o+": properly handle event exception for bad event [sequence: " + l + ", failed: "+failedCount+"]", throwable);
             }
 
             @Override
             public void handleOnStartException(Throwable throwable) {
-                failedCount ++;
+                failedCount.incrementAndGet();
                 failedCaught = true;
             }
 
             @Override
             public void handleOnShutdownException(Throwable throwable) {
                 log.info("Properly handle shutdown exception", throwable);
-                failedCount++;
+                failedCount.incrementAndGet();
                 failedCaught = true;
             }
         });
 
         executionPlanRuntime.start();
         sendTestInvalidEvents(inputHandler);
-        Thread.sleep(100);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+
         // No following events can be processed correctly
         Assert.assertTrue("Should properly process all the 4 valid events",eventArrived);
-        Assert.assertEquals("Should properly process all the 4 valid events",4, count);
+        Assert.assertEquals("Should properly process all the 4 valid events",4, count.get());
         Assert.assertTrue("Exception is properly handled thrown by 2 invalid events",failedCaught);
-        Assert.assertEquals("Exception is properly handled thrown by 2 invalid events",2, failedCount);
+        Assert.assertEquals("Exception is properly handled thrown by 2 invalid events",2, failedCount.get());
         executionPlanRuntime.shutdown();
     }
 }
