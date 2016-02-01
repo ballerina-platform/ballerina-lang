@@ -32,13 +32,16 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
+/**
+ * Operator which is related to Indexed In-memory table operations.
+ */
 public class SimpleIndexedOperator implements Operator {
     private final long withinTime;
-    private int outputAttributeSize;
     private final StreamEventPool streamEventPool;
+    private final ZeroStreamEventConverter streamEventConverter;
+    private int outputAttributeSize;
     private ExpressionExecutor expressionExecutor;
     private int matchingEventPosition;
-    private final ZeroStreamEventConverter streamEventConverter;
     private int indexPosition;
 
 

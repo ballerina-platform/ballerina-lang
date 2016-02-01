@@ -47,6 +47,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+/**
+ * In-memory event table implementation of SiddhiQL.
+ */
 public class InMemoryEventTable implements EventTable, Snapshotable {
 
     private final TableDefinition tableDefinition;

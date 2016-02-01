@@ -34,6 +34,9 @@ import java.util.Map;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.ANY;
 
+/**
+ * Operator which is related to non-indexed In-memory table operations.
+ */
 public class SimpleOperator implements Operator {
     private final ZeroStreamEventConverter streamEventConverter;
     private final StreamEvent matchingEvent;
