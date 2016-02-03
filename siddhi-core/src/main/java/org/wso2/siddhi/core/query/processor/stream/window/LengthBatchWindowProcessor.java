@@ -81,9 +81,17 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
                 streamEventChunk.insertBeforeCurrent(currentEventChunk.getFirst());
                 currentEventChunk.clear();
                 count = 0;
-
+                streamEventChunk.remove();
+                if (streamEventChunk.hasNext()) {
+                    StreamEvent nextEvent = streamEventChunk.next();
+                    streamEventChunk.detach();
+                    nextProcessor.process(streamEventChunk);
+                    streamEventChunk.clear();
+                    streamEventChunk.add(nextEvent);
+                }
+            } else {
+                streamEventChunk.remove();
             }
-            streamEventChunk.remove();
 
         }
         if (streamEventChunk.getFirst() != null) {
