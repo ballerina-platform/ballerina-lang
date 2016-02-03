@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
@@ -127,23 +126,6 @@ public class ExceptionHandlerTestCase {
         Assert.assertEquals(6, count.get());
         Assert.assertFalse(failedCaught);
         Assert.assertEquals(0, failedCount.get());
-        executionPlanRuntime.shutdown();
-    }
-
-    @Test
-    public void callbackTestForInvalidEventWithoutExceptionHandler() throws Exception {
-        log.info("callback test without exception handler");
-        ExecutionPlanRuntime executionPlanRuntime = createTestExecutionRuntime();
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
-        sendTestInvalidEvents(inputHandler);
-
-        Thread.sleep(100);
-
-        Assert.assertTrue("Can only process the first 2 events, because disruptor crashes after caught with exception",eventArrived);
-        Assert.assertEquals("Can only process the first 2 events, because disruptor crashes after caught with exception",2, count.get());
-        Assert.assertFalse("Can't catch disruptor exception by try-catch",failedCaught);
-        Assert.assertEquals("Can't catch disruptor exception by try-catch",0, failedCount.get());
         executionPlanRuntime.shutdown();
     }
 

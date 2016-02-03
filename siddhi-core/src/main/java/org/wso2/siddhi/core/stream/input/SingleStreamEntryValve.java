@@ -109,7 +109,7 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     public synchronized void startProcessing() {
-        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getExceptionHandler());
+        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
         singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
         ringBuffer = singleEntryDisruptor.start();
     }

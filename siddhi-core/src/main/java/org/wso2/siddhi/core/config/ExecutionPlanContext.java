@@ -192,10 +192,6 @@ public class ExecutionPlanContext {
 
 
     public void setExceptionHandler(ExceptionHandler<Object> exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
-
-    public ExceptionHandler<Object> getExceptionHandler() {
-        return this.exceptionHandler;
+        siddhiContext.setExceptionHandler(exceptionHandler);
     }
 }

@@ -817,7 +817,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        Thread.sleep(3200);
+        SiddhiTestHelper.waitForEvents(1000, 2, count, 60000);
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count.get());
