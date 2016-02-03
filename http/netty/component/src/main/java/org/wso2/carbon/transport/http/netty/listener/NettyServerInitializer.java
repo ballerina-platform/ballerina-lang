@@ -56,7 +56,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
             socketChannel.pipeline().addLast("ssl", sslHandler);
         }
-        Metrics.init(MetricReporter.CONSOLE, MetricReporter.JMX);
+        Metrics.init(MetricReporter.JMX);
 
         // Add the rest of the handlers to the pipeline
         CarbonTransportInitializer initializer =

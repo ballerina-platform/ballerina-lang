@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    Sonatype Inc. - initial API and implementation
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
+
+	<parent>
+		<groupId>org.sonatype.forge</groupId>
+		<artifactId>forge-parent</artifactId>
+		<version>8</version>
+	</parent>
+
+	<groupId>org.eclipse.tycho</groupId>
+	<artifactId>tycho</artifactId>
+	<version>0.13.0</version>
+	<packaging>pom</packaging>
+
+	<name>Tycho (Incubation)</name>
+	<description>Tycho integrates Maven with Eclipse and OSGi</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
+		<classWorldsVersion>2.2.3</classWorldsVersion>
+		<commonsCliVersion>1.2</commonsCliVersion>
+		<easyMockVersion>1.2_Java1.3</easyMockVersion>
+		<junitVersion>3.8.2</junitVersion>
+		<plexusVersion>1.5.5</plexusVersion>
+		<plexusInterpolationVersion>1.14</plexusInterpolationVersion>
+		<plexusUtilsVersion>2.0.4</plexusUtilsVersion>
+		<sisuInjectVersion>1.4.2</sisuInjectVersion>
+		<wagonVersion>1.0-beta-6</wagonVersion>
+		<securityDispatcherVersion>1.3</securityDispatcherVersion>
+		<cipherVersion>1.4</cipherVersion>
+		<modelloVersion>1.4</modelloVersion>
+		<jxpathVersion>1.3</jxpathVersion>
+		<aetherVersion>1.7</aetherVersion>
+
+		<maven-version>3.0</maven-version>
+
+		<!-- 
+			Version corresponds to the Eclipse 4.2M1
+
+			EQUINOX_VERSION=3.8.0.v20110726-1606
+
+/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar -Dsources=org.eclipse.osgi.source_$EQUINOX_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar
+
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi.source_$EQUINOX_VERSION.jar -Dclassifier=sources \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+
+			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
+		 -->
+		<equinoxVersion>3.8.0.v20110726-1606</equinoxVersion>
+
+		<!-- 
+			Version corresponds to the Eclipse 4.2M1
+			
+			JDT_VERSION=3.8.0.v_C03
+			
+/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar -Dsources=org.eclipse.jdt.core.source_$JDT_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar
+
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core.source_$JDT_VERSION.jar -Dclassifier=sources \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+
+			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
+		 -->
+		<jdtVersion>3.8.0.v_C03</jdtVersion>
+
+		<!-- version of tycho used by this build -->
+		<tychoBootstrapVersion>0.11.1</tychoBootstrapVersion>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-plugin-api</artifactId>
+				<version>${maven-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-core</artifactId>
+				<version>${maven-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-compat</artifactId>
+				<version>${maven-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-model</artifactId>
+				<version>${maven-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-settings</artifactId>
+				<version>${maven-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-annotations</artifactId>
+				<version>${plexusVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-utils</artifactId>
+				<version>${plexusUtilsVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-archiver</artifactId>
+				<version>1.2</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-component-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-container-default</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-compiler-api</artifactId>
+				<version>1.6</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-compiler-manager</artifactId>
+				<version>1.6</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.osgi</artifactId>
+				<version>${equinoxVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.jdt.core</artifactId>
+				<version>${jdtVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.surefire</groupId>
+				<artifactId>surefire-booter</artifactId>
+				<version>2.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.2</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>de.pdark</groupId>
+				<artifactId>decentxml</artifactId>
+				<version>1.3</version>
+			</dependency>
+			<dependency>
+				<groupId>bcel</groupId>
+				<artifactId>bcel</artifactId>
+				<version>5.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sonatype.sisu</groupId>
+				<artifactId>sisu-inject-plexus</artifactId>
+				<version>${sisuInjectVersion}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.plugin-testing</groupId>
+				<artifactId>maven-plugin-testing-harness</artifactId>
+				<version>2.0-alpha-1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-archiver</artifactId>
+				<version>2.4</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.apache.maven</groupId>
+						<artifactId>maven-artifact</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.apache.maven</groupId>
+						<artifactId>maven-model</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.apache.maven</groupId>
+						<artifactId>maven-project</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<type>maven-plugin</type>
+				<version>2.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<configuration>
+					<resolver>p2</resolver>
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-component-metadata</artifactId>
+					<version>${plexusVersion}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>generate-metadata</goal>
+								<goal>generate-test-metadata</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.4.3</version>
+					<configuration>
+						<useSystemClassLoader>false</useSystemClassLoader>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.1</version>
+					<configuration>
+						<source>1.5</source>
+						<target>1.5</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.0-beta-7</version>
+					<configuration>
+						<tagBase>https://svn.sonatype.org/m2eclipse/tycho/tags</tagBase>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2-beta-2</version>
+					<configuration>
+						<tarLongFileMode>gnu</tarLongFileMode>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.4.3</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.1.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.0.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.3.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<scm>
+		<connection>scm:git:git://github.com/sonatype/sonatype-tycho.git</connection>
+		<developerConnection>scm:git:git@github.com:sonatype/sonatype-tycho.git</developerConnection>
+	</scm>
+
+<!-- 	<repositories> -->
+<!-- 		<repository> -->
+<!-- 			<id>sonatype-release</id> -->
+<!-- 			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid</url> -->
+<!-- 			<snapshots> -->
+<!-- 				<enabled>true</enabled> -->
+<!-- 			</snapshots> -->
+<!-- 			<releases> -->
+<!-- 				<enabled>true</enabled> -->
+<!-- 			</releases> -->
+<!-- 		</repository> -->
+<!-- 	</repositories> -->
+
+	<modules>
+		<module>tycho-bundles</module>
+
+		<module>tycho-equinox-api</module>
+		<module>tycho-equinox</module>
+		<module>tycho-metadata-model</module>
+		<module>tycho-embedder-api</module>
+		<module>tycho-core</module>
+		<module>tycho-testing-harness</module>
+		<module>tycho-equinox-launching</module>
+
+		<module>tycho-compiler-jdt</module>
+		<module>tycho-compiler-plugin</module>
+		<module>tycho-packaging-plugin</module>
+		<module>tycho-source-plugin</module>
+		<module>target-platform-configuration</module>
+
+		<!-- surefire -->
+		<module>tycho-surefire</module>
+
+		<!-- release -->
+		<module>tycho-release</module>
+
+		<!-- tycho-p2 -->
+		<module>tycho-p2</module>
+	</modules>
+
+	<profiles>
+		<profile>
+			<id>its</id>
+			<modules>
+				<module>tycho-its</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>buildextensions</id>
+			<activation>
+				<property>
+					<name>!site.generation</name>
+				</property>
+			</activation>
+			<!-- these modules fail during site generation (error: no mojo descriptors 
+				found), so for now we exclude them when invoking mvn site -->
+			<modules>
+				<module>tycho-maven-plugin</module>
+				<module>tycho-pomgenerator-plugin</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>site</id>
+			<activation>
+				<property>
+					<name>site.generation</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-site-plugin</artifactId>
+						<version>3.0-beta-3</version>
+						<configuration>
+							<reportPlugins>
+								<plugin>
+									<groupId>org.apache.maven.plugins</groupId>
+									<artifactId>maven-plugin-plugin</artifactId>
+									<version>2.5.1</version>
+								</plugin>
+								<plugin>
+									<groupId>org.apache.maven.plugins</groupId>
+									<artifactId>maven-project-info-reports-plugin</artifactId>
+									<version>2.2</version>
+									<reportSets>
+										<reportSet>
+											<reports>
+												<report>index</report>
+											</reports>
+										</reportSet>
+									</reportSets>
+								</plugin>
+							</reportPlugins>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<!--need this to make site:stage happy -->
+	<distributionManagement>
+		<site>
+			<id>tycho.site</id>
+			<name>Tycho Site</name>
+			<url>staging</url>
+		</site>
+	</distributionManagement>
+
+</project>

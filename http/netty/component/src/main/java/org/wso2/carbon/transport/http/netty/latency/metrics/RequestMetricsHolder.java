@@ -13,15 +13,15 @@
 + * See the License for the specific language governing permissions and limitations under the License.
 + */
 
-        package org.wso2.carbon.transport.http.netty.latency.metrics;
+package org.wso2.carbon.transport.http.netty.latency.metrics;
 
-        import org.wso2.carbon.metrics.manager.Level;
-        import org.wso2.carbon.metrics.manager.MetricManager;
-        import org.wso2.carbon.metrics.manager.Timer;
-        import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.metrics.manager.Level;
+import org.wso2.carbon.metrics.manager.MetricManager;
+import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 
 /**
-  * Holds the request metrics parameters
+ * Holds the request metrics parameters
  */
 public class RequestMetricsHolder {
 
@@ -44,13 +44,24 @@ public class RequestMetricsHolder {
     private Timer.Context rBodyWriteContext;
 
     public RequestMetricsHolder(String type) {
+        //TODO avoid creating same objects
         this.type = type;
+        requestLifeTimer = MetricManager.timer(MetricManager.
+                name(RequestMetricsHolder.class, "request.life.time"), Level.INFO);
+        //TODO rename metrics name
+        requestBodyReadTimer = MetricManager.timer(MetricManager.
+                name(RequestMetricsHolder.class, "request.body.read.time"), Level.INFO);
+        requestHeaderReadTimer = MetricManager.timer(MetricManager.
+                name(RequestMetricsHolder.class, "request.header.read.time"), Level.INFO);
+        requestBodyWriteTimer = MetricManager.timer(MetricManager.
+                name(RequestMetricsHolder.class, "request.body.write.timer"), Level.INFO);
+        /*
         requestLifeTimer = MetricManager.timer(Level.INFO, MetricManager.
-                        name(RequestMetricsHolder.class, "request.life.time"));
+                name(RequestMetricsHolder.class, "request.life.time"));
         requestBodyReadTimer = MetricManager.timer(Level.INFO, MetricManager.
-                        name(RequestMetricsHolder.class, "request.body.read.time"));
+                name(RequestMetricsHolder.class, "request.body.read.time"));
         requestHeaderReadTimer = MetricManager.timer(Level.INFO, MetricManager.
-                        name(RequestMetricsHolder.class, "request.header.read.time"));
+                name(RequestMetricsHolder.class, "request.header.read.time"));*/
     }
 
     public String getType() {

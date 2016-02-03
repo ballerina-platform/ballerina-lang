@@ -112,8 +112,7 @@
         <export.package>
             !org.wso2.carbon.transport.http.netty.internal,
             org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
-            org.wso2.carbon.metrics.manager.*,
-            org.wso2.carbon.metrics.impl.*
+
         </export.package>
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
@@ -132,7 +131,6 @@
             javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",
             javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
-            javax.management,
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             org.wso2.carbon.metrics.manager.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.metrics.impl.*;version="[1.2.0, 2.0.0)",

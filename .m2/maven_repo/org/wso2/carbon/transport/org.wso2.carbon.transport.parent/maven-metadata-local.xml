@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.wso2.carbon.transport</groupId>
+  <artifactId>org.wso2.carbon.transport.parent</artifactId>
+  <versioning>
+    <versions>
+      <version>2.0.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20160128034156</lastUpdated>
+  </versioning>
+</metadata>

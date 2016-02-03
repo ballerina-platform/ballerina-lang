@@ -39,12 +39,12 @@ public class ResponseMetricsHolder {
 
     public ResponseMetricsHolder(String type) {
         this.type = type;
-        responseLifeTimer = MetricManager.timer(Level.INFO, MetricManager.
-                        name(ResponseMetricsHolder.class, "response.life.time"));
-        responseHeaderReadTimer = MetricManager.timer(Level.INFO, MetricManager.
-                        name(ResponseMetricsHolder.class, "response.header.read.time"));
-        responseBodyReadTimer = MetricManager.timer(Level.INFO, MetricManager.
-                        name(ResponseMetricsHolder.class, "response.body.read.time"));
+        responseLifeTimer = MetricManager.timer(MetricManager.
+                        name(ResponseMetricsHolder.class, "response.life.time"), Level.INFO);
+        responseHeaderReadTimer = MetricManager.timer(MetricManager.
+                        name(ResponseMetricsHolder.class, "response.header.read.time"), Level.INFO);
+        responseBodyReadTimer = MetricManager.timer(MetricManager.
+                        name(ResponseMetricsHolder.class, "response.body.read.time"), Level.INFO);
     }
 
     public Timer getResponseLifeTime() {

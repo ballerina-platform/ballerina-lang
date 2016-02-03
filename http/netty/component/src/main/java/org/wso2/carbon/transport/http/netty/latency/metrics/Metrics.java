@@ -10,6 +10,7 @@ import org.wso2.carbon.metrics.impl.util.DASReporterBuilder;
 import org.wso2.carbon.metrics.impl.util.JmxReporterBuilder;
 import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.MetricService;
+import org.wso2.carbon.metrics.manager.ServiceReferenceHolder;
 
 /**
  * Created by nadeeshaan on 1/18/16.
@@ -63,7 +64,7 @@ public final class Metrics {
             }
         }
         metricService = builder.build(metricsLevelConfiguration);
-        //ServiceReferenceHolder.getInstance().setMetricService(metricService);
+        ServiceReferenceHolder.getInstance().setMetricService(metricService);
         MetricManager.registerMXBean();
     }
 
@@ -73,6 +74,6 @@ public final class Metrics {
             metricService.disable();
             metricService = null;
         }
-        //ServiceReferenceHolder.getInstance().setMetricService(null);
+        ServiceReferenceHolder.getInstance().setMetricService(null);
     }
 }

@@ -118,6 +118,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             serverRequestMetricsHolder.startTimer(TransportConstants.REQUEST_HEADER_READ_TIMER);
             cMsg.setHeaders(Util.getHeaders(httpRequest));
             serverRequestMetricsHolder.stopTimer(TransportConstants.REQUEST_HEADER_READ_TIMER);
+            cMsg.setProperty(TransportConstants.CLIENT_RESPONSE_METRICS_HOLDER, this.clientResponseMetricsHolder);
+            cMsg.setProperty(TransportConstants.SERVER_RESPONSE_METRICS_HOLDER, this.serverResponseMetricsHolder);
+            cMsg.setProperty(TransportConstants.SERVER_REQUEST_METRICS_HOLDER, this.serverRequestMetricsHolder);
+            cMsg.setProperty(TransportConstants.CLIENT_REQUEST_METRICS_HOLDER, this.clientRequestMetricsHolder);
+            cMsg.setProperty(TransportConstants.SERVER_CONNECTION_METRICS_HOLDER, this.serverConnectionMetricsHolder);
+            cMsg.setProperty(TransportConstants.CLIENT_CONNECTION_METRICS_HOLDER, this.clientConnectionMetricsHolder);
+
+
 
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
