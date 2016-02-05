@@ -557,9 +557,9 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+        SiddhiTestHelper.waitForEvents(1000, 3, count, 60000);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event with value", 3, count.get());
+        Assert.assertTrue("Number of output event with value",  count.get()>= 3);
 
         executionPlanRuntime.shutdown();
 
@@ -610,7 +610,7 @@ public class SnapshotOutputRateLimitTestCase {
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        SiddhiTestHelper.waitForEvents(100, 2, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 2, count, 120000);
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count.get());
