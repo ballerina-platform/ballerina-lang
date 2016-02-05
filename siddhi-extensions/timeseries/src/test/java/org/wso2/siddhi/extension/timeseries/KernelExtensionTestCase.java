@@ -193,7 +193,7 @@ public class KernelExtensionTestCase {
         inputHandler.send(new Object[]{49d});
         inputHandler.send(new Object[]{48.35d});
 
-        Thread.sleep(300);
+        Thread.sleep(1000);
         Assert.assertEquals(7, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -382,7 +382,7 @@ public class KernelExtensionTestCase {
         inputHandler.send(new Object[]{98, 49d});
         inputHandler.send(new Object[]{99, 48.35d});
 
-        Thread.sleep(300);
+        Thread.sleep(1000);
         Assert.assertEquals(13, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -534,7 +534,7 @@ public class KernelExtensionTestCase {
         inputHandler.send(new Object[]{48.35d});
 
 
-        Thread.sleep(300);
+        Thread.sleep(1000);
         Assert.assertEquals(5, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();

@@ -176,7 +176,7 @@ public class KalmanExtensionTestCase {
         inputHandler.send(new Object[]{98, 49d});
         inputHandler.send(new Object[]{99, 48.35d});
 
-        Thread.sleep(300);
+        Thread.sleep(1000);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -322,7 +322,7 @@ public class KalmanExtensionTestCase {
         inputHandler.send(new Object[]{99, 48.35d});
 
 
-        Thread.sleep(300);
+        Thread.sleep(1000);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -478,7 +478,7 @@ public class KalmanExtensionTestCase {
         inputHandler.send(new Object[]{98, 49d});
         inputHandler.send(new Object[]{99, 48.35d});
 
-        Thread.sleep(300);
+        Thread.sleep(1000);
         Assert.assertEquals(5, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
