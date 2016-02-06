@@ -104,4 +104,10 @@ public class SiddhiManager {
             executionPlanRuntime.persist();
         }
     }
+
+    public void restore() {
+        for (ExecutionPlanRuntime executionPlanRuntime : executionPlanRuntimeMap.values()) {
+            executionPlanRuntime.restoreLastRevision();
+        }
+    }
 }
