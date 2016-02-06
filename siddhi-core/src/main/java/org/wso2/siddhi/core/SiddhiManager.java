@@ -105,7 +105,7 @@ public class SiddhiManager {
         }
     }
 
-    public void restore() {
+    public void restoreLastState() {
         for (ExecutionPlanRuntime executionPlanRuntime : executionPlanRuntimeMap.values()) {
             executionPlanRuntime.restoreLastRevision();
         }
