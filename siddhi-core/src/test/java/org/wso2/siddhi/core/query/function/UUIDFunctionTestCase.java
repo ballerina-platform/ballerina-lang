@@ -62,7 +62,8 @@ public class UUIDFunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 Assert.assertEquals(1.56, inEvents[0].getData()[1]);
-                System.out.println("Event : " + count + ",uniqueId : " + inEvents[0].getData(3));
+                Assert.assertNotNull("UUID is expected", inEvents[0].getData()[3]);
+                Assert.assertTrue("String UUID is expected", inEvents[0].getData()[3] instanceof String);
                 count = count + inEvents.length;
             }
         });

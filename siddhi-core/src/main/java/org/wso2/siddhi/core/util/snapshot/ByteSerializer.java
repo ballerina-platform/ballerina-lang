@@ -39,7 +39,7 @@ public class ByteSerializer {
                 oos.writeObject(obj);
                 out = baos.toByteArray();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error when writing byte array. " + e.getMessage(), e);
                 return null;
             }
         }
@@ -59,10 +59,10 @@ public class ByteSerializer {
                 ObjectInputStream ois = new ObjectInputStream(bios);
                 out = ois.readObject();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error when writing to object. " + e.getMessage(), e);
                 return null;
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                log.error("Error when writing to object. " + e.getMessage(), e);
                 return null;
             }
         }
