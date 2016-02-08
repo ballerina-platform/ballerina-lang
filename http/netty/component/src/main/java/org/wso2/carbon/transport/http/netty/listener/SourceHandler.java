@@ -35,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEve
 import org.wso2.carbon.transport.http.netty.latency.metrics.ConnectionMetricsHolder;
 import org.wso2.carbon.transport.http.netty.latency.metrics.RequestMetricsHolder;
 import org.wso2.carbon.transport.http.netty.latency.metrics.ResponseMetricsHolder;
+import org.wso2.carbon.transport.http.netty.latency.metrics.TimerHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -59,18 +60,31 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private Map<String, GenericObjectPool> targetChannelPool;
 
     private ConnectionMetricsHolder serverConnectionMetricsHolder;
-        private ConnectionMetricsHolder clientConnectionMetricsHolder;
-        private RequestMetricsHolder serverRequestMetricsHolder;
-        private RequestMetricsHolder clientRequestMetricsHolder;
-        private ResponseMetricsHolder serverResponseMetricsHolder;
-        private ResponseMetricsHolder clientResponseMetricsHolder;
+    private ConnectionMetricsHolder clientConnectionMetricsHolder;
+    private RequestMetricsHolder serverRequestMetricsHolder;
+    private RequestMetricsHolder clientRequestMetricsHolder;
+    private ResponseMetricsHolder serverResponseMetricsHolder;
+    private ResponseMetricsHolder clientResponseMetricsHolder;
 
 
-    public SourceHandler(ConnectionManager connectionManager) throws Exception {
+    public SourceHandler(ConnectionManager connectionManager, TimerHandler timerHandler) throws Exception {
         this.connectionManager = connectionManager;
 
-        // Initialize the connection metric holder
-        serverConnectionMetricsHolder = new ConnectionMetricsHolder(TransportConstants.TYPE_SOURCE_CONNECTION);
+        // Initialize the metric holders
+        this.serverConnectionMetricsHolder = new ConnectionMetricsHolder(
+                TransportConstants.TYPE_SOURCE_CONNECTION, timerHandler);
+        this.serverRequestMetricsHolder = new RequestMetricsHolder(
+                TransportConstants.TYPE_SERVER_REQUEST, timerHandler);
+        this.clientRequestMetricsHolder = new RequestMetricsHolder(
+                TransportConstants.TYPE_CLIENT_REQUEST, timerHandler);
+        this.serverResponseMetricsHolder = new ResponseMetricsHolder(
+                TransportConstants.TYPE_SERVER_RESPONSE, timerHandler);
+        this.clientResponseMetricsHolder = new ResponseMetricsHolder(
+                TransportConstants.TYPE_CLIENT_RESPONSE, timerHandler);
+        this.clientConnectionMetricsHolder = new ConnectionMetricsHolder(
+                TransportConstants.TYPE_CLIENT_CONNECTION, timerHandler);
+
+
     }
 
     @Override
@@ -82,23 +96,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.ctx = ctx;
         this.targetChannelPool = connectionManager.getTargetChannelPool();
 
+
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            // Initialize the metric holders
-            this.serverRequestMetricsHolder = new RequestMetricsHolder(
-                    TransportConstants.TYPE_SERVER_REQUEST);
-            this.clientRequestMetricsHolder = new RequestMetricsHolder(
-                    TransportConstants.TYPE_CLIENT_REQUEST);
-            this.serverResponseMetricsHolder = new ResponseMetricsHolder(
-                    TransportConstants.TYPE_SERVER_RESPONSE);
-            this.clientResponseMetricsHolder = new ResponseMetricsHolder(
-                    TransportConstants.TYPE_CLIENT_RESPONSE);
-            this.clientConnectionMetricsHolder = new ConnectionMetricsHolder(
-                    TransportConstants.TYPE_CLIENT_CONNECTION);
 
             serverRequestMetricsHolder.startTimer(TransportConstants.REQUEST_LIFE_TIMER);
 
@@ -124,7 +128,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(TransportConstants.CLIENT_REQUEST_METRICS_HOLDER, this.clientRequestMetricsHolder);
             cMsg.setProperty(TransportConstants.SERVER_CONNECTION_METRICS_HOLDER, this.serverConnectionMetricsHolder);
             cMsg.setProperty(TransportConstants.CLIENT_CONNECTION_METRICS_HOLDER, this.clientConnectionMetricsHolder);
-
 
 
             if (disruptorConfig.isShared()) {
@@ -183,30 +186,31 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         log.error("Exception caught in Netty Source handler", cause);
-            }
+    }
+
     public ConnectionMetricsHolder getServerConnectionMetricsHolder() {
-                return serverConnectionMetricsHolder;
-            }
+        return serverConnectionMetricsHolder;
+    }
 
-                public ConnectionMetricsHolder getClientConnectionMetricsHolder() {
-                return clientConnectionMetricsHolder;
-            }
+    public ConnectionMetricsHolder getClientConnectionMetricsHolder() {
+        return clientConnectionMetricsHolder;
+    }
 
-                public RequestMetricsHolder getServerRequestMetricsHolder() {
-                return serverRequestMetricsHolder;
-            }
+    public RequestMetricsHolder getServerRequestMetricsHolder() {
+        return serverRequestMetricsHolder;
+    }
 
-                public RequestMetricsHolder getClientRequestMetricsHolder() {
-                return clientRequestMetricsHolder;
-            }
+    public RequestMetricsHolder getClientRequestMetricsHolder() {
+        return clientRequestMetricsHolder;
+    }
 
-                public ResponseMetricsHolder getServerResponseMetricsHolder() {
-                return serverResponseMetricsHolder;
-            }
+    public ResponseMetricsHolder getServerResponseMetricsHolder() {
+        return serverResponseMetricsHolder;
+    }
 
-                public ResponseMetricsHolder getClientResponseMetricsHolder() {
-                return clientResponseMetricsHolder;
-           }
+    public ResponseMetricsHolder getClientResponseMetricsHolder() {
+        return clientResponseMetricsHolder;
+    }
 }
 
 

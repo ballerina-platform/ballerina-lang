@@ -31,6 +31,7 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.latency.metrics.TimerHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
@@ -43,6 +44,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private ConnectionManager connectionManager;
+    private TimerHandler timerHandler;
 
 
     public CarbonNettyServerInitializer() {
@@ -80,6 +82,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
 
     @Override
     public void initChannel(Object ch) {
+        timerHandler = TimerHandler.getInstance();
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
@@ -89,7 +92,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         p.addLast("encoder", new HttpResponseEncoder());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            p.addLast("handler", new SourceHandler(connectionManager));
+            p.addLast("handler", new SourceHandler(connectionManager, timerHandler));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

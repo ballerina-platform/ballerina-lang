@@ -15,8 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.latency.metrics;
 
-import org.wso2.carbon.metrics.manager.Level;
-import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.Timer;
 import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 
@@ -37,14 +35,11 @@ public class ResponseMetricsHolder {
     private Timer.Context resHeaderReadContext = null;
     private Timer.Context resBodyReadContext = null;
 
-    public ResponseMetricsHolder(String type) {
+    public ResponseMetricsHolder(String type, TimerHandler timerHandler) {
         this.type = type;
-        responseLifeTimer = MetricManager.timer(MetricManager.
-                        name(ResponseMetricsHolder.class, "response.life.time"), Level.INFO);
-        responseHeaderReadTimer = MetricManager.timer(MetricManager.
-                        name(ResponseMetricsHolder.class, "response.header.read.time"), Level.INFO);
-        responseBodyReadTimer = MetricManager.timer(MetricManager.
-                        name(ResponseMetricsHolder.class, "response.body.read.time"), Level.INFO);
+        responseLifeTimer = timerHandler.getResponseLifeTimer();
+        responseHeaderReadTimer = timerHandler.getResponseHeaderReadTimer();
+        responseBodyReadTimer = timerHandler.getResponseBodyReadTimer();
     }
 
     public Timer getResponseLifeTime() {

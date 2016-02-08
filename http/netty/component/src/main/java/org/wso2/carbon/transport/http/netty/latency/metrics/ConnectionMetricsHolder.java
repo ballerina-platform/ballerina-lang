@@ -23,47 +23,47 @@ import org.wso2.carbon.metrics.manager.MetricService;
 import org.wso2.carbon.metrics.manager.Timer;
 
 /**
- - * Created by nadeeshaan on 12/22/15.
- + * Holds the Connection related Latency Metrics
+ * * Holds the Connection related Latency Metrics
  */
 public class ConnectionMetricsHolder {
 
-                private String type = null;
-        // Carbon-Metrics Measuring parameters
-                private Timer connectionTimer = null;
-        private Timer.Context context = null;
+    private String type = null;
+    // Carbon-Metrics Measuring parameters
+    private Timer connectionTimer = null;
+    private Timer.Context context = null;
 
-                private MetricService metricService = null;
+    private MetricService metricService = null;
 
-                public ConnectionMetricsHolder(String type) {
-                this.type = type;
-                this.connectionTimer = MetricManager.timer(Level.INFO, MetricManager.
-                                                name(ConnectionMetricsHolder.class, "connection.timer"));
-            }
+    public ConnectionMetricsHolder(String type, TimerHandler timerHandler) {
+        this.type = type;
+        // Initialize connection metrics holder Timers
+        connectionTimer = MetricManager.timer(MetricManager.
+                name(ConnectionMetricsHolder.class, "connection.timer"), Level.INFO);
+    }
 
-                public Timer getConnectionTimer() {
-                return connectionTimer;
-            }
+    public Timer getConnectionTimer() {
+        return connectionTimer;
+    }
 
-                public Timer.Context getContext() {
-                return context;
-            }
+    public Timer.Context getContext() {
+        return context;
+    }
 
-                public boolean startTimer() {
-                this.context = this.connectionTimer.start();
-                return true;
-            }
+    public boolean startTimer() {
+        this.context = this.connectionTimer.start();
+        return true;
+    }
 
-                public boolean stopTimer() {
-                if (this.context != null) {
-                        this.context.stop();
-                        return true;
-                    } else {
-                        return false;
-                    }
-            }
+    public boolean stopTimer() {
+        if (this.context != null) {
+            this.context.stop();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-                public void setConnectionTimer(Timer connectionTimer) {
-                this.connectionTimer = connectionTimer;
-            }
+    public void setConnectionTimer(Timer connectionTimer) {
+        this.connectionTimer = connectionTimer;
+    }
 }

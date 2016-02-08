@@ -41,6 +41,8 @@ public final class TransportConstants {
 
     public static final String SLEEP_WAITING = "SLEEP_WAITING";
 
+   //TODO:PREFIX= "org.wso2.carbon.tranport"
+
     public static final String WAIT_STRATEGY = "disruptor.wait.strategy";
 
     public static final String DISRUPTOR_BUFFER_SIZE = "disruptor.buffer.size";

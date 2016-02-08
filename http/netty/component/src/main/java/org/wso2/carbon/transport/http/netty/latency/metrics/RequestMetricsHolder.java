@@ -15,8 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.latency.metrics;
 
-import org.wso2.carbon.metrics.manager.Level;
-import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.Timer;
 import org.wso2.carbon.transport.http.netty.common.TransportConstants;
 
@@ -25,6 +23,7 @@ import org.wso2.carbon.transport.http.netty.common.TransportConstants;
  */
 public class RequestMetricsHolder {
 
+    private final TimerHandler timerHandler;
     private String type;
 
     // Carbon-Metrics Measuring parameters
@@ -43,25 +42,16 @@ public class RequestMetricsHolder {
     private Timer.Context rHeaderWriteContext;
     private Timer.Context rBodyWriteContext;
 
-    public RequestMetricsHolder(String type) {
+    public RequestMetricsHolder(String type, TimerHandler timerHandler) {
         //TODO avoid creating same objects
         this.type = type;
-        requestLifeTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.life.time"), Level.INFO);
-        //TODO rename metrics name
-        requestBodyReadTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.body.read.time"), Level.INFO);
-        requestHeaderReadTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.header.read.time"), Level.INFO);
-        requestBodyWriteTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.body.write.timer"), Level.INFO);
-        /*
-        requestLifeTimer = MetricManager.timer(Level.INFO, MetricManager.
-                name(RequestMetricsHolder.class, "request.life.time"));
-        requestBodyReadTimer = MetricManager.timer(Level.INFO, MetricManager.
-                name(RequestMetricsHolder.class, "request.body.read.time"));
-        requestHeaderReadTimer = MetricManager.timer(Level.INFO, MetricManager.
-                name(RequestMetricsHolder.class, "request.header.read.time"));*/
+        this.timerHandler = timerHandler;
+        requestLifeTimer = timerHandler.getRequestLifeTimer();
+        requestBodyReadTimer = timerHandler.getRequestBodyReadTimer();
+        requestHeaderReadTimer = timerHandler.getRequestHeaderReadTimer();
+        requestHeaderWriteTimer = timerHandler.getRequestBodyWriteTimer();
+        requestBodyWriteTimer = timerHandler.getRequestBodyWriteTimer();
+
     }
 
     public String getType() {
@@ -78,6 +68,10 @@ public class RequestMetricsHolder {
 
     public Timer getRequestHeaderReadTimer() {
         return requestHeaderReadTimer;
+    }
+
+    public Timer getRequestBodyWriteTimer() {
+        return requestBodyWriteTimer;
     }
 
     public boolean startTimer(String timer) {
@@ -107,6 +101,7 @@ public class RequestMetricsHolder {
                 break;
             case TransportConstants.REQUEST_BODY_READ_TIMER:
                 rBodyReadContext.stop();
+
                 break;
             case TransportConstants.REQUEST_HEADER_READ_TIMER:
                 rHeaderReadContext.stop();
