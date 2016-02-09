@@ -44,7 +44,8 @@ import java.util.Map;
         name = "org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent",
         immediate = true,
         property = {
-                "capability-name=org.wso2.carbon.messaging.CarbonTransportInitializer",
+                "capability-name=org.wso2.carbon.messaging.CarbonTransportInitializer, "
+                        + "org.wso2.carbon.messaging.CarbonMessageProcessor",
                 "component-key=netty-transports-mgt"
         }
 )

@@ -56,7 +56,7 @@ public class RequestMetricsHolder {
 
     public String getType() {
         return type;
-    }
+
 
     public Timer getRequestLifeTimer() {
         return requestLifeTimer;
