@@ -122,6 +122,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             serverRequestMetricsHolder.startTimer(TransportConstants.REQUEST_HEADER_READ_TIMER);
             cMsg.setHeaders(Util.getHeaders(httpRequest));
             serverRequestMetricsHolder.stopTimer(TransportConstants.REQUEST_HEADER_READ_TIMER);
+
             cMsg.setProperty(TransportConstants.CLIENT_RESPONSE_METRICS_HOLDER, this.clientResponseMetricsHolder);
             cMsg.setProperty(TransportConstants.SERVER_RESPONSE_METRICS_HOLDER, this.serverResponseMetricsHolder);
             cMsg.setProperty(TransportConstants.SERVER_REQUEST_METRICS_HOLDER, this.serverRequestMetricsHolder);
@@ -157,6 +158,52 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         // Stop the connector timer
         serverConnectionMetricsHolder.stopTimer();
         log.info("************ " + this.serverConnectionMetricsHolder.getConnectionTimer().getCount());
+        log.info("Type: " + clientResponseMetricsHolder.getType());
+        log.info("Response Life Time: " +
+                String.valueOf(clientResponseMetricsHolder.getResponseLifeTime().getCount()));
+        log.info("Response Body Read Time: " +
+                String.valueOf(clientResponseMetricsHolder.getResponseBodyReadTime().getCount()));
+        log.info("Response Header Read Time: " +
+                String.valueOf(clientResponseMetricsHolder.getResponseHeaderReadTime().getCount()));
+        log.info("===============================================\n");
+
+        log.info("Type: " + serverResponseMetricsHolder.getType());
+        log.info("Response Life Time" +
+                String.valueOf(serverResponseMetricsHolder.getResponseLifeTime().getCount()));
+        log.info("Response Header Read Time: " +
+                String.valueOf(serverResponseMetricsHolder.getResponseHeaderReadTime().getCount()));
+        log.info("Response Body Read Time: " +
+                String.valueOf(serverResponseMetricsHolder.getResponseBodyReadTime().getCount()));
+        log.info("===============================================\n");
+
+        log.info("Type: " + serverRequestMetricsHolder.getType());
+        log.info("Request Header Read Time: " +
+                String.valueOf(serverRequestMetricsHolder.getRequestHeaderReadTimer().getCount()));
+        log.info("Request Body Read Time: " +
+                String.valueOf(serverRequestMetricsHolder.getRequestBodyReadTimer().getCount()));
+        log.info("Request Read Time: " +
+                String.valueOf(serverRequestMetricsHolder.getRequestLifeTimer().getCount()));
+        log.info("===============================================\n");
+
+        log.info("Type: " + clientRequestMetricsHolder.getType());
+        log.info("Request Read Time: " +
+                String.valueOf(clientRequestMetricsHolder.getRequestLifeTimer().getCount()));
+        log.info("Request Header Read Time: " +
+                String.valueOf(clientRequestMetricsHolder.getRequestHeaderReadTimer().getCount()));
+        log.info("Request Body Read Time: " +
+                String.valueOf(clientRequestMetricsHolder.getRequestBodyReadTimer().getCount()));
+        log.info("===============================================\n");
+
+        log.info("Type: " + "Client Connection");
+        log.info("Connection Life Time: " +
+                String.valueOf(clientConnectionMetricsHolder.getConnectionTimer().getCount()));
+        log.info("===============================================\n");
+
+        log.info("Type: Server Connection");
+        log.info("Connection Life Time: " +
+                String.valueOf(serverConnectionMetricsHolder.getConnectionTimer().getCount()));
+        log.info("===============================================\n");
+
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }

@@ -51,7 +51,6 @@ public class RequestMetricsHolder {
         requestHeaderReadTimer = timerHandler.getRequestHeaderReadTimer();
         requestHeaderWriteTimer = timerHandler.getRequestBodyWriteTimer();
         requestBodyWriteTimer = timerHandler.getRequestBodyWriteTimer();
-
     }
 
     public String getType() {

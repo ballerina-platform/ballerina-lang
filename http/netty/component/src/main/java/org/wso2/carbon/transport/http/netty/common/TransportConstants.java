@@ -146,6 +146,8 @@ public final class TransportConstants {
 
     public static final String RESPONSE_BODY_READ_TIMER = "response.body.read.timer";
 
+    public static final String CONNECTION_TIMER = "connection.timer";
+
     private TransportConstants() {
     }
 
