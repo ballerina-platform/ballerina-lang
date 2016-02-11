@@ -28,10 +28,9 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.latency.metrics.TimerHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
@@ -44,33 +43,28 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private ConnectionManager connectionManager;
-    private TimerHandler timerHandler;
-
 
     public CarbonNettyServerInitializer() {
 
     }
 
-    @Override
-    public void setup(Map<String, String> parameters) {
+    @Override public void setup(Map<String, String> parameters) {
 
         PoolConfiguration.createPoolConfiguration(parameters);
         try {
             connectionManager = ConnectionManager.getInstance();
 
             if (parameters != null) {
-                DisruptorConfig disruptorConfig =
-                           new DisruptorConfig(
-                                      parameters.get(TransportConstants.DISRUPTOR_BUFFER_SIZE),
-                                      parameters.get(TransportConstants.DISRUPTOR_COUNT),
-                                      parameters.get(TransportConstants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                                      parameters.get(TransportConstants.WAIT_STRATEGY),
-                                      Boolean.parseBoolean(TransportConstants.SHARE_DISRUPTOR_WITH_OUTBOUND));
+                DisruptorConfig disruptorConfig = new DisruptorConfig(parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
+                        parameters.get(Constants.DISRUPTOR_COUNT),
+                        parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                        parameters.get(Constants.WAIT_STRATEGY),
+                        Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else {
-                log.warn("Disruptor specific parameters are not specified in " +
-                         "configuration hence using default configs");
+                log.warn("Disruptor specific parameters are not specified in "
+                        + "configuration hence using default configs");
                 DisruptorConfig disruptorConfig = new DisruptorConfig();
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             }
@@ -80,9 +74,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         }
     }
 
-    @Override
-    public void initChannel(Object ch) {
-        timerHandler = TimerHandler.getInstance();
+    @Override public void initChannel(Object ch) {
+        //TODO move to bundle timerHandler = TimerHandler.getInstance();
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
@@ -92,16 +85,14 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         p.addLast("encoder", new HttpResponseEncoder());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            p.addLast("handler", new SourceHandler(connectionManager, timerHandler));
+            p.addLast("handler", new SourceHandler(connectionManager));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
     }
 
-    @Override
-    public boolean isServerInitializer() {
+    @Override public boolean isServerInitializer() {
         return true;
     }
-
 
 }

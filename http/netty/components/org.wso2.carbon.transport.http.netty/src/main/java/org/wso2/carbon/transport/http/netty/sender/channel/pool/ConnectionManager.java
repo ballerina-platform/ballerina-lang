@@ -180,7 +180,8 @@ public class ConnectionManager {
             targetChannel.setHttpRoute(httpRoute);
             targetChannel.setCorrelatedSource(sourceHandler);
             // Transfer the metrics data holders to the Target handler
-            targetChannel.getTargetHandler().
+            //TODO
+            /*targetChannel.getTargetHandler().
                     setServerConnectionMetricHolder(sourceHandler.getServerConnectionMetricsHolder());
             targetChannel.getTargetHandler().
                     setClientConnectionMetricHolder(sourceHandler.getClientConnectionMetricsHolder());
@@ -191,7 +192,7 @@ public class ConnectionManager {
             targetChannel.getTargetHandler().
                     setServerResponseMetricsHolder(sourceHandler.getServerResponseMetricsHolder());
             targetChannel.getTargetHandler().
-                    setClientResponseMetricsHolder(sourceHandler.getClientResponseMetricsHolder());
+                    setClientResponseMetricsHolder(sourceHandler.getClientResponseMetricsHolder());*/
         }
         return targetChannel;
     }

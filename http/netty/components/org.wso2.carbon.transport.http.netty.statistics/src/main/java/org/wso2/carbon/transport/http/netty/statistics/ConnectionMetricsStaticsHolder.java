@@ -1,66 +1,58 @@
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
-import org.wso2.carbon.metrics.manager.MetricService;
+/*import org.wso2.carbon.metrics.manager.MetricService;*/
 import org.wso2.carbon.metrics.manager.Timer;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by chamile on 2/9/16.
+ * Holds the Connection related Latency Metrics
  */
 public class ConnectionMetricsStaticsHolder implements MetricsStaticsHolder {
 
-    private String type, timer = null;
+    private String type = null;
+    private String timer = null;
     private Timer connectionTimer = null;
     private Timer.Context context = null;
-    private MetricService metricService = null;
+    //private MetricService metricService = null;
     private Map<String, Long> connectionStatics;
     private long duration;
 
-    public ConnectionMetricsStaticsHolder(String type, String timer) {
-        //get the type of holder
+    public ConnectionMetricsStaticsHolder(String type, String timer, TimerHolder timerHolder) {
         this.type = type;
         this.timer = timer;
-        //Initialize connection metrics holder Timers
-        connectionTimer = MetricManager.timer(MetricManager.
-                name(ConnectionMetricsHolder.class, "connection.timer"), Level.INFO);
+        this.connectionTimer = timerHolder.getRequestLifeTimer();
     }
 
-    @Override
-    public boolean startTimer(String timer) {
+    @Override public boolean startTimer(String timer) {
         this.context = this.connectionTimer.start();
         return false;
     }
 
-    @Override
-    public boolean stopTimer(String timer) {
+    @Override public boolean stopTimer(String timer) {
         if (this.context != null) {
-            duration = this.context.stop();
-            setStatics(timer, duration);
+            setStatics(timer, this.context.stop());
             return true;
         } else {
             return false;
         }
     }
 
-    @Override
-    public Map<String, Long> getStatics(String timer) {
+    @Override public Map<String, Long> getStatics(String timer) {
         return null;
     }
 
-    @Override
-    public void setStatics(String timer, Long duration) {
+    @Override public void setStatics(String timer, Long duration) {
         if (connectionStatics == null) {
             this.connectionStatics = new HashMap<String, Long>();
         }
         connectionStatics.put(timer, duration);
     }
 
-    @Override
-    public String getType() {
+    @Override public String getType() {
         return type;
     }
 }

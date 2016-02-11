@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.common.MetricsConfiguration;
 
@@ -29,8 +29,7 @@ public class MetricsEnvConfiguration extends MetricsConfiguration {
     public MetricsEnvConfiguration() {
     }
 
-    @Override
-    public String getProperty(String key) {
+    @Override public String getProperty(String key) {
         key = convertKey(key);
         String value = null;
         if (System.getProperty(key) != null) {

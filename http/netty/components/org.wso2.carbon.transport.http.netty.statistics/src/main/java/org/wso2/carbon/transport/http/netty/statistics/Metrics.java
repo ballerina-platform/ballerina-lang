@@ -1,4 +1,4 @@
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,20 +46,20 @@ public final class Metrics {
                 .setRootLevel(org.wso2.carbon.metrics.manager.Level.INFO);
         for (MetricReporter metricReporter : metricReporters) {
             switch (metricReporter) {
-                case CONSOLE:
-                    builder.addReporterBuilder(
-                            new ConsoleReporterBuilder().setEnabled(true).configure(metricsEnvConfiguration));
-                    break;
-                case DAS:
-                    builder.addReporterBuilder(
-                            new DASReporterBuilder().setEnabled(true).configure(metricsEnvConfiguration));
-                    break;
-                case JMX:
-                    builder.addReporterBuilder(
-                            new JmxReporterBuilder().setEnabled(true).configure(metricsEnvConfiguration));
-                    break;
-                default:
-                    break;
+            case CONSOLE:
+                builder.addReporterBuilder(
+                        new ConsoleReporterBuilder().setEnabled(true).configure(metricsEnvConfiguration));
+                break;
+            case DAS:
+                builder.addReporterBuilder(
+                        new DASReporterBuilder().setEnabled(true).configure(metricsEnvConfiguration));
+                break;
+            case JMX:
+                builder.addReporterBuilder(
+                        new JmxReporterBuilder().setEnabled(true).configure(metricsEnvConfiguration));
+                break;
+            default:
+                break;
 
             }
         }

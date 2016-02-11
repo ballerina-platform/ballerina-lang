@@ -27,7 +27,7 @@ import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisruptorEvent;
 import org.wso2.carbon.transport.http.netty.common.disruptor.exception.GenericExceptionHandler;
 import org.wso2.carbon.transport.http.netty.common.disruptor.handler.CarbonDisruptorEventHandler;
@@ -74,19 +74,19 @@ public class DisruptorFactory {
     private static WaitStrategy getWaitStrategy(String waitstrategy) {
         WaitStrategy waitStrategy;
         switch (waitstrategy) {
-            case TransportConstants.BLOCKING_WAIT:
+            case Constants.BLOCKING_WAIT:
                 waitStrategy = new BlockingWaitStrategy();
                 break;
-            case TransportConstants.BUSY_SPIN:
+            case Constants.BUSY_SPIN:
                 waitStrategy = new BusySpinWaitStrategy();
                 break;
-            case TransportConstants.LITE_BLOCKING:
+            case Constants.LITE_BLOCKING:
                 waitStrategy = new LiteBlockingWaitStrategy();
                 break;
-            case TransportConstants.SLEEP_WAITING:
+            case Constants.SLEEP_WAITING:
                 waitStrategy = new SleepingWaitStrategy();
                 break;
-            case TransportConstants.TIME_BLOCKING:
+            case Constants.TIME_BLOCKING:
                 waitStrategy = new TimeoutBlockingWaitStrategy(1, TimeUnit.SECONDS);
                 break;
             default:

@@ -1,5 +1,4 @@
-package org.wso2.carbon.transport.http.netty.latency.metrics;
-
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import java.util.Map;
 

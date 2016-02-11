@@ -16,7 +16,7 @@
 package org.wso2.carbon.transport.http.netty.common.disruptor.config;
 
 import com.lmax.disruptor.RingBuffer;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DisruptorConfig {
 
         this.noOfEventHandlersPerDisruptor = 1;
 
-        this.disruptorWaitStrategy = TransportConstants.PHASED_BACKOFF;
+        this.disruptorWaitStrategy = Constants.PHASED_BACKOFF;
     }
 
     public DisruptorConfig(String bufferSize, String noDisruptors, String noOfEventHandlersPerDisruptor,

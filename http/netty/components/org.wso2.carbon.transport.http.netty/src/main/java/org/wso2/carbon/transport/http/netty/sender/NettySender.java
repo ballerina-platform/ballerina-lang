@@ -20,16 +20,13 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.MessageProcessorException;
-import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.*;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
@@ -94,10 +91,16 @@ public class NettySender implements TransportSender {
                 targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-                srcHandler.getClientRequestMetricsHolder().startTimer(TransportConstants.REQUEST_LIFE_TIMER);
-                srcHandler.getClientRequestMetricsHolder().startTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
+
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_INITIATED);
+                //TODO REQUEST_BODY_WRITE_TIMER
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_HEADERS_COMPLETED);
                 boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
-                srcHandler.getClientRequestMetricsHolder().stopTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
+                //TODO REQUEST_BODY_WRITE_TIMER stop
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WIRTE_BODY_COMPLETED);
                 if (written) {
                     targetChannel.setRequestWritten(true);
                 }

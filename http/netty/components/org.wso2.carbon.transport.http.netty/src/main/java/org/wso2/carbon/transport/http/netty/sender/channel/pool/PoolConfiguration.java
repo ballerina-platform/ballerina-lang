@@ -16,7 +16,7 @@
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.Map;
 
@@ -52,21 +52,21 @@ public class PoolConfiguration {
     private PoolConfiguration(Map<String, String> parameters) {
 
         if (parameters != null) {
-            numberOfPools = parameters.get(TransportConstants.NUMBER_OF_POOLS) != null ?
-                            Integer.parseInt(parameters.get(TransportConstants.NUMBER_OF_POOLS)) : 0;
-            maxActivePerPool = parameters.get(TransportConstants.MAX_ACTIVE_CONNECTIONS_PER_POOL) != null ?
-                               Integer.parseInt(parameters.get(TransportConstants
+            numberOfPools = parameters.get(Constants.NUMBER_OF_POOLS) != null ?
+                            Integer.parseInt(parameters.get(Constants.NUMBER_OF_POOLS)) : 0;
+            maxActivePerPool = parameters.get(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL) != null ?
+                               Integer.parseInt(parameters.get(Constants
                                        .MAX_ACTIVE_CONNECTIONS_PER_POOL)) : -1;
-            minIdlePerPool = parameters.get(TransportConstants.MIN_IDLE_CONNECTIONS_PER_POOL) != null ?
+            minIdlePerPool = parameters.get(Constants.MIN_IDLE_CONNECTIONS_PER_POOL) != null ?
                              Integer.parseInt
-                                        (parameters.get(TransportConstants.MIN_IDLE_CONNECTIONS_PER_POOL)) : 0;
-            maxIdlePerPool = parameters.get(TransportConstants.MAX_IDLE_CONNECTIONS_PER_POOL) != null ?
-                             Integer.parseInt(parameters.get(TransportConstants.MAX_IDLE_CONNECTIONS_PER_POOL)) : 100;
-            minEvictableIdleTime = parameters.get(TransportConstants.MIN_EVICTION_IDLE_TIME) != null ?
-                                   Integer.parseInt(parameters.get(TransportConstants
+                                        (parameters.get(Constants.MIN_IDLE_CONNECTIONS_PER_POOL)) : 0;
+            maxIdlePerPool = parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL) != null ?
+                             Integer.parseInt(parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL)) : 100;
+            minEvictableIdleTime = parameters.get(Constants.MIN_EVICTION_IDLE_TIME) != null ?
+                                   Integer.parseInt(parameters.get(Constants
                                            .MIN_EVICTION_IDLE_TIME)) : 5 * 60 * 1000L;
-            executorServiceThreads = parameters.get(TransportConstants.NO_THREADS_IN_EXECUTOR_SERVICE) != null ?
-                                     Integer.parseInt(parameters.get(TransportConstants
+            executorServiceThreads = parameters.get(Constants.NO_THREADS_IN_EXECUTOR_SERVICE) != null ?
+                                     Integer.parseInt(parameters.get(Constants
                                              .NO_THREADS_IN_EXECUTOR_SERVICE)) : 20;
 
         }

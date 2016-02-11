@@ -11,17 +11,19 @@
 + * distributed under the License is distributed on an "AS IS" BASIS,
 + * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 + * See the License for the specific language governing permissions and limitations under the License.
-+ */
++ *//*
 
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Timer;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
+*/
 /**
- - * Created by nadeeshaan on 12/22/15.
- + * Keep the response related latency data (Raw Data)
- */
+ * + * Keep the response related latency data (Raw Data)
+ *//*
+
 public class ResponseMetricsHolder {
     private String type = null;
 
@@ -35,7 +37,7 @@ public class ResponseMetricsHolder {
     private Timer.Context resHeaderReadContext = null;
     private Timer.Context resBodyReadContext = null;
 
-    public ResponseMetricsHolder(String type, TimerHandler timerHandler) {
+    public ResponseMetricsHolder(String type, TimerHolder timerHandler) {
         this.type = type;
         responseLifeTimer = timerHandler.getResponseLifeTimer();
         responseHeaderReadTimer = timerHandler.getResponseHeaderReadTimer();
@@ -60,34 +62,34 @@ public class ResponseMetricsHolder {
 
     public boolean startTimer(String timer) {
         switch (timer) {
-            case TransportConstants.RESPONSE_LIFE_TIMER:
-                resLifeContext = responseLifeTimer.start();
-                break;
-            case TransportConstants.RESPONSE_BODY_READ_TIMER:
-                resBodyReadContext = responseBodyReadTimer.start();
-                break;
-            case TransportConstants.RESPONSE_HEADER_READ_TIMER:
-                resHeaderReadContext = responseHeaderReadTimer.start();
-                break;
-            default:
-                return false;
+        case Constants.RESPONSE_LIFE_TIMER:
+            resLifeContext = responseLifeTimer.start();
+            break;
+        case Constants.RESPONSE_BODY_READ_TIMER:
+            resBodyReadContext = responseBodyReadTimer.start();
+            break;
+        case Constants.RESPONSE_HEADER_READ_TIMER:
+            resHeaderReadContext = responseHeaderReadTimer.start();
+            break;
+        default:
+            return false;
         }
         return true;
     }
 
     public boolean stopTimer(String timer) {
         switch (timer) {
-            case TransportConstants.RESPONSE_LIFE_TIMER:
-                resLifeContext.stop();
-                break;
-            case TransportConstants.RESPONSE_BODY_READ_TIMER:
-                resBodyReadContext.stop();
-                break;
-            case TransportConstants.RESPONSE_HEADER_READ_TIMER:
-                resHeaderReadContext.stop();
-                break;
-            default:
-                return false;
+        case Constants.RESPONSE_LIFE_TIMER:
+            resLifeContext.stop();
+            break;
+        case Constants.RESPONSE_BODY_READ_TIMER:
+            resBodyReadContext.stop();
+            break;
+        case Constants.RESPONSE_HEADER_READ_TIMER:
+            resHeaderReadContext.stop();
+            break;
+        default:
+            return false;
         }
         return true;
     }
@@ -104,3 +106,4 @@ public class ResponseMetricsHolder {
         return resBodyReadContext;
     }
 }
+*/

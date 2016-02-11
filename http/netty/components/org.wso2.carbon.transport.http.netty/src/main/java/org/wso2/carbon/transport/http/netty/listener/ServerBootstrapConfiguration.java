@@ -16,7 +16,7 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 
 import java.util.List;
@@ -49,21 +49,21 @@ public class ServerBootstrapConfiguration {
 
         if (parameters != null) {
             for (Parameter parameter : parameters) {
-                if (TransportConstants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT.equals(parameter.getName())) {
+                if (Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT.equals(parameter.getName())) {
                     connectTimeOut = Integer.parseInt(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_KEEPALIVE.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_KEEPALIVE.equals(parameter.getName())) {
                     keepAlive = Boolean.parseBoolean(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE.equals(parameter.getName())) {
                     reciveBufferSize = Integer.parseInt(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE.equals(parameter.getName())) {
                     sendBufferSize = Integer.parseInt(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_TCP_NO_DELY.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_TCP_NO_DELY.equals(parameter.getName())) {
                     tcpNoDelay = Boolean.parseBoolean(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_SO_REUSE.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_SO_REUSE.equals(parameter.getName())) {
                     socketReuse = Boolean.parseBoolean(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_SO_BACKLOG.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_SO_BACKLOG.equals(parameter.getName())) {
                     soBackLog = Integer.parseInt(parameter.getValue());
-                } else if (TransportConstants.SERVER_BOOTSTRAP_SO_TIMEOUT.equals(parameter.getName())) {
+                } else if (Constants.SERVER_BOOTSTRAP_SO_TIMEOUT.equals(parameter.getName())) {
                     socketTimeOut = Integer.parseInt(parameter.getValue());
                 }
             }

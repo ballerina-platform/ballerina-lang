@@ -1,5 +1,3 @@
-
-
 /*
 + * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 + *
@@ -13,18 +11,21 @@
 + * distributed under the License is distributed on an "AS IS" BASIS,
 + * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 + * See the License for the specific language governing permissions and limitations under the License.
- */
+ *//*
 
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.MetricService;
 import org.wso2.carbon.metrics.manager.Timer;
 
+*/
 /**
  * * Holds the Connection related Latency Metrics
- */
+ *//*
+
 public class ConnectionMetricsHolder {
 
     private String type = null;
@@ -34,7 +35,7 @@ public class ConnectionMetricsHolder {
 
     private MetricService metricService = null;
 
-    public ConnectionMetricsHolder(String type, TimerHandler timerHandler) {
+    public ConnectionMetricsHolder(String type, TimerHolder timerHandler) {
         this.type = type;
         // Initialize connection metrics holder Timers
         connectionTimer = MetricManager.timer(MetricManager.
@@ -67,3 +68,4 @@ public class ConnectionMetricsHolder {
         this.connectionTimer = connectionTimer;
     }
 }
+*/

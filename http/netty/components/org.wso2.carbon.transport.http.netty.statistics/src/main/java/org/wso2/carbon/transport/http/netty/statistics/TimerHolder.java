@@ -1,13 +1,15 @@
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Level;
 import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.Timer;
 
 /**
- * Created by chamile on 2/3/16.
+ * Initialize all the timers
  */
-public class TimerHandler {
+public class TimerHolder {
+
+    private final Timer connectionTimer;
     private final Timer responseLifeTimer;
     private final Timer requestLifeTimer;
     private final Timer requestBodyReadTimer;
@@ -15,34 +17,36 @@ public class TimerHandler {
     private final Timer requestBodyWriteTimer;
     private final Timer responseHeaderReadTimer;
     private final Timer responseBodyReadTimer;
-    private static volatile TimerHandler timerHandler;
+    private static volatile TimerHolder timerHandler;
 
-    public TimerHandler() {
+
+    public TimerHolder() {
         //TODO rename metrics name
-
         // Initialize request metrics holder Timers
         //requestLifeTimer = MetricManager.timer(MetricManager.
         //      name("org.wso2.carbon.transport", "request.life.time"), Level.INFO);
+        connectionTimer = MetricManager.timer(MetricManager.
+                name(ConnectionMetricsStaticsHolder.class, "connection.timer"), Level.INFO);
         requestLifeTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.life.time"), Level.INFO);
+                name(RequestMetricsStaticsHolder.class, "request.life.time"), Level.INFO);
         requestBodyReadTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.body.read.time"), Level.INFO);
+                name(RequestMetricsStaticsHolder.class, "request.body.read.time"), Level.INFO);
         requestHeaderReadTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.header.read.time"), Level.INFO);
+                name(RequestMetricsStaticsHolder.class, "request.header.read.time"), Level.INFO);
         requestBodyWriteTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsHolder.class, "request.body.write.timer"), Level.INFO);
+                name(RequestMetricsStaticsHolder.class, "request.body.write.timer"), Level.INFO);
         //response metrics holder timers
         responseLifeTimer = MetricManager.timer(MetricManager.
-                name(ResponseMetricsHolder.class, "response.life.time"), Level.INFO);
+                name(ResponseMetricsStaticsHolder.class, "response.life.time"), Level.INFO);
         responseHeaderReadTimer = MetricManager.timer(MetricManager.
-                name(ResponseMetricsHolder.class, "response.header.read.time"), Level.INFO);
+                name(ResponseMetricsStaticsHolder.class, "response.header.read.time"), Level.INFO);
         responseBodyReadTimer = MetricManager.timer(MetricManager.
-                name(ResponseMetricsHolder.class, "response.body.read.time"), Level.INFO);
+                name(ResponseMetricsStaticsHolder.class, "response.body.read.time"), Level.INFO);
     }
 
-    public static TimerHandler getInstance() {
+    public static TimerHolder getInstance() {
         if (timerHandler == null) {
-            timerHandler = new TimerHandler();
+            timerHandler = new TimerHolder();
         }
         return timerHandler;
     }
@@ -50,6 +54,10 @@ public class TimerHandler {
     //TODO send this to constructor,,, check other holders
     public void initTimer() {
 
+    }
+
+    public Timer getConnectionTimer() {
+        return connectionTimer;
     }
 
     public Timer getRequestLifeTimer() {

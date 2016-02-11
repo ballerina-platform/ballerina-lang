@@ -24,18 +24,16 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.Constants;
+//import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
-import org.wso2.carbon.transport.http.netty.latency.metrics.ConnectionMetricsHolder;
-import org.wso2.carbon.transport.http.netty.latency.metrics.RequestMetricsHolder;
-import org.wso2.carbon.transport.http.netty.latency.metrics.ResponseMetricsHolder;
-import org.wso2.carbon.transport.http.netty.latency.metrics.TimerHandler;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -59,93 +57,77 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private DisruptorConfig disruptorConfig;
     private Map<String, GenericObjectPool> targetChannelPool;
 
-    private ConnectionMetricsHolder serverConnectionMetricsHolder;
-    private ConnectionMetricsHolder clientConnectionMetricsHolder;
-    private RequestMetricsHolder serverRequestMetricsHolder;
-    private RequestMetricsHolder clientRequestMetricsHolder;
-    private ResponseMetricsHolder serverResponseMetricsHolder;
-    private ResponseMetricsHolder clientResponseMetricsHolder;
-
-
-    public SourceHandler(ConnectionManager connectionManager, TimerHandler timerHandler) throws Exception {
+    public SourceHandler(ConnectionManager connectionManager) throws Exception {
         this.connectionManager = connectionManager;
-
-        // Initialize the metric holders
-        this.serverConnectionMetricsHolder = new ConnectionMetricsHolder(
-                TransportConstants.TYPE_SOURCE_CONNECTION, timerHandler);
-        this.serverRequestMetricsHolder = new RequestMetricsHolder(
-                TransportConstants.TYPE_SERVER_REQUEST, timerHandler);
-        this.clientRequestMetricsHolder = new RequestMetricsHolder(
-                TransportConstants.TYPE_CLIENT_REQUEST, timerHandler);
-        this.serverResponseMetricsHolder = new ResponseMetricsHolder(
-                TransportConstants.TYPE_SERVER_RESPONSE, timerHandler);
-        this.clientResponseMetricsHolder = new ResponseMetricsHolder(
-                TransportConstants.TYPE_CLIENT_RESPONSE, timerHandler);
-        this.clientConnectionMetricsHolder = new ConnectionMetricsHolder(
-                TransportConstants.TYPE_CLIENT_CONNECTION, timerHandler);
-
-
     }
 
-    @Override
-    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+    @Override public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-        serverConnectionMetricsHolder.startTimer();
+        //serverConnectionMetricsHolder.startTimer(); //TODO
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(cMsg, EngagedLocation.CLIENT_CONNECTION_INITIATED);
         disruptorConfig = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
         disruptor = disruptorConfig.getDisruptor();
         this.ctx = ctx;
         this.targetChannelPool = connectionManager.getTargetChannelPool();
 
-
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    @SuppressWarnings("unchecked") @Override public void channelRead(ChannelHandlerContext ctx, Object msg)
+            throws Exception {
         if (msg instanceof HttpRequest) {
 
-            serverRequestMetricsHolder.startTimer(TransportConstants.REQUEST_LIFE_TIMER);
+            //TODO serverRequestMetricsHolder.startTimer(org.wso2.carbon.transport.http.netty.common
+            // .Constants.REQUEST_LIFE_TIMER);
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.CLIENT_REQEST_READ_INITIATED);
 
             cMsg = new NettyCarbonMessage();
-            cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.PORT,
+                    ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.HOST,
+                    ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-            cMsg.setProperty(Constants.CALL_BACK, responseCallback);
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, responseCallback);
             HttpRequest httpRequest = (HttpRequest) msg;
 
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, httpRequest.getUri());
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.CHNL_HNDLR_CTX, this.ctx);
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.SRC_HNDLR, this);
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
+            cMsg.setProperty(org.wso2.carbon.messaging.Constants.HTTP_METHOD, httpRequest.getMethod().name());
 
-            cMsg.setProperty(Constants.TO, httpRequest.getUri());
-            cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-            cMsg.setProperty(Constants.SRC_HNDLR, this);
-            cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
-            cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-            serverRequestMetricsHolder.startTimer(TransportConstants.REQUEST_HEADER_READ_TIMER);
             cMsg.setHeaders(Util.getHeaders(httpRequest));
-            serverRequestMetricsHolder.stopTimer(TransportConstants.REQUEST_HEADER_READ_TIMER);
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_HEADERS_COMPLETED);
 
-            cMsg.setProperty(TransportConstants.CLIENT_RESPONSE_METRICS_HOLDER, this.clientResponseMetricsHolder);
-            cMsg.setProperty(TransportConstants.SERVER_RESPONSE_METRICS_HOLDER, this.serverResponseMetricsHolder);
-            cMsg.setProperty(TransportConstants.SERVER_REQUEST_METRICS_HOLDER, this.serverRequestMetricsHolder);
-            cMsg.setProperty(TransportConstants.CLIENT_REQUEST_METRICS_HOLDER, this.clientRequestMetricsHolder);
-            cMsg.setProperty(TransportConstants.SERVER_CONNECTION_METRICS_HOLDER, this.serverConnectionMetricsHolder);
-            cMsg.setProperty(TransportConstants.CLIENT_CONNECTION_METRICS_HOLDER, this.clientConnectionMetricsHolder);
-
+            /*cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_RESPONSE_METRICS_HOLDER,
+            this.clientResponseMetricsHolder);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
+            Constants.SERVER_RESPONSE_METRICS_HOLDER, this.serverResponseMetricsHolder);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
+            Constants.SERVER_REQUEST_METRICS_HOLDER, this.serverRequestMetricsHolder);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
+            Constants.CLIENT_REQUEST_METRICS_HOLDER, this.clientRequestMetricsHolder);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
+            Constants.SERVER_CONNECTION_METRICS_HOLDER, this.serverConnectionMetricsHolder);
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
+            Constants.CLIENT_CONNECTION_METRICS_HOLDER, this.clientConnectionMetricsHolder);*/
 
             if (disruptorConfig.isShared()) {
-                cMsg.setProperty(Constants.DISRUPTOR, disruptor);
+                cMsg.setProperty(org.wso2.carbon.messaging.Constants.DISRUPTOR, disruptor);
             }
             disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
-                    if (serverRequestMetricsHolder.getrBodyReadContext() == null) {
-                        serverRequestMetricsHolder.startTimer(TransportConstants.REQUEST_BODY_READ_TIMER);
-                    }
+                    //TODO serverRequestMetricsHolder.startTimer(org.wso2.carbon.transport.http.netty.common.
+                    // Constants.REQUEST_BODY_READ_TIMER);
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        serverRequestMetricsHolder.stopTimer(TransportConstants.REQUEST_BODY_READ_TIMER);
-                        serverRequestMetricsHolder.stopTimer(TransportConstants.REQUEST_LIFE_TIMER);
+                        NettyTransportContextHolder.getInstance().getInterceptor().
+                                engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_BODY_COMPLETED);
                         cMsg.setEomAdded(true);
                     }
                 }
@@ -153,57 +135,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
+    @Override public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
-        serverConnectionMetricsHolder.stopTimer();
-        log.info("************ " + this.serverConnectionMetricsHolder.getConnectionTimer().getCount());
-        log.info("Type: " + clientResponseMetricsHolder.getType());
-        log.info("Response Life Time: " +
-                String.valueOf(clientResponseMetricsHolder.getResponseLifeTime().getCount()));
-        log.info("Response Body Read Time: " +
-                String.valueOf(clientResponseMetricsHolder.getResponseBodyReadTime().getCount()));
-        log.info("Response Header Read Time: " +
-                String.valueOf(clientResponseMetricsHolder.getResponseHeaderReadTime().getCount()));
-        log.info("===============================================\n");
-
-        log.info("Type: " + serverResponseMetricsHolder.getType());
-        log.info("Response Life Time" +
-                String.valueOf(serverResponseMetricsHolder.getResponseLifeTime().getCount()));
-        log.info("Response Header Read Time: " +
-                String.valueOf(serverResponseMetricsHolder.getResponseHeaderReadTime().getCount()));
-        log.info("Response Body Read Time: " +
-                String.valueOf(serverResponseMetricsHolder.getResponseBodyReadTime().getCount()));
-        log.info("===============================================\n");
-
-        log.info("Type: " + serverRequestMetricsHolder.getType());
-        log.info("Request Header Read Time: " +
-                String.valueOf(serverRequestMetricsHolder.getRequestHeaderReadTimer().getCount()));
-        log.info("Request Body Read Time: " +
-                String.valueOf(serverRequestMetricsHolder.getRequestBodyReadTimer().getCount()));
-        log.info("Request Read Time: " +
-                String.valueOf(serverRequestMetricsHolder.getRequestLifeTimer().getCount()));
-        log.info("===============================================\n");
-
-        log.info("Type: " + clientRequestMetricsHolder.getType());
-        log.info("Request Read Time: " +
-                String.valueOf(clientRequestMetricsHolder.getRequestLifeTimer().getCount()));
-        log.info("Request Header Read Time: " +
-                String.valueOf(clientRequestMetricsHolder.getRequestHeaderReadTimer().getCount()));
-        log.info("Request Body Read Time: " +
-                String.valueOf(clientRequestMetricsHolder.getRequestBodyReadTimer().getCount()));
-        log.info("===============================================\n");
-
-        log.info("Type: " + "Client Connection");
-        log.info("Connection Life Time: " +
-                String.valueOf(clientConnectionMetricsHolder.getConnectionTimer().getCount()));
-        log.info("===============================================\n");
-
-        log.info("Type: Server Connection");
-        log.info("Connection Life Time: " +
-                String.valueOf(serverConnectionMetricsHolder.getConnectionTimer().getCount()));
-        log.info("===============================================\n");
-
+        NettyTransportContextHolder.getInstance().getInterceptor().
+                engage(cMsg, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }
@@ -229,13 +164,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return ctx;
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    @Override public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         log.error("Exception caught in Netty Source handler", cause);
     }
 
-    public ConnectionMetricsHolder getServerConnectionMetricsHolder() {
+   /* public ConnectionMetricsHolder getServerConnectionMetricsHolder() {
         return serverConnectionMetricsHolder;
     }
 
@@ -258,6 +192,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public ResponseMetricsHolder getClientResponseMetricsHolder() {
         return clientResponseMetricsHolder;
     }
+*/
 }
 
 

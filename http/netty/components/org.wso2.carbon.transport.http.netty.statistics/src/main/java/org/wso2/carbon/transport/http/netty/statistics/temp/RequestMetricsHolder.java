@@ -11,19 +11,22 @@
 + * distributed under the License is distributed on an "AS IS" BASIS,
 + * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 + * See the License for the specific language governing permissions and limitations under the License.
-+ */
++ *//*
 
-package org.wso2.carbon.transport.http.netty.latency.metrics;
+
+package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Timer;
-import org.wso2.carbon.transport.http.netty.common.TransportConstants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
+*/
 /**
  * Holds the request metrics parameters
- */
+ *//*
+
 public class RequestMetricsHolder {
 
-    private final TimerHandler timerHandler;
+    private final TimerHolder timerHandler;
     private String type;
 
     // Carbon-Metrics Measuring parameters
@@ -42,7 +45,7 @@ public class RequestMetricsHolder {
     private Timer.Context rHeaderWriteContext;
     private Timer.Context rBodyWriteContext;
 
-    public RequestMetricsHolder(String type, TimerHandler timerHandler) {
+    public RequestMetricsHolder(String type, TimerHolder timerHandler) {
         //TODO avoid creating same objects
         this.type = type;
         this.timerHandler = timerHandler;
@@ -55,7 +58,7 @@ public class RequestMetricsHolder {
 
     public String getType() {
         return type;
-
+    }
 
     public Timer getRequestLifeTimer() {
         return requestLifeTimer;
@@ -75,38 +78,38 @@ public class RequestMetricsHolder {
 
     public boolean startTimer(String timer) {
         switch (timer) {
-            case TransportConstants.REQUEST_LIFE_TIMER:
-                rLifeTimeContext = requestLifeTimer.start();
-                break;
-            case TransportConstants.REQUEST_BODY_READ_TIMER:
-                rBodyReadContext = requestBodyReadTimer.start();
-                break;
-            case TransportConstants.REQUEST_HEADER_READ_TIMER:
-                rHeaderReadContext = requestHeaderReadTimer.start();
-                break;
-            case TransportConstants.REQUEST_BODY_WRITE_TIMER:
-                rBodyWriteContext = requestBodyWriteTimer.start();
-                break;
-            default:
-                return false;
+        case Constants.REQUEST_LIFE_TIMER:
+            rLifeTimeContext = requestLifeTimer.start();
+            break;
+        case Constants.REQUEST_BODY_READ_TIMER:
+            rBodyReadContext = requestBodyReadTimer.start();
+            break;
+        case Constants.REQUEST_HEADER_READ_TIMER:
+            rHeaderReadContext = requestHeaderReadTimer.start();
+            break;
+        case Constants.REQUEST_BODY_WRITE_TIMER:
+            rBodyWriteContext = requestBodyWriteTimer.start();
+            break;
+        default:
+            return false;
         }
         return true;
     }
 
     public boolean stopTimer(String timer) {
         switch (timer) {
-            case TransportConstants.REQUEST_LIFE_TIMER:
-                rLifeTimeContext.stop();
-                break;
-            case TransportConstants.REQUEST_BODY_READ_TIMER:
-                rBodyReadContext.stop();
+        case Constants.REQUEST_LIFE_TIMER:
+            rLifeTimeContext.stop();
+            break;
+        case Constants.REQUEST_BODY_READ_TIMER:
+            rBodyReadContext.stop();
 
-                break;
-            case TransportConstants.REQUEST_HEADER_READ_TIMER:
-                rHeaderReadContext.stop();
-                break;
-            default:
-                return false;
+            break;
+        case Constants.REQUEST_HEADER_READ_TIMER:
+            rHeaderReadContext.stop();
+            break;
+        default:
+            return false;
         }
         return true;
     }
@@ -123,3 +126,4 @@ public class RequestMetricsHolder {
         return rHeaderReadContext;
     }
 }
+*/

@@ -88,6 +88,7 @@
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.wso2.orbit.com.lmax</groupId>
             <artifactId>disruptor</artifactId>
@@ -137,8 +138,10 @@
             org.wso2.carbon.metrics.common.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
-            com.lmax.disruptor.*;version="${disruptor.package.import.version.range}"
-        </import.package>
+            com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",
+            <!--org.wso2.carbon.transport.http.netty.statistics.*;version="${netty.transport.package.export.version}",
+            --><!--org.wso2.carbon.transport.http.netty.common.Constants;version="${netty.transport.package.export.version}"
+  -->      </import.package>
         <provide.capability>
             osgi.service;effective:=active;
             objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";
