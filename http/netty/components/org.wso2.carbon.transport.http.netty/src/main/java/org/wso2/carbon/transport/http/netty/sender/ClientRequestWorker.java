@@ -102,7 +102,6 @@ public class ClientRequestWorker implements Runnable {
             ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute, senderConfig);
 
             try {
-                //TODO sourceHandler.getClientConnectionMetricsHolder().startTimer();
                 NettyTransportContextHolder.getInstance().getInterceptor()
                         .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
                 channel = ChannelUtils.openChannel(future, httpRoute);
@@ -130,28 +129,12 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-            //TODO sourceHandler.getClientRequestMetricsHolder()
-            // .startTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
+
             boolean written = ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
-            //TODO sourceHandler.getClientRequestMetricsHolder().stopTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
             if (written) {
                 targetChannel.setRequestWritten(true);
             }
             sourceHandler.addTargetChannel(httpRoute, targetChannel);
-            // Transfer the metrics data holders to the Target handler
-            //TODO
-            /*targetChannel.getTargetHandler().
-                    setServerConnectionMetricHolder(sourceHandler.getServerConnectionMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setClientConnectionMetricHolder(sourceHandler.getClientConnectionMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setServerRequestMetricsHolder(sourceHandler.getServerRequestMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setClientRequestMetricsHolder(sourceHandler.getClientRequestMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setServerResponseMetricsHolder(sourceHandler.getServerResponseMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setClientResponseMetricsHolder(sourceHandler.getClientResponseMetricsHolder());*/
         }
     }
 }

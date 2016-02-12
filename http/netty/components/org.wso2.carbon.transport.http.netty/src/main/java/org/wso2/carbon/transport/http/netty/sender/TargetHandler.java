@@ -68,11 +68,8 @@ public class TargetHandler extends ReadTimeoutHandler {
             throws Exception {
         if (msg instanceof HttpResponse) {
             cMsg = new NettyCarbonMessage();
-            //TODO: RESPONSE_LIFE_TIMER
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_INITIATED);
-
-
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
@@ -80,17 +77,13 @@ public class TargetHandler extends ReadTimeoutHandler {
             HttpResponse httpResponse = (HttpResponse) msg;
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-            //TODO: RESPONSE_HEADER_READ_TIMER);
             cMsg.setHeaders(Util.getHeaders(httpResponse));
-            //TODO: RESPONSE_HEADER_READ_TIMER);
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_HEADERS_COMPLETED);
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
-                //TODO RESPONSE_BODY_READ_TIMER);
                 if (msg instanceof LastHttpContent) {
-                    //TODO: RESPONSE_BODY_READ_TIMER);
                     NettyTransportContextHolder.getInstance().getInterceptor()
                             .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_BODY_COMPLETED);
                     HttpContent httpContent = (LastHttpContent) msg;
@@ -107,7 +100,6 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override public void channelInactive(ChannelHandlerContext ctx) {
         // Set the client channel close metric
-        //TODO Connection stopTimer
         NettyTransportContextHolder.getInstance().getInterceptor()
                 .engage(cMsg, EngagedLocation.SERVER_CONNECTION_COMPLETED);
         log.debug("Target channel closed.");
@@ -132,31 +124,6 @@ public class TargetHandler extends ReadTimeoutHandler {
     public void setTargetChannel(TargetChannel targetChannel) {
         this.targetChannel = targetChannel;
     }
-
-    //TODO
-    /*public void setClientConnectionMetricHolder(ConnectionMetricsHolder clientConnectionMetricHolder) {
-        this.clientConnectionMetricHolder = clientConnectionMetricHolder;
-    }
-
-    public void setServerConnectionMetricHolder(ConnectionMetricsHolder serverConnectionMetricHolder) {
-        this.serverConnectionMetricHolder = serverConnectionMetricHolder;
-    }
-
-    public void setClientRequestMetricsHolder(RequestMetricsHolder clientRequestMetricsHolder) {
-        this.clientRequestMetricsHolder = clientRequestMetricsHolder;
-    }
-
-    public void setServerRequestMetricsHolder(RequestMetricsHolder serverRequestMetricsHolder) {
-        this.serverRequestMetricsHolder = serverRequestMetricsHolder;
-    }
-
-    public void setClientResponseMetricsHolder(ResponseMetricsHolder clientResponseMetricsHolder) {
-        this.clientResponseMetricsHolder = clientResponseMetricsHolder;
-    }
-
-    public void setServerResponseMetricsHolder(ResponseMetricsHolder serverResponseMetricsHolder) {
-        this.serverResponseMetricsHolder = serverResponseMetricsHolder;
-    }*/
 
     @Override protected void readTimedOut(ChannelHandlerContext ctx) {
 

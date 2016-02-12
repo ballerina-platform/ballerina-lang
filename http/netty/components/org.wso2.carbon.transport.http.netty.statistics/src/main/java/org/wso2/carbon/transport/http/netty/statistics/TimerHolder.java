@@ -19,9 +19,7 @@ public class TimerHolder {
     private final Timer responseBodyReadTimer;
     private static volatile TimerHolder timerHandler;
 
-
     public TimerHolder() {
-        //TODO rename metrics name
         // Initialize request metrics holder Timers
         //requestLifeTimer = MetricManager.timer(MetricManager.
         //      name("org.wso2.carbon.transport", "request.life.time"), Level.INFO);
@@ -88,7 +86,4 @@ public class TimerHolder {
         return responseBodyReadTimer;
     }
 
-    /*public Timer getConnectionTimer() {
-        return connectionTimer;
-    }*/
 }

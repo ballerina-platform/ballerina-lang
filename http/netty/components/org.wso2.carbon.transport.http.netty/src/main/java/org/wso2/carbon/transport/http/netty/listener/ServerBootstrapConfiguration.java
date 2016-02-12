@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
-
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
 
@@ -44,7 +43,6 @@ public class ServerBootstrapConfiguration {
 
     private int socketTimeOut = 15;
 
-
     private ServerBootstrapConfiguration(List<Parameter> parameters) {
 
         if (parameters != null) {
@@ -69,7 +67,6 @@ public class ServerBootstrapConfiguration {
             }
         }
     }
-
 
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
@@ -111,6 +108,5 @@ public class ServerBootstrapConfiguration {
         bootstrapConfig = new ServerBootstrapConfiguration(parameters);
 
     }
-
 
 }

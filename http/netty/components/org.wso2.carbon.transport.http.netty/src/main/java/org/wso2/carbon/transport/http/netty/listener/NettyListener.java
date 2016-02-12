@@ -66,8 +66,7 @@ public class NettyListener extends TransportListener {
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
         bootstrap = new ServerBootstrap();
         bootstrap.option(ChannelOption.SO_BACKLOG, serverBootstrapConfiguration.getSoBackLog());
-        bootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class);
+        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         addChannelInitializer();
         bootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
         bootstrap.option(ChannelOption.SO_KEEPALIVE, serverBootstrapConfiguration.isKeepAlive());
@@ -113,20 +112,17 @@ public class NettyListener extends TransportListener {
         bootstrap.childHandler(handler);
     }
 
-    @Override
-    public void stop() {
+    @Override public void stop() {
         log.info("Stopping Netty transport " + id + " on port " + nettyConfig.getPort());
         shutdownEventLoops();
     }
 
-    @Override
-    public void beginMaintenance() {
+    @Override public void beginMaintenance() {
         log.info("Putting Netty transport " + id + " on port " + nettyConfig.getPort() + " into maintenance mode");
         shutdownEventLoops();
     }
 
-    @Override
-    public void endMaintenance() {
+    @Override public void endMaintenance() {
         log.info("Ending maintenance mode for Netty transport " + id + " running on port " + nettyConfig.getPort());
         bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
@@ -136,12 +132,10 @@ public class NettyListener extends TransportListener {
     private void shutdownEventLoops() {
         Future<?> f = workerGroup.shutdownGracefully();
         f.addListener(new GenericFutureListener<Future<Object>>() {
-            @Override
-            public void operationComplete(Future<Object> future) throws Exception {
+            @Override public void operationComplete(Future<Object> future) throws Exception {
                 Future f = bossGroup.shutdownGracefully();
                 f.addListener(new GenericFutureListener<Future<Object>>() {
-                    @Override
-                    public void operationComplete(Future<Object> future) throws Exception {
+                    @Override public void operationComplete(Future<Object> future) throws Exception {
                         log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
                                 " stopped successfully");
                     }
@@ -150,8 +144,7 @@ public class NettyListener extends TransportListener {
         });
     }
 
-    @Override
-    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+    @Override public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
 
     }
 }

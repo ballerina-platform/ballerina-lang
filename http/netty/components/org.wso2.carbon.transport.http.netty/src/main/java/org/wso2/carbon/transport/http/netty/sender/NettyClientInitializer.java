@@ -33,9 +33,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguratio
  */
 public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
 
-
     private static final Logger log = LoggerFactory.getLogger(NettyClientInitializer.class);
-
 
     private SenderConfiguration senderConfiguration;
 
@@ -48,9 +46,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
     }
 
-
-    @Override
-    protected void initChannel(SocketChannel ch) throws Exception {
+    @Override protected void initChannel(SocketChannel ch) throws Exception {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
         if (senderConfiguration.getSslConfig() != null) {
@@ -64,7 +60,6 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
         handler = new TargetHandler(soTimeOut);
         ch.pipeline().addLast(HANDLER, handler);
-
 
     }
 

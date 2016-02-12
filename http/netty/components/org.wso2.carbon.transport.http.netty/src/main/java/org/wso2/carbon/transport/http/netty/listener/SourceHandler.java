@@ -64,7 +64,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-        //serverConnectionMetricsHolder.startTimer(); //TODO
         NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
         carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
@@ -82,15 +81,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
 
             cMsg = new NettyCarbonMessage();
-            //TODO serverRequestMetricsHolder.startTimer(org.wso2.carbon.transport.http.netty.common
-            // .Constants.REQUEST_LIFE_TIMER);
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.CLIENT_REQEST_READ_INITIATED);
 
-            cMsg.setProperty(Constants.PORT,
-                    ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty(Constants.HOST,
-                    ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+            cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+            cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
             cMsg.setProperty(Constants.CALL_BACK, responseCallback);
             HttpRequest httpRequest = (HttpRequest) msg;
@@ -112,8 +107,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
-                    //TODO serverRequestMetricsHolder.startTimer(org.wso2.carbon.transport.http.netty.common.
-                    // Constants.REQUEST_BODY_READ_TIMER);
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
@@ -132,8 +125,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
                 .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
-//        NettyTransportContextHolder.getInstance().getInterceptor().
-//                engage(cMsg, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }
@@ -164,30 +155,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         log.error("Exception caught in Netty Source handler", cause);
     }
 
-   /* public ConnectionMetricsHolder getServerConnectionMetricsHolder() {
-        return serverConnectionMetricsHolder;
-    }
-
-    public ConnectionMetricsHolder getClientConnectionMetricsHolder() {
-        return clientConnectionMetricsHolder;
-    }
-
-    public RequestMetricsHolder getServerRequestMetricsHolder() {
-        return serverRequestMetricsHolder;
-    }
-
-    public RequestMetricsHolder getClientRequestMetricsHolder() {
-        return clientRequestMetricsHolder;
-    }
-
-    public ResponseMetricsHolder getServerResponseMetricsHolder() {
-        return serverResponseMetricsHolder;
-    }
-
-    public ResponseMetricsHolder getClientResponseMetricsHolder() {
-        return clientResponseMetricsHolder;
-    }
-*/
 }
 
 
