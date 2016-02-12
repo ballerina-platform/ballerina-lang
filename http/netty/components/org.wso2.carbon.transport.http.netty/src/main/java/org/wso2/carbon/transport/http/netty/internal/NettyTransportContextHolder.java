@@ -73,7 +73,6 @@ public class NettyTransportContextHolder {
         }
     }
 
-
     public CarbonTransportInitializer getServerChannelInitializer(String key) {
         return channelServerInitializers.get(key);
     }
@@ -81,7 +80,6 @@ public class NettyTransportContextHolder {
     public CarbonTransportInitializer getClientChannelInitializer(String key) {
         return channelClientInitializers.get(key);
     }
-
 
     public void removeNettyChannelInitializer(String key) {
         channelServerInitializers.remove(key);
@@ -109,12 +107,11 @@ public class NettyTransportContextHolder {
         }
     }
 
-
     public void setInterceptor(Interceptor interceptor) {
         this.interceptor = interceptor;
     }
 
-    public Interceptor getInterceptor(){
+    public Interceptor getInterceptor() {
         return interceptor;
     }
 }

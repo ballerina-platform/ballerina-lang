@@ -23,17 +23,16 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.*;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.EngagedLocation;
+import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
-/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.exception.EndpointTimeOutException;
-/*
-import org.wso2.carbon.transport.http.netty.latency.metrics.ConnectionMetricsHolder;
-import org.wso2.carbon.transport.http.netty.latency.metrics.RequestMetricsHolder;
-import org.wso2.carbon.transport.http.netty.latency.metrics.ResponseMetricsHolder;
-*/
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
