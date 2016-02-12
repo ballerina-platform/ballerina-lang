@@ -24,12 +24,10 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
@@ -41,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -95,7 +94,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(Constants.SRC_HNDLR, this);
             cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
             cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-
             cMsg.setHeaders(Util.getHeaders(httpRequest));
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_HEADERS_COMPLETED);

@@ -38,8 +38,7 @@ import java.util.Set;
  */
 public class NettyTransportActivator implements BundleActivator {
 
-    @Override
-    public void start(BundleContext bundleContext) throws Exception {
+    @Override public void start(BundleContext bundleContext) throws Exception {
         for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
@@ -59,8 +58,7 @@ public class NettyTransportActivator implements BundleActivator {
     private Set<NettyListener> createNettyListeners() {
         Set<NettyListener> listeners = new HashSet<>();
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
-        Set<ListenerConfiguration> listenerConfigurations =
-                trpConfig.getListenerConfigurations();
+        Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             NettyTransportContextHolder.getInstance()
                     .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
@@ -76,17 +74,15 @@ public class NettyTransportActivator implements BundleActivator {
      */
     private Set<NettySender> createNettySenders() {
         Set<NettySender> senders = new HashSet<>();
-        Set<SenderConfiguration> senderConfigurations =
-                YAMLTransportConfigurationBuilder.build().getSenderConfigurations();
+        Set<SenderConfiguration> senderConfigurations = YAMLTransportConfigurationBuilder.build()
+                .getSenderConfigurations();
         for (SenderConfiguration senderConfiguration : senderConfigurations) {
             senders.add(new NettySender(senderConfiguration));
         }
         return senders;
     }
 
-
-    @Override
-    public void stop(BundleContext bundleContext) throws Exception {
+    @Override public void stop(BundleContext bundleContext) throws Exception {
 
     }
 }

@@ -23,12 +23,10 @@ import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.messaging.Interceptor;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-/*import org.wso2.carbon.transport.http.netty.statistics.MetricReporter;
-import org.wso2.carbon.transport.http.netty.statistics.Metrics;*/
+
 
 /**
  * Handles initialization of the Netty Channel pipeline.
