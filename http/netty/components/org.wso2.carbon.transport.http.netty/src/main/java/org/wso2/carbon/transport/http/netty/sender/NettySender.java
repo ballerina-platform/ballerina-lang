@@ -64,26 +64,24 @@ public class NettySender implements TransportSender {
         this.connectionManager = ConnectionManager.getInstance();
     }
 
-
-    @Override
-    public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
+    @Override public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
-                                              (Integer) msg.getProperty(Constants.PORT));
+                (Integer) msg.getProperty(Constants.PORT));
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
         if (ringBuffer == null) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
-                       getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
+                    getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
         }
 
         Channel outboundChannel = null;
         try {
-            TargetChannel targetChannel = connectionManager.getTargetChannel
-                       (route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
+            TargetChannel targetChannel = connectionManager
+                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);
@@ -94,11 +92,9 @@ public class NettySender implements TransportSender {
 
                 NettyTransportContextHolder.getInstance().getInterceptor()
                         .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_INITIATED);
-                //TODO REQUEST_BODY_WRITE_TIMER
                 NettyTransportContextHolder.getInstance().getInterceptor()
                         .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_HEADERS_COMPLETED);
                 boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
-                //TODO REQUEST_BODY_WRITE_TIMER stop
                 NettyTransportContextHolder.getInstance().getInterceptor()
                         .engage(msg, EngagedLocation.SERVER_REQUEST_WIRTE_BODY_COMPLETED);
                 if (written) {
@@ -112,9 +108,7 @@ public class NettySender implements TransportSender {
         return false;
     }
 
-
-    @Override
-    public String getId() {
+    @Override public String getId() {
         return id;
     }
 

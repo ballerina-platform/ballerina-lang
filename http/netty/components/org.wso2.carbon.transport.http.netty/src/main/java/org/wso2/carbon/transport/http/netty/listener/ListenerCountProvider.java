@@ -26,6 +26,6 @@ import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigu
 public class ListenerCountProvider {
 
     public static int getCount() {
-       return YAMLTransportConfigurationBuilder.build().getListenerConfigurations().size();
+        return YAMLTransportConfigurationBuilder.build().getListenerConfigurations().size();
     }
 }

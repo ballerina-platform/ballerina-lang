@@ -30,7 +30,6 @@ import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder
 /*import org.wso2.carbon.transport.http.netty.statistics.MetricReporter;
 import org.wso2.carbon.transport.http.netty.statistics.Metrics;*/
 
-
 /**
  * Handles initialization of the Netty Channel pipeline.
  */
@@ -48,8 +47,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         this.sslConfig = sslConfig;
     }
 
-    @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    @Override protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
@@ -57,13 +55,10 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
             socketChannel.pipeline().addLast("ssl", sslHandler);
         }
-        //TODO- move this to bundle
-        //
-
 
         // Add the rest of the handlers to the pipeline
-        CarbonTransportInitializer initializer =
-                NettyTransportContextHolder.getInstance().getServerChannelInitializer(transportID);
+        CarbonTransportInitializer initializer = NettyTransportContextHolder.getInstance()
+                .getServerChannelInitializer(transportID);
 
         if (initializer != null) {
             if (log.isDebugEnabled()) {
