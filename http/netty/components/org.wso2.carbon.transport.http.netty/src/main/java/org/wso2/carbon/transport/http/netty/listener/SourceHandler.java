@@ -25,6 +25,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
@@ -64,8 +65,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
         //serverConnectionMetricsHolder.startTimer(); //TODO
+        NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
+        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
-                .engage(cMsg, EngagedLocation.CLIENT_CONNECTION_INITIATED);
+                .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_INITIATED);
+
         disruptorConfig = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
         disruptor = disruptorConfig.getDisruptor();
         this.ctx = ctx;
@@ -77,45 +81,32 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             throws Exception {
         if (msg instanceof HttpRequest) {
 
+            cMsg = new NettyCarbonMessage();
             //TODO serverRequestMetricsHolder.startTimer(org.wso2.carbon.transport.http.netty.common
             // .Constants.REQUEST_LIFE_TIMER);
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.CLIENT_REQEST_READ_INITIATED);
 
-            cMsg = new NettyCarbonMessage();
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.PORT,
+            cMsg.setProperty(Constants.PORT,
                     ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.HOST,
+            cMsg.setProperty(Constants.HOST,
                     ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, responseCallback);
+            cMsg.setProperty(Constants.CALL_BACK, responseCallback);
             HttpRequest httpRequest = (HttpRequest) msg;
 
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, httpRequest.getUri());
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.CHNL_HNDLR_CTX, this.ctx);
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.SRC_HNDLR, this);
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.HTTP_METHOD, httpRequest.getMethod().name());
+            cMsg.setProperty(Constants.TO, httpRequest.getUri());
+            cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
+            cMsg.setProperty(Constants.SRC_HNDLR, this);
+            cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
+            cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
 
             cMsg.setHeaders(Util.getHeaders(httpRequest));
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_HEADERS_COMPLETED);
 
-            /*cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_RESPONSE_METRICS_HOLDER,
-            this.clientResponseMetricsHolder);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
-            Constants.SERVER_RESPONSE_METRICS_HOLDER, this.serverResponseMetricsHolder);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
-            Constants.SERVER_REQUEST_METRICS_HOLDER, this.serverRequestMetricsHolder);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
-            Constants.CLIENT_REQUEST_METRICS_HOLDER, this.clientRequestMetricsHolder);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
-            Constants.SERVER_CONNECTION_METRICS_HOLDER, this.serverConnectionMetricsHolder);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.
-            Constants.CLIENT_CONNECTION_METRICS_HOLDER, this.clientConnectionMetricsHolder);*/
-
             if (disruptorConfig.isShared()) {
-                cMsg.setProperty(org.wso2.carbon.messaging.Constants.DISRUPTOR, disruptor);
+                cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }
             disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
@@ -137,8 +128,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
-        NettyTransportContextHolder.getInstance().getInterceptor().
-                engage(cMsg, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
+        NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
+        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
+//        NettyTransportContextHolder.getInstance().getInterceptor().
+//                engage(cMsg, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }

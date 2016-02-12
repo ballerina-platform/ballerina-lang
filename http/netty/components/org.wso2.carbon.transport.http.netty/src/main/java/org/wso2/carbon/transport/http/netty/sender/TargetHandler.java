@@ -67,11 +67,12 @@ public class TargetHandler extends ReadTimeoutHandler {
     @SuppressWarnings("unchecked") @Override public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
         if (msg instanceof HttpResponse) {
+            cMsg = new NettyCarbonMessage();
             //TODO: RESPONSE_LIFE_TIMER
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_INITIATED);
 
-            cMsg = new NettyCarbonMessage();
+
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);

@@ -103,8 +103,8 @@ public class ClientRequestWorker implements Runnable {
 
             try {
                 //TODO sourceHandler.getClientConnectionMetricsHolder().startTimer();
-//                NettyTransportContextHolder.getInstance().getInterceptor()
-//                        .engage(carbonMessage, EngagedLocation.SERVER_RESPONSE_READ_INITIATED);
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;

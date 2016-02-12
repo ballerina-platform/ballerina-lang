@@ -58,7 +58,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
             socketChannel.pipeline().addLast("ssl", sslHandler);
         }
         //TODO- move this to bundle
-        //Metrics.init(MetricReporter.JMX);
+        //
 
 
         // Add the rest of the handlers to the pipeline

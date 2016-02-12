@@ -110,9 +110,11 @@
         <bundle.activator>org.wso2.carbon.transport.http.netty.statistics.internal.NettyTransportStatActivator</bundle.activator>
         <private.package>org.wso2.carbon.transport.http.netty.statistics.internal</private.package>
         <export.package>
-            !org.wso2.carbon.transport.http.netty.statistics.internal
+            !org.wso2.carbon.transport.http.netty.statistics.internal,
+            org.wso2.carbon.transport.http.netty.statistics,
         </export.package>
         <import.package>
+            org.wso2.carbon.transport.http.netty.statistics,
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
             org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
             <!--org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",-->

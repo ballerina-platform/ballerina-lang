@@ -5,12 +5,17 @@ import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.MessagingHandler;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Implementation of MessagingHandler
  */
 public class StatisticsHandler implements MessagingHandler {
 
     private final TimerHolder timerHolder;
+    private Map<String, ConnectionMetricsStaticsHolder> messageCorelation;
+    private String key;
 
     public StatisticsHandler(TimerHolder timerHolder) {
 
@@ -29,27 +34,43 @@ public class StatisticsHandler implements MessagingHandler {
         MetricsStaticsHolder clientResponseMetricsHolder;
 
         if (cMessage != null) {
-            if (cMessage.getProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER) != null) {
+            if (cMessage.getProperty(org.wso2.carbon.messaging.Constants.CONNECTION_ID) != null) {
+                if (cMessage.getProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER) == null
+                        && engagedLocation == EngagedLocation.CLIENT_CONNECTION_INITIATED) {
 
-                serverConnectionMetricsHolder = new ConnectionMetricsStaticsHolder(Constants.TYPE_SOURCE_CONNECTION,
-                        Constants.CONNECTION_TIMER, timerHolder);
-                clientConnectionMetricsHolder = new ConnectionMetricsStaticsHolder(Constants.TYPE_CLIENT_CONNECTION,
-                        Constants.CONNECTION_TIMER, timerHolder);
-                serverRequestMetricsHolder = new RequestMetricsStaticsHolder(Constants.TYPE_SERVER_REQUEST,
-                        timerHolder);
-                clientRequestMetricsHolder = new RequestMetricsStaticsHolder(Constants.TYPE_CLIENT_REQUEST,
-                        timerHolder);
-                serverResponseMetricsHolder = new ResponseMetricsStaticsHolder(Constants.TYPE_SERVER_RESPONSE,
-                        timerHolder);
-                clientResponseMetricsHolder = new ResponseMetricsStaticsHolder(Constants.TYPE_CLIENT_RESPONSE,
-                        timerHolder);
+                    clientConnectionMetricsHolder = new ConnectionMetricsStaticsHolder(Constants.TYPE_CLIENT_CONNECTION,
+                            Constants.CONNECTION_TIMER, timerHolder);
 
-                cMessage.setProperty(Constants.CLIENT_RESPONSE_METRICS_HOLDER, clientResponseMetricsHolder);
-                cMessage.setProperty(Constants.SERVER_RESPONSE_METRICS_HOLDER, serverResponseMetricsHolder);
-                cMessage.setProperty(Constants.SERVER_REQUEST_METRICS_HOLDER, serverRequestMetricsHolder);
-                cMessage.setProperty(Constants.CLIENT_REQUEST_METRICS_HOLDER, clientRequestMetricsHolder);
-                cMessage.setProperty(Constants.SERVER_CONNECTION_METRICS_HOLDER, serverConnectionMetricsHolder);
-                cMessage.setProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER, clientConnectionMetricsHolder);
+                    cMessage.setProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER, clientConnectionMetricsHolder);
+
+                    if (messageCorelation == null) {
+                        this.messageCorelation = new HashMap<String, ConnectionMetricsStaticsHolder>();
+                    }
+                    key = cMessage.getProperty(org.wso2.carbon.messaging.Constants.CONNECTION_ID).toString();
+                    messageCorelation.put(key, (ConnectionMetricsStaticsHolder) cMessage
+                            .getProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER));
+                }
+            } else {
+                if (cMessage.getProperty(Constants.CLIENT_REQUEST_METRICS_HOLDER) == null) {
+
+                    serverRequestMetricsHolder = new RequestMetricsStaticsHolder(Constants.TYPE_SERVER_REQUEST,
+                            timerHolder);
+                    clientRequestMetricsHolder = new RequestMetricsStaticsHolder(Constants.TYPE_CLIENT_REQUEST,
+                            timerHolder);
+                    serverResponseMetricsHolder = new ResponseMetricsStaticsHolder(Constants.TYPE_SERVER_RESPONSE,
+                            timerHolder);
+                    clientResponseMetricsHolder = new ResponseMetricsStaticsHolder(Constants.TYPE_CLIENT_RESPONSE,
+                            timerHolder);
+                    serverConnectionMetricsHolder = new ConnectionMetricsStaticsHolder(Constants.TYPE_SOURCE_CONNECTION,
+                            Constants.CONNECTION_TIMER, timerHolder);
+
+                    cMessage.setProperty(Constants.SERVER_CONNECTION_METRICS_HOLDER, serverConnectionMetricsHolder);
+                    cMessage.setProperty(Constants.CLIENT_RESPONSE_METRICS_HOLDER, clientResponseMetricsHolder);
+                    cMessage.setProperty(Constants.SERVER_RESPONSE_METRICS_HOLDER, serverResponseMetricsHolder);
+                    cMessage.setProperty(Constants.SERVER_REQUEST_METRICS_HOLDER, serverRequestMetricsHolder);
+                    cMessage.setProperty(Constants.CLIENT_REQUEST_METRICS_HOLDER, clientRequestMetricsHolder);
+
+                }
             }
 
             switch (engagedLocation) {
@@ -59,8 +80,7 @@ public class StatisticsHandler implements MessagingHandler {
                 clientConnectionMetricsHolder.startTimer(Constants.CONNECTION_TIMER);
                 break;
             case CLIENT_CONNECTION_COMPLETED:
-                clientConnectionMetricsHolder = (ConnectionMetricsStaticsHolder) cMessage
-                        .getProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER);
+                clientConnectionMetricsHolder = messageCorelation.get(this.key);
                 clientConnectionMetricsHolder.stopTimer(Constants.CONNECTION_TIMER);
                 break;
             case CLIENT_REQEST_READ_INITIATED:
@@ -87,24 +107,25 @@ public class StatisticsHandler implements MessagingHandler {
                 serverConnectionMetricsHolder.startTimer(Constants.CONNECTION_TIMER);
                 break;
             case SERVER_CONNECTION_COMPLETED:
+
                 serverConnectionMetricsHolder = (ConnectionMetricsStaticsHolder) cMessage
                         .getProperty(Constants.SERVER_CONNECTION_METRICS_HOLDER);
                 serverConnectionMetricsHolder.stopTimer(Constants.CONNECTION_TIMER);
                 break;
             case SERVER_RESPONSE_READ_INITIATED:
-                serverResponseMetricsHolder = (ConnectionMetricsStaticsHolder) cMessage
+                serverResponseMetricsHolder = (ResponseMetricsStaticsHolder) cMessage
                         .getProperty(Constants.SERVER_RESPONSE_METRICS_HOLDER);
                 serverResponseMetricsHolder.startTimer(Constants.RESPONSE_LIFE_TIMER);
                 serverResponseMetricsHolder.startTimer(Constants.RESPONSE_HEADER_READ_TIMER);
                 break;
             case SERVER_RESPONSE_READ_HEADERS_COMPLETED:
-                serverResponseMetricsHolder = (ConnectionMetricsStaticsHolder) cMessage
+                serverResponseMetricsHolder = (ResponseMetricsStaticsHolder) cMessage
                         .getProperty(Constants.SERVER_RESPONSE_METRICS_HOLDER);
                 serverResponseMetricsHolder.stopTimer(Constants.RESPONSE_HEADER_READ_TIMER);
                 serverResponseMetricsHolder.startTimer(Constants.RESPONSE_BODY_READ_TIMER);
                 break;
             case SERVER_RESPONSE_READ_BODY_COMPLETED:
-                serverResponseMetricsHolder = (ConnectionMetricsStaticsHolder) cMessage
+                serverResponseMetricsHolder = (ResponseMetricsStaticsHolder) cMessage
                         .getProperty(Constants.SERVER_RESPONSE_METRICS_HOLDER);
                 serverResponseMetricsHolder.stopTimer(Constants.RESPONSE_BODY_READ_TIMER);
                 serverResponseMetricsHolder.stopTimer(Constants.RESPONSE_LIFE_TIMER);
