@@ -23,15 +23,18 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.FaultHandler;
+import org.wso2.carbon.messaging.*;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
+/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.exception.EndpointTimeOutException;
+/*
+import org.wso2.carbon.transport.http.netty.latency.metrics.ConnectionMetricsHolder;
+import org.wso2.carbon.transport.http.netty.latency.metrics.RequestMetricsHolder;
+import org.wso2.carbon.transport.http.netty.latency.metrics.ResponseMetricsHolder;
+*/
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -57,17 +60,19 @@ public class TargetHandler extends ReadTimeoutHandler {
         super(timeoutSeconds);
     }
 
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    @Override public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    @SuppressWarnings("unchecked") @Override public void channelRead(ChannelHandlerContext ctx, Object msg)
+            throws Exception {
         if (msg instanceof HttpResponse) {
             cMsg = new NettyCarbonMessage();
+            //TODO: RESPONSE_LIFE_TIMER
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_INITIATED);
+
+
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
@@ -75,11 +80,19 @@ public class TargetHandler extends ReadTimeoutHandler {
             HttpResponse httpResponse = (HttpResponse) msg;
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
+            //TODO: RESPONSE_HEADER_READ_TIMER);
             cMsg.setHeaders(Util.getHeaders(httpResponse));
+            //TODO: RESPONSE_HEADER_READ_TIMER);
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_HEADERS_COMPLETED);
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
+                //TODO RESPONSE_BODY_READ_TIMER);
                 if (msg instanceof LastHttpContent) {
+                    //TODO: RESPONSE_BODY_READ_TIMER);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_BODY_COMPLETED);
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
@@ -92,8 +105,11 @@ public class TargetHandler extends ReadTimeoutHandler {
         }
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
+    @Override public void channelInactive(ChannelHandlerContext ctx) {
+        // Set the client channel close metric
+        //TODO Connection stopTimer
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(cMsg, EngagedLocation.SERVER_CONNECTION_COMPLETED);
         log.debug("Target channel closed.");
     }
 
@@ -117,14 +133,38 @@ public class TargetHandler extends ReadTimeoutHandler {
         this.targetChannel = targetChannel;
     }
 
-    @Override
-    protected void readTimedOut(ChannelHandlerContext ctx) {
+    //TODO
+    /*public void setClientConnectionMetricHolder(ConnectionMetricsHolder clientConnectionMetricHolder) {
+        this.clientConnectionMetricHolder = clientConnectionMetricHolder;
+    }
+
+    public void setServerConnectionMetricHolder(ConnectionMetricsHolder serverConnectionMetricHolder) {
+        this.serverConnectionMetricHolder = serverConnectionMetricHolder;
+    }
+
+    public void setClientRequestMetricsHolder(RequestMetricsHolder clientRequestMetricsHolder) {
+        this.clientRequestMetricsHolder = clientRequestMetricsHolder;
+    }
+
+    public void setServerRequestMetricsHolder(RequestMetricsHolder serverRequestMetricsHolder) {
+        this.serverRequestMetricsHolder = serverRequestMetricsHolder;
+    }
+
+    public void setClientResponseMetricsHolder(ResponseMetricsHolder clientResponseMetricsHolder) {
+        this.clientResponseMetricsHolder = clientResponseMetricsHolder;
+    }
+
+    public void setServerResponseMetricsHolder(ResponseMetricsHolder serverResponseMetricsHolder) {
+        this.serverResponseMetricsHolder = serverResponseMetricsHolder;
+    }*/
+
+    @Override protected void readTimedOut(ChannelHandlerContext ctx) {
 
         ctx.channel().close();
 
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint" + targetChannel.
-                       getHttpRoute().toString() + "</errorMessage>";
+                    getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {

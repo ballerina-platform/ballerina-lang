@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-
 import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -28,8 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -40,7 +42,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
  * Class Which handover incoming requests to be written to BE asynchronously.
  */
 public class ClientRequestWorker implements Runnable {
-
 
     private static final Logger log = LoggerFactory.getLogger(ClientRequestWorker.class);
 
@@ -56,12 +57,10 @@ public class ClientRequestWorker implements Runnable {
     private ConnectionManager connectionManager;
     private RingBuffer ringBuffer;
 
-
-    public ClientRequestWorker(HttpRoute httpRoute, SourceHandler sourceHandler,
-                               SenderConfiguration senderConfig, HttpRequest httpRequest,
-                               CarbonMessage carbonMessage, CarbonCallback carbonCallback,
-                               boolean globalEndpointPooling, GenericObjectPool genericObjectPool,
-                               ConnectionManager connectionManager, RingBuffer ringBuffer) {
+    public ClientRequestWorker(HttpRoute httpRoute, SourceHandler sourceHandler, SenderConfiguration senderConfig,
+            HttpRequest httpRequest, CarbonMessage carbonMessage, CarbonCallback carbonCallback,
+            boolean globalEndpointPooling, GenericObjectPool genericObjectPool, ConnectionManager connectionManager,
+            RingBuffer ringBuffer) {
         this.globalEndpointPooling = globalEndpointPooling;
         this.httpRequest = httpRequest;
         this.sourceHandler = sourceHandler;
@@ -74,15 +73,12 @@ public class ClientRequestWorker implements Runnable {
         this.ringBuffer = ringBuffer;
     }
 
-
-    @Override
-    public void run() {
+    @Override public void run() {
         Channel channel = null;
         TargetChannel targetChannel = null;
         ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
         EventLoopGroup group = ctx.channel().eventLoop();
         Class cl = ctx.channel().getClass();
-
 
         if (globalEndpointPooling) {
 
@@ -106,6 +102,9 @@ public class ClientRequestWorker implements Runnable {
             ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute, senderConfig);
 
             try {
+                //TODO sourceHandler.getClientConnectionMetricsHolder().startTimer();
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;
@@ -131,11 +130,28 @@ public class ClientRequestWorker implements Runnable {
             targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
             targetChannel.getTargetHandler().setTargetChannel(targetChannel);
             targetChannel.getTargetHandler().setConnectionManager(connectionManager);
+            //TODO sourceHandler.getClientRequestMetricsHolder()
+            // .startTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
             boolean written = ChannelUtils.writeContent(channel, httpRequest, carbonMessage);
+            //TODO sourceHandler.getClientRequestMetricsHolder().stopTimer(TransportConstants.REQUEST_BODY_WRITE_TIMER);
             if (written) {
                 targetChannel.setRequestWritten(true);
             }
             sourceHandler.addTargetChannel(httpRoute, targetChannel);
+            // Transfer the metrics data holders to the Target handler
+            //TODO
+            /*targetChannel.getTargetHandler().
+                    setServerConnectionMetricHolder(sourceHandler.getServerConnectionMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setClientConnectionMetricHolder(sourceHandler.getClientConnectionMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setServerRequestMetricsHolder(sourceHandler.getServerRequestMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setClientRequestMetricsHolder(sourceHandler.getClientRequestMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setServerResponseMetricsHolder(sourceHandler.getServerResponseMetricsHolder());
+            targetChannel.getTargetHandler().
+                    setClientResponseMetricsHolder(sourceHandler.getClientResponseMetricsHolder());*/
         }
     }
 }

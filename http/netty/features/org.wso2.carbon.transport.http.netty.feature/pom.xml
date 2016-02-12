@@ -66,13 +66,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.wso2.orbit.com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty.statistics</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
+
     </dependencies>
 
     <build>
@@ -144,6 +141,10 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
+                                    <version>${carbon.transport.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.transport.http.netty.statistics</symbolicName>
                                     <version>${carbon.transport.version}</version>
                                 </bundle>
                             </bundles>
