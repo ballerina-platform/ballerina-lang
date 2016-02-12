@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.map;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
@@ -57,7 +58,12 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
     protected Object execute(Object data) {
         if (data instanceof String) {
             Map<Object, Object> map = new HashMap<Object, Object>();
-            JSONObject jsonObject = new JSONObject(data.toString());
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = new JSONObject(data.toString());
+            } catch (JSONException e) {
+                throw new ExecutionPlanRuntimeException("Cannot create JSON from '"+data.toString()+"' in create from json function", e);
+            }
             return getMapFromJson(map, jsonObject);
         } else {
             throw new ExecutionPlanRuntimeException("Data should be a string");
@@ -69,7 +75,12 @@ public class CreateFromJSONFunctionExtension extends FunctionExecutor {
 
         while (keys.hasNext()) {
             String key = keys.next();
-            Object value = jsonObject.get(key);
+            Object value = null;
+            try {
+                value = jsonObject.get(key);
+            } catch (JSONException e) {
+                throw new ExecutionPlanRuntimeException("JSON '"+jsonObject+"'does not contain key '"+key+"' in create from json function", e);
+            }
             if (value instanceof JSONObject) {
                 value = getMapFromJson(new HashMap<Object, Object>(), (JSONObject) value);
             }

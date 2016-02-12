@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.map;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +70,13 @@ public class ToJSONFunctionExtensionTestCase {
                     count.incrementAndGet();
                     if (count.get() == 1) {
                         Assert.assertEquals(event.getData(0) instanceof String, true);
-                        JSONAssert.assertEquals(new JSONObject("{\"volume\":100,\"symbol\":\"WSO2\",\"price\":100,\"last5val\":{\"volume\":200,\"price\":150}}"),
-                                new JSONObject((String) event.getData(0)), false);
+                        try {
+                            JSONAssert.assertEquals(new JSONObject("{\"volume\":100,\"symbol\":\"WSO2\",\"price\":100,\"last5val\":{\"volume\":200,\"price\":150}}"),
+                                    new JSONObject((String) event.getData(0)), false);
+                        } catch (JSONException e) {
+                            log.error(e);
+                            Assert.fail(e.getMessage());
+                        }
                         eventArrived = true;
                     }
                 }
@@ -111,20 +117,35 @@ public class ToJSONFunctionExtensionTestCase {
                     count.incrementAndGet();
                     if (count.get() == 1) {
                         Assert.assertEquals(event.getData(0) instanceof String, true);
-                        JSONAssert.assertEquals(new JSONObject("{\"volume\":100,\"symbol\":\"IBM\",\"price\":100}"),
-                                new JSONObject((String) event.getData(0)), false);
+                        try {
+                            JSONAssert.assertEquals(new JSONObject("{\"volume\":100,\"symbol\":\"IBM\",\"price\":100}"),
+                                    new JSONObject((String) event.getData(0)), false);
+                        } catch (JSONException e) {
+                            log.error(e);
+                            Assert.fail(e.getMessage());
+                        }
                         eventArrived = true;
                     }
                     if (count.get() == 2) {
                         Assert.assertEquals(event.getData(0) instanceof String, true);
-                        JSONAssert.assertEquals(new JSONObject("{\"volume\":200,\"symbol\":\"WSO2\",\"price\":200}"),
-                                new JSONObject((String) event.getData(0)), false);
+                        try {
+                            JSONAssert.assertEquals(new JSONObject("{\"volume\":200,\"symbol\":\"WSO2\",\"price\":200}"),
+                                    new JSONObject((String) event.getData(0)), false);
+                        } catch (JSONException e) {
+                            log.error(e);
+                            Assert.fail(e.getMessage());
+                        }
                         eventArrived = true;
                     }
                     if (count.get() == 3) {
                         Assert.assertEquals(event.getData(0) instanceof String, true);
-                        JSONAssert.assertEquals(new JSONObject("{\"volume\":200,\"symbol\":\"XYZ\",\"price\":300}"),
-                                new JSONObject((String) event.getData(0)), false);
+                        try {
+                            JSONAssert.assertEquals(new JSONObject("{\"volume\":200,\"symbol\":\"XYZ\",\"price\":300}"),
+                                    new JSONObject((String) event.getData(0)), false);
+                        } catch (JSONException e) {
+                            log.error(e);
+                            Assert.fail(e.getMessage());
+                        }
                         eventArrived = true;
                     }
                 }
