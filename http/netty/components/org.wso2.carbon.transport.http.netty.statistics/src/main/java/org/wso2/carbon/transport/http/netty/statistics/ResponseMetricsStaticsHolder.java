@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.transport.http.netty.statistics;
 
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.metrics.manager.Timer;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.HashMap;
 import java.util.Map;

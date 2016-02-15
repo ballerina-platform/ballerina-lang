@@ -19,9 +19,9 @@
 package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.MessagingHandler;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class StatisticsHandler implements MessagingHandler {
         MetricsStaticsHolder clientResponseMetricsHolder;
 
         if (cMessage != null) {
-            if (cMessage.getProperty(org.wso2.carbon.messaging.Constants.CONNECTION_ID) != null) {
+            if (cMessage.getProperty(Constants.CONNECTION_ID) != null) {
                 if (cMessage.getProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER) == null
                         && engagedLocation == EngagedLocation.CLIENT_CONNECTION_INITIATED) {
 
@@ -64,7 +64,7 @@ public class StatisticsHandler implements MessagingHandler {
                     if (messageCorelation == null) {
                         this.messageCorelation = new HashMap<String, ConnectionMetricsStaticsHolder>();
                     }
-                    key = cMessage.getProperty(org.wso2.carbon.messaging.Constants.CONNECTION_ID).toString();
+                    key = cMessage.getProperty(Constants.CONNECTION_ID).toString();
                     messageCorelation.put(key, (ConnectionMetricsStaticsHolder) cMessage
                             .getProperty(Constants.CLIENT_CONNECTION_METRICS_HOLDER));
                 }

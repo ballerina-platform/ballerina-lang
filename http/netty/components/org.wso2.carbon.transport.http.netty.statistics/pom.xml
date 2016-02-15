@@ -41,7 +41,7 @@
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
         </dependency>
@@ -78,24 +78,20 @@
         <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-        </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.wso2.orbit.com.lmax</groupId>
             <artifactId>disruptor</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.wso2.carbon.metrics</groupId>
             <artifactId>org.wso2.carbon.metrics.manager</artifactId>
@@ -107,7 +103,8 @@
     </dependencies>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.transport.http.netty.statistics.internal.NettyTransportStatActivator</bundle.activator>
+        <bundle.activator>org.wso2.carbon.transport.http.netty.statistics.internal.NettyTransportStatActivator
+        </bundle.activator>
         <private.package>org.wso2.carbon.transport.http.netty.statistics.internal</private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.statistics.internal,
@@ -117,20 +114,12 @@
             org.wso2.carbon.transport.http.netty.statistics,
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
             org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
-            <!--org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",-->
-            <!--org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",-->
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-            <!--org.xml.sax.*;version="${org.xml.sax.import.version.range}",-->
-            <!--javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",-->
-            <!--javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",-->
-            <!--javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",-->
             org.wso2.carbon.metrics.manager.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.metrics.impl.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.metrics.common.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}"
-            <!--org.wso2.carbon.transport.http.netty.statistics.*;version="${netty.transport.package.export.version}",
-            --><!--org.wso2.carbon.transport.http.netty.common.Constants;version="${netty.transport.package.export.version}"
-  -->      </import.package>
+        </import.package>
     </properties>
 
 

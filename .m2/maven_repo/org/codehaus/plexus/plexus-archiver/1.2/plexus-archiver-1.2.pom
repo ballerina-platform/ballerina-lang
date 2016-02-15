@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>plexus-components</artifactId>
+    <groupId>org.codehaus.plexus</groupId>
+    <version>1.1.18</version>
+  </parent>
+
+  <artifactId>plexus-archiver</artifactId>
+  <version>1.2</version>
+
+  <name>Plexus Archiver Component</name>
+
+  <scm>
+    <connection>scm:svn:http://svn.codehaus.org/plexus/plexus-components/tags/plexus-archiver-1.2</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/plexus/plexus-components/tags/plexus-archiver-1.2</developerConnection>
+    <url>http://fisheye.codehaus.org/browse/plexus/plexus-components/tags/plexus-archiver-1.2</url>
+  </scm>
+
+  <properties>
+    <useJvmChmod>false</useJvmChmod>
+  </properties>
+
+  <contributors>
+    <contributor>
+      <name>Dan Tran</name>
+    </contributor>
+    <contributor>
+      <name>Richard van der Hoff</name>
+    </contributor>
+  </contributors>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-container-default</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>2.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-io</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.6</version>
+        
+        <configuration>
+          <systemPropertyVariables>
+            <useJvmChmod>${useJvmChmod}</useJvmChmod>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+</project>
