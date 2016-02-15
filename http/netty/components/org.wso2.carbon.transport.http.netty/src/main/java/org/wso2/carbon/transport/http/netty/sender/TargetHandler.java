@@ -76,7 +76,10 @@ public class TargetHandler extends ReadTimeoutHandler {
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
             cMsg.setHeaders(Util.getHeaders(httpResponse));
-            ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null ||
+                    cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
+                ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            }
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
@@ -84,6 +87,12 @@ public class TargetHandler extends ReadTimeoutHandler {
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
+                    if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null &&
+                            cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                        cMsg.getHeaders().put(Constants.HTTP_TRANSFER_ENCODING,
+                                String.valueOf(cMsg.getMessageBodyLength()));
+                        ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+                    }
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
@@ -123,7 +132,7 @@ public class TargetHandler extends ReadTimeoutHandler {
         ctx.channel().close();
 
         if (targetChannel.isRequestWritten()) {
-            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint" + targetChannel.
+            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                        getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 

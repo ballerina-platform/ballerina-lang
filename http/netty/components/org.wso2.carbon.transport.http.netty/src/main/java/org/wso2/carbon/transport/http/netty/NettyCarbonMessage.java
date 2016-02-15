@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -71,5 +72,15 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public boolean isEmpty() {
         return this.httpContentQueue.isEmpty();
+    }
+
+    public int getMessageBodyLength() {
+        int length = 0;
+        Iterator<HttpContent> it = httpContentQueue.iterator();
+        while (it.hasNext()) {
+            length += it.next().content().readableBytes();
+        }
+
+        return length;
     }
 }
