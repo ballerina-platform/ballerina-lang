@@ -179,21 +179,7 @@ public class ConnectionManager {
         if (targetChannel != null) {
             targetChannel.setHttpRoute(httpRoute);
             targetChannel.setCorrelatedSource(sourceHandler);
-            // Transfer the metrics data holders to the Target handler
-            //TODO
-            /*targetChannel.getTargetHandler().
-                    setServerConnectionMetricHolder(sourceHandler.getServerConnectionMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setClientConnectionMetricHolder(sourceHandler.getClientConnectionMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setServerRequestMetricsHolder(sourceHandler.getServerRequestMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setClientRequestMetricsHolder(sourceHandler.getClientRequestMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setServerResponseMetricsHolder(sourceHandler.getServerResponseMetricsHolder());
-            targetChannel.getTargetHandler().
-                    setClientResponseMetricsHolder(sourceHandler.getClientResponseMetricsHolder());*/
-        }
+            }
         return targetChannel;
     }
 
@@ -241,7 +227,6 @@ public class ConnectionManager {
             index.getAndDecrement();
         }
     }
-
 
     /**
      * Connection pool management policies for  target channels.
