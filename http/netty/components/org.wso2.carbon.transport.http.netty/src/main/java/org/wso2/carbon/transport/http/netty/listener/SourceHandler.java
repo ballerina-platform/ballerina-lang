@@ -40,7 +40,6 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
  */
@@ -64,7 +63,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
         NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
-        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
+        carbonMessage.setProperty("connection.id", ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
                 .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_INITIATED);
 
@@ -120,7 +119,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
         NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
-        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
+        carbonMessage.setProperty("connection.id", ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
                 .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
         disruptorConfig.notifyChannelInactive();

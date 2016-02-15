@@ -19,7 +19,6 @@
 package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.MessagingHandler;
 

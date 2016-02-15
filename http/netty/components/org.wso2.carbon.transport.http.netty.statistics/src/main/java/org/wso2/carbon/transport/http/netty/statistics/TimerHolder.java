@@ -39,8 +39,6 @@ public class TimerHolder {
 
     public TimerHolder() {
         // Initialize request metrics holder Timers
-        //requestLifeTimer = MetricManager.timer(MetricManager.
-        //      name("org.wso2.carbon.transport", "request.life.time"), Level.INFO);
         connectionTimer = MetricManager.timer(MetricManager.
                 name(ConnectionMetricsStaticsHolder.class, "connection.timer"), Level.INFO);
         requestLifeTimer = MetricManager.timer(MetricManager.

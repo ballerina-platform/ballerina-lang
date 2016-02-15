@@ -30,7 +30,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
-/*import org.wso2.carbon.transport.http.netty.common.Constants;*/
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
