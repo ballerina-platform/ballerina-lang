@@ -27,6 +27,7 @@ import org.wso2.carbon.transport.http.netty.statistics.StatisticsHandler;
 import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
 /**
+ *
  * OSGi BundleActivator of the Netty transport component.
  */
 public class NettyTransportStatActivator implements BundleActivator {

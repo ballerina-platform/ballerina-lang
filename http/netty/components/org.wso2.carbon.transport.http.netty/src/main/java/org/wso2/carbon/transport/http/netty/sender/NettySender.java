@@ -100,7 +100,7 @@ public class NettySender implements TransportSender {
                         .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_HEADERS_COMPLETED);
                 boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
                 NettyTransportContextHolder.getInstance().getInterceptor()
-                        .engage(msg, EngagedLocation.SERVER_REQUEST_WIRTE_BODY_COMPLETED);
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_BODY_COMPLETED);
                 if (written) {
                     targetChannel.setRequestWritten(true);
                 }

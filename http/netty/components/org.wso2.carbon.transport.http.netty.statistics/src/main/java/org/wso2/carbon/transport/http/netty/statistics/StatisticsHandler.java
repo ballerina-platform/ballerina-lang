@@ -160,7 +160,7 @@ public class StatisticsHandler implements MessagingHandler {
                 serverRequestMetricsHolder.startTimer(Constants.REQUEST_BODY_WRITE_TIMER);
                 break;
 
-            case SERVER_REQUEST_WIRTE_BODY_COMPLETED:
+            case SERVER_REQUEST_WRITE_BODY_COMPLETED:
                 serverRequestMetricsHolder = (RequestMetricsStaticsHolder) cMessage
                         .getProperty(Constants.SERVER_REQUEST_METRICS_HOLDER);
                 serverRequestMetricsHolder.stopTimer(Constants.REQUEST_BODY_WRITE_TIMER);

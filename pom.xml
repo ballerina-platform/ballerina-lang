@@ -231,7 +231,7 @@
 
         <carbon.messaging.version>1.0.0-SNAPSHOT</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
-        <carbon.metrics.version>1.2.0-SNAPSHOT</carbon.metrics.version>
+        <carbon.metrics.version>1.2.1</carbon.metrics.version>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>

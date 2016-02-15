@@ -34,7 +34,6 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
 
     @Override
     public void onEvent(CarbonDisruptorEvent carbonDisruptorEvent, long l, boolean b) throws Exception {
-
         CarbonMessage carbonMessage = (CarbonMessage) carbonDisruptorEvent.getEvent();
         Lock lock  = new ReentrantLock();
         if (carbonMessage.getProperty(Constants.DIRECTION) == null) {

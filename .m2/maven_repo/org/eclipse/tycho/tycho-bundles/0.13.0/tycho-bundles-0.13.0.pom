@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    Sonatype Inc. - initial API and implementation
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho</artifactId>
+		<version>0.13.0</version>
+	</parent>
+
+	<artifactId>tycho-bundles</artifactId>
+	<packaging>pom</packaging>
+
+	<name>Tycho OSGi Bundles Parent (Incubation)</name>
+
+	<modules>
+		<module>tycho-bundles-target</module>
+
+		<!-- facade between Maven and OSGi class loaders -->
+		<module>org.eclipse.tycho.p2.resolver.facade</module>
+		<module>org.eclipse.tycho.p2.tools.facade</module>
+
+		<!-- implementations -->
+		<module>org.eclipse.tycho.p2.resolver.impl</module>
+		<module>org.eclipse.tycho.p2.maven.repository</module>
+		<module>org.eclipse.tycho.p2.tools.impl</module>
+		<module>org.eclipse.tycho.noopsecurity</module>
+
+		<!-- unit tests -->
+		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
+		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
+		<module>org.eclipse.tycho.p2.tools.tests</module>
+
+		<!-- OSGi runtime for Tycho -->
+		<module>tycho-p2-runtime</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>tycho-bundles-target</artifactId>
+							<version>${project.version}</version>
+							<classifier>build</classifier>
+						</artifact>
+					</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
