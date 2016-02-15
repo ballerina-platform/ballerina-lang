@@ -89,4 +89,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     public boolean isEmpty() {
         return this.httpContentQueue.isEmpty();
     }
+
+    public int getMessageBodyLength() {
+        int length = 0;
+        for (HttpContent httpContent : httpContentQueue) {
+            length += httpContent.content().readableBytes();
+        }
+
+        return length;
+    }
 }

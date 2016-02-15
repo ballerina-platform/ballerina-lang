@@ -76,7 +76,10 @@ public class TargetHandler extends ReadTimeoutHandler {
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
             cMsg.setHeaders(Util.getHeaders(httpResponse));
-            ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null ||
+                    cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
+                ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            }
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
@@ -84,6 +87,12 @@ public class TargetHandler extends ReadTimeoutHandler {
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
+                    if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null &&
+                            cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                        cMsg.getHeaders().put(Constants.HTTP_TRANSFER_ENCODING,
+                                String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
+                        ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+                    }
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
@@ -120,17 +129,18 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     protected void readTimedOut(ChannelHandlerContext ctx) {
 
+        ctx.channel().close();
+
         if (targetChannel.isRequestWritten()) {
-            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint" + targetChannel.
+            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                        getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
+
             if (faultHandler != null) {
                 faultHandler.handleFault("504", new EndpointTimeOutException(payload), callback);
                 incomingMsg.getFaultHandlerStack().push(faultHandler);
             } else {
-
                 DefaultCarbonMessage response = new DefaultCarbonMessage();
-
 
                 response.setStringMessageBody(payload);
                 byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
@@ -138,9 +148,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                 Map<String, String> transportHeaders = new HashMap<>();
                 transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
                 transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
-
                 transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
-
                 transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
 
                 response.setHeaders(transportHeaders);
@@ -148,6 +156,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                 response.setProperty(Constants.HTTP_STATUS_CODE, 504);
                 response.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
                 response.setProperty(Constants.CALL_BACK, callback);
+
                 ringBuffer.publishEvent(new CarbonEventPublisher(response));
             }
         }
