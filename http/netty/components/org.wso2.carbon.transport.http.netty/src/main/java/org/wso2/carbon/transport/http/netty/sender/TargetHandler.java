@@ -79,7 +79,10 @@ public class TargetHandler extends ReadTimeoutHandler {
             cMsg.setHeaders(Util.getHeaders(httpResponse));
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_HEADERS_COMPLETED);
-            ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
+                    || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
+                ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            }
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
@@ -89,6 +92,12 @@ public class TargetHandler extends ReadTimeoutHandler {
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
+                    if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null &&
+                            cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                        cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
+                                String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
+                        ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+                    }
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
@@ -129,8 +138,8 @@ public class TargetHandler extends ReadTimeoutHandler {
         ctx.channel().close();
 
         if (targetChannel.isRequestWritten()) {
-            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint" + targetChannel.
-                    getHttpRoute().toString() + "</errorMessage>";
+            String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
+                       getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {

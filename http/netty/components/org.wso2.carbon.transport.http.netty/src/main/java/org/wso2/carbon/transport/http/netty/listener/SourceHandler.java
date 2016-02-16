@@ -93,6 +93,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(Constants.SRC_HNDLR, this);
             cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
             cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
+            cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
             cMsg.setHeaders(Util.getHeaders(httpRequest));
             NettyTransportContextHolder.getInstance().getInterceptor()
                     .engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_HEADERS_COMPLETED);

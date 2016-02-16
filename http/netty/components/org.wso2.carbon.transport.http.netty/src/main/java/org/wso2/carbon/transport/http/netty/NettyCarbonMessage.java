@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -38,6 +40,9 @@ public class NettyCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
+        if (httpContent instanceof LastHttpContent) {
+            setEomAdded(true);
+        }
         httpContentQueue.add(httpContent);
     }
 
@@ -50,18 +55,11 @@ public class NettyCarbonMessage extends CarbonMessage {
         }
     }
 
-
     @Override
     public ByteBuffer getMessageBody() {
         try {
             HttpContent httpContent = httpContentQueue.take();
-
-            if (httpContent instanceof LastHttpContent) {
-                this.setEomAdded(true);
-                return httpContent.content().nioBuffer();
-            } else {
-                return httpContent.content().nioBuffer();
-            }
+            return httpContent.content().nioBuffer();
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving message body from queue.", e);
             return null;
@@ -69,7 +67,35 @@ public class NettyCarbonMessage extends CarbonMessage {
     }
 
     @Override
+    public List<ByteBuffer> getFullMessageBody() {
+        List<ByteBuffer> byteBufferList = new ArrayList<>();
+
+        while (true) {
+            try {
+                HttpContent httpContent = httpContentQueue.take();
+                byteBufferList.add(httpContent.content().nioBuffer());
+                if (isEomAdded() && isEmpty()) {
+                    break;
+                }
+            } catch (InterruptedException e) {
+                LOG.error("Error while getting full message body", e);
+            }
+        }
+
+        return byteBufferList;
+    }
+
+    @Override
     public boolean isEmpty() {
         return this.httpContentQueue.isEmpty();
+    }
+
+    public int getMessageBodyLength() {
+        int length = 0;
+        for (HttpContent httpContent : httpContentQueue) {
+            length += httpContent.content().readableBytes();
+        }
+
+        return length;
     }
 }

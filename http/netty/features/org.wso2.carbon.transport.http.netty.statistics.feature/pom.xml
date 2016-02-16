@@ -89,7 +89,7 @@
                             <bundles>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.transport.http.netty.statistics</symbolicName>
-                                    <version>${carbon.transport.version}</version>
+                                    <version>${project.version}</version>
                                 </bundle>
 
                                 <bundle>
