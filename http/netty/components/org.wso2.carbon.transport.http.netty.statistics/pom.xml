@@ -53,6 +53,10 @@
             <groupId>org.wso2.carbon.metrics</groupId>
             <artifactId>org.wso2.carbon.metrics.impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -71,7 +75,8 @@
             org.wso2.carbon.metrics.manager.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.metrics.impl.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.metrics.common.*;version="[1.2.0, 2.0.0)",
-            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}"
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
+            org.wso2.carbon.transport.http.netty.config.*;version="[2.0.0, 2.1.0)"
         </import.package>
     </properties>
 

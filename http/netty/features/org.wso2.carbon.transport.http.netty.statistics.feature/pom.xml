@@ -26,44 +26,40 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.transport.http.netty.feature</artifactId>
-    <name>WSO2 Carbon Transport HTTP Netty Feature</name>
+    <artifactId>org.wso2.carbon.transport.http.netty.statistics.feature</artifactId>
+    <name>WSO2 Carbon Transport HTTP Netty Statistics Feature</name>
     <packaging>carbon-feature</packaging>
 
     <dependencies>
+
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+            <artifactId>org.wso2.carbon.transport.http.netty.statistics</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
+            <groupId>org.wso2.carbon.metrics</groupId>
+            <artifactId>org.wso2.carbon.metrics.manager</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>commons-pool.wso2</groupId>
-            <artifactId>commons-pool</artifactId>
+            <groupId>org.wso2.carbon.metrics</groupId>
+            <artifactId>org.wso2.carbon.metrics.impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon.metrics</groupId>
+            <artifactId>org.wso2.carbon.metrics.common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jvm</artifactId>
         </dependency>
 
     </dependencies>
@@ -91,54 +87,34 @@
                                 </advice>
                             </adviceFileContents>
                             <bundles>
-
                                 <bundle>
-                                    <symbolicName>io.netty.common</symbolicName>
-                                    <version>${netty.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>io.netty.transport</symbolicName>
-                                    <version>${netty.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>io.netty.codec</symbolicName>
-                                    <version>${netty.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>io.netty.codec-http</symbolicName>
-                                    <version>${netty.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>io.netty.handler</symbolicName>
-                                    <version>${netty.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>io.netty.buffer</symbolicName>
-                                    <version>${netty.version}</version>
-                                </bundle>
-
-                                <bundle>
-                                    <symbolicName>commons-pool</symbolicName>
-                                    <version>${commons.pool.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>disruptor</symbolicName>
-                                    <version>${disruptor.version}</version>
-                                </bundle>
-
-                                <bundle>
-                                    <symbolicName>commons-pool</symbolicName>
-                                    <version>${commons.pool.version}</version>
-                                </bundle>
-
-                                <bundle>
-                                    <symbolicName>snakeyaml</symbolicName>
-                                    <version>${org.snakeyaml.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
+                                    <symbolicName>org.wso2.carbon.transport.http.netty.statistics</symbolicName>
                                     <version>${carbon.transport.version}</version>
                                 </bundle>
+
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.metrics.manager</symbolicName>
+                                    <version>${carbon.metrics.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.metrics.impl</symbolicName>
+                                    <version>${carbon.metrics.version}</version>
+                                </bundle>
+
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.metrics.common</symbolicName>
+                                    <version>${carbon.metrics.version}</version>
+                                </bundle>
+
+                                <bundle>
+                                    <symbolicName>io.dropwizard.metrics.core</symbolicName>
+                                    <version>${metrics.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.dropwizard.metrics.jvm</symbolicName>
+                                    <version>${metrics.version}</version>
+                                </bundle>
+
                             </bundles>
                         </configuration>
                     </execution>

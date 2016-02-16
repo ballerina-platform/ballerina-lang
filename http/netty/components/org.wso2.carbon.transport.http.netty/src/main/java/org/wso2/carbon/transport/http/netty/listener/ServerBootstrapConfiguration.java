@@ -16,7 +16,7 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
+import org.wso2.carbon.transport.http.netty.config.Parameter;
 
 import java.util.List;
 

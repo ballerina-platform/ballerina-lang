@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.common.disruptor.config;
 
-
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.EventHandler;
@@ -31,7 +30,6 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisruptorEvent;
 import org.wso2.carbon.transport.http.netty.common.disruptor.exception.GenericExceptionHandler;
 import org.wso2.carbon.transport.http.netty.common.disruptor.handler.CarbonDisruptorEventHandler;
-
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
