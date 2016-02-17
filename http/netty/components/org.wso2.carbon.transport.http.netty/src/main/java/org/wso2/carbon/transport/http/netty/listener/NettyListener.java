@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListener;
+import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
@@ -49,6 +50,7 @@ public class NettyListener extends TransportListener {
     private ServerBootstrap bootstrap;
     private ListenerConfiguration nettyConfig;
 
+
     public NettyListener(ListenerConfiguration nettyConfig) {
         super(nettyConfig.getId());
         this.nettyConfig = nettyConfig;
@@ -67,7 +69,7 @@ public class NettyListener extends TransportListener {
         bootstrap = new ServerBootstrap();
         bootstrap.option(ChannelOption.SO_BACKLOG, serverBootstrapConfiguration.getSoBackLog());
         bootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class);
+                   .channel(NioServerSocketChannel.class);
         addChannelInitializer();
         bootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
         bootstrap.option(ChannelOption.SO_KEEPALIVE, serverBootstrapConfiguration.isKeepAlive());
@@ -81,6 +83,10 @@ public class NettyListener extends TransportListener {
         setupChannelInitializer();
         try {
             bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort())).sync();
+            TransportListenerManager artifactDeployer = NettyTransportContextHolder.getInstance().getManager();
+            if (artifactDeployer != null) {
+                artifactDeployer.registerTransportListener(id, this);
+            }
             log.info("Netty Listener starting on port " + nettyConfig.getPort());
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
@@ -89,7 +95,7 @@ public class NettyListener extends TransportListener {
 
     private void setupChannelInitializer() {
         CarbonTransportInitializer channelInitializer = NettyTransportContextHolder.getInstance()
-                .getServerChannelInitializer(nettyConfig.getId());
+                   .getServerChannelInitializer(nettyConfig.getId());
         if (channelInitializer == null) {
             // start with the default initializer
             channelInitializer = new CarbonNettyServerInitializer();
@@ -143,7 +149,7 @@ public class NettyListener extends TransportListener {
                     @Override
                     public void operationComplete(Future<Object> future) throws Exception {
                         log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
-                                " stopped successfully");
+                                 " stopped successfully");
                     }
                 });
             }
@@ -153,5 +159,17 @@ public class NettyListener extends TransportListener {
     @Override
     public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
 
+    }
+
+    @Override
+    public boolean listen(String host, int port) {
+        try {
+            bootstrap.bind(new InetSocketAddress(host, port)).sync();
+            log.info("Netty Listener Starting on host  " + host + " and port " + port);
+            return true;
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 }
