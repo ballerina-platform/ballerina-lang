@@ -45,6 +45,7 @@ public class Util {
         if (message.headers() != null) {
             for (String k : message.headers().names()) {
                 headers.put(k, message.headers().get(k));
+
             }
         }
 

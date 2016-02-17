@@ -20,7 +20,6 @@ package org.wso2.carbon.transport.http.netty.common;
  */
 public final class Constants {
 
-
     // Server state constants
     public static final String STATE_TRANSITION = "STATE_TRANSITION";
 

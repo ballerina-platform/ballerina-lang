@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.common.disruptor.config;
 
-
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.EventHandler;

@@ -29,5 +29,6 @@
         <module>components/org.wso2.carbon.transport.http.netty</module>
         <module>components/org.wso2.carbon.transport.http.netty.statistics</module>
         <module>features/org.wso2.carbon.transport.http.netty.feature</module>
+        <module>features/org.wso2.carbon.transport.http.netty.statistics.feature</module>
     </modules>
 </project>

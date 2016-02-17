@@ -23,14 +23,16 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.internal.config.Parameter;
-import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.Parameter;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -66,26 +68,24 @@ public class NettySender implements TransportSender {
         this.connectionManager = ConnectionManager.getInstance();
     }
 
-
-    @Override
-    public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
+    @Override public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
-                                              (Integer) msg.getProperty(Constants.PORT));
+                (Integer) msg.getProperty(Constants.PORT));
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
         if (ringBuffer == null) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
-                       getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
+                    getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
         }
 
         Channel outboundChannel = null;
         try {
-            TargetChannel targetChannel = connectionManager.getTargetChannel
-                       (route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
+            TargetChannel targetChannel = connectionManager
+                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);
@@ -94,7 +94,13 @@ public class NettySender implements TransportSender {
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
 
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_INITIATED);
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_HEADERS_COMPLETED);
                 boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
+                NettyTransportContextHolder.getInstance().getInterceptor()
+                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_BODY_COMPLETED);
                 if (written) {
                     targetChannel.setRequestWritten(true);
                 }
@@ -106,9 +112,7 @@ public class NettySender implements TransportSender {
         return false;
     }
 
-
-    @Override
-    public String getId() {
+    @Override public String getId() {
         return id;
     }
 

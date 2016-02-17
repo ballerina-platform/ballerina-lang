@@ -44,31 +44,27 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private ConnectionManager connectionManager;
 
-
     public CarbonNettyServerInitializer() {
 
     }
 
-    @Override
-    public void setup(Map<String, String> parameters) {
+    @Override public void setup(Map<String, String> parameters) {
 
         PoolConfiguration.createPoolConfiguration(parameters);
         try {
             connectionManager = ConnectionManager.getInstance();
 
             if (parameters != null) {
-                DisruptorConfig disruptorConfig =
-                           new DisruptorConfig(
-                                      parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
-                                      parameters.get(Constants.DISRUPTOR_COUNT),
-                                      parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                                      parameters.get(Constants.WAIT_STRATEGY),
-                                      Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
+                DisruptorConfig disruptorConfig = new DisruptorConfig(parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
+                        parameters.get(Constants.DISRUPTOR_COUNT),
+                        parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                        parameters.get(Constants.WAIT_STRATEGY),
+                        Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else {
-                log.warn("Disruptor specific parameters are not specified in " +
-                         "configuration hence using default configs");
+                log.warn("Disruptor specific parameters are not specified in "
+                        + "configuration hence using default configs");
                 DisruptorConfig disruptorConfig = new DisruptorConfig();
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             }
@@ -78,8 +74,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         }
     }
 
-    @Override
-    public void initChannel(Object ch) {
+    @Override public void initChannel(Object ch) {
+        //TODO move to bundle timerHandler = TimerHandler.getInstance();
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
@@ -95,10 +91,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         }
     }
 
-    @Override
-    public boolean isServerInitializer() {
+    @Override public boolean isServerInitializer() {
         return true;
     }
-
 
 }

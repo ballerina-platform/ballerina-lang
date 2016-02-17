@@ -21,11 +21,12 @@ package org.wso2.carbon.transport.http.netty.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.Interceptor;
 import org.wso2.carbon.messaging.TransportSender;
-import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
 import org.wso2.carbon.transport.http.netty.sender.NettySender;
 
@@ -37,8 +38,7 @@ import java.util.Set;
  */
 public class NettyTransportActivator implements BundleActivator {
 
-    @Override
-    public void start(BundleContext bundleContext) throws Exception {
+    @Override public void start(BundleContext bundleContext) throws Exception {
         for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
@@ -46,6 +46,8 @@ public class NettyTransportActivator implements BundleActivator {
             bundleContext.registerService(TransportSender.class, sender, null);
         }
         NettyTransportContextHolder.getInstance().setBundleContext(bundleContext);
+        Interceptor interceptor = new Interceptor();
+        NettyTransportContextHolder.getInstance().setInterceptor(interceptor);
     }
 
     /**
@@ -56,8 +58,7 @@ public class NettyTransportActivator implements BundleActivator {
     private Set<NettyListener> createNettyListeners() {
         Set<NettyListener> listeners = new HashSet<>();
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
-        Set<ListenerConfiguration> listenerConfigurations =
-                trpConfig.getListenerConfigurations();
+        Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
         for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
             NettyTransportContextHolder.getInstance()
                     .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
@@ -73,17 +74,15 @@ public class NettyTransportActivator implements BundleActivator {
      */
     private Set<NettySender> createNettySenders() {
         Set<NettySender> senders = new HashSet<>();
-        Set<SenderConfiguration> senderConfigurations =
-                YAMLTransportConfigurationBuilder.build().getSenderConfigurations();
+        Set<SenderConfiguration> senderConfigurations = YAMLTransportConfigurationBuilder.build()
+                .getSenderConfigurations();
         for (SenderConfiguration senderConfiguration : senderConfigurations) {
             senders.add(new NettySender(senderConfiguration));
         }
         return senders;
     }
 
-
-    @Override
-    public void stop(BundleContext bundleContext) throws Exception {
+    @Override public void stop(BundleContext bundleContext) throws Exception {
 
     }
 }

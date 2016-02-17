@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.transport.http.netty.internal.config;
+package org.wso2.carbon.transport.http.netty.config;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,16 +42,24 @@ public class TransportsConfiguration {
         listenerConfigurations.add(listenerConfiguration);
         defaultConfig.setListenerConfigurations(listenerConfigurations);
         SenderConfiguration senderConfiguration = SenderConfiguration.getDefault();
-        HashSet<SenderConfiguration> senderConfigurations =  new HashSet<>();
+        HashSet<SenderConfiguration> senderConfigurations = new HashSet<>();
         senderConfigurations.add(senderConfiguration);
         defaultConfig.setSenderConfigurations(senderConfigurations);
+        TransportProperty transportProperty = TransportProperty.getDefault();
+        HashSet<TransportProperty> transportProperties = new HashSet<>();
+        transportProperties.add(transportProperty);
+        defaultConfig.setTransportProperties(transportProperties);
         return defaultConfig;
     }
+
+    @XmlElementWrapper(name = "properties")
+    @XmlElement(name = "property")
+    private Set<TransportProperty> transportProperties;
+
 
     @XmlElementWrapper(name = "listeners")
     @XmlElement(name = "listener")
     private Set<ListenerConfiguration> listenerConfigurations;
-
 
     @XmlElementWrapper(name = "senders")
     @XmlElement(name = "sender")
@@ -74,5 +82,13 @@ public class TransportsConfiguration {
 
     public void setSenderConfigurations(Set<SenderConfiguration> senderConfigurations) {
         this.senderConfigurations = Collections.unmodifiableSet(senderConfigurations);
+    }
+
+    public Set<TransportProperty> getTransportProperties() {
+        return transportProperties;
+    }
+
+    public void setTransportProperties(Set<TransportProperty> transportProperties) {
+        this.transportProperties = transportProperties;
     }
 }

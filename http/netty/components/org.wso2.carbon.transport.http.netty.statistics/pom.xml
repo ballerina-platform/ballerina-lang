@@ -16,7 +16,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.transport</groupId>
@@ -30,6 +31,54 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon Transport HTTP Netty Statistics</name>
     <description>Latency matrix calculation for Netty based HTTP transport</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.metrics</groupId>
+            <artifactId>org.wso2.carbon.metrics.manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.metrics</groupId>
+            <artifactId>org.wso2.carbon.metrics.impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <bundle.activator>org.wso2.carbon.transport.http.netty.statistics.internal.NettyTransportStatActivator
+        </bundle.activator>
+        <private.package>org.wso2.carbon.transport.http.netty.statistics.internal</private.package>
+        <export.package>
+            !org.wso2.carbon.transport.http.netty.statistics.internal,
+            org.wso2.carbon.transport.http.netty.statistics,
+        </export.package>
+        <import.package>
+            org.wso2.carbon.transport.http.netty.statistics,
+            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+            org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.wso2.carbon.metrics.manager.*;version="[1.2.0, 2.0.0)",
+            org.wso2.carbon.metrics.impl.*;version="[1.2.0, 2.0.0)",
+            org.wso2.carbon.metrics.common.*;version="[1.2.0, 2.0.0)",
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
+            org.wso2.carbon.transport.http.netty.config.*;version="[2.0.0, 2.1.0)"
+        </import.package>
+    </properties>
 
 
 </project>
