@@ -29,10 +29,10 @@ import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.FaultHandler;
+import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
-import org.wso2.carbon.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -143,7 +143,7 @@ public class TargetHandler extends ReadTimeoutHandler {
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {
-                faultHandler.handleFault("504", new EndpointTimeOutException(payload), callback);
+                faultHandler.handleFault("504", new EndPointTimeOut(payload), callback);
                 incomingMsg.getFaultHandlerStack().push(faultHandler);
             } else {
                 DefaultCarbonMessage response = new DefaultCarbonMessage();
