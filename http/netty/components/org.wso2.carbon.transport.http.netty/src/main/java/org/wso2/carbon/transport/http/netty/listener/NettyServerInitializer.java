@@ -45,8 +45,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         this.sslConfig = sslConfig;
     }
 
-    @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    @Override protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
@@ -56,8 +55,8 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         }
 
         // Add the rest of the handlers to the pipeline
-        CarbonTransportInitializer initializer =
-                NettyTransportContextHolder.getInstance().getServerChannelInitializer(transportID);
+        CarbonTransportInitializer initializer = NettyTransportContextHolder.getInstance()
+                .getServerChannelInitializer(transportID);
 
         if (initializer != null) {
             if (log.isDebugEnabled()) {

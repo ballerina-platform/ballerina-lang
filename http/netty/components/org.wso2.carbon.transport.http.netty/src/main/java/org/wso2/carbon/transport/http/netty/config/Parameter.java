@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.transport.http.netty.internal.config;
+package org.wso2.carbon.transport.http.netty.config;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

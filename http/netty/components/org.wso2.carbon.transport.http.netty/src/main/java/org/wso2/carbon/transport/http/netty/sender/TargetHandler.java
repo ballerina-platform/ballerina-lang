@@ -27,11 +27,13 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -57,17 +59,16 @@ public class TargetHandler extends ReadTimeoutHandler {
         super(timeoutSeconds);
     }
 
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    @Override public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    @SuppressWarnings("unchecked") @Override public void channelRead(ChannelHandlerContext ctx, Object msg)
+            throws Exception {
         if (msg instanceof HttpResponse) {
             cMsg = new NettyCarbonMessage();
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_INITIATED);
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
@@ -76,21 +77,25 @@ public class TargetHandler extends ReadTimeoutHandler {
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
             cMsg.setHeaders(Util.getHeaders(httpResponse));
-            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null ||
-                    cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_HEADERS_COMPLETED);
+            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
+                    || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
                 ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
             }
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_BODY_COMPLETED);
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
                     if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null &&
                             cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                        cMsg.getHeaders().put(Constants.HTTP_TRANSFER_ENCODING,
-                                String.valueOf(cMsg.getMessageBodyLength()));
+                        cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
+                                String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
                         ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
                     }
                 } else {
@@ -101,8 +106,10 @@ public class TargetHandler extends ReadTimeoutHandler {
         }
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
+    @Override public void channelInactive(ChannelHandlerContext ctx) {
+        // Set the client channel close metric
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(cMsg, EngagedLocation.SERVER_CONNECTION_COMPLETED);
         log.debug("Target channel closed.");
     }
 
@@ -126,8 +133,7 @@ public class TargetHandler extends ReadTimeoutHandler {
         this.targetChannel = targetChannel;
     }
 
-    @Override
-    protected void readTimedOut(ChannelHandlerContext ctx) {
+    @Override protected void readTimedOut(ChannelHandlerContext ctx) {
 
         ctx.channel().close();
 

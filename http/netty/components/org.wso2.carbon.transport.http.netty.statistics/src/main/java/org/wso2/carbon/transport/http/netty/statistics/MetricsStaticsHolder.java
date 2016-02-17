@@ -18,9 +18,20 @@
 
 package org.wso2.carbon.transport.http.netty.statistics;
 
-/**
- * temporary empty class
- */
-public class StatisticsCalculator {
+import java.util.Map;
 
+/**
+ * interface extends holders
+ */
+public interface MetricsStaticsHolder {
+
+    boolean startTimer(String timer);
+
+    boolean stopTimer(String timer);
+
+    void setStatics(String timer, Long duration);
+
+    Map<String, Long> getStatics(String timer);
+
+    String getType();
 }

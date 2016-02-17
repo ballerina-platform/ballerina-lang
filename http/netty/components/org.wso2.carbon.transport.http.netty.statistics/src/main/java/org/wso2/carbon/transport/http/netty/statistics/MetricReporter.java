@@ -16,16 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.listener;
-
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+package org.wso2.carbon.transport.http.netty.statistics;
 
 /**
- * Listener Count Provider.
+ * Metric Reporter Types.
  */
-public class ListenerCountProvider {
-
-    public static int getCount() {
-        return YAMLTransportConfigurationBuilder.build().getListenerConfigurations().size();
-    }
+public enum MetricReporter {
+    CONSOLE, JMX, DAS
 }

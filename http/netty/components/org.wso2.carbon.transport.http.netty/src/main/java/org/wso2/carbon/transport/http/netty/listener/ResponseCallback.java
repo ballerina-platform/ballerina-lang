@@ -49,7 +49,6 @@ public class ResponseCallback implements CarbonCallback {
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
 
-
         if (cMsg instanceof NettyCarbonMessage) {
             NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
             while (true) {

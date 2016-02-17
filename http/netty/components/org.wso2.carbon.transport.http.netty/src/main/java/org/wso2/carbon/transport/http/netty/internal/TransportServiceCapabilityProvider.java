@@ -22,7 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
-import org.wso2.carbon.transport.http.netty.internal.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 
 /**
  * Component which registers the CarbonTransport capability information.

@@ -23,7 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.transport.http.netty.internal.config.ListenerConfiguration;
+import org.wso2.carbon.messaging.Interceptor;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class NettyTransportContextHolder {
     private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor messageProcessor;
+    private Interceptor interceptor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
 
     public ListenerConfiguration getListenerConfiguration(String id) {
@@ -71,7 +73,6 @@ public class NettyTransportContextHolder {
         }
     }
 
-
     public CarbonTransportInitializer getServerChannelInitializer(String key) {
         return channelServerInitializers.get(key);
     }
@@ -79,7 +80,6 @@ public class NettyTransportContextHolder {
     public CarbonTransportInitializer getClientChannelInitializer(String key) {
         return channelClientInitializers.get(key);
     }
-
 
     public void removeNettyChannelInitializer(String key) {
         channelServerInitializers.remove(key);
@@ -105,5 +105,13 @@ public class NettyTransportContextHolder {
         if (carbonMessageProcessor.getId().equals(messageProcessor.getId())) {
             messageProcessor = null;
         }
+    }
+
+    public void setInterceptor(Interceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    public Interceptor getInterceptor() {
+        return interceptor;
     }
 }

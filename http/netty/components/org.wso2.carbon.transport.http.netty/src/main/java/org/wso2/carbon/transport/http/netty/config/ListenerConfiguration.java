@@ -16,13 +16,13 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.transport.http.netty.internal.config;
-
+package org.wso2.carbon.transport.http.netty.config;
 
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+
+
 import java.io.File;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,25 +30,39 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
 
+
 /**
- * JAXB representation of the Netty transport sender configuration.
+ * JAXB representation of a transport listener.
  */
 @SuppressWarnings("unused")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SenderConfiguration {
+public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
 
-
-    public static SenderConfiguration getDefault() {
-        SenderConfiguration defaultConfig;
-        defaultConfig = new SenderConfiguration(DEFAULT_KEY);
+    public static ListenerConfiguration getDefault() {
+        ListenerConfiguration defaultConfig;
+        defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "0.0.0.0", 8080);
         return defaultConfig;
     }
 
     @XmlAttribute(required = true)
     private String id;
 
+    @XmlAttribute
+    private String host;
+
+    @XmlAttribute(required = true)
+    private int port;
+
+    @XmlAttribute
+    private int bossThreadPoolSize = Runtime.getRuntime().availableProcessors();
+
+    @XmlAttribute
+    private int workerThreadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
+
+    @XmlAttribute
+    private int execHandlerThreadPoolSize = 60;
 
     @XmlAttribute
     private String scheme = "http";
@@ -72,14 +86,22 @@ public class SenderConfiguration {
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
 
-    public SenderConfiguration() {
+    public ListenerConfiguration() {
     }
 
-    public SenderConfiguration(String id) {
+    public ListenerConfiguration(String id, String host, int port) {
         this.id = id;
-
+        this.host = host;
+        this.port = port;
     }
 
+    public int getBossThreadPoolSize() {
+        return bossThreadPoolSize;
+    }
+
+    public void setBossThreadPoolSize(int bossThreadPoolSize) {
+        this.bossThreadPoolSize = bossThreadPoolSize;
+    }
 
     public String getCertPass() {
         return certPass;
@@ -89,6 +111,21 @@ public class SenderConfiguration {
         this.certPass = certPass;
     }
 
+    public int getExecHandlerThreadPoolSize() {
+        return execHandlerThreadPoolSize;
+    }
+
+    public void setExecHandlerThreadPoolSize(int execHandlerThreadPoolSize) {
+        this.execHandlerThreadPoolSize = execHandlerThreadPoolSize;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
 
     public String getId() {
         return id;
@@ -114,6 +151,13 @@ public class SenderConfiguration {
         this.keyStorePass = keyStorePass;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 
     public String getScheme() {
         return scheme;
@@ -123,6 +167,13 @@ public class SenderConfiguration {
         this.scheme = scheme;
     }
 
+    public int getWorkerThreadPoolSize() {
+        return workerThreadPoolSize;
+    }
+
+    public void setWorkerThreadPoolSize(int workerThreadPoolSize) {
+        this.workerThreadPoolSize = workerThreadPoolSize;
+    }
 
     public List<Parameter> getParameters() {
         return parameters;
@@ -139,23 +190,26 @@ public class SenderConfiguration {
         if (certPass == null) {
             certPass = keyStorePass;
         }
-        if (trustStoreFile == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrusstoreFile or keyStorePass not defined for " +
+        if (keyStoreFile == null || keyStorePass == null) {
+            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " +
                                                "HTTPS scheme");
         }
-        SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
-        if (keyStoreFile != null) {
-            File keyStore = new File(keyStoreFile);
-            if (!keyStore.exists()) {
-                throw new IllegalArgumentException("TrustStore File " + trustStoreFile + " not found");
-            }
-            sslConfig =
-                       new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+        File keyStore = new File(keyStoreFile);
+        if (!keyStore.exists()) {
+            throw new IllegalArgumentException("KeyStore File " + keyStoreFile + " not found");
         }
+        SSLConfig sslConfig =
+                   new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+        if (trustStoreFile != null) {
             File trustStore = new File(trustStoreFile);
-
+            if (!trustStore.exists()) {
+                throw new IllegalArgumentException("trustStore File " + trustStoreFile + " not found");
+            }
+            if (trustStorePass == null) {
+                throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
+            }
             sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-
+        }
         return sslConfig;
     }
 }
