@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.window.TimeWindowProcessor;
+import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class SingleStreamRuntime implements StreamRuntime {
     public StreamRuntime clone(String key) {
         ProcessStreamReceiver clonedProcessStreamReceiver = this.processStreamReceiver.clone(key);
         SingleThreadEntryValveProcessor singleThreadEntryValveProcessor = null;
-        TimeWindowProcessor windowProcessor;
+        SchedulingProcessor schedulingProcessor;
         Processor clonedProcessorChain = null;
         if (processorChain != null) {
             if (!(processorChain instanceof QuerySelector || processorChain instanceof OutputRateLimiter)) {
@@ -84,9 +84,9 @@ public class SingleStreamRuntime implements StreamRuntime {
                     clonedProcessorChain.setToLast(clonedProcessor);
                     if (clonedProcessor instanceof SingleThreadEntryValveProcessor) {
                         singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessor;
-                    } else if (clonedProcessor instanceof TimeWindowProcessor) {
-                        windowProcessor = (TimeWindowProcessor) clonedProcessor;
-                        windowProcessor.setScheduler(((TimeWindowProcessor) processor).getScheduler().clone(key, singleThreadEntryValveProcessor));
+                    } else if (clonedProcessor instanceof SchedulingProcessor) {
+                        schedulingProcessor = (SchedulingProcessor) clonedProcessor;
+                        schedulingProcessor.setScheduler(((SchedulingProcessor) processor).getScheduler().clone(key, singleThreadEntryValveProcessor));
                     }
                 }
                 processor = processor.getNextProcessor();
