@@ -57,9 +57,10 @@ public class ClientRequestWorker implements Runnable {
     private RingBuffer ringBuffer;
 
     public ClientRequestWorker(HttpRoute httpRoute, SourceHandler sourceHandler, SenderConfiguration senderConfig,
-            HttpRequest httpRequest, CarbonMessage carbonMessage, CarbonCallback carbonCallback,
-            boolean globalEndpointPooling, GenericObjectPool genericObjectPool, ConnectionManager connectionManager,
-            RingBuffer ringBuffer) {
+                               HttpRequest httpRequest, CarbonMessage carbonMessage, CarbonCallback carbonCallback,
+                               boolean globalEndpointPooling, GenericObjectPool genericObjectPool,
+                               ConnectionManager connectionManager,
+                               RingBuffer ringBuffer) {
         this.globalEndpointPooling = globalEndpointPooling;
         this.httpRequest = httpRequest;
         this.sourceHandler = sourceHandler;
@@ -72,7 +73,8 @@ public class ClientRequestWorker implements Runnable {
         this.ringBuffer = ringBuffer;
     }
 
-    @Override public void run() {
+    @Override
+    public void run() {
         Channel channel = null;
         TargetChannel targetChannel = null;
         ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
@@ -92,7 +94,7 @@ public class ClientRequestWorker implements Runnable {
                 log.error(msg, e);
                 FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
                 if (faultHandler != null) {
-                    faultHandler.handleFault("502", e, carbonCallback);
+                    faultHandler.handleFault("502", e, carbonMessage, carbonCallback);
                     carbonMessage.getFaultHandlerStack().push(faultHandler);
                 }
             }
@@ -102,7 +104,7 @@ public class ClientRequestWorker implements Runnable {
 
             try {
                 NettyTransportContextHolder.getInstance().getInterceptor()
-                        .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
+                           .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;
@@ -110,7 +112,7 @@ public class ClientRequestWorker implements Runnable {
                 FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
                 targetChannel = null;
                 if (faultHandler != null) {
-                    faultHandler.handleFault("502", failedCause, carbonCallback);
+                    faultHandler.handleFault("502", failedCause, carbonMessage, carbonCallback);
                     carbonMessage.getFaultHandlerStack().push(faultHandler);
                 }
             } finally {
