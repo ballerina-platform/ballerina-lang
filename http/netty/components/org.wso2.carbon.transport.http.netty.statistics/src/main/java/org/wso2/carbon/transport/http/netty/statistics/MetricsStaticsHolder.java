@@ -23,8 +23,8 @@ package org.wso2.carbon.transport.http.netty.statistics;
  */
 public interface MetricsStaticsHolder {
 
-    boolean startTimer(String timer);
+    boolean startTimer();
 
-    boolean stopTimer(String timer);
+    boolean stopTimer();
 
 }

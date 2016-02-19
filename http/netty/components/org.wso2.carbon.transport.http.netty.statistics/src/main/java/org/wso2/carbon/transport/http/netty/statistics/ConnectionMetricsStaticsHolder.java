@@ -30,21 +30,21 @@ public class ConnectionMetricsStaticsHolder implements MetricsStaticsHolder {
 
     public ConnectionMetricsStaticsHolder(String type, TimerHolder timerHolder) {
 
-        if (type.equals(MetricsConstants.TYPE_CLIENT_CONNECTION)) {
-            connectionTimer = timerHolder.getClientConnectionTimer();
+        if (type.equals(MetricsConstants.TYPE_SOURCE)) {
+            connectionTimer = timerHolder.getSourceConnectionTimer();
         } else {
-            connectionTimer = timerHolder.getServerConnectionTimer();
+            connectionTimer = timerHolder.getTargetConnectionTimer();
         }
     }
 
     @Override
-    public boolean startTimer(String timer) {
+    public boolean startTimer() {
         this.connectionTimerContext = this.connectionTimer.start();
         return true;
     }
 
     @Override
-    public boolean stopTimer(String timer) {
+    public boolean stopTimer() {
         if (this.connectionTimerContext != null) {
             this.connectionTimerContext.stop();
             return true;

@@ -23,37 +23,16 @@ package org.wso2.carbon.transport.http.netty.statistics;
  */
 public class MetricsConstants {
 
-    public static final String TYPE_SERVER_REQUEST = "TYPE_SERVER_REQUEST";
+    public static final String TYPE_SOURCE = "TYPE_SOURCE";
 
-    public static final String TYPE_CLIENT_REQUEST = "TYPE_CLIENT_REQUEST";
+    public static final String TYPE_TARGET = "TYPE_TARGET";
 
-    public static final String TYPE_CLIENT_RESPONSE = "TYPE_CLIENT_RESPONSE";
+    public static final String SOURCE_REQUEST_METRICS_HOLDER = "SOURCE_REQUEST_METRICS_HOLDER";
 
-    public static final String TYPE_SERVER_RESPONSE = "TYPE_SERVER_RESPONSE";
+    public static final String TARGET_REQUEST_METRICS_HOLDER = "TARGET_REQUEST_METRICS_HOLDER";
 
-    public static final String TYPE_SERVER_CONNECTION = "TYPE_SERVER_CONNECTION";
+    public static final String TARGET_RESPONSE_METRICS_HOLDER = "TARGET_RESPONSE_METRICS_HOLDER";
 
-    public static final String TYPE_CLIENT_CONNECTION = "TYPE_CLIENT_CONNECTION";
+    public static final String SOURCE_RESPONSE_METRICS_HOLDER = "SOURCE_RESPONSE_METRICS_HOLDER";
 
-    public static final String SERVER_REQUEST_METRICS_HOLDER = "SERVER_REQUEST_METRICS_HOLDER";
-
-    public static final String SERVER_RESPONSE_METRICS_HOLDER = "SERVER_RESPONSE_METRICS_HOLDER";
-
-    public static final String CLIENT_RESPONSE_METRICS_HOLDER = "CLIENT_RESPONSE_METRICS_HOLDER";
-
-    public static final String CLIENT_REQUEST_METRICS_HOLDER = "CLIENT_REQUEST_METRICS_HOLDER";
-
-    public static final String REQUEST_LIFE_TIMER = "request.life.timer";
-
-    public static final String REQUEST_BODY_TIMER = "request.body.timer";
-
-    public static final String REQUEST_HEADER_TIMER = "request.header.timer";
-
-    public static final String RESPONSE_LIFE_TIMER = "response.life.timer";
-
-    public static final String RESPONSE_HEADER_TIMER = "response.header.timer";
-
-    public static final String RESPONSE_BODY_TIMER = "response.body.read.timer";
-
-    public static final String CONNECTION_TIMER = "connection.timer";
 }

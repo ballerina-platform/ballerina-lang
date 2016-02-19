@@ -26,63 +26,29 @@ import org.wso2.carbon.metrics.manager.Timer;
 public class RequestMetricsStaticsHolder implements MetricsStaticsHolder {
 
     // Carbon-Metrics Measuring parameters
-    private Timer lifeTimer = null;
-    private Timer headerTimer = null;
-    private Timer bodyTimer = null;
+    private Timer timer = null;
 
     // Set the Carbon-Metrics Timers
-    private Timer.Context lifeTimerContext = null;
-    private Timer.Context headerTimerContext = null;
-    private Timer.Context bodyTimerContext = null;
+    private Timer.Context timerContext = null;
 
     public RequestMetricsStaticsHolder(String type, TimerHolder timerHolder) {
-        if (type.equals(MetricsConstants.TYPE_CLIENT_REQUEST)) {
-            lifeTimer = timerHolder.getClientRequestLifeTimer();
-            headerTimer = timerHolder.getClientRequestHeaderTimer();
-            bodyTimer = timerHolder.getClientRequestBodyTimer();
+        if (type.equals(MetricsConstants.TYPE_SOURCE)) {
+            timer = timerHolder.getSourceRequestTimer();
 
         } else {
-            lifeTimer = timerHolder.getServerRequestLifeTimer();
-            headerTimer = timerHolder.getServerRequestHeaderTimer();
-            bodyTimer = timerHolder.getServerRequestBodyTimer();
+            timer = timerHolder.getTargetRequestTimer();
         }
     }
 
     @Override
-    public boolean startTimer(String timer) {
-        switch (timer) {
-        case MetricsConstants.REQUEST_LIFE_TIMER:
-            lifeTimerContext = lifeTimer.start();
-            break;
-        case MetricsConstants.REQUEST_HEADER_TIMER:
-            headerTimerContext = headerTimer.start();
-            break;
-        case MetricsConstants.REQUEST_BODY_TIMER:
-            bodyTimerContext = bodyTimer.start();
-            break;
-
-        default:
-            return false;
-        }
+    public boolean startTimer() {
+        timerContext = this.timer.start();
         return true;
     }
 
     @Override
-    public boolean stopTimer(String timer) {
-        switch (timer) {
-        case MetricsConstants.REQUEST_LIFE_TIMER:
-            lifeTimerContext.stop();
-            break;
-        case MetricsConstants.REQUEST_HEADER_TIMER:
-            headerTimerContext.stop();
-            break;
-        case MetricsConstants.REQUEST_BODY_TIMER:
-            bodyTimerContext.stop();
-            break;
-
-        default:
-            return false;
-        }
+    public boolean stopTimer() {
+        timerContext.stop();
         return true;
     }
 }

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.EngagedLocation;
+import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
@@ -49,20 +49,15 @@ public class ResponseCallback implements CarbonCallback {
 
     public void done(CarbonMessage cMsg) {
         final HttpResponse response = Util.createHttpResponse(cMsg);
-        NettyTransportContextHolder.getInstance().getInterceptor()
-                .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_INITIATED);
+        NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.INITIATED);
         ctx.write(response);
-        NettyTransportContextHolder.getInstance().getInterceptor()
-                .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_HEADERS_COMPLETED);
-
         if (cMsg instanceof NettyCarbonMessage) {
             NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
             while (true) {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ctx.writeAndFlush(httpContent);
-                    NettyTransportContextHolder.getInstance().getInterceptor()
-                            .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_BODY_COMPLETED);
+                    NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.COMPLETED);
                     break;
                 }
                 ctx.write(httpContent);
@@ -74,10 +69,9 @@ public class ResponseCallback implements CarbonCallback {
                 ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 ctx.write(httpContent);
-                if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
+                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    NettyTransportContextHolder.getInstance().getInterceptor()
-                            .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_BODY_COMPLETED);
+                    NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.COMPLETED);
                     break;
                 }
             }

@@ -27,46 +27,22 @@ import org.wso2.carbon.metrics.manager.Timer;
  */
 public class TimerHolder {
 
-    private final Timer clientConnectionTimer;
-    private final Timer serverConnectionTimer;
-
-    private final Timer clientRequestLifeTimer;
-    private final Timer clientRequestHeaderTimer;
-    private final Timer clientRequestBodyTimer;
-
-    private final Timer serverRequestLifeTimer;
-    private final Timer serverRequestHeaderTimer;
-    private final Timer serverRequestBodyTimer;
-
-    private final Timer serverResponseLifeTimer;
-    private final Timer serverResponseHeaderTimer;
-    private final Timer serverResponseBodyTimer;
-
-    private final Timer clientResponseLifeTimer;
-    private final Timer clientResponseHeaderTimer;
-    private final Timer clientResponseBodyTimer;
+    private final Timer sourceConnectionTimer;
+    private final Timer targetConnectionTimer;
+    private final Timer sourceRequestTimer;
+    private final Timer targetRequestTimer;
+    private final Timer targetResponseTimer;
+    private final Timer sourceResponseTimer;
 
     private static volatile TimerHolder timerHolder;
 
     private TimerHolder() {
-        clientConnectionTimer = MetricManager.timer("gw.client.connection.timer", Level.INFO);
-        serverConnectionTimer = MetricManager.timer("gw.server.connection.timer", Level.INFO);
-
-        clientRequestLifeTimer = MetricManager.timer("gw.client.request.life.timer", Level.INFO);
-        clientRequestHeaderTimer = MetricManager.timer("gw.client.request.header.timer", Level.INFO);
-        clientRequestBodyTimer = MetricManager.timer("gw.client.request.body.timer", Level.INFO);
-
-        serverRequestLifeTimer = MetricManager.timer("gw.server.request.life.timer", Level.INFO);
-        serverRequestHeaderTimer = MetricManager.timer("gw.server.request.header.timer", Level.INFO);
-        serverRequestBodyTimer = MetricManager.timer("gw.server.request.body.timer", Level.INFO);
-
-        serverResponseLifeTimer = MetricManager.timer("gw.server.response.life.timer", Level.INFO);
-        serverResponseHeaderTimer = MetricManager.timer("gw.server.response.header.timer", Level.INFO);
-        serverResponseBodyTimer = MetricManager.timer("gw.server.response.body.timer", Level.INFO);
-
-        clientResponseLifeTimer = MetricManager.timer("gw.client.response.life.timer", Level.INFO);
-        clientResponseHeaderTimer = MetricManager.timer("gw.client.response.header.timer", Level.INFO);
-        clientResponseBodyTimer = MetricManager.timer("gw.client.response.body.timer", Level.INFO);
+        sourceConnectionTimer = MetricManager.timer("gw.source.connection.timer", Level.INFO);
+        targetConnectionTimer = MetricManager.timer("gw.target.connection.timer", Level.INFO);
+        sourceRequestTimer = MetricManager.timer("gw.source.request.timer", Level.INFO);
+        targetRequestTimer = MetricManager.timer("gw.target.request.timer", Level.INFO);
+        targetResponseTimer = MetricManager.timer("gw.target.response.timer", Level.INFO);
+        sourceResponseTimer = MetricManager.timer("gw.source.response.timer", Level.INFO);
     }
 
     public static TimerHolder getInstance() {
@@ -76,59 +52,27 @@ public class TimerHolder {
         return timerHolder;
     }
 
-    public Timer getClientConnectionTimer() {
-        return clientConnectionTimer;
+    public Timer getSourceConnectionTimer() {
+        return sourceConnectionTimer;
     }
 
-    public Timer getServerConnectionTimer() {
-        return serverConnectionTimer;
+    public Timer getTargetConnectionTimer() {
+        return targetConnectionTimer;
     }
 
-    public Timer getClientRequestLifeTimer() {
-        return clientRequestLifeTimer;
+    public Timer getSourceRequestTimer() {
+        return sourceRequestTimer;
     }
 
-    public Timer getClientRequestHeaderTimer() {
-        return clientRequestHeaderTimer;
+    public Timer getTargetRequestTimer() {
+        return targetRequestTimer;
     }
 
-    public Timer getClientRequestBodyTimer() {
-        return clientRequestBodyTimer;
+    public Timer getTargetResponseTimer() {
+        return targetResponseTimer;
     }
 
-    public Timer getServerRequestLifeTimer() {
-        return serverRequestLifeTimer;
-    }
-
-    public Timer getServerRequestHeaderTimer() {
-        return serverRequestHeaderTimer;
-    }
-
-    public Timer getServerRequestBodyTimer() {
-        return serverRequestBodyTimer;
-    }
-
-    public Timer getServerResponseLifeTimer() {
-        return serverResponseLifeTimer;
-    }
-
-    public Timer getServerResponseHeaderTimer() {
-        return serverResponseHeaderTimer;
-    }
-
-    public Timer getServerResponseBodyTimer() {
-        return serverResponseBodyTimer;
-    }
-
-    public Timer getClientResponseLifeTimer() {
-        return clientResponseLifeTimer;
-    }
-
-    public Timer getClientResponseHeaderTimer() {
-        return clientResponseHeaderTimer;
-    }
-
-    public Timer getClientResponseBodyTimer() {
-        return clientResponseBodyTimer;
+    public Timer getSourceResponseTimer() {
+        return sourceResponseTimer;
     }
 }
