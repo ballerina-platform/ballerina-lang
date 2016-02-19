@@ -52,7 +52,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
 
-    private int queueSize;
     private DisruptorConfig disruptorConfig;
     private Map<String, GenericObjectPool> targetChannelPool;
 
@@ -60,10 +59,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
-    @Override public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+    @Override
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
         NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
-        carbonMessage.setProperty("connection.id", ctx.pipeline().hashCode());
+        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
                 .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_INITIATED);
 
@@ -74,13 +74,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    @SuppressWarnings("unchecked") @Override public void channelRead(ChannelHandlerContext ctx, Object msg)
-            throws Exception {
+    @SuppressWarnings("unchecked")
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
 
             cMsg = new NettyCarbonMessage();
             NettyTransportContextHolder.getInstance().getInterceptor()
-                    .engage(cMsg, EngagedLocation.CLIENT_REQEST_READ_INITIATED);
+                    .engage(cMsg, EngagedLocation.CLIENT_REQUEST_INITIATED);
 
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
@@ -96,7 +97,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
             cMsg.setHeaders(Util.getHeaders(httpRequest));
             NettyTransportContextHolder.getInstance().getInterceptor()
-                    .engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_HEADERS_COMPLETED);
+                    .engage(cMsg, EngagedLocation.CLIENT_REQUEST_HEADERS_COMPLETED);
 
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
@@ -109,7 +110,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
                         NettyTransportContextHolder.getInstance().getInterceptor().
-                                engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_BODY_COMPLETED);
+                                engage(cMsg, EngagedLocation.CLIENT_REQUEST_BODY_COMPLETED);
                         cMsg.setEomAdded(true);
                     }
                 }
@@ -117,10 +118,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    @Override public void channelInactive(ChannelHandlerContext ctx) {
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
         NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
-        carbonMessage.setProperty("connection.id", ctx.pipeline().hashCode());
+        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
                 .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
         disruptorConfig.notifyChannelInactive();
@@ -148,7 +150,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return ctx;
     }
 
-    @Override public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         log.error("Exception caught in Netty Source handler", cause);
     }

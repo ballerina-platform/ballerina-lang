@@ -20,61 +20,45 @@ package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Timer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Keep the response related latency data (Raw Data)
  */
 public class ResponseMetricsStaticsHolder implements MetricsStaticsHolder {
 
-    private String type = null;
-    private Map<String, Long> responseMetricsStatics;
+    // Carbon-Metrics Measuring parameters
+    private Timer lifeTimer = null;
+    private Timer headerTimer = null;
+    private Timer bodyTimer = null;
 
-    // Carbon-Metrics parameters]
-    private Timer responseLifeTimer = null;
-    private Timer responseHeaderReadTimer = null;
-    private Timer responseBodyReadTimer = null;
-
-    // Carbon-Metrics timer contexts
-    private Timer.Context resLifeContext = null;
-    private Timer.Context resHeaderReadContext = null;
-    private Timer.Context resBodyReadContext = null;
+    // Set the Carbon-Metrics Timers
+    private Timer.Context lifeTimerContext = null;
+    private Timer.Context headerTimerContext = null;
+    private Timer.Context bodyTimerContext = null;
 
     public ResponseMetricsStaticsHolder(String type, TimerHolder timerHolder) {
-        this.type = type;
-        this.responseLifeTimer = timerHolder.getResponseLifeTimer();
-        this.responseHeaderReadTimer = timerHolder.getResponseHeaderReadTimer();
-        this.responseBodyReadTimer = timerHolder.getResponseBodyReadTimer();
-    }
+        if (type.equals(MetricsConstants.TYPE_CLIENT_RESPONSE)) {
+            lifeTimer = timerHolder.getClientResponseLifeTimer();
+            headerTimer = timerHolder.getClientResponseHeaderTimer();
+            bodyTimer = timerHolder.getClientResponseBodyTimer();
 
-    @Override public boolean startTimer(String timer) {
-        switch (timer) {
-        case Constants.RESPONSE_LIFE_TIMER:
-            resLifeContext = responseLifeTimer.start();
-            break;
-        case Constants.RESPONSE_HEADER_READ_TIMER:
-            resHeaderReadContext = responseHeaderReadTimer.start();
-            break;
-        case Constants.RESPONSE_BODY_READ_TIMER:
-            resBodyReadContext = responseBodyReadTimer.start();
-            break;
-        default:
-            return false;
+        } else {
+            lifeTimer = timerHolder.getServerResponseLifeTimer();
+            headerTimer = timerHolder.getServerResponseHeaderTimer();
+            bodyTimer = timerHolder.getServerResponseBodyTimer();
         }
-        return true;
     }
 
-    @Override public boolean stopTimer(String timer) {
+    @Override
+    public boolean startTimer(String timer) {
         switch (timer) {
-        case Constants.RESPONSE_LIFE_TIMER:
-            setStatics(timer, resLifeContext.stop());
+        case MetricsConstants.RESPONSE_LIFE_TIMER:
+            lifeTimerContext = lifeTimer.start();
             break;
-        case Constants.RESPONSE_HEADER_READ_TIMER:
-            setStatics(timer, resHeaderReadContext.stop());
+        case MetricsConstants.RESPONSE_HEADER_TIMER:
+            headerTimerContext = headerTimer.start();
             break;
-        case Constants.RESPONSE_BODY_READ_TIMER:
-            setStatics(timer, resBodyReadContext.stop());
+        case MetricsConstants.RESPONSE_BODY_TIMER:
+            bodyTimerContext = bodyTimer.start();
             break;
 
         default:
@@ -83,19 +67,23 @@ public class ResponseMetricsStaticsHolder implements MetricsStaticsHolder {
         return true;
     }
 
-    @Override public void setStatics(String timer, Long duration) {
-        if (responseMetricsStatics == null) {
-            this.responseMetricsStatics = new HashMap<String, Long>();
+    @Override
+    public boolean stopTimer(String timer) {
+        switch (timer) {
+        case MetricsConstants.RESPONSE_LIFE_TIMER:
+            lifeTimerContext.stop();
+            break;
+        case MetricsConstants.RESPONSE_HEADER_TIMER:
+            headerTimerContext.stop();
+            break;
+        case MetricsConstants.RESPONSE_BODY_TIMER:
+            bodyTimerContext.stop();
+            break;
+
+        default:
+            return false;
         }
-        responseMetricsStatics.put(timer, duration);
-
+        return true;
     }
 
-    @Override public Map<String, Long> getStatics(String timer) {
-        return responseMetricsStatics;
-    }
-
-    @Override public String getType() {
-        return type;
-    }
 }

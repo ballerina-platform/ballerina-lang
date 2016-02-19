@@ -27,8 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 
 import java.nio.ByteBuffer;
 
@@ -47,7 +49,11 @@ public class ResponseCallback implements CarbonCallback {
 
     public void done(CarbonMessage cMsg) {
         final HttpResponse response = Util.createHttpResponse(cMsg);
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_INITIATED);
         ctx.write(response);
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_HEADERS_COMPLETED);
 
         if (cMsg instanceof NettyCarbonMessage) {
             NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
@@ -55,6 +61,8 @@ public class ResponseCallback implements CarbonCallback {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ctx.writeAndFlush(httpContent);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_BODY_COMPLETED);
                     break;
                 }
                 ctx.write(httpContent);
@@ -68,6 +76,8 @@ public class ResponseCallback implements CarbonCallback {
                 ctx.write(httpContent);
                 if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
                     ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .engage(cMsg, EngagedLocation.CLIENT_RESPONSE_BODY_COMPLETED);
                     break;
                 }
             }

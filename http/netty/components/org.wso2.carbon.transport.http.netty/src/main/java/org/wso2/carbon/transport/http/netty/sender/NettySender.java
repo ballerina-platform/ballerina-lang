@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
@@ -32,7 +31,6 @@ import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorCon
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -93,14 +91,7 @@ public class NettySender implements TransportSender {
                 targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-
-                NettyTransportContextHolder.getInstance().getInterceptor()
-                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_INITIATED);
-                NettyTransportContextHolder.getInstance().getInterceptor()
-                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_HEADERS_COMPLETED);
                 boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
-                NettyTransportContextHolder.getInstance().getInterceptor()
-                        .engage(msg, EngagedLocation.SERVER_REQUEST_WRITE_BODY_COMPLETED);
                 if (written) {
                     targetChannel.setRequestWritten(true);
                 }

@@ -30,9 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
 import java.net.ConnectException;
@@ -136,7 +138,11 @@ public class ChannelUtils {
     }
 
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(carbonMessage, EngagedLocation.SERVER_REQUEST_INITIATED);
         channel.write(httpRequest);
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(carbonMessage, EngagedLocation.SERVER_REQUEST_HEADERS_COMPLETED);
 
         if (carbonMessage instanceof NettyCarbonMessage) {
             while (true) {
@@ -144,6 +150,8 @@ public class ChannelUtils {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .engage(carbonMessage, EngagedLocation.SERVER_REQUEST_BODY_COMPLETED);
                     break;
                 }
                 if (httpContent != null) {
@@ -159,6 +167,8 @@ public class ChannelUtils {
                 channel.write(httpContent);
                 if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .engage(carbonMessage, EngagedLocation.SERVER_REQUEST_BODY_COMPLETED);
                     break;
                 }
             }

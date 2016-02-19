@@ -32,7 +32,8 @@ public class MetricsEnvConfiguration extends MetricsConfiguration {
     public MetricsEnvConfiguration() {
     }
 
-    @Override public String getProperty(String key) {
+    @Override
+    public String getProperty(String key) {
         key = convertKey(key);
         String value = null;
         if (System.getProperty(key) != null) {

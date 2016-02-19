@@ -60,6 +60,10 @@ public class TargetHandler extends ReadTimeoutHandler {
     }
 
     @Override public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
+        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
+        NettyTransportContextHolder.getInstance().getInterceptor()
+                .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
         super.channelActive(ctx);
     }
 
@@ -67,8 +71,7 @@ public class TargetHandler extends ReadTimeoutHandler {
             throws Exception {
         if (msg instanceof HttpResponse) {
             cMsg = new NettyCarbonMessage();
-            NettyTransportContextHolder.getInstance().getInterceptor()
-                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_INITIATED);
+
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
@@ -76,9 +79,11 @@ public class TargetHandler extends ReadTimeoutHandler {
             HttpResponse httpResponse = (HttpResponse) msg;
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
+            NettyTransportContextHolder.getInstance().getInterceptor()
+                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_INITIATED);
             cMsg.setHeaders(Util.getHeaders(httpResponse));
             NettyTransportContextHolder.getInstance().getInterceptor()
-                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_HEADERS_COMPLETED);
+                    .engage(cMsg, EngagedLocation.SERVER_RESPONSE_HEADERS_COMPLETED);
             if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
                     || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
                 ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
@@ -87,7 +92,7 @@ public class TargetHandler extends ReadTimeoutHandler {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
                     NettyTransportContextHolder.getInstance().getInterceptor()
-                            .engage(cMsg, EngagedLocation.SERVER_RESPONSE_READ_BODY_COMPLETED);
+                            .engage(cMsg, EngagedLocation.SERVER_RESPONSE_BODY_COMPLETED);
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
@@ -108,8 +113,10 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override public void channelInactive(ChannelHandlerContext ctx) {
         // Set the client channel close metric
+        NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
+        carbonMessage.setProperty(Constants.CONNECTION_ID, ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
-                .engage(cMsg, EngagedLocation.SERVER_CONNECTION_COMPLETED);
+                .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_COMPLETED);
         log.debug("Target channel closed.");
     }
 

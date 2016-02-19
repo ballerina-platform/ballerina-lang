@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.transport.http.netty.statistics;
 
-import java.util.Map;
-
 /**
  * interface extends holders
  */
@@ -29,9 +27,4 @@ public interface MetricsStaticsHolder {
 
     boolean stopTimer(String timer);
 
-    void setStatics(String timer, Long duration);
-
-    Map<String, Long> getStatics(String timer);
-
-    String getType();
 }
