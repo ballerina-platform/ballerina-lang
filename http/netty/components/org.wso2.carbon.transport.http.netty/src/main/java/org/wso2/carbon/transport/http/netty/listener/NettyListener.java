@@ -18,6 +18,7 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListener;
+import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
@@ -37,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A class that starts the netty server bootstrap in given port.
@@ -48,6 +51,8 @@ public class NettyListener extends TransportListener {
     private EventLoopGroup workerGroup;
     private ServerBootstrap bootstrap;
     private ListenerConfiguration nettyConfig;
+    private Map<Integer, ChannelFuture> channelFutureMap = new ConcurrentHashMap<>();
+
 
     public NettyListener(ListenerConfiguration nettyConfig) {
         super(nettyConfig.getId());
@@ -66,7 +71,10 @@ public class NettyListener extends TransportListener {
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
         bootstrap = new ServerBootstrap();
         bootstrap.option(ChannelOption.SO_BACKLOG, serverBootstrapConfiguration.getSoBackLog());
-        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
+
+        bootstrap.group(bossGroup, workerGroup)
+                   .channel(NioServerSocketChannel.class);
+
         addChannelInitializer();
         bootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
         bootstrap.option(ChannelOption.SO_KEEPALIVE, serverBootstrapConfiguration.isKeepAlive());
@@ -80,6 +88,10 @@ public class NettyListener extends TransportListener {
         setupChannelInitializer();
         try {
             bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort())).sync();
+            TransportListenerManager artifactDeployer = NettyTransportContextHolder.getInstance().getManager();
+            if (artifactDeployer != null) {
+                artifactDeployer.registerTransportListener(id, this);
+            }
             log.info("Netty Listener starting on port " + nettyConfig.getPort());
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
@@ -88,7 +100,7 @@ public class NettyListener extends TransportListener {
 
     private void setupChannelInitializer() {
         CarbonTransportInitializer channelInitializer = NettyTransportContextHolder.getInstance()
-                .getServerChannelInitializer(nettyConfig.getId());
+                   .getServerChannelInitializer(nettyConfig.getId());
         if (channelInitializer == null) {
             // start with the default initializer
             channelInitializer = new CarbonNettyServerInitializer();
@@ -112,17 +124,20 @@ public class NettyListener extends TransportListener {
         bootstrap.childHandler(handler);
     }
 
-    @Override public void stop() {
+    @Override
+    public void stop() {
         log.info("Stopping Netty transport " + id + " on port " + nettyConfig.getPort());
         shutdownEventLoops();
     }
 
-    @Override public void beginMaintenance() {
+    @Override
+    public void beginMaintenance() {
         log.info("Putting Netty transport " + id + " on port " + nettyConfig.getPort() + " into maintenance mode");
         shutdownEventLoops();
     }
 
-    @Override public void endMaintenance() {
+    @Override
+    public void endMaintenance() {
         log.info("Ending maintenance mode for Netty transport " + id + " running on port " + nettyConfig.getPort());
         bossGroup = new NioEventLoopGroup(nettyConfig.getBossThreadPoolSize());
         workerGroup = new NioEventLoopGroup(nettyConfig.getWorkerThreadPoolSize());
@@ -132,19 +147,48 @@ public class NettyListener extends TransportListener {
     private void shutdownEventLoops() {
         Future<?> f = workerGroup.shutdownGracefully();
         f.addListener(new GenericFutureListener<Future<Object>>() {
-            @Override public void operationComplete(Future<Object> future) throws Exception {
+            @Override
+            public void operationComplete(Future<Object> future) throws Exception {
                 Future f = bossGroup.shutdownGracefully();
                 f.addListener(new GenericFutureListener<Future<Object>>() {
-                    @Override public void operationComplete(Future<Object> future) throws Exception {
+                    @Override
+                    public void operationComplete(Future<Object> future) throws Exception {
                         log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
-                                " stopped successfully");
+                                 " stopped successfully");
                     }
                 });
             }
         });
     }
 
-    @Override public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+    @Override
+    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
 
+    }
+
+    @Override
+    public boolean listen(String host, int port) {
+        try {
+            //TODO check for host verification
+            ChannelFuture future = bootstrap.bind(new InetSocketAddress(host, port)).sync();
+            channelFutureMap.put(port, future);
+            log.info("Netty Listener starting on host  " + host + " and port " + port);
+            return true;
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean stopListening(String host, int port) {
+        //TODO check for host verification
+        ChannelFuture future = channelFutureMap.remove(port);
+        if (future != null) {
+            future.channel().close();
+            log.info("Netty Listener stopped  listening on  host  " + host + " and port " + port);
+            return true;
+        }
+        return false;
     }
 }

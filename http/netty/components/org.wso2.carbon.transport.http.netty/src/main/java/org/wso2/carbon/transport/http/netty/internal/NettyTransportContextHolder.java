@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.Interceptor;
+import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
@@ -43,6 +44,7 @@ public class NettyTransportContextHolder {
     private CarbonMessageProcessor messageProcessor;
     private Interceptor interceptor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
+    private TransportListenerManager manager;
 
     public ListenerConfiguration getListenerConfiguration(String id) {
         return listenerConfigurations.get(id);
@@ -107,11 +109,25 @@ public class NettyTransportContextHolder {
         }
     }
 
+
+    public TransportListenerManager getManager() {
+        return manager;
+    }
+
+    public void removeManager() {
+        manager = null;
+    }
+
+    public void setManager(TransportListenerManager manager) {
+        this.manager = manager;
+    }
+
     public void setInterceptor(Interceptor interceptor) {
         this.interceptor = interceptor;
     }
 
     public Interceptor getInterceptor() {
         return interceptor;
+
     }
 }

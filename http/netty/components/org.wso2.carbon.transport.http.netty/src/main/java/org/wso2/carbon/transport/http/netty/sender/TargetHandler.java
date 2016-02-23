@@ -63,6 +63,7 @@ public class TargetHandler extends ReadTimeoutHandler {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         NettyTransportContextHolder.getInstance().getInterceptor().targetConnection(Integer.toString(ctx.hashCode()),
                 State.INITIATED);
+
         super.channelActive(ctx);
     }
 
@@ -80,22 +81,25 @@ public class TargetHandler extends ReadTimeoutHandler {
 
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
             cMsg.setHeaders(Util.getHeaders(httpResponse));
+
             if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
-                    || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
+                || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
                 ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
             }
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
+
                     NettyTransportContextHolder.getInstance().getInterceptor().targetResponse(cMsg, State.COMPLETED);
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
+
                     if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null
                             && cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
                         cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
-                                String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
+                                              String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
                         ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
                     }
                 } else {
@@ -109,6 +113,7 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         // Set the client channel close metric
+
         NettyTransportContextHolder.getInstance().getInterceptor().targetConnection(Integer.toString(ctx.hashCode()),
                 State.COMPLETED);
         log.debug("Target channel closed.");
@@ -145,7 +150,7 @@ public class TargetHandler extends ReadTimeoutHandler {
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {
-                faultHandler.handleFault("504", new EndPointTimeOut(payload), callback);
+                faultHandler.handleFault("504", new EndPointTimeOut(payload), incomingMsg, callback);
                 incomingMsg.getFaultHandlerStack().push(faultHandler);
             } else {
                 DefaultCarbonMessage response = new DefaultCarbonMessage();

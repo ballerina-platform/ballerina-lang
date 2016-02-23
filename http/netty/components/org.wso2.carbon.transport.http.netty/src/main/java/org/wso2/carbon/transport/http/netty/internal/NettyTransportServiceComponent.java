@@ -30,6 +30,7 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.MessagingHandler;
+import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 
@@ -42,13 +43,13 @@ import java.util.Map;
  * OSGi services.
  */
 @Component(
-        name = "org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent",
-        immediate = true,
-        property = {
-                "capability-name=org.wso2.carbon.messaging.CarbonTransportInitializer, "
-                        + "org.wso2.carbon.messaging.CarbonMessageProcessor",
-                "component-key=netty-transports-mgt"
-        }
+           name = "org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent",
+           immediate = true,
+           property = {
+                      "capability-name=org.wso2.carbon.messaging.CarbonTransportInitializer, "
+                      + "org.wso2.carbon.messaging.CarbonMessageProcessor",
+                      "component-key=netty-transports-mgt"
+           }
 )
 @SuppressWarnings("unused")
 public class NettyTransportServiceComponent implements RequiredCapabilityListener {
@@ -65,15 +66,15 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     }
 
     @Reference(
-            name = "transport-initializer",
-            service = CarbonTransportInitializer.class,
-            cardinality = ReferenceCardinality.OPTIONAL,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeTransportInitializer"
+               name = "transport-initializer",
+               service = CarbonTransportInitializer.class,
+               cardinality = ReferenceCardinality.OPTIONAL,
+               policy = ReferencePolicy.DYNAMIC,
+               unbind = "removeTransportInitializer"
     )
     protected void addTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
         ListenerConfiguration listenerConfiguration = NettyTransportContextHolder.getInstance()
-                .getListenerConfiguration((String) ref.get(CHANNEL_ID_KEY));
+                   .getListenerConfiguration((String) ref.get(CHANNEL_ID_KEY));
 
         List<Parameter> parameters = listenerConfiguration.getParameters();
         if (parameters != null && !parameters.isEmpty()) {
@@ -84,7 +85,7 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
             serverInitializer.setup(paramMap);
         }
         NettyTransportContextHolder.getInstance()
-                .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
+                   .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }
 
     protected void removeTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
@@ -92,11 +93,11 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     }
 
     @Reference(
-            name = "message-processor",
-            service = CarbonMessageProcessor.class,
-            cardinality = ReferenceCardinality.OPTIONAL,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeMessageProcessor"
+               name = "message-processor",
+               service = CarbonMessageProcessor.class,
+               cardinality = ReferenceCardinality.OPTIONAL,
+               policy = ReferencePolicy.DYNAMIC,
+               unbind = "removeMessageProcessor"
     )
     protected void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
@@ -107,11 +108,26 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     }
 
     @Reference(
-            name = "netty-stat-handler",
-            service = MessagingHandler.class,
-            cardinality = ReferenceCardinality.OPTIONAL,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeNettyStatHandler"
+               name = "artifact-deployer",
+               service = TransportListenerManager.class,
+               cardinality = ReferenceCardinality.OPTIONAL,
+               policy = ReferencePolicy.DYNAMIC,
+               unbind = "removeManager"
+    )
+    protected void addManager(TransportListenerManager manager) {
+        NettyTransportContextHolder.getInstance().setManager(manager);
+    }
+
+    protected void removeManager(TransportListenerManager manager) {
+        NettyTransportContextHolder.getInstance().removeManager();
+    }
+
+    @Reference(
+               name = "netty-stat-handler",
+               service = MessagingHandler.class,
+               cardinality = ReferenceCardinality.OPTIONAL,
+               policy = ReferencePolicy.DYNAMIC,
+               unbind = "removeNettyStatHandler"
     )
     protected void addNettyStatHandler(MessagingHandler messagingHandler) {
         NettyTransportContextHolder.getInstance().getInterceptor().addHandler(messagingHandler);
@@ -124,7 +140,7 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
         NettyTransportContextHolder.getInstance().getBundleContext().
-                registerService(NettyTransportServiceComponent.class, this, null);
+                   registerService(NettyTransportServiceComponent.class, this, null);
         log.info("All CarbonNettyServerInitializers are available");
     }
 }
