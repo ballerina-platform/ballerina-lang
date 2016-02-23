@@ -45,7 +45,8 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         this.sslConfig = sslConfig;
     }
 
-    @Override protected void initChannel(SocketChannel socketChannel) throws Exception {
+    @Override
+    protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         // Add the generic handlers to the pipeline
         // e.g. SSL handler

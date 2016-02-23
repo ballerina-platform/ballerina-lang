@@ -46,7 +46,8 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
     }
 
-    @Override protected void initChannel(SocketChannel ch) throws Exception {
+    @Override
+    protected void initChannel(SocketChannel ch) throws Exception {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
         if (senderConfiguration.getSslConfig() != null) {

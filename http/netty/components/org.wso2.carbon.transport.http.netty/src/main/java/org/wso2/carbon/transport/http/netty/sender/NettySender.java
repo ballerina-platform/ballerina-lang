@@ -66,7 +66,8 @@ public class NettySender implements TransportSender {
         this.connectionManager = ConnectionManager.getInstance();
     }
 
-    @Override public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
+    @Override
+    public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
@@ -103,7 +104,8 @@ public class NettySender implements TransportSender {
         return false;
     }
 
-    @Override public String getId() {
+    @Override
+    public String getId() {
         return id;
     }
 

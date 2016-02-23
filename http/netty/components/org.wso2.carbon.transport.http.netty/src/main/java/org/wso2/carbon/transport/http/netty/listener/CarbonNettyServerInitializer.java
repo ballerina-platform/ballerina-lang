@@ -48,7 +48,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
 
     }
 
-    @Override public void setup(Map<String, String> parameters) {
+    @Override
+    public void setup(Map<String, String> parameters) {
 
         PoolConfiguration.createPoolConfiguration(parameters);
         try {
@@ -74,8 +75,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         }
     }
 
-    @Override public void initChannel(Object ch) {
-        //TODO move to bundle timerHandler = TimerHandler.getInstance();
+    @Override
+    public void initChannel(Object ch) {
         if (log.isDebugEnabled()) {
             log.info("Initializing source channel pipeline");
         }
@@ -91,7 +92,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         }
     }
 
-    @Override public boolean isServerInitializer() {
+    @Override
+    public boolean isServerInitializer() {
         return true;
     }
 

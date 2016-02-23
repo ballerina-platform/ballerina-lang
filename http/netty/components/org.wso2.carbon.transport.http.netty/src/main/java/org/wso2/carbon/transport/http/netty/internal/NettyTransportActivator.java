@@ -38,7 +38,8 @@ import java.util.Set;
  */
 public class NettyTransportActivator implements BundleActivator {
 
-    @Override public void start(BundleContext bundleContext) throws Exception {
+    @Override
+    public void start(BundleContext bundleContext) throws Exception {
         for (NettyListener listener : createNettyListeners()) {
             bundleContext.registerService(CarbonTransport.class, listener, null);
         }
@@ -82,7 +83,8 @@ public class NettyTransportActivator implements BundleActivator {
         return senders;
     }
 
-    @Override public void stop(BundleContext bundleContext) throws Exception {
+    @Override
+    public void stop(BundleContext bundleContext) throws Exception {
 
     }
 }
