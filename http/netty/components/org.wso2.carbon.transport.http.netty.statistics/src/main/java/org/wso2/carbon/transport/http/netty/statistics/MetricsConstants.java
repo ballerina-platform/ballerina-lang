@@ -19,12 +19,20 @@
 package org.wso2.carbon.transport.http.netty.statistics;
 
 /**
- * interface extends holders
+ * Latency Metrics parameters
  */
-public interface MetricsStaticsHolder {
+public class MetricsConstants {
 
-    boolean startTimer();
+    public static final String TYPE_SOURCE = "TYPE_SOURCE";
 
-    boolean stopTimer();
+    public static final String TYPE_TARGET = "TYPE_TARGET";
+
+    public static final String SOURCE_REQUEST_METRICS_HOLDER = "SOURCE_REQUEST_METRICS_HOLDER";
+
+    public static final String TARGET_REQUEST_METRICS_HOLDER = "TARGET_REQUEST_METRICS_HOLDER";
+
+    public static final String TARGET_RESPONSE_METRICS_HOLDER = "TARGET_RESPONSE_METRICS_HOLDER";
+
+    public static final String SOURCE_RESPONSE_METRICS_HOLDER = "SOURCE_RESPONSE_METRICS_HOLDER";
 
 }

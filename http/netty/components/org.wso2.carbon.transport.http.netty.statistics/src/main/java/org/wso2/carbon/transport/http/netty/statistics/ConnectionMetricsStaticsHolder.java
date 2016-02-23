@@ -20,52 +20,37 @@ package org.wso2.carbon.transport.http.netty.statistics;
 
 import org.wso2.carbon.metrics.manager.Timer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Holds the Connection related Latency Metrics
  */
 public class ConnectionMetricsStaticsHolder implements MetricsStaticsHolder {
 
-    private String type = null;
-    private String timer = null;
     private Timer connectionTimer = null;
-    private Timer.Context context = null;
-    private Map<String, Long> connectionStatics;
+    private Timer.Context connectionTimerContext = null;
 
-    public ConnectionMetricsStaticsHolder(String type, String timer, TimerHolder timerHolder) {
-        this.type = type;
-        this.timer = timer;
-        this.connectionTimer = timerHolder.getConnectionTimer();
+    public ConnectionMetricsStaticsHolder(String type, TimerHolder timerHolder) {
+
+        if (type.equals(MetricsConstants.TYPE_SOURCE)) {
+            connectionTimer = timerHolder.getSourceConnectionTimer();
+        } else {
+            connectionTimer = timerHolder.getTargetConnectionTimer();
+        }
     }
 
-    @Override public boolean startTimer(String timer) {
-        this.context = this.connectionTimer.start();
-        return false;
+    @Override
+    public boolean startTimer() {
+        this.connectionTimerContext = this.connectionTimer.start();
+        return true;
     }
 
-    @Override public boolean stopTimer(String timer) {
-        if (this.context != null) {
-            setStatics(timer, this.context.stop());
+    @Override
+    public boolean stopTimer() {
+        if (this.connectionTimerContext != null) {
+            this.connectionTimerContext.stop();
             return true;
         } else {
             return false;
         }
     }
 
-    @Override public Map<String, Long> getStatics(String timer) {
-        return null;
-    }
-
-    @Override public void setStatics(String timer, Long duration) {
-        if (connectionStatics == null) {
-            this.connectionStatics = new HashMap<String, Long>();
-        }
-        connectionStatics.put(timer, duration);
-    }
-
-    @Override public String getType() {
-        return type;
-    }
 }

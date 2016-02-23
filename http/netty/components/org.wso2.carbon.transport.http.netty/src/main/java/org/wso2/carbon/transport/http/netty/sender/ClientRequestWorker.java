@@ -27,11 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.EngagedLocation;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -103,8 +101,6 @@ public class ClientRequestWorker implements Runnable {
             ChannelFuture future = ChannelUtils.getNewChannelFuture(targetChannel, group, cl, httpRoute, senderConfig);
 
             try {
-                NettyTransportContextHolder.getInstance().getInterceptor()
-                           .engage(carbonMessage, EngagedLocation.SERVER_CONNECTION_INITIATED);
                 channel = ChannelUtils.openChannel(future, httpRoute);
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;

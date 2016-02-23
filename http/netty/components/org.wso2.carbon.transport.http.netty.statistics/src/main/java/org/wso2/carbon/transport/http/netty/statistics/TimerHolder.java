@@ -27,74 +27,52 @@ import org.wso2.carbon.metrics.manager.Timer;
  */
 public class TimerHolder {
 
-    private final Timer connectionTimer;
-    private final Timer responseLifeTimer;
-    private final Timer requestLifeTimer;
-    private final Timer requestBodyReadTimer;
-    private final Timer requestHeaderReadTimer;
-    private final Timer requestBodyWriteTimer;
-    private final Timer responseHeaderReadTimer;
-    private final Timer responseBodyReadTimer;
-    private static volatile TimerHolder timerHandler;
+    private final Timer sourceConnectionTimer;
+    private final Timer targetConnectionTimer;
+    private final Timer sourceRequestTimer;
+    private final Timer targetRequestTimer;
+    private final Timer targetResponseTimer;
+    private final Timer sourceResponseTimer;
 
-    public TimerHolder() {
-        // Initialize request metrics holder Timers
-        connectionTimer = MetricManager.timer(MetricManager.
-                name(ConnectionMetricsStaticsHolder.class, "connection.timer"), Level.INFO);
-        requestLifeTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsStaticsHolder.class, "request.life.time"), Level.INFO);
-        requestBodyReadTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsStaticsHolder.class, "request.body.read.time"), Level.INFO);
-        requestHeaderReadTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsStaticsHolder.class, "request.header.read.time"), Level.INFO);
-        requestBodyWriteTimer = MetricManager.timer(MetricManager.
-                name(RequestMetricsStaticsHolder.class, "request.body.write.timer"), Level.INFO);
-        //response metrics holder timers
-        responseLifeTimer = MetricManager.timer(MetricManager.
-                name(ResponseMetricsStaticsHolder.class, "response.life.time"), Level.INFO);
-        responseHeaderReadTimer = MetricManager.timer(MetricManager.
-                name(ResponseMetricsStaticsHolder.class, "response.header.read.time"), Level.INFO);
-        responseBodyReadTimer = MetricManager.timer(MetricManager.
-                name(ResponseMetricsStaticsHolder.class, "response.body.read.time"), Level.INFO);
+    private static volatile TimerHolder timerHolder;
+
+    private TimerHolder() {
+        sourceConnectionTimer = MetricManager.timer("gw.source.connection.timer", Level.INFO);
+        targetConnectionTimer = MetricManager.timer("gw.target.connection.timer", Level.INFO);
+        sourceRequestTimer = MetricManager.timer("gw.source.request.timer", Level.INFO);
+        targetRequestTimer = MetricManager.timer("gw.target.request.timer", Level.INFO);
+        targetResponseTimer = MetricManager.timer("gw.target.response.timer", Level.INFO);
+        sourceResponseTimer = MetricManager.timer("gw.source.response.timer", Level.INFO);
     }
 
     public static TimerHolder getInstance() {
-        if (timerHandler == null) {
-            timerHandler = new TimerHolder();
+        if (timerHolder == null) {
+            timerHolder = new TimerHolder();
         }
-        return timerHandler;
+        return timerHolder;
     }
 
-    public Timer getRequestLifeTimer() {
-        return requestLifeTimer;
+    public Timer getSourceConnectionTimer() {
+        return sourceConnectionTimer;
     }
 
-    public Timer getRequestBodyReadTimer() {
-        return requestBodyReadTimer;
+    public Timer getTargetConnectionTimer() {
+        return targetConnectionTimer;
     }
 
-    public Timer getRequestHeaderReadTimer() {
-        return requestHeaderReadTimer;
+    public Timer getSourceRequestTimer() {
+        return sourceRequestTimer;
     }
 
-    public Timer getRequestBodyWriteTimer() {
-        return requestBodyWriteTimer;
+    public Timer getTargetRequestTimer() {
+        return targetRequestTimer;
     }
 
-    public Timer getResponseLifeTimer() {
-        return responseLifeTimer;
+    public Timer getTargetResponseTimer() {
+        return targetResponseTimer;
     }
 
-    public Timer getResponseHeaderReadTimer() {
-        return responseHeaderReadTimer;
+    public Timer getSourceResponseTimer() {
+        return sourceResponseTimer;
     }
-
-    public Timer getResponseBodyReadTimer() {
-        return responseBodyReadTimer;
-    }
-
-    public Timer getConnectionTimer() {
-        return connectionTimer;
-    }
-
 }

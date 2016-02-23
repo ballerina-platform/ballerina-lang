@@ -41,7 +41,7 @@ public class NettyCarbonMessage extends CarbonMessage {
 
     public void addHttpContent(HttpContent httpContent) {
         if (httpContent instanceof LastHttpContent) {
-            setEomAdded(true);
+            setEndOfMsgAdded(true);
         }
         httpContentQueue.add(httpContent);
     }
@@ -74,7 +74,7 @@ public class NettyCarbonMessage extends CarbonMessage {
             try {
                 HttpContent httpContent = httpContentQueue.take();
                 byteBufferList.add(httpContent.content().nioBuffer());
-                if (isEomAdded() && isEmpty()) {
+                if (isEndOfMsgAdded() && isEmpty()) {
                     break;
                 }
             } catch (InterruptedException e) {

@@ -25,7 +25,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.EngagedLocation;
+import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -52,7 +52,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
 
-    private int queueSize;
     private DisruptorConfig disruptorConfig;
     private Map<String, GenericObjectPool> targetChannelPool;
 
@@ -60,13 +59,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
-    @Override public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+    @Override
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-        NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
-        carbonMessage.setProperty("connection.id", ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
-                .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_INITIATED);
-
+                .sourceConnection(Integer.toString(ctx.hashCode()), State.INITIATED);
         disruptorConfig = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
         disruptor = disruptorConfig.getDisruptor();
         this.ctx = ctx;
@@ -74,14 +71,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    @SuppressWarnings("unchecked") @Override public void channelRead(ChannelHandlerContext ctx, Object msg)
-            throws Exception {
+    @SuppressWarnings("unchecked")
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
 
             cMsg = new NettyCarbonMessage();
-            NettyTransportContextHolder.getInstance().getInterceptor()
-                    .engage(cMsg, EngagedLocation.CLIENT_REQEST_READ_INITIATED);
-
+            NettyTransportContextHolder.getInstance().getInterceptor().sourceRequest(cMsg, State.INITIATED);
             cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
             cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
             ResponseCallback responseCallback = new ResponseCallback(this.ctx);
@@ -95,9 +91,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
             cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
             cMsg.setHeaders(Util.getHeaders(httpRequest));
-            NettyTransportContextHolder.getInstance().getInterceptor()
-                    .engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_HEADERS_COMPLETED);
-
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }
@@ -108,21 +101,19 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        NettyTransportContextHolder.getInstance().getInterceptor().
-                                engage(cMsg, EngagedLocation.CLIENT_REQUEST_READ_BODY_COMPLETED);
-                        cMsg.setEomAdded(true);
+                        NettyTransportContextHolder.getInstance().getInterceptor().sourceRequest(cMsg, State.COMPLETED);
+                        cMsg.setEndOfMsgAdded(true);
                     }
                 }
             }
         }
     }
 
-    @Override public void channelInactive(ChannelHandlerContext ctx) {
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
-        NettyCarbonMessage carbonMessage = new NettyCarbonMessage();
-        carbonMessage.setProperty("connection.id", ctx.pipeline().hashCode());
         NettyTransportContextHolder.getInstance().getInterceptor()
-                .engage(carbonMessage, EngagedLocation.CLIENT_CONNECTION_COMPLETED);
+                .sourceConnection(Integer.toString(ctx.hashCode()), State.COMPLETED);
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }
@@ -148,7 +139,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return ctx;
     }
 
-    @Override public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         log.error("Exception caught in Netty Source handler", cause);
     }

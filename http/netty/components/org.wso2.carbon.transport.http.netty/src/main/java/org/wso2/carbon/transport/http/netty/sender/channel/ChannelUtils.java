@@ -30,9 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
 import java.net.ConnectException;
@@ -50,17 +52,17 @@ public class ChannelUtils {
 
     /**
      * Provides incomplete Netty channel future.
-     * @param targetChannel Target channel which has channel specific parameters such as handler
-     * @param eventLoopGroup Event loop group of inbound IO workers
-     * @param eventLoopClass Event loop class if Inbound IO Workers
-     * @param httpRoute  Http Route which represents BE connections
+     *
+     * @param targetChannel       Target channel which has channel specific parameters such as handler
+     * @param eventLoopGroup      Event loop group of inbound IO workers
+     * @param eventLoopClass      Event loop class if Inbound IO Workers
+     * @param httpRoute           Http Route which represents BE connections
      * @param senderConfiguration sender configuration
      * @return ChannelFuture
      */
     @SuppressWarnings("unchecked")
     public static ChannelFuture getNewChannelFuture(TargetChannel targetChannel, EventLoopGroup eventLoopGroup,
-                                                    Class eventLoopClass, HttpRoute httpRoute ,
-                                                                         SenderConfiguration senderConfiguration) {
+            Class eventLoopClass, HttpRoute httpRoute, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfiguration = BootstrapConfiguration.getInstance();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.channel(eventLoopClass);
@@ -75,8 +77,8 @@ public class ChannelUtils {
         targetChannel.setNettyClientInitializer(nettyClientInitializer);
         clientBootstrap.handler(nettyClientInitializer);
         if (log.isDebugEnabled()) {
-            log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}",
-                      httpRoute.getHost(), httpRoute.getPort(), clientBootstrap);
+            log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
+                    httpRoute.getPort(), clientBootstrap);
         }
 
         return clientBootstrap.connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
@@ -96,7 +98,7 @@ public class ChannelUtils {
         // blocking for channel to be done
         if (log.isTraceEnabled()) {
             log.trace("Waiting for operation to complete {} for {} millis", channelFuture,
-                      bootstrapConfiguration.getConnectTimeOut());
+                    bootstrapConfiguration.getConnectTimeOut());
         }
 
         // here we need to wait it in other thread
@@ -123,7 +125,7 @@ public class ChannelUtils {
             }
             throw cause;
         } else if (!channelFuture.isDone() && !channelFuture.isSuccess() &&
-                   !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
+                !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
             throw new ConnectException("Connection timeout, " + httpRoute.toString());
         } else {
             ConnectException cause = new ConnectException("Connection refused, " + httpRoute.toString());
@@ -136,6 +138,7 @@ public class ChannelUtils {
     }
 
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
+        NettyTransportContextHolder.getInstance().getInterceptor().targetRequest(carbonMessage, State.INITIATED);
         channel.write(httpRequest);
 
         if (carbonMessage instanceof NettyCarbonMessage) {
@@ -144,6 +147,8 @@ public class ChannelUtils {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .targetRequest(carbonMessage, State.COMPLETED);
                     break;
                 }
                 if (httpContent != null) {
@@ -157,8 +162,10 @@ public class ChannelUtils {
                 ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 channel.write(httpContent);
-                if (defaultCMsg.isEomAdded() && defaultCMsg.isEmpty()) {
+                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    NettyTransportContextHolder.getInstance().getInterceptor()
+                            .targetRequest(carbonMessage, State.COMPLETED);
                     break;
                 }
             }
