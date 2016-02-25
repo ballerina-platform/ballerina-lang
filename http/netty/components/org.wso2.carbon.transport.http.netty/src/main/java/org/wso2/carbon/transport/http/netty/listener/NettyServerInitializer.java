@@ -27,6 +27,8 @@ import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 
+import java.util.Map;
+
 
 /**
  * Handles initialization of the Netty Channel pipeline.
@@ -37,6 +39,8 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
     private String transportID;
     private SSLConfig sslConfig;
 
+    private Map<String, SSLConfig> sslConfigMap;
+
     public NettyServerInitializer(String transportID) {
         this.transportID = transportID;
     }
@@ -45,19 +49,30 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         this.sslConfig = sslConfig;
     }
 
+    public void setSslConfigMap(Map<String, SSLConfig> sslConfigMap) {
+        this.sslConfigMap = sslConfigMap;
+    }
+
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
-        if (sslConfig != null) {
+        String host = socketChannel.remoteAddress().getHostName();
+        int port = socketChannel.remoteAddress().getPort();
+
+        String id = host + ":" + port;
+        if (sslConfigMap.get(id) != null) {
+            SslHandler sslHandler = new SSLHandlerFactory(sslConfigMap.get(id)).create();
+            socketChannel.pipeline().addLast("ssl", sslHandler);
+        } else if (sslConfig != null) {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
             socketChannel.pipeline().addLast("ssl", sslHandler);
         }
 
         // Add the rest of the handlers to the pipeline
         CarbonTransportInitializer initializer = NettyTransportContextHolder.getInstance()
-                .getServerChannelInitializer(transportID);
+                   .getServerChannelInitializer(transportID);
 
         if (initializer != null) {
             if (log.isDebugEnabled()) {
