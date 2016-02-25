@@ -26,7 +26,9 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,5 +118,33 @@ public class Util {
         Map headers = msg.getHeaders();
         Util.setHeaders(outgoingRequest, headers);
         return outgoingRequest;
+    }
+
+    public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass,
+                                                    String keyStoreFile, String trustStoreFile, String trustStorePass) {
+        if (certPass == null) {
+            certPass = keyStorePass;
+        }
+        if (keyStoreFile == null || keyStorePass == null) {
+            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " +
+                                               "HTTPS scheme");
+        }
+        File keyStore = new File(keyStoreFile);
+        if (!keyStore.exists()) {
+            throw new IllegalArgumentException("KeyStore File " + keyStoreFile + " not found");
+        }
+        SSLConfig sslConfig =
+                   new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+        if (trustStoreFile != null) {
+            File trustStore = new File(trustStoreFile);
+            if (!trustStore.exists()) {
+                throw new IllegalArgumentException("trustStore File " + trustStoreFile + " not found");
+            }
+            if (trustStorePass == null) {
+                throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
+            }
+            sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
+        }
+        return sslConfig;
     }
 }

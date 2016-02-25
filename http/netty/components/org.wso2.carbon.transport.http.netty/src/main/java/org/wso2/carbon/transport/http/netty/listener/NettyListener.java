@@ -29,8 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.messaging.TransportListenerManager;
+import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
@@ -52,6 +55,8 @@ public class NettyListener extends TransportListener {
     private ServerBootstrap bootstrap;
     private ListenerConfiguration nettyConfig;
     private Map<Integer, ChannelFuture> channelFutureMap = new ConcurrentHashMap<>();
+
+    private Map<String, SSLConfig> sslConfigMap = new ConcurrentHashMap<>();
 
 
     public NettyListener(ListenerConfiguration nettyConfig) {
@@ -84,6 +89,7 @@ public class NettyListener extends TransportListener {
         bootstrap.option(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReciveBufferSize());
         bootstrap.childOption(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReciveBufferSize());
         bootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
+
 
         setupChannelInitializer();
         try {
@@ -121,6 +127,7 @@ public class NettyListener extends TransportListener {
     private void addChannelInitializer() {
         NettyServerInitializer handler = new NettyServerInitializer(id);
         handler.setSslConfig(nettyConfig.getSslConfig());
+        handler.setSslConfigMap(sslConfigMap);
         bootstrap.childHandler(handler);
     }
 
@@ -181,10 +188,33 @@ public class NettyListener extends TransportListener {
     }
 
     @Override
+    public boolean listen(String host, int port, Map<String, String> map) {
+        String id = host + ":" + port;
+        if (map != null) {
+            String certPass = map.get(Constants.CERTPASS);
+            String keyStorePass = map.get(Constants.KEYSTOREPASS);
+            String keyStoreFile = map.get(Constants.KEYSTOREFILE);
+            String trustoreFile = map.get(Constants.TRUSTSTOREFILE);
+            String trustorePass = map.get(Constants.TRUSTSTOREPASS);
+            SSLConfig sslConfig = Util.getSSLConfigForListener(certPass,
+                                                               keyStorePass, keyStoreFile,
+                                                               trustoreFile, trustorePass);
+            sslConfigMap.put(id, sslConfig);
+        }
+
+
+        return false;
+    }
+
+    @Override
     public boolean stopListening(String host, int port) {
+        String id = host + ":" + port;
         //TODO check for host verification
         ChannelFuture future = channelFutureMap.remove(port);
         if (future != null) {
+            if (sslConfigMap.get(id) != null) {
+                sslConfigMap.remove(id);
+            }
             future.channel().close();
             log.info("Netty Listener stopped  listening on  host  " + host + " and port " + port);
             return true;
