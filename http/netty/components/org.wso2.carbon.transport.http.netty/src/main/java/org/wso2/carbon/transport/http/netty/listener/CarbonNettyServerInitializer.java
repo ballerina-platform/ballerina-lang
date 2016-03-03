@@ -56,16 +56,18 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
             connectionManager = ConnectionManager.getInstance();
 
             if (parameters != null) {
-                DisruptorConfig disruptorConfig = new DisruptorConfig(parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
-                        parameters.get(Constants.DISRUPTOR_COUNT),
-                        parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                        parameters.get(Constants.WAIT_STRATEGY),
-                        Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND));
+                DisruptorConfig disruptorConfig = new DisruptorConfig
+                           (parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
+                            parameters.get(Constants.DISRUPTOR_COUNT),
+                            parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                            parameters.get(Constants.WAIT_STRATEGY),
+                            Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND),
+                            parameters.get(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else {
                 log.warn("Disruptor specific parameters are not specified in "
-                        + "configuration hence using default configs");
+                         + "configuration hence using default configs");
                 DisruptorConfig disruptorConfig = new DisruptorConfig();
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             }

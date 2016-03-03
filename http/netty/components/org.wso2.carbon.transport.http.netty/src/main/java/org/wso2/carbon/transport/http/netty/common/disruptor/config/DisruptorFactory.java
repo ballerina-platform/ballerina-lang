@@ -24,6 +24,7 @@ import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.WorkHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -46,23 +47,43 @@ public class DisruptorFactory {
     @SuppressWarnings("unchecked")
     public static void createDisruptors(DisruptorType type, DisruptorConfig disruptorConfig) {
         WaitStrategy inboundWaitStrategy = getWaitStrategy(disruptorConfig.getDisruptorWaitStrategy());
+        int externalPoolWorkerCount = disruptorConfig.getNoOfThreadsInConsumerWorkerPool();
         for (int i = 0; i < disruptorConfig.getNoDisruptors(); i++) {
-            ExecutorService executorService =
-                    Executors.newFixedThreadPool(disruptorConfig.getNoOfEventHandlersPerDisruptor());
+            ExecutorService executorService = null;
+            if (externalPoolWorkerCount > 0) {
+                executorService = Executors.newFixedThreadPool(disruptorConfig.getNoOfThreadsInConsumerWorkerPool());
+            } else {
+                executorService =
+                           Executors.newFixedThreadPool(disruptorConfig.getNoOfEventHandlersPerDisruptor());
+            }
             Disruptor disruptor = new Disruptor<>(CarbonDisruptorEvent.EVENT_FACTORY, disruptorConfig.getBufferSize(),
-                    executorService,
-                    ProducerType.MULTI,
-                    inboundWaitStrategy);
+                                                  executorService,
+                                                  ProducerType.MULTI,
+                                                  inboundWaitStrategy);
             ExceptionHandler exh = new GenericExceptionHandler();
-            EventHandler[] eventHandlers = new EventHandler[disruptorConfig.getNoOfEventHandlersPerDisruptor()];
-            for (int j = 0; j < disruptorConfig.getNoOfEventHandlersPerDisruptor(); j++) {
-                EventHandler eventHandler = new CarbonDisruptorEventHandler();
-                eventHandlers[j] = eventHandler;
+
+
+            if (externalPoolWorkerCount > 0) {
+
+                WorkHandler workHandler[] = new WorkHandler[externalPoolWorkerCount];
+                for (int j = 0; j < externalPoolWorkerCount; j++) {
+                    CarbonDisruptorEventHandler carbonDisruptorEventHandler = new CarbonDisruptorEventHandler();
+                    workHandler[j] = carbonDisruptorEventHandler;
+                }
+                disruptor.handleEventsWithWorkerPool(workHandler);
+                disruptor.handleExceptionsWith(exh);
+            } else {
+                EventHandler[] eventHandlers = new EventHandler[disruptorConfig.getNoOfEventHandlersPerDisruptor()];
+                for (int j = 0; j < disruptorConfig.getNoOfEventHandlersPerDisruptor(); j++) {
+                    EventHandler eventHandler = new CarbonDisruptorEventHandler();
+                    eventHandlers[j] = eventHandler;
+                }
+                disruptor.handleEventsWith(eventHandlers);
+                for (EventHandler eventHandler : eventHandlers) {
+                    disruptor.handleExceptionsFor(eventHandler).with(exh);
+                }
             }
-            disruptor.handleEventsWith(eventHandlers);
-            for (EventHandler eventHandler : eventHandlers) {
-                disruptor.handleExceptionsFor(eventHandler).with(exh);
-            }
+
             disruptorConfig.addDisruptor(disruptor.start());
         }
         disruptorConfigHashMap.put(type, disruptorConfig);

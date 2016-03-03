@@ -18,17 +18,17 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
-
-import java.io.File;
 import java.util.List;
+
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-
 
 
 /**
@@ -187,29 +187,7 @@ public class ListenerConfiguration {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }
-        if (certPass == null) {
-            certPass = keyStorePass;
-        }
-        if (keyStoreFile == null || keyStorePass == null) {
-            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " +
-                                               "HTTPS scheme");
-        }
-        File keyStore = new File(keyStoreFile);
-        if (!keyStore.exists()) {
-            throw new IllegalArgumentException("KeyStore File " + keyStoreFile + " not found");
-        }
-        SSLConfig sslConfig =
-                   new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
-        if (trustStoreFile != null) {
-            File trustStore = new File(trustStoreFile);
-            if (!trustStore.exists()) {
-                throw new IllegalArgumentException("trustStore File " + trustStoreFile + " not found");
-            }
-            if (trustStorePass == null) {
-                throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
-            }
-            sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        }
-        return sslConfig;
+
+        return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass);
     }
 }

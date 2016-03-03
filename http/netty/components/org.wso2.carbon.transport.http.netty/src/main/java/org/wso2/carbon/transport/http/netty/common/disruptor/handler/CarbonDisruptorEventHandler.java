@@ -22,7 +22,6 @@ import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisrupt
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Event Consumer of the Disruptor.
@@ -35,7 +34,7 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
     @Override
     public void onEvent(CarbonDisruptorEvent carbonDisruptorEvent, long l, boolean b) throws Exception {
         CarbonMessage carbonMessage = (CarbonMessage) carbonDisruptorEvent.getEvent();
-        Lock lock  = new ReentrantLock();
+        Lock lock = carbonMessage.getLock();
         if (carbonMessage.getProperty(Constants.DIRECTION) == null) {
             // Mechanism to process each event from only one event handler
             if (lock.tryLock()) {
@@ -48,6 +47,24 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
             }
         } else if (carbonMessage.getProperty(Constants.DIRECTION).equals(Constants.DIRECTION_RESPONSE)) {
             if (lock.tryLock()) {
+                CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
+                carbonCallback.done(carbonMessage);
+            }
+        }
+    }
+
+    @Override
+    public void onEvent(Object o) throws Exception {
+        if (o instanceof CarbonDisruptorEvent) {
+            CarbonMessage carbonMessage = (CarbonMessage) ((CarbonDisruptorEvent) o).getEvent();
+            if (carbonMessage.getProperty(Constants.DIRECTION) == null) {
+
+                CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
+                NettyTransportContextHolder.getInstance().getMessageProcessor().receive(carbonMessage, carbonCallback);
+
+
+            } else if (carbonMessage.getProperty(Constants.DIRECTION).equals(Constants.DIRECTION_RESPONSE)) {
+
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
                 carbonCallback.done(carbonMessage);
             }
