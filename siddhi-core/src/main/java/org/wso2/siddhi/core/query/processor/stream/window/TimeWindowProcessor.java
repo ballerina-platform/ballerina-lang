@@ -45,6 +45,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     private ComplexEventChunk<StreamEvent> expiredEventChunk;
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
+    private volatile long lastTimestamp = Long.MIN_VALUE;
 
     public void setTimeInMilliSeconds(long timeInMilliSeconds) {
         this.timeInMilliSeconds = timeInMilliSeconds;
@@ -92,7 +93,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
             StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
             clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            boolean eventScheduled = false;
             while (expiredEventChunk.hasNext()) {
                 StreamEvent expiredEvent = expiredEventChunk.next();
                 long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
@@ -103,7 +103,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 } else {
                     scheduler.notifyAt(expiredEvent.getTimestamp() + timeInMilliSeconds);
                     expiredEventChunk.reset();
-                    eventScheduled = true;
                     break;
                 }
             }
@@ -111,9 +110,11 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
             if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
                 this.expiredEventChunk.add(clonedEvent);
 
-                if (!eventScheduled) {
+                if (lastTimestamp < clonedEvent.getTimestamp()) {
                     scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
                 }
+                    scheduler.notifyAt(clonedEvent.getTimestamp());
+                    lastTimestamp = clonedEvent.getTimestamp();
             }
             expiredEventChunk.reset();
         }
