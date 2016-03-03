@@ -48,8 +48,8 @@ public class ResponseCallback implements CarbonCallback {
     }
 
     public void done(CarbonMessage cMsg) {
-        final HttpResponse response = Util.createHttpResponse(cMsg);
         NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.INITIATED);
+        final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
         if (cMsg instanceof NettyCarbonMessage) {
             NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
