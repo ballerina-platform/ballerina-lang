@@ -99,6 +99,10 @@ public final class Constants {
 
     public static final String NO_THREADS_IN_EXECUTOR_SERVICE = "sender.thread.count";
 
+    public static final String DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL = "disruptor.consumer.external.worker.pool.size";
+
+
+
 
 
     private Constants() {

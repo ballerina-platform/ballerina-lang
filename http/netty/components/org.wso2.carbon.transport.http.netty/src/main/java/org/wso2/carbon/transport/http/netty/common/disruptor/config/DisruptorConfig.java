@@ -30,6 +30,7 @@ public class DisruptorConfig {
     private int bufferSize;
     private int noDisruptors;
     private int noOfEventHandlersPerDisruptor;
+    private int noOfThreadsInConsumerWorkerPool;
     private String disruptorWaitStrategy;
     private boolean notShared;
     private List<RingBuffer> disruptorMap = new ArrayList<>();
@@ -43,14 +44,17 @@ public class DisruptorConfig {
 
         this.noOfEventHandlersPerDisruptor = 1;
 
+        this.noOfThreadsInConsumerWorkerPool = 0;
+
         this.disruptorWaitStrategy = Constants.PHASED_BACKOFF;
     }
 
     public DisruptorConfig(String bufferSize, String noDisruptors, String noOfEventHandlersPerDisruptor,
-                           String disruptorWaitStrategy, boolean notShared) {
+                           String disruptorWaitStrategy, boolean notShared, String noOfThreadsInConsumerWorkerPool) {
         this.bufferSize = Integer.parseInt(bufferSize);
         this.noDisruptors = Integer.parseInt(noDisruptors);
         this.noOfEventHandlersPerDisruptor = Integer.parseInt(noOfEventHandlersPerDisruptor);
+        this.noOfThreadsInConsumerWorkerPool = Integer.parseInt(noOfThreadsInConsumerWorkerPool);
         this.disruptorWaitStrategy = disruptorWaitStrategy;
         this.notShared = notShared;
 
@@ -78,7 +82,7 @@ public class DisruptorConfig {
 
     public RingBuffer getDisruptor() {
         int ind = index.getAndIncrement() % noDisruptors;
-            return disruptorMap.get(ind);
+        return disruptorMap.get(ind);
     }
 
     public void addDisruptor(RingBuffer ringBuffer) {
@@ -89,4 +93,7 @@ public class DisruptorConfig {
         index.getAndDecrement();
     }
 
+    public int getNoOfThreadsInConsumerWorkerPool() {
+        return noOfThreadsInConsumerWorkerPool;
+    }
 }
