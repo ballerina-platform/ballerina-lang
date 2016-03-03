@@ -54,9 +54,11 @@ public class DisruptorConfig {
         this.bufferSize = Integer.parseInt(bufferSize);
         this.noDisruptors = Integer.parseInt(noDisruptors);
         this.noOfEventHandlersPerDisruptor = Integer.parseInt(noOfEventHandlersPerDisruptor);
-        this.noOfThreadsInConsumerWorkerPool = Integer.parseInt(noOfThreadsInConsumerWorkerPool);
         this.disruptorWaitStrategy = disruptorWaitStrategy;
         this.notShared = notShared;
+        if (noOfThreadsInConsumerWorkerPool != null) {
+            this.noOfThreadsInConsumerWorkerPool = Integer.parseInt(noOfThreadsInConsumerWorkerPool);
+        }
 
     }
 
