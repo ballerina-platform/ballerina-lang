@@ -16,14 +16,16 @@
 package org.wso2.carbon.transport.http.netty.common.disruptor.handler;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.WorkHandler;
 import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisruptorEvent;
 
 /**
  * Abstract class of Disruptor consumers.
  */
-public abstract class DisruptorEventHandler implements EventHandler<CarbonDisruptorEvent> {
+public abstract class DisruptorEventHandler implements EventHandler<CarbonDisruptorEvent>, WorkHandler {
 
     public abstract void onEvent(CarbonDisruptorEvent carbonDisruptorEvent, long l, boolean b) throws Exception;
 
-
+    @Override
+    public abstract void onEvent(Object o) throws Exception;
 }
