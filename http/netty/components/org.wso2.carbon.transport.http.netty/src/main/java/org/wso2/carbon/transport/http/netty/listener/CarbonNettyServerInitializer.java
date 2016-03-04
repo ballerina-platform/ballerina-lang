@@ -83,9 +83,9 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
             log.info("Initializing source channel pipeline");
         }
         ChannelPipeline p = ((SocketChannel) ch).pipeline();
-        p.addLast("compressor", new HttpContentCompressor());
         p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
+        p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
             p.addLast("handler", new SourceHandler(connectionManager));
