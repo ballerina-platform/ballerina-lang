@@ -17,6 +17,8 @@ package org.wso2.carbon.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
@@ -42,14 +45,15 @@ public class ResponseCallback implements CarbonCallback {
     private ChannelHandlerContext ctx;
 
     private static final Logger LOG = LoggerFactory.getLogger(ResponseCallback.class);
+    private static final String HTTP_CONNECTION_CLOSE = "close";
 
     public ResponseCallback(ChannelHandlerContext channelHandlerContext) {
         this.ctx = channelHandlerContext;
     }
 
     public void done(CarbonMessage cMsg) {
-        final HttpResponse response = Util.createHttpResponse(cMsg);
         NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.INITIATED);
+        final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
         if (cMsg instanceof NettyCarbonMessage) {
             NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
@@ -70,8 +74,12 @@ public class ResponseCallback implements CarbonCallback {
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 ctx.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.COMPLETED);
+                    String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
+                    if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
+                        future.addListener(ChannelFutureListener.CLOSE);
+                    }
                     break;
                 }
             }

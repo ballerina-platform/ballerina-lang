@@ -123,9 +123,9 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     }
 
     @Reference(
-               name = "netty-stat-handler",
+               name = "messaging-handler",
                service = MessagingHandler.class,
-               cardinality = ReferenceCardinality.OPTIONAL,
+               cardinality = ReferenceCardinality.MULTIPLE,
                policy = ReferencePolicy.DYNAMIC,
                unbind = "removeNettyStatHandler"
     )

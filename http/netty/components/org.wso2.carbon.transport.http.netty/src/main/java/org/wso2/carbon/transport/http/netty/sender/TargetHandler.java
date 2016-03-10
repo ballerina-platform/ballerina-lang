@@ -89,10 +89,9 @@ public class TargetHandler extends ReadTimeoutHandler {
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
-
-                    NettyTransportContextHolder.getInstance().getInterceptor().targetResponse(cMsg, State.COMPLETED);
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    NettyTransportContextHolder.getInstance().getInterceptor().targetResponse(cMsg, State.COMPLETED);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
 
