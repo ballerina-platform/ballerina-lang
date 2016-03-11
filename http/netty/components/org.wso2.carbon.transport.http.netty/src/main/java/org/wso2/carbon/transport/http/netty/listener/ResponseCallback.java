@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
@@ -48,7 +47,7 @@ public class ResponseCallback implements CarbonCallback {
     }
 
     public void done(CarbonMessage cMsg) {
-        NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.INITIATED);
+        NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
         if (cMsg instanceof NettyCarbonMessage) {
@@ -57,7 +56,7 @@ public class ResponseCallback implements CarbonCallback {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ctx.writeAndFlush(httpContent);
-                    NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.COMPLETED);
+                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseSending(cMsg);
                     break;
                 }
                 ctx.write(httpContent);
@@ -71,7 +70,7 @@ public class ResponseCallback implements CarbonCallback {
                 ctx.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    NettyTransportContextHolder.getInstance().getInterceptor().sourceResponse(cMsg, State.COMPLETED);
+                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseSending(cMsg);
                     break;
                 }
             }

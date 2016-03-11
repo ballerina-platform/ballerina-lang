@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.statistics;
+package org.wso2.carbon.transport.http.netty.statistics.holders;
 
 /**
  * interface extends holders
  */
 public interface MetricsStaticsHolder {
 
-    boolean startTimer();
+    void startTimer();
 
-    boolean stopTimer();
+    void stopTimer();
 
 }

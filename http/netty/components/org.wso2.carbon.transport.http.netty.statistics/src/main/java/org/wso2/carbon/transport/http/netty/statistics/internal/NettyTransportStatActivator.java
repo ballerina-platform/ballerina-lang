@@ -20,7 +20,7 @@ package org.wso2.carbon.transport.http.netty.statistics.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.messaging.MessagingHandler;
+import org.wso2.carbon.messaging.handler.MessagingHandler;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.statistics.MetricReporter;
@@ -60,6 +60,5 @@ public class NettyTransportStatActivator implements BundleActivator {
         }
 
         return statStatus;
-
     }
 }

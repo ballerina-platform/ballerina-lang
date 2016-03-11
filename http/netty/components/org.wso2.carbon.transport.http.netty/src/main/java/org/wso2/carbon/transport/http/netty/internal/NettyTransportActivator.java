@@ -21,8 +21,8 @@ package org.wso2.carbon.transport.http.netty.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
-import org.wso2.carbon.messaging.Interceptor;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
@@ -47,8 +47,8 @@ public class NettyTransportActivator implements BundleActivator {
             bundleContext.registerService(TransportSender.class, sender, null);
         }
         NettyTransportContextHolder.getInstance().setBundleContext(bundleContext);
-        Interceptor interceptor = new Interceptor();
-        NettyTransportContextHolder.getInstance().setInterceptor(interceptor);
+        HandlerExecutor handlerExecutor = new HandlerExecutor();
+        NettyTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
     }
 
     /**

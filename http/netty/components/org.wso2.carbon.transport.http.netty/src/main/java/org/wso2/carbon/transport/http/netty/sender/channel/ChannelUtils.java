@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
@@ -138,7 +137,7 @@ public class ChannelUtils {
     }
 
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
-        NettyTransportContextHolder.getInstance().getInterceptor().targetRequest(carbonMessage, State.INITIATED);
+        NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetRequestReceiving(carbonMessage);
         channel.write(httpRequest);
 
         if (carbonMessage instanceof NettyCarbonMessage) {
@@ -147,8 +146,8 @@ public class ChannelUtils {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);
-                    NettyTransportContextHolder.getInstance().getInterceptor()
-                            .targetRequest(carbonMessage, State.COMPLETED);
+                    NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                            .executeAtTargetRequestSending(carbonMessage);
                     break;
                 }
                 if (httpContent != null) {
@@ -164,8 +163,8 @@ public class ChannelUtils {
                 channel.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    NettyTransportContextHolder.getInstance().getInterceptor()
-                            .targetRequest(carbonMessage, State.COMPLETED);
+                    NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                            .executeAtTargetRequestSending(carbonMessage);
                     break;
                 }
             }

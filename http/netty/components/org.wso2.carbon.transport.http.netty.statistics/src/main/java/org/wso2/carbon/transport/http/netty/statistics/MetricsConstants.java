@@ -23,10 +23,6 @@ package org.wso2.carbon.transport.http.netty.statistics;
  */
 public class MetricsConstants {
 
-    public static final String TYPE_SOURCE = "TYPE_SOURCE";
-
-    public static final String TYPE_TARGET = "TYPE_TARGET";
-
     public static final String SOURCE_REQUEST_METRICS_HOLDER = "SOURCE_REQUEST_METRICS_HOLDER";
 
     public static final String TARGET_REQUEST_METRICS_HOLDER = "TARGET_REQUEST_METRICS_HOLDER";

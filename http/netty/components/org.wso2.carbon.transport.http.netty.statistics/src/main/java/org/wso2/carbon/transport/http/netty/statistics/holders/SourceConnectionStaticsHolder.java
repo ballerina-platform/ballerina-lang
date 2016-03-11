@@ -16,40 +16,32 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.statistics;
+package org.wso2.carbon.transport.http.netty.statistics.holders;
 
 import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
 /**
- * Holds the Connection related Latency Metrics
+ * Holder for source connection timer
  */
-public class ConnectionMetricsStaticsHolder implements MetricsStaticsHolder {
+public class SourceConnectionStaticsHolder implements MetricsStaticsHolder {
 
     private Timer connectionTimer = null;
     private Timer.Context connectionTimerContext = null;
 
-    public ConnectionMetricsStaticsHolder(String type, TimerHolder timerHolder) {
-
-        if (type.equals(MetricsConstants.TYPE_SOURCE)) {
-            connectionTimer = timerHolder.getSourceConnectionTimer();
-        } else {
-            connectionTimer = timerHolder.getTargetConnectionTimer();
-        }
+    public SourceConnectionStaticsHolder(TimerHolder timerHolder) {
+        connectionTimer = timerHolder.getSourceConnectionTimer();
     }
 
     @Override
-    public boolean startTimer() {
+    public void startTimer() {
         this.connectionTimerContext = this.connectionTimer.start();
-        return true;
     }
 
     @Override
-    public boolean stopTimer() {
+    public void stopTimer() {
         if (this.connectionTimerContext != null) {
             this.connectionTimerContext.stop();
-            return true;
-        } else {
-            return false;
         }
     }
 
