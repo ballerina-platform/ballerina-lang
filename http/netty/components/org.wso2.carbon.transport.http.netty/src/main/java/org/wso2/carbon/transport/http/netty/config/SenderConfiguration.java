@@ -21,6 +21,9 @@ package org.wso2.carbon.transport.http.netty.config;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,6 +40,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class SenderConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
+
+    private boolean disruptorOn = true;
+
+    private ExecutorService executorService;
 
 
     public static SenderConfiguration getDefault() {
@@ -156,5 +163,22 @@ public class SenderConfiguration {
             sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
 
         return sslConfig;
+    }
+
+    public boolean isDisruptorOn() {
+        return disruptorOn;
+    }
+
+    public void setDisruptorOn(boolean disruptorOn) {
+        this.disruptorOn = disruptorOn;
+    }
+
+
+    public ExecutorService getNettyHandlerExecutorService() {
+        return executorService;
+    }
+
+    public void setNettyHandlerWorkerPool(int nettyHandlerWorkerPool) {
+        executorService = Executors.newFixedThreadPool(nettyHandlerWorkerPool);
     }
 }

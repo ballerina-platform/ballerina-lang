@@ -71,20 +71,29 @@ public class NettySender implements TransportSender {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
-                (Integer) msg.getProperty(Constants.PORT));
+                                              (Integer) msg.getProperty(Constants.PORT));
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
-        if (ringBuffer == null) {
+        String enableDisruptor = (String) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
+                                                                     IS_DISRUPTOR_ENABLE);
+    int executorWorkerPool = (Integer) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
+                                                                        EXECUTOR_WORKER_POOL_SIZE);
+        if (ringBuffer == null && Boolean.parseBoolean(enableDisruptor)) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
-                    getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
+                       getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
+        } else if (!Boolean.parseBoolean(enableDisruptor)) {
+            senderConfiguration.setDisruptorOn(false);
+            senderConfiguration.setNettyHandlerWorkerPool(executorWorkerPool);
         }
+
 
         Channel outboundChannel = null;
         try {
             TargetChannel targetChannel = connectionManager
-                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
+                       .getTargetChannel(route, srcHandler,
+                                         senderConfiguration, httpRequest, msg, callback, ringBuffer);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);

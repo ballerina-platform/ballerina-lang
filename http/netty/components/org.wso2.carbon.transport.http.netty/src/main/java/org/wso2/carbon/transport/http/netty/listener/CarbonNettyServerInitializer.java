@@ -31,6 +31,7 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
@@ -44,8 +45,11 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private ConnectionManager connectionManager;
 
-    public CarbonNettyServerInitializer() {
+    private ListenerConfiguration listenerConfiguration;
 
+
+    public CarbonNettyServerInitializer(ListenerConfiguration listenerConfiguration) {
+        this.listenerConfiguration = listenerConfiguration;
     }
 
     @Override
@@ -55,7 +59,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         try {
             connectionManager = ConnectionManager.getInstance();
 
-            if (parameters != null) {
+            if (parameters != null && Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
+                log.debug("Disruptor configuration creating");
                 DisruptorConfig disruptorConfig = new DisruptorConfig
                            (parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
                             parameters.get(Constants.DISRUPTOR_COUNT),
@@ -65,6 +70,13 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
                             parameters.get(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
+            } else if (!Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
+                int executorWorkerPoolSize = Integer.parseInt(parameters.get(Constants.EXECUTOR_WORKER_POOL_SIZE));
+                if (executorWorkerPoolSize > 0) {
+                    listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
+                } else {
+                    log.error("Please enable disruptor or specify executorHandlerThreadPool size greater that 0");
+                }
             } else {
                 log.warn("Disruptor specific parameters are not specified in "
                          + "configuration hence using default configs");
@@ -88,7 +100,11 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            p.addLast("handler", new SourceHandler(connectionManager));
+            if (Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
+                p.addLast("handler", new SourceHandler(connectionManager));
+            } else {
+                p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
+            }
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

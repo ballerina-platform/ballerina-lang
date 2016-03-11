@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
@@ -47,13 +48,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     private RingBuffer disruptor;
-    private ChannelHandlerContext ctx;
-    private NettyCarbonMessage cMsg;
-    private ConnectionManager connectionManager;
+    protected ChannelHandlerContext ctx;
+    protected NettyCarbonMessage cMsg;
+    protected ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
 
     private DisruptorConfig disruptorConfig;
-    private Map<String, GenericObjectPool> targetChannelPool;
+    protected Map<String, GenericObjectPool> targetChannelPool;
 
     public SourceHandler(ConnectionManager connectionManager) throws Exception {
         this.connectionManager = connectionManager;
@@ -63,7 +64,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
         NettyTransportContextHolder.getInstance().getInterceptor()
-                .sourceConnection(Integer.toString(ctx.hashCode()), State.INITIATED);
+                   .sourceConnection(Integer.toString(ctx.hashCode()), State.INITIATED);
         disruptorConfig = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
         disruptor = disruptorConfig.getDisruptor();
         this.ctx = ctx;
@@ -76,22 +77,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
 
-            cMsg = new NettyCarbonMessage();
-            NettyTransportContextHolder.getInstance().getInterceptor().sourceRequest(cMsg, State.INITIATED);
-            cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-            ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-            cMsg.setProperty(Constants.CALL_BACK, responseCallback);
-            HttpRequest httpRequest = (HttpRequest) msg;
-
-            cMsg.setProperty(Constants.TO, httpRequest.getUri());
-            cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-            cMsg.setProperty(Constants.SRC_HNDLR, this);
-            cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
-            cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-            cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-            cMsg.setProperty(Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
-            cMsg.setHeaders(Util.getHeaders(httpRequest));
+            cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }
@@ -114,7 +100,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
         NettyTransportContextHolder.getInstance().getInterceptor()
-                .sourceConnection(Integer.toString(ctx.hashCode()), State.COMPLETED);
+                   .sourceConnection(Integer.toString(ctx.hashCode()), State.COMPLETED);
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }
@@ -144,6 +130,27 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         log.error("Exception caught in Netty Source handler", cause);
+    }
+
+
+    protected CarbonMessage setUPCarbonMessage(Object msg) {
+        cMsg = new NettyCarbonMessage();
+        NettyTransportContextHolder.getInstance().getInterceptor().sourceRequest(cMsg, State.INITIATED);
+        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+        ResponseCallback responseCallback = new ResponseCallback(this.ctx);
+        cMsg.setProperty(Constants.CALL_BACK, responseCallback);
+        HttpRequest httpRequest = (HttpRequest) msg;
+
+        cMsg.setProperty(Constants.TO, httpRequest.getUri());
+        cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
+        cMsg.setProperty(Constants.SRC_HNDLR, this);
+        cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
+        cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
+        cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+        cMsg.setProperty(Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
+        cMsg.setHeaders(Util.getHeaders(httpRequest));
+        return cMsg;
     }
 
 }

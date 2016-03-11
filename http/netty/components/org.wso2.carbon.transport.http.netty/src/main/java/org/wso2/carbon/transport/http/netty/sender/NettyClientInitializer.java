@@ -51,6 +51,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
         if (senderConfiguration.getSslConfig() != null) {
+            log.debug("adding ssl handler");
             SslHandler sslHandler = new SSLHandlerFactory(senderConfiguration.getSslConfig()).create();
             sslHandler.engine().setUseClientMode(true);
             ch.pipeline().addLast("ssl", sslHandler);
@@ -59,8 +60,18 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
-        handler = new TargetHandler(soTimeOut);
-        ch.pipeline().addLast(HANDLER, handler);
+
+
+        if (senderConfiguration.isDisruptorOn()) {
+            log.debug("Register target handler in pipeline which will dispatch events to Disruptor threads");
+            handler = new TargetHandler(soTimeOut);
+            ch.pipeline().addLast(HANDLER, handler);
+        } else {
+            log.debug("Register  engine dispatching handler in pipeline ");
+            handler = new EngineDispatchingTargetHandler(soTimeOut, senderConfiguration);
+            ch.pipeline().addLast(HANDLER, handler);
+        }
+
 
     }
 
