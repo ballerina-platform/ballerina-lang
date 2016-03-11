@@ -47,12 +47,12 @@ import java.util.Map;
 public class TargetHandler extends ReadTimeoutHandler {
     private static Logger log = LoggerFactory.getLogger(TargetHandler.class);
 
-    private CarbonCallback callback;
+    protected CarbonCallback callback;
     private RingBuffer ringBuffer;
-    private CarbonMessage cMsg;
-    private ConnectionManager connectionManager;
-    private TargetChannel targetChannel;
-    private CarbonMessage incomingMsg;
+    protected CarbonMessage cMsg;
+    protected ConnectionManager connectionManager;
+    protected TargetChannel targetChannel;
+    protected CarbonMessage incomingMsg;
 
     public TargetHandler(int timeoutSeconds) {
         super(timeoutSeconds);
@@ -60,8 +60,10 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
         NettyTransportContextHolder.getInstance().getHandlerExecutor()
                 .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
+
 
         super.channelActive(ctx);
     }
@@ -70,16 +72,8 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
-            cMsg = new NettyCarbonMessage();
-            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
-            cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-            cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-            cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
-            cMsg.setProperty(Constants.CALL_BACK, callback);
-            HttpResponse httpResponse = (HttpResponse) msg;
 
-            cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-            cMsg.setHeaders(Util.getHeaders(httpResponse));
+            cMsg = setUpCarbonMessage(ctx, msg);
 
             if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
                     || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
@@ -95,7 +89,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                     connectionManager.returnChannel(targetChannel);
 
                     if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null
-                            && cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                        && cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
                         cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
                                 String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
                         ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
@@ -142,32 +136,53 @@ public class TargetHandler extends ReadTimeoutHandler {
 
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                    getHttpRoute().toString() + "</errorMessage>";
+                       getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {
                 faultHandler.handleFault("504", new EndPointTimeOut(payload), incomingMsg, callback);
                 incomingMsg.getFaultHandlerStack().push(faultHandler);
             } else {
-                DefaultCarbonMessage response = new DefaultCarbonMessage();
 
-                response.setStringMessageBody(payload);
-                byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
-
-                Map<String, String> transportHeaders = new HashMap<>();
-                transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
-                transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
-                transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
-                transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
-
-                response.setHeaders(transportHeaders);
-
-                response.setProperty(Constants.HTTP_STATUS_CODE, 504);
-                response.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
-                response.setProperty(Constants.CALL_BACK, callback);
-
-                ringBuffer.publishEvent(new CarbonEventPublisher(response));
+                ringBuffer.publishEvent(new CarbonEventPublisher(createErrorMessage(payload)));
             }
         }
+    }
+
+
+    protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
+        cMsg = new NettyCarbonMessage();
+        NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
+        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+        cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+        cMsg.setProperty(Constants.CALL_BACK, callback);
+        HttpResponse httpResponse = (HttpResponse) msg;
+
+        cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
+        cMsg.setHeaders(Util.getHeaders(httpResponse));
+        return cMsg;
+
+    }
+
+    protected CarbonMessage createErrorMessage(String payload) {
+        DefaultCarbonMessage response = new DefaultCarbonMessage();
+
+        response.setStringMessageBody(payload);
+        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+
+        Map<String, String> transportHeaders = new HashMap<>();
+        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
+        transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
+        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
+
+        response.setHeaders(transportHeaders);
+
+        response.setProperty(Constants.HTTP_STATUS_CODE, 504);
+        response.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+        response.setProperty(Constants.CALL_BACK, callback);
+        return response;
+
     }
 }

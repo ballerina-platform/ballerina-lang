@@ -16,6 +16,8 @@
 package org.wso2.carbon.transport.http.netty.common.disruptor.config;
 
 import com.lmax.disruptor.RingBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.ArrayList;
@@ -26,6 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This class represents the disruptor configuration.
  */
 public class DisruptorConfig {
+
+    private static Logger logger = LoggerFactory.getLogger(DisruptorConfig.class);
 
     private int bufferSize;
     private int noDisruptors;
@@ -47,6 +51,10 @@ public class DisruptorConfig {
         this.noOfThreadsInConsumerWorkerPool = 0;
 
         this.disruptorWaitStrategy = Constants.PHASED_BACKOFF;
+        logger.debug("Disruptor configration created with buffer size :=  " + this.bufferSize +
+                     " , no of disruptors :=" + this.noDisruptors +
+                     " , no of event handlers per disruptor := " + this.noOfEventHandlersPerDisruptor +
+                     ", wait strategy :=" + this.disruptorWaitStrategy);
     }
 
     public DisruptorConfig(String bufferSize, String noDisruptors, String noOfEventHandlersPerDisruptor,
@@ -56,9 +64,16 @@ public class DisruptorConfig {
         this.noOfEventHandlersPerDisruptor = Integer.parseInt(noOfEventHandlersPerDisruptor);
         this.disruptorWaitStrategy = disruptorWaitStrategy;
         this.notShared = notShared;
+        logger.debug("Disruptor configration created with buffer size :=  " + this.bufferSize +
+                     " , no of disruptors :=" + this.noDisruptors +
+                     " , no of event handlers per disruptor := " + this.noOfEventHandlersPerDisruptor +
+                     ", wait strategy :=" + this.disruptorWaitStrategy);
         if (noOfThreadsInConsumerWorkerPool != null) {
             this.noOfThreadsInConsumerWorkerPool = Integer.parseInt(noOfThreadsInConsumerWorkerPool);
+            logger.debug(" Consumer pool with" + this.noOfThreadsInConsumerWorkerPool +
+                         " is used for Disruptor EventHandlers");
         }
+
 
     }
 

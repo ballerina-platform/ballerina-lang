@@ -22,6 +22,8 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -39,6 +41,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
+    private int execHandlerThreadPoolSize = 60;
+
+    private ExecutorService executorService;
 
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
@@ -61,8 +66,11 @@ public class ListenerConfiguration {
     @XmlAttribute
     private int workerThreadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
 
+
+
+
     @XmlAttribute
-    private int execHandlerThreadPoolSize = 60;
+    private String enableDisruptor;
 
     @XmlAttribute
     private String scheme = "http";
@@ -117,6 +125,7 @@ public class ListenerConfiguration {
 
     public void setExecHandlerThreadPoolSize(int execHandlerThreadPoolSize) {
         this.execHandlerThreadPoolSize = execHandlerThreadPoolSize;
+        this.executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
     }
 
     public String getHost() {
@@ -189,5 +198,18 @@ public class ListenerConfiguration {
         }
 
         return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass);
+    }
+
+
+    public String getEnableDisruptor() {
+        return enableDisruptor;
+    }
+
+    public void setEnableDisruptor(String enableDisruptor) {
+        this.enableDisruptor = enableDisruptor;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }
