@@ -16,14 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.statistics;
+package org.wso2.carbon.transport.http.netty.statistics.holders;
 
 import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
 /**
- * Keep the response related latency data (Raw Data)
+ * Holder for target request timer
  */
-public class ResponseMetricsStaticsHolder implements MetricsStaticsHolder {
+public class TargetRequestStaticsHolder implements MetricsStaticsHolder {
 
     // Carbon-Metrics Measuring parameters
     private Timer timer = null;
@@ -31,25 +32,17 @@ public class ResponseMetricsStaticsHolder implements MetricsStaticsHolder {
     // Set the Carbon-Metrics Timers
     private Timer.Context timerContext = null;
 
-    public ResponseMetricsStaticsHolder(String type, TimerHolder timerHolder) {
-        if (type.equals(MetricsConstants.TYPE_SOURCE)) {
-            timer = timerHolder.getSourceResponseTimer();
-
-        } else {
-            timer = timerHolder.getTargetResponseTimer();
-        }
+    public TargetRequestStaticsHolder(TimerHolder timerHolder) {
+        timer = timerHolder.getTargetRequestTimer();
     }
 
     @Override
-    public boolean startTimer() {
+    public void startTimer() {
         timerContext = this.timer.start();
-        return true;
     }
 
     @Override
-    public boolean stopTimer() {
+    public void stopTimer() {
         timerContext.stop();
-        return true;
     }
-
 }

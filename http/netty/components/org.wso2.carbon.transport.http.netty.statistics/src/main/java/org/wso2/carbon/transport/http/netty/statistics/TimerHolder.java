@@ -27,28 +27,20 @@ import org.wso2.carbon.metrics.manager.Timer;
  */
 public class TimerHolder {
 
-    private final Timer sourceConnectionTimer;
-    private final Timer targetConnectionTimer;
-    private final Timer sourceRequestTimer;
-    private final Timer targetRequestTimer;
-    private final Timer targetResponseTimer;
-    private final Timer sourceResponseTimer;
+    private final Timer sourceConnectionTimer = MetricManager.timer("gw.source.connection.timer", Level.INFO);
+    private final Timer targetConnectionTimer = MetricManager.timer("gw.target.connection.timer", Level.INFO);
+    private final Timer sourceRequestTimer = MetricManager.timer("gw.source.request.timer", Level.INFO);
+    private final Timer targetRequestTimer = MetricManager.timer("gw.target.request.timer", Level.INFO);
+    private final Timer targetResponseTimer = MetricManager.timer("gw.target.response.timer", Level.INFO);
+    private final Timer sourceResponseTimer = MetricManager.timer("gw.source.response.timer", Level.INFO);
 
-    private static volatile TimerHolder timerHolder;
+    private static volatile TimerHolder timerHolder = new TimerHolder();
 
     private TimerHolder() {
-        sourceConnectionTimer = MetricManager.timer("gw.source.connection.timer", Level.INFO);
-        targetConnectionTimer = MetricManager.timer("gw.target.connection.timer", Level.INFO);
-        sourceRequestTimer = MetricManager.timer("gw.source.request.timer", Level.INFO);
-        targetRequestTimer = MetricManager.timer("gw.target.request.timer", Level.INFO);
-        targetResponseTimer = MetricManager.timer("gw.target.response.timer", Level.INFO);
-        sourceResponseTimer = MetricManager.timer("gw.source.response.timer", Level.INFO);
+
     }
 
     public static TimerHolder getInstance() {
-        if (timerHolder == null) {
-            timerHolder = new TimerHolder();
-        }
         return timerHolder;
     }
 

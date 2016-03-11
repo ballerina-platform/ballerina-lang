@@ -18,9 +18,16 @@
 
 package org.wso2.carbon.transport.http.netty.statistics;
 
+import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.MessagingHandler;
-import org.wso2.carbon.messaging.State;
+import org.wso2.carbon.messaging.handler.MessagingHandler;
+import org.wso2.carbon.transport.http.netty.statistics.holders.MetricsStaticsHolder;
+import org.wso2.carbon.transport.http.netty.statistics.holders.SourceConnectionStaticsHolder;
+import org.wso2.carbon.transport.http.netty.statistics.holders.SourceRequestStaticsHolder;
+import org.wso2.carbon.transport.http.netty.statistics.holders.SourceResponseStaticsHolder;
+import org.wso2.carbon.transport.http.netty.statistics.holders.TargetConnectionStaticsHolder;
+import org.wso2.carbon.transport.http.netty.statistics.holders.TargetRequestStaticsHolder;
+import org.wso2.carbon.transport.http.netty.statistics.holders.TargetResponseStaticsHolder;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StatisticsHandler implements MessagingHandler {
 
     private final TimerHolder timerHolder;
+    //todo check for with lock
     private Map<String, MetricsStaticsHolder> messageCorrelation = new ConcurrentHashMap<>();
 
     public StatisticsHandler(TimerHolder timerHolder) {
@@ -38,92 +46,89 @@ public class StatisticsHandler implements MessagingHandler {
         this.timerHolder = timerHolder;
 
     }
-
     @Override
-    public boolean sourceConnection(String key, State state) {
-        if (state == State.INITIATED) {
-            MetricsStaticsHolder sourceConnectionMetricsHolder = new ConnectionMetricsStaticsHolder(
-                    MetricsConstants.TYPE_SOURCE, timerHolder);
-            sourceConnectionMetricsHolder.startTimer();
-            messageCorrelation.put(key, sourceConnectionMetricsHolder);
-        } else {
-            messageCorrelation.remove(key).stopTimer();
-        }
-        return true;
-
-    }
-
-    @Override
-    public boolean sourceRequest(CarbonMessage carbonMessage, State state) {
-        RequestMetricsStaticsHolder requestMetricsStaticsHolder;
-        if (state == State.INITIATED) {
-            requestMetricsStaticsHolder = new RequestMetricsStaticsHolder(MetricsConstants.TYPE_SOURCE, timerHolder);
-            requestMetricsStaticsHolder.startTimer();
-            carbonMessage.setProperty(MetricsConstants.SOURCE_REQUEST_METRICS_HOLDER, requestMetricsStaticsHolder);
-        } else {
-            requestMetricsStaticsHolder = (RequestMetricsStaticsHolder) carbonMessage
-                    .getProperty(MetricsConstants.SOURCE_REQUEST_METRICS_HOLDER);
-            requestMetricsStaticsHolder.stopTimer();
-        }
+    public boolean validateRequestContinuation(CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
         return true;
     }
 
     @Override
-    public boolean sourceResponse(CarbonMessage carbonMessage, State state) {
-        ResponseMetricsStaticsHolder responseMetricsStaticsHolder;
-        if (state == State.INITIATED) {
-            responseMetricsStaticsHolder = new ResponseMetricsStaticsHolder(MetricsConstants.TYPE_SOURCE, timerHolder);
-            responseMetricsStaticsHolder.startTimer();
-            carbonMessage.setProperty(MetricsConstants.SOURCE_RESPONSE_METRICS_HOLDER, responseMetricsStaticsHolder);
-        } else {
-            responseMetricsStaticsHolder = (ResponseMetricsStaticsHolder) carbonMessage
-                    .getProperty(MetricsConstants.SOURCE_RESPONSE_METRICS_HOLDER);
-            responseMetricsStaticsHolder.stopTimer();
-        }
-        return true;
+    public void invokeAtSourceConnectionInitiation(String key) {
+        MetricsStaticsHolder sourceConnectionMetricsHolder = new SourceConnectionStaticsHolder(timerHolder);
+        sourceConnectionMetricsHolder.startTimer();
+        messageCorrelation.put(key, sourceConnectionMetricsHolder);
     }
 
     @Override
-    public boolean targetConnection(String key, State state) {
-        if (state == State.INITIATED) {
-            MetricsStaticsHolder targetConnectionMetricsHolder = new ConnectionMetricsStaticsHolder(
-                    MetricsConstants.TYPE_TARGET, timerHolder);
-            targetConnectionMetricsHolder.startTimer();
-            messageCorrelation.put(key, targetConnectionMetricsHolder);
-        } else {
-            messageCorrelation.remove(key).stopTimer();
-        }
-        return true;
+    public void invokeAtSourceConnectionTermination(String key) {
+        messageCorrelation.remove(key).stopTimer();
     }
 
     @Override
-    public boolean targetRequest(CarbonMessage carbonMessage, State state) {
-        RequestMetricsStaticsHolder requestMetricsStaticsHolder;
-        if (state == State.INITIATED) {
-            requestMetricsStaticsHolder = new RequestMetricsStaticsHolder(MetricsConstants.TYPE_TARGET, timerHolder);
-            requestMetricsStaticsHolder.startTimer();
-            carbonMessage.setProperty(MetricsConstants.TARGET_REQUEST_METRICS_HOLDER, requestMetricsStaticsHolder);
-        } else {
-            requestMetricsStaticsHolder = (RequestMetricsStaticsHolder) carbonMessage
-                    .getProperty(MetricsConstants.TARGET_REQUEST_METRICS_HOLDER);
-            requestMetricsStaticsHolder.stopTimer();
-        }
-        return true;
+    public void invokeAtSourceRequestReceiving(CarbonMessage carbonMessage) {
+        SourceRequestStaticsHolder requestMetricsStaticsHolder = new SourceRequestStaticsHolder(timerHolder);
+        requestMetricsStaticsHolder.startTimer();
+        carbonMessage.setProperty(MetricsConstants.SOURCE_REQUEST_METRICS_HOLDER, requestMetricsStaticsHolder);
     }
 
     @Override
-    public boolean targetResponse(CarbonMessage carbonMessage, State state) {
-        ResponseMetricsStaticsHolder responseMetricsStaticsHolder;
-        if (state == State.INITIATED) {
-            responseMetricsStaticsHolder = new ResponseMetricsStaticsHolder(MetricsConstants.TYPE_TARGET, timerHolder);
-            responseMetricsStaticsHolder.startTimer();
-            carbonMessage.setProperty(MetricsConstants.TARGET_RESPONSE_METRICS_HOLDER, responseMetricsStaticsHolder);
-        } else {
-            responseMetricsStaticsHolder = (ResponseMetricsStaticsHolder) carbonMessage
-                    .getProperty(MetricsConstants.TARGET_RESPONSE_METRICS_HOLDER);
-            responseMetricsStaticsHolder.stopTimer();
-        }
-        return true;
+    public void invokeAtSourceRequestSending(CarbonMessage carbonMessage) {
+        SourceRequestStaticsHolder requestMetricsStaticsHolder = (SourceRequestStaticsHolder) carbonMessage
+                .getProperty(MetricsConstants.SOURCE_REQUEST_METRICS_HOLDER);
+        requestMetricsStaticsHolder.stopTimer();
+    }
+
+    @Override
+    public void invokeAtTargetRequestReceiving(CarbonMessage carbonMessage) {
+        TargetRequestStaticsHolder requestMetricsStaticsHolder = new TargetRequestStaticsHolder(timerHolder);
+        requestMetricsStaticsHolder.startTimer();
+        carbonMessage.setProperty(MetricsConstants.TARGET_REQUEST_METRICS_HOLDER, requestMetricsStaticsHolder);
+    }
+
+    @Override
+    public void invokeAtTargetRequestSending(CarbonMessage carbonMessage) {
+        TargetRequestStaticsHolder requestMetricsStaticsHolder = (TargetRequestStaticsHolder) carbonMessage
+                .getProperty(MetricsConstants.TARGET_REQUEST_METRICS_HOLDER);
+        requestMetricsStaticsHolder.stopTimer();
+    }
+
+    @Override
+    public void invokeAtTargetResponseReceiving(CarbonMessage carbonMessage) {
+        TargetResponseStaticsHolder responseMetricsStaticsHolder = new TargetResponseStaticsHolder(timerHolder);
+        responseMetricsStaticsHolder.startTimer();
+        carbonMessage.setProperty(MetricsConstants.TARGET_RESPONSE_METRICS_HOLDER, responseMetricsStaticsHolder);
+    }
+
+    @Override
+    public void invokeAtTargetResponseSending(CarbonMessage carbonMessage) {
+        TargetResponseStaticsHolder responseMetricsStaticsHolder = (TargetResponseStaticsHolder) carbonMessage
+                .getProperty(MetricsConstants.TARGET_RESPONSE_METRICS_HOLDER);
+        responseMetricsStaticsHolder.stopTimer();
+    }
+
+    @Override
+    public void invokeAtSourceResponseReceiving(CarbonMessage carbonMessage) {
+        SourceResponseStaticsHolder responseMetricsStaticsHolder = new SourceResponseStaticsHolder(timerHolder);
+        responseMetricsStaticsHolder.startTimer();
+        carbonMessage.setProperty(MetricsConstants.SOURCE_RESPONSE_METRICS_HOLDER, responseMetricsStaticsHolder);
+    }
+
+    @Override
+    public void invokeAtSourceResponseSending(CarbonMessage carbonMessage) {
+        SourceResponseStaticsHolder responseMetricsStaticsHolder = (SourceResponseStaticsHolder) carbonMessage
+                .getProperty(MetricsConstants.SOURCE_RESPONSE_METRICS_HOLDER);
+        responseMetricsStaticsHolder.stopTimer();
+    }
+
+    @Override
+    public void invokeAtTargetConnectionInitiation(String key) {
+        MetricsStaticsHolder targetConnectionMetricsHolder = new TargetConnectionStaticsHolder(timerHolder);
+        targetConnectionMetricsHolder.startTimer();
+        messageCorrelation.put(key, targetConnectionMetricsHolder);
+    }
+
+    @Override
+    public void invokeAtTargetConnectionTermination(String key) {
+        messageCorrelation.remove(key).stopTimer();
     }
 
     @Override

@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
@@ -56,8 +55,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-        NettyTransportContextHolder.getInstance().getInterceptor()
-                   .sourceConnection(Integer.toString(ctx.hashCode()), State.INITIATED);
+        NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                   .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         this.ctx = ctx;
         this.targetChannelPool = connectionManager.getTargetChannelPool();
     }
@@ -90,7 +89,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        NettyTransportContextHolder.getInstance().getInterceptor().sourceRequest(cMsg, State.COMPLETED);
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                                   .executeAtSourceRequestSending(cMsg);
                         cMsg.setEndOfMsgAdded(true);
                     }
                 }
@@ -100,9 +100,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        // Stop the connector timer
-        NettyTransportContextHolder.getInstance().getInterceptor()
-                   .sourceConnection(Integer.toString(ctx.hashCode()), State.COMPLETED);
+        NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                   .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         connectionManager.notifyChannelInactive();
     }
 }

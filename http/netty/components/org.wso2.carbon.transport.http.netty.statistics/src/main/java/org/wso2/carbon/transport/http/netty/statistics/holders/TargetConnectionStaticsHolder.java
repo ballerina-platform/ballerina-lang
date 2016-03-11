@@ -16,14 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.statistics;
+package org.wso2.carbon.transport.http.netty.statistics.holders;
 
 import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
 /**
- * Holds the request metrics parameters
+ * Holder for target connection timer
  */
-public class RequestMetricsStaticsHolder implements MetricsStaticsHolder {
+public class TargetConnectionStaticsHolder implements MetricsStaticsHolder {
 
     // Carbon-Metrics Measuring parameters
     private Timer timer = null;
@@ -31,24 +32,17 @@ public class RequestMetricsStaticsHolder implements MetricsStaticsHolder {
     // Set the Carbon-Metrics Timers
     private Timer.Context timerContext = null;
 
-    public RequestMetricsStaticsHolder(String type, TimerHolder timerHolder) {
-        if (type.equals(MetricsConstants.TYPE_SOURCE)) {
-            timer = timerHolder.getSourceRequestTimer();
-
-        } else {
-            timer = timerHolder.getTargetRequestTimer();
-        }
+    public TargetConnectionStaticsHolder(TimerHolder timerHolder) {
+        timer = timerHolder.getTargetConnectionTimer();
     }
 
     @Override
-    public boolean startTimer() {
+    public void startTimer() {
         timerContext = this.timer.start();
-        return true;
     }
 
     @Override
-    public boolean stopTimer() {
+    public void stopTimer() {
         timerContext.stop();
-        return true;
     }
 }

@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.FaultHandler;
-import org.wso2.carbon.messaging.State;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
@@ -36,11 +35,11 @@ import java.util.concurrent.ExecutorService;
 /**
  * A class that dispatches response to engine.
  */
-public class EngineDispatchingTargetHandler extends TargetHandler {
+public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
     private SenderConfiguration senderConfiguration;
 
-    public EngineDispatchingTargetHandler(int timeoutSeconds, SenderConfiguration senderConfiguration) {
+    public WorkerPoolDispatchingTargetHandler(int timeoutSeconds, SenderConfiguration senderConfiguration) {
         super(timeoutSeconds);
         this.senderConfiguration = senderConfiguration;
     }
@@ -76,7 +75,7 @@ public class EngineDispatchingTargetHandler extends TargetHandler {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
-                    NettyTransportContextHolder.getInstance().getInterceptor().targetResponse(cMsg, State.COMPLETED);
+                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseSending(cMsg);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
 

@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.messaging.MessagingHandler;
 import org.wso2.carbon.messaging.TransportListenerManager;
+import org.wso2.carbon.messaging.handler.MessagingHandler;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 
@@ -130,11 +130,11 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
                unbind = "removeNettyStatHandler"
     )
     protected void addNettyStatHandler(MessagingHandler messagingHandler) {
-        NettyTransportContextHolder.getInstance().getInterceptor().addHandler(messagingHandler);
+        NettyTransportContextHolder.getInstance().getHandlerExecutor().addHandler(messagingHandler);
     }
 
     protected void removeNettyStatHandler(MessagingHandler messagingHandler) {
-        NettyTransportContextHolder.getInstance().getInterceptor().removeHandler(messagingHandler);
+        NettyTransportContextHolder.getInstance().getHandlerExecutor().removeHandler(messagingHandler);
     }
 
     @Override
