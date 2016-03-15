@@ -207,7 +207,7 @@ public class DBHandler {
         }
     }
 
-    public void overwriteOrAddEvent(ComplexEventChunk addingEventChunk, Object[] obj, ExecutionInfo executionInfo) {
+    public void overwriteOrAddEvent(ComplexEvent complexEvent, Object[] obj, ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
@@ -221,26 +221,22 @@ public class DBHandler {
             populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
             updatedRows = stmt.executeUpdate();
             if (updatedRows == 0) {
-                addingEventChunk.reset();
                 if (isBloomFilterEnabled) {
                     bloomFilterInsertionList = new ArrayList<ComplexEvent>();
                 }
-                while (addingEventChunk.hasNext()) {
-                    ComplexEvent complexEvent = addingEventChunk.next();
-                    try {
-                        stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
-                        populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
-                        stmt.executeUpdate();
+                try {
+                    stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
+                    populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
+                    stmt.executeUpdate();
 
-                        if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
-                            bloomFilterInsertionList.add(complexEvent);
-                        }
-                        if (cachingTable != null) {
-                            cachingTable.add(complexEvent);
-                        }
-                    } catch (SQLException e) {
-                        throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
+                    if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
+                        bloomFilterInsertionList.add(complexEvent);
                     }
+                    if (cachingTable != null) {
+                        cachingTable.add(complexEvent);
+                    }
+                } catch (SQLException e) {
+                    throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
                 }
             }
             con.commit();
