@@ -124,7 +124,7 @@ public class RDBMSOperator implements Operator {
                 obj[count] = value;
                 count++;
             }
-            dbHandler.overwriteOrAddEvent(overwritingOrAddingEventChunk, obj, executionInfo);
+            dbHandler.overwriteOrAddEvent(overwritingOrAddingEvent, obj, executionInfo);
         }
     }
 
