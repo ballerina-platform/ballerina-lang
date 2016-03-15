@@ -1,4 +1,4 @@
-package org.wso2.siddhi.extension.string;/*
+/*
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,6 +15,7 @@ package org.wso2.siddhi.extension.string;/*
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.siddhi.extension.string;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -32,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SplitFunctionExtensionTestCase {
 
-    static final Logger log = Logger.getLogger(SplitFunctionExtension.class);
+    private static final Logger log = Logger.getLogger(SplitFunctionExtensionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 

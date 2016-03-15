@@ -33,7 +33,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  */
 public class SplitFunctionExtension extends FunctionExecutor {
 
-    Attribute.Type returnType = Attribute.Type.STRING;
+    private Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
