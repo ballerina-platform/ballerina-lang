@@ -65,8 +65,8 @@ public class DisruptorFactory {
 
             if (externalPoolWorkerCount > 0) {
 
-                WorkHandler workHandler[] = new WorkHandler[externalPoolWorkerCount];
-                for (int j = 0; j < externalPoolWorkerCount; j++) {
+                WorkHandler workHandler[] = new WorkHandler[disruptorConfig.getNoOfEventHandlersPerDisruptor()];
+                for (int j = 0; j < disruptorConfig.getNoOfEventHandlersPerDisruptor(); j++) {
                     CarbonDisruptorEventHandler carbonDisruptorEventHandler = new CarbonDisruptorEventHandler();
                     workHandler[j] = carbonDisruptorEventHandler;
                 }
