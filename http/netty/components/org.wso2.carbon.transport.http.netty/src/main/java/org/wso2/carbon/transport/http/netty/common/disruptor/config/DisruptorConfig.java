@@ -70,7 +70,7 @@ public class DisruptorConfig {
                      ", wait strategy :=" + this.disruptorWaitStrategy);
         if (noOfThreadsInConsumerWorkerPool != null) {
             this.noOfThreadsInConsumerWorkerPool = Integer.parseInt(noOfThreadsInConsumerWorkerPool);
-            logger.debug(" Consumer pool with" + this.noOfThreadsInConsumerWorkerPool +
+            logger.debug(" Consumer pool with " + this.noOfThreadsInConsumerWorkerPool +
                          " is used for Disruptor EventHandlers");
         }
 
