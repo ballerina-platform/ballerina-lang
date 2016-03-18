@@ -18,6 +18,8 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
@@ -39,6 +41,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @SuppressWarnings("unused")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
+
 
     public static final String DEFAULT_KEY = "netty";
     private int execHandlerThreadPoolSize = 60;
