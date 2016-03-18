@@ -40,6 +40,8 @@ public final class Constants {
 
     public static final String SLEEP_WAITING = "SLEEP_WAITING";
 
+    public static final String YIELD_WAITING = "YIELD_WAITING";
+
     public static final String WAIT_STRATEGY = "disruptor.wait.strategy";
 
     public static final String DISRUPTOR_BUFFER_SIZE = "disruptor.buffer.size";
