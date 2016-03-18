@@ -42,7 +42,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(ListenerConfiguration.class);
 
     public static final String DEFAULT_KEY = "netty";
     private int execHandlerThreadPoolSize = 60;
