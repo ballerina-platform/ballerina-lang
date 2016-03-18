@@ -113,7 +113,6 @@ public class ListenerConfiguration {
     }
 
     public void setBossThreadPoolSize(int bossThreadPoolSize) {
-
         this.bossThreadPoolSize = bossThreadPoolSize;
     }
 
@@ -126,15 +125,12 @@ public class ListenerConfiguration {
     }
 
     public int getExecHandlerThreadPoolSize() {
-
         return execHandlerThreadPoolSize;
     }
 
     public void setExecHandlerThreadPoolSize(int execHandlerThreadPoolSize) {
-
         this.execHandlerThreadPoolSize = execHandlerThreadPoolSize;
         this.executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
-
     }
 
     public String getHost() {
@@ -206,7 +202,6 @@ public class ListenerConfiguration {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }
-
         return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass);
     }
 
