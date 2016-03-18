@@ -31,26 +31,17 @@ public class DisruptorConfig {
 
     private static Logger logger = LoggerFactory.getLogger(DisruptorConfig.class);
 
-    private int bufferSize;
-    private int noDisruptors;
-    private int noOfEventHandlersPerDisruptor;
-    private int noOfThreadsInConsumerWorkerPool;
-    private String disruptorWaitStrategy;
+    private int bufferSize = 512;
+    private int noDisruptors = 5;
+    private int noOfEventHandlersPerDisruptor = 1;
+    private int noOfThreadsInConsumerWorkerPool = 0;
+    private String disruptorWaitStrategy = Constants.PHASED_BACKOFF;
     private boolean notShared;
     private List<RingBuffer> disruptorMap = new ArrayList<>();
     private AtomicInteger index = new AtomicInteger(0);
 
     public DisruptorConfig() {
 
-        this.bufferSize = 512;
-
-        this.noDisruptors = 5;
-
-        this.noOfEventHandlersPerDisruptor = 1;
-
-        this.noOfThreadsInConsumerWorkerPool = 0;
-
-        this.disruptorWaitStrategy = Constants.PHASED_BACKOFF;
         logger.debug("Disruptor configration created with buffer size :=  " + this.bufferSize +
                      " , no of disruptors :=" + this.noDisruptors +
                      " , no of event handlers per disruptor := " + this.noOfEventHandlersPerDisruptor +
@@ -59,10 +50,22 @@ public class DisruptorConfig {
 
     public DisruptorConfig(String bufferSize, String noDisruptors, String noOfEventHandlersPerDisruptor,
                            String disruptorWaitStrategy, boolean notShared, String noOfThreadsInConsumerWorkerPool) {
-        this.bufferSize = Integer.parseInt(bufferSize);
-        this.noDisruptors = Integer.parseInt(noDisruptors);
-        this.noOfEventHandlersPerDisruptor = Integer.parseInt(noOfEventHandlersPerDisruptor);
-        this.disruptorWaitStrategy = disruptorWaitStrategy;
+        if (bufferSize != null) {
+            this.bufferSize = Integer.parseInt(bufferSize);
+        }
+
+        if (noDisruptors != null) {
+            this.noDisruptors = Integer.parseInt(noDisruptors);
+        }
+
+        if (noOfEventHandlersPerDisruptor != null) {
+            this.noOfEventHandlersPerDisruptor = Integer.parseInt(noOfEventHandlersPerDisruptor);
+        }
+
+        if (disruptorWaitStrategy != null) {
+            this.disruptorWaitStrategy = disruptorWaitStrategy;
+        }
+
         this.notShared = notShared;
         logger.debug("Disruptor configration created with buffer size :=  " + this.bufferSize +
                      " , no of disruptors :=" + this.noDisruptors +
@@ -70,10 +73,10 @@ public class DisruptorConfig {
                      ", wait strategy :=" + this.disruptorWaitStrategy);
         if (noOfThreadsInConsumerWorkerPool != null) {
             this.noOfThreadsInConsumerWorkerPool = Integer.parseInt(noOfThreadsInConsumerWorkerPool);
-            logger.debug(" Consumer pool with " + this.noOfThreadsInConsumerWorkerPool +
-                         " is used for Disruptor EventHandlers");
-        }
 
+        }
+        logger.debug(" Consumer pool with " + this.noOfThreadsInConsumerWorkerPool +
+                     " is used for Disruptor EventHandlers");
 
     }
 
