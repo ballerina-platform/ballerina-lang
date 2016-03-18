@@ -25,6 +25,7 @@ import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.TimeoutBlockingWaitStrategy;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.WorkHandler;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -107,6 +108,9 @@ public class DisruptorFactory {
                 break;
             case Constants.TIME_BLOCKING:
                 waitStrategy = new TimeoutBlockingWaitStrategy(1, TimeUnit.SECONDS);
+                break;
+            case Constants.YIELD_WAITING:
+                waitStrategy = new YieldingWaitStrategy();
                 break;
             default:
                 waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS);
