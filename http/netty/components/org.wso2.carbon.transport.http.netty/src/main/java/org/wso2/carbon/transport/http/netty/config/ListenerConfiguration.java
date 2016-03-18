@@ -18,6 +18,8 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
@@ -40,6 +42,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
 
+    private static final Logger logger = LoggerFactory.getLogger(ListenerConfiguration.class);
+
     public static final String DEFAULT_KEY = "netty";
     private int execHandlerThreadPoolSize = 60;
 
@@ -48,6 +52,7 @@ public class ListenerConfiguration {
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
         defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "0.0.0.0", 8080);
+
         return defaultConfig;
     }
 
@@ -108,6 +113,7 @@ public class ListenerConfiguration {
     }
 
     public void setBossThreadPoolSize(int bossThreadPoolSize) {
+
         this.bossThreadPoolSize = bossThreadPoolSize;
     }
 
@@ -120,12 +126,15 @@ public class ListenerConfiguration {
     }
 
     public int getExecHandlerThreadPoolSize() {
+
         return execHandlerThreadPoolSize;
     }
 
     public void setExecHandlerThreadPoolSize(int execHandlerThreadPoolSize) {
+
         this.execHandlerThreadPoolSize = execHandlerThreadPoolSize;
         this.executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
+
     }
 
     public String getHost() {
@@ -181,6 +190,7 @@ public class ListenerConfiguration {
     }
 
     public void setWorkerThreadPoolSize(int workerThreadPoolSize) {
+
         this.workerThreadPoolSize = workerThreadPoolSize;
     }
 

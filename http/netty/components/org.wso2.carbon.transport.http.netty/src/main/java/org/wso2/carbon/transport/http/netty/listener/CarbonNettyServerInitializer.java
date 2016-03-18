@@ -60,6 +60,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
             connectionManager = ConnectionManager.getInstance();
 
             if (parameters != null && Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
+                log.debug("Disruptor is enabled");
                 log.debug("Disruptor configuration creating");
                 DisruptorConfig disruptorConfig = new DisruptorConfig
                            (parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
@@ -72,6 +73,8 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else if (!Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
                 int executorWorkerPoolSize = Integer.parseInt(parameters.get(Constants.EXECUTOR_WORKER_POOL_SIZE));
+                log.debug("Disruptor is disabled and using executor thread pool with size of " +
+                          executorWorkerPoolSize);
                 if (executorWorkerPoolSize > 0) {
                     listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
                 } else {
@@ -92,7 +95,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     @Override
     public void initChannel(Object ch) {
         if (log.isDebugEnabled()) {
-            log.info("Initializing source channel pipeline");
+            log.debug("Initializing source channel pipeline");
         }
         ChannelPipeline p = ((SocketChannel) ch).pipeline();
         p.addLast("decoder", new HttpRequestDecoder());

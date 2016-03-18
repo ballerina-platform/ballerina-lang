@@ -16,6 +16,8 @@
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.util.Map;
@@ -24,6 +26,8 @@ import java.util.Map;
  * A class which represents connection pool specific parameters.
  */
 public class PoolConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(PoolConfiguration.class);
 
 
     private static PoolConfiguration poolConfiguration;
@@ -56,21 +60,28 @@ public class PoolConfiguration {
                             Integer.parseInt(parameters.get(Constants.NUMBER_OF_POOLS)) : 0;
             maxActivePerPool = parameters.get(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL) != null ?
                                Integer.parseInt(parameters.get(Constants
-                                       .MAX_ACTIVE_CONNECTIONS_PER_POOL)) : -1;
+                                                                          .MAX_ACTIVE_CONNECTIONS_PER_POOL)) : -1;
             minIdlePerPool = parameters.get(Constants.MIN_IDLE_CONNECTIONS_PER_POOL) != null ?
                              Integer.parseInt
                                         (parameters.get(Constants.MIN_IDLE_CONNECTIONS_PER_POOL)) : 0;
             maxIdlePerPool = parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL) != null ?
                              Integer.parseInt(parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL)) : 100;
             minEvictableIdleTime = parameters.get(Constants.MIN_EVICTION_IDLE_TIME) != null ?
-                                   Integer.parseInt(parameters.get(Constants
-                                           .MIN_EVICTION_IDLE_TIME)) : 5 * 60 * 1000L;
+                                   Integer.parseInt(parameters.get(Constants.MIN_EVICTION_IDLE_TIME)) : 5 * 60 * 1000L;
             executorServiceThreads = parameters.get(Constants.NO_THREADS_IN_EXECUTOR_SERVICE) != null ?
                                      Integer.parseInt(parameters.get(Constants
-                                             .NO_THREADS_IN_EXECUTOR_SERVICE)) : 20;
+                                                                                .NO_THREADS_IN_EXECUTOR_SERVICE)) : 20;
 
         }
 
+        logger.debug(Constants.NUMBER_OF_POOLS + ": " + numberOfPools);
+        logger.debug(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL + ":" + maxActivePerPool);
+        logger.debug(Constants.MIN_IDLE_CONNECTIONS_PER_POOL + ":" + maxIdlePerPool);
+        logger.debug(Constants.MAX_IDLE_CONNECTIONS_PER_POOL + ":" + maxIdlePerPool);
+        logger.debug(Constants.MIN_EVICTION_IDLE_TIME + ":" + minEvictableIdleTime);
+        logger.debug(Constants.NO_THREADS_IN_EXECUTOR_SERVICE + ":" + executorServiceThreads);
+        logger.debug("Time between Evictions Runs" + ":" + timeBetweenEvictionRuns);
+        logger.debug("Pool exhausted action" + ":" + exhaustedAction);
     }
 
 
