@@ -52,7 +52,6 @@ public class ListenerConfiguration {
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
         defaultConfig = new ListenerConfiguration(DEFAULT_KEY, "0.0.0.0", 8080);
-
         return defaultConfig;
     }
 
@@ -186,7 +185,6 @@ public class ListenerConfiguration {
     }
 
     public void setWorkerThreadPoolSize(int workerThreadPoolSize) {
-
         this.workerThreadPoolSize = workerThreadPoolSize;
     }
 
@@ -202,6 +200,7 @@ public class ListenerConfiguration {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }
+
         return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass);
     }
 
