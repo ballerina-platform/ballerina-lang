@@ -79,7 +79,7 @@ public class DisruptorConfig {
         } else {
             logger.debug("Worker Pool mode is disabled for Disruptor");
         }
-        
+
     }
 
     public int getBufferSize() {
