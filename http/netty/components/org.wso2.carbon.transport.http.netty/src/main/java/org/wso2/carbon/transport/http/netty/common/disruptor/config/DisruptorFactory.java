@@ -50,12 +50,12 @@ public class DisruptorFactory {
         WaitStrategy inboundWaitStrategy = getWaitStrategy(disruptorConfig.getDisruptorWaitStrategy());
         int externalPoolWorkerCount = disruptorConfig.getNoOfThreadsInConsumerWorkerPool();
         for (int i = 0; i < disruptorConfig.getNoDisruptors(); i++) {
-            ExecutorService executorService = null;
+            ExecutorService executorService  = null;
             if (externalPoolWorkerCount > 0) {
-                executorService = Executors.newFixedThreadPool(disruptorConfig.getNoOfThreadsInConsumerWorkerPool());
+              executorService = Executors.newFixedThreadPool(disruptorConfig.getNoOfThreadsInConsumerWorkerPool());
             } else {
-                executorService =
-                           Executors.newFixedThreadPool(disruptorConfig.getNoOfEventHandlersPerDisruptor());
+             executorService =
+                        Executors.newFixedThreadPool(disruptorConfig.getNoOfEventHandlersPerDisruptor());
             }
             Disruptor disruptor = new Disruptor<>(CarbonDisruptorEvent.EVENT_FACTORY, disruptorConfig.getBufferSize(),
                                                   executorService,

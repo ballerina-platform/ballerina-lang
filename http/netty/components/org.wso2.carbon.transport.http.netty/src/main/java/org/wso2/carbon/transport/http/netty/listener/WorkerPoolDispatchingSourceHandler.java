@@ -70,8 +70,12 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                              listenerConfiguration.getEnableDisruptor());
             cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL_SIZE,
                              listenerConfiguration.getExecHandlerThreadPoolSize());
+
+
             CarbonCallback carbonCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
             ExecutorService executorService = listenerConfiguration.getExecutorService();
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL,
+                             executorService);
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {

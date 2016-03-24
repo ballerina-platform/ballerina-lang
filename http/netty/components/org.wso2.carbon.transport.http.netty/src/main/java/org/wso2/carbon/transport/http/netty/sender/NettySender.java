@@ -77,15 +77,15 @@ public class NettySender implements TransportSender {
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
         String enableDisruptor = (String) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
                                                                      IS_DISRUPTOR_ENABLE);
-    int executorWorkerPool = (Integer) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
-                                                                        EXECUTOR_WORKER_POOL_SIZE);
+
         if (ringBuffer == null && Boolean.parseBoolean(enableDisruptor)) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
                        getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
         } else if (!Boolean.parseBoolean(enableDisruptor)) {
+            int executorWorkerPool = (Integer) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
+                                                                          EXECUTOR_WORKER_POOL_SIZE);
             senderConfiguration.setDisruptorOn(false);
-            senderConfiguration.setNettyHandlerWorkerPool(executorWorkerPool);
         }
 
 
