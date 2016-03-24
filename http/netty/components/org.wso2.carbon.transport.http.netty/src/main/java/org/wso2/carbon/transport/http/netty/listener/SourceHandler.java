@@ -79,7 +79,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
 
             cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
-
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
+                             "true");
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }

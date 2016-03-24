@@ -37,11 +37,9 @@ import java.util.concurrent.ExecutorService;
  */
 public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
-    private SenderConfiguration senderConfiguration;
 
     public WorkerPoolDispatchingTargetHandler(int timeoutSeconds, SenderConfiguration senderConfiguration) {
         super(timeoutSeconds);
-        this.senderConfiguration = senderConfiguration;
     }
 
     @Override
@@ -61,7 +59,8 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
             if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
                 || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
-                ExecutorService executorService = senderConfiguration.getNettyHandlerExecutorService();
+                ExecutorService executorService = (ExecutorService) incomingMsg.getProperty(
+                           org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
                 executorService.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -83,7 +82,8 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
                         && cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
                         cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
                                               String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
-                        ExecutorService executorService = senderConfiguration.getNettyHandlerExecutorService();
+                        ExecutorService executorService = (ExecutorService) incomingMsg.getProperty(
+                                   org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
                         executorService.execute(new Runnable() {
                             @Override
                             public void run() {

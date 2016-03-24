@@ -107,6 +107,8 @@ public final class Constants {
     public static final String IS_DISRUPTOR_ENABLE = "enable.disruptor";
     public static final String EXECUTOR_WORKER_POOL_SIZE = "executor.workerpool.size";
 
+    public static final String EXECUTOR_WORKER_POOL = "executor.workerpool";
+
 
     private Constants() {
     }
