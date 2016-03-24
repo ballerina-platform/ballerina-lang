@@ -76,16 +76,25 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
             ExecutorService executorService = listenerConfiguration.getExecutorService();
             cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL,
                              executorService);
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
-                    } catch (Exception e) {
-                        log.error("Error occured inside messaging engine", e);
+
+            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
+                        CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
+                        responseCallback.done(carbonMessage);
+                    });
+            if (continueRequest) {
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            NettyTransportContextHolder.getInstance().getMessageProcessor()
+                                    .receive(cMsg, carbonCallback);
+                        } catch (Exception e) {
+                            log.error("Error occured inside messaging engine", e);
+                        }
                     }
-                }
-            });
+                });
+            }
 
         } else {
             if (cMsg != null) {
