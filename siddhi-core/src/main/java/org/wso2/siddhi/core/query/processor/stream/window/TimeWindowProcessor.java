@@ -87,38 +87,41 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         synchronized (this) {
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-            while (streamEventChunk.hasNext()) {
 
+            boolean expiryProcessed = false;
+
+            while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
 
-                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                clonedEvent.setType(StreamEvent.Type.EXPIRED);
-
-                while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = expiredEventChunk.next();
-                    long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
-                    if (timeDiff <= 0) {
-                        expiredEventChunk.remove();
-                        expiredEvent.setTimestamp(currentTime);
-                        streamEventChunk.insertBeforeCurrent(expiredEvent);
-                    } else {
-                        scheduler.notifyAt(expiredEvent.getTimestamp() + timeInMilliSeconds);
-                        expiredEventChunk.reset();
-                        break;
+                if (!expiryProcessed) {
+                    while (expiredEventChunk.hasNext()) {
+                        StreamEvent expiredEvent = expiredEventChunk.next();
+                        long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
+                        if (timeDiff <= 0) {
+                            expiredEventChunk.remove();
+                            expiredEvent.setTimestamp(currentTime);
+                            streamEventChunk.insertBeforeCurrent(expiredEvent);
+                        } else {
+                            break;
+                        }
                     }
+                    expiredEventChunk.reset();
+                    expiryProcessed = true;
                 }
 
                 if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
+
+                    StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                    clonedEvent.setType(StreamEvent.Type.EXPIRED);
                     this.expiredEventChunk.add(clonedEvent);
 
                     if (lastTimestamp < clonedEvent.getTimestamp()) {
                         scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
+                        lastTimestamp = clonedEvent.getTimestamp();
                     }
-                    scheduler.notifyAt(clonedEvent.getTimestamp());
-                    lastTimestamp = clonedEvent.getTimestamp();
                 }
-                expiredEventChunk.reset();
             }
+            expiredEventChunk.reset();
         }
         nextProcessor.process(streamEventChunk);
     }

@@ -150,13 +150,11 @@ public class Scheduler implements Snapshotable {
                 if (latencyTracker != null) {
                     try {
                         latencyTracker.markIn();
-                        System.out.println("Sh1:"+streamEventChunk);
                         singleThreadEntryValve.process(streamEventChunk);
                     } finally {
                         latencyTracker.markOut();
                     }
                 } else {
-                    System.out.println("Sh2:"+streamEventChunk);
                     singleThreadEntryValve.process(streamEventChunk);
                 }
                 streamEventChunk.clear();

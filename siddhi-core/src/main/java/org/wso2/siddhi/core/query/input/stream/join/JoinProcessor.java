@@ -62,7 +62,6 @@ public class JoinProcessor implements Processor {
             StreamEvent nextEvent = (StreamEvent) complexEventChunk.getFirst();
             complexEventChunk.clear();
             while (nextEvent != null) {
-                System.out.println("pre:"+preJoinProcessor+" E:"+nextEvent);
                 StreamEvent streamEvent = nextEvent;
                 nextEvent = streamEvent.getNext();
                 if (streamEvent.getType() == ComplexEvent.Type.TIMER) {
