@@ -4297,10 +4297,10 @@ public class FilterTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("RequestStream");
         executionPlanRuntime.start();
 
-//        for (int i = 0; i <= 100; i++) {
-//            EventPublisher eventPublisher = new EventPublisher(inputHandler);
-//            eventPublisher.run();
-//        }
+        for (int i = 0; i <= 100; i++) {
+            EventPublisher eventPublisher = new EventPublisher(inputHandler);
+            eventPublisher.run();
+        }
         //executionPlanRuntime.shutdown();
     }
 
