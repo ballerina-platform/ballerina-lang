@@ -33,6 +33,14 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
     protected E lastReturned;
     protected E last;
 
+    public ComplexEventChunk() {
+    }
+
+    public ComplexEventChunk(E first, E last) {
+        this.first = first;
+        this.last = last;
+    }
+
     public void insertBeforeCurrent(E events) {
 
         if (lastReturned == null) {

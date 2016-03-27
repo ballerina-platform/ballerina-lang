@@ -23,7 +23,8 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -36,7 +37,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     protected String streamId;
     protected Processor next;
-    private ConversionStreamEventChunk streamEventChunk;
+    private StreamEventConverter streamEventConverter;
     private MetaStreamEvent metaStreamEvent;
     private StreamEventPool streamEventPool;
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
@@ -57,7 +58,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         return new ProcessStreamReceiver(streamId + key, latencyTracker);
     }
 
-    private void process() {
+    private void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
         if (latencyTracker != null) {
             try {
                 latencyTracker.markIn();
@@ -71,39 +72,60 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(ComplexEvent complexEvent) {// todo fix
-        streamEventChunk.convertAndAssign(complexEvent);
-        process();
+    public void receive(ComplexEvent complexEvent) {
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        process(new ComplexEventChunk<StreamEvent>(borrowedEvent, convertAllStreamEvents(complexEvent,borrowedEvent)));
+    }
+
+    private StreamEvent convertAllStreamEvents(ComplexEvent complexEvents, StreamEvent firstEvent) {
+        streamEventConverter.convertStreamEvent(complexEvents, firstEvent);
+        StreamEvent currentEvent = firstEvent;
+        complexEvents = complexEvents.getNext();
+        while (complexEvents != null) {
+            StreamEvent nextEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertStreamEvent(complexEvents, nextEvent);
+            currentEvent.setNext(nextEvent);
+            currentEvent = nextEvent;
+            complexEvents = complexEvents.getNext();
+        }
+        return currentEvent;
     }
 
     @Override
     public void receive(Event event) {
-        streamEventChunk.convertAndAssign(event);
-//       StreamEvent streamEvent= streamEventChunk.getFirst();
-//        streamEventChunk.clear();
-        process();
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        streamEventConverter.convertEvent(event, borrowedEvent);
+        process(new ComplexEventChunk<StreamEvent>(borrowedEvent,borrowedEvent));
     }
 
     @Override
     public void receive(Event[] events) {
-        streamEventChunk.convertAndAssign(events);
-        process();
+        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        streamEventConverter.convertEvent(events[0], firstEvent);
+        StreamEvent currentEvent = firstEvent;
+        for (int i = 1, eventsLength = events.length; i < eventsLength; i++) {
+            StreamEvent nextEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertEvent(events[i], nextEvent);
+            currentEvent.setNext(nextEvent);
+            currentEvent = nextEvent;
+        }
+        process(new ComplexEventChunk<StreamEvent>(firstEvent,currentEvent));
     }
 
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        streamEventChunk.convertAndAdd(event);
-        if (endOfBatch) {
-            process();
-        }
+//        streamEventChunk.convertAndAdd(event);
+//        if (endOfBatch) {
+//            process(complexEventChunk);
+//        }
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        streamEventChunk.convertAndAssign(timeStamp, data);
-        process();
-
+        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        streamEventConverter.convertData(timeStamp, data, borrowedEvent);
+        process(new ComplexEventChunk<StreamEvent>(borrowedEvent,borrowedEvent));
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
@@ -131,7 +153,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public void init() {
-        streamEventChunk = new ConversionStreamEventChunk(metaStreamEvent, streamEventPool);
+        streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
+//        streamEventChunk = new ConversionStreamEventChunk(metaStreamEvent, streamEventPool);
     }
 
     public void addStatefulProcessor(PreStateProcessor stateProcessor) {
