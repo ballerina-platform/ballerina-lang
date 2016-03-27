@@ -86,7 +86,7 @@ public class ExternalTimeBatchWindowTestCase {
     // for test findable
     @Test
     public void test04ExternalJoin() {
-        // TODOs
+        // TODO
     }
 
     @Test

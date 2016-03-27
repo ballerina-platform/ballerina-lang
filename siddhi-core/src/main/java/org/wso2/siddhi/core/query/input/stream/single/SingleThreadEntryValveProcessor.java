@@ -52,10 +52,10 @@ public class SingleThreadEntryValveProcessor implements Processor, Schedulable {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         try {
-            lock.lock();
+//            lock.lock();
             next.process(complexEventChunk);
         } finally {
-            lock.unlock();
+//            lock.unlock();
         }
     }
 

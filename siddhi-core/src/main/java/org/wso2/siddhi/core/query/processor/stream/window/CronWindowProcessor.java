@@ -48,11 +48,13 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
-            StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            currentEventChunk.add(clonedStreamEvent);
-            streamEventChunk.remove();
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = streamEventChunk.next();
+                StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                currentEventChunk.add(clonedStreamEvent);
+                streamEventChunk.remove();
+            }
         }
     }
 
@@ -119,30 +121,32 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
     public void dispatchEvents() {
 
         ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>();
+        synchronized (this) {
+            if (currentEventChunk.getFirst() != null) {
+                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = expiredEventChunk.next();
+                    expiredEvent.setTimestamp(currentTime);
+                }
+                if (expiredEventChunk.getFirst() != null) {
+                    streamEventChunk.add(expiredEventChunk.getFirst());
+                }
+                expiredEventChunk.clear();
+                while (currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = currentEventChunk.next();
+                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+                    toExpireEvent.setType(StreamEvent.Type.EXPIRED);
+                    expiredEventChunk.add(toExpireEvent);
+                }
 
-        if (currentEventChunk.getFirst() != null) {
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = expiredEventChunk.next();
-                expiredEvent.setTimestamp(currentTime);
-            }
-            if (expiredEventChunk.getFirst() != null) {
-                streamEventChunk.add(expiredEventChunk.getFirst());
-            }
-            expiredEventChunk.clear();
-            while (currentEventChunk.hasNext()) {
-                StreamEvent currentEvent = currentEventChunk.next();
-                StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
-                toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                expiredEventChunk.add(toExpireEvent);
-            }
+                streamEventChunk.add(currentEventChunk.getFirst());
+                currentEventChunk.clear();
 
-            streamEventChunk.add(currentEventChunk.getFirst());
-            currentEventChunk.clear();
-            nextProcessor.process(streamEventChunk);
-
+            }
         }
-
+        if (streamEventChunk.getFirst() != null) {
+            nextProcessor.process(streamEventChunk);
+        }
     }
 
     @Override

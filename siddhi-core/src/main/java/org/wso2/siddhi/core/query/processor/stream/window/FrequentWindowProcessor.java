@@ -59,62 +59,59 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        synchronized (this) {
+            StreamEvent streamEvent = streamEventChunk.getFirst();
+            streamEventChunk.clear();
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            while (streamEvent != null) {
+                StreamEvent next = streamEvent.getNext();
+                streamEvent.setNext(null);
 
-        StreamEvent streamEvent = streamEventChunk.getFirst();
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-        while (streamEvent != null) {
-            StreamEvent next = streamEvent.getNext();
-            streamEvent.setNext(null);
+                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
-
-            String key = generateKey(streamEvent);
-            StreamEvent oldEvent = map.put(key, clonedEvent);
-            if (oldEvent != null) {
-                countMap.put(key, countMap.get(key) + 1);
-                complexEventChunk.add(streamEvent);
-            } else {
-                //  This is a new event
-                if (map.size() > mostFrequentCount) {
-                    List<String> keys = new ArrayList<String>(countMap.keySet());
-                    for (int i = 0; i < mostFrequentCount; i++) {
-                        int count = countMap.get(keys.get(i)) - 1;
-                        if (count == 0) {
-                            countMap.remove(keys.get(i));
-                            StreamEvent expiredEvent = map.remove(keys.get(i));
-                            expiredEvent.setTimestamp(currentTime);
-                            complexEventChunk.add(expiredEvent);
-                        } else {
-                            countMap.put(keys.get(i), count);
-                        }
-                    }
-                    // now we have tried to remove one for newly added item
-                    if (map.size() > mostFrequentCount) {
-                        //nothing happend by the attempt to remove one from the
-                        // map so we are ignoring this event
-                        map.remove(key);
-                        // Here we do nothing just drop the message
-                    } else {
-                        // we got some space, event is already there in map object
-                        // we just have to add it to the countMap
-                        countMap.put(key, 1);
-                        complexEventChunk.add(streamEvent);
-                    }
-
+                String key = generateKey(streamEvent);
+                StreamEvent oldEvent = map.put(key, clonedEvent);
+                if (oldEvent != null) {
+                    countMap.put(key, countMap.get(key) + 1);
+                    streamEventChunk.add(streamEvent);
                 } else {
-                    countMap.put(generateKey(streamEvent), 1);
-                    complexEventChunk.add(streamEvent);
+                    //  This is a new event
+                    if (map.size() > mostFrequentCount) {
+                        List<String> keys = new ArrayList<String>(countMap.keySet());
+                        for (int i = 0; i < mostFrequentCount; i++) {
+                            int count = countMap.get(keys.get(i)) - 1;
+                            if (count == 0) {
+                                countMap.remove(keys.get(i));
+                                StreamEvent expiredEvent = map.remove(keys.get(i));
+                                expiredEvent.setTimestamp(currentTime);
+                                streamEventChunk.add(expiredEvent);
+                            } else {
+                                countMap.put(keys.get(i), count);
+                            }
+                        }
+                        // now we have tried to remove one for newly added item
+                        if (map.size() > mostFrequentCount) {
+                            //nothing happend by the attempt to remove one from the
+                            // map so we are ignoring this event
+                            map.remove(key);
+                            // Here we do nothing just drop the message
+                        } else {
+                            // we got some space, event is already there in map object
+                            // we just have to add it to the countMap
+                            countMap.put(key, 1);
+                            streamEventChunk.add(streamEvent);
+                        }
+                    } else {
+                        countMap.put(generateKey(streamEvent), 1);
+                        streamEventChunk.add(streamEvent);
+                    }
                 }
-
+                streamEvent = next;
             }
-
-            streamEvent = next;
         }
-        nextProcessor.process(complexEventChunk);
-
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override

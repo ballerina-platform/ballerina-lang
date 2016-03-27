@@ -63,26 +63,28 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
      * @param streamEventCloner helps to clone the incoming event for local storage or modification
      */
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        synchronized (this) {
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-        StreamEvent streamEvent = streamEventChunk.getFirst();
-        while (streamEvent != null) {
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
+            StreamEvent streamEvent = streamEventChunk.getFirst();
+            streamEventChunk.clear();
+            while (streamEvent != null) {
+                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            StreamEvent oldEvent = map.put(generateKey(clonedEvent), clonedEvent);
-            if (oldEvent != null) {
-                oldEvent.setTimestamp(currentTime);
-                complexEventChunk.add(oldEvent);
+                StreamEvent oldEvent = map.put(generateKey(clonedEvent), clonedEvent);
+                if (oldEvent != null) {
+                    oldEvent.setTimestamp(currentTime);
+                    streamEventChunk.add(oldEvent);
+                }
+                StreamEvent next = streamEvent.getNext();
+                streamEvent.setNext(null);
+                streamEventChunk.add(streamEvent);
+                streamEvent = next;
             }
-            StreamEvent next = streamEvent.getNext();
-            streamEvent.setNext(null);
-            complexEventChunk.add(streamEvent);
-            streamEvent = next;
         }
-        nextProcessor.process(complexEventChunk);
+        nextProcessor.process(streamEventChunk);
     }
 
     /**
@@ -147,7 +149,7 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
      * matchingEvent and the given matching expression logic.
      *
      * @param expression                  the matching expression
-     * @param matchingMetaComplexEvent            the meta structure of the incoming matchingEvent
+     * @param matchingMetaComplexEvent    the meta structure of the incoming matchingEvent
      * @param executionPlanContext        current execution plan context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
      * @param eventTableMap               map of event tables

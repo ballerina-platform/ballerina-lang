@@ -36,8 +36,6 @@ public class JoinProcessor implements Processor {
     private boolean leftJoinProcessor = false;
     private boolean preJoinProcessor = false;
     private boolean outerJoinProcessor = false;
-    private ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
-    private ComplexEventChunk currentEventChunk = new ComplexEventChunk();
 
     private StateEventPool stateEventPool;
     private Finder finder;
@@ -60,17 +58,18 @@ public class JoinProcessor implements Processor {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         if (trigger) {
-            currentEventChunk.clear();
-            returnEventChunk.clear();
-            complexEventChunk.reset();
-            while (complexEventChunk.hasNext()) {
-                StreamEvent streamEvent = (StreamEvent) complexEventChunk.next();
-                complexEventChunk.remove();
+            ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
+            StreamEvent nextEvent = (StreamEvent) complexEventChunk.getFirst();
+            complexEventChunk.clear();
+            while (nextEvent != null) {
+                System.out.println("pre:"+preJoinProcessor+" E:"+nextEvent);
+                StreamEvent streamEvent = nextEvent;
+                nextEvent = streamEvent.getNext();
                 if (streamEvent.getType() == ComplexEvent.Type.TIMER) {
                     if (preJoinProcessor) {
-                        currentEventChunk.add(streamEvent);
-                        nextProcessor.process(currentEventChunk);
-                        currentEventChunk.clear();
+                        complexEventChunk.add(streamEvent);
+                        nextProcessor.process(complexEventChunk);
+                        complexEventChunk.clear();
                     }
                     continue;
                 } else if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
@@ -101,12 +100,12 @@ public class JoinProcessor implements Processor {
                 }
                 if (returnEventChunk.getFirst() != null) {
                     selector.process(returnEventChunk);
+                    returnEventChunk.clear();
                 }
-                returnEventChunk.clear();
                 if (preJoinProcessor) {
-                    currentEventChunk.add(streamEvent);
-                    nextProcessor.process(currentEventChunk);
-                    currentEventChunk.clear();
+                    complexEventChunk.add(streamEvent);
+                    nextProcessor.process(complexEventChunk);
+                    complexEventChunk.clear();
                 }
             }
         } else {

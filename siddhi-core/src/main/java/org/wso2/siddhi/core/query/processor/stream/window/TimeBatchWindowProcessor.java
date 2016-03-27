@@ -86,52 +86,55 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-        boolean sendEvents;
-        if (currentTime >= lastSentTime + timeInMilliSeconds) {
-            lastSentTime = currentTime;
-            if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        synchronized (this) {
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            boolean sendEvents;
+            if (currentTime >= lastSentTime + timeInMilliSeconds) {
+                lastSentTime = currentTime;
+                if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
+                    scheduler.notifyAt(lastSentTime + timeInMilliSeconds);
+                }
+                sendEvents = true;
+            } else {
                 scheduler.notifyAt(lastSentTime + timeInMilliSeconds);
+                sendEvents = false;
             }
-            sendEvents = true;
-        } else {
-            scheduler.notifyAt(lastSentTime + timeInMilliSeconds);
-            sendEvents = false;
-        }
 
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
-            if (streamEvent.getType() != ComplexEvent.Type.CURRENT) {
-                continue;
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = streamEventChunk.next();
+                if (streamEvent.getType() != ComplexEvent.Type.CURRENT) {
+                    continue;
+                }
+                StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                currentEventChunk.add(clonedStreamEvent);
             }
-            StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            currentEventChunk.add(clonedStreamEvent);
+            streamEventChunk.clear();
+            if (sendEvents) {
+                currentEventChunk.reset();
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = expiredEventChunk.next();
+                    expiredEvent.setTimestamp(currentTime);
+                }
+                if (expiredEventChunk.getFirst() != null) {
+                    streamEventChunk.add(expiredEventChunk.getFirst());
+                }
+                expiredEventChunk.clear();
+                while (currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = currentEventChunk.next();
+                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+                    toExpireEvent.setType(StreamEvent.Type.EXPIRED);
+                    expiredEventChunk.add(toExpireEvent);
+                }
+                if (currentEventChunk.getFirst() != null) {
+                    streamEventChunk.add(currentEventChunk.getFirst());
+                }
+                currentEventChunk.clear();
+
+            }
         }
-        if (sendEvents) {
-            currentEventChunk.reset();
-            ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = expiredEventChunk.next();
-                expiredEvent.setTimestamp(currentTime);
-            }
-            if (expiredEventChunk.getFirst() != null) {
-                newEventChunk.add(expiredEventChunk.getFirst());
-            }
-            expiredEventChunk.clear();
-            while (currentEventChunk.hasNext()) {
-                StreamEvent currentEvent = currentEventChunk.next();
-                StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
-                toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                expiredEventChunk.add(toExpireEvent);
-            }
-            if (currentEventChunk.getFirst() != null) {
-                newEventChunk.add(currentEventChunk.getFirst());
-            }
-            currentEventChunk.clear();
-            if (newEventChunk.getFirst() != null) {
-                nextProcessor.process(newEventChunk);
-            }
+        if (streamEventChunk.getFirst() != null) {
+            nextProcessor.process(streamEventChunk);
         }
     }
 

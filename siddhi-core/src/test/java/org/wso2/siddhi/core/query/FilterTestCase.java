@@ -4246,24 +4246,27 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 //        siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
-
-        String cseEventStream = " define stream RequestStream (messageID string, app_key string, api_key string, app_tier string, api_tier string, user_id string, properties string, timeNow long); " +
-                " define stream EligibilityStream (rule string, messageID string, isEligible bool, isLocallyThrottled bool, throttle_key string , timeNow long); ";
+        String cseEventStream = " " +
+                "define stream RequestStream (messageID string, app_key string, api_key string, app_tier string, api_tier string, user_id string, properties string, timeNow long); " +
+                "define stream EligibilityStream (rule string, messageID string, isEligible bool, isLocallyThrottled bool, throttle_key string , timeNow long); ";
 
         String query = "" +
                 "@info(name = 'query1') " +
                 "FROM RequestStream " +
                 "SELECT 'sub_gold' AS rule, messageID, ( api_tier == 'Gold') AS isEligible,false as isLocallyThrottled,  'sub_gold_TEST1TEST1Test1_key' AS throttle_key , timeNow \n" +
                 "INSERT INTO EligibilityStream; " +
-                "@info(name = 'query2') FROM EligibilityStream[isEligible==false]\n" +
+                "@info(name = 'query2') " +
+                "FROM EligibilityStream[isEligible==false]\n" +
                 "\t\tSELECT rule, messageID, false AS isThrottled , timeNow\n" +
                 "\t\tINSERT INTO ThrottleStream;\n" +
                 "\n" +
-                " @info(name = 'query3') FROM EligibilityStream[isEligible==true AND isLocallyThrottled==true]\n" +
+                "@info(name = 'query3') " +
+                "FROM EligibilityStream[isEligible==true AND isLocallyThrottled==true]\n" +
                 "\t\tSELECT rule, messageID, true AS isThrottled , timeNow \n" +
                 "\t\tINSERT INTO ThrottleStream; \n" +
                 "\n" +
-                "@info(name = 'query4') FROM EligibilityStream[isEligible==true AND isLocallyThrottled==false]\n" +
+                "@info(name = 'query4') " +
+                "FROM EligibilityStream[isEligible==true AND isLocallyThrottled==false]\n" +
                 "\t\tSELECT rule, messageID, false AS isThrottled, timeNow \n" +
                 "\t\tINSERT INTO ThrottleStream;  ";
 
@@ -4289,20 +4292,16 @@ public class FilterTestCase {
                         }
                     }
                 }
-
         );
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("RequestStream");
         executionPlanRuntime.start();
 
-
-        for (int i = 0; i <= 100; i++) {
-            EventPublisher eventPublisher = new EventPublisher(inputHandler);
-            eventPublisher.run();
-        }
-
+//        for (int i = 0; i <= 100; i++) {
+//            EventPublisher eventPublisher = new EventPublisher(inputHandler);
+//            eventPublisher.run();
+//        }
         //executionPlanRuntime.shutdown();
-
     }
 
 

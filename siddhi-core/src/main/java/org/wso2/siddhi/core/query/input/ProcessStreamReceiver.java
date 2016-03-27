@@ -72,12 +72,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(ComplexEvent complexEvent) {
-        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        process(new ComplexEventChunk<StreamEvent>(borrowedEvent, convertAllStreamEvents(complexEvent,borrowedEvent)));
-    }
-
-    private StreamEvent convertAllStreamEvents(ComplexEvent complexEvents, StreamEvent firstEvent) {
+    public void receive(ComplexEvent complexEvents) {
+        StreamEvent firstEvent = streamEventPool.borrowEvent();
         streamEventConverter.convertStreamEvent(complexEvents, firstEvent);
         StreamEvent currentEvent = firstEvent;
         complexEvents = complexEvents.getNext();
@@ -88,7 +84,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
             currentEvent = nextEvent;
             complexEvents = complexEvents.getNext();
         }
-        return currentEvent;
+        process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent));
     }
 
     @Override
