@@ -43,8 +43,6 @@ public abstract class QueryCallback {
 
     private ExecutionPlanContext executionPlanContext;
     private Query query;
-    private List<Event> currentEventBuffer = new ArrayList<Event>();
-    private List<Event> expiredEventBuffer = new ArrayList<Event>();
 
     private Disruptor<EventHolder> disruptor;
     private RingBuffer<EventHolder> ringBuffer;
@@ -63,6 +61,9 @@ public abstract class QueryCallback {
         Event[] currentEvents = null;
         Event[] expiredEvents = null;
         long timeStamp = -1;
+         List<Event> currentEventBuffer = new ArrayList<Event>();
+         List<Event> expiredEventBuffer = new ArrayList<Event>();
+
 
         while (complexEventChunk.hasNext()) {
             ComplexEvent streamEvent = complexEventChunk.next();

@@ -44,12 +44,12 @@ public class SingleThreadEntryValve implements InputProcessor {
 
     @Override
     public void send(Event event, int streamIndex) {
-        lock.lock();
-        try {
+//        lock.lock();
+//        try {
             inputProcessor.send(event, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+//        } finally {
+//            lock.unlock();
+//        }
     }
 
     @Override

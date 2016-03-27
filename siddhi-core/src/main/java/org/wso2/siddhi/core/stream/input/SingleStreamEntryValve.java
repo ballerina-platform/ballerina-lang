@@ -72,20 +72,21 @@ public class SingleStreamEntryValve implements InputProcessor {
 
     @Override
     public void send(Event event, int streamIndex) {
-        try {
-            long sequenceNo = ringBuffer.next();
-            try {
-                IndexedEventFactory.IndexedEvent existingEvent = ringBuffer.get(sequenceNo);
-                existingEvent.setEvent(event);
-                existingEvent.setStreamIndex(streamIndex);
-            } finally {
-                eventSizeInDisruptor.incrementAndGet();
-                ringBuffer.publish(sequenceNo);    //Todo fix this for array of events
-            }
-        } catch (NullPointerException e) {
-            throw new ExecutionPlanRuntimeException("Execution Plan:" + executionPlanContext.getName() + " not " +
-                    "initialised yet! Run executionPlanRuntime.start();", e);
-        }
+        inputProcessor.send(event, streamIndex);
+//        try {
+//            long sequenceNo = ringBuffer.next();
+//            try {
+//                IndexedEventFactory.IndexedEvent existingEvent = ringBuffer.get(sequenceNo);
+//                existingEvent.setEvent(event);
+//                existingEvent.setStreamIndex(streamIndex);
+//            } finally {
+//                eventSizeInDisruptor.incrementAndGet();
+//                ringBuffer.publish(sequenceNo);    //Todo fix this for array of events
+//            }
+//        } catch (NullPointerException e) {
+//            throw new ExecutionPlanRuntimeException("Execution Plan:" + executionPlanContext.getName() + " not " +
+//                    "initialised yet! Run executionPlanRuntime.start();", e);
+//        }
 
     }
 
@@ -111,11 +112,11 @@ public class SingleStreamEntryValve implements InputProcessor {
     public synchronized void startProcessing() {
         singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
         singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
-        ringBuffer = singleEntryDisruptor.start();
+//        ringBuffer = singleEntryDisruptor.start();
     }
 
     public synchronized void stopProcessing() {
-        singleEntryDisruptor.shutdown();
+//        singleEntryDisruptor.shutdown();
     }
 
     public class SingleEntryValveHandler implements EventHandler<IndexedEventFactory.IndexedEvent> {

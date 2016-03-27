@@ -71,7 +71,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(ComplexEvent complexEvent) {
+    public void receive(ComplexEvent complexEvent) {// todo fix
         streamEventChunk.convertAndAssign(complexEvent);
         process();
     }
@@ -79,6 +79,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     @Override
     public void receive(Event event) {
         streamEventChunk.convertAndAssign(event);
+//       StreamEvent streamEvent= streamEventChunk.getFirst();
+//        streamEventChunk.clear();
         process();
     }
 
