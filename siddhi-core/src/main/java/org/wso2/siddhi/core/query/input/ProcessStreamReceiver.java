@@ -89,9 +89,11 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event) {
-        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        streamEventConverter.convertEvent(event, borrowedEvent);
-        process(new ComplexEventChunk<StreamEvent>(borrowedEvent,borrowedEvent));
+        if (event != null) {
+            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+            streamEventConverter.convertEvent(event, borrowedEvent);
+            process(new ComplexEventChunk<StreamEvent>(borrowedEvent,borrowedEvent));
+        }
     }
 
     @Override

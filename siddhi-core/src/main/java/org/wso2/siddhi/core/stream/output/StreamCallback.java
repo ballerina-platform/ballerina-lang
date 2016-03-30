@@ -42,7 +42,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     private String streamId;
     private AbstractDefinition streamDefinition;
-    private List<Event> eventBuffer = new ArrayList<Event>();
+    //private List<Event> eventBuffer = new ArrayList<Event>();
     private ExecutionPlanContext executionPlanContext;
     private AsyncEventHandler asyncEventHandler;
 
@@ -69,7 +69,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     @Override
     public void receive(ComplexEvent complexEvent) {
-
+        List<Event> eventBuffer = new ArrayList<Event>();
         while (complexEvent != null) {
             eventBuffer.add(new Event(complexEvent.getOutputData().length).copyFrom(complexEvent));
             complexEvent = complexEvent.getNext();
@@ -93,6 +93,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
+        List<Event> eventBuffer = new ArrayList<Event>();
         eventBuffer.add(event);
         if (endOfBatch) {
             receiveSync(eventBuffer.toArray(new Event[eventBuffer.size()]));

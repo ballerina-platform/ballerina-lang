@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.stream.input;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
@@ -44,7 +45,7 @@ public class SingleStreamEntryValve implements InputProcessor {
     private RingBuffer<IndexedEventFactory.IndexedEvent> ringBuffer;
     private ExecutionPlanContext executionPlanContext;
     private InputProcessor inputProcessor;
-    private AtomicLong eventSizeInDisruptor = new AtomicLong(0l);
+    private AtomicLong eventSizeInDisruptor = new AtomicLong(0l); //todo why??
     private long count;
 
     static final Logger log = Logger.getLogger(SingleStreamEntryValve.class);
