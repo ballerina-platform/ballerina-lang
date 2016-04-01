@@ -42,7 +42,6 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     private String streamId;
     private AbstractDefinition streamDefinition;
-    //private List<Event> eventBuffer = new ArrayList<Event>();
     private ExecutionPlanContext executionPlanContext;
     private AsyncEventHandler asyncEventHandler;
 
@@ -69,7 +68,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     @Override
     public void receive(ComplexEvent complexEvent) {
-        List<Event> eventBuffer = new ArrayList<Event>();
+         List<Event> eventBuffer = new ArrayList<Event>();
         while (complexEvent != null) {
             eventBuffer.add(new Event(complexEvent.getOutputData().length).copyFrom(complexEvent));
             complexEvent = complexEvent.getNext();
@@ -93,7 +92,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        List<Event> eventBuffer = new ArrayList<Event>();
+         List<Event> eventBuffer = new ArrayList<Event>();
         eventBuffer.add(event);
         if (endOfBatch) {
             receiveSync(eventBuffer.toArray(new Event[eventBuffer.size()]));
@@ -131,43 +130,43 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     public synchronized void startProcessing() {
         Boolean asyncEnabled = null;
-        if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
-            for (Constructor constructor : Disruptor.class.getConstructors()) {
-                if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
-                    disruptor = new Disruptor<EventHolder>(new EventFactory<EventHolder>() {
-                        @Override
-                        public EventHolder newInstance() {
-                            return new EventHolder();
-                        }
-                    },
-                            executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                            executionPlanContext.getExecutorService(), ProducerType.SINGLE,
-                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
-                    break;
-                }
-            }
-            if (disruptor == null) {
-                disruptor = new Disruptor<EventHolder>(new EventFactory<EventHolder>() {
-                    @Override
-                    public EventHolder newInstance() {
-                        return new EventHolder();
-                    }
-                },
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                        executionPlanContext.getExecutorService());
-            }
-            disruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
-            asyncEventHandler = new AsyncEventHandler(this);
-            disruptor.handleEventsWith(asyncEventHandler);
-            ringBuffer = disruptor.start();
-        }
+//        if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
+//            for (Constructor constructor : Disruptor.class.getConstructors()) {
+//                if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
+//                    disruptor = new Disruptor<EventHolder>(new EventFactory<EventHolder>() {
+//                        @Override
+//                        public EventHolder newInstance() {
+//                            return new EventHolder();
+//                        }
+//                    },
+//                            executionPlanContext.getSiddhiContext().getEventBufferSize(),
+//                            executionPlanContext.getExecutorService(), ProducerType.SINGLE,
+//                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
+//                    break;
+//                }
+//            }
+//            if (disruptor == null) {
+//                disruptor = new Disruptor<EventHolder>(new EventFactory<EventHolder>() {
+//                    @Override
+//                    public EventHolder newInstance() {
+//                        return new EventHolder();
+//                    }
+//                },
+//                        executionPlanContext.getSiddhiContext().getEventBufferSize(),
+//                        executionPlanContext.getExecutorService());
+//            }
+//            disruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
+//            asyncEventHandler = new AsyncEventHandler(this);
+//            disruptor.handleEventsWith(asyncEventHandler);
+//            ringBuffer = disruptor.start();
+//        }
     }
 
     public synchronized void stopProcessing() {
-        if (disruptor != null) {
-            asyncEventHandler.streamCallback = null;
-            disruptor.shutdown();
-        }
+//        if (disruptor != null) {
+//            asyncEventHandler.streamCallback = null;
+//            disruptor.shutdown();
+//        }
     }
 
     public class AsyncEventHandler implements EventHandler<EventHolder> {

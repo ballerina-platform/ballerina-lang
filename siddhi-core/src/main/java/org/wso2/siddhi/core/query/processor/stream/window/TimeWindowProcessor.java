@@ -94,6 +94,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                 StreamEvent streamEvent = streamEventChunk.next();
 
                 if (!expiryProcessed) {
+                    expiredEventChunk.reset();
                     while (expiredEventChunk.hasNext()) {
                         StreamEvent expiredEvent = expiredEventChunk.next();
                         long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
@@ -105,7 +106,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                             break;
                         }
                     }
-                    expiredEventChunk.reset();
                     expiryProcessed = true;
                 }
 
