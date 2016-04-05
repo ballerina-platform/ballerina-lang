@@ -37,15 +37,16 @@ public class SelectiveStreamEventConverter implements StreamEventConverter {
     private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
         for (ConversionMapping conversionMapping : conversionMappings) {
             int[] position = conversionMapping.getToPosition();
+            int fromPosition = conversionMapping.getFromPosition();
             switch (position[0]) {
                 case 0:
-                    borrowedEvent.setBeforeWindowData(data[conversionMapping.getFromPosition()], position[1]);
+                    borrowedEvent.setBeforeWindowData(data[fromPosition], position[1]);
                     break;
                 case 1:
-                    borrowedEvent.setOnAfterWindowData(data[conversionMapping.getFromPosition()], position[1]);
+                    borrowedEvent.setOnAfterWindowData(data[fromPosition], position[1]);
                     break;
                 case 2:
-                    borrowedEvent.setOutputData(data[conversionMapping.getFromPosition()], position[1]);
+                    borrowedEvent.setOutputData(data[fromPosition], position[1]);
                     break;
                 default:
                     //can not happen

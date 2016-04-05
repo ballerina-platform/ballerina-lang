@@ -54,7 +54,7 @@ public class SingleStreamEntryValve implements InputProcessor {
         this.executionPlanContext = executionPlanContext;
         this.inputProcessor = inputProcessor;
         this.singleEntryValveHandler = new SingleEntryValveHandler();
-        for (Constructor constructor : Disruptor.class.getConstructors()) {
+        /*for (Constructor constructor : Disruptor.class.getConstructors()) {
             if (constructor.getParameterTypes().length == 5) {      //if new disruptor classes available
                 singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
                         executionPlanContext.getSiddhiContext().getEventBufferSize(),
@@ -68,7 +68,7 @@ public class SingleStreamEntryValve implements InputProcessor {
             singleEntryDisruptor = new Disruptor<IndexedEventFactory.IndexedEvent>(new IndexedEventFactory(),
                     executionPlanContext.getSiddhiContext().getEventBufferSize(),
                     executionPlanContext.getExecutorService());
-        }
+        }*/
     }
 
     @Override
