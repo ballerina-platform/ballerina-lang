@@ -399,7 +399,7 @@ public class InsertOverwriteTableTestCase {
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
                         "define stream UpdateStockStream (comp string, vol long); " +
-                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@from(eventtable = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
                         "@info(name = 'query1') " +
