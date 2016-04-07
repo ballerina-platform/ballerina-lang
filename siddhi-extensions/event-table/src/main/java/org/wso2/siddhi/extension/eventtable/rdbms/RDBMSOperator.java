@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,6 +72,7 @@ public class RDBMSOperator implements Operator {
     @Override
     public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
+        List<Object[]> deletionEventList = new ArrayList<Object[]>();
         while (deletingEventChunk.hasNext()) {
             Object[] obj;
             ComplexEvent deletingEvent = deletingEventChunk.next();
@@ -86,13 +88,19 @@ public class RDBMSOperator implements Operator {
             } else {
                 obj = new Object[]{};
             }
-            dbHandler.deleteEvent(obj, matchingEvent, executionInfo);
+
+            deletionEventList.add(obj);
+        }
+
+        if(deletionEventList.size() > 0){
+            dbHandler.deleteEvent(deletionEventList, executionInfo);
         }
     }
 
     @Override
     public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
         updatingEventChunk.reset();
+        List<Object[]> updateEventList = new ArrayList<Object[]>();
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
             streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
@@ -105,7 +113,11 @@ public class RDBMSOperator implements Operator {
                 obj[count] = value;
                 count++;
             }
-            dbHandler.updateEvent(obj, executionInfo);
+            updateEventList.add(obj);
+        }
+
+        if(updateEventList.size() > 0){
+            dbHandler.updateEvent(updateEventList, executionInfo);
         }
     }
 
