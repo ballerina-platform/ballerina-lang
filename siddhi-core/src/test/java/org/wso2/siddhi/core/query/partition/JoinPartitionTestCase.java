@@ -400,4 +400,50 @@ public class JoinPartitionTestCase {
         executionPlanRuntime.shutdown();
 
     }
+
+    @Test
+    public void testJoinPartition9() throws InterruptedException {
+        log.info("Join partition test9");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+                + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
+                "from cseEventStream#window.length(1) unidirectional join twitterStream#window.length(1) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.user, cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume " +
+                "insert all events into outputStream ;" + "" +
+                "end ";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count.addAndGet(events.length);
+                eventArrived = true;
+            }
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
+
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User2", 100});
+        twitterStreamHandler.send(new Object[]{"User2", "Hello World", "WSO2"});
+
+        twitterStreamHandler.send(new Object[]{"User3", "Hello World", "WSO2"});
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User3", 100});
+
+        SiddhiTestHelper.waitForEvents(100, 2, count, 60000);
+        Assert.assertEquals(2, count.get());
+        executionPlanRuntime.shutdown();
+
+
+    }
 }
