@@ -78,7 +78,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
 
     private E getLastEvent(E complexEvents) {
         E lastEvent = complexEvents;
-        while (lastEvent.getNext() != null) {
+        while (lastEvent != null && lastEvent.getNext() != null) {
             lastEvent = (E) lastEvent.getNext();
         }
         return lastEvent;
