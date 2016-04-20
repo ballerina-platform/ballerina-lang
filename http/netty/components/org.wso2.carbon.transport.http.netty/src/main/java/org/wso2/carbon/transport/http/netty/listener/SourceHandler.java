@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
@@ -84,8 +85,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }
-            //todo executeRequestContinuationValidator
-            disruptor.publishEvent(new CarbonEventPublisher(cMsg));
+            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
+                        CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
+                        responseCallback.done(carbonMessage);
+                    });
+            if (continueRequest) {
+                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
+            }
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
