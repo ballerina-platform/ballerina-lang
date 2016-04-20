@@ -373,6 +373,7 @@ public class SimpleOperator implements Operator {
                 returnEventChunk.add(streamEventCloner.copyStreamEvent(streamEvent));
             }
         }
+        candidateEventChunk.reset();
         return returnEventChunk.getFirst();
     }
 
