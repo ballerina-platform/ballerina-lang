@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.distinct;
+package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 
-public class CountAggregateFunctionTestCase {
-    private static final Logger log = Logger.getLogger(CountAggregateFunctionTestCase.class);
+public class DistinctcountAttributeAggregatorTestCase {
+    private static final Logger log = Logger.getLogger(DistinctcountAttributeAggregatorTestCase.class);
     private volatile int count;
 
     @Before
@@ -47,7 +47,7 @@ public class CountAggregateFunctionTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from inputStream#window.time(5 sec) " +
-                "select userID, pageID, distinct:count(pageID) as distinctPages " +
+                "select userID, pageID, distinctcount(pageID) as distinctPages " +
                 "group by userID " +
                 "having distinctPages > 3 " +
                 "insert into outputStream; ";
