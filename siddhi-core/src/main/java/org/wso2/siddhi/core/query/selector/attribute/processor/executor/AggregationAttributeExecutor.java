@@ -27,7 +27,6 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     public AggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                         ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         super(attributeAggregator, attributeExpressionExecutors, executionPlanContext);
-        attributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);
     }
 
     @Override
