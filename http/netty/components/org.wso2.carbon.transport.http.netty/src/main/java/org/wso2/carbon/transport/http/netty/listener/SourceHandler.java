@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -38,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,8 +82,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
 
             cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
-                             "true");
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, "true");
             if (disruptorConfig.isShared()) {
                 cMsg.setProperty(Constants.DISRUPTOR, disruptor);
             }
@@ -90,18 +91,31 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
-            if (continueRequest) {
+            if (continueRequest && !RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
                 disruptor.publishEvent(new CarbonEventPublisher(cMsg));
             }
+
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
+                        cMsg.setEndOfMsgAdded(true);
+                        if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
+                            if (cMsg.getMessageBodyLength() > RequestSizeValidationConfiguration.getInstance()
+                                    .getRequestMaxSize()) {
+                                CarbonCallback responseCallback = (CarbonCallback) cMsg
+                                        .getProperty(Constants.CALL_BACK);
+                                responseCallback.done(createRejectResponse());
+
+                            } else {
+                                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
+                            }
+                        }
                         NettyTransportContextHolder.getInstance().getHandlerExecutor()
                                 .executeAtSourceRequestSending(cMsg);
-                        cMsg.setEndOfMsgAdded(true);
+
                     }
                 }
             }
@@ -146,7 +160,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         log.error("Exception caught in Netty Source handler", cause);
     }
 
-
     protected CarbonMessage setUPCarbonMessage(Object msg) {
         cMsg = new NettyCarbonMessage();
         NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
@@ -165,6 +178,29 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;
+    }
+
+    private CarbonMessage createRejectResponse() {
+        DefaultCarbonMessage rejectResponse = new DefaultCarbonMessage();
+
+        String rejectMessage = RequestSizeValidationConfiguration.getInstance().getRejectMessage();
+        rejectResponse.setStringMessageBody(rejectMessage);
+        byte[] errorMessageBytes = rejectMessage.getBytes(Charset.defaultCharset());
+
+        Map<String, String> transportHeaders = new HashMap<>();
+        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
+        transportHeaders.put(Constants.HTTP_CONTENT_TYPE,
+                RequestSizeValidationConfiguration.getInstance().getRejectMsgContentType());
+        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
+
+        rejectResponse.setHeaders(transportHeaders);
+
+        rejectResponse.setProperty(Constants.HTTP_STATUS_CODE,
+                RequestSizeValidationConfiguration.getInstance().getStatusCode());
+        rejectResponse.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+        return rejectResponse;
+
     }
 
 }
