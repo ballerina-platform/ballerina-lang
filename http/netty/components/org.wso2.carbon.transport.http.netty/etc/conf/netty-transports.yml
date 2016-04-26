@@ -21,7 +21,7 @@ transportProperties:
   name: "request.size.validation"
   value: true
  -
-  name: "request.size.validation.maxium.value"
+  name: "request.size.validation.maximum.value"
   value: 2048
  -
   name: "request.size.validation.reject.status.code"

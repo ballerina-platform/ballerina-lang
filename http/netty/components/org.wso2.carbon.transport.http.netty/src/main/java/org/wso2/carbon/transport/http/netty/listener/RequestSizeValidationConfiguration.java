@@ -42,7 +42,7 @@ public class RequestSizeValidationConfiguration {
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation")) {
                 requestSizeValidation = (Boolean) transportProperty.getValue();
             }
-            if (transportProperty.getName().equalsIgnoreCase("request.size.validation.maxium.value")) {
+            if (transportProperty.getName().equalsIgnoreCase("request.size.validation.maximum.value")) {
                 requestMaxSize = (Integer) transportProperty.getValue();
             }
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation.reject.status.code")) {
