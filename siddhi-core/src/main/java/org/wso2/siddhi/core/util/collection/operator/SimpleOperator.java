@@ -98,6 +98,8 @@ public class SimpleOperator implements Operator {
             }
             if (candidateEvents instanceof ComplexEventChunk) {
                 return find((ComplexEventChunk) candidateEvents, streamEventCloner);
+            } else if (candidateEvents instanceof Map) {
+                return find(((Map) candidateEvents).values(), streamEventCloner);
             } else if (candidateEvents instanceof Collection) {
                 return find((Collection) candidateEvents, streamEventCloner);
             } else {
