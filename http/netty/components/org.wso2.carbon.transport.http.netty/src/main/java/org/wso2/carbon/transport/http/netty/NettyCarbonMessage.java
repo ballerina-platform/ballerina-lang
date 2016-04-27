@@ -72,11 +72,11 @@ public class NettyCarbonMessage extends CarbonMessage {
 
         while (true) {
             try {
-                HttpContent httpContent = httpContentQueue.take();
-                byteBufferList.add(httpContent.content().nioBuffer());
                 if (isEndOfMsgAdded() && isEmpty()) {
                     break;
                 }
+                HttpContent httpContent = httpContentQueue.take();
+                byteBufferList.add(httpContent.content().nioBuffer());
             } catch (InterruptedException e) {
                 LOG.error("Error while getting full message body", e);
             }
@@ -95,11 +95,12 @@ public class NettyCarbonMessage extends CarbonMessage {
         List<HttpContent> contentList = new ArrayList<>();
         while (true) {
             try {
-                HttpContent httpContent = httpContentQueue.take();
-                contentList.add(httpContent);
                 if (isEndOfMsgAdded() && isEmpty()) {
                     break;
                 }
+                HttpContent httpContent = httpContentQueue.take();
+                contentList.add(httpContent);
+
             } catch (InterruptedException e) {
                 LOG.error("Error while getting full message length", e);
             }
