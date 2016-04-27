@@ -180,7 +180,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return cMsg;
     }
 
-    private CarbonMessage createRejectResponse() {
+    protected CarbonMessage createRejectResponse() {
         DefaultCarbonMessage rejectResponse = new DefaultCarbonMessage();
 
         String rejectMessage = RequestSizeValidationConfiguration.getInstance().getRejectMessage();

@@ -63,6 +63,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        ExecutorService executorService = listenerConfiguration.getExecutorService();
         if (msg instanceof HttpRequest) {
 
             cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
@@ -73,7 +74,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
 
             CarbonCallback carbonCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
-            ExecutorService executorService = listenerConfiguration.getExecutorService();
+
             cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL,
                              executorService);
 
@@ -82,7 +83,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
-            if (continueRequest) {
+            if (continueRequest && !RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
                 executorService.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -102,9 +103,30 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
+                        cMsg.setEndOfMsgAdded(true);
+                        if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
+                            CarbonCallback responseCallback = (CarbonCallback) cMsg
+                                    .getProperty(Constants.CALL_BACK);
+                            if (cMsg.getMessageBodyLength() > RequestSizeValidationConfiguration.getInstance()
+                                    .getRequestMaxSize()) {
+                                responseCallback.done(createRejectResponse());
+
+                            } else {
+                                executorService.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            NettyTransportContextHolder.getInstance().getMessageProcessor()
+                                                    .receive(cMsg, responseCallback);
+                                        } catch (Exception e) {
+                                            log.error("Error occured inside messaging engine", e);
+                                        }
+                                    }
+                                });
+                            }
+                        }
                         NettyTransportContextHolder.getInstance().getHandlerExecutor()
                                    .executeAtSourceRequestSending(cMsg);
-                        cMsg.setEndOfMsgAdded(true);
                     }
                 }
             }
