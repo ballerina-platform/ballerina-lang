@@ -21,7 +21,7 @@ transportProperties:
   name: "request.size.validation"
   value: true
  -
-  name: "request.size.validation.maximum.value"
+  name: "request.size.validation.maximum.value" #in bytes
   value: 2048
  -
   name: "request.size.validation.reject.status.code"
@@ -78,6 +78,9 @@ listenerConfigurations:
     -
      name: "server.bootstrap.socket.backlog"
      value: 100
+   -
+     name: "executor.workerpool.size" #This is used only when the disruptor is disabled
+     value: 20
 # -
 #   id: "netty-gw-https"
 #   host: "0.0.0.0"
