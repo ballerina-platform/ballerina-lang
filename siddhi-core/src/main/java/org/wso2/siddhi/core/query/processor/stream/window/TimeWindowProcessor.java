@@ -88,12 +88,9 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
         synchronized (this) {
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-            boolean expiryProcessed = false;
-
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
 
-                if (!expiryProcessed) {
                     expiredEventChunk.reset();
                     while (expiredEventChunk.hasNext()) {
                         StreamEvent expiredEvent = expiredEventChunk.next();
@@ -106,8 +103,6 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
                             break;
                         }
                     }
-                    expiryProcessed = true;
-                }
 
                 if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
 
