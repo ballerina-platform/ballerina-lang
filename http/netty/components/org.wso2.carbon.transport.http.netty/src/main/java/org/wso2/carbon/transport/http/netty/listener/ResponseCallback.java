@@ -51,6 +51,7 @@ public class ResponseCallback implements CarbonCallback {
     }
 
     public void done(CarbonMessage cMsg) {
+        handleResponsesWithoutContentLength(cMsg);
         NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
@@ -73,7 +74,6 @@ public class ResponseCallback implements CarbonCallback {
                 DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                 ctx.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseSending(cMsg);
                     String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
@@ -83,6 +83,14 @@ public class ResponseCallback implements CarbonCallback {
                     break;
                 }
             }
+        }
+    }
+
+    private void handleResponsesWithoutContentLength(CarbonMessage cMsg) {
+        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null
+                && cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
+            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(cMsg.getFullMessageLength()));
+
         }
     }
 }

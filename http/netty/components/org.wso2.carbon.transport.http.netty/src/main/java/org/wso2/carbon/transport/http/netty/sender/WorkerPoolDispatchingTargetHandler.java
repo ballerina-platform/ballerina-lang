@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
@@ -36,7 +35,6 @@ import java.util.concurrent.ExecutorService;
  * A class that dispatches response to engine.
  */
 public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
-
 
     public WorkerPoolDispatchingTargetHandler(int timeoutSeconds, SenderConfiguration senderConfiguration) {
         super(timeoutSeconds);
@@ -57,18 +55,15 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
         if (msg instanceof HttpResponse) {
             cMsg = setUpCarbonMessage(ctx, msg);
 
-            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
-                || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
-                ExecutorService executorService = (ExecutorService) incomingMsg.getProperty(
-                           org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
-                executorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.done(cMsg);
-                    }
-                });
+            ExecutorService executorService = (ExecutorService) incomingMsg
+                    .getProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.done(cMsg);
+                }
+            });
 
-            }
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
@@ -77,20 +72,6 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
                     NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseSending(cMsg);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
-
-                    if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null
-                        && cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                        cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
-                                              String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
-                        ExecutorService executorService = (ExecutorService) incomingMsg.getProperty(
-                                   org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
-                        executorService.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                callback.done(cMsg);
-                            }
-                        });
-                    }
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
@@ -105,7 +86,7 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                       getHttpRoute().toString() + "</errorMessage>";
+                    getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {

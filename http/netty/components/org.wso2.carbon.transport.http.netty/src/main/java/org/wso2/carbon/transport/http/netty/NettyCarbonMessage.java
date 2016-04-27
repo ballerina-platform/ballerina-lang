@@ -90,12 +90,26 @@ public class NettyCarbonMessage extends CarbonMessage {
         return this.httpContentQueue.isEmpty();
     }
 
-    public int getMessageBodyLength() {
-        int length = 0;
-        for (HttpContent httpContent : httpContentQueue) {
-            length += httpContent.content().readableBytes();
+    @Override
+    public int getFullMessageLength() {
+        List<HttpContent> contentList = new ArrayList<>();
+        while (true) {
+            try {
+                HttpContent httpContent = httpContentQueue.take();
+                contentList.add(httpContent);
+                if (isEndOfMsgAdded() && isEmpty()) {
+                    break;
+                }
+            } catch (InterruptedException e) {
+                LOG.error("Error while getting full message length", e);
+            }
+        }
+        int size = 0;
+        for (HttpContent httpContent : contentList) {
+            size += httpContent.content().readableBytes();
+            httpContentQueue.add(httpContent);
         }
 
-        return length;
+        return size;
     }
 }
