@@ -72,13 +72,8 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
-
             cMsg = setUpCarbonMessage(ctx, msg);
-
-            if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) != null
-                    || cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) != null) {
-                ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
-            }
+            ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
@@ -87,13 +82,6 @@ public class TargetHandler extends ReadTimeoutHandler {
                     NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseSending(cMsg);
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
-
-                    if (cMsg.getHeaders().get(Constants.HTTP_CONTENT_LENGTH) == null
-                        && cMsg.getHeaders().get(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                        cMsg.getHeaders().put(Constants.HTTP_CONTENT_LENGTH,
-                                String.valueOf(((NettyCarbonMessage) cMsg).getMessageBodyLength()));
-                        ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
-                    }
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
