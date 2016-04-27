@@ -290,7 +290,7 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <commons.pool.package.import.version.range>[1.5.6, 2.0.0)</commons.pool.package.import.version.range>
 
-        <carbon.messaging.version>1.0.2</carbon.messaging.version>
+        <carbon.messaging.version>1.0.3-SNAPSHOT</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
