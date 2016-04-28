@@ -1,5 +1,5 @@
 ################################################################################
-#   Copyright (c) 2015, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+#   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ transportProperties:
   value: true
  -
   name: "request.size.validation"
-  value: true
+  value: false
  -
   name: "request.size.validation.maximum.value" #in bytes
   value: 2048
@@ -31,6 +31,27 @@ transportProperties:
   value: "Message is too big, hence cannot proceed"
  -
   name: "request.size.validation.reject.message.content.type"
+  value: "plain/text"
+ -
+  name: "header.size.validation"
+  value: false
+ -
+  name: "header.validation.maximum.request.line" #in bytes
+  value: 4096
+ -
+  name: "header.validation.maximum.size" #in bytes
+  value: 8192
+ -
+  name: "header.validation.maximum.chunk.size" #in bytes, refere http://netty.io/4.0/api/io/netty/handler/codec/http/HttpRequestDecoder.html
+  value: 8192
+ -
+  name: "header.validation.reject.status.code"
+  value: 401
+ -
+  name: "header.validation.reject.message"
+  value: "Message's header size is too big, hence cannot proceed"
+ -
+  name: "header.validation.reject.message.content.type"
   value: "plain/text"
 listenerConfigurations:
  -
@@ -78,7 +99,7 @@ listenerConfigurations:
     -
      name: "server.bootstrap.socket.backlog"
      value: 100
-   -
+    -
      name: "executor.workerpool.size" #This is used only when the disruptor is disabled
      value: 20
 # -

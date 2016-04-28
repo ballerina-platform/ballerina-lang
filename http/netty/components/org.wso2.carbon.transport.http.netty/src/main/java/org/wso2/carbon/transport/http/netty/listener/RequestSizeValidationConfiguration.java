@@ -29,11 +29,20 @@ import java.util.Set;
 public class RequestSizeValidationConfiguration {
 
     private static RequestSizeValidationConfiguration instance = new RequestSizeValidationConfiguration();
+
     private boolean requestSizeValidation = false;
     private int requestMaxSize = Integer.MAX_VALUE;
-    private int statusCode = 401;
-    private String rejectMessage = "Message is bigger than the valid size";
-    private String rejectMsgContentType = "plain/text";
+    private int requestRejectStatusCode = 401;
+    private String requestRejectMessage = "Message is bigger than the valid size";
+    private String requestRejectMsgContentType = "plain/text";
+
+    private boolean headerSizeValidation = false;
+    private int headerMaxRequestLineSize = 4096;
+    private int headerMaxSize = 8192;
+    private int maxChunkSize = 8192;
+    private int headerRejectStatusCode = 401;
+    private String headerRejectMessage = "Message header is bigger than the valid size";
+    private String headerRejectMsgContentType = "plain/text";
 
     private RequestSizeValidationConfiguration() {
         Set<TransportProperty> transportProperties = YAMLTransportConfigurationBuilder.build().getTransportProperties();
@@ -46,13 +55,34 @@ public class RequestSizeValidationConfiguration {
                 requestMaxSize = (Integer) transportProperty.getValue();
             }
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation.reject.status.code")) {
-                statusCode = (Integer) transportProperty.getValue();
+                requestRejectStatusCode = (Integer) transportProperty.getValue();
             }
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation.reject.message")) {
-                rejectMessage = (String) transportProperty.getValue();
+                requestRejectMessage = (String) transportProperty.getValue();
             }
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation.reject.message.content.type")) {
-                rejectMsgContentType = (String) transportProperty.getValue();
+                requestRejectMsgContentType = (String) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.size.validation")) {
+                headerSizeValidation = (Boolean) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.validation.maximum.request.line")) {
+                headerMaxRequestLineSize = (int) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.validation.maximum.size")) {
+                headerMaxSize = (int) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.validation.maximum.chunk.size")) {
+                maxChunkSize = (int) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.validation.reject.status.code")) {
+                headerRejectStatusCode = (int) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.validation.reject.message")) {
+                headerRejectMessage = (String) transportProperty.getValue();
+            }
+            if (transportProperty.getName().equalsIgnoreCase("header.validation.reject.message.content.type")) {
+                headerRejectMsgContentType = (String) transportProperty.getValue();
             }
         }
     }
@@ -69,15 +99,43 @@ public class RequestSizeValidationConfiguration {
         return requestMaxSize;
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public int getRequestRejectStatusCode() {
+        return requestRejectStatusCode;
     }
 
-    public String getRejectMessage() {
-        return rejectMessage;
+    public String getRequestRejectMessage() {
+        return requestRejectMessage;
     }
 
-    public String getRejectMsgContentType() {
-        return rejectMsgContentType;
+    public String getRequestRejectMsgContentType() {
+        return requestRejectMsgContentType;
+    }
+
+    public boolean isHeaderSizeValidation() {
+        return headerSizeValidation;
+    }
+
+    public int getHeaderMaxRequestLineSize() {
+        return headerMaxRequestLineSize;
+    }
+
+    public int getHeaderMaxSize() {
+        return headerMaxSize;
+    }
+
+    public int getMaxChunkSize() {
+        return maxChunkSize;
+    }
+
+    public int getHeaderRejectStatusCode() {
+        return headerRejectStatusCode;
+    }
+
+    public String getHeaderRejectMessage() {
+        return headerRejectMessage;
+    }
+
+    public String getHeaderRejectMsgContentType() {
+        return headerRejectMsgContentType;
     }
 }

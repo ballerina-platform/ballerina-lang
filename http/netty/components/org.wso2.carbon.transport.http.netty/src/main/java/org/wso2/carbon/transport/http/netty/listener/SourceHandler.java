@@ -16,8 +16,11 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import com.lmax.disruptor.RingBuffer;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -79,21 +82,17 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpRequest) {
+        if (msg instanceof FullHttpMessage) {
 
-            cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, "true");
-            if (disruptorConfig.isShared()) {
-                cMsg.setProperty(Constants.DISRUPTOR, disruptor);
-            }
-            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
-                        CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
-                        responseCallback.done(carbonMessage);
-                    });
-            if (continueRequest && !RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
-                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
-            }
+            publishToDisruptor(msg);
+            ByteBuf content = ((FullHttpMessage) msg).content();
+            cMsg.addHttpContent(new DefaultLastHttpContent(content));
+            cMsg.setEndOfMsgAdded(true);
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+
+        } else if (msg instanceof HttpRequest) {
+
+            publishToDisruptor(msg);
 
         } else {
             if (cMsg != null) {
@@ -102,23 +101,28 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
                         cMsg.setEndOfMsgAdded(true);
-                        if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
-                            if (cMsg.getMessageBodyLength() > RequestSizeValidationConfiguration.getInstance()
-                                    .getRequestMaxSize()) {
-                                CarbonCallback responseCallback = (CarbonCallback) cMsg
-                                        .getProperty(Constants.CALL_BACK);
-                                responseCallback.done(createRejectResponse());
-
-                            } else {
-                                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
-                            }
-                        }
                         NettyTransportContextHolder.getInstance().getHandlerExecutor()
                                 .executeAtSourceRequestSending(cMsg);
 
                     }
                 }
             }
+        }
+    }
+
+    private void publishToDisruptor(Object msg) {
+        cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
+        cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, "true");
+        if (disruptorConfig.isShared()) {
+            cMsg.setProperty(Constants.DISRUPTOR, disruptor);
+        }
+        boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                .executeRequestContinuationValidator(cMsg, carbonMessage -> {
+                    CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
+                    responseCallback.done(carbonMessage);
+                });
+        if (continueRequest) {
+            disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         }
     }
 
@@ -183,7 +187,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected CarbonMessage createRejectResponse() {
         DefaultCarbonMessage rejectResponse = new DefaultCarbonMessage();
 
-        String rejectMessage = RequestSizeValidationConfiguration.getInstance().getRejectMessage();
+        String rejectMessage = RequestSizeValidationConfiguration.getInstance().getRequestRejectMessage();
         rejectResponse.setStringMessageBody(rejectMessage);
         byte[] errorMessageBytes = rejectMessage.getBytes(Charset.defaultCharset());
 
@@ -191,13 +195,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
         transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
         transportHeaders.put(Constants.HTTP_CONTENT_TYPE,
-                RequestSizeValidationConfiguration.getInstance().getRejectMsgContentType());
+                RequestSizeValidationConfiguration.getInstance().getRequestRejectMsgContentType());
         transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
 
         rejectResponse.setHeaders(transportHeaders);
 
         rejectResponse.setProperty(Constants.HTTP_STATUS_CODE,
-                RequestSizeValidationConfiguration.getInstance().getStatusCode());
+                RequestSizeValidationConfiguration.getInstance().getRequestRejectStatusCode());
         rejectResponse.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         return rejectResponse;
 
