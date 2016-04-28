@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -42,7 +41,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -183,31 +181,4 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;
     }
-
-    protected CarbonMessage createRejectResponse() {
-        DefaultCarbonMessage rejectResponse = new DefaultCarbonMessage();
-
-        String rejectMessage = RequestSizeValidationConfiguration.getInstance().getRequestRejectMessage();
-        rejectResponse.setStringMessageBody(rejectMessage);
-        byte[] errorMessageBytes = rejectMessage.getBytes(Charset.defaultCharset());
-
-        Map<String, String> transportHeaders = new HashMap<>();
-        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
-        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
-        transportHeaders.put(Constants.HTTP_CONTENT_TYPE,
-                RequestSizeValidationConfiguration.getInstance().getRequestRejectMsgContentType());
-        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
-
-        rejectResponse.setHeaders(transportHeaders);
-
-        rejectResponse.setProperty(Constants.HTTP_STATUS_CODE,
-                RequestSizeValidationConfiguration.getInstance().getRequestRejectStatusCode());
-        rejectResponse.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
-        return rejectResponse;
-
-    }
-
 }
-
-
-
