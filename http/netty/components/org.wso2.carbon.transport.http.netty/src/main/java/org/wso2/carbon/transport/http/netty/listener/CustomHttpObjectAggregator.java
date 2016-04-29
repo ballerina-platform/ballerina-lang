@@ -42,7 +42,6 @@ import java.util.Map;
 public class CustomHttpObjectAggregator extends HttpObjectAggregator {
 
     private static final Logger log = LoggerFactory.getLogger(CustomHttpObjectAggregator.class);
-    private ChannelHandlerContext ctx;
 
     public CustomHttpObjectAggregator() {
         super(RequestSizeValidationConfiguration.getInstance().getRequestMaxSize());
