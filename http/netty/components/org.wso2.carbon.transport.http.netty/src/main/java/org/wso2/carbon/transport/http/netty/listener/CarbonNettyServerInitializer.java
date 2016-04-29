@@ -98,8 +98,15 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
             log.debug("Initializing source channel pipeline");
         }
         ChannelPipeline p = ((SocketChannel) ch).pipeline();
-        p.addLast("decoder", new HttpRequestDecoder());
         p.addLast("encoder", new HttpResponseEncoder());
+        if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
+            p.addLast("decoder", new CustomHttpRequestDecoder());
+        } else {
+            p.addLast("decoder", new HttpRequestDecoder());
+        }
+        if (RequestSizeValidationConfiguration.getInstance().isRequestSizeValidation()) {
+            p.addLast("custom-aggregator", new CustomHttpObjectAggregator());
+        }
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {

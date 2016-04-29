@@ -16,8 +16,11 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import com.lmax.disruptor.RingBuffer;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -77,34 +80,47 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpRequest) {
+        if (msg instanceof FullHttpMessage) {
 
-            cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
-                             "true");
-            if (disruptorConfig.isShared()) {
-                cMsg.setProperty(Constants.DISRUPTOR, disruptor);
-            }
-            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
-                        CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
-                        responseCallback.done(carbonMessage);
-                    });
-            if (continueRequest) {
-                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
-            }
+            publishToDisruptor(msg);
+            ByteBuf content = ((FullHttpMessage) msg).content();
+            cMsg.addHttpContent(new DefaultLastHttpContent(content));
+            cMsg.setEndOfMsgAdded(true);
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+
+        } else if (msg instanceof HttpRequest) {
+
+            publishToDisruptor(msg);
+
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
+                        cMsg.setEndOfMsgAdded(true);
                         NettyTransportContextHolder.getInstance().getHandlerExecutor()
                                 .executeAtSourceRequestSending(cMsg);
-                        cMsg.setEndOfMsgAdded(true);
+
                     }
                 }
             }
+        }
+    }
+
+    private void publishToDisruptor(Object msg) {
+        cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
+        cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, "true");
+        if (disruptorConfig.isShared()) {
+            cMsg.setProperty(Constants.DISRUPTOR, disruptor);
+        }
+        boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                .executeRequestContinuationValidator(cMsg, carbonMessage -> {
+                    CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
+                    responseCallback.done(carbonMessage);
+                });
+        if (continueRequest) {
+            disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         }
     }
 
@@ -146,7 +162,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         log.error("Exception caught in Netty Source handler", cause);
     }
 
-
     protected CarbonMessage setUPCarbonMessage(Object msg) {
         cMsg = new NettyCarbonMessage();
         NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
@@ -166,8 +181,4 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;
     }
-
 }
-
-
-

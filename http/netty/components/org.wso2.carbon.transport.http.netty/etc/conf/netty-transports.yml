@@ -1,5 +1,5 @@
 ################################################################################
-#   Copyright (c) 2015, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+#   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -13,25 +13,47 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ################################################################################
+transportProperties:
+ -
+  name: "latency.metrics.enabled"
+  value: true
+ -
+  name: "request.size.validation"
+  value: false
+ -
+  name: "request.size.validation.maximum.value" #in bytes
+  value: 2048
+ -
+  name: "request.size.validation.reject.status.code"
+  value: 401
+ -
+  name: "request.size.validation.reject.message"
+  value: "Message is too big, hence cannot proceed"
+ -
+  name: "request.size.validation.reject.message.content.type"
+  value: "plain/text"
+ -
+  name: "header.size.validation"
+  value: false
+ -
+  name: "header.validation.maximum.request.line" #in bytes
+  value: 4096
+ -
+  name: "header.validation.maximum.size" #in bytes
+  value: 8192
+ -
+  name: "header.validation.maximum.chunk.size" #in bytes, refere http://netty.io/4.0/api/io/netty/handler/codec/http/HttpRequestDecoder.html
+  value: 8192
+ -
+  name: "header.validation.reject.status.code"
+  value: 401
+ -
+  name: "header.validation.reject.message"
+  value: "Message's header size is too big, hence cannot proceed"
+ -
+  name: "header.validation.reject.message.content.type"
+  value: "plain/text"
 listenerConfigurations:
- -
-  id: "jaxrs-http"
-  host: "127.0.0.1"
-  port: 7777
-  bossThreadPoolSize: 2
-  workerThreadPoolSize: 250
-  execHandlerThreadPoolSize: 60
- -
-  id: "jaxrs-https"
-  host: "127.0.0.1"
-  port: 8888
-  bossThreadPoolSize: 2
-  workerThreadPoolSize: 250
-  execHandlerThreadPoolSize: 60
-  scheme: https
-  keyStoreFile: "resources/security/cert.jks"
-  keyStorePass: secret
-  certPass: secret
  -
   id: "netty-gw"
   host: "0.0.0.0"
@@ -39,19 +61,71 @@ listenerConfigurations:
   bossThreadPoolSize: 4
   workerThreadPoolSize: 8
   execHandlerThreadPoolSize: 60
+  enableDisruptor: "true"
   parameters:
     -
      name: "disruptor.wait.strategy"
      value: PHASED_BACKOFF
     -
      name: "disruptor.buffer.size"
-     value: 1
+     value: 1024
     -
      name: "disruptor.count"
      value: 1
     -
      name: "disruptor.eventhandler.count"
      value: 1
+    -
+     name: "server.bootstrap.nodelay"
+     value: true
+    -
+     name: "server.bootstrap.keepalive"
+     value: true
+    -
+     name: "server.bootstrap.sendbuffersize"
+     value: 1048576
+    -
+     name: "server.bootstrap.recievebuffersize"
+     value: 1048576
+    -
+     name: "server.bootstrap.connect.timeout"
+     value: 15000
+    -
+     name: "server.bootstrap.socket.reuse"
+     value: false
+    -
+     name: "server.bootstrap.socket.timeout"
+     value: 15
+    -
+     name: "server.bootstrap.socket.backlog"
+     value: 100
+    -
+     name: "executor.workerpool.size" #This is used only when the disruptor is disabled
+     value: 20
+# -
+#   id: "netty-gw-https"
+#   host: "0.0.0.0"
+#   port: 9292
+#   bossThreadPoolSize: 4
+#   workerThreadPoolSize: 8
+#   execHandlerThreadPoolSize: 60
+#   scheme: "https"
+#   keyStoreFile: "resources/security/wso2carbon.jks"
+#   keyStorePass: "wso2carbon"
+#   certPass: "wso2carbon"
+#   parameters:
+#     -
+#      name: "disruptor.wait.strategy"
+#      value: PHASED_BACKOFF
+#     -
+#      name: "disruptor.buffer.size"
+#      value: 1024
+#     -
+#      name: "disruptor.count"
+#      value: 1
+#     -
+#      name: "disruptor.eventhandler.count"
+#      value: 1
 senderConfigurations:
  -
   id: "netty-gw"
@@ -59,6 +133,27 @@ senderConfigurations:
     -
      name: "connection.pool.count"
      value: 0
+    -
+     name: "client.bootstrap.nodelay"
+     value: true
+    -
+     name: "client.bootstrap.keepalive"
+     value: true
+    -
+     name: "client.bootstrap.sendbuffersize"
+     value: 1048576
+    -
+     name: "client.bootstrap.recievebuffersize"
+     value: 1048576
+    -
+     name: "client.bootstrap.connect.timeout"
+     value: 15000
+    -
+     name: "client.bootstrap.socket.reuse"
+     value: false
+    -
+     name: "client.bootstrap.socket.timeout"
+     value: 15
 # -
 #  id: "https-sender"
 #  scheme: "https"
