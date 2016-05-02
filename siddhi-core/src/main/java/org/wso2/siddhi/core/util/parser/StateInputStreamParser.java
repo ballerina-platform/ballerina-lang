@@ -81,6 +81,8 @@ public class StateInputStreamParser {
 
         stateStreamRuntime.setInnerStateRuntime(innerStateRuntime);
 
+        ((StreamPreStateProcessor) innerStateRuntime.getFirstProcessor()).setThisLastProcessor((StreamPostStateProcessor) innerStateRuntime.getLastProcessor());
+
         return stateStreamRuntime;
     }
 
@@ -129,6 +131,7 @@ public class StateInputStreamParser {
             singleStreamRuntime.getProcessorChain().setToLast(streamPostStateProcessor);
             streamPostStateProcessor.setThisStatePreProcessor(streamPreStateProcessor);
             streamPreStateProcessor.setThisStatePostProcessor(streamPostStateProcessor);
+            streamPreStateProcessor.setThisLastProcessor(streamPostStateProcessor);
 
             StreamInnerStateRuntime innerStateRuntime = new StreamInnerStateRuntime(stateType);
 

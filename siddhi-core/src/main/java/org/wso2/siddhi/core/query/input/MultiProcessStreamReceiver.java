@@ -33,11 +33,11 @@ import java.util.List;
 
 public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
-    private Processor[] nextProcessors;
+    protected Processor[] nextProcessors;
     private MetaStreamEvent[] metaStreamEvents;
     private StreamEventPool[] streamEventPools;
     private StreamEventConverter[] streamEventConverters;
-    private ComplexEventChunk<StreamEvent> currentStreamEventChunk;
+    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk;
     protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
     protected int[] eventSequence;
@@ -50,9 +50,9 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         streamEventPools = new StreamEventPool[processCount];
         streamEventConverters = new StreamEventConverter[processCount];
         currentStreamEventChunk = new ComplexEventChunk<StreamEvent>();
-        eventSequence= new int[processCount];
-        for (int i=0;i<eventSequence.length;i++){
-            eventSequence[i]=i;
+        eventSequence = new int[processCount];
+        for (int i = 0; i < eventSequence.length; i++) {
+            eventSequence[i] = i;
         }
 
     }
@@ -61,12 +61,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
     }
 
-    private void process(int eventSequence, StreamEvent borrowedEvent){
-        if (latencyTracker != null){
+    private void process(int eventSequence, StreamEvent borrowedEvent) {
+        if (latencyTracker != null) {
             try {
                 latencyTracker.markIn();
                 processAndClear(eventSequence, borrowedEvent);
-            }finally {
+            } finally {
                 latencyTracker.markOut();
             }
         } else {
@@ -147,7 +147,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         }
     }
 
-    private void processAndClear(int processIndex, StreamEvent streamEvent) {
+    protected void processAndClear(int processIndex, StreamEvent streamEvent) {
         currentStreamEventChunk.add(streamEvent);
         nextProcessors[processIndex].process(currentStreamEventChunk);
         currentStreamEventChunk.clear();

@@ -24,12 +24,8 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
-
-    private final String lockKey;
-
     public PatternSingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker) {
-        super(streamId, latencyTracker);
-        this.lockKey = lockKey;
+        super(streamId, lockKey, latencyTracker);
     }
 
     public PatternSingleProcessStreamReceiver clone(String key) {
@@ -44,36 +40,26 @@ public class PatternSingleProcessStreamReceiver extends SingleProcessStreamRecei
 
     @Override
     public void receive(ComplexEvent complexEvent) {
-        synchronized (lockKey) {
-            super.receive(complexEvent);
-        }
+        super.receive(complexEvent);
     }
 
     @Override
     public void receive(Event event) {
-        synchronized (lockKey) {
-            super.receive(event);
-        }
+        super.receive(event);
     }
 
     @Override
     public void receive(Event[] events) {
-        synchronized (lockKey) {
-            super.receive(events);
-        }
+        super.receive(events);
     }
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        synchronized (lockKey) {
-            super.receive(event, endOfBatch);
-        }
+        super.receive(event, endOfBatch);
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        synchronized (lockKey) {
-            super.receive(timeStamp, data);
-        }
+        super.receive(timeStamp, data);
     }
 }

@@ -19,20 +19,14 @@
 package org.wso2.siddhi.core.stream.input;
 
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -111,8 +105,8 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     public synchronized void startProcessing() {
-        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
-        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
+//        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
+//        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
 //        ringBuffer = singleEntryDisruptor.start();
     }
 

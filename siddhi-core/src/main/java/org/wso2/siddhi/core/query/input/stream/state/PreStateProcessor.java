@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.input.stream.state;
 
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 
@@ -31,6 +32,8 @@ public interface PreStateProcessor extends Processor {
     void addEveryState(StateEvent stateEvent);
 
     public void setStateId(int stateId);
+
+    public ComplexEventChunk processAndReturn(ComplexEventChunk complexEventChunk);
 
     public int getStateId();
 
