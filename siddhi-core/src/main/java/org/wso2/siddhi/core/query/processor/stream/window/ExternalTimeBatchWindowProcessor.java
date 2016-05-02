@@ -1,19 +1,21 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.apache.log4j.Logger;
@@ -37,22 +39,14 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @since Dec 23, 2015
- */
-
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-
-    static final Logger log = Logger.getLogger(ExternalTimeBatchWindowProcessor.class);
     private VariableExpressionExecutor timeStampVariableExpressionExecutor;
-
     private long timeToKeep;
     private long lastSendTime = -1;
     private long endTime = 0;
     private long startTime = 0;
-    private long numberOfPrameters = 0;
     private boolean isStartTimeEnabled = false;
 
     @Override
@@ -92,7 +86,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timeStamp should be type long, but found " + timeStampVariableExpressionExecutor.getReturnType());
             }
         } else {
-            throw new ExecutionPlanValidationException("ExternalTime window should only have two parameter (<long> timeStamp, <int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("ExternalTime window should only have two/three parameter (<long> timeStamp, <int|long|time> windowTime (and <int> startTime) ), but found " + attributeExpressionExecutors.length + " input attributes");
         }
     }
 
@@ -134,7 +128,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             if (currentTime < endTime) {
                 cloneAppend(streamEventCloner, currStreamEvent);
             } else if (currentTime >= endTime) {
-                flushCurentChunk(nextProcessor, streamEventCloner, currentTime);
+                flushCurrentChunk(nextProcessor, streamEventCloner, currentTime);
                 cloneAppend(streamEventCloner, currStreamEvent);
             }
         }
@@ -162,9 +156,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
             if (currentTime < endTime) {
                 cloneAppend(streamEventCloner, currStreamEvent);
-            }
-            else if (currentTime >= endTime) {
-                flushCurentChunk(nextProcessor, streamEventCloner, currentTime);
+            } else if (currentTime >= endTime) {
+                flushCurrentChunk(nextProcessor, streamEventCloner, currentTime);
                 cloneAppend(streamEventCloner, currStreamEvent);
             }
         }
@@ -183,7 +176,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         currentEventChunk.add(clonedStreamEvent);
     }
 
-    private void flushCurentChunk(Processor nextProcessor, StreamEventCloner streamEventCloner, long currentTime) {
+    private void flushCurrentChunk(Processor nextProcessor, StreamEventCloner streamEventCloner, long currentTime) {
         // need flush the currentEventChunk
         currentEventChunk.reset();
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
