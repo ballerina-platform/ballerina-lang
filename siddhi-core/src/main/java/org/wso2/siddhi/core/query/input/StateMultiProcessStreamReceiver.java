@@ -48,8 +48,6 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
         ComplexEventChunk<StateEvent> retEventChunk =  new ComplexEventChunk<StateEvent>();
         synchronized (lockKey) {
             currentStreamEventChunk.add(streamEvent);
-//            nextProcessors[processIndex].process(currentStreamEventChunk);
-
             ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) nextProcessors[processIndex]).processAndReturn(currentStreamEventChunk);
             if(eventChunk.getFirst() != null){
                 retEventChunk.add(eventChunk.getFirst());
@@ -62,9 +60,7 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
             while (retEventChunk.hasNext()) {
                 StateEvent stateEvent = retEventChunk.next();
                 retEventChunk.remove();
-                ComplexEventChunk<StateEvent> eventChunk =  new ComplexEventChunk<StateEvent>();
-                eventChunk.add(stateEvent);
-                querySelector.process(eventChunk);
+                querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent));
             }
         }
 

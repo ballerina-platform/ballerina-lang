@@ -74,7 +74,7 @@ public class CountPostStateProcessor extends StreamPostStateProcessor {
         if (nextProcessor != null) {
             thisStatePreProcessor.stateChanged();
             complexEventChunk.reset();
-            this.lastProcessedEvent = (StateEvent) complexEventChunk.getFirst();
+            this.isEventReturned = true;
         }
         if (nextStatePerProcessor != null) {
             nextStatePerProcessor.addState(stateEvent);

@@ -254,8 +254,8 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     }
 
     @Override
-    public ComplexEventChunk processAndReturn(ComplexEventChunk complexEventChunk) {
-        ComplexEventChunk returnEventChunk = new ComplexEventChunk<StateEvent>();
+    public ComplexEventChunk<StateEvent> processAndReturn(ComplexEventChunk complexEventChunk) {
+        ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
         complexEventChunk.reset();
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
@@ -285,10 +285,9 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
 //            }
             stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
             process(stateEvent);
-            StateEvent lastProcessedEvent = this.thisLastProcessor.getLastProcessedEvent();
-            this.thisLastProcessor.clearProcessedEvent();
-            if (lastProcessedEvent != null) {
-                returnEventChunk.add(lastProcessedEvent);
+            if (this.thisLastProcessor.isEventReturned()) {
+                this.thisLastProcessor.clearProcessedEvent();
+                returnEventChunk.add(stateEvent);
             }
             if (stateChanged) {
                 iterator.remove();

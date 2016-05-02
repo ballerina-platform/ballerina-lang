@@ -53,7 +53,7 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
     }
 
     @Override
-    public ComplexEventChunk processAndReturn(ComplexEventChunk complexEventChunk) {
+    public ComplexEventChunk<StateEvent> processAndReturn(ComplexEventChunk complexEventChunk) {
         ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
         complexEventChunk.reset();
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
@@ -68,10 +68,9 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
             stateEvent.addEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
             successCondition = false;
             process(stateEvent);
-            StateEvent lastProcessedEvent = this.thisLastProcessor.getLastProcessedEvent();
-            this.thisLastProcessor.clearProcessedEvent();
-            if (lastProcessedEvent != null) {
-                returnEventChunk.add(lastProcessedEvent);
+            if (this.thisLastProcessor.isEventReturned()) {
+                this.thisLastProcessor.clearProcessedEvent();
+                returnEventChunk.add(stateEvent);
             }
             if (stateChanged) {
                 iterator.remove();

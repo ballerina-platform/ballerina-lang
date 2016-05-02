@@ -65,9 +65,7 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
         while (retEventChunk.hasNext()) {
             StateEvent stateEvent = retEventChunk.next();
             retEventChunk.remove();
-            ComplexEventChunk<StateEvent> eventChunk = new ComplexEventChunk<StateEvent>();
-            eventChunk.add(stateEvent);
-            querySelector.process(eventChunk);
+            querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent));
         }
     }
 
