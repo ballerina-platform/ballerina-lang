@@ -60,9 +60,10 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
-        NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                       .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
+        }
 
 
         super.channelActive(ctx);
@@ -79,7 +80,10 @@ public class TargetHandler extends ReadTimeoutHandler {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
-                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseSending(cMsg);
+                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                   executeAtTargetResponseSending(cMsg);
+                    }
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
                 } else {
@@ -92,8 +96,11 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                       .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
+        }
+
         log.debug("Target channel closed.");
     }
 
@@ -140,7 +147,9 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
         cMsg = new NettyCarbonMessage();
-        NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
+        }
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);

@@ -56,7 +56,7 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
             cMsg = setUpCarbonMessage(ctx, msg);
 
             ExecutorService executorService = (ExecutorService) incomingMsg
-                    .getProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
+                       .getProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -69,7 +69,10 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
-                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseSending(cMsg);
+                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                   executeAtTargetResponseSending(cMsg);
+                    }
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
                 } else {
@@ -86,7 +89,7 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                    getHttpRoute().toString() + "</errorMessage>";
+                       getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {

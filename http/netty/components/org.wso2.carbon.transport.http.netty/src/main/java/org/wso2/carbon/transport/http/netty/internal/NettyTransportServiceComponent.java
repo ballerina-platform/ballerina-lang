@@ -130,10 +130,12 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
                unbind = "removeNettyStatHandler"
     )
     protected void addNettyStatHandler(MessagingHandler messagingHandler) {
+
         NettyTransportContextHolder.getInstance().getHandlerExecutor().addHandler(messagingHandler);
     }
 
     protected void removeNettyStatHandler(MessagingHandler messagingHandler) {
+
         NettyTransportContextHolder.getInstance().getHandlerExecutor().removeHandler(messagingHandler);
     }
 
