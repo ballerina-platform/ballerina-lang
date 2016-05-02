@@ -443,6 +443,9 @@ public class DBHandler {
             databaseType = databaseMetaData.getDatabaseProductName();
 
             elementMappings = DBQueryHelper.getDbTypeMappings().get(databaseType.toLowerCase());
+            if(elementMappings == null){
+                elementMappings = DBQueryHelper.getDbTypeMappings().get("default");
+            }
 
             //Constructing (eg: ID  varchar2(255),INFORMATION  varchar2(255)) type values : column_types
             StringBuilder columnTypes = new StringBuilder("");
