@@ -52,7 +52,9 @@ public class ResponseCallback implements CarbonCallback {
 
     public void done(CarbonMessage cMsg) {
         handleResponsesWithoutContentLength(cMsg);
-        NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
+        }
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
         if (cMsg instanceof NettyCarbonMessage) {
@@ -61,7 +63,10 @@ public class ResponseCallback implements CarbonCallback {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     ctx.writeAndFlush(httpContent);
-                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseSending(cMsg);
+                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                   executeAtSourceResponseSending(cMsg);
+                    }
                     break;
                 }
                 ctx.write(httpContent);
@@ -75,7 +80,10 @@ public class ResponseCallback implements CarbonCallback {
                 ctx.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseSending(cMsg);
+                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                   executeAtSourceResponseSending(cMsg);
+                    }
                     String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
                     if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
                         future.addListener(ChannelFutureListener.CLOSE);

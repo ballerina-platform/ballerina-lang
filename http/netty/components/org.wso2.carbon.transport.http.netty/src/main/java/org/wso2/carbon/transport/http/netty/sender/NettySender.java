@@ -54,13 +54,26 @@ public class NettySender implements TransportSender {
     public NettySender(SenderConfiguration senderConfiguration) {
         this.id = senderConfiguration.getId();
         this.senderConfiguration = senderConfiguration;
-        Map<String, String> paramMap = new HashMap<>(senderConfiguration.getParameters().size());
+        Map<String, String> paramMap = new HashMap();
         if (senderConfiguration.getParameters() != null && !senderConfiguration.getParameters().isEmpty()) {
             for (Parameter parameter : senderConfiguration.getParameters()) {
                 paramMap.put(parameter.getName(), parameter.getValue());
             }
 
+
         }
+        DisruptorConfig disruptorConfig = new DisruptorConfig
+                   (paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_BUFFER_SIZE),
+                    paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_COUNT),
+                    paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                    paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.WAIT_STRATEGY),
+                    Boolean.parseBoolean
+                               (org.wso2.carbon.transport.http.netty.common.Constants.SHARE_DISRUPTOR_WITH_OUTBOUND),
+                    paramMap.get
+                               (org.wso2.carbon.transport.http.netty.common.Constants.
+                                           DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
+        // TODO: Need to have a proper service
+        DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.OUTBOUND, disruptorConfig);
         PoolConfiguration.createPoolConfiguration(paramMap);
         BootstrapConfiguration.createBootStrapConfiguration(paramMap);
         this.connectionManager = ConnectionManager.getInstance();
@@ -83,8 +96,6 @@ public class NettySender implements TransportSender {
                        getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
         } else if (!Boolean.parseBoolean(enableDisruptor)) {
-            int executorWorkerPool = (Integer) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
-                                                                          EXECUTOR_WORKER_POOL_SIZE);
             senderConfiguration.setDisruptorOn(false);
         }
 

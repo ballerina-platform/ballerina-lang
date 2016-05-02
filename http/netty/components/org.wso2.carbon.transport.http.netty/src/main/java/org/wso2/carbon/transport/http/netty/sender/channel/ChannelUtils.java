@@ -137,7 +137,10 @@ public class ChannelUtils {
     }
 
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
-        NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetRequestReceiving(carbonMessage);
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                       executeAtTargetRequestReceiving(carbonMessage);
+        }
         channel.write(httpRequest);
 
         if (carbonMessage instanceof NettyCarbonMessage) {
@@ -146,8 +149,10 @@ public class ChannelUtils {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);
-                    NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                            .executeAtTargetRequestSending(carbonMessage);
+                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                   executeAtTargetRequestReceiving(carbonMessage);
+                    }
                     break;
                 }
                 if (httpContent != null) {
@@ -163,8 +168,10 @@ public class ChannelUtils {
                 channel.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                            .executeAtTargetRequestSending(carbonMessage);
+                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                   executeAtTargetRequestReceiving(carbonMessage);
+                    }
                     break;
                 }
             }
