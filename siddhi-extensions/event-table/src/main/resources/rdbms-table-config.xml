@@ -69,6 +69,12 @@
                 <element key="bool">TINYINT</element>
             </elements>
         </mapping>
+        <mapping db='postgresql'>
+            <elements>
+               	<element key="bool">SMALLINT</element>
+				<element key="integer">INTEGER</element>
+            </elements>
+        </mapping>
         <mapping db='oracle'>
             <elements>
                 <element key="string">varchar2(255)</element>

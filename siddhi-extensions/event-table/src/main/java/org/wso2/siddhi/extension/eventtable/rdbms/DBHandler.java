@@ -370,13 +370,29 @@ public class DBHandler {
             if (log.isDebugEnabled()) {
                 log.debug("Table " + tableName + " does not Exist. Table Will be created. ");
             }
+        }finally {
+            cleanUpConnections(stmt, con);
         }
 
         try {
-            if (!tableExists && stmt != null) {
+            if (!tableExists) {
+            	con = dataSource.getConnection();
+                stmt = con.createStatement();
                 stmt.executeUpdate(executionInfo.getPreparedCreateTableStatement());
+                if(con != null && !con.getAutoCommit()){
+                	con.commit();
+                }
             }
         } catch (SQLException e) {
+			try {
+				if (con != null && !con.getAutoCommit()) {
+					con.rollback();
+				}
+			} catch (Exception ex) {
+				if (log.isDebugEnabled()) {
+	                log.debug("Table " + tableName + " Creation Failed. Transaction rollback error ",ex);
+	            }
+			}
             throw new ExecutionPlanRuntimeException("Exception while creating the event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
