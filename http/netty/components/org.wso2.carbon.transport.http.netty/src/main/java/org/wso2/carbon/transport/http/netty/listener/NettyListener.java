@@ -58,7 +58,6 @@ public class NettyListener extends TransportListener {
 
     private Map<String, SSLConfig> sslConfigMap = new ConcurrentHashMap<>();
 
-
     public NettyListener(ListenerConfiguration nettyConfig) {
         super(nettyConfig.getId());
         this.nettyConfig = nettyConfig;
@@ -80,8 +79,7 @@ public class NettyListener extends TransportListener {
         bootstrap.option(ChannelOption.SO_BACKLOG, serverBootstrapConfiguration.getSoBackLog());
         log.debug("Netty Server Socket BACKLOG " + serverBootstrapConfiguration.getSoBackLog());
 
-        bootstrap.group(bossGroup, workerGroup)
-                   .channel(NioServerSocketChannel.class);
+        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
 
         addChannelInitializer();
         bootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
@@ -100,23 +98,28 @@ public class NettyListener extends TransportListener {
         bootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
         log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
 
-
         setupChannelInitializer();
         try {
-            bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort())).sync();
-            TransportListenerManager artifactDeployer = NettyTransportContextHolder.getInstance().getManager();
-            if (artifactDeployer != null) {
-                artifactDeployer.registerTransportListener(id, this);
+            ChannelFuture future = bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort()))
+                    .sync();
+            if (future.isSuccess()) {
+                TransportListenerManager artifactDeployer = NettyTransportContextHolder.getInstance().getManager();
+                if (artifactDeployer != null) {
+                    artifactDeployer.registerTransportListener(id, this);
+                }
+                log.info("Netty Listener starting on port " + nettyConfig.getPort());
+            } else {
+                log.error("Netty Listener cannot start on port " + nettyConfig.getPort());
             }
-            log.info("Netty Listener starting on port " + nettyConfig.getPort());
+
         } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
+            log.error("Netty Listener cannot start on port " + nettyConfig.getPort(), e);
         }
     }
 
     private void setupChannelInitializer() {
         CarbonTransportInitializer channelInitializer = NettyTransportContextHolder.getInstance()
-                   .getServerChannelInitializer(nettyConfig.getId());
+                .getServerChannelInitializer(nettyConfig.getId());
         if (channelInitializer == null) {
             // start with the default initializer
             channelInitializer = new CarbonNettyServerInitializer(nettyConfig);
@@ -171,7 +174,7 @@ public class NettyListener extends TransportListener {
                     @Override
                     public void operationComplete(Future<Object> future) throws Exception {
                         log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
-                                 " stopped successfully");
+                                " stopped successfully");
                     }
                 });
             }
@@ -188,9 +191,14 @@ public class NettyListener extends TransportListener {
         try {
             //TODO check for host verification
             ChannelFuture future = bootstrap.bind(new InetSocketAddress(host, port)).sync();
-            channelFutureMap.put(port, future);
-            log.info("Netty Listener starting on host  " + host + " and port " + port);
-            return true;
+            if (future.isSuccess()) {
+                channelFutureMap.put(port, future);
+                log.info("Netty Listener starting on host  " + host + " and port " + port);
+                return true;
+            } else {
+                log.error("Cannot bind port for host " + host + " port " + port);
+            }
+
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         }
@@ -206,12 +214,10 @@ public class NettyListener extends TransportListener {
             String keyStoreFile = map.get(Constants.KEYSTOREFILE);
             String trustoreFile = map.get(Constants.TRUSTSTOREFILE);
             String trustorePass = map.get(Constants.TRUSTSTOREPASS);
-            SSLConfig sslConfig = Util.getSSLConfigForListener(certPass,
-                                                               keyStorePass, keyStoreFile,
-                                                               trustoreFile, trustorePass);
+            SSLConfig sslConfig = Util
+                    .getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustoreFile, trustorePass);
             sslConfigMap.put(id, sslConfig);
         }
-
 
         return false;
     }
