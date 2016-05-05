@@ -47,6 +47,8 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
+    private boolean isStartTimeEnabled = false;
+    private long startTime = 0;
 
     public void setTimeInMilliSeconds(long timeInMilliSeconds) {
         this.timeInMilliSeconds = timeInMilliSeconds;
@@ -79,14 +81,45 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             } else {
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
+        } else if (attributeExpressionExecutors.length == 2) {
+            if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
+                if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
+                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+
+                } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
+                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                } else {
+                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                }
+            } else {
+                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+            }
+
+            // start time
+            isStartTimeEnabled = true;
+            if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
+                startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+            } else {
+                startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+            }
         } else {
-            throw new ExecutionPlanValidationException("Time window should only have one parameter (<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("Time window should only have one or two parameters. (<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
         }
         lastSentTime = executionPlanContext.getTimestampGenerator().currentTime();
     }
 
+
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        if (isStartTimeEnabled) {
+            processWithStartTime(streamEventChunk, nextProcessor, streamEventCloner);
+        } else {
+            processWithoutStartTime(streamEventChunk, nextProcessor, streamEventCloner);
+        }
+    }
+
+
+    private synchronized void processWithoutStartTime(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
         boolean sendEvents;
         if (currentTime >= lastSentTime + timeInMilliSeconds) {
@@ -134,6 +167,65 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             }
         }
     }
+
+    private synchronized void processWithStartTime(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        long emitTime = getNextEmitTime(currentTime);
+
+        boolean sendEvents;
+        if (currentTime >= lastSentTime + timeInMilliSeconds) {
+            lastSentTime = currentTime;
+            if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
+                scheduler.notifyAt(emitTime);
+            }
+            sendEvents = true;
+        } else {
+            scheduler.notifyAt(emitTime);
+            sendEvents = false;
+        }
+
+        while (streamEventChunk.hasNext()) {
+            StreamEvent streamEvent = streamEventChunk.next();
+            if (streamEvent.getType() != ComplexEvent.Type.CURRENT) {
+                continue;
+            }
+            StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
+            currentEventChunk.add(clonedStreamEvent);
+        }
+        if (sendEvents) {
+            currentEventChunk.reset();
+            ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
+            while (expiredEventChunk.hasNext()) {
+                StreamEvent expiredEvent = expiredEventChunk.next();
+                expiredEvent.setTimestamp(currentTime);
+            }
+            if (expiredEventChunk.getFirst() != null) {
+                newEventChunk.add(expiredEventChunk.getFirst());
+            }
+            expiredEventChunk.clear();
+            while (currentEventChunk.hasNext()) {
+                StreamEvent currentEvent = currentEventChunk.next();
+                StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+                toExpireEvent.setType(StreamEvent.Type.EXPIRED);
+                expiredEventChunk.add(toExpireEvent);
+            }
+            if (currentEventChunk.getFirst() != null) {
+                newEventChunk.add(currentEventChunk.getFirst());
+            }
+            currentEventChunk.clear();
+            if (newEventChunk.getFirst() != null) {
+                nextProcessor.process(newEventChunk);
+            }
+        }
+    }
+
+    private long getNextEmitTime(long currentTime) {
+        // returns the next emission time based on system clock round time values.
+        long elapsedTimeSinceLastEmit = (currentTime - startTime) % timeInMilliSeconds;
+        long emitTime = currentTime + (timeInMilliSeconds - elapsedTimeSinceLastEmit);
+        return emitTime;
+    }
+
 
     @Override
     public void start() {
