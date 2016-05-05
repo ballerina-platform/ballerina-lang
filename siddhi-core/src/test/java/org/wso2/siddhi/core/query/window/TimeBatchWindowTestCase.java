@@ -176,7 +176,7 @@ public class TimeBatchWindowTestCase {
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
         Thread.sleep(3000);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
-        Thread.sleep(3000);
+        Thread.sleep(5000);
 
         Assert.assertEquals(4, inEventCount);
         Assert.assertEquals(2, removeEventCount);
