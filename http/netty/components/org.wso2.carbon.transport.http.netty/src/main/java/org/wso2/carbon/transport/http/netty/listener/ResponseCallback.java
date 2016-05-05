@@ -57,38 +57,44 @@ public class ResponseCallback implements CarbonCallback {
         }
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
-        if (cMsg instanceof NettyCarbonMessage) {
-            NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
-            while (true) {
-                HttpContent httpContent = nettyCMsg.getHttpContent();
-                if (httpContent instanceof LastHttpContent) {
-                    ctx.writeAndFlush(httpContent);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                   executeAtSourceResponseSending(cMsg);
+
+        if (!cMsg.isBufferContent()) {
+            cMsg.setWriter(new ResponseContentWriter(ctx));
+        } else {
+
+            if (cMsg instanceof NettyCarbonMessage) {
+                NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
+                while (true) {
+                    HttpContent httpContent = nettyCMsg.getHttpContent();
+                    if (httpContent instanceof LastHttpContent) {
+                        ctx.writeAndFlush(httpContent);
+                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtSourceResponseSending(cMsg);
+                        }
+                        break;
                     }
-                    break;
+                    ctx.write(httpContent);
                 }
-                ctx.write(httpContent);
-            }
-        } else if (cMsg instanceof DefaultCarbonMessage) {
-            DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
-            while (true) {
-                ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-                ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
-                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-                ctx.write(httpContent);
-                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                    ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                   executeAtSourceResponseSending(cMsg);
+            } else if (cMsg instanceof DefaultCarbonMessage) {
+                DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
+                while (true) {
+                    ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
+                    ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
+                    DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+                    ctx.write(httpContent);
+                    if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtSourceResponseSending(cMsg);
+                        }
+                        String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
+                        if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
+                            future.addListener(ChannelFutureListener.CLOSE);
+                        }
+                        break;
                     }
-                    String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
-                    if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
-                        future.addListener(ChannelFutureListener.CLOSE);
-                    }
-                    break;
                 }
             }
         }
