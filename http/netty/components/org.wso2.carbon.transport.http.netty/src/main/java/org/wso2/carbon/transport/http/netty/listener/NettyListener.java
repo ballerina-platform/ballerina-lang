@@ -165,11 +165,11 @@ public class NettyListener extends TransportListener {
     }
 
     private void shutdownEventLoops() {
-        Future<?> f = workerGroup.shutdownGracefully();
+        Future<?> f = bossGroup.shutdownGracefully();
         f.addListener(new GenericFutureListener<Future<Object>>() {
             @Override
             public void operationComplete(Future<Object> future) throws Exception {
-                Future f = bossGroup.shutdownGracefully();
+                Future f = workerGroup.shutdownGracefully();
                 f.addListener(new GenericFutureListener<Future<Object>>() {
                     @Override
                     public void operationComplete(Future<Object> future) throws Exception {
