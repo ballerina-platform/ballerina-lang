@@ -86,9 +86,9 @@
                 <element key="isTableRowExist">SELECT * FROM $TABLE_NAME WHERE $CONDITION</element>
             </elements>
         </mapping>
-        <mapping db='mssql'>
+        <mapping db='microsoft sql server'>
             <elements>
-                <element key="string">varchar2(255)</element>
+                <element key="string">varchar(255)</element>
                 <element key="long">NUMERIC(19)</element>
                 <element key="integer">INTEGER</element>
                 <element key="float">FLOAT(16)</element>
