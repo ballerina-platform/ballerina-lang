@@ -92,6 +92,15 @@ public class DBQueryHelper {
                         elementMappings.put(elementDetails.getKey(), elementDetails.getValue());
                     }
                     dbTypeMappings.put(mapping.getDb(), elementMappings);
+                } else {
+                    Mapping defaultMapping = dbMap.get(null);
+                    List<Element> defaultElementList = defaultMapping.getElements().getElementList();
+                    Map<String, String> elementMappings = new HashMap<String, String>();
+                    for (Element element : defaultElementList) {
+                        Element elementDetails = defaultMapping.getElements().getType(element.getKey());
+                        elementMappings.put(elementDetails.getKey(), elementDetails.getValue());
+                    }
+                    dbTypeMappings.put("default", elementMappings);
                 }
             }
         } catch (JAXBException e) {

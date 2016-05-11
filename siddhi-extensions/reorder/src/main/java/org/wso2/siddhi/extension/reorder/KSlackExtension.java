@@ -19,6 +19,7 @@
 package org.wso2.siddhi.extension.reorder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -77,65 +78,74 @@ public class KSlackExtension extends StreamProcessor {
 
         try {
             while (streamEventChunk.hasNext()) {
+
+
                 StreamEvent event = streamEventChunk.next();
-                streamEventChunk.remove(); //We might have the rest of the events linked to this event forming a chain.
 
-                long timestamp = (Long) timestampExecutor.execute(event);
+                if(event.getType() != ComplexEvent.Type.TIMER) {
 
-                if(expireFlag){
-                    if (timestamp < lastSentTimeStamp){
-                        continue;
-                    }
-                }
+                    streamEventChunk.remove(); //We might have the rest of the events linked to this event forming a chain.
 
-                ArrayList<StreamEvent> eventList = eventTreeMap.get(timestamp);
-                if (eventList == null) {
-                    eventList = new ArrayList<StreamEvent>();
-                }
-                eventList.add(event);
-                eventTreeMap.put(timestamp, eventList);
+                    long timestamp = (Long) timestampExecutor.execute(event);
 
-                if (timestamp > greatestTimestamp) {
-
-                    greatestTimestamp = timestamp;
-                    long minTimestamp = eventTreeMap.firstKey();
-
-                    if ((greatestTimestamp - minTimestamp) > k) {
-                        if((greatestTimestamp - minTimestamp) < MAX_K) {
-                            k = greatestTimestamp - minTimestamp;
-                        }else{
-                            k = MAX_K;
+                    if (expireFlag) {
+                        if (timestamp < lastSentTimeStamp) {
+                            continue;
                         }
                     }
 
-                    Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = eventTreeMap.entrySet().iterator();
-                    while (entryIterator.hasNext()) {
-                        Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
-                        ArrayList<StreamEvent> list = expiredEventTreeMap.get(entry.getKey());
-
-                        if (list != null) {
-                            list.addAll(entry.getValue());
-                        } else {
-                            expiredEventTreeMap.put(entry.getKey(), entry.getValue());
-                        }
+                    ArrayList<StreamEvent> eventList = eventTreeMap.get(timestamp);
+                    if (eventList == null) {
+                        eventList = new ArrayList<StreamEvent>();
                     }
-                    eventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
+                    eventList.add(event);
+                    eventTreeMap.put(timestamp, eventList);
 
-                    entryIterator = expiredEventTreeMap.entrySet().iterator();
-                    while (entryIterator.hasNext()) {
-                        Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
+                    if (timestamp > greatestTimestamp) {
 
-                        if (entry.getKey() + k <= greatestTimestamp) {
-                            entryIterator.remove();
-                            ArrayList<StreamEvent> timeEventList = entry.getValue();
-                            lastSentTimeStamp = entry.getKey();
+                        greatestTimestamp = timestamp;
+                        long minTimestamp = eventTreeMap.firstKey();
 
-                            for (StreamEvent aTimeEventList : timeEventList) {
-                                complexEventChunk.add(aTimeEventList);
+                        if ((greatestTimestamp - minTimestamp) > k) {
+                            if ((greatestTimestamp - minTimestamp) < MAX_K) {
+                                k = greatestTimestamp - minTimestamp;
+                            } else {
+                                k = MAX_K;
+                            }
+                        }
+
+                        Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = eventTreeMap.entrySet().iterator();
+                        while (entryIterator.hasNext()) {
+                            Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
+                            ArrayList<StreamEvent> list = expiredEventTreeMap.get(entry.getKey());
+
+                            if (list != null) {
+                                list.addAll(entry.getValue());
+                            } else {
+                                expiredEventTreeMap.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                        eventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
+
+                        entryIterator = expiredEventTreeMap.entrySet().iterator();
+                        while (entryIterator.hasNext()) {
+                            Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
+
+                            if (entry.getKey() + k <= greatestTimestamp) {
+                                entryIterator.remove();
+                                ArrayList<StreamEvent> timeEventList = entry.getValue();
+                                lastSentTimeStamp = entry.getKey();
+
+                                for (StreamEvent aTimeEventList : timeEventList) {
+                                    complexEventChunk.add(aTimeEventList);
+                                }
                             }
                         }
                     }
                 }
+
+
+
             }
         } catch (ArrayIndexOutOfBoundsException ec) {
             //This happens due to user specifying an invalid field index.

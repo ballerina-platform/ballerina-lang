@@ -86,12 +86,12 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         synchronized (this) {
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
+                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-                    expiredEventChunk.reset();
+                expiredEventChunk.reset();
                     while (expiredEventChunk.hasNext()) {
                         StreamEvent expiredEvent = expiredEventChunk.next();
                         long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;

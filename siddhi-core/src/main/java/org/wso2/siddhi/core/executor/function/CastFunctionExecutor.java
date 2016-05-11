@@ -65,6 +65,9 @@ public class CastFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
+        if (returnType == Attribute.Type.LONG && data[0] instanceof Integer) {
+            return ((Integer) data[0]).longValue();
+        }
         return data[0];
     }
 

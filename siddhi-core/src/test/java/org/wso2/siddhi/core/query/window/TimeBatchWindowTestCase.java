@@ -132,4 +132,56 @@ public class TimeBatchWindowTestCase {
         executionPlanRuntime.shutdown();
     }
 
+
+
+//    @Test
+//    public void timeWindowBatchStartTimeTest() throws InterruptedException {
+//
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//
+//        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
+//        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(1 sec, 0) select symbol, sum(price) as price" +
+//                " insert all events into outputStream ;";
+//
+//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+//
+//        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+//            @Override
+//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timeStamp, inEvents, removeEvents);
+//                if (inEvents != null) {
+//                    inEventCount = inEventCount + inEvents.length;
+//                }
+//                if (removeEvents != null) {
+//                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+//                    // checking whether events are emitted close to a round time with 10% error.
+//                    long timestamp = removeEvents[0].getTimestamp();
+//                    Assert.assertTrue("Remove events timestamps are close to round times", (timestamp % 1000) < 100);
+//                    removeEventCount = removeEventCount + removeEvents.length;
+//                }
+//                eventArrived = true;
+//            }
+//
+//        });
+//
+//        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+//        executionPlanRuntime.start();
+//        inputHandler.send(new Object[]{"IBM", 700f, 1});
+//        Thread.sleep(1100);
+//        inputHandler.send(new Object[]{"WSO2", 60.5f, 2});
+//        inputHandler.send(new Object[]{"IBM", 700f, 3});
+//        inputHandler.send(new Object[]{"WSO2", 60.5f, 4});
+//        Thread.sleep(1100);
+//        inputHandler.send(new Object[]{"IBM", 700f, 5});
+//        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
+//        Thread.sleep(3000);
+//        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
+//        Thread.sleep(5000);
+//
+//        Assert.assertEquals(4, inEventCount);
+//        Assert.assertEquals(2, removeEventCount);
+//        Assert.assertTrue(eventArrived);
+//        executionPlanRuntime.shutdown();
+//    }
+
 }

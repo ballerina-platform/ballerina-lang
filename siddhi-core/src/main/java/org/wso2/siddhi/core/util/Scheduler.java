@@ -23,6 +23,8 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
@@ -43,6 +45,7 @@ public class Scheduler implements Snapshotable {
     private EventCaller eventCaller;
     private volatile boolean running = false;
     private StreamEventPool streamEventPool;
+    private ComplexEventChunk<StreamEvent> streamEventChunk;
     private ExecutionPlanContext executionPlanContext;
     private String elementId;
     private LatencyTracker latencyTracker;
@@ -80,6 +83,7 @@ public class Scheduler implements Snapshotable {
 
     public void setStreamEventPool(StreamEventPool streamEventPool) {
         this.streamEventPool = streamEventPool;
+        streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
     public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
@@ -129,7 +133,7 @@ public class Scheduler implements Snapshotable {
          * to create a thread, starting the thread causes the object's
          * <code>run</code> method to be called in that separately executing
          * thread.
-         * <p>
+         * <p/>
          * The general contract of the method <code>run</code> is that it may
          * take any action whatsoever.
          *
@@ -137,42 +141,46 @@ public class Scheduler implements Snapshotable {
          */
         @Override
         public void run() {
-            Long toNotifyTime = toNotifyQueue.peek();
-            long currentTime = System.currentTimeMillis(); //todo fix
-            while (toNotifyTime != null && toNotifyTime - currentTime <= 0) {
+            try {
+                Long toNotifyTime = toNotifyQueue.peek();
+                long currentTime = System.currentTimeMillis();
+                while (toNotifyTime != null && toNotifyTime - currentTime <= 0) {
+                    toNotifyQueue.poll();
 
-                toNotifyQueue.poll();
-
-                StreamEvent timerEvent = streamEventPool.borrowEvent();
-                timerEvent.setType(StreamEvent.Type.TIMER);
-                timerEvent.setTimestamp(currentTime);
-                ComplexEventChunk<StreamEvent> streamEventChunk=new ComplexEventChunk<StreamEvent>(timerEvent,timerEvent);
-                if (latencyTracker != null) {
-                    try {
-                        latencyTracker.markIn();
+                    StreamEvent timerEvent = streamEventPool.borrowEvent();
+                    timerEvent.setType(StreamEvent.Type.TIMER);
+                    timerEvent.setTimestamp(currentTime);
+                    streamEventChunk.add(timerEvent);
+                    if (latencyTracker != null) {
+                        try {
+                            latencyTracker.markIn();
+                            singleThreadEntryValve.process(streamEventChunk);
+                        } finally {
+                            latencyTracker.markOut();
+                        }
+                    } else {
                         singleThreadEntryValve.process(streamEventChunk);
-                    } finally {
-                        latencyTracker.markOut();
                     }
+                    streamEventChunk.clear();
+
+                    toNotifyTime = toNotifyQueue.peek();
+                    currentTime = System.currentTimeMillis();
+
+                }
+                if (toNotifyTime != null) {
+                    scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit.MILLISECONDS);
                 } else {
-                    singleThreadEntryValve.process(streamEventChunk);
-                }
-                streamEventChunk.clear();
-
-                toNotifyTime = toNotifyQueue.peek();
-                currentTime = System.currentTimeMillis();
-
-            }
-            if (toNotifyTime != null) {
-                scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit.MILLISECONDS);
-            } else {
-                synchronized (toNotifyQueue) {
-                    running = false;
-                    if (toNotifyQueue.peek() != null) {
-                        running = true;
-                        scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
+                    synchronized (toNotifyQueue) {
+                        running = false;
+                        if (toNotifyQueue.peek() != null) {
+                            running = true;
+                            scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
+                        }
                     }
                 }
+
+            } catch (Throwable t) {
+                log.error(t);
             }
         }
 
