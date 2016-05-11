@@ -218,6 +218,6 @@ public class ExecutionPlanRuntime {
     }
 
     public void handleExceptionWith(ExceptionHandler<Object> exceptionHandler) {
-        executionPlanContext.setExceptionHandler(exceptionHandler);
+        executionPlanContext.setDisruptorExceptionHandler(exceptionHandler);
     }
 }

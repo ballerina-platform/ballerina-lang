@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,11 +51,11 @@ public class ExecutionPlanContext {
     private SnapshotService snapshotService;
 
     private Lock sharedLock = null;
-    private TimestampGenerator timestampGenerator=null;
+    private TimestampGenerator timestampGenerator = null;
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
     private Map<String, EvalScript> scriptFunctionMap;
-    private ExceptionHandler<Object> exceptionHandler;
+    private ExceptionHandler<Object> disruptorExceptionHandler;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
@@ -103,15 +102,19 @@ public class ExecutionPlanContext {
         this.enforceOrder = enforceOrder;
     }
 
-    public boolean isStatsEnabled() { return statsEnabled; }
+    public boolean isStatsEnabled() {
+        return statsEnabled;
+    }
 
-    public void setStatsEnabled(boolean statsEnabled) { this.statsEnabled = statsEnabled; }
+    public void setStatsEnabled(boolean statsEnabled) {
+        this.statsEnabled = statsEnabled;
+    }
 
-    public StatisticsManager getStatisticsManager(){
+    public StatisticsManager getStatisticsManager() {
         return statisticsManager;
     }
 
-    public void setStatisticsManager(StatisticsManager statisticsManager){
+    public void setStatisticsManager(StatisticsManager statisticsManager) {
         this.statisticsManager = statisticsManager;
     }
 
@@ -192,7 +195,15 @@ public class ExecutionPlanContext {
     }
 
 
-    public void setExceptionHandler(ExceptionHandler<Object> exceptionHandler) {
-        siddhiContext.setExceptionHandler(exceptionHandler);
+    public void setDisruptorExceptionHandler(ExceptionHandler<Object> disruptorExceptionHandler) {
+        this.disruptorExceptionHandler = disruptorExceptionHandler;
+    }
+
+    public ExceptionHandler<Object> getDisruptorExceptionHandler() {
+        if (disruptorExceptionHandler != null) {
+            return disruptorExceptionHandler;
+        } else {
+            return siddhiContext.getDefaultDisrupterExceptionHandler();
+        }
     }
 }

@@ -57,7 +57,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-        if (attributeExpressionExecutors.length <= 2 && attributeExpressionExecutors.length <= 4) {
+        if (attributeExpressionExecutors.length >= 2 && attributeExpressionExecutors.length <= 4) {
 
             if ((attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
                 throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should not be a constant ");
@@ -76,7 +76,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 throw new ExecutionPlanValidationException("ExternalTimeBatch window's 2nd parameter windowTime should be either int or long, but found " + attributeExpressionExecutors[1].getReturnType());
             }
 
-            if (attributeExpressionExecutors.length <= 3) {
+            if (attributeExpressionExecutors.length == 3) {
                 isStartTimeEnabled = true;
                 if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
                     startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));

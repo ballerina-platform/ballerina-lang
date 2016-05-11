@@ -169,7 +169,7 @@ public abstract class QueryCallback {
                         executionPlanContext.getExecutorService());
             }
             asyncEventHandler = new AsyncEventHandler(this);
-            disruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
+            disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
             disruptor.handleEventsWith(asyncEventHandler);
             ringBuffer = disruptor.start();
         }

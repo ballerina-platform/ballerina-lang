@@ -24,6 +24,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,14 @@ public class SingleStreamEntryValve implements InputProcessor {
 
     @Override
     public void send(Event event, int streamIndex) {
-        inputProcessor.send(event, streamIndex);
+        try {
+            inputProcessor.send(event, streamIndex);
+        } catch (NullPointerException e) {
+            throw new ExecutionPlanRuntimeException("Execution Plan:" + executionPlanContext.getName() + " not " +
+                    "initialised yet! Run executionPlanRuntime.start();", e);
+        } catch (Exception e) {
+            throw new ExecutionPlanRuntimeException("Error when processing event " + event + ", " + e.getMessage(), e);
+        }
 //        try {
 //            long sequenceNo = ringBuffer.next();
 //            try {
@@ -105,7 +113,7 @@ public class SingleStreamEntryValve implements InputProcessor {
     }
 
     public synchronized void startProcessing() {
-//        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getSiddhiContext().getExceptionHandler());
+//        singleEntryDisruptor.handleExceptionsWith(executionPlanContext.getDefaultExceptionHandler());
 //        singleEntryDisruptor.handleEventsWith(singleEntryValveHandler);
 //        ringBuffer = singleEntryDisruptor.start();
     }
@@ -160,7 +168,7 @@ public class SingleStreamEntryValve implements InputProcessor {
                     }
                 }
             } finally {
-                if(size>0) {
+                if (size > 0) {
                     eventBuffer.clear();
                 }
             }

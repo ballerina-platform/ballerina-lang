@@ -113,9 +113,9 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             if (nextEmitTime == -1) {
                 long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
                 if (isStartTimeEnabled) {
-                    nextEmitTime = getNextEmitTime(currentTime) + timeInMilliSeconds;
+                    nextEmitTime = getNextEmitTime(currentTime);
                 } else {
-                    nextEmitTime = executionPlanContext.getTimestampGenerator().currentTime();
+                    nextEmitTime = executionPlanContext.getTimestampGenerator().currentTime() + timeInMilliSeconds;
                 }
                 scheduler.notifyAt(nextEmitTime);
             }

@@ -4126,7 +4126,7 @@ public class FilterTestCase {
                 count = count + inEvents.length;
                 eventArrived = true;
                 if (count == 1) {
-                    Assert.assertEquals(1465.5f, inEvents[0].getData()[1]);
+                    Assert.assertEquals(1465.5, inEvents[0].getData()[1]);
                 }
             }
 
