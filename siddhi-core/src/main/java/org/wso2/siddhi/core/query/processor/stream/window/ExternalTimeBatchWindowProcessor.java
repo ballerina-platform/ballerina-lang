@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -38,18 +37,19 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
-    private VariableExpressionExecutor timeStampVariableExpressionExecutor;
+    private ExpressionExecutor timestampExpressionExecutor;
     private long timeToKeep;
     private long endTime = -1;
     private long startTime = 0;
     private boolean isStartTimeEnabled = false;
-    private long schedulerTimeout= -1;
+    private long schedulerTimeout = -1;
     private Scheduler scheduler;
     private long lastScheduledTime;
     private long lastCurrentEventTime;
@@ -137,70 +137,74 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
                     if (lastScheduledTime <= currStreamEvent.getTimestamp()) {
                         // implies that there have not been any more events after this schedule has been done.
-                        flushCurrentChunk(nextProcessor, streamEventCloner, lastCurrentEventTime);
+                        flushToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime);
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
                         lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
                         lastCurrentEventTime = lastCurrentEventTime + timeToKeep;
-                        scheduler.notifyAt(lastScheduledTime);
-
                     }
                     continue;
                 } else if (currStreamEvent.getType() != ComplexEvent.Type.CURRENT) {
                     continue;
                 }
 
-                long currentTime = (Long) timestampExpressionExecutor.execute(currStreamEvent);
-                if (currentTime < endTime) {
+                lastCurrentEventTime = (Long) timestampExpressionExecutor.execute(currStreamEvent);
+                if (lastCurrentEventTime < endTime) {
                     cloneAppend(streamEventCloner, currStreamEvent);
-                } else if (currentTime >= endTime) {
+                } else if (lastCurrentEventTime >= endTime) {
 
-                    ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
-
-                    // mark the timestamp for the expiredType event
-                    expiredEventChunk.reset();
-                    while (expiredEventChunk.hasNext()) {
-                        StreamEvent expiredEvent = expiredEventChunk.next();
-                        expiredEvent.setTimestamp(currentTime);
-                    }
-                    // add expired event to newEventChunk.
-                    if (expiredEventChunk.getFirst() != null) {
-                        newEventChunk.add(expiredEventChunk.getFirst());
-                    }
-                    expiredEventChunk.clear();
-
-                    // need flush the currentEventChunk
-                    currentEventChunk.reset();
-                    while (currentEventChunk.hasNext()) {
-                        StreamEvent currentEvent = currentEventChunk.next();
-                        StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
-                        toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                        expiredEventChunk.add(toExpireEvent);
-                    }
-
-                    // add current event chunk to next processor
-                    if (currentEventChunk.getFirst() != null) {
-                        newEventChunk.add(currentEventChunk.getFirst());
-                    }
-                    currentEventChunk.clear();
-
+                    flushToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime);
                     // update timestamp, call next processor
                     endTime += timeToKeep;
-                    if (newEventChunk.getFirst() != null) {
-                        complexEventChunks.add(newEventChunk);
-                    }
                     cloneAppend(streamEventCloner, currStreamEvent);
                     // triggering the last batch expiration.
                     if (schedulerTimeout > 0) {
-                        lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
-                        lastCurrentEventTime = currentTime;
+                        long systemTime = executionPlanContext.getTimestampGenerator().currentTime();
+                        if (systemTime + schedulerTimeout > lastScheduledTime)
+                            lastScheduledTime = systemTime + schedulerTimeout;
                         scheduler.notifyAt(lastScheduledTime);
+
                     }
                 }
             }
         }
         for (ComplexEventChunk<StreamEvent> complexEventChunk : complexEventChunks) {
             nextProcessor.process(complexEventChunk);
+        }
+    }
+
+    private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks, long currentTime) {
+        ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
+
+        // mark the timestamp for the expiredType event
+        expiredEventChunk.reset();
+        while (expiredEventChunk.hasNext()) {
+            StreamEvent expiredEvent = expiredEventChunk.next();
+            expiredEvent.setTimestamp(currentTime);
+        }
+        // add expired event to newEventChunk.
+        if (expiredEventChunk.getFirst() != null) {
+            newEventChunk.add(expiredEventChunk.getFirst());
+        }
+        expiredEventChunk.clear();
+
+        // need flush the currentEventChunk
+        currentEventChunk.reset();
+        while (currentEventChunk.hasNext()) {
+            StreamEvent currentEvent = currentEventChunk.next();
+            StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+            toExpireEvent.setType(StreamEvent.Type.EXPIRED);
+            expiredEventChunk.add(toExpireEvent);
+        }
+
+        // add current event chunk to next processor
+        if (currentEventChunk.getFirst() != null) {
+            newEventChunk.add(currentEventChunk.getFirst());
+        }
+        currentEventChunk.clear();
+
+        if (newEventChunk.getFirst() != null) {
+            complexEventChunks.add(newEventChunk);
         }
     }
 
@@ -248,7 +252,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
     @Override
     public void setScheduler(Scheduler scheduler) {
-       this.scheduler = scheduler;
+        this.scheduler = scheduler;
     }
 
     @Override

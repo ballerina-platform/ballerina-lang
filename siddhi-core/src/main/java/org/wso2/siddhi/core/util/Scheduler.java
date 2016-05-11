@@ -149,7 +149,7 @@ public class Scheduler implements Snapshotable {
 
                     StreamEvent timerEvent = streamEventPool.borrowEvent();
                     timerEvent.setType(StreamEvent.Type.TIMER);
-                    timerEvent.setTimestamp(currentTime);
+                    timerEvent.setTimestamp(toNotifyTime);
                     streamEventChunk.add(timerEvent);
                     if (latencyTracker != null) {
                         try {

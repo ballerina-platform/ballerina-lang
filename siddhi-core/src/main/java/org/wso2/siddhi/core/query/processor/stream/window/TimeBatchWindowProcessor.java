@@ -42,7 +42,7 @@ import java.util.Map;
 public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
-    private long lastSentTime;
+    private long nextEmitTime = -1;
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
     private Scheduler scheduler;
@@ -94,7 +94,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             } else {
                 throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
-
             // start time
             isStartTimeEnabled = true;
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
@@ -105,23 +104,30 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         } else {
             throw new ExecutionPlanValidationException("Time window should only have one or two parameters. (<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
         }
-        lastSentTime = executionPlanContext.getTimestampGenerator().currentTime();
     }
 
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
         synchronized (this) {
+            if (nextEmitTime == -1) {
+                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+                if (isStartTimeEnabled) {
+                    nextEmitTime = getNextEmitTime(currentTime) + timeInMilliSeconds;
+                } else {
+                    nextEmitTime = executionPlanContext.getTimestampGenerator().currentTime();
+                }
+                scheduler.notifyAt(nextEmitTime);
+            }
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
             boolean sendEvents;
-            if (currentTime >= lastSentTime + timeInMilliSeconds) {
-                lastSentTime = currentTime;
+            if (currentTime >= nextEmitTime) {
+                nextEmitTime += timeInMilliSeconds;
                 if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
-                    scheduler.notifyAt(lastSentTime + timeInMilliSeconds);
+                    scheduler.notifyAt(nextEmitTime);
                 }
                 sendEvents = true;
             } else {
-                scheduler.notifyAt(lastSentTime + timeInMilliSeconds);
                 sendEvents = false;
             }
 
@@ -159,64 +165,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         }
         if (streamEventChunk.getFirst() != null) {
             nextProcessor.process(streamEventChunk);
-        }
-    }
-
-    private long getNextEmitTime(long currentTime) {
-        // returns the next emission time based on system clock round time values.
-        long elapsedTimeSinceLastEmit = (currentTime - startTime) % timeInMilliSeconds;
-        long emitTime = currentTime + (timeInMilliSeconds - elapsedTimeSinceLastEmit);
-        return emitTime;
-    }
-
-    private synchronized void processWithStartTime(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-        long emitTime = getNextEmitTime(currentTime);
-
-        boolean sendEvents;
-        if (currentTime >= lastSentTime + timeInMilliSeconds) {
-            lastSentTime = currentTime;
-            if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
-                scheduler.notifyAt(emitTime);
-            }
-            sendEvents = true;
-        } else {
-            scheduler.notifyAt(emitTime);
-            sendEvents = false;
-        }
-
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
-            if (streamEvent.getType() != ComplexEvent.Type.CURRENT) {
-                continue;
-            }
-            StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            currentEventChunk.add(clonedStreamEvent);
-        }
-        if (sendEvents) {
-            currentEventChunk.reset();
-            ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = expiredEventChunk.next();
-                expiredEvent.setTimestamp(currentTime);
-            }
-            if (expiredEventChunk.getFirst() != null) {
-                newEventChunk.add(expiredEventChunk.getFirst());
-            }
-            expiredEventChunk.clear();
-            while (currentEventChunk.hasNext()) {
-                StreamEvent currentEvent = currentEventChunk.next();
-                StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
-                toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                expiredEventChunk.add(toExpireEvent);
-            }
-            if (currentEventChunk.getFirst() != null) {
-                newEventChunk.add(currentEventChunk.getFirst());
-            }
-            currentEventChunk.clear();
-            if (newEventChunk.getFirst() != null) {
-                nextProcessor.process(newEventChunk);
-            }
         }
     }
 
