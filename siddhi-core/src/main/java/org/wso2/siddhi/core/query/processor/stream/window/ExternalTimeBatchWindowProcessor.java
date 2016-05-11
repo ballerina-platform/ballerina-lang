@@ -190,9 +190,11 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 flushCurrentChunk(nextProcessor, streamEventCloner, currentTime);
                 cloneAppend(streamEventCloner, currStreamEvent);
                 // triggering the last batch expiration.
-                lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
-                lastCurrentEventTime = currentTime;
-                scheduler.notifyAt(lastScheduledTime);
+                if (schedulerTimeout > 0) {
+                    lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
+                    lastCurrentEventTime = currentTime;
+                    scheduler.notifyAt(lastScheduledTime);
+                }
 
             }
         }
