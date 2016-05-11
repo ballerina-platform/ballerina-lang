@@ -50,7 +50,6 @@ public class ExternalTimeBatchWindowTestCase {
 
         final AtomicBoolean recieved = new AtomicBoolean();
         runtime.addCallback("query", new QueryCallback() {
-
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 recieved.set(true);
@@ -265,6 +264,103 @@ public class ExternalTimeBatchWindowTestCase {
 
         input.send(events);
         return len;
+    }
+
+    @Test
+    public void test1() throws InterruptedException {
+        siddhiManager = new SiddhiManager();
+        String inputStream = "define stream inputStream(currentTime long,value int); ";
+        String query =" @info(name='query') " +
+                "from inputStream#window.externalTimeBatch(currentTime,5 sec) " +
+                "select value " +
+                "insert into outputStream; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + query);
+        executionPlanRuntime.addCallback("query", new QueryCallback() {
+            int count = 0 ;
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                if(count == 0){
+                    Assert.assertEquals(1,inEvents[0].getData(0));
+                }
+                else if(count == 1){
+                    Assert.assertEquals(6,inEvents[0].getData(0));
+                }
+                else if(count == 2){
+                    Assert.assertEquals(13,inEvents[0].getData(0));
+                }
+                count+=1;
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{10000L,1});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{11000L,2});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{12000L,3});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{13000L,4});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{14000L,5});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{15000L,6});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{16500L,7});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{17000L,8});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{18000L,9});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{19000L,10});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{20000L,11});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{20500L,12});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{22000L,13});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{23000L,14});
+        Thread.sleep(100);
+    }
+
+    @Test
+    public void test2() throws InterruptedException {
+        siddhiManager = new SiddhiManager();
+        String inputStream = "define stream inputStream(currentTime long,value int); ";
+        String query =" @info(name='query') " +
+                "from inputStream#window.externalTimeBatch(currentTime,5 sec,1200) " +
+                "select value " +
+                "insert into outputStream; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + query);
+        executionPlanRuntime.addCallback("query", new QueryCallback() {
+           int count = 0;
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+               EventPrinter.print(timeStamp,inEvents,removeEvents);
+               if(count == 0){
+                   Assert.assertEquals(0L,inEvents[0].getData(0));
+                   Assert.assertEquals(11L,inEvents[inEvents.length-1].getData(0));
+               }
+                if(count == 1){
+                    Assert.assertEquals(12L,inEvents[0].getData(0));
+                }
+                count+=1;
+
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        for(long i=0;i<10000;i+=100){
+            inputHandler.send(new Object[]{i+10000,i/100});
+            Thread.sleep(200);
+        }
+
     }
 
 }

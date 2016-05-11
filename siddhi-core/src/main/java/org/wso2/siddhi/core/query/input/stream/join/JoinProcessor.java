@@ -161,7 +161,9 @@ public class JoinProcessor implements Processor {
     public Processor cloneProcessor(String key) {
         JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor);
         joinProcessor.setTrigger(trigger);
-        joinProcessor.setFinder(finder.cloneFinder());
+        if(trigger) {
+            joinProcessor.setFinder(finder.cloneFinder());
+        }
         return joinProcessor;
     }
 

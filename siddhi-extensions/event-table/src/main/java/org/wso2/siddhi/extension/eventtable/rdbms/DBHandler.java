@@ -117,60 +117,72 @@ public class DBHandler {
     public void addEvent(ComplexEventChunk addingEventChunk) {
         addingEventChunk.reset();
         PreparedStatement stmt = null;
+        Connection con = null;
+        ArrayList<ComplexEvent> eventArrayList = new ArrayList<ComplexEvent>();
 
-        ArrayList<ComplexEvent> bloomFilterInsertionList = null;
-        if (isBloomFilterEnabled) {
-            bloomFilterInsertionList = new ArrayList<ComplexEvent>();
-        }
+        try {
+            con = dataSource.getConnection();
+            stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
+            con.setAutoCommit(false);
 
-        while (addingEventChunk.hasNext()) {
-            ComplexEvent complexEvent = addingEventChunk.next();
-            Connection con = null;
-            try {
-                con = dataSource.getConnection();
-                con.setAutoCommit(false);
-                stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
+            while (addingEventChunk.hasNext()) {
+                ComplexEvent complexEvent = addingEventChunk.next();
+                eventArrayList.add(complexEvent);
                 populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
-                stmt.executeUpdate();
+                stmt.addBatch();
+            }
+
+            if (eventArrayList.size() > 0) {
+                stmt.executeBatch();
                 con.commit();
 
-                if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
-                    bloomFilterInsertionList.add(complexEvent);
+                for (ComplexEvent complexEvent : eventArrayList) {
+                    if (cachingTable != null) {
+                        cachingTable.add(complexEvent);
+                    }
                 }
-                if (cachingTable != null) {
-                    cachingTable.add(complexEvent);
-                }
-            } catch (SQLException e) {
-                throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
-            } finally {
-                cleanUpConnections(stmt, con);
-            }
-        }
 
-        if (isBloomFilterEnabled) {
-            addToBloomFilters(bloomFilterInsertionList);
+                if (isBloomFilterEnabled) {
+                    for (ComplexEvent event : eventArrayList) {
+                        addToBloomFilters(event);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
+        } finally {
+            cleanUpConnections(stmt, con);
         }
     }
 
 
-    public void deleteEvent(Object[] obj, ComplexEvent complexEvent, ExecutionInfo executionInfo) {
+    public void deleteEvent(List<Object[]> eventList, ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
         try {
 
             con = dataSource.getConnection();
-            con.setAutoCommit(false);
             stmt = con.prepareStatement(executionInfo.getPreparedDeleteStatement());
-            populateStatement(obj, stmt, executionInfo.getDeleteQueryColumnOrder());
-            int deletedRows = stmt.executeUpdate();
-            con.commit();
-            if (log.isDebugEnabled()) {
-                log.debug(deletedRows + " rows deleted in table " + tableName);
+            con.setAutoCommit(false);
+
+            for (Object[] obj : eventList) {
+                populateStatement(obj, stmt, executionInfo.getDeleteQueryColumnOrder());
+                stmt.addBatch();
             }
 
-            if (isBloomFilterEnabled && deletedRows > 0) {
-                removeFromBloomFilters(complexEvent);
+            int[] deletedRows = stmt.executeBatch();
+            con.commit();
+
+            if (log.isDebugEnabled()) {
+                log.debug(deletedRows.length + " rows deleted in table " + tableName);
+            }
+
+            if (isBloomFilterEnabled && (deletedRows != null && deletedRows.length > 0)) {
+                for (Object[] obj : eventList) {
+                    removeFromBloomFilters(obj);
+                }
             }
 
         } catch (SQLException e) {
@@ -180,21 +192,26 @@ public class DBHandler {
         }
     }
 
-    public void updateEvent(Object[] obj, ExecutionInfo executionInfo) {
+    public void updateEvent(List<Object[]> eventList, ExecutionInfo executionInfo) {
 
         PreparedStatement stmt = null;
         Connection con = null;
-        int updatedRows = 0;
+        int[] updatedRows = null;
         try {
 
             con = dataSource.getConnection();
-            con.setAutoCommit(false);
             stmt = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
-            populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
-            updatedRows = stmt.executeUpdate();
+            con.setAutoCommit(false);
+            for (Object[] obj : eventList) {
+                populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
+                stmt.addBatch();
+            }
+
+            updatedRows = stmt.executeBatch();
             con.commit();
+
             if (log.isDebugEnabled()) {
-                log.debug(updatedRows + " updated in table " + tableName);
+                log.debug(updatedRows.length + " updated in table " + tableName);
             }
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
@@ -202,57 +219,64 @@ public class DBHandler {
             cleanUpConnections(stmt, con);
         }
 
-        if (isBloomFilterEnabled && updatedRows > 0) {
+        if (isBloomFilterEnabled && (updatedRows != null && updatedRows.length > 0)) {
             buildBloomFilters();
         }
     }
 
-    public void overwriteOrAddEvent(ComplexEvent complexEvent, Object[] obj, ExecutionInfo executionInfo) {
+    public void overwriteOrAddEvent(List<ComplexEvent> insertionEventList, List<Object[]> updateEventList, ExecutionInfo executionInfo) {
 
-        PreparedStatement stmt = null;
+        PreparedStatement updatePreparedStatement = null;
+        PreparedStatement insertionPreparedStatement = null;
         Connection con = null;
-        ArrayList<ComplexEvent> bloomFilterInsertionList = null;
-        int updatedRows = 0;
+        int[] updatedRows;
+        boolean isInserted = false;
+
         try {
 
             con = dataSource.getConnection();
+            updatePreparedStatement = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
+            insertionPreparedStatement = con.prepareStatement(executionInfo.getPreparedInsertStatement());
             con.setAutoCommit(false);
-            stmt = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
-            populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
-            updatedRows = stmt.executeUpdate();
-            if (updatedRows == 0) {
-                if (isBloomFilterEnabled) {
-                    bloomFilterInsertionList = new ArrayList<ComplexEvent>();
-                }
-                try {
-                    stmt = con.prepareStatement(executionInfo.getPreparedInsertStatement());
-                    populateStatement(complexEvent.getOutputData(), stmt, executionInfo.getInsertQueryColumnOrder());
-                    stmt.executeUpdate();
 
-                    if (isBloomFilterEnabled && bloomFilterInsertionList != null) {
-                        bloomFilterInsertionList.add(complexEvent);
+            for (Object[] obj : updateEventList) {
+                populateStatement(obj, updatePreparedStatement, executionInfo.getUpdateQueryColumnOrder());
+                updatePreparedStatement.addBatch();
+
+            }
+
+            updatedRows = updatePreparedStatement.executeBatch();
+
+            for (int i = 0; i < updatedRows.length; i++) {
+                int isUpdated = updatedRows[i];
+                if (isUpdated == 0) {
+                    isInserted = true;
+                    ComplexEvent complexEvent = insertionEventList.get(i);
+                    populateStatement(complexEvent.getOutputData(), insertionPreparedStatement, executionInfo.getInsertQueryColumnOrder());
+                    insertionPreparedStatement.addBatch();
+
+                    if (isBloomFilterEnabled) {
+                        addToBloomFilters(complexEvent);
                     }
-                    if (cachingTable != null) {
-                        cachingTable.add(complexEvent);
+                } else {
+                    if (isBloomFilterEnabled) {
+                        removeFromBloomFilters(updateEventList.get(i));
+                        addToBloomFilters(insertionEventList.get(i));
                     }
-                } catch (SQLException e) {
-                    throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
+
                 }
+            }
+
+            if (isInserted) {
+                insertionPreparedStatement.executeBatch();
             }
             con.commit();
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
+            throw new ExecutionPlanRuntimeException("Error while updating events," + e.getMessage(), e);
         } finally {
-            cleanUpConnections(stmt, con);
-        }
-
-        if (isBloomFilterEnabled) {
-            if (updatedRows > 0) {
-                buildBloomFilters();
-            } else {
-                addToBloomFilters(bloomFilterInsertionList);
-            }
+            cleanUpConnections(updatePreparedStatement, con);
+            cleanUpConnections(insertionPreparedStatement, con);
         }
 
     }
@@ -600,17 +624,15 @@ public class DBHandler {
         }
     }
 
-    public void addToBloomFilters(List<ComplexEvent> eventList) {
-        for (ComplexEvent event : eventList) {
-            for (int i = 0; i < attributeList.size(); i++) {
-                bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
-            }
+    public void addToBloomFilters(ComplexEvent event) {
+        for (int i = 0; i < attributeList.size(); i++) {
+            bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
         }
     }
 
-    public void removeFromBloomFilters(ComplexEvent event) {
+    public void removeFromBloomFilters(Object[] obj) {
         for (int i = 0; i < attributeList.size(); i++) {
-            bloomFilters[i].delete(new Key(event.getOutputData()[i].toString().getBytes()));
+            bloomFilters[i].delete(new Key(obj[i].toString().getBytes()));
         }
     }
 
