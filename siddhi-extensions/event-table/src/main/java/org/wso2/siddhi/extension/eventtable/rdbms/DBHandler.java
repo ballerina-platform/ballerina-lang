@@ -74,7 +74,6 @@ public class DBHandler {
             initializeDatabaseExecutionInfo(executionInfo);
             initializeConnection();
 
-
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Error while initialising the connection, " + e.getMessage(), e);
         } finally {
@@ -159,36 +158,77 @@ public class DBHandler {
 
     public void deleteEvent(List<Object[]> eventList, ExecutionInfo executionInfo) {
 
-        PreparedStatement stmt = null;
+        PreparedStatement deletionPreparedStatement = null;
+        PreparedStatement selectionPreparedStatement = null;
+        ResultSet results = null;
+        List<Object[]> selectedEventList = new ArrayList<Object[]>();
         Connection con = null;
         try {
 
             con = dataSource.getConnection();
-            stmt = con.prepareStatement(executionInfo.getPreparedDeleteStatement());
+            deletionPreparedStatement = con.prepareStatement(executionInfo.getPreparedDeleteStatement());
             con.setAutoCommit(false);
 
             for (Object[] obj : eventList) {
-                populateStatement(obj, stmt, executionInfo.getDeleteQueryColumnOrder());
-                stmt.addBatch();
+                populateStatement(obj, deletionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
+                selectionPreparedStatement = populateBatchSelectionStatement(eventList, con, executionInfo, executionInfo.getDeleteQueryColumnOrder());
+                deletionPreparedStatement.addBatch();
             }
 
-            int[] deletedRows = stmt.executeBatch();
+            if (selectionPreparedStatement != null && isBloomFilterEnabled) {
+                results = selectionPreparedStatement.executeQuery();
+            }
+
+            int[] deletedRows = deletionPreparedStatement.executeBatch();
             con.commit();
 
             if (log.isDebugEnabled()) {
                 log.debug(deletedRows.length + " rows deleted in table " + tableName);
             }
 
-            if (isBloomFilterEnabled && (deletedRows != null && deletedRows.length > 0)) {
-                for (Object[] obj : eventList) {
-                    removeFromBloomFilters(obj);
+            if (isBloomFilterEnabled && (deletedRows != null && deletedRows.length > 0) && results != null) {
+                int columnCount = tableDefinition.getAttributeList().size();
+                while (results.next()) {
+                    Object[] eventArray = new Object[columnCount];
+                    for (int i = 0; i < columnCount; i++) {
+                        switch (tableDefinition.getAttributeList().get(i).getType()) {
+                            case INT:
+                                eventArray[i] = results.getInt(i + 1);
+                                break;
+                            case LONG:
+                                eventArray[i] = results.getLong(i + 1);
+                                break;
+                            case FLOAT:
+                                eventArray[i] = results.getFloat(i + 1);
+                                break;
+                            case DOUBLE:
+                                eventArray[i] = results.getDouble(i + 1);
+                                break;
+                            case STRING:
+                                eventArray[i] = results.getString(i + 1);
+                                break;
+                            case BOOL:
+                                eventArray[i] = results.getBoolean(i + 1);
+                                break;
+                        }
+                    }
+                    selectedEventList.add(eventArray);
+                }
+                results.close();
+                for (int isDeleted : deletedRows) {
+                    if (isDeleted == 1) {
+                        Object[] obj = selectedEventList.remove(0);
+                        removeFromBloomFilters(obj);
+                    }
+
+
                 }
             }
 
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Error while deleting the event," + e.getMessage(), e);
         } finally {
-            cleanUpConnections(stmt, con);
+            cleanUpConnections(deletionPreparedStatement, con);
         }
     }
 
@@ -370,29 +410,29 @@ public class DBHandler {
             if (log.isDebugEnabled()) {
                 log.debug("Table " + tableName + " does not Exist. Table Will be created. ");
             }
-        }finally {
+        } finally {
             cleanUpConnections(stmt, con);
         }
 
         try {
             if (!tableExists) {
-            	con = dataSource.getConnection();
+                con = dataSource.getConnection();
                 stmt = con.createStatement();
                 stmt.executeUpdate(executionInfo.getPreparedCreateTableStatement());
-                if(con != null && !con.getAutoCommit()){
-                	con.commit();
+                if (!con.getAutoCommit()) {
+                    con.commit();
                 }
             }
         } catch (SQLException e) {
-			try {
-				if (con != null && !con.getAutoCommit()) {
-					con.rollback();
-				}
-			} catch (Exception ex) {
-				if (log.isDebugEnabled()) {
-	                log.debug("Table " + tableName + " Creation Failed. Transaction rollback error ",ex);
-	            }
-			}
+            try {
+                if (con != null && !con.getAutoCommit()) {
+                    con.rollback();
+                }
+            } catch (Exception ex) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Table " + tableName + " Creation Failed. Transaction rollback error ", ex);
+                }
+            }
             throw new ExecutionPlanRuntimeException("Exception while creating the event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
@@ -445,6 +485,68 @@ public class DBHandler {
 
 
     /**
+     * Populating batch selection query
+     */
+
+    private PreparedStatement populateBatchSelectionStatement(List<Object[]> eventList, Connection con, ExecutionInfo executionInfo, List<Attribute> colOrder) {
+        Attribute attribute = null;
+        PreparedStatement stmt = null;
+        String selectionQuery = executionInfo.getPreparedSelectTableStatement();
+        StringBuilder batchSelectionQuery = new StringBuilder(selectionQuery);
+
+        int count = 2;
+        int attributeCounter = 0;
+        while (eventList.size() >= count) {
+            batchSelectionQuery.append(" ; ");
+            batchSelectionQuery.append(selectionQuery);
+            count++;
+        }
+
+        try {
+            stmt = con.prepareStatement(batchSelectionQuery.toString());
+            for (Object[] o : eventList) {
+                for (int i = 0; i < colOrder.size(); i++) {
+                    attribute = colOrder.get(i);
+                    Object value = o[i];
+                    attributeCounter++;
+                    if (value != null) {
+                        switch (attribute.getType()) {
+                            case INT:
+                                stmt.setInt(attributeCounter, (Integer) value);
+                                break;
+                            case LONG:
+                                stmt.setLong(attributeCounter, (Long) value);
+                                break;
+                            case FLOAT:
+                                stmt.setFloat(attributeCounter, (Float) value);
+                                break;
+                            case DOUBLE:
+                                stmt.setDouble(attributeCounter, (Double) value);
+                                break;
+                            case STRING:
+                                stmt.setString(attributeCounter, (String) value);
+                                break;
+                            case BOOL:
+                                stmt.setBoolean(attributeCounter, (Boolean) value);
+                                break;
+                        }
+                    } else {
+                        throw new ExecutionPlanRuntimeException("Cannot Execute Insert/Update. Null value detected for " +
+                                "attribute" + attribute.getName());
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            cleanUpConnections(stmt, con);
+            throw new ExecutionPlanRuntimeException("Cannot generate the batch selection statement for table " + e.getMessage(), e);
+        }
+
+        return stmt;
+    }
+
+
+    /**
      * Construct all the queries and assign to executionInfo instance
      */
     private void initializeDatabaseExecutionInfo(ExecutionInfo executionInfo) {
@@ -459,7 +561,7 @@ public class DBHandler {
             databaseType = databaseMetaData.getDatabaseProductName();
 
             elementMappings = DBQueryHelper.getDbTypeMappings().get(databaseType.toLowerCase());
-            if(elementMappings == null){
+            if (elementMappings == null) {
                 elementMappings = DBQueryHelper.getDbTypeMappings().get("default");
             }
 

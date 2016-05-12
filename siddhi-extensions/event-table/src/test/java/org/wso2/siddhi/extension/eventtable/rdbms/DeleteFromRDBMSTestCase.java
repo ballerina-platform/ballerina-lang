@@ -69,10 +69,11 @@ public class DeleteFromRDBMSTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
                 stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
                 deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"WSO2", 57.6f, 100l});
 
                 Thread.sleep(1000);
                 long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
-                Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+                Assert.assertEquals("Deletion failed", 0, totalRowsInTable);
 
                 executionPlanRuntime.shutdown();
 
@@ -98,7 +99,7 @@ public class DeleteFromRDBMSTestCase {
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
+                        "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
