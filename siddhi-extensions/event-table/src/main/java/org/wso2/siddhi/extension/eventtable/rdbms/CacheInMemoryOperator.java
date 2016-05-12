@@ -344,7 +344,7 @@ public class CacheInMemoryOperator implements Operator {
 
     private StreamEvent find(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner) {
         candidateEventChunk.reset();
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
@@ -362,7 +362,7 @@ public class CacheInMemoryOperator implements Operator {
 
 
     protected StreamEvent find(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         for (StreamEvent streamEvent : candidateEvents) {
             if (withinTime != ANY) {
                 long timeDifference = Math.abs(event.getStreamEvent(matchingEventPosition).getTimestamp() - streamEvent.getTimestamp());

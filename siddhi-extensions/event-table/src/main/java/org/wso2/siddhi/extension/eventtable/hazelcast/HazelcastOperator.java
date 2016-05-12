@@ -143,7 +143,7 @@ public class HazelcastOperator implements Operator {
     private StreamEvent findInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk,
                                                 StreamEventCloner streamEventCloner) {
         candidateEventChunk.reset();
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (withinTime != ANY) {
@@ -172,7 +172,7 @@ public class HazelcastOperator implements Operator {
      */
     protected StreamEvent findInCollection(Collection<StreamEvent> candidateEvents,
                                            StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         for (StreamEvent streamEvent : candidateEvents) {
             if (outsideTimeWindow(streamEvent)) {
                 break;

@@ -113,7 +113,7 @@ public class KernelMinMaxStreamProcessor extends StreamProcessor {
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner,
                            ComplexEventPopulater complexEventPopulater) {
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         while (streamEventChunk.hasNext()) {
 
             StreamEvent event = streamEventChunk.next();

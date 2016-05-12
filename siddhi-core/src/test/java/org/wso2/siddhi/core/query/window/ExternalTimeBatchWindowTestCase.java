@@ -280,6 +280,7 @@ public class ExternalTimeBatchWindowTestCase {
             int count = 0 ;
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if(count == 0){
                     Assert.assertEquals(1,inEvents[0].getData(0));
                 }

@@ -49,7 +49,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
 
     protected Processor nextProcessor;
 
-    protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>();
+    protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>(false);
     protected LinkedList<StateEvent> pendingStateEventList = new LinkedList<StateEvent>();
     protected LinkedList<StateEvent> newAndEveryStateEventList = new LinkedList<StateEvent>();
 
@@ -255,7 +255,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
 
     @Override
     public ComplexEventChunk<StateEvent> processAndReturn(ComplexEventChunk complexEventChunk) {
-        ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
+        ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>(false);
         complexEventChunk.reset();
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {

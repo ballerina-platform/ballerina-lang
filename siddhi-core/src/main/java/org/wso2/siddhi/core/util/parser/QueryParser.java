@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
+import org.wso2.siddhi.core.query.output.ratelimit.snapshot.SnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.EventTable;
@@ -101,6 +102,9 @@ public class QueryParser {
                     executionPlanContext.getScheduledExecutorService());
             if (outputRateLimiter != null) {
                 outputRateLimiter.init(executionPlanContext, latencyTracker);
+            }
+            if(outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter){
+                selector.setBatchingEnabled(false);
             }
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 

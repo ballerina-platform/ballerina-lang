@@ -60,7 +60,7 @@ public class JoinProcessor implements Processor {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         if (trigger) {
-            ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>();
+            ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>(false);
             StreamEvent nextEvent = (StreamEvent) complexEventChunk.getFirst();
             complexEventChunk.clear();
             while (nextEvent != null) {

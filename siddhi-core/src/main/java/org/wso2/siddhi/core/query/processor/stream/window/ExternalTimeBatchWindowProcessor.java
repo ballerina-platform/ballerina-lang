@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
-    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
-    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ExpressionExecutor timestampExpressionExecutor;
     private long timeToKeep;
     private long endTime = -1;
@@ -56,7 +56,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         if (attributeExpressionExecutors.length >= 2 && attributeExpressionExecutors.length <= 4) {
 
             if ((attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
@@ -174,7 +174,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     }
 
     private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks, long currentTime) {
-        ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
 
         // mark the timestamp for the expiredType event
         expiredEventChunk.reset();

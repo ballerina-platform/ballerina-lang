@@ -22,6 +22,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
+import java.util.ArrayList;
+
 
 public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
 
@@ -34,7 +36,7 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
     public AllPerEventOutputRateLimiter(String id, Integer value) {
         this.id = id;
         this.value = value;
-        allComplexEventChunk = new ComplexEventChunk<ComplexEvent>();
+        allComplexEventChunk = new ComplexEventChunk<ComplexEvent>(false);
     }
 
     @Override
@@ -47,14 +49,26 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
-        while (complexEventChunk.hasNext()) {
-            ComplexEvent event = complexEventChunk.next();
-            complexEventChunk.remove();
-            allComplexEventChunk.add(event);
-            counter++;
-            if (counter == value) {
-                sendEvents();
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        synchronized (this) {
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                    complexEventChunk.remove();
+                    allComplexEventChunk.add(event);
+                    counter++;
+                    if (counter == value) {
+                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                        outputEventChunk.add(allComplexEventChunk.getFirst());
+                        allComplexEventChunk.clear();
+                        counter = 0;
+                        outputEventChunks.add(outputEventChunk);
+                    }
+                }
             }
+        }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
         }
     }
 
@@ -66,14 +80,6 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void stop() {
         //Nothing to stop
-    }
-
-    private void sendEvents() {
-        ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
-        complexEventChunk.add(allComplexEventChunk.getFirst());
-        allComplexEventChunk.clear();
-        counter = 0;
-        sendToCallBacks(complexEventChunk);
     }
 
     @Override

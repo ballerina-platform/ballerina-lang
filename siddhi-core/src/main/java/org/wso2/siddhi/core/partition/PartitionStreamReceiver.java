@@ -60,7 +60,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         this.executionPlanContext = executionPlanContext;
         streamId = streamDefinition.getId();
         this.eventPool = new StreamEventPool(metaStreamEvent, 5);
-        this.streamEventChunk = new ComplexEventChunk<ComplexEvent>();
+        this.streamEventChunk = new ComplexEventChunk<ComplexEvent>(false);
 
     }
 

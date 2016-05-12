@@ -40,8 +40,8 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
 
     private int length;
     private int count = 0;
-    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
-    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ExecutionPlanContext executionPlanContext;
 
 
@@ -96,7 +96,10 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
             }
         }
         if (streamEventChunk.getFirst() != null) {
+            streamEventChunk.setBatch(true);
             nextProcessor.process(streamEventChunk);
+            streamEventChunk.setBatch(false);
+
         }
 
     }

@@ -47,7 +47,7 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
                 timeToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));

@@ -43,8 +43,8 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     private long timeInMilliSeconds;
     private long nextEmitTime = -1;
-    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
-    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
     private boolean isStartTimeEnabled = false;
@@ -67,7 +67,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -160,11 +160,12 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                     streamEventChunk.add(currentEventChunk.getFirst());
                 }
                 currentEventChunk.clear();
-
             }
         }
         if (streamEventChunk.getFirst() != null) {
+            streamEventChunk.setBatch(true);
             nextProcessor.process(streamEventChunk);
+            streamEventChunk.setBatch(false);
         }
     }
 

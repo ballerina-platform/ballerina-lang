@@ -28,11 +28,10 @@ import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     private String id;
@@ -41,7 +40,6 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
-    private Lock lock;
 
     static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
 
@@ -49,7 +47,6 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
-        lock = new ReentrantLock();
     }
 
     @Override
@@ -61,26 +58,35 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-            lock.lock();
-            complexEventChunk.reset();
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        complexEventChunk.reset();
+        synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
-                        sendEvents();
+                        if (allGroupByKeyEvents.size() != 0) {
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            for (ComplexEvent complexEvent : allGroupByKeyEvents.values()) {
+                                outputEventChunk.add(complexEvent);
+                            }
+                            outputEventChunks.add(outputEventChunk);
+                            allGroupByKeyEvents.clear();
+                        }
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                }else {
+                } else {
                     complexEventChunk.remove();
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     allGroupByKeyEvents.put(groupedComplexEvent.getGroupKey(), groupedComplexEvent.getComplexEvent());
                 }
             }
-        } finally {
-            lock.unlock();
         }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
+        }
+
     }
 
     @Override
@@ -88,8 +94,8 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
         scheduler = new Scheduler(scheduledExecutorService, this);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
-        scheduler.notifyAt(currentTime);
-        scheduledTime = currentTime;
+        scheduledTime = currentTime + value;
+        scheduler.notifyAt(scheduledTime);
     }
 
     @Override
@@ -107,15 +113,4 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
         allGroupByKeyEvents = (Map<String, ComplexEvent>) state[0];
     }
 
-    private synchronized void sendEvents() {
-        if (allGroupByKeyEvents.size() != 0) {
-            ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
-            for (ComplexEvent complexEvent : allGroupByKeyEvents.values()) {
-                complexEventChunk.add(complexEvent);
-            }
-
-            sendToCallBacks(complexEventChunk);
-            allGroupByKeyEvents.clear();
-        }
-    }
 }

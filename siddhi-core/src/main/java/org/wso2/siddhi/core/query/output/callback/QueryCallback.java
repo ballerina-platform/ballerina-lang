@@ -61,15 +61,15 @@ public abstract class QueryCallback {
         Event[] currentEvents = null;
         Event[] expiredEvents = null;
         long timeStamp = -1;
-         List<Event> currentEventBuffer = new ArrayList<Event>();
-         List<Event> expiredEventBuffer = new ArrayList<Event>();
+        List<Event> currentEventBuffer = new ArrayList<Event>();
+        List<Event> expiredEventBuffer = new ArrayList<Event>();
 
-
+        complexEventChunk.reset();
         while (complexEventChunk.hasNext()) {
             ComplexEvent streamEvent = complexEventChunk.next();
             if (streamEvent.getType() == StreamEvent.Type.EXPIRED) {
                 bufferEvent(streamEvent, expiredEventBuffer);
-            } else {
+            } else if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
                 bufferEvent(streamEvent, currentEventBuffer);
             }
             timeStamp = streamEvent.getTimestamp();

@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
 
-    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>();
+    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
     protected final String lockKey;
     private QuerySelector querySelector;
 
@@ -46,7 +46,7 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        ComplexEventChunk<StateEvent> retEventChunk = new ComplexEventChunk<StateEvent>();
+        ComplexEventChunk<StateEvent> retEventChunk = new ComplexEventChunk<StateEvent>(false);
         synchronized (lockKey) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
@@ -65,7 +65,7 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
         while (retEventChunk.hasNext()) {
             StateEvent stateEvent = retEventChunk.next();
             retEventChunk.remove();
-            querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent));
+            querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent, false));
         }
     }
 

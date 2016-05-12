@@ -24,10 +24,7 @@ import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.util.Scheduler;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -66,9 +63,9 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-            lock.lock();
-            complexEventChunk.reset();
+        List<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        complexEventChunk.reset();
+        synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event instanceof GroupedComplexEvent) {
@@ -76,7 +73,11 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
                 }
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
-                        sendEvents();
+                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+                        for (ComplexEvent complexEvent : eventList) {
+                            outputEventChunk.add(cloneComplexEvent(complexEvent));
+                        }
+                        outputEventChunks.add(outputEventChunk);
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
@@ -93,8 +94,9 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
                     }
                 }
             }
-        } finally {
-            lock.unlock();
+        }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
         }
     }
 
@@ -108,8 +110,8 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
         scheduler = new Scheduler(scheduledExecutorService, this);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
-        scheduler.notifyAt(currentTime);
-        scheduledTime = currentTime;
+        scheduledTime = currentTime + value;
+        scheduler.notifyAt(scheduledTime);
     }
 
     @Override
@@ -125,14 +127,6 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     @Override
     public void restoreState(Object[] state) {
         eventList = (LinkedList<ComplexEvent>) state[0];
-    }
-
-    private synchronized void sendEvents() {
-        ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
-        for (ComplexEvent complexEvent : eventList) {
-            complexEventChunk.add(cloneComplexEvent(complexEvent));
-        }
-        sendToCallBacks(complexEventChunk);
     }
 
 }

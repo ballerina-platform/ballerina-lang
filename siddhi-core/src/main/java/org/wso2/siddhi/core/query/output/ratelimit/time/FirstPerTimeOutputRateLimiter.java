@@ -26,9 +26,8 @@ import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 
+import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     private String id;
@@ -37,61 +36,61 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
-    private Lock lock;
 
     static final Logger log = Logger.getLogger(FirstPerTimeOutputRateLimiter.class);
 
-    public FirstPerTimeOutputRateLimiter(String id,Long value, ScheduledExecutorService scheduledExecutorService) {
+    public FirstPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService) {
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
-        lock = new ReentrantLock();
     }
 
     @Override
     public OutputRateLimiter clone(String key) {
-        FirstPerTimeOutputRateLimiter instance = new FirstPerTimeOutputRateLimiter(id+key,value,scheduledExecutorService);
+        FirstPerTimeOutputRateLimiter instance = new FirstPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-            lock.lock();
-            complexEventChunk.reset();
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        complexEventChunk.reset();
+        synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
-                if(event.getType() == ComplexEvent.Type.TIMER) {
+                if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
                         if (firstEvent != null) {
                             firstEvent = null;
                         }
-                        scheduledTime = scheduledTime + value;
+                        scheduledTime += value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                }else {
+                } else {
                     if (firstEvent == null) {
                         complexEventChunk.remove();
                         firstEvent = event;
-                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>();
+                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
                         firstPerEventChunk.add(event);
-                        sendToCallBacks(firstPerEventChunk);
+                        outputEventChunks.add(firstPerEventChunk);
                     }
                 }
             }
-        } finally {
-            lock.unlock();
         }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
+        }
+
     }
 
     @Override
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this);
-        scheduler.setStreamEventPool(new StreamEventPool(0,0,0, 5));
+        scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
-        scheduler.notifyAt(currentTime);
-        scheduledTime = currentTime;
+        scheduledTime = currentTime + value;
+        scheduler.notifyAt(scheduledTime);
     }
 
     @Override

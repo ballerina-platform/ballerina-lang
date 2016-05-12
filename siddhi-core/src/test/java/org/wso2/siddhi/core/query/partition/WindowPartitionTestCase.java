@@ -145,7 +145,7 @@ public class WindowPartitionTestCase {
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec)  " +
-                "select symbol,sum(price) as price,volume " +
+                "select symbol, sum(price) as price,volume " +
                 "insert all events into OutStockStream ;  " +
                 "end ";
 
@@ -160,29 +160,32 @@ public class WindowPartitionTestCase {
                 EventPrinter.print(events);
                 eventArrived = true;
                 for (Event event : events) {
-                    inEventCount++;
-                    if (inEventCount == 1) {
-                        Assert.assertEquals(70.0, event.getData()[1]);
-                    } else if (inEventCount == 2) {
-                        Assert.assertEquals(700.0, event.getData()[1]);
-                    } else if (inEventCount == 3) {
-                        Assert.assertEquals(170.0, event.getData()[1]);
-                    } else if (inEventCount == 4) {
-                        if (((Double) event.getData()[1]) == 100.0) {
-                            inEventCount = 3;
-                            continue;
+                    if (event.getData()[0].equals("WSO2")) {
+                        inEventCount++;
+                        if (inEventCount == 1) {
+                            Assert.assertEquals(700.0, event.getData()[1]);
+                        } else if (inEventCount == 2) {
+                            Assert.assertEquals(0.0, event.getData()[1]);
+                        } else if (inEventCount == 3) {
+                            Assert.assertEquals(1000.0, event.getData()[1]);
+                        } else if (inEventCount == 4) {
+                            Assert.assertEquals(0.0, event.getData()[1]);
                         }
-                        Assert.assertEquals(0.0, event.getData()[1]);
-                    } else if (inEventCount == 5) {
-                        Assert.assertEquals(0.0, event.getData()[1]);
-                    } else if (inEventCount == 6) {
-                        Assert.assertEquals(200.0, event.getData()[1]);
-                    } else if (inEventCount == 7) {
-                        Assert.assertEquals(1000.0, event.getData()[1]);
-                    } else if (inEventCount == 8) {
-                        Assert.assertEquals(0.0, event.getData()[1]);
-                    } else if (inEventCount == 9) {
-                        Assert.assertEquals(0.0, event.getData()[1]);
+                    } else {
+                        removeEventCount++;
+                        if (removeEventCount == 1) {
+                            Assert.assertEquals(70.0, event.getData()[1]);
+                        } else if (removeEventCount == 2) {
+                            Assert.assertEquals(170.0, event.getData()[1]);
+                        } else if (removeEventCount == 3) {
+                            Assert.assertEquals(100.0, event.getData()[1]);
+                        } else if (removeEventCount == 4) {
+                            Assert.assertEquals(0.0, event.getData()[1]);
+                        } else if (removeEventCount == 5) {
+                            Assert.assertEquals(200.0, event.getData()[1]);
+                        } else if (removeEventCount == 6) {
+                            Assert.assertEquals(0.0, event.getData()[1]);
+                        }
                     }
                 }
             }
@@ -200,7 +203,8 @@ public class WindowPartitionTestCase {
 
         Thread.sleep(2000);
         executionRuntime.shutdown();
-        Assert.assertTrue(inEventCount >= 9);
+        Assert.assertTrue(inEventCount == 4);
+        Assert.assertTrue(removeEventCount == 6);
         Assert.assertTrue(eventArrived);
 
 

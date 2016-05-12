@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.query.processor.Processor;
 
 public class CronWindowProcessor extends WindowProcessor implements Job {
 
-    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>();
-    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ExecutionPlanContext executionPlanContext;
     private Scheduler scheduler;
     private String jobName;
@@ -120,7 +120,7 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
 
     public void dispatchEvents() {
 
-        ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(false);
         synchronized (this) {
             if (currentEventChunk.getFirst() != null) {
                 long currentTime = executionPlanContext.getTimestampGenerator().currentTime();

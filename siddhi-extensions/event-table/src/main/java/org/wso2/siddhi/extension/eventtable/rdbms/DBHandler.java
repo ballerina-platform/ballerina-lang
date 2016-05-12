@@ -285,7 +285,7 @@ public class DBHandler {
 
         PreparedStatement stmt = null;
         Connection con = null;
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         try {
 
             con = dataSource.getConnection();
