@@ -296,7 +296,7 @@
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
 
-        <carbon.p2.plugin.version>2.0.0</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>2.0.1</carbon.p2.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
 

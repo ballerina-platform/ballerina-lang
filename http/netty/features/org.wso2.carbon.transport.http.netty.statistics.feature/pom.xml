@@ -78,7 +78,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <propertyFile>etc/feature.properties</propertyFile>
+                            <propertyFile>../etc/feature.properties</propertyFile>
                             <adviceFileContents>
                                 <advice>
                                     <name>org.eclipse.equinox.p2.type.group</name>
