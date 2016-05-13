@@ -31,7 +31,7 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:parallel " +
+                "@plan:async " +
                 "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +

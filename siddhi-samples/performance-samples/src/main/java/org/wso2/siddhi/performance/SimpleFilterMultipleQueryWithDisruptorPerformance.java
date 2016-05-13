@@ -24,17 +24,14 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 
 public class SimpleFilterMultipleQueryWithDisruptorPerformance {
-    private static int count = 0;
-    private static volatile long start = System.currentTimeMillis();
 
     public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:parallel" +
+                "@plan:async" +
                 " " +
-                "define stream cseEventStream (symbol string, price float, volume int);" +
-                "define stream cseEventStream2 (symbol string, price float, volume int);" +
+                "define stream cseEventStream (symbol string, price float, volume int, timestamp long);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream[70 > price] " +
@@ -49,38 +46,63 @@ public class SimpleFilterMultipleQueryWithDisruptorPerformance {
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
-            private long chunk = 0;
-            private long prevCount = 0;
+            public int eventCount = 0;
+            public int timeSpent = 0;
+            long startTime = System.currentTimeMillis();
 
             @Override
             public void receive(Event[] events) {
-                count += events.length;
-                long currentChunk = count / 2000000;
-                if (currentChunk != chunk) {
-                    long end = System.currentTimeMillis();
-                    double tp = ((count - prevCount) * 1000.0 / (end - start));
-                    System.out.println("Throughput = " + tp + " Event/sec");
-                    start = end;
-                    chunk = currentChunk;
-                    prevCount = count;
+                for (Event event : events) {
+                    eventCount++;
+                    timeSpent += (System.currentTimeMillis() - (Long) event.getData(3));
+                    if (eventCount % 1000000 == 0) {
+                        System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
+                        System.out.println("Time spend :  " + (timeSpent * 1.0 / eventCount));
+                        startTime = System.currentTimeMillis();
+                        eventCount = 0;
+                        timeSpent = 0;
+                    }
                 }
-
             }
 
         });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-//        InputHandler inputHandler2 = executionPlanRuntime.getInputHandler("cseEventStream2");
         executionPlanRuntime.start();
-        while (true) {
-            inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
-            inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-            inputHandler.send(new Object[]{"WSO2", 100f, 80});
-            inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-            inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
-            inputHandler.send(new Object[]{"IBM", 75.6f, 100});
-            inputHandler.send(new Object[]{"WSO2", 100f, 80});
-            inputHandler.send(new Object[]{"IBM", 75.6f, 100});
+
+
+        for (int i = 0; i <= 100; i++) {
+            EventPublisher eventPublisher = new EventPublisher(inputHandler);
+            eventPublisher.run();
+        }
+        //executionPlanRuntime.shutdown();
+    }
+
+
+    static class EventPublisher implements Runnable {
+
+        InputHandler inputHandler;
+
+        EventPublisher(InputHandler inputHandler) {
+            this.inputHandler = inputHandler;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    inputHandler.send(new Object[]{"WSO2", 55.6f, 100, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", 75.6f, 100, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"WSO2", 100f, 80, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", 75.6f, 100, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"WSO2", 55.6f, 100, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", 75.6f, 100, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"WSO2", 100f, 80, System.currentTimeMillis()});
+                    inputHandler.send(new Object[]{"IBM", 75.6f, 100, System.currentTimeMillis()});
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
         }
     }
 }
