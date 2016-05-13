@@ -47,7 +47,7 @@ public class GetFunctionExtensionTestCase {
     public void testGetFunctionExtension() throws InterruptedException {
         log.info("GetFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price double, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price double, volume long);";
 
         String query = ("@info(name = 'query1') from inputStream " +
                 "select symbol,price,map:create() as tmpMap" +
@@ -100,7 +100,7 @@ public class GetFunctionExtensionTestCase {
     public void testGetFunctionExtension2() throws InterruptedException {
         log.info("GetFunctionExtension TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream" +
                 " select symbol,price,map:create() as tmpMap " +
                 "insert into tmpStream;" +

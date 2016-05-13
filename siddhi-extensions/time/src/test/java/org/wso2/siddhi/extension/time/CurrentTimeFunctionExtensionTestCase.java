@@ -47,7 +47,7 @@ public class CurrentTimeFunctionExtensionTestCase {
         log.info("CurrentTimeFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream select symbol , time:currentTime() as currentTime "+

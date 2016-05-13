@@ -49,7 +49,7 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert expired events into OutStockStream ;  end ";
 
 
@@ -94,7 +94,7 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.lengthBatch(2)  select symbol,sum(price) as price,volume insert all events into OutStockStream ;  end ";
 
 
@@ -216,7 +216,7 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, price float,volume int);"
+        String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(2)  select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
 
 
@@ -279,7 +279,7 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test5");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')" +
+        String executionPlan = "" +
                 "define stream cseEventStream (symbol string, price double,volume int);"
                 + "" +
                 "partition with (symbol of cseEventStream) " +

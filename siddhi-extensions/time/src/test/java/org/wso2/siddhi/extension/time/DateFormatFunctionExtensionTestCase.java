@@ -47,7 +47,7 @@ public class DateFormatFunctionExtensionTestCase {
         log.info("DateFormatFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string," +
+        String inStreamDefinition = "define stream inputStream (symbol string," +
                 "dateValue string,sourceFormat string,timestampInMilliseconds long,targetFormat string);";
         String query = ("@info(name = 'query1') from inputStream select symbol , " +
                 "time:dateFormat(dateValue,targetFormat,sourceFormat) as formattedDate," +

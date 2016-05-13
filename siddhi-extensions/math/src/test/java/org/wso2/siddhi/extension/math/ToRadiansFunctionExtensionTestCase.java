@@ -37,7 +37,7 @@ public class ToRadiansFunctionExtensionTestCase {
         logger.info("ToRadiansFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
+        String inValueStream = "define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:toRadians(inValue) as radiansValue "

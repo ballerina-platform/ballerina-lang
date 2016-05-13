@@ -37,7 +37,7 @@ public class Log10FunctionExtensionTestCase {
         logger.info("Log10FunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
+        String inValueStream = "define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:log10(inValue) as lnValue "

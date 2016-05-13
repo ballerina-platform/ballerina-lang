@@ -48,7 +48,7 @@ public class CoalesceFunctionExtensionTestCase {
         log.info("CoalesceFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol1 string, symbol2 string, symbol3 string);";
+        String inStreamDefinition = "define stream inputStream (symbol1 string, symbol2 string, symbol3 string);";
         String query = ("@info(name = 'query1') from inputStream select symbol1 , str:coalesce(symbol1,symbol2,symbol3) as coalescedString " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

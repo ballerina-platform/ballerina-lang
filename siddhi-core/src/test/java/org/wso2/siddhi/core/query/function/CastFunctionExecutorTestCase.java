@@ -47,7 +47,7 @@ public class CastFunctionExecutorTestCase {
     public void testCastFunctionExtension() throws InterruptedException {
         log.info("CastFunctionExecutor TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price object, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
                 + "cast(price, 'double') as priceInDouble insert into outputStream;");
 

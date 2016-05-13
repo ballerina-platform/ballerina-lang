@@ -120,7 +120,7 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -154,7 +154,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[70 > price] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -188,7 +188,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -219,7 +219,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -251,7 +251,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -283,7 +283,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -315,7 +315,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume float);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50l] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -348,7 +348,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume float);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -381,7 +381,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -413,7 +413,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50f] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -445,7 +445,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 45] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -477,7 +477,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume float);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -509,7 +509,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume float);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 45] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -541,7 +541,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume float, quantity int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume float, quantity int);";
         String query = "@info(name = 'query1') from cseEventStream[quantity > 4d] select symbol,price,quantity insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -573,7 +573,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 50d] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -743,7 +743,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 100] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -776,7 +776,7 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume > 12l and price < 56] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -840,7 +840,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 50f] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -873,7 +873,7 @@ public class FilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[price != 35l] select symbol,price insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -905,7 +905,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 100 and volume != 70d] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -937,7 +937,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[price != 53.6d or price != 87] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -968,7 +968,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 40f and volume != 400] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1001,7 +1001,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 40d and volume != 400d] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1032,7 +1032,7 @@ public class FilterTestCase {
         log.info("Filter test30");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, available bool);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, available bool);";
         String query = "@info(name = 'query1') from cseEventStream[available != true ] select symbol,price,available insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1113,7 +1113,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[price != 50 and volume != 50l] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1144,7 +1144,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 50d] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1175,7 +1175,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 50f  or volume != 50] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1206,7 +1206,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume != 50l] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1287,7 +1287,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[volume == 50d] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1318,7 +1318,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[symbol == 'IBM'] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1349,7 +1349,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[price <= 53.5f] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1380,7 +1380,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume double);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume double);";
         String query = "@info(name = 'query1') from cseEventStream[price <= 54] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1411,7 +1411,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[volume <= 40] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1442,7 +1442,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream[price >= 54] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1473,7 +1473,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1504,7 +1504,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50 and volume] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1516,7 +1516,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[price and volume >= 50 ] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1528,7 +1528,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume >= 50 or volume] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1540,7 +1540,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[price or volume >= 50 ] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -1604,7 +1604,7 @@ public class FilterTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream[volume] select symbol,price,volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -4083,7 +4083,7 @@ public class FilterTestCase {
         log.info("filter test116");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream select symbol,price+5 as price insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -4115,7 +4115,7 @@ public class FilterTestCase {
         log.info("filter test116");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500) select symbol,sum(price)+5 as price insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -4150,7 +4150,7 @@ public class FilterTestCase {
         log.info("filter test118");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500)  select volume, sum(price) as price group by volume insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -4182,7 +4182,7 @@ public class FilterTestCase {
         log.info("filter test119");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price)+10 as price group by symbol having price > 880 insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -4214,7 +4214,7 @@ public class FilterTestCase {
         log.info("filter test120");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price) as sumprice group by symbol having sumprice > 880 insert into outputStream ;";
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

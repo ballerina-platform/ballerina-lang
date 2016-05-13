@@ -37,7 +37,7 @@ public class ParseLongFunctionExtensionTestCase {
         logger.info("ParseLongFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue string);";
+        String inValueStream = "define stream InValueStream (inValue string);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:parseLong(inValue) as output "

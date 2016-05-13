@@ -30,15 +30,15 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SingleThreadEntryValve implements InputProcessor {
 
-    private Lock lock;
+//    private Lock lock;
     private InputProcessor inputProcessor;
 
 
     public SingleThreadEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
-        this.lock = executionPlanContext.getSharedLock();
-        if (lock == null) {
-            lock = new ReentrantLock();
-        }
+//        this.lock = executionPlanContext.getSharedLock();
+//        if (lock == null) {
+//            lock = new ReentrantLock();
+//        }
         this.inputProcessor = inputProcessor;
     }
 
@@ -54,31 +54,31 @@ public class SingleThreadEntryValve implements InputProcessor {
 
     @Override
     public void send(Event[] events, int streamIndex) {
-        lock.lock();
-        try {
+//        lock.lock();
+//        try {
             inputProcessor.send(events, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+//        } finally {
+//            lock.unlock();
+//        }
     }
 
     @Override
     public void send(List<Event> events, int streamIndex) {
-        lock.lock();
-        try {
+//        lock.lock();
+//        try {
             inputProcessor.send(events, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+//        } finally {
+//            lock.unlock();
+//        }
     }
 
     @Override
     public void send(long timeStamp, Object[] data, int streamIndex) {
-        lock.lock();
-        try {
+//        lock.lock();
+//        try {
             inputProcessor.send(timeStamp, data, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+//        } finally {
+//            lock.unlock();
+//        }
     }
 }

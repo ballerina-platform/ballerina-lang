@@ -37,7 +37,7 @@ public class PowerFunctionExtensionTestCase {
         logger.info("PowerFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue1 double, inValue2 double);";
+        String inValueStream = "define stream InValueStream (inValue1 double, inValue2 double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:power(inValue1,inValue2) as powerValue "

@@ -48,7 +48,7 @@ public class ReplaceAllFunctionExtensionTestCase {
         log.info("ReplaceAllFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
 
         String query = (
                 "@info(name = 'query1') from inputStream select symbol , str:replaceAll(symbol, 'hello', 'test') as replacedString " +
@@ -95,7 +95,7 @@ public class ReplaceAllFunctionExtensionTestCase {
         log.info("ReplaceAllFunctionExtension TestCase, variable regex and replacement strings scenario");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, regex string, replacement string);";
+        String inStreamDefinition = "define stream inputStream (symbol string, regex string, replacement string);";
 
         String query = (
                 "@info(name = 'query1') from inputStream select symbol , str:replaceAll(symbol, regex, replacement) as replacedString " +

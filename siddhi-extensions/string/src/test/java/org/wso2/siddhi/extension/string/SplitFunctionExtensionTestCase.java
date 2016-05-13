@@ -48,7 +48,7 @@ public class SplitFunctionExtensionTestCase {
         log.info("SplitFunctionExtensionTestCase TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, " +
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, " +
                 "volume long);";
         String query = ("@info(name = 'query1') " + "from inputStream " + "select symbol , str:split(symbol, '_', 1) as splitText " +
                 "insert into outputStream;");
@@ -92,7 +92,7 @@ public class SplitFunctionExtensionTestCase {
         log.info("SplitFunctionExtensionTestCase TestCase, where both splitCharacter and index are variables.");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, splitCharacter string, index int);";
+        String inStreamDefinition = "define stream inputStream (symbol string, splitCharacter string, index int);";
 
         String query = (
                 "@info(name = 'query1') from inputStream select symbol , str:split(symbol, splitCharacter, index) as splitText " +

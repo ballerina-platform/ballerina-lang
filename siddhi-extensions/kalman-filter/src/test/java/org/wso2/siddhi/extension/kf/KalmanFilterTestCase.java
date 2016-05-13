@@ -47,7 +47,7 @@ public class KalmanFilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                "@config(async = 'true') " +
+                "" +
                 "define stream cleanedStream (latitude double, changingRate double, measurementNoiseSD double, " +
                                             "timestamp long); " +
                 "@info(name = 'query1') " +
@@ -96,7 +96,7 @@ public class KalmanFilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                "@config(async = 'true') " +
+                "" +
                 "define stream cleanedStream (latitude double, changingRate double, measurementNoiseSD double, " +
                                             "timestamp long); " +
                 "@info(name = 'query1') " +
@@ -145,7 +145,7 @@ public class KalmanFilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                "@config(async = 'true') " +
+                "" +
                 "define stream cleanedStream (latitude double, changingRate double, measurementNoiseSD double, " +
                                             "timestamp long); " +
                 "@info(name = 'query1') " +
@@ -194,7 +194,7 @@ public class KalmanFilterTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                "@config(async = 'true') " +
+                "" +
                 "define stream cleanedStream (latitude double, changingRate double, measurementNoiseSD double, " +
                                             "timestamp long); " +
                 "@info(name = 'query1') " +

@@ -41,7 +41,7 @@ public class GeocodeStreamFunctionProcessorTest {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         long start = System.currentTimeMillis();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime("@config(async = 'true') define stream geocodeStream (location string, level string, time string);"
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime("define stream geocodeStream (location string, level string, time string);"
                 + "@info(name = 'query1') from geocodeStream#geo:geocode(location) " +
                 " select latitude, longitude, formattedAddress " +
                 " insert into dataOut");

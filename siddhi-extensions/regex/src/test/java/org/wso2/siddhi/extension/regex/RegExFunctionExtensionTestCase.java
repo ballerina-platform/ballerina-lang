@@ -45,7 +45,7 @@ public class RegExFunctionExtensionTestCase {
         log.info("FindFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, regex string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , regex:find(regex, symbol) as aboutWSO2 " +
@@ -92,7 +92,7 @@ public class RegExFunctionExtensionTestCase {
         log.info("FindStartFromIndexFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string, startingIndex int);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, regex string, startingIndex int);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , regex:find(regex, symbol, startingIndex) as aboutWSO2 " +
@@ -131,7 +131,7 @@ public class RegExFunctionExtensionTestCase {
         log.info("MatchesFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, regex string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , regex:matches(regex, symbol) as aboutWSO2 " +
@@ -174,7 +174,7 @@ public class RegExFunctionExtensionTestCase {
         log.info("LookingAtFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, regex string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , regex:lookingAt(regex, symbol) as aboutWSO2 " +
@@ -217,7 +217,7 @@ public class RegExFunctionExtensionTestCase {
         log.info("GroupFunctionExtensionTestCase TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string, group int);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, regex string, group int);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select symbol , regex:group(regex, symbol, group) as aboutWSO2 " +

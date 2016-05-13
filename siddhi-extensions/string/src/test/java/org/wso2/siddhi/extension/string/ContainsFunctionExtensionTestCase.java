@@ -49,7 +49,7 @@ public class ContainsFunctionExtensionTestCase {
         log.info("ContainsFunctionExtensionTestCase TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, " +
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, " +
                 "volume long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +

@@ -51,7 +51,7 @@ public class CreateFromJSONFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select "
                 + "map:createFromJSON(\"{'symbol':'IBM','price':100,'volume':100 }\") as hashMap insert into outputStream;");
 
@@ -89,7 +89,7 @@ public class CreateFromJSONFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select "
                 + "map:createFromJSON(str:concat('{symbol :',symbol,', price :',price,', volume :',volume,'}')) as hashMap insert into outputStream;");
 

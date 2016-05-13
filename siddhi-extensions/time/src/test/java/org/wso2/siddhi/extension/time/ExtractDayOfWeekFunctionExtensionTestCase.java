@@ -49,7 +49,7 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
         log.info("ExtractDayOfWeekFunctionExtensionTestCase ");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string, dateValue string,dateFormat string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
@@ -93,7 +93,7 @@ public class ExtractDayOfWeekFunctionExtensionTestCase {
         log.info("ExtractDayOfWeekFunctionExtensionTestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string, dateValue string);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +

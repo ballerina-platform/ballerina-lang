@@ -47,7 +47,7 @@ public class KernelExtensionTestCase {
         log.info("KernelMaxExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price double);";
+        String inStreamDefinition = "define stream inputStream (price double);";
         String query = ("@info(name = 'query1') from inputStream#timeseries:kernelMinMax(price, 4, 17, 'max') " +
                 "select *" +
                 "insert into outputStream;");
@@ -206,7 +206,7 @@ public class KernelExtensionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (id int, price double);";
+        String inStreamDefinition = "define stream inputStream (id int, price double);";
         String query = ("@info(name = 'query1') from inputStream#timeseries:kernelMinMax(price, 3 , 16, 'minmax') " +
                 "select price, extremaType , id " +
                 "insert into outputStream;");
@@ -394,7 +394,7 @@ public class KernelExtensionTestCase {
         log.info("KernelMinExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price double);";
+        String inStreamDefinition = "define stream inputStream (price double);";
         String query = ("@info(name = 'query1') from inputStream#timeseries:kernelMinMax(price, 4, 16, 'min') " +
                 "select *" +
                 "insert into outputStream;");

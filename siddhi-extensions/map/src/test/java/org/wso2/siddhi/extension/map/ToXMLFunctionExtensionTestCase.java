@@ -54,7 +54,7 @@ public class ToXMLFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select "
                 + "map:createFromXML(\"<sensor>" +
                 "<commonAttr1>19</commonAttr1>" +
@@ -115,7 +115,7 @@ public class ToXMLFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (longAttr long, doubleAttr double, booleanAttr bool, strAttr string);";
+        String inStreamDefinition = "\ndefine stream inputStream (longAttr long, doubleAttr double, booleanAttr bool, strAttr string);";
         String query = ("@info(name = 'query1') from inputStream select " +
                 "map:createFromXML(str:concat('<sensor><commonAttr1>',longAttr,'</commonAttr1><commonAttr2>'," +
                 "doubleAttr,'</commonAttr2><commonAttr3>',booleanAttr,'</commonAttr3><commonAttr4>',strAttr,'</commonAttr4></sensor>')) " +

@@ -48,7 +48,7 @@ public class RepeatFunctionExtensionTestCase {
         log.info("RepeatFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
 
         String query = (
                 "@info(name = 'query1') from inputStream select symbol , str:repeat(symbol, 3) as symbolRepeated3Times " +
@@ -95,7 +95,7 @@ public class RepeatFunctionExtensionTestCase {
         log.info("RepeatFunctionExtension - VariableIndex - TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, times int, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, times int, volume long);";
 
         String query = (
                 "@info(name = 'query1') from inputStream select symbol , str:repeat(symbol, times) as symbolRepeatedIndexTimes " +

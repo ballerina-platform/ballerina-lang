@@ -53,7 +53,7 @@ public class TablePartitionTestCase {
 
         String executionPlan = "" +
                 "@plan:name('PartitionTest') " +
-                "@config(async = 'true')" +
+                "" +
                 "define stream streamA (symbol string, price int);" +
                 "define table tableA (symbol string, price int);" +
                 "partition with (symbol of streamA) " +

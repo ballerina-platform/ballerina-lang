@@ -56,8 +56,7 @@ public class FunctionTestCase {
         log.info("function test 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT).
-                annotation(Annotation.annotation("config").element("async", "true"));
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -116,7 +115,7 @@ public class FunctionTestCase {
         log.info("function test 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 double, price2 float, volume long , quantity int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 double, price2 float, volume long , quantity int);";
         String query = "@info(name = 'query1') from cseEventStream select symbol, coalesce(price1,price2) as price,quantity insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -158,7 +157,7 @@ public class FunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
         String query = "@info(name = 'query1') from cseEventStream[coalesce(price1,price2) > 0f] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream ;";
 
 

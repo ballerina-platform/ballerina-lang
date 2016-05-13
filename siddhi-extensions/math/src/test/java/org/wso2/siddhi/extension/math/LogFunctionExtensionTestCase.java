@@ -37,7 +37,7 @@ public class LogFunctionExtensionTestCase {
         logger.info("LogFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (number double, base double);";
+        String inValueStream = "define stream InValueStream (number double, base double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:log(number, base) as logValue "

@@ -48,7 +48,7 @@ public class UnhexFunctionExtensionTestCase {
         logger.info("UnhexFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue string);";
+        String inValueStream = "define stream InValueStream (inValue string);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select str:unhex(inValue) as unhexString "

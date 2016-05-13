@@ -48,7 +48,7 @@ public class ConcatFunctionExtensionTestCase {
         log.info("ConcatFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol1 string, symbol2 string, symbol3 string);";
+        String inStreamDefinition = "define stream inputStream (symbol1 string, symbol2 string, symbol3 string);";
         String query = ("@info(name = 'query1') from inputStream select symbol1 , str:concat(symbol1,symbol2,symbol3) as concatString " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

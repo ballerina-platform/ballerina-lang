@@ -48,7 +48,7 @@ public class StrcmpFunctionExtensionTestCase {
         log.info("StrcmpFunctionExtension TestCase, with compareTo string being a constant.");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:strcmp(symbol, 'Hello') as compareText " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
@@ -91,7 +91,7 @@ public class StrcmpFunctionExtensionTestCase {
         log.info("StrcmpFunctionExtension TestCase, with compareTo string being a variable.");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, compareTo string, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, compareTo string, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:strcmp(symbol, compareTo) as compareText " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

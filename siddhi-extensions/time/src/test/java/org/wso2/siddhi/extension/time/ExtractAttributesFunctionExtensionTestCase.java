@@ -47,7 +47,7 @@ public class ExtractAttributesFunctionExtensionTestCase {
         log.info("ExtractAttributesFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string,dateValue string,dateFormat string,timestampInMilliseconds long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +

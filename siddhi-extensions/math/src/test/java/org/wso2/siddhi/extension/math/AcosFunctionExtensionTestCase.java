@@ -37,7 +37,7 @@ public class AcosFunctionExtensionTestCase {
         logger.info("AcosFunctionExtension TestCase: Input is of type double");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
+        String inValueStream = "define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:acos(inValue) as acosValue "
@@ -69,7 +69,7 @@ public class AcosFunctionExtensionTestCase {
         logger.info("AcosFunctionExtension TestCase2: Result is NaN");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
+        String inValueStream = "define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:acos(inValue) as convertedValue "
@@ -100,7 +100,7 @@ public class AcosFunctionExtensionTestCase {
         logger.info("AcosFunctionExtension TestCase2: Input is NaN");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
+        String inValueStream = "define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:acos(inValue) as convertedValue "
@@ -131,7 +131,7 @@ public class AcosFunctionExtensionTestCase {
         logger.info("AcosFunctionExtension TestCase2: Input is of type float");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue float);";
+        String inValueStream = "define stream InValueStream (inValue float);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:acos(inValue) as convertedValue "

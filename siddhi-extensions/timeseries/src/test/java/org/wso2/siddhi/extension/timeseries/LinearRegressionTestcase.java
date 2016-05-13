@@ -46,7 +46,7 @@ public class LinearRegressionTestcase {
         logger.info("Simple Regression TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inputStream = "@config(async = 'true')define stream InputStream (y int, x int);";
+        String inputStream = "define stream InputStream (y int, x int);";
 
         String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:regress(1, 100, 0.95, y, x) "
                 + "select * "
@@ -131,7 +131,7 @@ public class LinearRegressionTestcase {
         logger.info("Multiple Regression TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inputStream = "@config(async = 'true')define stream InputStream (a int, b int, c int, d int, e int);";
+        String inputStream = "define stream InputStream (a int, b int, c int, d int, e int);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query2') from InputStream#timeseries:regress(a, c, b, e) "
                 + "select * "
@@ -216,7 +216,7 @@ public class LinearRegressionTestcase {
         logger.info("Simple Forecast TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inputStream = "@config(async = 'true')define stream InputStream (y double, symbol string, x double);";
+        String inputStream = "define stream InputStream (y double, symbol string, x double);";
 
         String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:forecast(2, 1000, 0.95, x+2, y, x) "
                 + "select * "
@@ -302,7 +302,7 @@ public class LinearRegressionTestcase {
         logger.info("Simple Outlier TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inputStream = "@config(async = 'true')define stream InputStream (y double, x double);";
+        String inputStream = "define stream InputStream (y double, x double);";
 
         String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:outlier(1, y, x) "
                 + "select * "
@@ -387,7 +387,7 @@ public class LinearRegressionTestcase {
         logger.info("Discrete Seasonality TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inputStream = "@config(async = 'true')define stream InputStream (y double, t long);";
+        String inputStream = "define stream InputStream (y double, t long);";
 
         String executionPlan = ("from InputStream "
                 + " select y, t,  time:extract(t*1000,'MONTH') as eventMonth "
@@ -461,7 +461,7 @@ public class LinearRegressionTestcase {
         logger.info("Continuous Seasonality TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inputStream = "@config(async = 'true')define stream InputStream (y double, x double);";
+        String inputStream = "define stream InputStream (y double, x double);";
 
         String executionPlan = ("@info(name = 'query1') from InputStream "
                 + " select y, x, math:sin(x) as sinx"
