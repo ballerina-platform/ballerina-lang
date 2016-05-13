@@ -67,9 +67,7 @@ public class DBHandler {
         executionInfo = new ExecutionInfo();
 
         try {
-            if (dataSource == null) {
-                throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
-            }
+
             con = dataSource.getConnection();
             initializeDatabaseExecutionInfo(executionInfo);
             initializeConnection();
@@ -175,7 +173,7 @@ public class DBHandler {
                 populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
                 if (selectionPreparedStatement != null && isBloomFilterEnabled) {
                     ResultSet resultSet = selectionPreparedStatement.executeQuery();
-                    populateEventListFromResultSet(selectedEventList,resultSet);
+                    populateEventListFromResultSet(selectedEventList, resultSet);
                 }
             }
 
@@ -219,7 +217,7 @@ public class DBHandler {
                 populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
                 if (selectionPreparedStatement != null && isBloomFilterEnabled) {
                     ResultSet resultSet = selectionPreparedStatement.executeQuery();
-                    populateEventListFromResultSet(selectedEventList,resultSet);
+                    populateEventListFromResultSet(selectedEventList, resultSet);
                 }
             }
 
@@ -237,7 +235,7 @@ public class DBHandler {
         }
 
         if (isBloomFilterEnabled && (updatedRows != null && updatedRows.length > 0)) {
-             for (Object[] obj : selectedEventList) {
+            for (Object[] obj : selectedEventList) {
                 removeFromBloomFilters(obj);
             }
 
@@ -271,7 +269,7 @@ public class DBHandler {
                 populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
                 if (selectionPreparedStatement != null && isBloomFilterEnabled) {
                     ResultSet resultSet = selectionPreparedStatement.executeQuery();
-                    populateEventListFromResultSet(selectedEventList,resultSet);
+                    populateEventListFromResultSet(selectedEventList, resultSet);
                 }
             }
 
@@ -481,7 +479,7 @@ public class DBHandler {
     /**
      * Generates an event list from db resultSet
      */
-    private List<Object[]> populateEventListFromResultSet(List<Object[]> selectedEventList , ResultSet results) {
+    private List<Object[]> populateEventListFromResultSet(List<Object[]> selectedEventList, ResultSet results) {
 
         int columnCount = tableDefinition.getAttributeList().size();
         try {

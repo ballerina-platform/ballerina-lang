@@ -90,7 +90,7 @@ public class RDBMSEventTable implements EventTable {
         DataSource dataSource = executionPlanContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
-        if (dataSource == null) {
+        if (dataSource == null && dataSourceName == null) {
             String jdbcConnectionUrl = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_JDBC_URL);
             String username = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_USERNAME);
             String password = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_PASSWORD);
@@ -104,8 +104,11 @@ public class RDBMSEventTable implements EventTable {
             dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password, connectionPropertyElements);
         }
 
-        if (dataSource == null || tableName == null) {
-            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (datasourceName or/and tableName) not found ");
+        if (dataSource == null) {
+            throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
+        }
+        if (tableName == null) {
+            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (tableName) not found ");
         }
 
         String cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
