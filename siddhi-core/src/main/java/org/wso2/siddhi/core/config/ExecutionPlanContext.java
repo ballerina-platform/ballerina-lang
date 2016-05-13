@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.config;
 import com.lmax.disruptor.ExceptionHandler;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
+import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
@@ -33,7 +34,6 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Lock;
 
 public class ExecutionPlanContext {
 
@@ -50,7 +50,7 @@ public class ExecutionPlanContext {
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
 
-    private Lock sharedLock = null;
+    private ThreadBarrier threadBarrier = null;
     private TimestampGenerator timestampGenerator = null;
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
@@ -135,12 +135,12 @@ public class ExecutionPlanContext {
         return eternalReferencedHolders;
     }
 
-    public Lock getSharedLock() {
-        return sharedLock;
+    public ThreadBarrier getThreadBarrier() {
+        return threadBarrier;
     }
 
-    public void setSharedLock(Lock sharedLock) {
-        this.sharedLock = sharedLock;
+    public void setThreadBarrier(ThreadBarrier threadBarrier) {
+        this.threadBarrier = threadBarrier;
     }
 
     public void setExecutorService(ExecutorService executorService) {

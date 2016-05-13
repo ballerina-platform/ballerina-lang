@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.filter.FilterProcessor;
@@ -77,7 +77,7 @@ public class SingleInputStreamParser {
                                                        Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
                                                        ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, LatencyTracker latencyTracker) {
         Processor processor = null;
-        SingleThreadEntryValveProcessor singleThreadValve = null;
+        EntryValveProcessor entryValveProcessor = null;
         boolean first = true;
         MetaStreamEvent metaStreamEvent;
         if (metaComplexEvent instanceof MetaStateEvent) {
@@ -92,17 +92,17 @@ public class SingleInputStreamParser {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
                 Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap, supportsBatchProcessing);
                 if (currentProcessor instanceof SchedulingProcessor) {
-                    if (singleThreadValve == null) {
+                    if (entryValveProcessor == null) {
 
-                        singleThreadValve = new SingleThreadEntryValveProcessor(executionPlanContext);
+                        entryValveProcessor = new EntryValveProcessor(executionPlanContext);
                         if (first) {
-                            processor = singleThreadValve;
+                            processor = entryValveProcessor;
                             first = false;
                         } else {
-                            processor.setToLast(singleThreadValve);
+                            processor.setToLast(entryValveProcessor);
                         }
                     }
-                    Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), singleThreadValve);
+                    Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), entryValveProcessor);
                     scheduler.init(executionPlanContext, latencyTracker);
                     ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
                 }

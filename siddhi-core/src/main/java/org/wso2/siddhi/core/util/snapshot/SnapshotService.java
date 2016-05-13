@@ -43,12 +43,12 @@ public class SnapshotService {
         HashMap<String, Object[]> snapshots = new HashMap<String, Object[]>(snapshotableList.size());
         log.info("Taking snapshot ...");
         try {
-            executionPlanContext.getSharedLock().lock();
+            executionPlanContext.getThreadBarrier().lock();
             for (Snapshotable snapshotable : snapshotableList) {
                 snapshots.put(snapshotable.getElementId(), snapshotable.currentState());
             }
         } finally {
-            executionPlanContext.getSharedLock().unlock();
+            executionPlanContext.getThreadBarrier().unlock();
         }
         log.info("Taking snapshot finished.");
 
@@ -62,12 +62,12 @@ public class SnapshotService {
     public void restore(byte[] snapshot) {
         HashMap<String, Object[]> snapshots = (HashMap<String, Object[]>) ByteSerializer.BToO(snapshot);
         try {
-            this.executionPlanContext.getSharedLock().lock();
+            this.executionPlanContext.getThreadBarrier().lock();
             for (Snapshotable snapshotable : snapshotableList) {
                 snapshotable.restoreState(snapshots.get(snapshotable.getElementId()));
             }
         } finally {
-            executionPlanContext.getSharedLock().unlock();
+            executionPlanContext.getThreadBarrier().unlock();
         }
     }
 

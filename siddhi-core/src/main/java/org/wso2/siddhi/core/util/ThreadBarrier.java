@@ -15,25 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.siddhi.core.util;
 
-import org.wso2.siddhi.core.event.Event;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import java.util.Arrays;
+public class ThreadBarrier {
 
-public class EventPrinter {
+    private volatile Lock lock = null;
 
-    public static void print(Event[] events) {
-        System.out.println(Arrays.deepToString(events));
+    public void pass() {
+        if (lock != null) {
+            lock.lock();
+            lock.unlock();
+        }
     }
 
+    public synchronized void lock() {
+        if (lock == null) {
+            lock = new ReentrantLock();
+        }
+        lock.lock();
 
-    public static void print(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Events{ @timestamp = ").append(timeStamp).
-                append(", inEvents = ").append(Arrays.deepToString(inEvents)).
-                append(", RemoveEvents = ").append(Arrays.deepToString(removeEvents)).append(" }");
-        System.out.println(sb.toString());
+    }
+
+    public synchronized void unlock() {
+        if (lock != null) {
+            try {
+            } finally {
+                lock.unlock();
+            }
+            lock = null;
+        }
     }
 
 }

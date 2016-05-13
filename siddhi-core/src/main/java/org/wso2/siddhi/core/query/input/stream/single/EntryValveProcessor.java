@@ -22,25 +22,17 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.util.Schedulable;
+import org.wso2.siddhi.core.util.ThreadBarrier;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-/**
- * Created on 12/3/14.
- */
-public class SingleThreadEntryValveProcessor implements Processor, Schedulable {
+public class EntryValveProcessor implements Processor, Schedulable {
 
     private Processor next;
-    private Lock lock;
+    private ThreadBarrier threadBarrier;
     private ExecutionPlanContext executionPlanContext;
 
-    public SingleThreadEntryValveProcessor(ExecutionPlanContext executionPlanContext) {
+    public EntryValveProcessor(ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        lock = executionPlanContext.getSharedLock();
-        if (lock == null) {
-            lock = new ReentrantLock();
-        }
+        threadBarrier = executionPlanContext.getThreadBarrier();
     }
 
 
@@ -51,12 +43,8 @@ public class SingleThreadEntryValveProcessor implements Processor, Schedulable {
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-//            lock.lock();
-            next.process(complexEventChunk);
-        } finally {
-//            lock.unlock();
-        }
+        threadBarrier.pass();
+        next.process(complexEventChunk);
     }
 
     /**
@@ -102,7 +90,7 @@ public class SingleThreadEntryValveProcessor implements Processor, Schedulable {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        return new SingleThreadEntryValveProcessor(executionPlanContext);
+        return new EntryValveProcessor(executionPlanContext);
     }
 
 }

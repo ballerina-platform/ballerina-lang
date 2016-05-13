@@ -67,14 +67,14 @@ public class SingleStreamRuntime implements StreamRuntime {
     @Override
     public StreamRuntime clone(String key) {
         ProcessStreamReceiver clonedProcessStreamReceiver = this.processStreamReceiver.clone(key);
-        SingleThreadEntryValveProcessor singleThreadEntryValveProcessor = null;
+        EntryValveProcessor entryValveProcessor = null;
         SchedulingProcessor schedulingProcessor;
         Processor clonedProcessorChain = null;
         if (processorChain != null) {
             if (!(processorChain instanceof QuerySelector || processorChain instanceof OutputRateLimiter)) {
                 clonedProcessorChain = processorChain.cloneProcessor(key);
-                if (clonedProcessorChain instanceof SingleThreadEntryValveProcessor) {
-                    singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessorChain;
+                if (clonedProcessorChain instanceof EntryValveProcessor) {
+                    entryValveProcessor = (EntryValveProcessor) clonedProcessorChain;
                 }
             }
             Processor processor = processorChain.getNextProcessor();
@@ -82,11 +82,11 @@ public class SingleStreamRuntime implements StreamRuntime {
                 if (!(processor instanceof QuerySelector || processor instanceof OutputRateLimiter)) {
                     Processor clonedProcessor = processor.cloneProcessor(key);
                     clonedProcessorChain.setToLast(clonedProcessor);
-                    if (clonedProcessor instanceof SingleThreadEntryValveProcessor) {
-                        singleThreadEntryValveProcessor = (SingleThreadEntryValveProcessor) clonedProcessor;
+                    if (clonedProcessor instanceof EntryValveProcessor) {
+                        entryValveProcessor = (EntryValveProcessor) clonedProcessor;
                     } else if (clonedProcessor instanceof SchedulingProcessor) {
                         schedulingProcessor = (SchedulingProcessor) clonedProcessor;
-                        schedulingProcessor.setScheduler(((SchedulingProcessor) processor).getScheduler().clone(key, singleThreadEntryValveProcessor));
+                        schedulingProcessor.setScheduler(((SchedulingProcessor) processor).getScheduler().clone(key, entryValveProcessor));
                     }
                 }
                 processor = processor.getNextProcessor();

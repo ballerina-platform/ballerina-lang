@@ -20,9 +20,8 @@ package org.wso2.siddhi.core.util.persistence;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
+import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-
-import java.util.concurrent.locks.Lock;
 
 public class PersistenceService {
 
@@ -30,13 +29,13 @@ public class PersistenceService {
     private String executionPlanName;
     private PersistenceStore persistenceStore;
     private SnapshotService snapshotService;
-    private Lock sharedLock;
+    private ThreadBarrier threadBarrier;
 
     public PersistenceService(ExecutionPlanContext executionPlanContext) {
         this.snapshotService = executionPlanContext.getSnapshotService();
         this.persistenceStore = executionPlanContext.getSiddhiContext().getPersistenceStore();
         this.executionPlanName = executionPlanContext.getName();
-        this.sharedLock = executionPlanContext.getSharedLock();
+        this.threadBarrier = executionPlanContext.getThreadBarrier();
     }
 
 
@@ -78,7 +77,7 @@ public class PersistenceService {
 
     public void restoreLastRevision() {
         try {
-            this.sharedLock.lock();
+            this.threadBarrier.lock();
             if (persistenceStore != null) {
                 String revision = persistenceStore.getLastRevision(executionPlanName);
                 if (revision != null) {
@@ -88,7 +87,7 @@ public class PersistenceService {
                 throw new NoPersistenceStoreException("No persistence store assigned for execution plan " + executionPlanName);
             }
         } finally {
-            sharedLock.unlock();
+            threadBarrier.unlock();
         }
     }
 }

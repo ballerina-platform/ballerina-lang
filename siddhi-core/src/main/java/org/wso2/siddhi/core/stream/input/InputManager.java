@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class InputManager {
 
+    private final InputEntryValve inputEntryValve;
     private ExecutionPlanContext executionPlanContext;
     private Map<String, InputHandler> inputHandlerMap = new LinkedHashMap<String, InputHandler>();
     private Map<String, AbstractDefinition> streamDefinitionMap;
@@ -42,6 +43,7 @@ public class InputManager {
         this.streamDefinitionMap = streamDefinitionMap;
         this.streamJunctionMap = streamJunctionMap;
         this.inputDistributor = new InputDistributor();
+        this.inputEntryValve =new InputEntryValve(executionPlanContext,inputDistributor);
     }
 
     public InputHandler getInputHandler(String streamId) {
@@ -61,7 +63,7 @@ public class InputManager {
     }
 
     public InputHandler constructInputHandler(String streamId) {
-        InputHandler inputHandler = new InputHandler(streamId, inputHandlerMap.size(), inputDistributor);
+        InputHandler inputHandler = new InputHandler(streamId, inputHandlerMap.size(), inputEntryValve);
         StreamJunction streamJunction = streamJunctionMap.get(streamId);
         if (streamJunction == null) {
             throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");

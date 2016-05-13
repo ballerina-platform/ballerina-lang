@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
@@ -94,7 +95,7 @@ public class ExecutionPlanParser {
                 if (bufferSizeString != null) {
                     int bufferSize = Integer.parseInt(bufferSizeString);
                     executionPlanContext.setBufferSize(bufferSize);
-                }else {
+                } else {
                     executionPlanContext.setBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
                 }
             }
@@ -118,11 +119,7 @@ public class ExecutionPlanParser {
                 }
             }
 
-            if (!executionPlanContext.isPlayback()
-                    && !executionPlanContext.isEnforceOrder()
-                    && !executionPlanContext.isAsync()) {
-                executionPlanContext.setSharedLock(new ReentrantLock());
-            }
+            executionPlanContext.setThreadBarrier(new ThreadBarrier());
 
             executionPlanContext.setExecutorService(Executors.newCachedThreadPool(
                     new ThreadFactoryBuilder().setNameFormat("Siddhi-" + executionPlanContext.getName() +
