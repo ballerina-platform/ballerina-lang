@@ -25,8 +25,10 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.EventFactory;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -46,20 +48,20 @@ public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
     private final ExecutionPlanContext executionPlanContext;
     private final StreamDefinition streamDefinition;
-    private final int bufferSize;
+    private int bufferSize;
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
     private List<Publisher> publishers = new CopyOnWriteArrayList<Publisher>();
     private ExecutorService executorService;
-    private Boolean parallel = null;
+    private Boolean async = null;
     private Disruptor<Event> disruptor;
     private RingBuffer<Event> ringBuffer;
     private ThroughputTracker throughputTracker = null;
     private boolean isTraceEnabled;
 
-    public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int defaultBufferSize,
+    public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int bufferSize,
                           ExecutionPlanContext executionPlanContext) {
         this.streamDefinition = streamDefinition;
-        this.bufferSize = defaultBufferSize;
+        this.bufferSize = bufferSize;
         this.executorService = executorService;
         this.executionPlanContext = executionPlanContext;
         if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
@@ -76,11 +78,17 @@ public class StreamJunction {
                     .createThroughputTracker(metricName, executionPlanContext.getStatisticsManager());
         }
         try {
-            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
                     streamDefinition.getAnnotations());
+            async = executionPlanContext.isAsync();
             if (annotation != null) {
-                parallel = true;
+                async = true;
+                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE);
+                if (bufferSizeString != null) {
+                    this.bufferSize = Integer.parseInt(bufferSizeString);
+                }
             }
+
         } catch (DuplicateAnnotationException e) {
             throw new DuplicateAnnotationException(e.getMessage() + " for the same Stream " + streamDefinition.getId());
         }
@@ -213,40 +221,35 @@ public class StreamJunction {
      * Create and start disruptor based on annotations given in the streamDefinition.
      */
     public synchronized void startProcessing() {
-        if (!receivers.isEmpty()) {
-            if (parallel == null) {
-                parallel = executionPlanContext.isParallel();
-            }
-            if (parallel) {
-                for (Constructor constructor : Disruptor.class.getConstructors()) {
-                    if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
-                        ProducerType producerType = ProducerType.SINGLE;
+        if (!receivers.isEmpty() && async) {
+            for (Constructor constructor : Disruptor.class.getConstructors()) {
+                if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
+                    ProducerType producerType = ProducerType.SINGLE;
 
-                        if (publishers.size() > 1) {
-                            producerType = ProducerType.MULTI;
-                        }
-
-                        disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                                bufferSize, executorService, producerType,
-                                PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
-                        disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
-                        break;
+                    if (publishers.size() > 1) {
+                        producerType = ProducerType.MULTI;
                     }
-                }
-                if (disruptor == null) {
+
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                            bufferSize, executorService);
+                            bufferSize, executorService, producerType,
+                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
+                    break;
                 }
-                for (Receiver receiver : receivers) {
-                    disruptor.handleEventsWith(new StreamHandler(receiver));
-                }
-                ringBuffer = disruptor.start();
-            } else {
-                for (Receiver receiver : receivers) {
-                    if (receiver instanceof StreamCallback) {
-                        ((StreamCallback) receiver).startProcessing();
-                    }
+            }
+            if (disruptor == null) {
+                disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
+                        bufferSize, executorService);
+                disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
+            }
+            for (Receiver receiver : receivers) {
+                disruptor.handleEventsWith(new StreamHandler(receiver));
+            }
+            ringBuffer = disruptor.start();
+        } else {
+            for (Receiver receiver : receivers) {
+                if (receiver instanceof StreamCallback) {
+                    ((StreamCallback) receiver).startProcessing();
                 }
             }
         }
@@ -304,6 +307,7 @@ public class StreamJunction {
     public class StreamHandler implements EventHandler<Event> {
 
         private Receiver receiver;
+        private ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
         public StreamHandler(Receiver receiver) {
             this.receiver = receiver;

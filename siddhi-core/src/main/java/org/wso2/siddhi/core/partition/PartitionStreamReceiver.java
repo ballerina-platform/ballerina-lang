@@ -250,7 +250,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     private StreamJunction createStreamJunction() {
         return new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
-                executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                executionPlanContext.getBufferSize(), executionPlanContext);
     }
 
 }

@@ -31,7 +31,6 @@ public class SimpleQueryValidatorTestCase {
     @Before
     public void init() {
         siddhiContext = new SiddhiContext();
-        siddhiContext.setEventBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
     }
 
 

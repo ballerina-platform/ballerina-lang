@@ -108,7 +108,7 @@ public class ExecutionPlanRuntimeBuilder {
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(streamDefinition,
                         executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                        executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
             insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition().getId()));

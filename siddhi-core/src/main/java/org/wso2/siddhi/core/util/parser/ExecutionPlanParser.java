@@ -86,10 +86,17 @@ public class ExecutionPlanParser {
                 executionPlanContext.setEnforceOrder(true);
             }
 
-            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PARALLEL,
+            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
                     executionPlan.getAnnotations());
             if (annotation != null) {
-                executionPlanContext.setParallel(true);
+                executionPlanContext.setAsync(true);
+                String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_BUFFER_SIZE);
+                if (bufferSizeString != null) {
+                    int bufferSize = Integer.parseInt(bufferSizeString);
+                    executionPlanContext.setBufferSize(bufferSize);
+                }else {
+                    executionPlanContext.setBufferSize(SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE);
+                }
             }
 
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STATISTICS,
@@ -113,7 +120,7 @@ public class ExecutionPlanParser {
 
             if (!executionPlanContext.isPlayback()
                     && !executionPlanContext.isEnforceOrder()
-                    && !executionPlanContext.isParallel()) {
+                    && !executionPlanContext.isAsync()) {
                 executionPlanContext.setSharedLock(new ReentrantLock());
             }
 

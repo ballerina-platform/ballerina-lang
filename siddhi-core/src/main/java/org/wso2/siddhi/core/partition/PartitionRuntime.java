@@ -102,7 +102,7 @@ public class PartitionRuntime implements Snapshotable {
                 if (outputStreamJunction == null) {
                     outputStreamJunction = new StreamJunction(streamDefinition,
                             executionPlanContext.getExecutorService(),
-                            executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                            executionPlanContext.getBufferSize(), executionPlanContext);
                     localStreamJunctionMap.putIfAbsent(id, outputStreamJunction);
                 }
                 insertIntoStreamCallback.init(localStreamJunctionMap.get(id));
@@ -114,7 +114,7 @@ public class PartitionRuntime implements Snapshotable {
                 if (outputStreamJunction == null) {
                     outputStreamJunction = new StreamJunction(streamDefinition,
                             executionPlanContext.getExecutorService(),
-                            executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                            executionPlanContext.getBufferSize(), executionPlanContext);
                     streamJunctionMap.putIfAbsent(id, outputStreamJunction);
                 }
                 insertIntoStreamCallback.init(streamJunctionMap.get(id));
@@ -206,7 +206,7 @@ public class PartitionRuntime implements Snapshotable {
                         StreamJunction streamJunction = localStreamJunctionMap.get(streamId + key);
                         if (streamJunction == null) {
                             streamJunction = new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
-                                    executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                                    executionPlanContext.getBufferSize(), executionPlanContext);
                             localStreamJunctionMap.put(streamId + key, streamJunction);
                         }
                         streamJunction.subscribe(clonedQueryRuntime.getStreamRuntime().getSingleStreamRuntimes().get(i).getProcessStreamReceiver());

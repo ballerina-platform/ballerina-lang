@@ -44,10 +44,6 @@ public abstract class QueryCallback {
     private ExecutionPlanContext executionPlanContext;
     private Query query;
 
-    private Disruptor<EventHolder> disruptor;
-    private RingBuffer<EventHolder> ringBuffer;
-    private AsyncEventHandler asyncEventHandler;
-
     public void setQuery(Query query) {
         this.query = query;
     }
@@ -85,37 +81,8 @@ public abstract class QueryCallback {
             expiredEventBuffer.clear();
         }
 
-        if (disruptor == null) {
-            send(timeStamp, currentEvents, expiredEvents);
-        } else {
-            sendAsync(timeStamp, currentEvents, expiredEvents);
-        }
+        send(timeStamp, currentEvents, expiredEvents);
     }
-
-    private void sendAsync(long timeStamp, Event[] currentEvents, Event[] expiredEvents) {
-        long sequenceNo = ringBuffer.next();
-        try {
-            EventHolder holder = ringBuffer.get(sequenceNo);
-            holder.timeStamp = timeStamp;
-            holder.currentEvents = currentEvents;
-            holder.expiredEvents = expiredEvents;
-        } finally {
-            ringBuffer.publish(sequenceNo);
-        }
-    }
-
-//    private void send(long timeStamp, Event[] currentEvents, Event[] expiredEvents, boolean endOfBatch) {
-//
-//        if (endOfBatch) {
-//            send(timeStamp, currentEvents, currentEvents);
-//        } else {
-//            StreamEvent processedEvent = currentStreamEvent;
-//            bufferEvent(processedEvent, currentEventBuffer);
-//
-//            processedEvent = expiredStreamEvent;
-//            bufferEvent(processedEvent, expiredEventBuffer);
-//        }
-//    }
 
     private void send(long timeStamp, Event[] currentEvents, Event[] expiredEvents) {
         try {
@@ -127,98 +94,16 @@ public abstract class QueryCallback {
 
     private void bufferEvent(ComplexEvent complexEvent, List<Event> eventBuffer) {
         eventBuffer.add(new Event(complexEvent.getOutputData().length).copyFrom(complexEvent));
-
-
-//        StreamEvent processedEvent = streamEventList;
-//        while (processedEvent != null) {
-//            eventBuffer.add(new Event(processedEvent.getOutputDataAttributes().length).copyFrom(processedEvent));
-//            processedEvent = processedEvent.getNext();
-//        }
     }
 
     public synchronized void startProcessing() {
 
-        Boolean asyncEnabled = null;
-//        try {
-//            Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_CONFIG,
-//                    SiddhiConstants.ANNOTATION_ELEMENT_CALLBACK_ASYNC,
-//                    query.getAnnotations());
-//
-//            if (element != null) {
-//                asyncEnabled = SiddhiConstants.TRUE.equalsIgnoreCase(element.getValue());
-//            }
-//
-//        } catch (DuplicateAnnotationException e) {
-//            throw new QueryCreationException(e.getMessage() + " for the same Query " +
-//                    query.toString());
-//        }
-
-        if (asyncEnabled != null && asyncEnabled || asyncEnabled == null) {
-            for (Constructor constructor : Disruptor.class.getConstructors()) {
-                if (constructor.getParameterTypes().length == 5) {      //if new disruptor implementation available
-                    disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
-                            executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                            executionPlanContext.getExecutorService(), ProducerType.SINGLE,
-                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
-                    break;
-                }
-            }
-            if (disruptor == null) {
-                disruptor = new Disruptor<EventHolder>(new EventHolderFactory(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(),
-                        executionPlanContext.getExecutorService());
-            }
-            asyncEventHandler = new AsyncEventHandler(this);
-            disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
-            disruptor.handleEventsWith(asyncEventHandler);
-            ringBuffer = disruptor.start();
-        }
     }
 
     public synchronized void stopProcessing() {
-        if (disruptor != null) {
-            asyncEventHandler.queryCallback = null;
-            disruptor.shutdown();
-        }
+
     }
 
     public abstract void receive(long timeStamp, Event[] inEvents, Event[] removeEvents);
 
-
-    public class AsyncEventHandler implements EventHandler<EventHolder> {
-
-        private QueryCallback queryCallback;
-
-        public AsyncEventHandler(QueryCallback queryCallback) {
-            this.queryCallback = queryCallback;
-        }
-
-        /**
-         * Called when a publisher has published an event to the {@link com.lmax.disruptor.RingBuffer}
-         *
-         * @param eventHolder published to the {@link com.lmax.disruptor.RingBuffer}
-         * @param sequence    of the event being processed
-         * @param endOfBatch  flag to indicate if this is the last event in a batch from the {@link com.lmax.disruptor.RingBuffer}
-         * @throws Exception if the EventHandler would like the exception handled further up the chain.
-         */
-        @Override
-        public void onEvent(EventHolder eventHolder, long sequence, boolean endOfBatch) throws Exception {
-            if (queryCallback != null) {
-                queryCallback.send(eventHolder.timeStamp, eventHolder.currentEvents, eventHolder.expiredEvents);
-            }
-        }
-    }
-
-    public class EventHolder {
-        private long timeStamp;
-        private Event[] currentEvents;
-        private Event[] expiredEvents;
-    }
-
-    public class EventHolderFactory implements com.lmax.disruptor.EventFactory<EventHolder> {
-
-        public EventHolder newInstance() {
-            return new EventHolder();
-        }
-    }
 }

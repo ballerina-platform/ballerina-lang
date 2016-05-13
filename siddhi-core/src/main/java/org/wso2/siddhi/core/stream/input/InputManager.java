@@ -45,13 +45,13 @@ public class InputManager {
         this.streamJunctionMap = streamJunctionMap;
         if (!executionPlanContext.isPlayback() &&
                 !executionPlanContext.isEnforceOrder() &&
-                !executionPlanContext.isParallel()) {
+                !executionPlanContext.isAsync()) {
             inputDistributor = new InputDistributor();
             singleThreadEntryValve = new SingleThreadEntryValve(executionPlanContext, inputDistributor);
             singleStreamEntryValve = new SingleStreamEntryValve(executionPlanContext, singleThreadEntryValve);
         } else if (!executionPlanContext.isPlayback() &&
                 !executionPlanContext.isEnforceOrder() &&
-                executionPlanContext.isParallel()) {
+                executionPlanContext.isAsync()) {
             inputDistributor = new InputDistributor();
         }
 

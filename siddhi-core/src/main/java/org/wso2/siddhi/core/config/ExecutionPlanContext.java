@@ -41,7 +41,7 @@ public class ExecutionPlanContext {
     private String name;
     private boolean playback;
     private boolean enforceOrder;
-    private boolean parallel;
+    private boolean async;
     private boolean statsEnabled = false;
     private StatisticsManager statisticsManager = null;
 
@@ -56,6 +56,7 @@ public class ExecutionPlanContext {
     private ElementIdGenerator elementIdGenerator;
     private Map<String, EvalScript> scriptFunctionMap;
     private ExceptionHandler<Object> disruptorExceptionHandler;
+    private int bufferSize;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
@@ -78,12 +79,12 @@ public class ExecutionPlanContext {
         this.name = name;
     }
 
-    public boolean isParallel() {
-        return parallel;
+    public boolean isAsync() {
+        return async;
     }
 
-    public void setParallel(boolean parallel) {
-        this.parallel = parallel;
+    public void setAsync(boolean async) {
+        this.async = async;
     }
 
     public boolean isPlayback() {
@@ -205,5 +206,13 @@ public class ExecutionPlanContext {
         } else {
             return siddhiContext.getDefaultDisrupterExceptionHandler();
         }
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
     }
 }

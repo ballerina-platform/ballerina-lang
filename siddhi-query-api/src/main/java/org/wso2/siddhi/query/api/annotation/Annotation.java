@@ -68,7 +68,7 @@ public class Annotation {
 
     public String getElement(String key){
         for(Element element : elements){
-            if(element.getKey().equals(key)){
+            if(element.getKey().equalsIgnoreCase(key)){
                 return element.getValue();
             }
         }

@@ -52,6 +52,7 @@ public class ExceptionHandlerTestCase {
         siddhiManager = new SiddhiManager();
         String executionPlan = "" +
                 "@Plan:name('callbackTest1') " +
+                "@Plan:async " +
                 "" +
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "" +

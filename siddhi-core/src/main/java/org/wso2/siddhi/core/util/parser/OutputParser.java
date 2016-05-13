@@ -146,7 +146,7 @@ public class OutputParser {
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(outputStreamDefinition,
                         executionPlanContext.getExecutorService(),
-                        executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                        executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(id + key, outputStreamJunction);
             }
             InsertIntoStreamCallback insertIntoStreamCallback = new InsertIntoStreamCallback(outputStreamDefinition);

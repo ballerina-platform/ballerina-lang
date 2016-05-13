@@ -34,7 +34,6 @@ public class SiddhiContext {
 
     private static final Logger log = Logger.getLogger(SiddhiContext.class);
 
-    private int eventBufferSize;
     private ExceptionHandler<Object> defaultDisrupterExceptionHandler;
     private Map<String, Class> siddhiExtensions;
     private PersistenceStore persistenceStore = null;
@@ -44,7 +43,6 @@ public class SiddhiContext {
 
     public SiddhiContext() {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
-        eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
         statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
@@ -66,20 +64,12 @@ public class SiddhiContext {
         };
     }
 
-    public int getEventBufferSize() {
-        return eventBufferSize;
-    }
-
     public Map<String, Class> getSiddhiExtensions() {
         return siddhiExtensions;
     }
 
     public void setSiddhiExtensions(Map<String, Class> siddhiExtensions) {
         this.siddhiExtensions = siddhiExtensions;
-    }
-
-    public void setEventBufferSize(int eventBufferSize) {
-        this.eventBufferSize = eventBufferSize;
     }
 
     public PersistenceStore getPersistenceStore() {
