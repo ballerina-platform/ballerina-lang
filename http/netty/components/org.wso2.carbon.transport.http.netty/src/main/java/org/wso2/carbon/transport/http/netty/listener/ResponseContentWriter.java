@@ -33,7 +33,7 @@ import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder
 import java.nio.ByteBuffer;
 
 /**
- * A class which wraps Inbound Channel Handler ctx and write content directly to netty IO works
+ * A class which wraps Inbound Channel Handler ctx and write content directly to netty IO works.
  */
 public class ResponseContentWriter implements Writer {
 

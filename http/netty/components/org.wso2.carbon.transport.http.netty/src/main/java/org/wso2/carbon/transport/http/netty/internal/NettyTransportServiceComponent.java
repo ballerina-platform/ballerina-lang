@@ -108,7 +108,7 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     }
 
     @Reference(
-               name = "artifact-deployer",
+               name = "transport-listener-manager",
                service = TransportListenerManager.class,
                cardinality = ReferenceCardinality.OPTIONAL,
                policy = ReferencePolicy.DYNAMIC,
@@ -130,12 +130,10 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
                unbind = "removeNettyStatHandler"
     )
     protected void addNettyStatHandler(MessagingHandler messagingHandler) {
-
         NettyTransportContextHolder.getInstance().getHandlerExecutor().addHandler(messagingHandler);
     }
 
     protected void removeNettyStatHandler(MessagingHandler messagingHandler) {
-
         NettyTransportContextHolder.getInstance().getHandlerExecutor().removeHandler(messagingHandler);
     }
 

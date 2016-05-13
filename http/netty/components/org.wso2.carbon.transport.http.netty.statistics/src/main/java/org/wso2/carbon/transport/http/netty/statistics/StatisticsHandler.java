@@ -33,12 +33,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implementation of MessagingHandler
+ * Implementation of MessagingHandler.
  */
 public class StatisticsHandler implements MessagingHandler {
 
     private final TimerHolder timerHolder;
-    //todo check for with lock
     private Map<String, MetricsStaticsHolder> messageCorrelation = new ConcurrentHashMap<>();
 
     public StatisticsHandler(TimerHolder timerHolder) {

@@ -23,7 +23,7 @@ import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.Timer;
 
 /**
- * Initialize all the timers
+ * Initialize all the timers.
  */
 public class TimerHolder {
 

@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
 /**
- * represents transport property
+ * represents transport property.
  */
 @SuppressWarnings("unused")
 @XmlAccessorType(XmlAccessType.FIELD)

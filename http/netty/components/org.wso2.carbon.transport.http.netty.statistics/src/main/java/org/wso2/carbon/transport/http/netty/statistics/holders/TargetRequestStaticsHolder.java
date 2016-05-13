@@ -22,7 +22,7 @@ import org.wso2.carbon.metrics.manager.Timer;
 import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
 /**
- * Holder for target request timer
+ * Holder for target request timer.
  */
 public class TargetRequestStaticsHolder implements MetricsStaticsHolder {
 

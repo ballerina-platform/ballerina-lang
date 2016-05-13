@@ -19,7 +19,7 @@
 package org.wso2.carbon.transport.http.netty.statistics;
 
 /**
- * Latency Metrics parameters
+ * Latency Metrics parameters.
  */
 public class MetricsConstants {
 

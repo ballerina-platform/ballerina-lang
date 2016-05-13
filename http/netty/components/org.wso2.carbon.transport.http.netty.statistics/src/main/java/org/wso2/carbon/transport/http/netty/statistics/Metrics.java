@@ -13,7 +13,7 @@ import org.wso2.carbon.metrics.manager.MetricService;
 import org.wso2.carbon.metrics.manager.ServiceReferenceHolder;
 
 /**
- * Manage metrics
+ * Manage metrics.
  */
 public final class Metrics {
     private static final Logger logger = LoggerFactory.getLogger(Metrics.class);

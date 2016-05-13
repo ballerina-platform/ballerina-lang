@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * custom Http Request Decoder to validate the header size
+ * custom Http Request Decoder to validate the header size.
  */
 public class CustomHttpRequestDecoder extends HttpRequestDecoder {
     private static final Logger log = LoggerFactory.getLogger(CustomHttpRequestDecoder.class);

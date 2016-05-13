@@ -19,7 +19,7 @@
 package org.wso2.carbon.transport.http.netty.statistics.holders;
 
 /**
- * interface extends holders
+ * interface extends holders.
  */
 public interface MetricsStaticsHolder {
 

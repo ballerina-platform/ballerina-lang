@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Custom Http Object Aggregator to validate the message size
+ * Custom Http Object Aggregator to validate the message size.
  */
 public class CustomHttpObjectAggregator extends HttpObjectAggregator {
 

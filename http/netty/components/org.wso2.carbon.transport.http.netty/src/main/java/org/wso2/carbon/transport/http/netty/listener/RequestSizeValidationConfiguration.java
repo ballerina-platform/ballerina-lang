@@ -24,7 +24,7 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
 import java.util.Set;
 
 /**
- * Configuration for the request size validation
+ * Configuration for the request size validation.
  */
 public class RequestSizeValidationConfiguration {
 
