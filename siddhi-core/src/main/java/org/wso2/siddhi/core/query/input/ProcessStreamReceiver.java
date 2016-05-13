@@ -138,9 +138,6 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        if (stateProcessorsSize != 0) {
-            stateProcessors.get(0).updateState();
-        }
         next.process(streamEventChunk);
         streamEventChunk.clear();
     }

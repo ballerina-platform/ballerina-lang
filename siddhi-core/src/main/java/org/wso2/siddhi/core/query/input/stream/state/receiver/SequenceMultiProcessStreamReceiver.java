@@ -69,7 +69,6 @@ public class SequenceMultiProcessStreamReceiver extends StateMultiProcessStreamR
     @Override
     public void receive(Event event, boolean endOfBatch) {
         super.receive(event, endOfBatch);
-
     }
 
     @Override

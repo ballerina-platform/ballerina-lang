@@ -37,7 +37,6 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     private MetaStreamEvent[] metaStreamEvents;
     private StreamEventPool[] streamEventPools;
     private StreamEventConverter[] streamEventConverters;
-    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk;
     protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
     protected int[] eventSequence;
@@ -49,7 +48,6 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         metaStreamEvents = new MetaStreamEvent[processCount];
         streamEventPools = new StreamEventPool[processCount];
         streamEventConverters = new StreamEventConverter[processCount];
-        currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
         eventSequence = new int[processCount];
         for (int i = 0; i < eventSequence.length; i++) {
             eventSequence[i] = i;
@@ -148,9 +146,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
-        currentStreamEventChunk.add(streamEvent);
+        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, false);
         nextProcessors[processIndex].process(currentStreamEventChunk);
-        currentStreamEventChunk.clear();
     }
 
     protected void stabilizeStates() {

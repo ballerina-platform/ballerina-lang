@@ -46,14 +46,13 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
         ComplexEventChunk<StateEvent> retEventChunk =  new ComplexEventChunk<StateEvent>(false);
+        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, false);
         synchronized (lockKey) {
-            currentStreamEventChunk.add(streamEvent);
             ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) nextProcessors[processIndex]).processAndReturn(currentStreamEventChunk);
             if(eventChunk.getFirst() != null){
                 retEventChunk.add(eventChunk.getFirst());
             }
             eventChunk.clear();
-            currentStreamEventChunk.clear();
         }
 
         if(querySelector!= null) {
