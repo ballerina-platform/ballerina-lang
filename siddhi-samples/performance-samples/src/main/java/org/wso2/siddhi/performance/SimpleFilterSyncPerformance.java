@@ -30,8 +30,6 @@ public class SimpleFilterSyncPerformance {
     public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
-//        siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
-
         String cseEventStream = " " +
                 "define stream RequestStream (messageID string, app_key string, api_key string, app_tier string, api_tier string, user_id string, properties string, timeNow long); " +
                 "define stream EligibilityStream (rule string, messageID string, isEligible bool, isLocallyThrottled bool, throttle_key string , timeNow long); ";
