@@ -193,7 +193,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while deleting the event," + e.getMessage(), e);
+            throw new ExecutionPlanRuntimeException("Error while deleting events from database," + e.getMessage(), e);
         } finally {
             cleanUpConnections(deletionPreparedStatement, con);
             cleanUpConnections(selectionPreparedStatement, con);
@@ -230,7 +230,7 @@ public class DBHandler {
                 log.debug(updatedRows.length + " updated in table " + tableName);
             }
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
+            throw new ExecutionPlanRuntimeException("Error while updating events in database," + e.getMessage(), e);
         } finally {
             cleanUpConnections(updatePreparedStatement, con);
             cleanUpConnections(selectionPreparedStatement, con);
@@ -307,10 +307,11 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while updating events," + e.getMessage(), e);
+            throw new ExecutionPlanRuntimeException("Error while insertOrOverwriting events from database," + e.getMessage(), e);
         } finally {
             cleanUpConnections(updatePreparedStatement, con);
             cleanUpConnections(insertionPreparedStatement, con);
+            cleanUpConnections(selectionPreparedStatement, con);
         }
 
     }
