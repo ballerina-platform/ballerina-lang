@@ -123,10 +123,11 @@ public class DeleteFromRDBMSTestCase {
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
                 stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
                 deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"WSO2", 57.6f, 100l});
 
                 Thread.sleep(1000);
                 long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
-                Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+                Assert.assertEquals("Deletion failed", 0, totalRowsInTable);
                 executionPlanRuntime.shutdown();
             }
         } catch (SQLException e) {

@@ -124,7 +124,6 @@ public class RDBMSOperator implements Operator {
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
         overwritingOrAddingEventChunk.reset();
-        List<ComplexEvent> insertionEventList = new ArrayList<ComplexEvent>();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
 
         while (overwritingOrAddingEventChunk.hasNext()) {
@@ -139,10 +138,9 @@ public class RDBMSOperator implements Operator {
                 obj[count] = value;
                 count++;
             }
-            insertionEventList.add(overwritingOrAddingEvent);
             updateEventList.add(obj);
         }
-        dbHandler.overwriteOrAddEvent(insertionEventList, updateEventList, executionInfo);
+        dbHandler.overwriteOrAddEvent(updateEventList, executionInfo);
     }
 
     @Override

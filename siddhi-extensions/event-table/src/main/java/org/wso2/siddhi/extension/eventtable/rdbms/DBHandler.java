@@ -160,23 +160,23 @@ public class DBHandler {
 
         PreparedStatement deletionPreparedStatement = null;
         PreparedStatement selectionPreparedStatement = null;
-        ResultSet results = null;
         List<Object[]> selectedEventList = new ArrayList<Object[]>();
         Connection con = null;
         try {
 
             con = dataSource.getConnection();
             deletionPreparedStatement = con.prepareStatement(executionInfo.getPreparedDeleteStatement());
+            selectionPreparedStatement = con.prepareStatement(executionInfo.getPreparedSelectTableStatement());
             con.setAutoCommit(false);
 
             for (Object[] obj : eventList) {
-                populateStatement(obj, deletionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
-                selectionPreparedStatement = populateBatchSelectionStatement(eventList, con, executionInfo, executionInfo.getDeleteQueryColumnOrder());
+                populateStatement(obj, deletionPreparedStatement, executionInfo.getDeleteQueryColumnOrder());
                 deletionPreparedStatement.addBatch();
-            }
-
-            if (selectionPreparedStatement != null && isBloomFilterEnabled) {
-                results = selectionPreparedStatement.executeQuery();
+                populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
+                if (selectionPreparedStatement != null && isBloomFilterEnabled) {
+                    ResultSet resultSet = selectionPreparedStatement.executeQuery();
+                    populateEventListFromResultSet(selectedEventList,resultSet);
+                }
             }
 
             int[] deletedRows = deletionPreparedStatement.executeBatch();
@@ -186,42 +186,9 @@ public class DBHandler {
                 log.debug(deletedRows.length + " rows deleted in table " + tableName);
             }
 
-            if (isBloomFilterEnabled && (deletedRows != null && deletedRows.length > 0) && results != null) {
-                int columnCount = tableDefinition.getAttributeList().size();
-                while (results.next()) {
-                    Object[] eventArray = new Object[columnCount];
-                    for (int i = 0; i < columnCount; i++) {
-                        switch (tableDefinition.getAttributeList().get(i).getType()) {
-                            case INT:
-                                eventArray[i] = results.getInt(i + 1);
-                                break;
-                            case LONG:
-                                eventArray[i] = results.getLong(i + 1);
-                                break;
-                            case FLOAT:
-                                eventArray[i] = results.getFloat(i + 1);
-                                break;
-                            case DOUBLE:
-                                eventArray[i] = results.getDouble(i + 1);
-                                break;
-                            case STRING:
-                                eventArray[i] = results.getString(i + 1);
-                                break;
-                            case BOOL:
-                                eventArray[i] = results.getBoolean(i + 1);
-                                break;
-                        }
-                    }
-                    selectedEventList.add(eventArray);
-                }
-                results.close();
-                for (int isDeleted : deletedRows) {
-                    if (isDeleted == 1) {
-                        Object[] obj = selectedEventList.remove(0);
-                        removeFromBloomFilters(obj);
-                    }
-
-
+            if (isBloomFilterEnabled && (deletedRows != null && deletedRows.length > 0)) {
+                for (Object[] obj : selectedEventList) {
+                    removeFromBloomFilters(obj);
                 }
             }
 
@@ -229,25 +196,34 @@ public class DBHandler {
             throw new ExecutionPlanRuntimeException("Error while deleting the event," + e.getMessage(), e);
         } finally {
             cleanUpConnections(deletionPreparedStatement, con);
+            cleanUpConnections(selectionPreparedStatement, con);
         }
     }
 
-    public void updateEvent(List<Object[]> eventList, ExecutionInfo executionInfo) {
+    public void updateEvent(List<Object[]> updateEventList, ExecutionInfo executionInfo) {
 
-        PreparedStatement stmt = null;
+        PreparedStatement updatePreparedStatement = null;
+        PreparedStatement selectionPreparedStatement = null;
+        List<Object[]> selectedEventList = new ArrayList<Object[]>();
         Connection con = null;
         int[] updatedRows = null;
         try {
 
             con = dataSource.getConnection();
-            stmt = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
+            updatePreparedStatement = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
+            selectionPreparedStatement = con.prepareStatement(executionInfo.getPreparedSelectTableStatement());
             con.setAutoCommit(false);
-            for (Object[] obj : eventList) {
-                populateStatement(obj, stmt, executionInfo.getUpdateQueryColumnOrder());
-                stmt.addBatch();
+            for (Object[] obj : updateEventList) {
+                populateStatement(obj, updatePreparedStatement, executionInfo.getUpdateQueryColumnOrder());
+                updatePreparedStatement.addBatch();
+                populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
+                if (selectionPreparedStatement != null && isBloomFilterEnabled) {
+                    ResultSet resultSet = selectionPreparedStatement.executeQuery();
+                    populateEventListFromResultSet(selectedEventList,resultSet);
+                }
             }
 
-            updatedRows = stmt.executeBatch();
+            updatedRows = updatePreparedStatement.executeBatch();
             con.commit();
 
             if (log.isDebugEnabled()) {
@@ -256,18 +232,27 @@ public class DBHandler {
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Error while updating the event," + e.getMessage(), e);
         } finally {
-            cleanUpConnections(stmt, con);
+            cleanUpConnections(updatePreparedStatement, con);
+            cleanUpConnections(selectionPreparedStatement, con);
         }
 
         if (isBloomFilterEnabled && (updatedRows != null && updatedRows.length > 0)) {
-            buildBloomFilters();
+             for (Object[] obj : selectedEventList) {
+                removeFromBloomFilters(obj);
+            }
+
+            for (Object[] obj : updateEventList) {
+                addToBloomFilters(obj);
+            }
         }
     }
 
-    public void overwriteOrAddEvent(List<ComplexEvent> insertionEventList, List<Object[]> updateEventList, ExecutionInfo executionInfo) {
+    public void overwriteOrAddEvent(List<Object[]> updateEventList, ExecutionInfo executionInfo) {
 
         PreparedStatement updatePreparedStatement = null;
         PreparedStatement insertionPreparedStatement = null;
+        PreparedStatement selectionPreparedStatement = null;
+        List<Object[]> selectedEventList = new ArrayList<Object[]>();
         Connection con = null;
         int[] updatedRows;
         boolean isInserted = false;
@@ -277,12 +262,17 @@ public class DBHandler {
             con = dataSource.getConnection();
             updatePreparedStatement = con.prepareStatement(executionInfo.getPreparedUpdateStatement());
             insertionPreparedStatement = con.prepareStatement(executionInfo.getPreparedInsertStatement());
+            selectionPreparedStatement = con.prepareStatement(executionInfo.getPreparedSelectTableStatement());
             con.setAutoCommit(false);
 
             for (Object[] obj : updateEventList) {
                 populateStatement(obj, updatePreparedStatement, executionInfo.getUpdateQueryColumnOrder());
                 updatePreparedStatement.addBatch();
-
+                populateStatement(obj, selectionPreparedStatement, executionInfo.getConditionQueryColumnOrder());
+                if (selectionPreparedStatement != null && isBloomFilterEnabled) {
+                    ResultSet resultSet = selectionPreparedStatement.executeQuery();
+                    populateEventListFromResultSet(selectedEventList,resultSet);
+                }
             }
 
             updatedRows = updatePreparedStatement.executeBatch();
@@ -291,19 +281,13 @@ public class DBHandler {
                 int isUpdated = updatedRows[i];
                 if (isUpdated == 0) {
                     isInserted = true;
-                    ComplexEvent complexEvent = insertionEventList.get(i);
-                    populateStatement(complexEvent.getOutputData(), insertionPreparedStatement, executionInfo.getInsertQueryColumnOrder());
+                    Object[] updateEvent = updateEventList.get(i);
+                    populateStatement(updateEvent, insertionPreparedStatement, executionInfo.getInsertQueryColumnOrder());
                     insertionPreparedStatement.addBatch();
 
                     if (isBloomFilterEnabled) {
-                        addToBloomFilters(complexEvent);
+                        addToBloomFilters(updateEvent);
                     }
-                } else {
-                    if (isBloomFilterEnabled) {
-                        removeFromBloomFilters(updateEventList.get(i));
-                        addToBloomFilters(insertionEventList.get(i));
-                    }
-
                 }
             }
 
@@ -311,6 +295,16 @@ public class DBHandler {
                 insertionPreparedStatement.executeBatch();
             }
             con.commit();
+
+            if (isBloomFilterEnabled) {
+                for (Object[] obj : selectedEventList) {
+                    removeFromBloomFilters(obj);
+                }
+
+                for (Object[] obj : updateEventList) {
+                    addToBloomFilters(obj);
+                }
+            }
 
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Error while updating events," + e.getMessage(), e);
@@ -443,7 +437,6 @@ public class DBHandler {
     /**
      * Populating column values to table Insert query
      */
-
     private void populateStatement(Object[] o, PreparedStatement stmt, List<Attribute> colOrder) {
         Attribute attribute = null;
 
@@ -485,64 +478,43 @@ public class DBHandler {
 
 
     /**
-     * Populating batch selection query
+     * Generates an event list from db resultSet
      */
+    private List<Object[]> populateEventListFromResultSet(List<Object[]> selectedEventList , ResultSet results) {
 
-    private PreparedStatement populateBatchSelectionStatement(List<Object[]> eventList, Connection con, ExecutionInfo executionInfo, List<Attribute> colOrder) {
-        Attribute attribute = null;
-        PreparedStatement stmt = null;
-        String selectionQuery = executionInfo.getPreparedSelectTableStatement();
-        StringBuilder batchSelectionQuery = new StringBuilder(selectionQuery);
-
-        int count = 2;
-        int attributeCounter = 0;
-        while (eventList.size() >= count) {
-            batchSelectionQuery.append(" ; ");
-            batchSelectionQuery.append(selectionQuery);
-            count++;
-        }
-
+        int columnCount = tableDefinition.getAttributeList().size();
         try {
-            stmt = con.prepareStatement(batchSelectionQuery.toString());
-            for (Object[] o : eventList) {
-                for (int i = 0; i < colOrder.size(); i++) {
-                    attribute = colOrder.get(i);
-                    Object value = o[i];
-                    attributeCounter++;
-                    if (value != null) {
-                        switch (attribute.getType()) {
-                            case INT:
-                                stmt.setInt(attributeCounter, (Integer) value);
-                                break;
-                            case LONG:
-                                stmt.setLong(attributeCounter, (Long) value);
-                                break;
-                            case FLOAT:
-                                stmt.setFloat(attributeCounter, (Float) value);
-                                break;
-                            case DOUBLE:
-                                stmt.setDouble(attributeCounter, (Double) value);
-                                break;
-                            case STRING:
-                                stmt.setString(attributeCounter, (String) value);
-                                break;
-                            case BOOL:
-                                stmt.setBoolean(attributeCounter, (Boolean) value);
-                                break;
-                        }
-                    } else {
-                        throw new ExecutionPlanRuntimeException("Cannot Execute Insert/Update. Null value detected for " +
-                                "attribute" + attribute.getName());
+            while (results.next()) {
+                Object[] eventArray = new Object[columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    switch (tableDefinition.getAttributeList().get(i).getType()) {
+                        case INT:
+                            eventArray[i] = results.getInt(i + 1);
+                            break;
+                        case LONG:
+                            eventArray[i] = results.getLong(i + 1);
+                            break;
+                        case FLOAT:
+                            eventArray[i] = results.getFloat(i + 1);
+                            break;
+                        case DOUBLE:
+                            eventArray[i] = results.getDouble(i + 1);
+                            break;
+                        case STRING:
+                            eventArray[i] = results.getString(i + 1);
+                            break;
+                        case BOOL:
+                            eventArray[i] = results.getBoolean(i + 1);
+                            break;
                     }
                 }
+                selectedEventList.add(eventArray);
             }
-
+            results.close();
         } catch (SQLException e) {
-            cleanUpConnections(stmt, con);
-            throw new ExecutionPlanRuntimeException("Cannot generate the batch selection statement for table " + e.getMessage(), e);
+            throw new ExecutionPlanRuntimeException("Error while populating event list from db result set," + e.getMessage(), e);
         }
-
-        return stmt;
+        return selectedEventList;
     }
 
 
@@ -748,6 +720,12 @@ public class DBHandler {
     public void addToBloomFilters(ComplexEvent event) {
         for (int i = 0; i < attributeList.size(); i++) {
             bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
+        }
+    }
+
+    public void addToBloomFilters(Object[] obj) {
+        for (int i = 0; i < attributeList.size(); i++) {
+            bloomFilters[i].add(new Key(obj[i].toString().getBytes()));
         }
     }
 
