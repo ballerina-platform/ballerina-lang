@@ -34,8 +34,6 @@ public class InputManager {
     private Map<String, AbstractDefinition> streamDefinitionMap;
     private Map<String, StreamJunction> streamJunctionMap;
     private InputDistributor inputDistributor;
-    private SingleStreamEntryValve singleStreamEntryValve;
-    private SingleThreadEntryValve singleThreadEntryValve;
 
     public InputManager(ExecutionPlanContext executionPlanContext,
                         ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
@@ -43,18 +41,7 @@ public class InputManager {
         this.executionPlanContext = executionPlanContext;
         this.streamDefinitionMap = streamDefinitionMap;
         this.streamJunctionMap = streamJunctionMap;
-        if (!executionPlanContext.isPlayback() &&
-                !executionPlanContext.isEnforceOrder() &&
-                !executionPlanContext.isAsync()) {
-            inputDistributor = new InputDistributor();
-            singleThreadEntryValve = new SingleThreadEntryValve(executionPlanContext, inputDistributor);
-            singleStreamEntryValve = new SingleStreamEntryValve(executionPlanContext, singleThreadEntryValve);
-        } else if (!executionPlanContext.isPlayback() &&
-                !executionPlanContext.isEnforceOrder() &&
-                executionPlanContext.isAsync()) {
-            inputDistributor = new InputDistributor();
-        }
-
+        this.inputDistributor = new InputDistributor();
     }
 
     public InputHandler getInputHandler(String streamId) {
@@ -66,12 +53,6 @@ public class InputManager {
         }
     }
 
-    public synchronized void startProcessing() {
-        if (singleStreamEntryValve != null) {
-            singleStreamEntryValve.startProcessing();
-        }
-    }
-
     public synchronized void disconnect() {
         for (InputHandler inputHandler : inputHandlerMap.values()) {
             inputHandler.disconnect();
@@ -79,32 +60,13 @@ public class InputManager {
         inputHandlerMap.clear();
     }
 
-    public synchronized void stopProcessing() {
-        if (singleStreamEntryValve != null) {
-            singleStreamEntryValve.stopProcessing();
-        }
-    }
-
     public InputHandler constructInputHandler(String streamId) {
-
-        InputHandler inputHandler = null;
-        if (singleStreamEntryValve != null) {
-            inputHandler = new InputHandler(streamId, inputHandlerMap.size(), singleStreamEntryValve);
-            StreamJunction streamJunction = streamJunctionMap.get(streamId);
-            if (streamJunction == null) {
-                throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");
-            }
-            inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());
-        } else {
-            inputHandler = new InputHandler(streamId, inputHandlerMap.size(), inputDistributor);
-            StreamJunction streamJunction = streamJunctionMap.get(streamId);
-            if (streamJunction == null) {
-                throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");
-            }
-            inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());
-
-            //todo handle others
+        InputHandler inputHandler = new InputHandler(streamId, inputHandlerMap.size(), inputDistributor);
+        StreamJunction streamJunction = streamJunctionMap.get(streamId);
+        if (streamJunction == null) {
+            throw new DefinitionNotExistException("Stream with stream ID " + streamId + " has not been defined");
         }
+        inputDistributor.addInputProcessor(streamJunctionMap.get(streamId).constructPublisher());
         inputHandlerMap.put(streamId, inputHandler);
         return inputHandler;
     }

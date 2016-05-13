@@ -135,7 +135,6 @@ public class ExecutionPlanRuntime {
                 } catch (InterruptedException e) {
 
                 }
-                inputManager.stopProcessing();
                 for (StreamJunction streamJunction : streamJunctionMap.values()) {
                     streamJunction.stopProcessing();
                 }
@@ -167,7 +166,6 @@ public class ExecutionPlanRuntime {
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
-        inputManager.startProcessing();
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.startProcessing();
         }

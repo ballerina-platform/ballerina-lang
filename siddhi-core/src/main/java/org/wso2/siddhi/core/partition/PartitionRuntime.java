@@ -217,7 +217,6 @@ public class PartitionRuntime implements Snapshotable {
             }
             partitionInstanceRuntimeMap.putIfAbsent(key, new PartitionInstanceRuntime(key, queryRuntimeList));
             updatePartitionStreamReceivers(key, partitionedQueryRuntimeList);
-
         }
 
     }
@@ -242,7 +241,9 @@ public class PartitionRuntime implements Snapshotable {
         return partitionId;
     }
 
-    public ConcurrentMap<String, QueryRuntime> getMetaQueryRuntimeMap(){ return metaQueryRuntimeMap; }
+    public ConcurrentMap<String, QueryRuntime> getMetaQueryRuntimeMap() {
+        return metaQueryRuntimeMap;
+    }
 
     public ConcurrentMap<String, AbstractDefinition> getLocalStreamDefinitionMap() {
         return localStreamDefinitionMap;
