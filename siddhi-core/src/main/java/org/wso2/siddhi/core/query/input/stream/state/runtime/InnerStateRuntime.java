@@ -35,11 +35,11 @@ public interface InnerStateRuntime {
 
     List<SingleStreamRuntime> getSingleStreamRuntimeList();
 
-    public void setFirstProcessor(PreStateProcessor firstProcessor);
+    void setFirstProcessor(PreStateProcessor firstProcessor);
 
-    public void setLastProcessor(PostStateProcessor lastProcessor);
+    void setLastProcessor(PostStateProcessor lastProcessor);
 
-    public void addStreamRuntime(SingleStreamRuntime singleStreamRuntime);
+    void addStreamRuntime(SingleStreamRuntime singleStreamRuntime);
 
     void setQuerySelector(Processor commonProcessor);
 
@@ -51,5 +51,5 @@ public interface InnerStateRuntime {
 
     void update();
 
-    public InnerStateRuntime clone(String key);
+    InnerStateRuntime clone(String key);
 }

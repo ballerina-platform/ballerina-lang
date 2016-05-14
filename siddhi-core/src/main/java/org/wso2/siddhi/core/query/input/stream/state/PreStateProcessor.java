@@ -31,22 +31,22 @@ public interface PreStateProcessor extends Processor {
 
     void addEveryState(StateEvent stateEvent);
 
-    public void setStateId(int stateId);
+    void setStateId(int stateId);
 
-    public ComplexEventChunk processAndReturn(ComplexEventChunk complexEventChunk);
+    ComplexEventChunk processAndReturn(ComplexEventChunk complexEventChunk);
 
-    public int getStateId();
+    int getStateId();
 
-    public void init();
+    void init();
 
     void setStartState(boolean isStartState);
 
     void updateState();
 
-    public StreamPostStateProcessor getThisStatePostProcessor();
+    StreamPostStateProcessor getThisStatePostProcessor();
 
     void resetState();
 
-    public PreStateProcessor cloneProcessor(String key);
+    PreStateProcessor cloneProcessor(String key);
 
 }

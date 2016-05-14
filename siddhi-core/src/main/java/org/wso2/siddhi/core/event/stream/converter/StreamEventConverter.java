@@ -32,7 +32,7 @@ public interface StreamEventConverter {
      * @param event         Event to be converted
      * @param borrowedEvent Event that will be populated
      */
-    public void convertEvent(Event event, StreamEvent borrowedEvent);
+    void convertEvent(Event event, StreamEvent borrowedEvent);
 
     /**
      * Method to construct(change format) new StreamEvent from StreamEvent
@@ -40,7 +40,7 @@ public interface StreamEventConverter {
      * @param complexEvent  StreamEvent to be Converted
      * @param borrowedEvent Event that will be populated
      */
-    public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent);
+    void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent);
 
     /**
      * Method to construct(change format) timeStamp and data from StreamEvent
@@ -49,7 +49,7 @@ public interface StreamEventConverter {
      * @param data          output data of the event
      * @param borrowedEvent Event that will be populated
      */
-    public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
+    void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
 
     /**
      * Element to hold information about event conversion

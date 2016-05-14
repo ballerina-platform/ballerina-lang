@@ -104,9 +104,8 @@ public class Event {
         if (isExpired != event.isExpired) return false;
         if (timestamp != event.timestamp) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(data, event.data)) return false;
+        return Arrays.equals(data, event.data);
 
-        return true;
     }
 
     @Override

@@ -23,10 +23,10 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 public interface ExpressionExecutor {
 
-    public Object execute(ComplexEvent event);
+    Object execute(ComplexEvent event);
 
-    public Attribute.Type getReturnType();
+    Attribute.Type getReturnType();
 
-    public ExpressionExecutor cloneExecutor(String key);
+    ExpressionExecutor cloneExecutor(String key);
 
 }

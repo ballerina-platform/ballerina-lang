@@ -50,9 +50,8 @@ public class MetaStateEventAttribute {
         MetaStateEventAttribute attribute1 = (MetaStateEventAttribute) o;
 
         if (attribute != null ? !attribute.equals(attribute1.attribute) : attribute1.attribute != null) return false;
-        if (!Arrays.equals(position, attribute1.position)) return false;
+        return Arrays.equals(position, attribute1.position);
 
-        return true;
     }
 
     @Override

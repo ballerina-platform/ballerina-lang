@@ -64,7 +64,7 @@ public class FunctionTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.function("coalesce", new Expression[]{Expression.variable("price1"), Expression.variable("price2")}))
+                        select("price", Expression.function("coalesce", Expression.variable("price1"), Expression.variable("price2")))
         );
         query.insertInto("StockQuote");
 

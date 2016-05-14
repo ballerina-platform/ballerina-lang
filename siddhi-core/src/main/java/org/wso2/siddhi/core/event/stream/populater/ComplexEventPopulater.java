@@ -24,5 +24,5 @@ import org.wso2.siddhi.core.event.ComplexEvent;
  */
 public interface ComplexEventPopulater {
 
-    public void populateComplexEvent(ComplexEvent complexEvent, Object[] data);
+    void populateComplexEvent(ComplexEvent complexEvent, Object[] data);
 }

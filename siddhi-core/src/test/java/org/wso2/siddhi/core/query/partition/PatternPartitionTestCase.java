@@ -919,7 +919,6 @@ public class PatternPartitionTestCase {
                     } else {
                         inEventCount.incrementAndGet();
                         Assert.assertArrayEquals(new Object[]{25.6f, 47.6f, 55.7f}, event.getData());
-                        ;
                     }
                     eventArrived = true;
                 }

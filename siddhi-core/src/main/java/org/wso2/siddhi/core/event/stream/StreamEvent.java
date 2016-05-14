@@ -160,9 +160,8 @@ public class StreamEvent implements ComplexEvent {
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(onAfterWindowData, event.onAfterWindowData)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(outputData, event.outputData)) return false;
+        return Arrays.equals(outputData, event.outputData);
 
-        return true;
     }
 
     @Override

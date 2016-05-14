@@ -132,7 +132,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
             throw new NoSuchElementException();
         }
         lastReturned = returnEvent;
-        return (E) returnEvent;
+        return returnEvent;
     }
 
     /**
@@ -190,7 +190,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
             first = lastReturned;
             previousToLastReturned = null;
         }
-        return (E) firstEvent;
+        return firstEvent;
     }
 
     public void clear() {
@@ -206,11 +206,11 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
     }
 
     public E getFirst() {
-        return (E) first;
+        return first;
     }
 
     public E getLast() {
-        return (E) last;
+        return last;
     }
 
     public E poll() {
@@ -218,7 +218,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
             E firstEvent = first;
             first = (E) first.getNext();
             firstEvent.setNext(null);
-            return (E) firstEvent;
+            return firstEvent;
         } else {
             return null;
         }

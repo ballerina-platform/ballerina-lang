@@ -25,7 +25,7 @@ public interface Snapshotable {
      *
      * @return stateful objects of the processing element as an array
      */
-    public Object[] currentState();
+    Object[] currentState();
 
     /**
      * Used to restore serialized state of the processing element, for reconstructing
@@ -34,7 +34,7 @@ public interface Snapshotable {
      * @param state the stateful objects of the element as an array on
      *              the same order provided by currentState().
      */
-    public void restoreState(Object[] state);
+    void restoreState(Object[] state);
 
-    public String getElementId();
+    String getElementId();
 }

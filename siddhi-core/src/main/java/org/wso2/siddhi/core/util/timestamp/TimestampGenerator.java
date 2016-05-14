@@ -22,5 +22,5 @@ package org.wso2.siddhi.core.util.timestamp;
  * Created on 1/27/15.
  */
 public interface TimestampGenerator {
-    public long currentTime();
+    long currentTime();
 }

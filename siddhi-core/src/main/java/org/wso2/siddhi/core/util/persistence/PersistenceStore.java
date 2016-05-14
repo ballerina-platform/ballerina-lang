@@ -25,8 +25,8 @@ public interface PersistenceStore {
 
     void setProperties(Map properties);
 
-    public byte[] load(String executionPlanId, String revision);
+    byte[] load(String executionPlanId, String revision);
 
-    public String getLastRevision(String executionPlanId);
+    String getLastRevision(String executionPlanId);
 
 }
