@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.stream;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.PhasedBackoffWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -231,8 +231,7 @@ public class StreamJunction {
                     }
 
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                            bufferSize, executorService, producerType,
-                            PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS));
+                            bufferSize, executorService, producerType, new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
                     break;
                 }
