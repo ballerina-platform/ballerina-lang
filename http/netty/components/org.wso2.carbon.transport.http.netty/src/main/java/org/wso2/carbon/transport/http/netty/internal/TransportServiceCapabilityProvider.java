@@ -31,7 +31,7 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
         name = "org.wso2.carbon.transport.http.netty.internal.TransportServiceCapabilityProvider",
         immediate = true,
         service = CapabilityProvider.class,
-        property = "capability-name=org.wso2.carbon.kernel.transports.CarbonTransport"
+        property = "capabilityName=org.wso2.carbon.kernel.transports.CarbonTransport"
 )
 public class TransportServiceCapabilityProvider implements CapabilityProvider {
 

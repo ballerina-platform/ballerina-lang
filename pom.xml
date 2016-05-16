@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>2</version>
+        <version>5</version>
     </parent>
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
@@ -270,7 +270,7 @@
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
 
         <!-- Dependencies -->
-        <org.wso2.carbon.core.version>5.0.0</org.wso2.carbon.core.version>
+        <org.wso2.carbon.core.version>5.1.0-alpha2</org.wso2.carbon.core.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <netty.version>4.0.30.Final</netty.version>
