@@ -495,8 +495,6 @@ public class ExternalTimeBatchWindowTestCase {
         junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
         junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
-
-
     }
 
     @Test
@@ -605,5 +603,61 @@ public class ExternalTimeBatchWindowTestCase {
 
 
     }
+
+
+    @Test
+    public void externalTimeBatchWindowTest4() throws InterruptedException {
+        log.info("externalTimeBatchWindow test4");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream LoginEvents (timestamp long, ip string) ;";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.externalTimeBatch(timestamp, 1 sec, 0, 6 sec) " +
+                "select timestamp, ip, count() as total  " +
+                "insert all events into uniqueIps ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804999l, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805000l, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805999l, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335806000l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335806001l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335824341l, "192.10.1.7"});
+
+        Thread.sleep(1000);
+
+        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
+        junit.framework.Assert.assertEquals("In Events ", 3, inEventCount);
+        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        executionPlanRuntime.shutdown();
+
+
+    }
+
 
 }
