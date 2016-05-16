@@ -32,6 +32,17 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
     protected E previousToLastReturned;
     protected E lastReturned;
     protected E last;
+    protected boolean isBatch=false;
+
+    public ComplexEventChunk(boolean isBatch) {
+        this.isBatch = isBatch;
+    }
+
+    public ComplexEventChunk(E first, E last, boolean isBatch) {
+        this.first = first;
+        this.last = last;
+        this.isBatch = isBatch;
+    }
 
     public void insertBeforeCurrent(E events) {
 
@@ -121,7 +132,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
             throw new NoSuchElementException();
         }
         lastReturned = returnEvent;
-        return (E) returnEvent;
+        return returnEvent;
     }
 
     /**
@@ -179,7 +190,7 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
             first = lastReturned;
             previousToLastReturned = null;
         }
-        return (E) firstEvent;
+        return firstEvent;
     }
 
     public void clear() {
@@ -195,11 +206,11 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
     }
 
     public E getFirst() {
-        return (E) first;
+        return first;
     }
 
     public E getLast() {
-        return (E) last;
+        return last;
     }
 
     public E poll() {
@@ -207,10 +218,18 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
             E firstEvent = first;
             first = (E) first.getNext();
             firstEvent.setNext(null);
-            return (E) firstEvent;
+            return firstEvent;
         } else {
             return null;
         }
+    }
+
+    public boolean isBatch() {
+        return isBatch;
+    }
+
+    public void setBatch(boolean batch) {
+        isBatch = batch;
     }
 
     @Override

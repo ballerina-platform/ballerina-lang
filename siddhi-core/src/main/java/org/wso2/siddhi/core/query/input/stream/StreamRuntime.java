@@ -28,11 +28,11 @@ import java.util.List;
  */
 public interface StreamRuntime {
 
-    public List<SingleStreamRuntime> getSingleStreamRuntimes();
+    List<SingleStreamRuntime> getSingleStreamRuntimes();
 
-    public StreamRuntime clone(String key);
+    StreamRuntime clone(String key);
 
     void setCommonProcessor(Processor commonProcessor);
 
-    public MetaComplexEvent getMetaComplexEvent();
+    MetaComplexEvent getMetaComplexEvent();
 }

@@ -26,28 +26,28 @@ public interface Processor {
      *
      * @param complexEventChunk event chunk to be processed
      */
-    public void process(ComplexEventChunk complexEventChunk);
+    void process(ComplexEventChunk complexEventChunk);
 
     /**
      * Get next processor element in the processor chain. Processed event should be sent to next processor
      *
      * @return next processor
      */
-    public Processor getNextProcessor();
+    Processor getNextProcessor();
 
     /**
      * Set next processor element in processor chain
      *
      * @param processor Processor to be set as next element of processor chain
      */
-    public void setNextProcessor(Processor processor);
+    void setNextProcessor(Processor processor);
 
     /**
      * Set as the last element of the processor chain
      *
      * @param processor Last processor in the chain
      */
-    public void setToLast(Processor processor);
+    void setToLast(Processor processor);
 
     /**
      * Clone a copy of processor
@@ -55,6 +55,6 @@ public interface Processor {
      * @param key partition key
      * @return cloned processor
      */
-    public Processor cloneProcessor(String key);
+    Processor cloneProcessor(String key);
 
 }

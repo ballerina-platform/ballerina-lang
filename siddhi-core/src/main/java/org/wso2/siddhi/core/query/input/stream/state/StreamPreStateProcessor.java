@@ -45,10 +45,11 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
     protected StreamPostStateProcessor thisStatePostProcessor;
+    protected StreamPostStateProcessor thisLastProcessor;
 
     protected Processor nextProcessor;
 
-    protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>();
+    protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>(false);
     protected LinkedList<StateEvent> pendingStateEventList = new LinkedList<StateEvent>();
     protected LinkedList<StateEvent> newAndEveryStateEventList = new LinkedList<StateEvent>();
 
@@ -86,53 +87,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
      */
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-
-        complexEventChunk.reset();
-        StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
-        for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
-            StateEvent stateEvent = iterator.next();
-            if (withinStates.size() > 0) {
-                if (isExpired(stateEvent, streamEvent)) {
-                    iterator.remove();
-                    continue;
-                }
-            }
-//                if (Math.abs(stateEvent.getTimestamp() - streamEvent.getTimestamp()) > withinStates) {
-//                    iterator.remove();
-////                    switch (stateType) {
-////                        case PATTERN:
-////                            stateEvent.setEvent(stateId, null);
-////                            break;
-////                        case SEQUENCE:
-////                            stateEvent.setEvent(stateId, null);
-////                            iterator.remove();
-////                            if (thisStatePostProcessor.callbackPreStateProcessor != null) {
-////                                thisStatePostProcessor.callbackPreStateProcessor.startStateReset();
-////                            }
-////                            break;
-////                    }
-//                    continue;
-//                }
-//            }
-            stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
-            process(stateEvent);
-            if (stateChanged) {
-                iterator.remove();
-            } else {
-                switch (stateType) {
-                    case PATTERN:
-                        stateEvent.setEvent(stateId, null);
-                        break;
-                    case SEQUENCE:
-                        stateEvent.setEvent(stateId, null);
-                        iterator.remove();
-                        if (thisStatePostProcessor.callbackPreStateProcessor != null) {
-                            thisStatePostProcessor.callbackPreStateProcessor.startStateReset();
-                        }
-                        break;
-                }
-            }
-        }
+        throw new IllegalStateException("process method of StreamPreStateProcessor should not be called. processAndReturn method is used for handling event chunks.");
     }
 
     private boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
@@ -201,6 +156,14 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
             StateEvent stateEvent = stateEventPool.borrowEvent();
             addState(stateEvent);
         }
+    }
+
+    public StreamPostStateProcessor getThisLastProcessor() {
+        return thisLastProcessor;
+    }
+
+    public void setThisLastProcessor(StreamPostStateProcessor thisLastProcessor) {
+        this.thisLastProcessor = thisLastProcessor;
     }
 
     /**
@@ -288,6 +251,62 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
 
     public void setStateId(int stateId) {
         this.stateId = stateId;
+    }
+
+    @Override
+    public ComplexEventChunk<StateEvent> processAndReturn(ComplexEventChunk complexEventChunk) {
+        ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>(false);
+        complexEventChunk.reset();
+        StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
+        for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
+            StateEvent stateEvent = iterator.next();
+            if (withinStates.size() > 0) {
+                if (isExpired(stateEvent, streamEvent)) {
+                    iterator.remove();
+                    continue;
+                }
+            }
+//                if (Math.abs(stateEvent.getTimestamp() - streamEvent.getTimestamp()) > withinStates) {
+//                    iterator.remove();
+////                    switch (stateType) {
+////                        case PATTERN:
+////                            stateEvent.setEvent(stateId, null);
+////                            break;
+////                        case SEQUENCE:
+////                            stateEvent.setEvent(stateId, null);
+////                            iterator.remove();
+////                            if (thisStatePostProcessor.callbackPreStateProcessor != null) {
+////                                thisStatePostProcessor.callbackPreStateProcessor.startStateReset();
+////                            }
+////                            break;
+////                    }
+//                    continue;
+//                }
+//            }
+            stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
+            process(stateEvent);
+            if (this.thisLastProcessor.isEventReturned()) {
+                this.thisLastProcessor.clearProcessedEvent();
+                returnEventChunk.add(stateEvent);
+            }
+            if (stateChanged) {
+                iterator.remove();
+            } else {
+                switch (stateType) {
+                    case PATTERN:
+                        stateEvent.setEvent(stateId, null);
+                        break;
+                    case SEQUENCE:
+                        stateEvent.setEvent(stateId, null);
+                        iterator.remove();
+                        if (thisStatePostProcessor.callbackPreStateProcessor != null) {
+                            thisStatePostProcessor.callbackPreStateProcessor.startStateReset();
+                        }
+                        break;
+                }
+            }
+        }
+        return returnEventChunk;
     }
 
     @Override

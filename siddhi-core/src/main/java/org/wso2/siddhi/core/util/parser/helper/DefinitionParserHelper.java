@@ -67,10 +67,9 @@ public class DefinitionParserHelper {
 
     public static void addStreamJunction(StreamDefinition streamDefinition, ConcurrentMap<String, StreamJunction> streamJunctionMap, ExecutionPlanContext executionPlanContext) {
         if (!streamJunctionMap.containsKey(streamDefinition.getId())) {
-            SiddhiContext siddhiContext = executionPlanContext.getSiddhiContext();
             StreamJunction streamJunction = new StreamJunction(streamDefinition,
                     executionPlanContext.getExecutorService(),
-                    siddhiContext.getEventBufferSize(), executionPlanContext);
+                    executionPlanContext.getBufferSize(), executionPlanContext);
             streamJunctionMap.putIfAbsent(streamDefinition.getId(), streamJunction);
 
         }

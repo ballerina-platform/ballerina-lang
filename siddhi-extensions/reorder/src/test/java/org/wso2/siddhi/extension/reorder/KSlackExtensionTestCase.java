@@ -29,7 +29,7 @@ public class KSlackExtensionTestCase {
         log.info("KSlackExtensionTestCase TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (eventtt long, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (eventtt long, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream#reorder:kslack(eventtt) select eventtt, price, volume " +
                 "insert into outputStream;");
 
@@ -112,7 +112,7 @@ public class KSlackExtensionTestCase {
         log.info("KSlackExtensionTestCase TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (eventtt long, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (eventtt long, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream#reorder:kslack(eventtt, 1000l) select eventtt, price, volume " +
                 "insert into outputStream;");
 

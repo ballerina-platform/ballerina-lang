@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * In-memory event table implementation of SiddhiQL.
@@ -64,6 +66,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     private String indexAttribute = null;
     private int indexPosition;
     private SortedMap<Object, StreamEvent> eventsMap;
+    private ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
 
 
     public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
@@ -111,38 +114,54 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public synchronized void add(ComplexEventChunk addingEventChunk) {
-        addingEventChunk.reset();
-        while (addingEventChunk.hasNext()) {
-            ComplexEvent complexEvent = addingEventChunk.next();
-            StreamEvent streamEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(complexEvent, streamEvent);
-            if (indexAttribute != null) {
-                eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
-            } else {
-                eventsList.add(streamEvent);
+    public void add(ComplexEventChunk addingEventChunk) {
+        try{
+            readWriteLock.writeLock().lock();
+            addingEventChunk.reset();
+            while (addingEventChunk.hasNext()) {
+                ComplexEvent complexEvent = addingEventChunk.next();
+                StreamEvent streamEvent = streamEventPool.borrowEvent();
+                eventConverter.convertStreamEvent(complexEvent, streamEvent);
+                if (indexAttribute != null) {
+                    eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+                } else {
+                    eventsList.add(streamEvent);
+                }
             }
-        }
-    }
-
-    @Override
-    public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
-        if (indexAttribute != null) {
-            operator.delete(deletingEventChunk, eventsMap);
-        } else {
-            operator.delete(deletingEventChunk, eventsList);
+        }finally {
+            readWriteLock.writeLock().unlock();
         }
 
     }
 
     @Override
-    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator,
+    public void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
+        try{
+            readWriteLock.writeLock().lock();
+            if (indexAttribute != null) {
+                operator.delete(deletingEventChunk, eventsMap);
+            } else {
+                operator.delete(deletingEventChunk, eventsList);
+            }
+        }finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public void update(ComplexEventChunk updatingEventChunk, Operator operator,
                                     int[] mappingPosition) {
-        if (indexAttribute != null) {
-            operator.update(updatingEventChunk, eventsMap, mappingPosition);
-        } else {
-            operator.update(updatingEventChunk, eventsList, mappingPosition);
+        try{
+            readWriteLock.writeLock().lock();
+            if (indexAttribute != null) {
+                operator.update(updatingEventChunk, eventsMap, mappingPosition);
+            } else {
+                operator.update(updatingEventChunk, eventsList, mappingPosition);
+            }
+        }finally {
+            readWriteLock.writeLock().unlock();
         }
+
     }
 
     @Override
@@ -156,21 +175,33 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
-        if (indexAttribute != null) {
-            return finder.contains(matchingEvent, eventsMap);
-        } else {
-            return finder.contains(matchingEvent, eventsList);
+    public boolean contains(ComplexEvent matchingEvent, Finder finder) {
+        try{
+            readWriteLock.readLock().lock();
+            if (indexAttribute != null) {
+                return finder.contains(matchingEvent, eventsMap);
+            } else {
+                return finder.contains(matchingEvent, eventsList);
+            }
+        }finally {
+            readWriteLock.readLock().unlock();
         }
+
     }
 
     @Override
-    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        if (indexAttribute != null) {
-            return finder.find(matchingEvent, eventsMap, streamEventCloner);
-        } else {
-            return finder.find(matchingEvent, eventsList, streamEventCloner);
+    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        try{
+            readWriteLock.readLock().lock();
+            if (indexAttribute != null) {
+                return finder.find(matchingEvent, eventsMap, streamEventCloner);
+            } else {
+                return finder.find(matchingEvent, eventsList, streamEventCloner);
+            }
+        }finally {
+            readWriteLock.readLock().unlock();
         }
+
     }
 
     @Override

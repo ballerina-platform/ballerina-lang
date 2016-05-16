@@ -47,7 +47,7 @@ public class TimestampInMillisecondsFunctionExtensionTestCase {
         log.info("TimestampInMillisecondsWithAllArgumentsFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
@@ -82,7 +82,7 @@ public class TimestampInMillisecondsFunctionExtensionTestCase {
         log.info("TimestampInMillisecondsWithDateFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
@@ -117,7 +117,7 @@ public class TimestampInMillisecondsFunctionExtensionTestCase {
         log.info("TimestampInMillisecondsWithoutArgumentFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +

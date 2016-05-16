@@ -25,14 +25,14 @@ import org.wso2.siddhi.core.query.processor.Processor;
  */
 public interface PostStateProcessor extends Processor {
 
-    public int getStateId();
+    int getStateId();
 
-    public void setNextStatePreProcessor(PreStateProcessor nextStatePerProcessor);
+    void setNextStatePreProcessor(PreStateProcessor nextStatePerProcessor);
 
-    public void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor);
+    void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor);
 
-    public void setCallbackPreStateProcessor(CountPreStateProcessor callbackPreStateProcessor);
+    void setCallbackPreStateProcessor(CountPreStateProcessor callbackPreStateProcessor);
 
-    public PostStateProcessor cloneProcessor(String key);
+    PostStateProcessor cloneProcessor(String key);
 
 }

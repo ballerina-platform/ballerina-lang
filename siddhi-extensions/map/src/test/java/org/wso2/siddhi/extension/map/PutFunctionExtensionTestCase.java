@@ -49,7 +49,7 @@ public class PutFunctionExtensionTestCase {
         log.info("PutFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
                 + "map:create() as tmpMap insert into tmpStream;"
                 + "@info(name = 'query2') from tmpStream  select symbol,price,tmpMap, map:put(tmpMap,symbol,price) as newmap"
@@ -101,7 +101,7 @@ public class PutFunctionExtensionTestCase {
         log.info("PutFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
                 + "map:create() as tmpMap insert into tmpStream;"
                 + "@info(name = 'query2') from tmpStream  select symbol,price,tmpMap, map:put(map:put(map:create(),'CHECK ID',1000),symbol,price) as newmap"

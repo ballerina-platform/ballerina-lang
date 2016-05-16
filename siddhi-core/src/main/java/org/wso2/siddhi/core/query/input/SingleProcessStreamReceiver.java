@@ -18,32 +18,55 @@
 package org.wso2.siddhi.core.query.input;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
+import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
 
-    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>();
+    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    protected final String lockKey;
+    private QuerySelector querySelector;
 
-    public SingleProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
+    public SingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker) {
         super(streamId, latencyTracker);
+        this.lockKey = lockKey;
+    }
+
+    public void setNext(Processor next) {
+        super.setNext(next);
+        this.querySelector = (QuerySelector) ((StreamPreStateProcessor) next).getThisLastProcessor().getNextProcessor();
     }
 
     public SingleProcessStreamReceiver clone(String key) {
-        return new SingleProcessStreamReceiver(streamId + key, latencyTracker);
+        return new SingleProcessStreamReceiver(streamId + key, key, latencyTracker);
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
+        ComplexEventChunk<StateEvent> retEventChunk = new ComplexEventChunk<StateEvent>(false);
+        synchronized (lockKey) {
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = streamEventChunk.next();
+                streamEventChunk.remove();
+                stabilizeStates();
+                currentStreamEventChunk.add(streamEvent);
+                ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) next).processAndReturn(currentStreamEventChunk);
+                if (eventChunk.getFirst() != null) {
+                    retEventChunk.add(eventChunk.getFirst());
+                }
 
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
-            streamEventChunk.remove();
-            stabilizeStates();
-            currentStreamEventChunk.add(streamEvent);
-            next.process(currentStreamEventChunk);
-            currentStreamEventChunk.clear();
+                eventChunk.clear();
+                currentStreamEventChunk.clear();
+            }
         }
-
+        while (retEventChunk.hasNext()) {
+            StateEvent stateEvent = retEventChunk.next();
+            retEventChunk.remove();
+            querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent, false));
+        }
     }
 
     protected void stabilizeStates() {

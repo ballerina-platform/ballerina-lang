@@ -24,13 +24,13 @@ import java.util.List;
 
 public interface InputProcessor {
 
-    public void send(Event event, int streamIndex);
+    void send(Event event, int streamIndex);
 
-    public void send(Event[] events, int streamIndex);
+    void send(Event[] events, int streamIndex);
 
-    public void send(List<Event> events, int streamIndex);
+    void send(List<Event> events, int streamIndex);
 
-    public void send(long timeStamp, Object[] data, int streamIndex);
+    void send(long timeStamp, Object[] data, int streamIndex);
 
 }
 

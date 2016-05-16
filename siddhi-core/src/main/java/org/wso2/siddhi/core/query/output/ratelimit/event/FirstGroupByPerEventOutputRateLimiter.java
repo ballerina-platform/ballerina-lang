@@ -30,14 +30,14 @@ import java.util.List;
 public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
-    private List<ComplexEvent> complexEventList;
+    private ComplexEventChunk<ComplexEvent> allComplexEventChunk;
     private volatile int counter = 0;
     List<String> groupByKeys = new ArrayList<String>();
 
     public FirstGroupByPerEventOutputRateLimiter(String id, Integer value) {
         this.id = id;
         this.value = value;
-        complexEventList = new ArrayList<ComplexEvent>();
+        allComplexEventChunk = new ComplexEventChunk<ComplexEvent>(false);
     }
 
     @Override
@@ -50,39 +50,35 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
-        while (complexEventChunk.hasNext()) {
-            ComplexEvent event = complexEventChunk.next();
-            if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
-                GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
-                if (!groupByKeys.contains(groupedComplexEvent.getGroupKey())) {
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        synchronized (this) {
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     complexEventChunk.remove();
-                    groupByKeys.add(groupedComplexEvent.getGroupKey());
-                    complexEventList.add(groupedComplexEvent.getComplexEvent());
-                }
-                if (++counter == value) {
-                    if (complexEventList.size() != 0) {
-                        ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
-                        for (ComplexEvent complexEvent : complexEventList) {
-                            eventChunk.add(complexEvent);
-                        }
-                        complexEventList.clear();
-                        counter = 0;
-                        groupByKeys.clear();
-                        sendToCallBacks(eventChunk);
-                    } else {
-                        counter = 0;
-                        groupByKeys.clear();
+                    GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
+                    if (!groupByKeys.contains(groupedComplexEvent.getGroupKey())) {
+                        groupByKeys.add(groupedComplexEvent.getGroupKey());
+                        allComplexEventChunk.add(groupedComplexEvent.getComplexEvent());
                     }
+                    if (++counter == value) {
+                        if (allComplexEventChunk.getFirst() != null) {
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            outputEventChunk.add(allComplexEventChunk.getFirst());
+                            outputEventChunks.add(outputEventChunk);
+                            allComplexEventChunk.clear();
+                            counter = 0;
+                            groupByKeys.clear();
+                        } else {
+                            counter = 0;
+                            groupByKeys.clear();
+                        }
 
+                    }
                 }
             }
         }
-        if (complexEventList.size() != 0) {
-            ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>();
-            for (ComplexEvent complexEvent : complexEventList) {
-                eventChunk.add(complexEvent);
-            }
-            complexEventList.clear();
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
             sendToCallBacks(eventChunk);
         }
     }
@@ -99,12 +95,12 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{complexEventList, groupByKeys, counter};
+        return new Object[]{allComplexEventChunk, groupByKeys, counter};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        complexEventList = (List<ComplexEvent>) state[0];
+        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
         groupByKeys = (List<String>) state[1];
         counter = (Integer) state[2];
     }

@@ -22,6 +22,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
+import java.util.ArrayList;
+
 public class LastPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
@@ -42,15 +44,23 @@ public class LastPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
-        while (complexEventChunk.hasNext()) {
-            ComplexEvent event = complexEventChunk.next();
-            if (++counter == value) {
-                complexEventChunk.remove();
-                ComplexEventChunk<ComplexEvent> lastPerEventChunk = new ComplexEventChunk<ComplexEvent>();
-                lastPerEventChunk.add(event);
-                counter = 0;
-                sendToCallBacks(lastPerEventChunk);
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        synchronized (this) {
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                    if (++counter == value) {
+                        complexEventChunk.remove();
+                        ComplexEventChunk<ComplexEvent> lastPerEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                        lastPerEventChunk.add(event);
+                        counter = 0;
+                        outputEventChunks.add(lastPerEventChunk);
+                    }
+                }
             }
+        }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
         }
     }
 

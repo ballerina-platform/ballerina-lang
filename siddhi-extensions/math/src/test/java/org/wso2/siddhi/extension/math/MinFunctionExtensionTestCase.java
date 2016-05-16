@@ -37,7 +37,7 @@ public class MinFunctionExtensionTestCase {
         logger.info("MinFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue1 double,inValue2 int);";
+        String inValueStream = "define stream InValueStream (inValue1 double,inValue2 int);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:min(inValue1,inValue2) as minValue "

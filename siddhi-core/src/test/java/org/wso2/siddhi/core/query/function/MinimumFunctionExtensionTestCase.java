@@ -48,7 +48,7 @@ public class MinimumFunctionExtensionTestCase {
         log.info("MinimumFunctionExecutor TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price1 double,price2 double, price3 double);";
+        String inStreamDefinition = "define stream inputStream (price1 double,price2 double, price3 double);";
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
@@ -109,7 +109,7 @@ public class MinimumFunctionExtensionTestCase {
         log.info("MinimumFunctionExecutor TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price1 int,price2 double, price3 double);";
+        String inStreamDefinition = "define stream inputStream (price1 int,price2 double, price3 double);";
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
@@ -123,7 +123,7 @@ public class MinimumFunctionExtensionTestCase {
         log.info("MinimumFunctionExecutor TestCase 3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price1 int,price2 int, price3 int);";
+        String inStreamDefinition = "define stream inputStream (price1 int,price2 int, price3 int);";
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
@@ -172,7 +172,7 @@ public class MinimumFunctionExtensionTestCase {
         log.info("MinimumFunctionExecutor TestCase 4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price1 float, price2 float, price3 float);";
+        String inStreamDefinition = "define stream inputStream (price1 float, price2 float, price3 float);";
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
@@ -233,7 +233,7 @@ public class MinimumFunctionExtensionTestCase {
         log.info("MinimumFunctionExecutor TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (price1 long, price2 long, price3 long);";
+        String inStreamDefinition = "define stream inputStream (price1 long, price2 long, price3 long);";
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");

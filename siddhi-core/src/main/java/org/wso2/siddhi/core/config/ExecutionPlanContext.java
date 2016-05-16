@@ -21,20 +21,19 @@ package org.wso2.siddhi.core.config;
 import com.lmax.disruptor.ExceptionHandler;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
+import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.StatisticsManager;
 import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Lock;
 
 public class ExecutionPlanContext {
 
@@ -42,7 +41,7 @@ public class ExecutionPlanContext {
     private String name;
     private boolean playback;
     private boolean enforceOrder;
-    private boolean parallel;
+    private boolean async;
     private boolean statsEnabled = false;
     private StatisticsManager statisticsManager = null;
 
@@ -51,12 +50,13 @@ public class ExecutionPlanContext {
     private List<EternalReferencedHolder> eternalReferencedHolders;
     private SnapshotService snapshotService;
 
-    private Lock sharedLock = null;
-    private TimestampGenerator timestampGenerator=null;
+    private ThreadBarrier threadBarrier = null;
+    private TimestampGenerator timestampGenerator = null;
     private PersistenceService persistenceService;
     private ElementIdGenerator elementIdGenerator;
     private Map<String, EvalScript> scriptFunctionMap;
-    private ExceptionHandler<Object> exceptionHandler;
+    private ExceptionHandler<Object> disruptorExceptionHandler;
+    private int bufferSize;
 
     public ExecutionPlanContext() {
         this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
@@ -79,12 +79,12 @@ public class ExecutionPlanContext {
         this.name = name;
     }
 
-    public boolean isParallel() {
-        return parallel;
+    public boolean isAsync() {
+        return async;
     }
 
-    public void setParallel(boolean parallel) {
-        this.parallel = parallel;
+    public void setAsync(boolean async) {
+        this.async = async;
     }
 
     public boolean isPlayback() {
@@ -103,15 +103,19 @@ public class ExecutionPlanContext {
         this.enforceOrder = enforceOrder;
     }
 
-    public boolean isStatsEnabled() { return statsEnabled; }
+    public boolean isStatsEnabled() {
+        return statsEnabled;
+    }
 
-    public void setStatsEnabled(boolean statsEnabled) { this.statsEnabled = statsEnabled; }
+    public void setStatsEnabled(boolean statsEnabled) {
+        this.statsEnabled = statsEnabled;
+    }
 
-    public StatisticsManager getStatisticsManager(){
+    public StatisticsManager getStatisticsManager() {
         return statisticsManager;
     }
 
-    public void setStatisticsManager(StatisticsManager statisticsManager){
+    public void setStatisticsManager(StatisticsManager statisticsManager) {
         this.statisticsManager = statisticsManager;
     }
 
@@ -131,12 +135,12 @@ public class ExecutionPlanContext {
         return eternalReferencedHolders;
     }
 
-    public Lock getSharedLock() {
-        return sharedLock;
+    public ThreadBarrier getThreadBarrier() {
+        return threadBarrier;
     }
 
-    public void setSharedLock(Lock sharedLock) {
-        this.sharedLock = sharedLock;
+    public void setThreadBarrier(ThreadBarrier threadBarrier) {
+        this.threadBarrier = threadBarrier;
     }
 
     public void setExecutorService(ExecutorService executorService) {
@@ -192,7 +196,23 @@ public class ExecutionPlanContext {
     }
 
 
-    public void setExceptionHandler(ExceptionHandler<Object> exceptionHandler) {
-        siddhiContext.setExceptionHandler(exceptionHandler);
+    public void setDisruptorExceptionHandler(ExceptionHandler<Object> disruptorExceptionHandler) {
+        this.disruptorExceptionHandler = disruptorExceptionHandler;
+    }
+
+    public ExceptionHandler<Object> getDisruptorExceptionHandler() {
+        if (disruptorExceptionHandler != null) {
+            return disruptorExceptionHandler;
+        } else {
+            return siddhiContext.getDefaultDisrupterExceptionHandler();
+        }
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
     }
 }

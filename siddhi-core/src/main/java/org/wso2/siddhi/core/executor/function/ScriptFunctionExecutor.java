@@ -49,7 +49,7 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return evalScript.eval(functionId,(Object[])data);
+        return evalScript.eval(functionId, data);
     }
 
     @Override

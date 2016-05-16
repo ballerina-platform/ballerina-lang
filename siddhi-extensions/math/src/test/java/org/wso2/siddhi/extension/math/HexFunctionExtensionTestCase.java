@@ -37,7 +37,7 @@ public class HexFunctionExtensionTestCase {
         logger.info("HexFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue int);";
+        String inValueStream = "define stream InValueStream (inValue int);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:hex(inValue) as hexString "

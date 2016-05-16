@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class ParallelTestCase {
-    static final Logger log = Logger.getLogger(ParallelTestCase.class);
+public class AsyncTestCase {
+    static final Logger log = Logger.getLogger(AsyncTestCase.class);
     private int count;
     private boolean eventArrived;
     private long firstValue;
@@ -45,14 +45,14 @@ public class ParallelTestCase {
     }
 
     @Test
-    public void parallelTest1() throws InterruptedException {
-        log.info("parallel test 1");
+    public void asyncTest1() throws InterruptedException {
+        log.info("async test 1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:parallel" +
-                " " +
+                "@plan:async " +
+//                "@config(async='true') " +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +
                 "" +
@@ -87,7 +87,7 @@ public class ParallelTestCase {
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
         inputHandler.send(new Object[]{"IBM", 75.6f, 100});
 
-        Thread.sleep(100);
+        Thread.sleep(1000);
         executionPlanRuntime.shutdown();
         Assert.assertTrue(eventArrived);
         Assert.assertEquals(3, count);
@@ -95,13 +95,13 @@ public class ParallelTestCase {
     }
 
     @Test
-    public void parallelTest2() throws InterruptedException {
-        log.info("parallel test 2");
+    public void asyncTest2() throws InterruptedException {
+        log.info("async test 2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:parallel" +
+                "@plan:async " +
                 " " +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +
@@ -145,13 +145,13 @@ public class ParallelTestCase {
     }
 
     @Test
-    public void parallelTest3() throws InterruptedException {
-        log.info("parallel test 3");
+    public void asyncTest3() throws InterruptedException {
+        log.info("async test 3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@plan:parallel" +
+                "@plan:async" +
                 " " +
                 "define stream cseEventStream (symbol string, price float, volume int);" +
                 "define stream cseEventStream2 (symbol string, price float, volume int);" +
@@ -194,5 +194,127 @@ public class ParallelTestCase {
 
     }
 
+    @Test
+    public void asyncTest4() throws InterruptedException {
+        log.info("async test 4");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@plan:async(bufferSize='2')" +
+                " " +
+                "define stream cseEventStream (symbol string, price float, volume int);" +
+                "define stream cseEventStream2 (symbol string, price float, volume int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream[70 > price] " +
+                "select * " +
+                "insert into innerStream ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from innerStream[volume > 90] " +
+                "select * " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage(), e);
+                }
+                eventArrived = true;
+                for (Event event : events) {
+                    count++;
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        long startTime = System.currentTimeMillis();
+        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        inputHandler.send(new Object[]{"IBM", 9.6f, 100});
+        inputHandler.send(new Object[]{"FB", 7.6f, 100});
+        inputHandler.send(new Object[]{"GOOG", 5.6f, 100});
+        inputHandler.send(new Object[]{"FB", 23.6f, 100});
+        inputHandler.send(new Object[]{"WSO2", 13.6f, 100});
+        inputHandler.send(new Object[]{"IBM", 15.6f, 100});
+        long timeDiff = System.currentTimeMillis() - startTime;
+        Thread.sleep(9000);
+        executionPlanRuntime.shutdown();
+        Assert.assertTrue(eventArrived);
+        Assert.assertEquals(7, count);
+        Assert.assertTrue(timeDiff >= 1000);
+
+    }
+
+
+
+    @Test
+    public void asyncTest5() throws InterruptedException {
+        log.info("async test 5");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                " " +
+                "@async(bufferSize='2')" +
+                "define stream cseEventStream (symbol string, price float, volume int);" +
+                "" +
+                "define stream cseEventStream2 (symbol string, price float, volume int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream[70 > price] " +
+                "select * " +
+                "insert into innerStream ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from innerStream[volume > 90] " +
+                "select * " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage(), e);
+                }
+                eventArrived = true;
+                for (Event event : events) {
+                    count++;
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        long startTime = System.currentTimeMillis();
+        inputHandler.send(new Object[]{"WSO2", 55.6f, 100});
+        inputHandler.send(new Object[]{"IBM", 9.6f, 100});
+        inputHandler.send(new Object[]{"FB", 7.6f, 100});
+        inputHandler.send(new Object[]{"GOOG", 5.6f, 100});
+        inputHandler.send(new Object[]{"WSO2", 15.6f, 100});
+        long timeDiff = System.currentTimeMillis() - startTime;
+        Thread.sleep(5000);
+        executionPlanRuntime.shutdown();
+        Assert.assertTrue(eventArrived);
+        Assert.assertEquals(5, count);
+        Assert.assertTrue(timeDiff >= 2000);
+
+    }
 
 }

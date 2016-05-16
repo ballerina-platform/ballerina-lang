@@ -74,7 +74,7 @@ public class KSlackExtension extends StreamProcessor {
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
         try {
             while (streamEventChunk.hasNext()) {
@@ -299,7 +299,7 @@ public class KSlackExtension extends StreamProcessor {
         public void run() {
             if((expiredEventTreeMap != null) && (expiredEventTreeMap.keySet().size() != 0)) {
                 Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = expiredEventTreeMap.entrySet().iterator();
-                ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
+                ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
                 while (entryIterator.hasNext()) {
                     Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();

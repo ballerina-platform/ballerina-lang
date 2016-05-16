@@ -37,8 +37,9 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-            lock.lock();
+        complexEventChunk.reset();
+        List<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        synchronized (this) {
             complexEventChunk.reset();
             String currentGroupByKey = null;
             Map<Integer, Object> currentAggregateAttributeValueMap = null;
@@ -46,7 +47,7 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
-                        sendEvents();
+                        constructOutputChunk(outputEventChunks);
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
@@ -60,7 +61,6 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
                             currentAggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
                             groupByAggregateAttributeValueMap.put(currentGroupByKey, currentAggregateAttributeValueMap);
                         }
-
                     }
                     if (groupedComplexEvent.getType() == ComplexEvent.Type.CURRENT) {
                         eventList.add(groupedComplexEvent);
@@ -81,28 +81,24 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
                     }
                 }
             }
-        } finally {
-            lock.unlock();
+        }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
         }
     }
 
-    private synchronized void sendEvents() {
-        ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
-
+    private void constructOutputChunk(List<ComplexEventChunk<ComplexEvent>> outputEventChunks) {
+        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
         for (GroupedComplexEvent originalComplexEvent : eventList) {
-            String currentGroupByKey = null;
-            Map<Integer, Object> currentAggregateAttributeValueMap = null;
-            if (currentGroupByKey == null || !currentGroupByKey.equals(originalComplexEvent.getGroupKey())) {
-                currentGroupByKey = originalComplexEvent.getGroupKey();
-                currentAggregateAttributeValueMap = groupByAggregateAttributeValueMap.get(currentGroupByKey);
-            }
+            String currentGroupByKey = originalComplexEvent.getGroupKey();
+            Map<Integer, Object> currentAggregateAttributeValueMap = groupByAggregateAttributeValueMap.get(currentGroupByKey);
             ComplexEvent eventCopy = cloneComplexEvent(originalComplexEvent.getComplexEvent());
             for (Integer position : aggregateAttributePositionList) {
                 eventCopy.getOutputData()[position] = currentAggregateAttributeValueMap.get(position);
             }
-            complexEventChunk.add(eventCopy);
+            outputEventChunk.add(eventCopy);
         }
-        sendToCallBacks(complexEventChunk);
+        outputEventChunks.add(outputEventChunk);
     }
 
     @Override

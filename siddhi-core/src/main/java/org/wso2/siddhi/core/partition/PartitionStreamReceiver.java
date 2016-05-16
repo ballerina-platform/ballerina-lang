@@ -60,13 +60,13 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         this.executionPlanContext = executionPlanContext;
         streamId = streamDefinition.getId();
         this.eventPool = new StreamEventPool(metaStreamEvent, 5);
-        this.streamEventChunk = new ComplexEventChunk<ComplexEvent>();
+        this.streamEventChunk = new ComplexEventChunk<ComplexEvent>(false);
 
     }
 
-   public void init(){
-       streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
-   }
+    public void init() {
+        streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
+    }
 
     @Override
     public String getStreamId() {
@@ -152,12 +152,13 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     public void receive(long timeStamp, Object[] data) {
         StreamEvent borrowedEvent = eventPool.borrowEvent();
         streamEventConverter.convertData(timeStamp, data, borrowedEvent);
-        for (PartitionExecutor partitionExecutor : partitionExecutors) {
-            String key = partitionExecutor.execute(borrowedEvent);
-            send(key, borrowedEvent);
-        }
         if (partitionExecutors.size() == 0) {
             send(borrowedEvent);
+        } else {
+            for (PartitionExecutor partitionExecutor : partitionExecutors) {
+                String key = partitionExecutor.execute(borrowedEvent);
+                send(key, borrowedEvent);
+            }
         }
         eventPool.returnEvents(borrowedEvent);
     }
@@ -250,7 +251,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
 
     private StreamJunction createStreamJunction() {
         return new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
-                executionPlanContext.getSiddhiContext().getEventBufferSize(), executionPlanContext);
+                executionPlanContext.getBufferSize(), executionPlanContext);
     }
 
 }

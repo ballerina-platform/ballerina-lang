@@ -36,7 +36,7 @@ public class AtanFunctionExtensionTestCase {
         logger.info("AtanFunctionExtension TestCase With one function parameter");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue double);";
+        String inValueStream = "define stream InValueStream (inValue double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:atan(inValue) as atanValue "
@@ -68,7 +68,7 @@ public class AtanFunctionExtensionTestCase {
         logger.info("AtanFunctionExtension TestCase With two function parameters");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue1 double, inValue2 double);";
+        String inValueStream = "define stream InValueStream (inValue1 double, inValue2 double);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:atan(inValue1, inValue2) as convertedValue "

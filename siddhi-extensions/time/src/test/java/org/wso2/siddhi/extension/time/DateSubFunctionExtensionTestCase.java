@@ -47,7 +47,7 @@ public class DateSubFunctionExtensionTestCase {
         log.info("DateSubFunctionExtensionTestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')" +
+        String inStreamDefinition = "" +
                 "define stream inputStream (symbol string,dateValue string,dateFormat string,timestampInMilliseconds long,expr int);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream select symbol ,time:dateSub(dateValue,expr,'year',dateFormat) as yearSubtracted,time:dateSub(dateValue,expr," +

@@ -121,7 +121,6 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
     public void setNextStatePreProcessor(PreStateProcessor preStateProcessor) {
         this.nextStatePerProcessor = preStateProcessor;
         partnerPostStateProcessor.nextStatePerProcessor = preStateProcessor;
-
     }
 
     public void setNextEveryStatePerProcessor(PreStateProcessor nextEveryStatePerProcessor) {

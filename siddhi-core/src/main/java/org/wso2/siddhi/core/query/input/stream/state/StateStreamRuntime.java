@@ -58,6 +58,8 @@ public class StateStreamRuntime implements StreamRuntime {
                 ((SequenceSingleProcessStreamReceiver) processStreamReceiver).setStateStreamRuntime(stateStreamRuntime);
             }
         }
+        ((StreamPreStateProcessor) stateStreamRuntime.innerStateRuntime.getFirstProcessor()).setThisLastProcessor((StreamPostStateProcessor)
+                stateStreamRuntime.innerStateRuntime.getLastProcessor());
         return stateStreamRuntime;
     }
 

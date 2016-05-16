@@ -48,7 +48,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -76,7 +76,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         twitterStreamHandler.send(new Object[]{"User1", "Hellno World", "WSO2"});
 
-        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
         Assert.assertEquals(4, count.get());
         executionPlanRuntime.shutdown();
 
@@ -88,7 +88,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -119,7 +119,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
-        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
         Assert.assertEquals(8, count.get());
         executionPlanRuntime.shutdown();
 
@@ -132,7 +132,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -165,7 +165,7 @@ public class JoinPartitionTestCase {
 
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
-        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
         Assert.assertEquals(8, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -178,7 +178,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -216,7 +216,7 @@ public class JoinPartitionTestCase {
         outputStreamStreamHandler.send(new Object[]{"GOOG", "new_user_1"});
         outputStreamStreamHandler.send(new Object[]{"GOOG", "new_user_2"});
 
-        SiddhiTestHelper.waitForEvents(100, 10, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 10, count, 6000);
         Assert.assertEquals(10, count.get());
         executionPlanRuntime.shutdown();
 
@@ -229,9 +229,9 @@ public class JoinPartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream cseEventStream (symbol string, user string,volume int); " +
-                "@config(async = 'true')" +
+                "" +
                 "define stream twitterStream (user string, tweet string, company string);" +
                 " " +
                 "partition with (user of cseEventStream) begin " +
@@ -264,7 +264,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User3", "Hello World", "GOOG"});
 
-        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
         Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -277,7 +277,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin " +
                 "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all events into #cseEventStream;" +
                 "@info(name = 'query1') from #cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
@@ -307,7 +307,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
 
-        SiddhiTestHelper.waitForEvents(100, 4, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
         Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -320,7 +320,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string, volume int);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string, volume int);"
                 + "partition with (volume>=100 as 'large' or volume<100 as 'small' of cseEventStream, volume>=100 as 'large' or volume<100 as 'small' of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.user== twitterStream.user " +
@@ -353,7 +353,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2", 10});
         twitterStreamHandler.send(new Object[]{"User1", "World", "IBM", 10});
 
-        SiddhiTestHelper.waitForEvents(100, 8, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
         Assert.assertEquals(8, count.get());
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -366,7 +366,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
@@ -395,7 +395,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Hellno World", "WSO2"});
         twitterStreamHandler.send(new Object[]{"User3", "Hellno World", "WSO2"});
 
-        SiddhiTestHelper.waitForEvents(100, 6, count, 60000);
+        SiddhiTestHelper.waitForEvents(100, 6, count, 6000);
         Assert.assertEquals(6, count.get());
         executionPlanRuntime.shutdown();
 
@@ -407,7 +407,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@config(async = 'true')define stream cseEventStream (symbol string, user string,volume int);  @config(async = 'true')define stream twitterStream (user string, tweet string, company string);"
+        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.length(1) unidirectional join twitterStream#window.length(1) " +
                 "on cseEventStream.symbol== twitterStream.company " +

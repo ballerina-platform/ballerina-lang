@@ -47,7 +47,7 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
                 timeToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
@@ -68,32 +68,34 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
 
     @Override
     protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        while (streamEventChunk.hasNext()) {
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
 
-            StreamEvent streamEvent = streamEventChunk.next();
-            long currentTime = (Long) streamEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
+                StreamEvent streamEvent = streamEventChunk.next();
+                long currentTime = (Long) streamEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
 
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
+                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = expiredEventChunk.next();
-                long expiredEventTime= (Long) expiredEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
-                long timeDiff = expiredEventTime - currentTime + timeToKeep;
-                if (timeDiff <= 0) {
-                    expiredEventChunk.remove();
-                    expiredEvent.setTimestamp(currentTime);
-                    streamEventChunk.insertBeforeCurrent(expiredEvent);
-                } else {
-                    expiredEventChunk.reset();
-                    break;
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = expiredEventChunk.next();
+                    long expiredEventTime = (Long) expiredEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
+                    long timeDiff = expiredEventTime - currentTime + timeToKeep;
+                    if (timeDiff <= 0) {
+                        expiredEventChunk.remove();
+                        expiredEvent.setTimestamp(currentTime);
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        expiredEventChunk.reset();
+                        break;
+                    }
                 }
-            }
 
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
-                this.expiredEventChunk.add(clonedEvent);
+                if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
+                    this.expiredEventChunk.add(clonedEvent);
+                }
+                expiredEventChunk.reset();
             }
-            expiredEventChunk.reset();
         }
         nextProcessor.process(streamEventChunk);
     }

@@ -106,14 +106,9 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
         partnerStatePreProcessor.newAndEveryStateEventList.clear();
     }
 
-    /**
-     * Process the handed StreamEvent
-     *
-     * @param complexEventChunk event chunk to be processed
-     */
     @Override
-    public void process(ComplexEventChunk complexEventChunk) {
-
+    public ComplexEventChunk<StateEvent> processAndReturn(ComplexEventChunk complexEventChunk) {
+        ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>(false);
         complexEventChunk.reset();
         StreamEvent streamEvent = (StreamEvent) complexEventChunk.next(); //Sure only one will be sent
         for (Iterator<StateEvent> iterator = pendingStateEventList.iterator(); iterator.hasNext(); ) {
@@ -124,6 +119,10 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
             }
             stateEvent.setEvent(stateId, streamEventCloner.copyStreamEvent(streamEvent));
             process(stateEvent);
+            if (this.thisLastProcessor.isEventReturned()) {
+                this.thisLastProcessor.clearProcessedEvent();
+                returnEventChunk.add(stateEvent);
+            }
             if (stateChanged) {
                 iterator.remove();
             } else {
@@ -138,6 +137,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
                 }
             }
         }
+        return returnEventChunk;
     }
 
     public void setPartnerStatePreProcessor(LogicalPreStateProcessor partnerStatePreProcessor) {

@@ -51,7 +51,7 @@ public class CreateFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
                 + "map:create(symbol,price) as hashMap insert into outputStream;");
 
@@ -99,7 +99,7 @@ public class CreateFunctionExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
                 + "map:create() as hashMap insert into outputStream;");
 
@@ -143,7 +143,7 @@ public class CreateFunctionExtensionTestCase {
         log.info("CreateFunctionExtension TestCase2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream "
                 + "select map:create(\"key1\",\"value1\",\"key2\",\"value2\",symbol,price) as hashMap "
                 + "insert into outputStream;");

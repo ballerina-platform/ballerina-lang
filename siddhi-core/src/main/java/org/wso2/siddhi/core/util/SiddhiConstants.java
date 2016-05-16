@@ -28,14 +28,14 @@ public final class SiddhiConstants {
     public static final int STREAM_ATTRIBUTE_TYPE_INDEX = 2;
     public static final int STREAM_ATTRIBUTE_INDEX = 3;
 
-    public static final String ANNOTATION_ELEMENT_CALLBACK_ASYNC = "callback.async";
     public static final String ANNOTATION_NAME = "Name";
     public static final String ANNOTATION_PLAYBACK = "Playback";
     public static final String ANNOTATION_ENFORCE_ORDER = "EnforceOrder";
-    public static final String ANNOTATION_PARALLEL = "Parallel";
+    public static final String ANNOTATION_ASYNC = "Async";
     public static final String ANNOTATION_STATISTICS = "Statistics";
     public static final String ANNOTATION_INDEX_BY = "IndexBy";
     public static final String ANNOTATION_FROM = "from";
+    public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";

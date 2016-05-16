@@ -43,7 +43,7 @@ public interface FindableProcessor {
      *                      the matchingEvent based on pool of events at Processor
      * @return the matched events
      */
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder);
+    StreamEvent find(ComplexEvent matchingEvent, Finder finder);
 
     /**
      * To construct a finder having the capability of finding events at the processor that corresponds to the incoming
@@ -59,6 +59,6 @@ public interface FindableProcessor {
      * @return finder having the capability of finding events at the processor against the expression and incoming
      * matchingEvent
      */
-    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
+    Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
 
 }

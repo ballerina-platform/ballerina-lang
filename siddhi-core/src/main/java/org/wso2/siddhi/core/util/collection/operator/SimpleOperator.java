@@ -365,7 +365,7 @@ public class SimpleOperator implements Operator {
 
     private StreamEvent find(ComplexEventChunk<StreamEvent> candidateEventChunk, StreamEventCloner streamEventCloner) {
         candidateEventChunk.reset();
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         while (candidateEventChunk.hasNext()) {
             StreamEvent streamEvent = candidateEventChunk.next();
             if (outsideTimeWindow(streamEvent)) {
@@ -380,7 +380,7 @@ public class SimpleOperator implements Operator {
     }
 
     protected StreamEvent find(Collection<StreamEvent> candidateEvents, StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>();
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         for (StreamEvent streamEvent : candidateEvents) {
             if (outsideTimeWindow(streamEvent)) {
                 break;

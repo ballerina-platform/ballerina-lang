@@ -65,7 +65,7 @@ public class EvalScriptTestCase {
                 "  concatenatedString\n" +
                 "};";
         //siddhiManager.defineFunction(concatFunc);
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select price , concatS(symbol,' ',price) as concatStr " +
                 "group by volume insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc + cseEventStream + query);
@@ -106,7 +106,7 @@ public class EvalScriptTestCase {
                 "  return res;\n" +
                 "};";
 
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select price , concatJ(symbol,' ',price) as concatStr " +
                 "group by volume insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc+cseEventStream + query);
@@ -241,7 +241,7 @@ public class EvalScriptTestCase {
                 "   return data[0].toString();\n" +
                 "};\n";
 
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);\n";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);\n";
         String query1 = ("@info(name = 'query1') from cseEventStream select price , toStringJ(price) as concatStr insert into mailto1;\n");
         String query2 = ("@info(name = 'query2') from cseEventStream select price , toFloatS(volume) as concatStr insert into mailto2;\n");
         String query3 = ("@info(name = 'query3') from cseEventStream select price , concatJ(symbol,' ',price) as concatStr insert into mailto3;\n");
@@ -313,7 +313,7 @@ public class EvalScriptTestCase {
                 "   data(0).asInstanceOf[String].toFloat\n" +
                 "};\n";
 
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price string, volume long);\n";
+        String cseEventStream = "define stream cseEventStream (symbol string, price string, volume long);\n";
 
         String query1 = ("@info(name = 'query1') from cseEventStream select price , toFloatS(price) as priceF insert into mailto1;\n");
         String query2 = ("@info(name = 'query2') from mailto1 select priceF/2 as newPrice insert into mailto2;\n");
@@ -363,7 +363,7 @@ public class EvalScriptTestCase {
         siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
         siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
         //siddhiManager.defineFunction(concatFunc);
-        String cseEventStream = "@config(async = 'true')define stream cseEventStream (symbol string, price float, volume long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select price , undefinedFunc(symbol,' ',price) as concatStr " +
                 "group by volume insert into mailOutput;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);

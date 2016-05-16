@@ -22,6 +22,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
+import java.util.ArrayList;
+
 public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
     private String id;
@@ -42,18 +44,27 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
-        while (complexEventChunk.hasNext()) {
-            ComplexEvent event = complexEventChunk.next();
-            if (counter == 0) {
-                complexEventChunk.remove();
-                ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>();
-                firstPerEventChunk.add(event);
-                sendToCallBacks(firstPerEventChunk);
-            }
-            if (++counter == value) {
-                counter = 0;
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        synchronized (this) {
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next();
+                if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                    if (counter == 0) {
+                        complexEventChunk.remove();
+                        ComplexEventChunk<ComplexEvent> firstPerEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                        firstPerEventChunk.add(event);
+                        outputEventChunks.add(firstPerEventChunk);
+                    }
+                    if (++counter == value) {
+                        counter = 0;
+                    }
+                }
             }
         }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
+        }
+
     }
 
     @Override

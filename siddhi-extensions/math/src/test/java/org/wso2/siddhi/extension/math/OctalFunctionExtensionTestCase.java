@@ -37,7 +37,7 @@ public class OctalFunctionExtensionTestCase {
         logger.info("OctalFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue long);";
+        String inValueStream = "define stream InValueStream (inValue long);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:oct(inValue) as octValue "

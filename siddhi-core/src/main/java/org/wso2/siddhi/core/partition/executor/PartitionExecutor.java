@@ -21,6 +21,6 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 
 public interface PartitionExecutor {
 
-    public String execute(ComplexEvent event);
+    String execute(ComplexEvent event);
 
 }

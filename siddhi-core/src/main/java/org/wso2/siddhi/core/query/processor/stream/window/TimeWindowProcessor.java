@@ -64,7 +64,7 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>();
+        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -84,33 +84,38 @@ public class TimeWindowProcessor extends WindowProcessor implements SchedulingPr
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        synchronized (this) {
 
-        while (streamEventChunk.hasNext()) {
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-            StreamEvent streamEvent = streamEventChunk.next();
-            expiredEventChunk.reset();
-            while (expiredEventChunk.hasNext()) {
-                StreamEvent expiredEvent = expiredEventChunk.next();
-                long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
-                if (timeDiff <= 0) {
-                    expiredEventChunk.remove();
-                    expiredEvent.setTimestamp(currentTime);
-                    streamEventChunk.insertBeforeCurrent(expiredEvent);
-                } else {
-                    break;
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = streamEventChunk.next();
+                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+
+                expiredEventChunk.reset();
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = expiredEventChunk.next();
+                    long timeDiff = expiredEvent.getTimestamp() - currentTime + timeInMilliSeconds;
+                    if (timeDiff <= 0) {
+                        expiredEventChunk.remove();
+                        expiredEvent.setTimestamp(currentTime);
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        break;
+                    }
                 }
-            }
 
-            if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
+                if (streamEvent.getType() == StreamEvent.Type.CURRENT) {
 
-                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                clonedEvent.setType(StreamEvent.Type.EXPIRED);
-                this.expiredEventChunk.add(clonedEvent);
+                    StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                    clonedEvent.setType(StreamEvent.Type.EXPIRED);
+                    this.expiredEventChunk.add(clonedEvent);
 
-                if (lastTimestamp < clonedEvent.getTimestamp()) {
-                    scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
-                    lastTimestamp = clonedEvent.getTimestamp();
+                    if (lastTimestamp < clonedEvent.getTimestamp()) {
+                        scheduler.notifyAt(clonedEvent.getTimestamp() + timeInMilliSeconds);
+                        lastTimestamp = clonedEvent.getTimestamp();
+                    }
+                } else {
+                    streamEventChunk.remove();
                 }
             }
             expiredEventChunk.reset();

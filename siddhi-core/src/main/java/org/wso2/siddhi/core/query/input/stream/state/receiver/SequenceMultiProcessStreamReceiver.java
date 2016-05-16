@@ -20,20 +20,17 @@ package org.wso2.siddhi.core.query.input.stream.state.receiver;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
+import org.wso2.siddhi.core.query.input.StateMultiProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.state.StateStreamRuntime;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
-public class SequenceMultiProcessStreamReceiver extends MultiProcessStreamReceiver {
+public class SequenceMultiProcessStreamReceiver extends StateMultiProcessStreamReceiver {
 
-
-    private final String lockKey;
     private StateStreamRuntime stateStreamRuntime;
 
     public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime, String lockKey, LatencyTracker latencyTracker) {
-        super(streamId, processCount, latencyTracker);
+        super(streamId, processCount, lockKey, latencyTracker);
         this.stateStreamRuntime = stateStreamRuntime;
-        this.lockKey = lockKey;
         eventSequence = new int[processCount];
         int count = 0;
         for (int i = eventSequence.length - 1; i >= 0; i--) {
@@ -56,36 +53,26 @@ public class SequenceMultiProcessStreamReceiver extends MultiProcessStreamReceiv
 
     @Override
     public void receive(ComplexEvent complexEvent) {
-        synchronized (lockKey) {
-            super.receive(complexEvent);
-        }
+        super.receive(complexEvent);
     }
 
     @Override
     public void receive(Event event) {
-        synchronized (lockKey) {
-            super.receive(event);
-        }
+        super.receive(event);
     }
 
     @Override
     public void receive(Event[] events) {
-        synchronized (lockKey) {
-            super.receive(events);
-        }
+        super.receive(events);
     }
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        synchronized (lockKey) {
-            super.receive(event, endOfBatch);
-        }
+        super.receive(event, endOfBatch);
     }
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        synchronized (lockKey) {
-            super.receive(timeStamp, data);
-        }
+        super.receive(timeStamp, data);
     }
 }

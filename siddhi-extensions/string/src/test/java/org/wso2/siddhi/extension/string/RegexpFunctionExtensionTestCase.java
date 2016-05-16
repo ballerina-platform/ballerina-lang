@@ -48,7 +48,7 @@ public class RegexpFunctionExtensionTestCase {
         log.info("RegexpFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, regex string);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, regex string);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:regexp(symbol, regex) as beginsWithWSO2 " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

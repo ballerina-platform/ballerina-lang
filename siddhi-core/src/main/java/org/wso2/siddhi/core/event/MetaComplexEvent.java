@@ -23,5 +23,5 @@ public interface MetaComplexEvent {
 
     void setOutputDefinition(StreamDefinition streamDefinition);
 
-    public StreamDefinition getOutputStreamDefinition();
+    StreamDefinition getOutputStreamDefinition();
 }

@@ -110,32 +110,33 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
 
-        StreamEvent streamEvent = streamEventChunk.getFirst();
-        while (streamEvent != null) {
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
+        synchronized (this) {
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-            StreamEvent next = streamEvent.getNext();
-            streamEvent.setNext(null);
-            complexEventChunk.add(streamEvent);
+            StreamEvent streamEvent = streamEventChunk.getFirst();
+            streamEventChunk.clear();
+            while (streamEvent != null) {
+                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            sortedWindow.add(clonedEvent);
-            if (sortedWindow.size() > lengthToKeep) {
-                Collections.sort(sortedWindow, eventComparator);
-                StreamEvent expiredEvent = sortedWindow.remove(sortedWindow.size() - 1);
-                expiredEvent.setTimestamp(currentTime);
-                complexEventChunk.add(expiredEvent);
+                StreamEvent next = streamEvent.getNext();
+                streamEvent.setNext(null);
+                streamEventChunk.add(streamEvent);
+
+                sortedWindow.add(clonedEvent);
+                if (sortedWindow.size() > lengthToKeep) {
+                    Collections.sort(sortedWindow, eventComparator);
+                    StreamEvent expiredEvent = sortedWindow.remove(sortedWindow.size() - 1);
+                    expiredEvent.setTimestamp(currentTime);
+                    streamEventChunk.add(expiredEvent);
+                }
+
+                streamEvent = next;
             }
-
-            streamEvent = next;
         }
-        nextProcessor.process(complexEventChunk);
-
-
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override

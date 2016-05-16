@@ -34,8 +34,7 @@ public class SiddhiContext {
 
     private static final Logger log = Logger.getLogger(SiddhiContext.class);
 
-    private int eventBufferSize;
-    private ExceptionHandler<Object> exceptionHandler;
+    private ExceptionHandler<Object> defaultDisrupterExceptionHandler;
     private Map<String, Class> siddhiExtensions;
     private PersistenceStore persistenceStore = null;
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
@@ -44,11 +43,10 @@ public class SiddhiContext {
 
     public SiddhiContext() {
         setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
-        eventBufferSize = SiddhiConstants.DEFAULT_EVENT_BUFFER_SIZE;
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
         statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
-        exceptionHandler = new ExceptionHandler<Object>() {
+        defaultDisrupterExceptionHandler = new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object event) {
                 log.error("Disruptor encountered an error processing" +" [sequence: " + l + ", event: "+event.toString()+"]", throwable);
@@ -66,20 +64,12 @@ public class SiddhiContext {
         };
     }
 
-    public int getEventBufferSize() {
-        return eventBufferSize;
-    }
-
     public Map<String, Class> getSiddhiExtensions() {
         return siddhiExtensions;
     }
 
     public void setSiddhiExtensions(Map<String, Class> siddhiExtensions) {
         this.siddhiExtensions = siddhiExtensions;
-    }
-
-    public void setEventBufferSize(int eventBufferSize) {
-        this.eventBufferSize = eventBufferSize;
     }
 
     public PersistenceStore getPersistenceStore() {
@@ -113,11 +103,8 @@ public class SiddhiContext {
         return extensionHolderMap;
     }
 
-    public ExceptionHandler<Object> getExceptionHandler() {
-        return exceptionHandler;
+    public ExceptionHandler<Object> getDefaultDisrupterExceptionHandler() {
+        return defaultDisrupterExceptionHandler;
     }
 
-    public void setExceptionHandler(ExceptionHandler<Object> exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
 }

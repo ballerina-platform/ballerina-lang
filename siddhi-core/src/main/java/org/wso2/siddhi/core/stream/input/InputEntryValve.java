@@ -20,65 +20,42 @@ package org.wso2.siddhi.core.stream.input;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.util.ThreadBarrier;
 
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Created on 11/28/14.
- */
-public class SingleThreadEntryValve implements InputProcessor {
+public class InputEntryValve implements InputProcessor {
 
-    private Lock lock;
+    private ThreadBarrier barrier;
     private InputProcessor inputProcessor;
 
 
-    public SingleThreadEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
-        this.lock = executionPlanContext.getSharedLock();
-        if (lock == null) {
-            lock = new ReentrantLock();
-        }
+    public InputEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
+        this.barrier = executionPlanContext.getThreadBarrier();
         this.inputProcessor = inputProcessor;
     }
 
     @Override
     public void send(Event event, int streamIndex) {
-        lock.lock();
-        try {
-            inputProcessor.send(event, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+        barrier.pass();
+        inputProcessor.send(event, streamIndex);
     }
 
     @Override
     public void send(Event[] events, int streamIndex) {
-        lock.lock();
-        try {
-            inputProcessor.send(events, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+        barrier.pass();
+        inputProcessor.send(events, streamIndex);
     }
 
     @Override
     public void send(List<Event> events, int streamIndex) {
-        lock.lock();
-        try {
-            inputProcessor.send(events, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+        barrier.pass();
+        inputProcessor.send(events, streamIndex);
     }
 
     @Override
     public void send(long timeStamp, Object[] data, int streamIndex) {
-        lock.lock();
-        try {
-            inputProcessor.send(timeStamp, data, streamIndex);
-        } finally {
-            lock.unlock();
-        }
+        barrier.pass();
+        inputProcessor.send(timeStamp, data, streamIndex);
     }
 }

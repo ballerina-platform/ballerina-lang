@@ -51,7 +51,7 @@ public class SubstrFunctionExtensionTestCase {
         log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <int beginIndex>)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:substr(symbol, 4) as substring " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
@@ -97,7 +97,7 @@ public class SubstrFunctionExtensionTestCase {
         log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <int beginIndex>, <int length>)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:substr(symbol, 2, 4) as substring " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
@@ -143,7 +143,7 @@ public class SubstrFunctionExtensionTestCase {
         log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <string regex>)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:substr(symbol, '^WSO2(.*)') as substring " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
@@ -189,7 +189,7 @@ public class SubstrFunctionExtensionTestCase {
         log.info("SubstrFunctionExtension TestCase for str:substr(<string sourceText> , <string regex>, <int groupNumber>)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol , str:substr(symbol, 'WSO2(.*)A(.*)', 2) as substring " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

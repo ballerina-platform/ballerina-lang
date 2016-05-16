@@ -7,11 +7,11 @@ import com.codahale.metrics.*;
  */
 public interface StatisticsManager {
 
-    public void startReporting();
+    void startReporting();
 
-    public void stopReporting();
+    void stopReporting();
 
-    public MetricRegistry getRegistry();
+    MetricRegistry getRegistry();
 
-    public  void cleanup();
+    void cleanup();
 }

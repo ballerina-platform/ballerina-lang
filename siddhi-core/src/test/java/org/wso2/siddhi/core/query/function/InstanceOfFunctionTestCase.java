@@ -47,7 +47,7 @@ public class InstanceOfFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "@config(async = 'true') define stream sensorEventStream (timestamp long, " +
+        String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
                 "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, latitude double, " +
                 "humidity float, sensorValue double);";
 
@@ -92,7 +92,7 @@ public class InstanceOfFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "@config(async = 'true') define stream sensorEventStream (timestamp long, " +
+        String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
                 "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, latitude double, " +
                 "humidity float, sensorValue double);";
 
@@ -138,7 +138,7 @@ public class InstanceOfFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "@config(async = 'true') define stream sensorEventStream (timestamp long, " +
+        String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
                 "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, latitude double, " +
                 "humidity float, sensorValue double);";
 
@@ -184,7 +184,7 @@ public class InstanceOfFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "@config(async = 'true') define stream sensorEventStream (timestamp long, " +
+        String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
                 "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, latitude double, " +
                 "humidity float, sensorValue double);";
 
@@ -229,7 +229,7 @@ public class InstanceOfFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "@config(async = 'true') define stream sensorEventStream (timestamp long, " +
+        String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
                 "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, latitude double, " +
                 "humidity float, sensorValue double);";
 
@@ -274,7 +274,7 @@ public class InstanceOfFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String sensorEventStream = "@config(async = 'true') define stream sensorEventStream (timestamp long, " +
+        String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
                 "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, latitude double, " +
                 "humidity float, sensorValue double);";
 

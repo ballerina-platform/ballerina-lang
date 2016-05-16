@@ -72,65 +72,66 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>();
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
 
-        StreamEvent streamEvent = streamEventChunk.getFirst();
+        synchronized (this) {
+            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
-        while (streamEvent != null) {
-            StreamEvent next = streamEvent.getNext();
-            streamEvent.setNext(null);
+            StreamEvent streamEvent = streamEventChunk.getFirst();
+            streamEventChunk.clear();
+            while (streamEvent != null) {
+                StreamEvent next = streamEvent.getNext();
+                streamEvent.setNext(null);
 
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
+                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            totalCount++;
-            if (totalCount != 1) {
-                currentBucketId = Math.ceil(totalCount / windowWidth);
-            }
-            String currentKey = generateKey(streamEvent);
-            StreamEvent oldEvent = map.put(currentKey, clonedEvent);
-            if (oldEvent != null) {    // this event is already in the store
-                countMap.put(currentKey, countMap.get(currentKey).incrementCount());
-            } else {
-                //  This is a new event
-                LossyCount lCount;
-                lCount = new LossyCount(1, (int) currentBucketId - 1);
-                countMap.put(currentKey, lCount);
-            }
-            // calculating all the events in the system which match the
-            // requirement provided by the user
-            List<String> keys = new ArrayList<String>();
-            keys.addAll(countMap.keySet());
-            for (String key : keys) {
-                LossyCount lossyCount = countMap.get(key);
-                if (lossyCount.getCount() >= ((support - error) * totalCount)) {
-                    // among the selected events, if the newly arrive event is there we mark it as an inEvent
-                    if (key.equals(currentKey)) {
-                        complexEventChunk.add(streamEvent);
-                    }
+                totalCount++;
+                if (totalCount != 1) {
+                    currentBucketId = Math.ceil(totalCount / windowWidth);
                 }
-            }
-            if (totalCount % windowWidth == 0) {
-                // its time to run the data-structure prune code
-                keys = new ArrayList<String>();
+                String currentKey = generateKey(streamEvent);
+                StreamEvent oldEvent = map.put(currentKey, clonedEvent);
+                if (oldEvent != null) {    // this event is already in the store
+                    countMap.put(currentKey, countMap.get(currentKey).incrementCount());
+                } else {
+                    //  This is a new event
+                    LossyCount lCount;
+                    lCount = new LossyCount(1, (int) currentBucketId - 1);
+                    countMap.put(currentKey, lCount);
+                }
+                // calculating all the events in the system which match the
+                // requirement provided by the user
+                List<String> keys = new ArrayList<String>();
                 keys.addAll(countMap.keySet());
                 for (String key : keys) {
                     LossyCount lossyCount = countMap.get(key);
-                    if (lossyCount.getCount() + lossyCount.getBucketId() <= currentBucketId) {
-                        log.info("Removing the Event: " + key + " from the window");
-                        countMap.remove(key);
-                        StreamEvent expirtedEvent = map.remove(key);
-                        expirtedEvent.setTimestamp(currentTime);
-                        complexEventChunk.add(expirtedEvent);
+                    if (lossyCount.getCount() >= ((support - error) * totalCount)) {
+                        // among the selected events, if the newly arrive event is there we mark it as an inEvent
+                        if (key.equals(currentKey)) {
+                            streamEventChunk.add(streamEvent);
+                        }
                     }
                 }
+                if (totalCount % windowWidth == 0) {
+                    // its time to run the data-structure prune code
+                    keys = new ArrayList<String>();
+                    keys.addAll(countMap.keySet());
+                    for (String key : keys) {
+                        LossyCount lossyCount = countMap.get(key);
+                        if (lossyCount.getCount() + lossyCount.getBucketId() <= currentBucketId) {
+                            log.info("Removing the Event: " + key + " from the window");
+                            countMap.remove(key);
+                            StreamEvent expirtedEvent = map.remove(key);
+                            expirtedEvent.setTimestamp(currentTime);
+                            streamEventChunk.add(expirtedEvent);
+                        }
+                    }
+                }
+                streamEvent = next;
             }
-
-            streamEvent = next;
         }
-        nextProcessor.process(complexEventChunk);
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override

@@ -26,18 +26,16 @@ import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 
+import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
     private String id;
     private final Long value;
-    private ComplexEvent lastevent = null;
+    private ComplexEvent lastEvent = null;
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
-    private Lock lock;
 
     static final Logger log = Logger.getLogger(LastPerTimeOutputRateLimiter.class);
 
@@ -46,7 +44,6 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
-        lock = new ReentrantLock();
     }
 
     @Override
@@ -58,33 +55,31 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-            lock.lock();
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        complexEventChunk.reset();
+        synchronized (this) {
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
-                        sendEvents();
+                        if (lastEvent != null) {
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            outputEventChunk.add(lastEvent);
+                            lastEvent = null;
+                            outputEventChunks.add(outputEventChunk);
+                        }
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
                 } else {
                     complexEventChunk.remove();
-                    lastevent = event;
+                    lastEvent = event;
                 }
             }
-        } finally {
-            lock.unlock();
         }
-    }
-
-    private synchronized void sendEvents() {
-        if (lastevent != null) {
-            ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>();
-            complexEventChunk.add(lastevent);
-            lastevent = null;
-            sendToCallBacks(complexEventChunk);
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
         }
     }
 
@@ -93,8 +88,8 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
         scheduler = new Scheduler(scheduledExecutorService, this);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
-        scheduler.notifyAt(currentTime);
-        scheduledTime = currentTime;
+        scheduledTime = currentTime + value;
+        scheduler.notifyAt(scheduledTime);
     }
 
     @Override
@@ -104,12 +99,12 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public Object[] currentState() {
-        return new Object[]{lastevent};
+        return new Object[]{lastEvent};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        lastevent = (ComplexEvent) state[0];
+        lastEvent = (ComplexEvent) state[0];
     }
 
 }

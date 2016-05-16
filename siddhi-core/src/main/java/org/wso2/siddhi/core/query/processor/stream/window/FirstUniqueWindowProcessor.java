@@ -52,16 +52,18 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
     }
 
     @Override
-    protected synchronized void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = streamEventChunk.next();
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = streamEventChunk.next();
 
-            StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
-            clonedEvent.setType(StreamEvent.Type.EXPIRED);
+                StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
-            ComplexEvent oldEvent = map.putIfAbsent(generateKey(clonedEvent), clonedEvent);
-            if (oldEvent != null) {
-                streamEventChunk.remove();
+                ComplexEvent oldEvent = map.putIfAbsent(generateKey(clonedEvent), clonedEvent);
+                if (oldEvent != null) {
+                    streamEventChunk.remove();
+                }
             }
         }
         nextProcessor.process(streamEventChunk);

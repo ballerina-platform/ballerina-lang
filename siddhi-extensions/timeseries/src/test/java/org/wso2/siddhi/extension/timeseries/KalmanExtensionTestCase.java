@@ -46,7 +46,7 @@ public class KalmanExtensionTestCase {
         log.info("KalmanMin TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (id int ,price double);";
+        String inStreamDefinition = "define stream inputStream (id int ,price double);";
         String query = ("@info(name = 'query1') from inputStream#timeseries:kalmanMinMax(price, 0.000001,0.0001, 25, 'min')  " +
                 "select price, extremaType, id " +
                 "insert into outputStream;");
@@ -188,7 +188,7 @@ public class KalmanExtensionTestCase {
         log.info("KalmanMax TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (id int, price double);";
+        String inStreamDefinition = "define stream inputStream (id int, price double);";
         String query = ("@info(name = 'query1') from inputStream#timeseries:kalmanMinMax(price, 0.000001,0.0001, 25, 'max')  " +
                 "select price, extremaType, id " +
                 "insert into outputStream;");
@@ -334,7 +334,7 @@ public class KalmanExtensionTestCase {
         log.info("KalmanMinMax TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (id int , price double);";
+        String inStreamDefinition = "define stream inputStream (id int , price double);";
         String query = ("@info(name = 'query1') from inputStream#timeseries:kalmanMinMax(price, 0.000001,0.0001, 25, 'minmax')  " +
                 "select price, extremaType, id " +
                 "insert into outputStream;");

@@ -48,7 +48,7 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -90,7 +90,7 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -172,7 +172,7 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -214,7 +214,7 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -249,7 +249,7 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -284,7 +284,7 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@config(async = 'true') " +
+                "" +
                 "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
         String query = "" +
                 "@info(name = 'query1') " +

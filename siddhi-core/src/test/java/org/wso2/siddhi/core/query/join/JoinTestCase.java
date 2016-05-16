@@ -85,8 +85,8 @@ public class JoinTestCase {
             Thread.sleep(500);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
 
-            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 6000);
+            SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 6000);
             Assert.assertEquals(2, inEventCount.get());
             Assert.assertEquals(2, removeEventCount.get());
             Assert.assertTrue(eventArrived);

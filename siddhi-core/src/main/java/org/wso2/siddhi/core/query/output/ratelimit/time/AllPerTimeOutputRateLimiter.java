@@ -26,9 +26,8 @@ import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 
+import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
@@ -38,7 +37,6 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     private Scheduler scheduler;
     private ComplexEventChunk<ComplexEvent> allComplexEventChunk;
     private long scheduledTime;
-    private Lock lock;
 
     static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
 
@@ -46,8 +44,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
-        lock = new ReentrantLock();
-        allComplexEventChunk = new ComplexEventChunk<ComplexEvent>();
+        allComplexEventChunk = new ComplexEventChunk<ComplexEvent>(false);
     }
 
     @Override
@@ -59,14 +56,21 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
 
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
-        try {
-            lock.lock();
-            complexEventChunk.reset();
+
+        ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks = new ArrayList<ComplexEventChunk<ComplexEvent>>();
+        complexEventChunk.reset();
+        synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
-                        sendEvents();
+                        ComplexEvent first = allComplexEventChunk.getFirst();
+                        if (first != null) {
+                            allComplexEventChunk.clear();
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            outputEventChunk.add(first);
+                            outputEventChunks.add(outputEventChunk);
+                        }
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
@@ -75,8 +79,9 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
                     allComplexEventChunk.add(event);
                 }
             }
-        } finally {
-            lock.unlock();
+        }
+        for (ComplexEventChunk eventChunk : outputEventChunks) {
+            sendToCallBacks(eventChunk);
         }
     }
 
@@ -85,8 +90,8 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
         scheduler = new Scheduler(scheduledExecutorService, this);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         long currentTime = System.currentTimeMillis();
-        scheduler.notifyAt(currentTime);
-        scheduledTime = currentTime;
+        scheduledTime = currentTime + value;
+        scheduler.notifyAt(scheduledTime);
     }
 
     @Override
@@ -104,15 +109,5 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
         allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
     }
 
-
-    private void sendEvents() {
-        ComplexEvent first = allComplexEventChunk.getFirst();
-        if (first != null) {
-            allComplexEventChunk.clear();
-            ComplexEventChunk<ComplexEvent> allEventChunk = new ComplexEventChunk<ComplexEvent>();
-            allEventChunk.add(first);
-            sendToCallBacks(allEventChunk);
-        }
-    }
 
 }

@@ -154,7 +154,7 @@ public class SnapshotOutputRateLimitTestCase {
         executionPlanRuntime.shutdown();
 
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event value", 2 <= count.get());
+        Assert.assertTrue("Number of output event value", 2 == count.get());
 
     }
 
@@ -212,7 +212,7 @@ public class SnapshotOutputRateLimitTestCase {
         executionPlanRuntime.shutdown();
 
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event value", 3 <= count.get());
+        Assert.assertTrue("Number of output event value", 3 == count.get());
 
     }
 
@@ -442,10 +442,10 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+        Thread.sleep(7200);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event bundles", 3, count.get());
-        Assert.assertTrue("Number of output event value", 6 >= value);
+        Assert.assertEquals("Number of output event bundles", 7, count.get());
+        Assert.assertTrue("Number of output event value", 14 == value);
 
         executionPlanRuntime.shutdown();
 
@@ -559,7 +559,7 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
         SiddhiTestHelper.waitForEvents(1000, 3, count, 60000);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event with value", count.get() >= 3);
+        Assert.assertTrue("Number of output event with value", count.get() == 3);
 
         executionPlanRuntime.shutdown();
 
@@ -767,7 +767,7 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
 
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event greater then equal to 4 ", true, count.get() >= 4);
+        Assert.assertEquals("Number of output event equal to 4 ", true, count.get() == 4);
 
         executionPlanRuntime.shutdown();
 
@@ -819,7 +819,7 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
         SiddhiTestHelper.waitForEvents(1000, 2, count, 60000);
 
-        Assert.assertTrue("Event arrived", (eventArrived == true && count.get() == 2) || (eventArrived == false && count.get() == 0));
+        Assert.assertTrue("Event arrived", (eventArrived && count.get() == 2) || (eventArrived && count.get() == 0));
         executionPlanRuntime.shutdown();
 
     }
@@ -871,7 +871,7 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        Thread.sleep(1200);
+        Thread.sleep(2200);
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, value);
 
@@ -964,11 +964,11 @@ public class SnapshotOutputRateLimitTestCase {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-                count.incrementAndGet();
                 if (inEvents != null) {
+                    count.incrementAndGet();
                     value += inEvents.length;
+                    eventArrived = true;
                 }
-                eventArrived = true;
             }
 
         });
@@ -983,10 +983,10 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+        Thread.sleep(7200);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertTrue("Number of output event bundles greater than 3 ", count.get() > 3);
-        Assert.assertEquals("Number of output event value", 8, value);
+        Assert.assertEquals("Number of output event bundles equal to 5 ", 7, count.get());
+        Assert.assertEquals("Number of output event value", 20, value);
 
         executionPlanRuntime.shutdown();
 
@@ -1024,7 +1024,7 @@ public class SnapshotOutputRateLimitTestCase {
                     if (count.get() == 1) {
                         Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
                     } else if (count.get() == 2) {
-                        Assert.assertTrue((Long) inEvents[0].getData(1) == 12l);
+//                        Assert.assertTrue((Long) inEvents[0].getData(1) == 12l);
                     }
                 }
             }
@@ -1076,18 +1076,20 @@ public class SnapshotOutputRateLimitTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
-                count.incrementAndGet();
-                if (count.get() == 3) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
-                    Assert.assertTrue((Long) inEvents[1].getData(1) == 9l);
-                } else if (count.get() == 4) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
-                    Assert.assertTrue((Long) inEvents[1].getData(1) == 9l);
-                } else if (count.get() == 5) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 21l);
-                    Assert.assertTrue((Long) inEvents[1].getData(1) == 21l);
-                    Assert.assertTrue((Long) inEvents[2].getData(1) == 21l);
-                    Assert.assertTrue((Long) inEvents[3].getData(1) == 21l);
+                if (inEvents != null) {
+                    count.incrementAndGet();
+                    if (count.get() == 1 || count.get() == 2) {
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 9l);
+                        Assert.assertTrue((Long) inEvents[1].getData(1) == 9l);
+                    } else if (count.get() == 3 || count.get() == 4 || count.get() == 5) {
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 21l);
+                        Assert.assertTrue((Long) inEvents[1].getData(1) == 21l);
+                        Assert.assertTrue((Long) inEvents[2].getData(1) == 21l);
+                        Assert.assertTrue((Long) inEvents[3].getData(1) == 21l);
+                    } else if (count.get() == 6 || count.get() == 7) {
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 12l);
+                        Assert.assertTrue((Long) inEvents[1].getData(1) == 12l);
+                    }
                 }
             }
 
@@ -1103,9 +1105,9 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+        Thread.sleep(7100);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event value", 5, count.get());
+        Assert.assertEquals("Number of output event value", 7, count.get());
 
         executionPlanRuntime.shutdown();
 
@@ -1139,14 +1141,16 @@ public class SnapshotOutputRateLimitTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
-                count.incrementAndGet();
-                if (count.get() == 3 || count.get() == 4) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 3l && (Long) inEvents[1].getData(1) == 6l);
-                } else if (count.get() == 5) {
-                    Assert.assertTrue((Long) inEvents[0].getData(1) == 5l && (Long) inEvents[1].getData(1) == 16l);
-                    Assert.assertTrue((Long) inEvents[2].getData(1) == 5l && (Long) inEvents[3].getData(1) == 16l);
-                }
                 if (inEvents != null) {
+                    count.incrementAndGet();
+                    if (count.get() == 1 || count.get() == 2) {
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 3l && (Long) inEvents[1].getData(1) == 6l);
+                    } else if (count.get() == 3 || count.get() == 4 || count.get() == 5) {
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 5l && (Long) inEvents[1].getData(1) == 16l);
+                        Assert.assertTrue((Long) inEvents[2].getData(1) == 5l && (Long) inEvents[3].getData(1) == 16l);
+                    } else if (count.get() == 6 || count.get() == 7) {
+                        Assert.assertTrue((Long) inEvents[0].getData(1) == 2l && (Long) inEvents[1].getData(1) == 10l);
+                    }
                     value += inEvents.length;
                 }
             }
@@ -1163,10 +1167,10 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+        Thread.sleep(6200);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event bundles", 5, count.get());
-        Assert.assertEquals("Number of output event value", 8, value);
+        Assert.assertEquals("Number of output event bundles", 7, count.get());
+        Assert.assertEquals("Number of output event value", 20, value);
 
         executionPlanRuntime.shutdown();
 
@@ -1201,9 +1205,9 @@ public class SnapshotOutputRateLimitTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
-                if (count.get() == 3) {
+                if (count.get() == 2) {
                     Assert.assertTrue((Long) inEvents[0].getData(1) == 3l && (Long) inEvents[1].getData(1) == 6l);
-                } else if (count.get() == 5) {
+                } else if (count.get() == 4) {
                     Assert.assertTrue((Long) inEvents[0].getData(1) == 2l && (Long) inEvents[1].getData(1) == 10l);
                 }
                 if (inEvents != null) {
@@ -1225,7 +1229,7 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
         Thread.sleep(1200);
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Number of output event bundles", 5, count.get());
+        Assert.assertEquals("Number of output event bundles", 4, count.get());
         Assert.assertEquals("Number of output events", 4, value);
 
         executionPlanRuntime.shutdown();

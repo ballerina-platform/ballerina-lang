@@ -30,7 +30,7 @@ public class EventPrinter {
 
     public static void print(long timeStamp, Event[] inEvents, Event[] removeEvents) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Events{ @timeStamp = ").append(timeStamp).
+        sb.append("Events{ @timestamp = ").append(timeStamp).
                 append(", inEvents = ").append(Arrays.deepToString(inEvents)).
                 append(", RemoveEvents = ").append(Arrays.deepToString(removeEvents)).append(" }");
         System.out.println(sb.toString());

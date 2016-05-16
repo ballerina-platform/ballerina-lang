@@ -48,7 +48,7 @@ public class IsMapFunctionExtensionTestCase {
         log.info("RemoveFunctionExtension TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')\ndefine stream inputStream (symbol string, price long, volume long);";
+        String inStreamDefinition = "\ndefine stream inputStream (symbol string, price long, volume long);";
         String query = ("@info(name = 'query1') from inputStream " +
                 "select symbol,price,map:create() as tmpMap" +
                 " insert into tmpStream;" +

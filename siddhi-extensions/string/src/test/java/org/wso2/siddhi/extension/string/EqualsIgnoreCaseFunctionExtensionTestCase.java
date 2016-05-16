@@ -49,7 +49,7 @@ public class EqualsIgnoreCaseFunctionExtensionTestCase {
         log.info("EqualsIgnoreCaseFunctionExtensionTestCase TestCase");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = "@config(async = 'true')define stream inputStream (symbol string, price long, "
+        String inStreamDefinition = "define stream inputStream (symbol string, price long, "
                 + "volume long);";
         String query = ("@info(name = 'query1') " + "from inputStream "
                 + "select symbol , str:equalsIgnoreCase(symbol, 'WSO2') as isEqualIgnoreCase "

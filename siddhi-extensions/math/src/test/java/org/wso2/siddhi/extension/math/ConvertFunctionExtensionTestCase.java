@@ -37,7 +37,7 @@ public class ConvertFunctionExtensionTestCase {
         logger.info("ConvertFunctionExtension TestCase");
 
         siddhiManager = new SiddhiManager();
-        String inValueStream = "@config(async = 'true')define stream InValueStream (inValue string,fromBase int,toBase int);";
+        String inValueStream = "define stream InValueStream (inValue string,fromBase int,toBase int);";
 
         String eventFuseExecutionPlan = ("@info(name = 'query1') from InValueStream "
                 + "select math:conv(inValue,fromBase,toBase) as convertedValue "

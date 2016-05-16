@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.query.input.stream.single.SingleThreadEntryValveProcessor;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
@@ -34,9 +34,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created on 12/3/14.
- */
 public class Scheduler implements Snapshotable {
 
     private static final Logger log = Logger.getLogger(Scheduler.class);
@@ -113,8 +110,8 @@ public class Scheduler implements Snapshotable {
         return elementId;
     }
 
-    public Scheduler clone(String key, SingleThreadEntryValveProcessor singleThreadEntryValveProcessor) {
-        Scheduler scheduler = new Scheduler(scheduledExecutorService, singleThreadEntryValveProcessor);
+    public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
+        Scheduler scheduler = new Scheduler(scheduledExecutorService, entryValveProcessor);
         scheduler.elementId = elementId + "-" + key;
         scheduler.init(executionPlanContext, latencyTracker);
         return scheduler;
@@ -149,7 +146,7 @@ public class Scheduler implements Snapshotable {
 
                     StreamEvent timerEvent = streamEventPool.borrowEvent();
                     timerEvent.setType(StreamEvent.Type.TIMER);
-                    timerEvent.setTimestamp(currentTime);
+                    timerEvent.setTimestamp(toNotifyTime);
                     streamEventChunk.add(timerEvent);
                     if (latencyTracker != null) {
                         try {

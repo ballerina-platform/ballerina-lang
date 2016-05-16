@@ -33,6 +33,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     protected Processor nextProcessor;
     protected int stateId;
     protected CountPreStateProcessor callbackPreStateProcessor;
+    protected boolean isEventReturned;
 
     /**
      * Process the handed StreamEvent
@@ -57,7 +58,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
 
         if (nextProcessor != null) {
             complexEventChunk.reset();
-            nextProcessor.process(complexEventChunk);
+            this.isEventReturned = true;
         }
         if (nextStatePerProcessor != null) {
             nextStatePerProcessor.addState(stateEvent);
@@ -68,6 +69,14 @@ public class StreamPostStateProcessor implements PostStateProcessor {
         if (callbackPreStateProcessor != null) {
             callbackPreStateProcessor.startStateReset();
         }
+    }
+
+    public boolean isEventReturned() {
+        return isEventReturned;
+    }
+
+    public void clearProcessedEvent() {
+        isEventReturned = false;
     }
 
     /**
