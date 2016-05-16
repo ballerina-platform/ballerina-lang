@@ -76,7 +76,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 throw new ExecutionPlanValidationException("ExternalTimeBatch window's 2nd parameter windowTime should be either int or long, but found " + attributeExpressionExecutors[1].getReturnType());
             }
 
-            if (attributeExpressionExecutors.length == 3) {
+            if (attributeExpressionExecutors.length >= 3) {
                 isStartTimeEnabled = true;
                 if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
                     startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
@@ -122,7 +122,8 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 if (isStartTimeEnabled) {
                     endTime = addTimeShift((Long) timestampExpressionExecutor.execute(streamEventChunk.getFirst()));
                 } else {
-                    endTime = (Long) timestampExpressionExecutor.execute(streamEventChunk.getFirst()) + timeToKeep;
+                    startTime = (Long) timestampExpressionExecutor.execute(streamEventChunk.getFirst());
+                    endTime = startTime + timeToKeep;
                 }
             }
 
@@ -148,14 +149,18 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                     continue;
                 }
 
-                lastCurrentEventTime = (Long) timestampExpressionExecutor.execute(currStreamEvent);
+                long currentEventTime = (Long) timestampExpressionExecutor.execute(currStreamEvent);
+                if (lastCurrentEventTime < currentEventTime) {
+                    lastCurrentEventTime = currentEventTime;
+                }
+
                 if (lastCurrentEventTime < endTime) {
                     cloneAppend(streamEventCloner, currStreamEvent);
                 } else if (lastCurrentEventTime >= endTime) {
 
                     flushToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime);
                     // update timestamp, call next processor
-                    endTime += timeToKeep;
+                    endTime = addTimeShift(lastCurrentEventTime);
                     cloneAppend(streamEventCloner, currStreamEvent);
                     // triggering the last batch expiration.
                     if (schedulerTimeout > 0) {
