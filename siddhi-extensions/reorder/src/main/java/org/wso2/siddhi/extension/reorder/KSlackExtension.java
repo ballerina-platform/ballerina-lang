@@ -34,6 +34,7 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -79,10 +80,9 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
+        lock.lock();
         try {
             while (streamEventChunk.hasNext()) {
-
-
                 StreamEvent event = streamEventChunk.next();
 
                 if(event.getType() != ComplexEvent.Type.TIMER) {
@@ -105,19 +105,18 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
                     eventTreeMap.put(timestamp, eventList);
 
                     if (timestamp > greatestTimestamp) {
-
                         greatestTimestamp = timestamp;
                         long minTimestamp = eventTreeMap.firstKey();
+                        long timeDifference = greatestTimestamp - minTimestamp;
 
-                        if ((greatestTimestamp - minTimestamp) > k) {
-                            if ((greatestTimestamp - minTimestamp) < MAX_K) {
-                                k = greatestTimestamp - minTimestamp;
+                        if (timeDifference > k) {
+                            if (timeDifference < MAX_K) {
+                                k = timeDifference;
                             } else {
                                 k = MAX_K;
                             }
                         }
 
-                        lock.lock();
                         Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = eventTreeMap.entrySet().iterator();
                         while (entryIterator.hasNext()) {
                             Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
@@ -131,7 +130,7 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
                         }
                         eventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
 
-                        entryIterator =  expiredEventTreeMap.entrySet().iterator();
+                        entryIterator = expiredEventTreeMap.entrySet().iterator();
                         while (entryIterator.hasNext()) {
                             Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
 
@@ -145,23 +144,26 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
                                 }
                             }
                         }
-                        lock.unlock();
                     }
                 } else {
-                    onTimerEvent(expiredEventTreeMap, nextProcessor);
-                    lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
-                    scheduler.notifyAt(lastScheduledTimestamp);
+                    if(expiredEventTreeMap.size() > 0) {
+                        TreeMap<Long, ArrayList<StreamEvent>> expiredEventTreeMapSnapShot = expiredEventTreeMap;
+                        expiredEventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
+                        onTimerEvent(expiredEventTreeMapSnapShot, nextProcessor);
+                        lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
+                        scheduler.notifyAt(lastScheduledTimestamp);
+                    }
                 }
 
 
 
             }
         } catch (ArrayIndexOutOfBoundsException ec) {
-//            This happens due to user specifying an invalid field index.
+            //This happens due to user specifying an invalid field index.
             throw new ExecutionPlanCreationException("The very first parameter must be an Integer with a valid " +
                     " field index (0 to (fieldsLength-1)).");
         }
-
+        lock.unlock();
         nextProcessor.process(complexEventChunk);
     }
 
@@ -284,7 +286,7 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
         eventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
         expiredEventTreeMap = new TreeMap<Long, ArrayList<StreamEvent>>();
 
-        if(TIMER_DURATION != -1l && scheduler != null && lastScheduledTimestamp < 0) {
+        if(TIMER_DURATION != -1l && scheduler != null) {
             lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime() + TIMER_DURATION;
             scheduler.notifyAt(lastScheduledTimestamp);
         }
@@ -294,7 +296,7 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
     @Override
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
-        if (TIMER_DURATION > 0 && lastScheduledTimestamp < 0) {
+        if (lastScheduledTimestamp < 0) {
             lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime() + TIMER_DURATION;
             scheduler.notifyAt(lastScheduledTimestamp);
         }
@@ -306,22 +308,16 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
     }
 
     private void onTimerEvent(TreeMap<Long, ArrayList<StreamEvent>> treeMap, Processor nextProcessor) {
-        if((expiredEventTreeMap != null) && (expiredEventTreeMap.keySet().size() != 0)) {
-            lock.lock();
-            Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = expiredEventTreeMap.entrySet().iterator();
-            ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
+        Iterator<Map.Entry<Long, ArrayList<StreamEvent>>> entryIterator = treeMap.entrySet().iterator();
+        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
-            while (entryIterator.hasNext()) {
-                Map.Entry<Long, ArrayList<StreamEvent>> entry = entryIterator.next();
-                entryIterator.remove();
-                ArrayList<StreamEvent> timeEventList = entry.getValue();
+        while (entryIterator.hasNext()) {
+            ArrayList<StreamEvent> timeEventList = entryIterator.next().getValue();
 
-                for (StreamEvent aTimeEventList : timeEventList) {
-                    complexEventChunk.add(aTimeEventList);
-                }
+            for (StreamEvent aTimeEventList : timeEventList) {
+                complexEventChunk.add(aTimeEventList);
             }
-            lock.unlock();
-            nextProcessor.process(complexEventChunk);
         }
+        nextProcessor.process(complexEventChunk);
     }
 }
