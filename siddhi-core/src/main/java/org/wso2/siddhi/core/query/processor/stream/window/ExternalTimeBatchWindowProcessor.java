@@ -125,6 +125,11 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                     startTime = (Long) timestampExpressionExecutor.execute(streamEventChunk.getFirst());
                     endTime = startTime + timeToKeep;
                 }
+                if (schedulerTimeout > 0) {
+                    long systemTime = executionPlanContext.getTimestampGenerator().currentTime();
+                    lastScheduledTime = systemTime + schedulerTimeout;
+                    scheduler.notifyAt(lastScheduledTime);
+                }
             }
 
             StreamEvent streamEvent = streamEventChunk.getFirst();
@@ -165,8 +170,9 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                     // triggering the last batch expiration.
                     if (schedulerTimeout > 0) {
                         long systemTime = executionPlanContext.getTimestampGenerator().currentTime();
-                        if (systemTime + schedulerTimeout > lastScheduledTime)
+                        if (systemTime + schedulerTimeout > lastScheduledTime) {
                             lastScheduledTime = systemTime + schedulerTimeout;
+                        }
                         scheduler.notifyAt(lastScheduledTime);
 
                     }
