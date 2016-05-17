@@ -45,9 +45,7 @@ public class TransportsConfiguration {
         HashSet<SenderConfiguration> senderConfigurations = new HashSet<>();
         senderConfigurations.add(senderConfiguration);
         defaultConfig.setSenderConfigurations(senderConfigurations);
-        TransportProperty transportProperty = TransportProperty.getDefault();
         HashSet<TransportProperty> transportProperties = new HashSet<>();
-        transportProperties.add(transportProperty);
         defaultConfig.setTransportProperties(transportProperties);
         return defaultConfig;
     }
