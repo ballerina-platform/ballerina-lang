@@ -61,18 +61,18 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
         paramCount = attributeExpressionLength;
 
         // Capture constant inputs
-        if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
+        if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 3;
             paramPosition = 3;
             try {
-                calcInterval = ((Integer)attributeExpressionExecutors[0].execute(null));
-                batchSize = ((Integer)attributeExpressionExecutors[1].execute(null));
-            } catch(ClassCastException c) {
+                calcInterval = ((Integer) attributeExpressionExecutors[0].execute(null));
+                batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
+            } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
             try {
-                ci = ((Double)attributeExpressionExecutors[2].execute(null));
-            } catch(ClassCastException c) {
+                ci = ((Double) attributeExpressionExecutors[2].execute(null));
+            } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
         }
@@ -99,20 +99,22 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        while (streamEventChunk.hasNext()) {
-            ComplexEvent complexEvent = streamEventChunk.next();
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
+                ComplexEvent complexEvent = streamEventChunk.next();
 
-            Object[] inputData = new Object[attributeExpressionLength-paramPosition];
-            for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                inputData[i-paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
-            }
-            Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
+                Object[] inputData = new Object[attributeExpressionLength - paramPosition];
+                for (int i = paramPosition; i < attributeExpressionLength; i++) {
+                    inputData[i - paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
+                }
+                Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
 
-            // Skip processing if user has specified calculation interval
-            if (outputData == null) {
-                streamEventChunk.remove();
-            } else {
-                complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                // Skip processing if user has specified calculation interval
+                if (outputData == null) {
+                    streamEventChunk.remove();
+                } else {
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                }
             }
         }
         nextProcessor.process(streamEventChunk);

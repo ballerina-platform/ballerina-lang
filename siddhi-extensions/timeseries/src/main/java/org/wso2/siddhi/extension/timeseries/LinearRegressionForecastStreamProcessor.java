@@ -37,7 +37,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LinearRegressionForecastStreamProcessor extends StreamProcessor{
+public class LinearRegressionForecastStreamProcessor extends StreamProcessor {
 
     private int paramCount = 0;                                         // Number of x variables +1
     private int calcInterval = 1;                                       // The frequency of regression calculation
@@ -49,27 +49,29 @@ public class LinearRegressionForecastStreamProcessor extends StreamProcessor{
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        while (streamEventChunk.hasNext()) {
-            ComplexEvent complexEvent = streamEventChunk.next();
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
+                ComplexEvent complexEvent = streamEventChunk.next();
 
-            Object[] inputData = new Object[attributeExpressionLength-paramPosition];
+                Object[] inputData = new Object[attributeExpressionLength - paramPosition];
 
-            // Obtain x value that user wants to use to forecast Y
-            double xDash = ((Number) attributeExpressionExecutors[paramPosition-1].execute(complexEvent)).doubleValue();
-            for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                inputData[i-paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
-            }
-            Object[] coefficients = regressionCalculator.calculateLinearRegression(inputData);
+                // Obtain x value that user wants to use to forecast Y
+                double xDash = ((Number) attributeExpressionExecutors[paramPosition - 1].execute(complexEvent)).doubleValue();
+                for (int i = paramPosition; i < attributeExpressionLength; i++) {
+                    inputData[i - paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
+                }
+                Object[] coefficients = regressionCalculator.calculateLinearRegression(inputData);
 
-            if (coefficients == null) {
-                streamEventChunk.remove();
-            } else {
-                Object[] outputData = new Object[coefficients.length+1];
-                System.arraycopy(coefficients, 0, outputData, 0, coefficients.length);
+                if (coefficients == null) {
+                    streamEventChunk.remove();
+                } else {
+                    Object[] outputData = new Object[coefficients.length + 1];
+                    System.arraycopy(coefficients, 0, outputData, 0, coefficients.length);
 
-                // Calculating forecast Y based on regression equation and given x
-                outputData[coefficients.length] = ((Number) coefficients[coefficients.length-2]).doubleValue() + ((Number) coefficients[coefficients.length-1]).doubleValue() * xDash;
-                complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                    // Calculating forecast Y based on regression equation and given x
+                    outputData[coefficients.length] = ((Number) coefficients[coefficients.length - 2]).doubleValue() + ((Number) coefficients[coefficients.length - 1]).doubleValue() * xDash;
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                }
             }
         }
         nextProcessor.process(streamEventChunk);
@@ -80,18 +82,18 @@ public class LinearRegressionForecastStreamProcessor extends StreamProcessor{
         paramCount = attributeExpressionLength;
 
         // Capture Constant inputs
-        if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
+        if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 4;
             paramPosition = 4;
             try {
-                calcInterval = ((Integer)attributeExpressionExecutors[0].execute(null));
-                batchSize = ((Integer)attributeExpressionExecutors[1].execute(null));
-            } catch(ClassCastException c) {
+                calcInterval = ((Integer) attributeExpressionExecutors[0].execute(null));
+                batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
+            } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
             try {
-                ci = ((Double)attributeExpressionExecutors[2].execute(null));
-            } catch(ClassCastException c) {
+                ci = ((Double) attributeExpressionExecutors[2].execute(null));
+            } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
         }
@@ -105,7 +107,7 @@ public class LinearRegressionForecastStreamProcessor extends StreamProcessor{
 
         // Create attributes for standard error and all beta values and the Forecast Y value
         String betaVal;
-        ArrayList<Attribute> attributes = new ArrayList<Attribute>(paramCount+1);
+        ArrayList<Attribute> attributes = new ArrayList<Attribute>(paramCount + 1);
         attributes.add(new Attribute("stderr", Attribute.Type.DOUBLE));
 
         for (int itr = 0; itr < paramCount; itr++) {

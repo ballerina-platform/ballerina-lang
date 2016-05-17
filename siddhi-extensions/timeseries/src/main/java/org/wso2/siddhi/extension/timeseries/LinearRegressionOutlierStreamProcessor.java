@@ -37,7 +37,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LinearRegressionOutlierStreamProcessor extends StreamProcessor{
+public class LinearRegressionOutlierStreamProcessor extends StreamProcessor {
 
     private int paramCount = 0;                                         // Number of x variables +1
     private int calcInterval = 1;                                       // The frequency of regression calculation
@@ -50,49 +50,51 @@ public class LinearRegressionOutlierStreamProcessor extends StreamProcessor{
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        while (streamEventChunk.hasNext()) {
-            ComplexEvent complexEvent = streamEventChunk.next();
-            Boolean result = false; // Becomes true if its an outlier
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
+                ComplexEvent complexEvent = streamEventChunk.next();
+                Boolean result = false; // Becomes true if its an outlier
 
-            Object[] inputData = new Object[attributeExpressionLength-paramPosition];
-            double range = ((Number) attributeExpressionExecutors[paramPosition-1].execute(complexEvent)).doubleValue();
+                Object[] inputData = new Object[attributeExpressionLength - paramPosition];
+                double range = ((Number) attributeExpressionExecutors[paramPosition - 1].execute(complexEvent)).doubleValue();
 
-            for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                inputData[i-paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
-            }
-
-            if(coefficients != null) {
-                // Get the current Y value and X value
-                double nextY = ((Number) inputData[0]).doubleValue();
-                double nextX = ((Number) inputData[1]).doubleValue();
-
-                // Get the last computed regression coefficients
-                double stdError = ((Number) coefficients[0]).doubleValue();
-                double beta0 = ((Number) coefficients[1]).doubleValue();
-                double beta1 = ((Number) coefficients[2]).doubleValue();
-
-                // Forecast Y based on current coefficients and next X value
-                double forecastY = beta0 + beta1 * nextX;
-
-                // Create the normal range based on user provided range parameter and current std error
-                double upLimit = forecastY + range * stdError;
-                double downLimit = forecastY - range * stdError;
-
-                // Check whether next Y value is an outlier based on the next X value and the current regression equation
-                if(nextY < downLimit || nextY > upLimit) {
-                    result = true;
+                for (int i = paramPosition; i < attributeExpressionLength; i++) {
+                    inputData[i - paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
                 }
-            }
-            // Perform regression including X and Y of current event
-            coefficients = regressionCalculator.calculateLinearRegression(inputData);
 
-            if (coefficients == null) {
-                streamEventChunk.remove();
-            } else {
-                Object[] outputData = new Object[coefficients.length+1];
-                System.arraycopy(coefficients, 0, outputData, 0, coefficients.length);
-                outputData[coefficients.length] = result;
-                complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                if (coefficients != null) {
+                    // Get the current Y value and X value
+                    double nextY = ((Number) inputData[0]).doubleValue();
+                    double nextX = ((Number) inputData[1]).doubleValue();
+
+                    // Get the last computed regression coefficients
+                    double stdError = ((Number) coefficients[0]).doubleValue();
+                    double beta0 = ((Number) coefficients[1]).doubleValue();
+                    double beta1 = ((Number) coefficients[2]).doubleValue();
+
+                    // Forecast Y based on current coefficients and next X value
+                    double forecastY = beta0 + beta1 * nextX;
+
+                    // Create the normal range based on user provided range parameter and current std error
+                    double upLimit = forecastY + range * stdError;
+                    double downLimit = forecastY - range * stdError;
+
+                    // Check whether next Y value is an outlier based on the next X value and the current regression equation
+                    if (nextY < downLimit || nextY > upLimit) {
+                        result = true;
+                    }
+                }
+                // Perform regression including X and Y of current event
+                coefficients = regressionCalculator.calculateLinearRegression(inputData);
+
+                if (coefficients == null) {
+                    streamEventChunk.remove();
+                } else {
+                    Object[] outputData = new Object[coefficients.length + 1];
+                    System.arraycopy(coefficients, 0, outputData, 0, coefficients.length);
+                    outputData[coefficients.length] = result;
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                }
             }
         }
         nextProcessor.process(streamEventChunk);
@@ -100,21 +102,21 @@ public class LinearRegressionOutlierStreamProcessor extends StreamProcessor{
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        paramCount = attributeExpressionLength-1;
-        System.out.println("paramCount: "+paramCount);
+        paramCount = attributeExpressionLength - 1;
+        System.out.println("paramCount: " + paramCount);
 
-        if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor){
+        if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 3;
             paramPosition = 4;
             try {
-                calcInterval = ((Integer)attributeExpressionExecutors[0].execute(null));
-                batchSize = ((Integer)attributeExpressionExecutors[1].execute(null));
-            } catch(ClassCastException c) {
+                calcInterval = ((Integer) attributeExpressionExecutors[0].execute(null));
+                batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
+            } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
             try {
-                ci = ((Double)attributeExpressionExecutors[2].execute(null));
-            } catch(ClassCastException c) {
+                ci = ((Double) attributeExpressionExecutors[2].execute(null));
+            } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
         }
@@ -128,7 +130,7 @@ public class LinearRegressionOutlierStreamProcessor extends StreamProcessor{
 
         // Create attributes for standard error and all beta values and the outlier result
         String betaVal;
-        ArrayList<Attribute> attributes = new ArrayList<Attribute>(paramCount+1);
+        ArrayList<Attribute> attributes = new ArrayList<Attribute>(paramCount + 1);
         attributes.add(new Attribute("stderr", Attribute.Type.DOUBLE));
 
         for (int itr = 0; itr < paramCount; itr++) {

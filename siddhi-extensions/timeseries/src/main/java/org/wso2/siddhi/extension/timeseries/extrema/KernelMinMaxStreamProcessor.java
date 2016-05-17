@@ -114,55 +114,59 @@ public class KernelMinMaxStreamProcessor extends StreamProcessor {
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner,
                            ComplexEventPopulater complexEventPopulater) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        while (streamEventChunk.hasNext()) {
+        synchronized (this) {
+            while (streamEventChunk.hasNext()) {
 
-            StreamEvent event = streamEventChunk.next();
-            streamEventChunk.remove();
-            Double eventKey = (Double) event.getAttribute(variablePosition);
-            eventStack.add(event);
-            valueStack.add(eventKey);
+                StreamEvent event = streamEventChunk.next();
+                streamEventChunk.remove();
+                Double eventKey = (Double) event.getAttribute(variablePosition);
+                eventStack.add(event);
+                valueStack.add(eventKey);
 
-            if (eventStack.size() > windowSize) {
-                Queue<Double> smoothedValues = extremaCalculator.smooth(valueStack, bw);
-                StreamEvent minimumEvent;
-                StreamEvent maximumEvent;
+                if (eventStack.size() > windowSize) {
+                    Queue<Double> smoothedValues = extremaCalculator.smooth(valueStack, bw);
+                    StreamEvent minimumEvent;
+                    StreamEvent maximumEvent;
 
-                switch (extremaType) {
-                    case MINMAX:
-                        maximumEvent = getMaxEvent(smoothedValues);
-                        minimumEvent = getMinEvent(smoothedValues);
-                        if (maximumEvent != null && minimumEvent != null) {
-                            if (maxEventPos > minEventPos) {
-                                returnEventChunk.add(minimumEvent);
+                    switch (extremaType) {
+                        case MINMAX:
+                            maximumEvent = getMaxEvent(smoothedValues);
+                            minimumEvent = getMinEvent(smoothedValues);
+                            if (maximumEvent != null && minimumEvent != null) {
+                                if (maxEventPos > minEventPos) {
+                                    returnEventChunk.add(minimumEvent);
+                                    returnEventChunk.add(maximumEvent);
+                                } else {
+                                    returnEventChunk.add(maximumEvent);
+                                    returnEventChunk.add(minimumEvent);
+                                }
+                            } else if (maximumEvent != null) {
                                 returnEventChunk.add(maximumEvent);
-                            } else {
-                                returnEventChunk.add(maximumEvent);
+                            } else if (minimumEvent != null) {
                                 returnEventChunk.add(minimumEvent);
                             }
-                        } else if (maximumEvent != null) {
-                            returnEventChunk.add(maximumEvent);
-                        } else if (minimumEvent != null) {
-                            returnEventChunk.add(minimumEvent);
-                        }
-                        break;
-                    case MIN:
-                        minimumEvent = getMinEvent(smoothedValues);
-                        if (minimumEvent != null) {
-                            returnEventChunk.add(minimumEvent);
-                        }
-                        break;
-                    case MAX:
-                        maximumEvent = getMaxEvent(smoothedValues);
-                        if (maximumEvent != null) {
-                            returnEventChunk.add(maximumEvent);
-                        }
-                        break;
+                            break;
+                        case MIN:
+                            minimumEvent = getMinEvent(smoothedValues);
+                            if (minimumEvent != null) {
+                                returnEventChunk.add(minimumEvent);
+                            }
+                            break;
+                        case MAX:
+                            maximumEvent = getMaxEvent(smoothedValues);
+                            if (maximumEvent != null) {
+                                returnEventChunk.add(maximumEvent);
+                            }
+                            break;
+                    }
+                    eventStack.remove();
+                    valueStack.remove();
                 }
-                eventStack.remove();
-                valueStack.remove();
             }
         }
-        nextProcessor.process(returnEventChunk);
+        if (returnEventChunk.getFirst() != null) {
+            nextProcessor.process(returnEventChunk);
+        }
     }
 
     private StreamEvent getMaxEvent(Queue<Double> smoothedValues) {
