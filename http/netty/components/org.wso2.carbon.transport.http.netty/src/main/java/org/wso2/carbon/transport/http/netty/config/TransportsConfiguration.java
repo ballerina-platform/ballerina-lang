@@ -54,7 +54,7 @@ public class TransportsConfiguration {
 
     @XmlElementWrapper(name = "properties")
     @XmlElement(name = "property")
-    private Set<TransportProperty> transportProperties;
+    private Set<TransportProperty> transportProperties = Collections.EMPTY_SET;
 
 
     @XmlElementWrapper(name = "listeners")
