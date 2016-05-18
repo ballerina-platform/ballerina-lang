@@ -118,7 +118,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         minOutputAttributeAggregator.restoreState(state);
     }
 
-    class MinAttributeAggregatorDouble extends MinAttributeAggregator  {
+    class MinAttributeAggregatorDouble extends MinAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private Deque<Double> minDeque = new LinkedList<Double>();
@@ -132,15 +132,14 @@ public class MinAttributeAggregator extends AttributeAggregator {
         public synchronized Object processAdd(Object data) {
             Double value = (Double) data;
             for (Iterator<Double> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
-
                 if (iterator.next() > value) {
                     iterator.remove();
+                } else {
+                    break;
                 }
             }
             minDeque.addLast(value);
-            if (minValue == null) {
-                minValue = value;
-            } else if (minValue > value) {
+            if (minValue == null || minValue > value) {
                 minValue = value;
             }
             return minValue;
@@ -173,7 +172,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     }
 
-    class MinAttributeAggregatorFloat extends MinAttributeAggregator  {
+    class MinAttributeAggregatorFloat extends MinAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.FLOAT;
         private Deque<Float> minDeque = new LinkedList<Float>();
@@ -187,15 +186,14 @@ public class MinAttributeAggregator extends AttributeAggregator {
         public synchronized Object processAdd(Object data) {
             Float value = (Float) data;
             for (Iterator<Float> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
-
                 if (iterator.next() > value) {
                     iterator.remove();
+                } else {
+                    break;
                 }
             }
             minDeque.addLast(value);
-            if (minValue == null) {
-                minValue = value;
-            } else if (minValue > value) {
+            if (minValue == null || minValue > value) {
                 minValue = value;
             }
             return minValue;
@@ -228,7 +226,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     }
 
-    class MinAttributeAggregatorInt extends MinAttributeAggregator  {
+    class MinAttributeAggregatorInt extends MinAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.INT;
         private Deque<Integer> minDeque = new LinkedList<Integer>();
@@ -245,12 +243,12 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
                 if (iterator.next() > value) {
                     iterator.remove();
+                } else {
+                    break;
                 }
             }
             minDeque.addLast(value);
-            if (minValue == null) {
-                minValue = value;
-            } else if (minValue > value) {
+            if (minValue == null || minValue > value) {
                 minValue = value;
             }
             return minValue;
@@ -283,7 +281,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     }
 
-    class MinAttributeAggregatorLong extends MinAttributeAggregator  {
+    class MinAttributeAggregatorLong extends MinAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.LONG;
         private Deque<Long> minDeque = new LinkedList<Long>();
@@ -297,15 +295,14 @@ public class MinAttributeAggregator extends AttributeAggregator {
         public synchronized Object processAdd(Object data) {
             Long value = (Long) data;
             for (Iterator<Long> iterator = minDeque.descendingIterator(); iterator.hasNext(); ) {
-
                 if (iterator.next() > value) {
                     iterator.remove();
+                } else {
+                    break;
                 }
             }
             minDeque.addLast(value);
-            if (minValue == null) {
-                minValue = value;
-            } else if (minValue > value) {
+            if (minValue == null || minValue > value) {
                 minValue = value;
             }
             return minValue;

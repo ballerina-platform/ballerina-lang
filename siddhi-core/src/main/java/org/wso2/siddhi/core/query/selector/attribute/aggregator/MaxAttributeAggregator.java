@@ -134,9 +134,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if (maxValue == null) {
-                maxValue = value;
-            } else if (maxValue < value) {
+            if (maxValue == null || maxValue < value) {
                 maxValue = value;
             }
             return maxValue;
@@ -183,7 +181,6 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         public synchronized Object processAdd(Object data) {
             Float value = (Float) data;
             for (Iterator<Float> iterator = maxDeque.descendingIterator(); iterator.hasNext(); ) {
-
                 if (iterator.next() < value) {
                     iterator.remove();
                 } else {
@@ -191,9 +188,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if (maxValue == null) {
-                maxValue = value;
-            } else if (maxValue < value) {
+            if (maxValue == null || maxValue < value) {
                 maxValue = value;
             }
             return maxValue;
@@ -247,9 +242,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if (maxValue == null) {
-                maxValue = value;
-            } else if (maxValue < value) {
+            if (maxValue == null || maxValue < value) {
                 maxValue = value;
             }
             return maxValue;
@@ -303,9 +296,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
                 }
             }
             maxDeque.addLast(value);
-            if (maxValue == null) {
-                maxValue = value;
-            } else if (maxValue < value) {
+            if (maxValue == null || maxValue < value) {
                 maxValue = value;
             }
             return maxValue;
