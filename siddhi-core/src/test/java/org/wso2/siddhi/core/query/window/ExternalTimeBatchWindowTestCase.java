@@ -148,52 +148,6 @@ public class ExternalTimeBatchWindowTestCase {
     }
 
     @Test
-    public void test06Pull76() throws Exception {
-        siddhiManager = new SiddhiManager();
-
-        String defaultStream = "define stream LoginEvents (myTime long, ip string, phone string,price int);";
-
-        String query = " @info(name='pull76') "
-                + " from LoginEvents#window.externalTimeBatch(myTime, 5 sec)  "
-                + " select myTime, phone, ip, price, count(ip) as cntip , "
-                + " min(myTime) as mintime, max(myTime) as maxtime "
-                + " insert into events ;";
-
-        ExecutionPlanRuntime runtime = siddhiManager.createExecutionPlanRuntime(defaultStream + query);
-
-        InputHandler inputHandler = runtime.getInputHandler("LoginEvents");
-
-        runtime.addCallback("pull76", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if (inEvents != null) {
-                    log.info("In Events Size:" + inEvents.length);
-                }
-            }
-        });
-
-
-        runtime.start();
-
-        long start = System.currentTimeMillis();
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.HOUR, 1);
-        c.add(Calendar.SECOND, 1);
-        int i;
-        for (i = 0; i <= 10000; i++) {
-            c.add(Calendar.SECOND, 1);
-            inputHandler.send(c.getTime().getTime(),
-                    new Object[]{c.getTime().getTime(), "192.10.1.1", "1", new Random().nextInt(1000)});
-        }
-        long end = System.currentTimeMillis();
-        log.info("End : " + (end - start));
-
-        Thread.sleep(1000);
-        runtime.shutdown();
-    }
-
-    @Test
     public void test01DownSampling() throws Exception {
         siddhiManager = new SiddhiManager();
 
@@ -707,10 +661,7 @@ public class ExternalTimeBatchWindowTestCase {
         junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
 
-
     }
-
-
 
     @Test
     public void externalTimeBatchWindowTest6() throws InterruptedException {
@@ -761,6 +712,65 @@ public class ExternalTimeBatchWindowTestCase {
         junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
         junit.framework.Assert.assertEquals("In Events ", 2, inEventCount);
         junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        executionPlanRuntime.shutdown();
+
+
+    }
+
+    @Test
+    public void externalTimeBatchWindowTest7() throws InterruptedException {
+        log.info("externalTimeBatchWindow test7");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream LoginEvents (timestamp long, ip string) ;";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.externalTimeBatch(timestamp, 1 sec, 0, 2 sec) " +
+                "select timestamp, ip, count() as total  " +
+                "insert all events into uniqueIps ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804599l, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335805600l, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6"});
+        Thread.sleep(3000);
+        inputHandler.send(new Object[]{1366335805606l, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335805605l, "192.10.1.8"});
+        Thread.sleep(3000);
+        inputHandler.send(new Object[]{1366335806606l, "192.10.1.9"});
+        inputHandler.send(new Object[]{1366335806690l, "192.10.1.10"});
+        Thread.sleep(3000);
+
+        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
+        junit.framework.Assert.assertEquals("In Events ", 4, inEventCount);
+        junit.framework.Assert.assertEquals("Remove Events ", 1, removeEventCount);
         executionPlanRuntime.shutdown();
 
 
