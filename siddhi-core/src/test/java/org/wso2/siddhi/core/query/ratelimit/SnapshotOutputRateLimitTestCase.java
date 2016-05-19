@@ -577,9 +577,9 @@ public class SnapshotOutputRateLimitTestCase {
                 "define stream LoginEvents (timeStamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
-                "from LoginEvents#window.time(1 sec) " +
+                "from LoginEvents#window.time(2 sec) " +
                 "select  ip " +
-                "output snapshot every 1 sec " +
+                "output snapshot every 2 sec " +
                 "insert all events into uniqueIps ;";
 
 
