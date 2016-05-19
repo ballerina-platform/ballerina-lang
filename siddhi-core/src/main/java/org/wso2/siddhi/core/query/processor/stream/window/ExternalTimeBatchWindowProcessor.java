@@ -155,7 +155,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 if (currentEventTime < endTime) {
                     cloneAppend(streamEventCloner, currStreamEvent);
                 } else {
-                    flushToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime);
+                    if (flushed) {
+                        appendToOutputChunk(streamEventCloner, complexEventChunks);
+                        flushed = false;
+                    } else {
+                        flushToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime);
+                    }
                     // update timestamp, call next processor
                     endTime = findEndTime(lastCurrentEventTime, startTime, timeToKeep);
                     cloneAppend(streamEventCloner, currStreamEvent);
@@ -220,7 +225,6 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         if (newEventChunk.getFirst() != null) {
             complexEventChunks.add(newEventChunk);
         }
-        flushed = false;
     }
 
     private void appendToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks) {
