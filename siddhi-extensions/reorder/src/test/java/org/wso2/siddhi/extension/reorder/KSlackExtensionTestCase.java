@@ -107,7 +107,7 @@ public class KSlackExtensionTestCase {
         Assert.assertEquals("Event count", 9, count);
     }
 
-  /*  @Test
+    @Test
     public void OrderTest2() throws InterruptedException {
         log.info("KSlackExtensionTestCase TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -185,8 +185,8 @@ public class KSlackExtensionTestCase {
         inputHandler.send(new Object[]{10l, 60.5f, 200l});
         inputHandler.send(new Object[]{13l, 60.5f, 200l});
 
-        Thread.sleep(2000);
+        Thread.sleep(3500);
         executionPlanRuntime.shutdown();
         Assert.assertEquals("Event count", 10, count);
-    }    */
+    }
 }
