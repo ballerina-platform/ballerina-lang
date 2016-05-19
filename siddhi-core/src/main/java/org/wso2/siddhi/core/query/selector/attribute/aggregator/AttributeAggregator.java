@@ -66,7 +66,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
         }
     }
 
-    public synchronized Object process(ComplexEvent event) {
+    public Object process(ComplexEvent event) {
         if (attributeSize > 1) {
             Object[] data = new Object[attributeSize];
             for (int i = 0; i < attributeSize; i++) {
