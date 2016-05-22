@@ -72,7 +72,7 @@ public class SelectiveStateEventPopulator implements StateEventPopulator {
 //            case 1:
 //                return streamEvent.getOnAfterWindowData()[fromPosition[3]];
 //            case 2:
-//                return streamEvent.getOutputData()[fromPosition[3]];
+//                return streamEvent.getEventTime()[fromPosition[3]];
 //            default:
 //                //will not happen
 //                throw new IllegalStateException("3rd element in from position cannot be :" + fromPosition[2]);

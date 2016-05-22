@@ -17,11 +17,12 @@
  */
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-public class InsertIntoStreamCallback implements OutputCallback {
+public class InsertIntoStreamCallback extends OutputCallback {
     private StreamDefinition outputStreamDefinition;
     private StreamJunction.Publisher publisher;
 
@@ -35,6 +36,13 @@ public class InsertIntoStreamCallback implements OutputCallback {
 
     @Override
     public void send(ComplexEventChunk complexEventChunk) {
+        complexEventChunk.reset();
+        while (complexEventChunk.hasNext()) {
+            ComplexEvent complexEvent = complexEventChunk.next();
+            if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
+                complexEvent.setType(ComplexEvent.Type.CURRENT);
+            }
+        }
         publisher.send(complexEventChunk.getFirst());
     }
 

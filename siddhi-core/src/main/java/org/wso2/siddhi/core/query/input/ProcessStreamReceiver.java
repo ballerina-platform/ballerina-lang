@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
@@ -76,12 +75,12 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     @Override
     public void receive(ComplexEvent complexEvents) {
         StreamEvent firstEvent = streamEventPool.borrowEvent();
-        streamEventConverter.convertStreamEvent(complexEvents, firstEvent);
+        streamEventConverter.convertComplexEvent(complexEvents, firstEvent);
         StreamEvent currentEvent = firstEvent;
         complexEvents = complexEvents.getNext();
         while (complexEvents != null) {
             StreamEvent nextEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertStreamEvent(complexEvents, nextEvent);
+            streamEventConverter.convertComplexEvent(complexEvents, nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
             complexEvents = complexEvents.getNext();

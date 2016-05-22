@@ -102,7 +102,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
                                     currentKey = key;
                                 } else {
                                     StreamEvent cloneEvent = eventPool.borrowEvent();
-                                    streamEventConverter.convertStreamEvent(aEvent, cloneEvent);
+                                    streamEventConverter.convertComplexEvent(aEvent, cloneEvent);
                                     if (firstEvent != null) {
                                         firstEvent.setNext(cloneEvent);
                                     } else {

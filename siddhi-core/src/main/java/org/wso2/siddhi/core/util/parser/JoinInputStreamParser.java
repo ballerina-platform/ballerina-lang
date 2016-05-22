@@ -39,6 +39,7 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -141,13 +142,13 @@ public class JoinInputStreamParser {
         }
 
         Lock joinLock = new ReentrantLock();
-        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true, leftOuterJoinProcessor);
-        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false, leftOuterJoinProcessor);
+        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true, leftOuterJoinProcessor, 0);
+        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false, leftOuterJoinProcessor, 0);
 
         FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime, executionPlanContext);
 
-        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true, rightOuterJoinProcessor);
-        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false, rightOuterJoinProcessor);
+        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true, rightOuterJoinProcessor, 1);
+        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false, rightOuterJoinProcessor, 1);
 
         FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime, executionPlanContext);
 
@@ -166,13 +167,14 @@ public class JoinInputStreamParser {
             compareCondition = Expression.value(true);
         }
 
-        long withinTime = SiddhiConstants.ANY;
         if (joinInputStream.getWithin() != null) {
-            withinTime = ((TimeConstant) joinInputStream.getWithin()).getValue();
+            throw new OperationNotSupportedException("within not support for joins, found withing time '"+((TimeConstant) joinInputStream.getWithin()).getValue()+" ms'");
         }
 
-        Finder leftFinder = rightFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 0, withinTime);
-        Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, metaStateEvent, executionPlanContext, executors, eventTableMap, 1, withinTime);
+        MatchingMetaStateHolder rightMatchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition());
+        Finder leftFinder = rightFindableProcessor.constructFinder(compareCondition, rightMatchingMetaStateHolder, executionPlanContext, executors, eventTableMap);
+        MatchingMetaStateHolder leftMatchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition());
+        Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, leftMatchingMetaStateHolder, executionPlanContext, executors, eventTableMap);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(true);

@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.table;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -29,23 +29,25 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.holder.ListEventHolder;
+import org.wso2.siddhi.core.table.holder.MapEventHolder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -54,54 +56,46 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class InMemoryEventTable implements EventTable, Snapshotable {
 
-    private final TableDefinition tableDefinition;
-    private final ExecutionPlanContext executionPlanContext;
-    private final StreamEventCloner streamEventCloner;
-    private final StreamEventPool streamEventPool;
+    private TableDefinition tableDefinition;
+    private StreamEventPool tableStreamEventPool;
+    private StreamEventCloner tableStreamEventCloner;
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
-    private List<StreamEvent> eventsList;
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private EventHolder eventHolder;
     private String elementId;
-
-    // For indexed table.
-    private String indexAttribute = null;
     private int indexPosition;
-    private SortedMap<Object, StreamEvent> eventsMap;
-    private ReadWriteLock readWriteLock=new ReentrantReadWriteLock();
+    private boolean indexed = false;
 
-
-    public InMemoryEventTable(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
-        this.tableDefinition = tableDefinition;
-        this.executionPlanContext = executionPlanContext;
-        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-        metaStreamEvent.addInputDefinition(tableDefinition);
-        for (Attribute attribute : tableDefinition.getAttributeList()) {
-            metaStreamEvent.addOutputData(attribute);
-        }
-        // Adding indexes.
-        Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
-                tableDefinition.getAnnotations());
-        if (annotation != null) {
-            if (annotation.getElements().size() > 1) {
-                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
-                        annotation.getElements().size() +
-                        " elements, Siddhi in-memory table only supports indexing based on a single attribute");
-            }
-            if (annotation.getElements().size() == 0) {
-                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains "
-                        + annotation.getElements().size() + " element");
-            }
-            indexAttribute = annotation.getElements().get(0).getValue();
-            indexPosition = tableDefinition.getAttributePosition(indexAttribute);
-            eventsMap = new TreeMap<Object, StreamEvent>();
-        } else {
-            eventsList = new LinkedList<StreamEvent>();
-        }
-        streamEventPool = new StreamEventPool(metaStreamEvent, 10);
-        streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
-    }
 
     @Override
-    public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent,
+                     StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
+                     ExecutionPlanContext executionPlanContext) {
+        this.tableDefinition = tableDefinition;
+        this.tableStreamEventPool = tableStreamEventPool;
+        this.tableStreamEventCloner = tableStreamEventCloner;
+
+        // indexes.
+        Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
+                tableDefinition.getAnnotations());
+        if (indexByAnnotation != null) {
+            if (indexByAnnotation.getElements().size() > 1) {
+                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
+                        indexByAnnotation.getElements().size() +
+                        " elements, Siddhi in-memory table only supports indexing based on a single attribute");
+            }
+            if (indexByAnnotation.getElements().size() == 0) {
+                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains "
+                        + indexByAnnotation.getElements().size() + " element");
+            }
+            String indexAttribute = indexByAnnotation.getElements().get(0).getValue();
+            indexPosition = tableDefinition.getAttributePosition(indexAttribute);
+            eventHolder = new MapEventHolder();
+            indexed = true;
+        } else {
+            eventHolder = new ListEventHolder();
+        }
+
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
@@ -114,125 +108,122 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public void add(ComplexEventChunk addingEventChunk) {
-        try{
+    public void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
+        try {
             readWriteLock.writeLock().lock();
             addingEventChunk.reset();
             while (addingEventChunk.hasNext()) {
                 ComplexEvent complexEvent = addingEventChunk.next();
-                StreamEvent streamEvent = streamEventPool.borrowEvent();
-                eventConverter.convertStreamEvent(complexEvent, streamEvent);
-                if (indexAttribute != null) {
-                    eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+                StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
+                eventConverter.convertComplexEvent(complexEvent, streamEvent);
+                if (indexed) {
+                    ((MapEventHolder) eventHolder).getEventMap().put(streamEvent.getOutputData()[indexPosition], streamEvent);
                 } else {
-                    eventsList.add(streamEvent);
+                    ((ListEventHolder) eventHolder).getEventList().add(streamEvent);
                 }
             }
-        }finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
 
     }
 
     @Override
-    public void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
-        try{
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator) {
+        try {
             readWriteLock.writeLock().lock();
-            if (indexAttribute != null) {
-                operator.delete(deletingEventChunk, eventsMap);
-            } else {
-                operator.delete(deletingEventChunk, eventsList);
-            }
-        }finally {
+            operator.delete(deletingEventChunk, eventHolder.getEventCollection());
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
     @Override
-    public void update(ComplexEventChunk updatingEventChunk, Operator operator,
-                                    int[] mappingPosition) {
-        try{
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator,
+                       UpdateAttributeMapper[] updateAttributeMappers) {
+        try {
             readWriteLock.writeLock().lock();
-            if (indexAttribute != null) {
-                operator.update(updatingEventChunk, eventsMap, mappingPosition);
-            } else {
-                operator.update(updatingEventChunk, eventsList, mappingPosition);
-            }
-        }finally {
+            operator.update(updatingEventChunk, eventHolder.getEventCollection(), updateAttributeMappers);
+        } finally {
             readWriteLock.writeLock().unlock();
         }
 
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator,
-                               int[] mappingPosition) {
-        if (indexAttribute != null) {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
-        } else {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, mappingPosition);
+    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator,
+                               UpdateAttributeMapper[] updateAttributeMappers,
+                               OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+        try {
+            readWriteLock.writeLock().lock();
+            ComplexEventChunk<StreamEvent> failedEvents = operator.overwriteOrAdd(overwritingOrAddingEventChunk,
+                    eventHolder.getEventCollection(), updateAttributeMappers, overwritingStreamEventExtractor);
+            while (failedEvents.hasNext()) {
+                ComplexEvent complexEvent = failedEvents.next();
+                StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
+                eventConverter.convertComplexEvent(complexEvent, streamEvent);
+                if (indexed) {
+                    ((MapEventHolder) eventHolder).getEventMap().put(streamEvent.getOutputData()[indexPosition], streamEvent);
+                } else {
+                    ((ListEventHolder) eventHolder).getEventList().add(streamEvent);
+                }
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
+
     }
 
     @Override
-    public boolean contains(ComplexEvent matchingEvent, Finder finder) {
-        try{
+    public boolean contains(StateEvent matchingEvent, Finder finder) {
+        try {
             readWriteLock.readLock().lock();
-            if (indexAttribute != null) {
-                return finder.contains(matchingEvent, eventsMap);
-            } else {
-                return finder.contains(matchingEvent, eventsList);
-            }
-        }finally {
+            return finder.contains(matchingEvent, eventHolder.getEventCollection());
+        } finally {
             readWriteLock.readLock().unlock();
         }
 
     }
 
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
-        try{
+    public StreamEvent find(StateEvent matchingEvent, Finder finder) {
+        try {
             readWriteLock.readLock().lock();
-            if (indexAttribute != null) {
-                return finder.find(matchingEvent, eventsMap, streamEventCloner);
-            } else {
-                return finder.find(matchingEvent, eventsList, streamEventCloner);
-            }
-        }finally {
+            return finder.find(matchingEvent, eventHolder.getEventCollection(), tableStreamEventCloner);
+        } finally {
             readWriteLock.readLock().unlock();
         }
 
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent,
+    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
                                   ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
-                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute, indexPosition);
+                                  Map<String, EventTable> eventTableMap) {
+        return OperatorParser.constructOperator(eventHolder.getEventCollection(), expression, matchingMetaStateHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 
+
     @Override
-    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent,
+    public Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
                                       ExecutionPlanContext executionPlanContext,
                                       List<VariableExpressionExecutor> variableExpressionExecutors,
-                                      Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute, indexPosition);
+                                      Map<String, EventTable> eventTableMap) {
+        return OperatorParser.constructOperator(eventHolder.getEventCollection(), expression, matchingMetaStateHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
+
 
     @Override
     public Object[] currentState() {
-        return new Object[]{eventsList, eventsMap};
+        return new Object[]{eventHolder};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        eventsList = (LinkedList<StreamEvent>) state[0];
-        eventsMap = (TreeMap<Object, StreamEvent>) state[1];
+        eventHolder = (EventHolder) state[0];
     }
 
     @Override

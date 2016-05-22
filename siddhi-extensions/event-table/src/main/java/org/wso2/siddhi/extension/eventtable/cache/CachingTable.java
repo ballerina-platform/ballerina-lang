@@ -76,7 +76,7 @@ public class CachingTable {
 
     public void add(ComplexEvent complexEvent) {
         StreamEvent streamEvent = streamEventPool.borrowEvent();
-        eventConverter.convertStreamEvent(complexEvent, streamEvent);
+        eventConverter.convertComplexEvent(complexEvent, streamEvent);
         list.add(streamEvent);
         cacheManager.add(streamEvent);
         if (log.isTraceEnabled()) {
@@ -95,7 +95,7 @@ public class CachingTable {
     public void update(StreamEvent updatingEvent) {
 
         StreamEvent streamEvent = streamEventPool.borrowEvent();
-        eventConverter.convertStreamEvent(updatingEvent, streamEvent);
+        eventConverter.convertComplexEvent(updatingEvent, streamEvent);
         cacheManager.update(streamEvent);
 
         if (log.isTraceEnabled()) {
@@ -106,11 +106,11 @@ public class CachingTable {
     public void overwriteOrAdd(StreamEvent updatingEvent) {
         if (cacheManager.isContains(updatingEvent)) {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(updatingEvent, streamEvent);
+            eventConverter.convertComplexEvent(updatingEvent, streamEvent);
             cacheManager.update(streamEvent);
         }else {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(updatingEvent, streamEvent);
+            eventConverter.convertComplexEvent(updatingEvent, streamEvent);
             list.add(streamEvent);
             cacheManager.add(streamEvent);
         }

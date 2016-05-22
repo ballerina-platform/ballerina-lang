@@ -18,9 +18,8 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -28,8 +27,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
-import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -129,12 +129,13 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     }
 
     @Override
-    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
         return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
+    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
+                                  List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
     }
 }

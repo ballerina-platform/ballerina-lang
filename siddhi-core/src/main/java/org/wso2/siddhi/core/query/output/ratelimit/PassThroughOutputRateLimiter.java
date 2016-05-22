@@ -19,7 +19,6 @@ package org.wso2.siddhi.core.query.output.ratelimit;
 
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 
 public class PassThroughOutputRateLimiter extends OutputRateLimiter {
@@ -32,7 +31,7 @@ public class PassThroughOutputRateLimiter extends OutputRateLimiter {
 
     public PassThroughOutputRateLimiter clone(String key) {
         PassThroughOutputRateLimiter instance = new PassThroughOutputRateLimiter(id + key);
-        instance.setLatencyTracker(latencyTracker);
+        instance.init(executionPlanContext, latencyTracker);
         return instance;
     }
 

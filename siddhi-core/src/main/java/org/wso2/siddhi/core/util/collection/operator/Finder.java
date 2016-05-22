@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 
@@ -27,10 +27,10 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
  */
 public interface Finder {
 
-    Finder cloneFinder();
+    Finder cloneFinder(String key);
 
-    StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner);
+    StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner);
 
-    boolean contains(ComplexEvent matchingEvent, Object candidateEvents);
+    boolean contains(StateEvent matchingEvent, Object candidateEvents);
 
 }

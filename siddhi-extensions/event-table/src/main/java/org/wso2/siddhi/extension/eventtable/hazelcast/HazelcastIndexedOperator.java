@@ -27,6 +27,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
@@ -76,7 +78,7 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder() {
+    public Finder cloneFinder(String key) {
         return new HazelcastIndexedOperator(expressionExecutor, matchingEventPosition, withinTime, outputAttributeSize,
                 indexPosition);
     }
@@ -86,11 +88,11 @@ public class HazelcastIndexedOperator implements Operator {
      *
      * @param matchingEvent     the event to be matched with the events at the processor.
      * @param candidateEvents   Map of candidate events.
-     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent.
+     * @param candidateEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent.
      * @return StreamEvent  event found.
      */
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
         Object matchingKey = expressionExecutor.execute(matchingEvent);
         if (candidateEvents instanceof ConcurrentMap) {
             StreamEvent streamEvent = ((ConcurrentMap<Object, StreamEvent>) candidateEvents).get(matchingKey);
@@ -100,7 +102,7 @@ public class HazelcastIndexedOperator implements Operator {
                 if (outsideTimeWindow(matchingEvent, streamEvent)) {
                     return null;
                 }
-                return streamEventCloner.copyStreamEvent(streamEvent);
+                return candidateEventCloner.copyStreamEvent(streamEvent);
             }
         } else {
             throw new OperationNotSupportedException(HazelcastIndexedOperator.class.getCanonicalName()
@@ -110,12 +112,11 @@ public class HazelcastIndexedOperator implements Operator {
 
     /**
      * Called when deleting an event chunk from event table.
-     *
      * @param deletingEventChunk Event list for deletion.
      * @param candidateEvents    Map of candidate events.
      */
     @Override
-    public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             ComplexEvent deletingEvent = deletingEventChunk.next();
@@ -137,13 +138,12 @@ public class HazelcastIndexedOperator implements Operator {
 
     /**
      * Called when updating the event table entries.
-     *
      * @param updatingEventChunk Event list that needs to be updated.
      * @param candidateEvents    Map of candidate events.
-     * @param mappingPosition    Mapping positions array.
+     * @param updateAttributeMappers    Mapping positions array.
      */
     @Override
-    public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
@@ -154,8 +154,8 @@ public class HazelcastIndexedOperator implements Operator {
                     if (outsideTimeWindow(updatingEvent, streamEvent)) {
                         continue;
                     }
-                    for (int i = 0, size = mappingPosition.length; i < size; i++) {
-                        streamEvent.setOutputData(updatingEvent.getOutputData()[i], mappingPosition[i]);
+                    for (int i = 0, size = updateAttributeMappers.length; i < size; i++) {
+                        streamEvent.setOutputData(updatingEvent.getOutputData()[i], updateAttributeMappers[i]);
                         ((ConcurrentMap<Object, StreamEvent>) candidateEvents).replace(matchingKey, streamEvent);
                     }
                 }
@@ -167,14 +167,14 @@ public class HazelcastIndexedOperator implements Operator {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents,
-                               int[] mappingPosition) {
+    public ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents,
+                                                         UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
         while (overwritingOrAddingEventChunk.hasNext()) {
             if (candidateEvents instanceof Map) {
                 ComplexEvent complexEvent = overwritingOrAddingEventChunk.next();
                 StreamEvent streamEvent = streamEventPool.borrowEvent();
-                streamEventConverter.convertStreamEvent(complexEvent, streamEvent);
+                streamEventConverter.convertComplexEvent(complexEvent, streamEvent);
                 ((Map<Object, StreamEvent>) candidateEvents).put(streamEvent.getOutputData()[indexPosition],
                         streamEvent);
             } else {
@@ -182,6 +182,7 @@ public class HazelcastIndexedOperator implements Operator {
                         " does not support " + candidateEvents.getClass().getCanonicalName());
             }
         }
+        return null;
     }
 
     /**
@@ -192,7 +193,7 @@ public class HazelcastIndexedOperator implements Operator {
      * @return existence of the event.
      */
     @Override
-    public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
+    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
         StreamEvent matchingStreamEvent;
         if (matchingEvent instanceof StreamEvent) {
             matchingStreamEvent = ((StreamEvent) matchingEvent);

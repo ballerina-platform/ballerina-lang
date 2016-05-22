@@ -27,6 +27,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
@@ -93,7 +95,7 @@ public class HazelcastOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder() {
+    public Finder cloneFinder(String key) {
         return new HazelcastOperator(expressionExecutor, candidateEventPosition, matchingEventPosition,
                 streamEventSize, withinTime, matchingEventOutputSize, indexedPosition);
     }
@@ -103,11 +105,11 @@ public class HazelcastOperator implements Operator {
      *
      * @param matchingEvent     the event to be matched with the events at the processor.
      * @param candidateEvents   Map of candidate events.
-     * @param streamEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent.
+     * @param candidateEventCloner StreamEventCloner to copy new StreamEvent from existing StreamEvent.
      * @return StreamEvent  event found.
      */
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
         try {
             if (matchingEvent instanceof StreamEvent) {
                 this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
@@ -115,11 +117,11 @@ public class HazelcastOperator implements Operator {
                 this.event.setEvent((StateEvent) matchingEvent);
             }
             if (candidateEvents instanceof ComplexEventChunk) {
-                return findInComplexEventChunk((ComplexEventChunk) candidateEvents, streamEventCloner);
+                return findInComplexEventChunk((ComplexEventChunk) candidateEvents, candidateEventCloner);
             } else if (candidateEvents instanceof Map) {
-                return findInCollection(((Map) candidateEvents).values(), streamEventCloner);
+                return findInCollection(((Map) candidateEvents).values(), candidateEventCloner);
             } else if (candidateEvents instanceof Collection) {
-                return findInCollection((Collection) candidateEvents, streamEventCloner);
+                return findInCollection((Collection) candidateEvents, candidateEventCloner);
             } else {
                 throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
                         " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -186,17 +188,16 @@ public class HazelcastOperator implements Operator {
 
     /**
      * Called when deleting an event chunk from event table.
-     *
      * @param deletingEventChunk Event list for deletion.
      * @param candidateEvents    Collection / Map of candidate events.
      */
     @Override
-    public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             ComplexEvent deletingEvent = deletingEventChunk.next();
             try {
-                streamEventConverter.convertStreamEvent(deletingEvent, matchingEvent);
+                streamEventConverter.convertComplexEvent(deletingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
 
                 if (candidateEvents instanceof ComplexEventChunk) {
@@ -268,27 +269,26 @@ public class HazelcastOperator implements Operator {
 
     /**
      * Called when updating the event table entries.
-     *
      * @param updatingEventChunk Event list that needs to be updated.
      * @param candidateEvents    Map of candidate events.
-     * @param mappingPosition    Mapping positions array.
+     * @param updateAttributeMappers    Mapping positions array.
      */
     @Override
-    public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
             try {
-                streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
+                streamEventConverter.convertComplexEvent(updatingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
-                    updateInComplexEventChunk((ComplexEventChunk) candidateEvents, mappingPosition);
+                    updateInComplexEventChunk((ComplexEventChunk) candidateEvents, updateAttributeMappers);
                 } else if (candidateEvents instanceof List) {
-                    updateInList((List) candidateEvents, mappingPosition);
+                    updateInList((List) candidateEvents, updateAttributeMappers);
                 } else if (candidateEvents instanceof Map) {
-                    updateInCollection(((Map) candidateEvents).values(), mappingPosition);
+                    updateInCollection(((Map) candidateEvents).values(), updateAttributeMappers);
                 } else if (candidateEvents instanceof Collection) {
-                    updateInCollection((Collection) candidateEvents, mappingPosition);
+                    updateInCollection((Collection) candidateEvents, updateAttributeMappers);
                 } else {
                     throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
                             " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -371,7 +371,7 @@ public class HazelcastOperator implements Operator {
      * @return existence of the event.
      */
     @Override
-    public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
+    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
         try {
             if (matchingEvent instanceof StreamEvent) {
                 this.event.setEvent(matchingEventPosition, (StreamEvent) matchingEvent);
@@ -436,22 +436,22 @@ public class HazelcastOperator implements Operator {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk,
-                               Object candidateEvents, int[] mappingPosition) {
+    public ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                                                         Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
         while (overwritingOrAddingEventChunk.hasNext()) {
             ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
             try {
-                streamEventConverter.convertStreamEvent(overwritingOrAddingEvent, matchingEvent);
+                streamEventConverter.convertComplexEvent(overwritingOrAddingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
-                    overwriteOrAddInComplexEventChunk((ComplexEventChunk) candidateEvents, mappingPosition);
+                    overwriteOrAddInComplexEventChunk((ComplexEventChunk) candidateEvents, updateAttributeMappers);
                 } else if (candidateEvents instanceof List) {
-                    overwriteOrAddInList((List) candidateEvents, mappingPosition);
+                    overwriteOrAddInList((List) candidateEvents, updateAttributeMappers);
                 } else if (candidateEvents instanceof Map) {
-                    overwriteOrAddInMap(((Map) candidateEvents), mappingPosition);
+                    overwriteOrAddInMap(((Map) candidateEvents), updateAttributeMappers);
                 } else if (candidateEvents instanceof Collection) {
-                    overwriteOrAddInCollection((Collection) candidateEvents, mappingPosition);
+                    overwriteOrAddInCollection((Collection) candidateEvents, updateAttributeMappers);
                 } else {
                     throw new OperationNotSupportedException(HazelcastOperator.class.getCanonicalName() +
                             " does not support " + candidateEvents.getClass().getCanonicalName());
@@ -460,6 +460,7 @@ public class HazelcastOperator implements Operator {
                 this.event.setEvent(matchingEventPosition, null);
             }
         }
+        return null;
     }
 
     private void overwriteOrAddInComplexEventChunk(ComplexEventChunk<StreamEvent> candidateEventChunk,
@@ -481,7 +482,7 @@ public class HazelcastOperator implements Operator {
         }
         if (!updated) {
             StreamEvent insertEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            streamEventConverter.convertComplexEvent(matchingEvent, insertEvent);
             candidateEventChunk.add(insertEvent);
         }
     }
@@ -504,7 +505,7 @@ public class HazelcastOperator implements Operator {
         }
         if (!updated) {
             StreamEvent insertEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            streamEventConverter.convertComplexEvent(matchingEvent, insertEvent);
             candidateEvents.add(insertEvent);
         }
     }
@@ -525,7 +526,7 @@ public class HazelcastOperator implements Operator {
         }
         if (!updated) {
             StreamEvent insertEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            streamEventConverter.convertComplexEvent(matchingEvent, insertEvent);
             candidateEvents.add(insertEvent);
         }
     }
@@ -546,7 +547,7 @@ public class HazelcastOperator implements Operator {
         }
         if (!updated) {
             StreamEvent insertEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertStreamEvent(matchingEvent, insertEvent);
+            streamEventConverter.convertComplexEvent(matchingEvent, insertEvent);
             candidateEvents.put(insertEvent.getOutputData()[indexedPosition], insertEvent);
         }
     }

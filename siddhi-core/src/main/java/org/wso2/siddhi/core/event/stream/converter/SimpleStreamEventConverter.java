@@ -33,7 +33,7 @@ public class SimpleStreamEventConverter implements StreamEventConverter {
         this.conversionMappings = conversionMappings;
     }
 
-    private void convertToInnerStreamEvent(Object[] data, StreamEvent.Type type, long timestamp, StreamEvent borrowedEvent) {
+    public void convertData(long timestamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent) {
         for (ConversionMapping element : conversionMappings) {
             borrowedEvent.setOutputData(data[element.getFromPosition()], element.getToPosition()[1]);
         }
@@ -42,18 +42,18 @@ public class SimpleStreamEventConverter implements StreamEventConverter {
     }
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
-                event.getTimestamp(), borrowedEvent);
+        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+                borrowedEvent);
     }
 
-    public void convertStreamEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(complexEvent.getOutputData(), complexEvent.getType(), complexEvent.getTimestamp(),
+    public void convertComplexEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent) {
+        convertData(complexEvent.getTimestamp(), complexEvent.getOutputData(), complexEvent.getType(),
                 borrowedEvent);
     }
 
     @Override
     public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent) {
-        convertToInnerStreamEvent(data, StreamEvent.Type.CURRENT, timeStamp, borrowedEvent);
+        convertData(timeStamp, data, StreamEvent.Type.CURRENT, borrowedEvent);
     }
 
 }

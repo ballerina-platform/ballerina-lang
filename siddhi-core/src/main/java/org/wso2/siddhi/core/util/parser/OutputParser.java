@@ -18,10 +18,14 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.PassThroughOutputRateLimiter;
@@ -30,7 +34,7 @@ import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutpu
 import org.wso2.siddhi.core.query.output.ratelimit.time.*;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -51,20 +55,37 @@ public class OutputParser {
 
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, StreamDefinition outputStreamDefinition,
-                                                         Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
+                                                         Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext, boolean convertToStreamEvent) {
         String id = outStream.getId();
+        EventTable eventTable = eventTableMap.get(id);
+        StreamEventPool streamEventPool = null;
+        StreamEventConverter streamEventConvertor = null;
+        MetaStreamEvent tableMetaStreamEvent = null;
+        if (eventTable != null) {
+
+            tableMetaStreamEvent = new MetaStreamEvent();
+            tableMetaStreamEvent.setTableEvent(true);
+            TableDefinition matchingTableDefinition = TableDefinition.id("");
+            for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
+                tableMetaStreamEvent.addOutputData(attribute);
+                matchingTableDefinition.attribute(attribute.getName(), attribute.getType());
+            }
+            tableMetaStreamEvent.addInputDefinition(matchingTableDefinition);
+
+            streamEventPool = new StreamEventPool(tableMetaStreamEvent, 10);
+            streamEventConvertor = new ZeroStreamEventConverter();
+
+        }
 
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
-            EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
-                return new InsertIntoTableCallback(eventTable, outputStreamDefinition);
+                return new InsertIntoTableCallback(eventTable, outputStreamDefinition, convertToStreamEvent, streamEventPool, streamEventConvertor);
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition);
             }
         } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
-            EventTable eventTable = eventTableMap.get(id);
             if (eventTable != null) {
 
                 if (outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
@@ -76,33 +97,43 @@ public class OutputParser {
                     }
                 }
 
-                MetaStreamEvent matchingMetaStreamEvent = new MetaStreamEvent();
-                matchingMetaStreamEvent.setTableEvent(true);
-                TableDefinition matchingTableDefinition = TableDefinition.id("");
-                for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
-                    matchingMetaStreamEvent.addOutputData(attribute);
-                    matchingTableDefinition.attribute(attribute.getName(), attribute.getType());
-                }
-                matchingMetaStreamEvent.addInputDefinition(matchingTableDefinition);
                 if (outStream instanceof DeleteStream) {
                     try {
-                        Operator operator = eventTable.constructOperator(((DeleteStream) outStream).getOnDeleteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                        return new DeleteTableCallback(eventTable, operator);
+                        MatchingMetaStateHolder matchingMetaStateHolder =
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
+                        Operator operator = eventTable.constructOperator((((DeleteStream) outStream).getOnDeleteExpression()),
+                                matchingMetaStateHolder, executionPlanContext, null, eventTableMap);
+                        StateEventPool stateEventPool = new StateEventPool(matchingMetaStateHolder.getMetaStateEvent(), 10);
+                        return new DeleteTableCallback(eventTable, operator, matchingMetaStateHolder.getDefaultStreamEventIndex(),
+                                convertToStreamEvent, stateEventPool, streamEventPool, streamEventConvertor);
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create delete for table '" + outStream.getId() + "', " + e.getMessage(), e);
                     }
                 } else if (outStream instanceof UpdateStream) {
                     try {
-                        Operator operator = eventTable.constructOperator(((UpdateStream) outStream).getOnUpdateExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                        return new UpdateTableCallback(eventTable, operator, matchingTableDefinition);
+                        MatchingMetaStateHolder matchingMetaStateHolder =
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
+                        Operator operator = eventTable.constructOperator((((UpdateStream) outStream).getOnUpdateExpression()),
+                                matchingMetaStateHolder, executionPlanContext, null, eventTableMap);
+                        StateEventPool stateEventPool = new StateEventPool(matchingMetaStateHolder.getMetaStateEvent(), 10);
+                        return new UpdateTableCallback(eventTable, operator, outputStreamDefinition,
+                                matchingMetaStateHolder.getDefaultStreamEventIndex(), convertToStreamEvent, stateEventPool,
+                                streamEventPool, streamEventConvertor);
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create update for table '" + outStream.getId() + "', " + e.getMessage(), e);
                     }
-                } else  {
+                } else {
                     DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                     try {
-                        Operator operator = eventTable.constructOperator(((InsertOverwriteStream) outStream).getOnOverwriteExpression(), matchingMetaStreamEvent, executionPlanContext, null, eventTableMap, 0, SiddhiConstants.ANY);
-                        return new InsertOverwriteTableCallback(eventTable, operator, matchingTableDefinition);
+                        MatchingMetaStateHolder matchingMetaStateHolder =
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
+                        Operator operator = eventTable.constructOperator((((InsertOverwriteStream) outStream).getOnOverwriteExpression()),
+                                matchingMetaStateHolder, executionPlanContext, null, eventTableMap);
+                        StateEventPool stateEventPool = new StateEventPool(matchingMetaStateHolder.getMetaStateEvent(), 10);
+                        return new InsertOverwriteTableCallback(eventTable, operator, outputStreamDefinition,
+                                matchingMetaStateHolder.getDefaultStreamEventIndex(), convertToStreamEvent, stateEventPool,
+                                streamEventPool, streamEventConvertor);
+
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create insert overwrite for table '" + outStream.getId() + "', " + e.getMessage(), e);
                     }
@@ -114,25 +145,6 @@ public class OutputParser {
             throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");
         }
 
-    }
-
-    private static MetaStateEvent createMetaStateEvent(StreamDefinition outputStreamDefinition, EventTable eventTable) {
-        MetaStateEvent metaStateEvent = new MetaStateEvent(2);
-
-        MetaStreamEvent matchingMetaStreamEvent = new MetaStreamEvent();
-        matchingMetaStreamEvent.addInputDefinition(outputStreamDefinition);
-        for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
-            matchingMetaStreamEvent.addOutputData(attribute);
-        }
-        metaStateEvent.addEvent(matchingMetaStreamEvent);
-
-        MetaStreamEvent candidateMetaStreamEvent = new MetaStreamEvent();
-        candidateMetaStreamEvent.addInputDefinition(eventTable.getTableDefinition());
-        for (Attribute attribute : eventTable.getTableDefinition().getAttributeList()) {
-            candidateMetaStreamEvent.addOutputData(attribute);
-        }
-        metaStateEvent.addEvent(candidateMetaStreamEvent);
-        return metaStateEvent;
     }
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, String key,
@@ -179,7 +191,7 @@ public class OutputParser {
                     }
             }
             //never happens
-            return null;
+            throw new OperationNotSupportedException(((EventOutputRate) outputRate).getType() + " not supported in output rate limiting");
         } else if (outputRate instanceof TimeOutputRate) {
             switch (((TimeOutputRate) outputRate).getType()) {
                 case ALL:
@@ -198,7 +210,7 @@ public class OutputParser {
                     }
             }
             //never happens
-            return null;
+            throw new OperationNotSupportedException(((TimeOutputRate) outputRate).getType() + " not supported in output rate limiting");
         } else {
             return new WrappedSnapshotOutputRateLimiter(id, ((SnapshotOutputRate) outputRate).getValue(), scheduledExecutorService, isGroupBy, isWindow);
         }

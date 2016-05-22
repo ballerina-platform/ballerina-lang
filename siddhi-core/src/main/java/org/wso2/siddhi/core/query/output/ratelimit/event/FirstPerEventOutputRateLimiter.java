@@ -37,7 +37,7 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public OutputRateLimiter clone(String key) {
         FirstPerEventOutputRateLimiter instance = new FirstPerEventOutputRateLimiter(id + key, value);
-        instance.setLatencyTracker(latencyTracker);
+        instance.init(executionPlanContext, latencyTracker);
         return instance;
     }
 

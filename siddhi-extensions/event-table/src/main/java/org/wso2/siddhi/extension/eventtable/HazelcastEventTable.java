@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -37,6 +38,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastEventTableConstants;
@@ -72,12 +75,14 @@ public class HazelcastEventTable implements EventTable {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     *
-     * @param tableDefinition      Definition of event table.
+     *  @param tableDefinition      Definition of event table.
+     * @param tableMetaStreamEvent
+     * @param tableStreamEventPool
+     * @param tableStreamEventCloner
      * @param executionPlanContext ExecutionPlan related meta information.
      */
     @Override
-    public void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.executionPlanContext = executionPlanContext;
 
@@ -182,12 +187,12 @@ public class HazelcastEventTable implements EventTable {
      * @param addingEventChunk input event list.
      */
     @Override
-    public synchronized void add(ComplexEventChunk addingEventChunk) {
+    public synchronized void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
         addingEventChunk.reset();
         while (addingEventChunk.hasNext()) {
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = streamEventPool.borrowEvent();
-            eventConverter.convertStreamEvent(complexEvent, streamEvent);
+            eventConverter.convertComplexEvent(complexEvent, streamEvent);
             if (indexAttribute != null) {
                 eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
             } else {
@@ -198,12 +203,10 @@ public class HazelcastEventTable implements EventTable {
 
     /**
      * Called when deleting an event chunk from event table.
-     *
-     * @param deletingEventChunk Event list for deletion.
-     * @param operator           Operator that perform Hazelcast related operations.
-     */
+     *  @param deletingEventChunk Event list for deletion.
+     * @param operator           Operator that perform Hazelcast related operations.*/
     @Override
-    public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
+    public synchronized void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator) {
         if (indexAttribute != null) {
             operator.delete(deletingEventChunk, eventsMap);
         } else {
@@ -213,31 +216,30 @@ public class HazelcastEventTable implements EventTable {
 
     /**
      * Called when updating the event table entries.
-     *
      * @param updatingEventChunk Event list that needs to be updated.
      * @param operator           Operator that perform Hazelcast related operations.
-     */
+     * @param updateAttributeMappers*/
     @Override
-    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
+    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers) {
         if (indexAttribute != null) {
-            operator.update(updatingEventChunk, eventsMap, mappingPosition);
+            operator.update(updatingEventChunk, eventsMap, updateAttributeMappers);
         } else {
-            operator.update(updatingEventChunk, eventsList, mappingPosition);
+            operator.update(updatingEventChunk, eventsList, updateAttributeMappers);
         }
     }
 
     /**
      * Called when insert or overwriting the event table entries.
-     *
      * @param overwritingOrAddingEventChunk Event list that needs to be inserted or updated.
      * @param operator                      Operator that perform Hazelcast related operations.
-     */
+     * @param updateAttributeMappers
+     * @param overwritingStreamEventExtractor */
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         if (indexAttribute != null) {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, updateAttributeMappers, overwritingStreamEventExtractor);
         } else {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, mappingPosition);
+            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, updateAttributeMappers, overwritingStreamEventExtractor);
         }
     }
 
@@ -249,7 +251,7 @@ public class HazelcastEventTable implements EventTable {
      * @return boolean      whether event exists or not.
      */
     @Override
-    public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized boolean contains(StateEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
             return finder.contains(matchingEvent, eventsMap);
         } else {
@@ -266,7 +268,7 @@ public class HazelcastEventTable implements EventTable {
      * @return StreamEvent  event found.
      */
     @Override
-    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
         if (indexAttribute != null) {
             return finder.find(matchingEvent, eventsMap, streamEventCloner);
         } else {

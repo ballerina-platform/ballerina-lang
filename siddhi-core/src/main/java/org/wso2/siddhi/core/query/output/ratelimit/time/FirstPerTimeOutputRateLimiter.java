@@ -48,7 +48,7 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
     @Override
     public OutputRateLimiter clone(String key) {
         FirstPerTimeOutputRateLimiter instance = new FirstPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
-        instance.setLatencyTracker(latencyTracker);
+        instance.init(executionPlanContext, latencyTracker);
         return instance;
     }
 

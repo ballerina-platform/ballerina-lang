@@ -18,9 +18,41 @@
 
 package org.wso2.siddhi.core.query.output.callback;
 
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.state.StateEventPool;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 
-public interface OutputCallback {
+public abstract class OutputCallback {
 
-    void send(ComplexEventChunk complexEventChunk);
+    public abstract void send(ComplexEventChunk complexEventChunk);
+
+    protected ComplexEventChunk<StateEvent> constructMatchingStateEventChunk(ComplexEventChunk matchingComplexEventChunk,
+                                                                             boolean convertToStreamEvent, StateEventPool stateEventPool,
+                                                                             int matchingStreamIndex, StreamEventPool streamEventPool,
+                                                                             StreamEventConverter streamEventConvertor) {
+        ComplexEventChunk<StateEvent> stateEventChunk = new ComplexEventChunk<StateEvent>(matchingComplexEventChunk.isBatch());
+        while (matchingComplexEventChunk.hasNext()) {
+            ComplexEvent matchingComplexEvent = matchingComplexEventChunk.next();
+            matchingComplexEventChunk.remove();
+            StateEvent stateEvent = stateEventPool.borrowEvent();
+            if (convertToStreamEvent) {
+                StreamEvent borrowEvent = streamEventPool.borrowEvent();
+                streamEventConvertor.convertData(
+                        matchingComplexEvent.getTimestamp(),
+                        matchingComplexEvent.getOutputData(),
+                        matchingComplexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT : matchingComplexEvent.getType(),
+                        borrowEvent);
+                stateEvent.addEvent(matchingStreamIndex, borrowEvent);
+            } else {
+                stateEvent.addEvent(matchingStreamIndex, (StreamEvent) matchingComplexEvent);
+            }
+            stateEventChunk.add(stateEvent);
+        }
+        return stateEventChunk;
+    }
+
 }

@@ -38,6 +38,7 @@ public class JoinProcessor implements Processor {
     private boolean leftJoinProcessor = false;
     private boolean preJoinProcessor = false;
     private boolean outerJoinProcessor = false;
+    private int matchingStreamIndex;
     private Lock joinLock;
 
     private StateEventPool stateEventPool;
@@ -46,10 +47,11 @@ public class JoinProcessor implements Processor {
     private Processor nextProcessor;
     private QuerySelector selector;
 
-    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor) {
+    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;
         this.preJoinProcessor = preJoinProcessor;
         this.outerJoinProcessor = outerJoinProcessor;
+        this.matchingStreamIndex = matchingStreamIndex;
     }
 
     /**
@@ -61,6 +63,7 @@ public class JoinProcessor implements Processor {
     public void process(ComplexEventChunk complexEventChunk) {
         if (trigger) {
             ComplexEventChunk<StateEvent> returnEventChunk = new ComplexEventChunk<StateEvent>(true);
+            StateEvent joinStateEvent = new StateEvent(2, 0);
             StreamEvent nextEvent = (StreamEvent) complexEventChunk.getFirst();
             complexEventChunk.clear();
             while (nextEvent != null) {
@@ -86,7 +89,9 @@ public class JoinProcessor implements Processor {
                             continue;
                         }
                     }
-                    StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
+                    joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
+                    StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);
+                    joinStateEvent.setEvent(matchingStreamIndex, null);
                     if (foundStreamEvent == null) {
                         if (outerJoinProcessor && !leftJoinProcessor) {
                             returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent));
@@ -122,7 +127,7 @@ public class JoinProcessor implements Processor {
                 joinLock.lock();
                 try {
                     nextProcessor.process(complexEventChunk);
-                }finally {
+                } finally {
                     joinLock.unlock();
                 }
             }
@@ -178,10 +183,10 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor);
+        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor, matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
-            joinProcessor.setFinder(finder.cloneFinder());
+            joinProcessor.setFinder(finder.cloneFinder(key));
         }
         return joinProcessor;
     }

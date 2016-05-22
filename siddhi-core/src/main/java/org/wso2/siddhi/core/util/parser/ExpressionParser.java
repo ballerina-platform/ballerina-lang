@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
@@ -61,7 +62,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.Aggregat
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.extension.holder.AttributeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.FunctionExecutorExtensionHolder;
@@ -322,13 +323,10 @@ public class ExpressionParser {
             }
         } else if (expression instanceof In) {
 
-
             EventTable eventTable = eventTableMap.get(((In) expression).getSourceId());
-
-            Finder finder = eventTable.constructFinder(((In) expression).getExpression(), metaEvent, executionPlanContext, executorList, eventTableMap, defaultStreamEventIndex, SiddhiConstants.ANY);
-
-
-            return new InConditionExpressionExecutor(eventTable, finder);
+            MatchingMetaStateHolder matchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent, defaultStreamEventIndex, eventTable.getTableDefinition());
+            Finder finder = eventTable.constructFinder(((In) expression).getExpression(), matchingMetaStateHolder, executionPlanContext, executorList, eventTableMap);
+            return new InConditionExpressionExecutor(eventTable, finder, matchingMetaStateHolder.getStreamEventSize(), metaEvent instanceof StateEvent, matchingMetaStateHolder.getDefaultStreamEventIndex());
 
         } else if (expression instanceof IsNull) {
 
@@ -1112,6 +1110,7 @@ public class ExpressionParser {
 
     /**
      * Parse the set of inner expression of AttributeFunctionExtensions and  handling all (*) cases
+     *
      * @param innerExpressions        InnerExpressions to be parsed
      * @param metaEvent               Meta Event
      * @param currentState            Current state number
@@ -1120,7 +1119,7 @@ public class ExpressionParser {
      * @param executionPlanContext    ExecutionPlanContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
-     * @return  List of expressionExecutors
+     * @return List of expressionExecutors
      */
     private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent metaEvent, int currentState,
                                                              Map<String, EventTable> eventTableMap, List<VariableExpressionExecutor> executorList,

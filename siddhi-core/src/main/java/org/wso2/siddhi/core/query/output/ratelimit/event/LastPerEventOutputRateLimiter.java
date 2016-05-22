@@ -37,7 +37,7 @@ public class LastPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public OutputRateLimiter clone(String key) {
         LastPerEventOutputRateLimiter instance = new LastPerEventOutputRateLimiter(id + key, value);
-        instance.setLatencyTracker(latencyTracker);
+        instance.init(executionPlanContext, latencyTracker);
         return instance;
     }
 

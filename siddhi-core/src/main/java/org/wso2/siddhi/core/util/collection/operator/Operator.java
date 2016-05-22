@@ -19,15 +19,19 @@
 package org.wso2.siddhi.core.util.collection.operator;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 /**
  * Created on 3/22/15.
  */
 public interface Operator extends Finder {
 
-    void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents);
+    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents);
 
-    void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers);
 
-    void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition);
+    ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor);
 }

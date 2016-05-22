@@ -19,7 +19,9 @@
 package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
@@ -81,21 +83,31 @@ public class DefinitionParserHelper {
         }
     }
 
-
     public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
 
         if (!eventTableMap.containsKey(tableDefinition.getId())) {
-            EventTable eventTable;
+
+            MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
+            tableMetaStreamEvent.addInputDefinition(tableDefinition);
+            for (Attribute attribute : tableDefinition.getAttributeList()) {
+                tableMetaStreamEvent.addOutputData(attribute);
+            }
+
+            StreamEventPool tableStreamEventPool = new StreamEventPool(tableMetaStreamEvent, 10);
+            StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent, tableStreamEventPool);
+
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                     tableDefinition.getAnnotations());
+
+            EventTable eventTable;
             if (annotation != null) {
                 String evenTableType = annotation.getElement("eventtable");
                 Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
                 eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
             } else {
-                eventTable = new InMemoryEventTable(tableDefinition, executionPlanContext);
+                eventTable = new InMemoryEventTable();
             }
-            eventTable.init(tableDefinition, executionPlanContext);
+            eventTable.init(tableDefinition, tableMetaStreamEvent, tableStreamEventPool, tableStreamEventCloner, executionPlanContext);
             eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
         }
     }

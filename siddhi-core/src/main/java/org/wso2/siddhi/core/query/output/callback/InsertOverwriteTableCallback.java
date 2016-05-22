@@ -19,36 +19,52 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.state.StateEventPool;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.parser.MatcherParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.List;
-
-public class InsertOverwriteTableCallback implements OutputCallback {
+public class InsertOverwriteTableCallback extends OutputCallback {
+    private final int matchingStreamIndex;
+    private final UpdateAttributeMapper[] updateAttributeMappers;
+    private final OverwritingStreamEventExtractor overwritingStreamEventExtractor;
     private EventTable eventTable;
     private Operator operator;
-    private int[] mappingPosition;
+    private boolean convertToStreamEvent;
+    private StateEventPool stateEventPool;
+    private StreamEventPool streamEventPool;
+    private StreamEventConverter streamEventConvertor;
 
-    public InsertOverwriteTableCallback(EventTable eventTable, Operator operator, AbstractDefinition updatingStreamDefinition) {
+    public InsertOverwriteTableCallback(EventTable eventTable, Operator operator, AbstractDefinition updatingStreamDefinition,
+                                        int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
+                                        StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
+        this.matchingStreamIndex = matchingStreamIndex;
         this.eventTable = eventTable;
         this.operator = operator;
-        validateUpdateTable(eventTable.getTableDefinition(), updatingStreamDefinition.getAttributeList());
+        this.convertToStreamEvent = convertToStreamEvent;
+        this.stateEventPool = stateEventPool;
+        this.streamEventPool = streamEventPool;
+        this.streamEventConvertor = streamEventConvertor;
+        this.updateAttributeMappers = MatcherParser.constructUpdateAttributeMapper(eventTable.getTableDefinition(),
+                updatingStreamDefinition.getAttributeList(), matchingStreamIndex);
+        this.overwritingStreamEventExtractor = new OverwritingStreamEventExtractor(matchingStreamIndex);
     }
-
-    private void validateUpdateTable(AbstractDefinition tableDefinition, List<Attribute> updatingStreamDefinition) {
-        mappingPosition = new int[updatingStreamDefinition.size()];
-        for (int i = 0; i < updatingStreamDefinition.size(); i++) {
-            Attribute streamAttribute = updatingStreamDefinition.get(i);
-            mappingPosition[i] = tableDefinition.getAttributePosition(streamAttribute.getName());
-        }
-    }
-
 
     @Override
-    public void send(ComplexEventChunk complexEventChunk) {
-        eventTable.overwriteOrAdd(complexEventChunk, operator, mappingPosition);
+    public void send(ComplexEventChunk overwriteOrAddEventChunk) {
+        overwriteOrAddEventChunk.reset();
+        if (overwriteOrAddEventChunk.hasNext()) {
+            ComplexEventChunk<StateEvent> overwriteOrAddStateEventChunk = constructMatchingStateEventChunk(overwriteOrAddEventChunk,
+                    convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
+            constructMatchingStateEventChunk(overwriteOrAddEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
+            eventTable.overwriteOrAdd(overwriteOrAddStateEventChunk, operator, updateAttributeMappers, overwritingStreamEventExtractor);
+        }
     }
 
 }

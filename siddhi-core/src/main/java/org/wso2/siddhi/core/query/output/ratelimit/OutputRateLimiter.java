@@ -18,7 +18,6 @@
 package org.wso2.siddhi.core.query.output.ratelimit;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -36,18 +35,16 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
     protected OutputCallback outputCallback = null;
     private boolean hasCallBack = false;
     private String elementId;
+    protected ExecutionPlanContext executionPlanContext;
     protected LatencyTracker latencyTracker;
 
     public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
+        this.executionPlanContext = executionPlanContext;
         this.latencyTracker = latencyTracker;
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(this);
-    }
-
-    protected void setLatencyTracker(LatencyTracker latencyTracker) {
-        this.latencyTracker = latencyTracker;
     }
 
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
@@ -61,13 +58,6 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
             }
         }
         if (outputCallback != null && complexEventChunk.getFirst() != null) {
-            complexEventChunk.reset();
-            while (complexEventChunk.hasNext()) {
-                ComplexEvent complexEvent = complexEventChunk.next();
-                if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
-                    complexEvent.setType(ComplexEvent.Type.CURRENT);
-                }
-            }
             outputCallback.send(complexEventChunk);
         }
 

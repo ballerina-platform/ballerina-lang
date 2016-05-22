@@ -19,12 +19,18 @@
 package org.wso2.siddhi.core.table;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -34,21 +40,20 @@ import java.util.Map;
 
 public interface EventTable extends FindableProcessor {
 
-    void init(TableDefinition tableDefinition, ExecutionPlanContext executionPlanContext);
+    void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext);
 
     TableDefinition getTableDefinition();
 
-    void add(ComplexEventChunk addingEventChunk);
+    void add(ComplexEventChunk<StreamEvent> addingEventChunk);
 
-    void delete(ComplexEventChunk deletingEventChunk, Operator operator);
+    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator);
 
-    void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers);
 
-    void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition);
+    void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor);
 
-    boolean contains(ComplexEvent matchingEvent, Finder finder);
+    boolean contains(StateEvent matchingEvent, Finder finder);
 
-    Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime);
-
+    Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) ;
 
 }

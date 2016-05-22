@@ -26,6 +26,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
@@ -74,12 +76,12 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder() {
+    public Finder cloneFinder(String key) {
         return new CacheInMemoryOperator(expressionExecutor, candidateEventPosition, matchingEventPosition, streamEvents, withinTime, cachingTable, matchingEventOutputSize);
     }
 
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Object candidateEvents, StreamEventCloner streamEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
 
         try {
             if (matchingEvent instanceof StreamEvent) {
@@ -88,11 +90,11 @@ public class CacheInMemoryOperator implements Operator {
                 this.event.setEvent(((StateEvent) matchingEvent));
             }
             if (candidateEvents instanceof ComplexEventChunk) {
-                return find((ComplexEventChunk) candidateEvents, streamEventCloner);
+                return find((ComplexEventChunk) candidateEvents, candidateEventCloner);
             } else if (candidateEvents instanceof Map) {
-                return find(((Map) candidateEvents).values(), streamEventCloner);
+                return find(((Map) candidateEvents).values(), candidateEventCloner);
             } else if (candidateEvents instanceof Collection) {
-                return find((Collection) candidateEvents, streamEventCloner);
+                return find((Collection) candidateEvents, candidateEventCloner);
             } else {
                 throw new OperationNotSupportedException(CacheInMemoryOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
             }
@@ -106,12 +108,12 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public void delete(ComplexEventChunk deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             ComplexEvent deletingEvent = deletingEventChunk.next();
             try {
-                streamEventConverter.convertStreamEvent(deletingEvent, matchingEvent);
+                streamEventConverter.convertComplexEvent(deletingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
                     delete((ComplexEventChunk) candidateEvents);
@@ -162,19 +164,19 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk updatingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = updatingEventChunk.next();
             try {
-                streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
+                streamEventConverter.convertComplexEvent(updatingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
-                    update((ComplexEventChunk) candidateEvents, mappingPosition);
+                    update((ComplexEventChunk) candidateEvents, updateAttributeMappers);
                 } else if (candidateEvents instanceof Map) {
-                    update(((Map) candidateEvents).values(), mappingPosition);
+                    update(((Map) candidateEvents).values(), updateAttributeMappers);
                 } else if (candidateEvents instanceof Collection) {
-                    update((Collection) candidateEvents, mappingPosition);
+                    update((Collection) candidateEvents, updateAttributeMappers);
                 } else {
                     throw new OperationNotSupportedException(CacheInMemoryOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
@@ -185,19 +187,19 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Object candidateEvents, int[] mappingPosition) {
+    public ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
         while (overwritingOrAddingEventChunk.hasNext()) {
             ComplexEvent updatingEvent = overwritingOrAddingEventChunk.next();
             try {
-                streamEventConverter.convertStreamEvent(updatingEvent, matchingEvent);
+                streamEventConverter.convertComplexEvent(updatingEvent, matchingEvent);
                 this.event.setEvent(matchingEventPosition, matchingEvent);
                 if (candidateEvents instanceof ComplexEventChunk) {
-                    overwriteOrAdd((ComplexEventChunk) candidateEvents, mappingPosition);
+                    overwriteOrAdd((ComplexEventChunk) candidateEvents, updateAttributeMappers);
                 } else if (candidateEvents instanceof Map) {
-                    overwriteOrAdd(((Map) candidateEvents).values(), mappingPosition);
+                    overwriteOrAdd(((Map) candidateEvents).values(), updateAttributeMappers);
                 } else if (candidateEvents instanceof Collection) {
-                    overwriteOrAdd((Collection) candidateEvents, mappingPosition);
+                    overwriteOrAdd((Collection) candidateEvents, updateAttributeMappers);
                 } else {
                     throw new OperationNotSupportedException(CacheInMemoryOperator.class.getCanonicalName() + " does not support " + candidateEvents.getClass().getCanonicalName());
                 }
@@ -206,6 +208,7 @@ public class CacheInMemoryOperator implements Operator {
             }
         }
 
+        return null;
     }
 
     private void update(ComplexEventChunk<StreamEvent> candidateEventChunk, int[] mappingPosition) {
@@ -282,7 +285,7 @@ public class CacheInMemoryOperator implements Operator {
     }
 
     @Override
-    public boolean contains(ComplexEvent matchingEvent, Object candidateEvents) {
+    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
         try {
             if (matchingEvent instanceof StreamEvent) {
                 this.event.setEvent(matchingEventPosition, ((StreamEvent) matchingEvent));

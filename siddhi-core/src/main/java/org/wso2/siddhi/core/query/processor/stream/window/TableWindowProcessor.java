@@ -18,9 +18,8 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
@@ -29,6 +28,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -54,13 +54,14 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+    public StreamEvent find(StateEvent matchingEvent, Finder finder) {
         return eventTable.find(matchingEvent, finder);
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return eventTable.constructFinder(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, withinTime);
+    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
+                                  List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+        return eventTable.constructFinder(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 
     @Override

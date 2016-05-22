@@ -52,7 +52,7 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
     @Override
     public OutputRateLimiter clone(String key) {
         LastGroupByPerTimeOutputRateLimiter instance = new LastGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
-        instance.setLatencyTracker(latencyTracker);
+        instance.init(executionPlanContext, latencyTracker);
         return instance;
     }
 

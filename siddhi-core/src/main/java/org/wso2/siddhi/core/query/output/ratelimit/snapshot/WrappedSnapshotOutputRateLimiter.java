@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
@@ -50,15 +49,14 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         this.scheduledExecutorService = scheduledExecutorService;
         groupBy = isGroupBy;
         windowed = isWindowed;
-
     }
 
     @Override
     public OutputRateLimiter clone(String key) {
-        WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter = new WrappedSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, groupBy, windowed);
-        wrappedSnapshotOutputRateLimiter.outputRateLimiter = this.outputRateLimiter.clone(key, wrappedSnapshotOutputRateLimiter);
-        wrappedSnapshotOutputRateLimiter.setLatencyTracker(latencyTracker);
-        return wrappedSnapshotOutputRateLimiter;
+        WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, groupBy, windowed);
+        instance.init(executionPlanContext, latencyTracker);
+        instance.outputRateLimiter = this.outputRateLimiter.clone(key, instance);
+        return instance;
     }
 
     public void init(int outPutAttributeSize, List<AttributeProcessor> attributeProcessorList, MetaComplexEvent metaComplexEvent) {

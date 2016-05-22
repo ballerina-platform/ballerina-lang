@@ -67,7 +67,7 @@ public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
 //    @Override
 //    public void convertAndAssignFirst(StreamEvent streamEvent) {
 //        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-//        eventConverter.convertStreamEvent(streamEvent, borrowedEvent);
+//        eventConverter.convertComplexEvent(streamEvent, borrowedEvent);
 //        first = borrowedEvent;
 //        last = first;
 //    }
@@ -101,12 +101,12 @@ public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
     }
 
     private StreamEvent convertAllStreamEvents(ComplexEvent complexEvents, StreamEvent firstEvent) {
-        streamEventConverter.convertStreamEvent(complexEvents, firstEvent);
+        streamEventConverter.convertComplexEvent(complexEvents, firstEvent);
         StreamEvent currentEvent = firstEvent;
         complexEvents = complexEvents.getNext();
         while (complexEvents != null) {
             StreamEvent nextEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertStreamEvent(complexEvents, nextEvent);
+            streamEventConverter.convertComplexEvent(complexEvents, nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
             complexEvents = complexEvents.getNext();
