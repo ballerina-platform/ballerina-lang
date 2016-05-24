@@ -6,11 +6,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.operator.CollectionOperator;
-import org.wso2.siddhi.core.util.collection.operator.EventChunkOperator;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.parser.ExpressionParser;
+import org.wso2.siddhi.core.util.collection.operator.*;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.Collection;
@@ -31,6 +27,8 @@ public class OperatorParser {
                 matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
         if (candidateEvents instanceof ComplexEventChunk) {
             return new EventChunkOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
+        } else if (candidateEvents instanceof Map) {
+            return new MapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else if (candidateEvents instanceof Collection) {
             return new CollectionOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else {

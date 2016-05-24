@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * Created by suho on 5/22/16.
  */
 public class MapEventHolder implements EventHolder {
-    SortedMap<Object, StreamEvent> eventMap = new TreeMap<Object, StreamEvent>();
+    private SortedMap<Object, StreamEvent> eventMap = new TreeMap<Object, StreamEvent>();
 
     @Override
     public Object getEventCollection() {
