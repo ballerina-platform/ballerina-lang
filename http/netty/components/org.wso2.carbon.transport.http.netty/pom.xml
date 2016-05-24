@@ -134,7 +134,8 @@
         <carbon.component>
             startup.listener;componentName="netty-transports-mgt";requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,org.wso2.carbon.messaging.CarbonMessageProcessor",
             osgi.service;
-            objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";dependentComponentName="carbon-transport-mgt"
+            objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";dependentComponentName="carbon-transport-mgt",
+            osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"
         </carbon.component>
     </properties>
 </project>
