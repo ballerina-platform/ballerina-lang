@@ -6,19 +6,23 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 
-import java.util.LinkedList;
+import java.util.TreeMap;
 
 /**
  * Created by suho on 5/22/16.
  */
-public class ListEventHolder extends LinkedList<StreamEvent> implements EventHolder {
+public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implements EventHolder {
 
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
+    private int indexPosition;
+    private String indexAttribute;
 
-    public ListEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter) {
+    public PrimaryKeyEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int indexPosition, String indexAttribute) {
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;
+        this.indexPosition = indexPosition;
+        this.indexAttribute = indexAttribute;
     }
 
     @Override
@@ -28,7 +32,15 @@ public class ListEventHolder extends LinkedList<StreamEvent> implements EventHol
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(complexEvent, streamEvent);
-            this.add(streamEvent);
+            this.put(streamEvent.getOutputData()[indexPosition], streamEvent);
         }
+    }
+
+    public String getIndexAttribute() {
+        return indexAttribute;
+    }
+
+    public int getIndexPosition() {
+        return indexPosition;
     }
 }
