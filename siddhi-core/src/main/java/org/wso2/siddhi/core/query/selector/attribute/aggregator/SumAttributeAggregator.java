@@ -37,7 +37,7 @@ public class SumAttributeAggregator extends AttributeAggregator {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new OperationNotSupportedException("Sim aggregator has to have exactly 1 parameter, currently " +
+            throw new OperationNotSupportedException("Sum aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
