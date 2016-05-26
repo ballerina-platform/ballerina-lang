@@ -14,7 +14,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.transport</groupId>
@@ -130,12 +131,16 @@
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
             com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",
-            </import.package>
+        </import.package>
         <carbon.component>
-            startup.listener;componentName="netty-transports-mgt";requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,org.wso2.carbon.messaging.CarbonMessageProcessor",
+            startup.listener;componentName="netty-transports-mgt";
+            requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
+            org.wso2.carbon.messaging.CarbonMessageProcessor",
             osgi.service;
-            objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";dependentComponentName="carbon-transport-mgt",
-            osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"
+            objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";
+            requiredByComponentName="carbon-transport-mgt",
+            osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
+            capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"
         </carbon.component>
     </properties>
 </project>
