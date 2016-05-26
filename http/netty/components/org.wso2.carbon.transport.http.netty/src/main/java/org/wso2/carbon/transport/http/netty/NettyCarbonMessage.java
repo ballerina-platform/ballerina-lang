@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.transport.http.netty;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
@@ -112,5 +115,12 @@ public class NettyCarbonMessage extends CarbonMessage {
         }
 
         return size;
+    }
+
+    @Override
+    public void addMessageBody(ByteBuffer msgBody) {
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(msgBody);
+        HttpContent httpContent = new DefaultHttpContent(byteBuf);
+        httpContentQueue.add(httpContent);
     }
 }
