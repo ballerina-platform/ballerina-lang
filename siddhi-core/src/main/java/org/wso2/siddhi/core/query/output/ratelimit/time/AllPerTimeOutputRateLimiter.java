@@ -74,7 +74,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     complexEventChunk.remove();
                     allComplexEventChunk.add(event);
                 }

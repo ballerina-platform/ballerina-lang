@@ -37,6 +37,7 @@ import java.util.Map;
 public class TableWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private EventTable eventTable;
+    private boolean outputExpectsExpiredEvents;
 
     public TableWindowProcessor(EventTable eventTable) {
         this.eventTable = eventTable;
@@ -44,8 +45,9 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         // nothing to be done
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
     }
 
     @Override
@@ -87,7 +89,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
             streamProcessor.complexEventPopulater = complexEventPopulater;
-            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
             streamProcessor.start();
             return streamProcessor;
 

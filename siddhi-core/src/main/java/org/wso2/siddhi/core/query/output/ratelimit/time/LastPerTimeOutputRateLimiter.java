@@ -72,7 +72,7 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     complexEventChunk.remove();
                     lastEvent = event;
                 }

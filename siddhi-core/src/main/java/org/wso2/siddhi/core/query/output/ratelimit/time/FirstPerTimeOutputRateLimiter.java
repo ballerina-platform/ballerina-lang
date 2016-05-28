@@ -67,7 +67,7 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
                         scheduledTime += value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     if (firstEvent == null) {
                         complexEventChunk.remove();
                         firstEvent = event;

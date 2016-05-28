@@ -92,6 +92,8 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
                             break;
                         }
                     }
+                } else if (event.getType() == ComplexEvent.Type.RESET) {
+                    eventList.clear();
                 }
             }
         }

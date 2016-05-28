@@ -85,6 +85,8 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
                         lastEventHolder.addLastInEvent(groupedComplexEvent.getComplexEvent());
                     } else if (groupedComplexEvent.getType() == ComplexEvent.Type.EXPIRED) {
                         lastEventHolder.removeLastInEvent(groupedComplexEvent.getComplexEvent());
+                    }else if (groupedComplexEvent.getType() == ComplexEvent.Type.RESET) {
+                        groupByKeyEvents.clear();
                     }
                 }
             }

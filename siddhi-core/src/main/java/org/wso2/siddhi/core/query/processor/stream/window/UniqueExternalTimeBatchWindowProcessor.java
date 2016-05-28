@@ -59,7 +59,7 @@ public class UniqueExternalTimeBatchWindowProcessor extends WindowProcessor impl
     private VariableExpressionExecutor variableExpressionExecutor;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         if (attributeExpressionExecutors.length >= 3 && attributeExpressionExecutors.length <= 5) {
 
             if (!(attributeExpressionExecutors[0] instanceof VariableExpressionExecutor)) {

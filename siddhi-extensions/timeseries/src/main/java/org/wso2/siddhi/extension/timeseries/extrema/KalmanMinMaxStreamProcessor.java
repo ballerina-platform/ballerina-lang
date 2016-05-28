@@ -59,7 +59,7 @@ public class KalmanMinMaxStreamProcessor extends StreamProcessor {
     ExtremaCalculator extremaCalculator = null;
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         if (attributeExpressionExecutors.length != 5) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to KalmanMinMaxStreamProcessor, required 5, but found " + attributeExpressionExecutors.length);
         }

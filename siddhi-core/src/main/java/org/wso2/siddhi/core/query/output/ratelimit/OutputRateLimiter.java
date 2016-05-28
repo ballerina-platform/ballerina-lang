@@ -66,6 +66,8 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
                 ComplexEvent complexEvent = complexEventChunk.next();
                 if (complexEvent.getType() == ComplexEvent.Type.EXPIRED) {
                     complexEvent.setType(ComplexEvent.Type.CURRENT);
+                } else if (complexEvent.getType() == ComplexEvent.Type.RESET) {
+                    complexEventChunk.remove();
                 }
             }
             outputCallback.send(complexEventChunk);

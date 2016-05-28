@@ -59,7 +59,7 @@ public class KernelMinMaxStreamProcessor extends StreamProcessor {
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors,
-                                   ExecutionPlanContext executionPlanContext) {
+                                   ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
 
         if (attributeExpressionExecutors.length != 4) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to KernelMinMaxStreamProcessor, required 4, " +

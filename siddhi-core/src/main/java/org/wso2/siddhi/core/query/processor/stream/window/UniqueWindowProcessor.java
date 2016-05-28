@@ -43,12 +43,12 @@ public class UniqueWindowProcessor extends WindowProcessor implements FindablePr
 
     /**
      * The init method of the WindowProcessor, this method will be called before other methods
-     *
-     * @param attributeExpressionExecutors the executors of each function parameters
+     *  @param attributeExpressionExecutors the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan
+     * @param outputExpectsExpiredEvents
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length];
         for (int i = 0; i < attributeExpressionExecutors.length; i++) {
             variableExpressionExecutors[i] = (VariableExpressionExecutor) attributeExpressionExecutors[i];

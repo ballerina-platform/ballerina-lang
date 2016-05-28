@@ -77,14 +77,13 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     if (!groupByKeys.contains(groupedComplexEvent.getGroupKey())) {
                         complexEventChunk.remove();
                         groupByKeys.add(groupedComplexEvent.getGroupKey());
                         allComplexEventChunk.add(groupedComplexEvent.getComplexEvent());
                     }
-
                 }
             }
         }

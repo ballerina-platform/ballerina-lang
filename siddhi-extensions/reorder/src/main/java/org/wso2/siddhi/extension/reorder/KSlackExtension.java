@@ -34,7 +34,6 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -169,7 +168,7 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors,
-                                   ExecutionPlanContext executionPlanContext) {
+                                   ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 
         if (attributeExpressionLength > 4) {
