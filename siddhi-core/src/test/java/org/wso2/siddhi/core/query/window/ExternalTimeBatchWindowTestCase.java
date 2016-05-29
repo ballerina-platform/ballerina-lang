@@ -1035,4 +1035,99 @@ public class ExternalTimeBatchWindowTestCase {
         junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
         executionPlanRuntime.shutdown();
     }
+
+    @Test
+    public void externalTimeBatchWindowTest12() throws InterruptedException {
+        log.info("externalTimeBatchWindow Test12");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream cseEventStream (timestamp long, symbol string, price float, volume int); " +
+                "define stream twitterStream (timestamp long, user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.externalTimeBatch(timestamp, 1 sec, 0) join twitterStream#window.externalTimeBatch(timestamp, 1 sec, 0) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        inEventCount+=(inEvents.length);
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount+=(removeEvents.length);
+                    }
+                    eventArrived = true;
+                }
+            });
+            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+            executionPlanRuntime.start();
+            cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
+            twitterStreamHandler.send(new Object[]{ 1366335804341l, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{ 1366335805301l, "User2", "Hello World2", "WSO2"});
+            cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
+            cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
+            Thread.sleep(1000);
+            junit.framework.Assert.assertEquals(2, inEventCount);
+            junit.framework.Assert.assertEquals(0, removeEventCount);
+            junit.framework.Assert.assertTrue(eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void externalTimeBatchWindowTest13() throws InterruptedException {
+        log.info("externalTimeBatchWindow Test13");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream cseEventStream (timestamp long, symbol string, price float, volume int); " +
+                "define stream twitterStream (timestamp long, user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.externalTimeBatch(timestamp, 1 sec, 0) join twitterStream#window.externalTimeBatch(timestamp, 1 sec, 0) " +
+                "on cseEventStream.symbol== twitterStream.company " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        inEventCount+=(inEvents.length);
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount+=(removeEvents.length);
+                    }
+                    eventArrived = true;
+                }
+            });
+            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+            executionPlanRuntime.start();
+            cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
+            twitterStreamHandler.send(new Object[]{ 1366335804341l, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{ 1366335805301l, "User2", "Hello World2", "WSO2"});
+            cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
+            cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
+            Thread.sleep(1000);
+            junit.framework.Assert.assertEquals(2, inEventCount);
+            junit.framework.Assert.assertEquals(1, removeEventCount);
+            junit.framework.Assert.assertTrue(eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
 }

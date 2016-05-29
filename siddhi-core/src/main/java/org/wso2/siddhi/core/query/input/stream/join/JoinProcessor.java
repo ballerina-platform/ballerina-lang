@@ -85,6 +85,8 @@ public class JoinProcessor implements Processor {
                         if (preJoinProcessor) {
                             continue;
                         }
+                    } else if (streamEvent.getType() == ComplexEvent.Type.RESET) {
+                        continue;
                     }
                     StreamEvent foundStreamEvent = findableProcessor.find(streamEvent, finder);
                     if (foundStreamEvent == null) {
@@ -122,7 +124,7 @@ public class JoinProcessor implements Processor {
                 joinLock.lock();
                 try {
                     nextProcessor.process(complexEventChunk);
-                }finally {
+                } finally {
                     joinLock.unlock();
                 }
             }
