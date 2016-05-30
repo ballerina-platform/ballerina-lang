@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.function;
+package org.wso2.siddhi.core.query.aggregator;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -31,8 +31,8 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-public class MaxForeverFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(MaxForeverFunctionExtensionTestCase.class);
+public class MaxForeverAggregatorExtensionTestCase {
+    static final Logger log = Logger.getLogger(MaxForeverAggregatorExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -44,8 +44,8 @@ public class MaxForeverFunctionExtensionTestCase {
 
 
     @Test
-    public void testMaxForeverFunctionExtension1() throws InterruptedException {
-        log.info("MaxForeverFunctionExecutor TestCase 1");
+    public void testMaxForeverAggregatorExtension1() throws InterruptedException {
+        log.info("MaxForeverAggregator TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 double,price2 double, price3 double);";
@@ -90,12 +90,12 @@ public class MaxForeverFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{36, 36.75, 35.75});
-        inputHandler.send(new Object[]{37.88, 38.12, 37.62});
-        inputHandler.send(new Object[]{39.00, 39.25, 38.62});
-        inputHandler.send(new Object[]{36.88, 37.75, 36.75});
-        inputHandler.send(new Object[]{38.12, 38.12, 37.75});
-        inputHandler.send(new Object[]{38.12, 40, 37.75});
+        inputHandler.send(new Object[]{36d, 36.75, 35.75});
+        inputHandler.send(new Object[]{37.88d, 38.12, 37.62});
+        inputHandler.send(new Object[]{39.00d, 39.25, 38.62});
+        inputHandler.send(new Object[]{36.88d, 37.75, 36.75});
+        inputHandler.send(new Object[]{38.12d, 38.12, 37.75});
+        inputHandler.send(new Object[]{38.12d, 40, 37.75});
 
         Thread.sleep(300);
         Assert.assertEquals(6, count);
@@ -104,8 +104,9 @@ public class MaxForeverFunctionExtensionTestCase {
 
     }
 
-    public void testMaxForeverFunctionExtension2() throws InterruptedException {
-        log.info("MaxForeverFunctionExecutor TestCase 2");
+    @Test
+    public void testMaxForeverAggregatorExtension2() throws InterruptedException {
+        log.info("MaxForeverAggregator TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 int,price2 int, price3 int);";
@@ -154,8 +155,8 @@ public class MaxForeverFunctionExtensionTestCase {
 
 
     @Test
-    public void testMaxForeverFunctionExtension3() throws InterruptedException {
-        log.info("MaxForeverFunctionExecutor TestCase 3");
+    public void testMaxForeverAggregatorExtension3() throws InterruptedException {
+        log.info("MaxForeverAggregator TestCase 3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 float, price2 float, price3 float);";
@@ -200,12 +201,12 @@ public class MaxForeverFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{36, 36.75, 35.75});
-        inputHandler.send(new Object[]{37.88, 38.12, 37.62});
-        inputHandler.send(new Object[]{39.00, 39.25, 38.62});
-        inputHandler.send(new Object[]{36.88, 37.75, 36.75});
-        inputHandler.send(new Object[]{38.12, 38.12, 37.75});
-        inputHandler.send(new Object[]{38.12, 40, 37.75});
+        inputHandler.send(new Object[]{36f, 36.75, 35.75});
+        inputHandler.send(new Object[]{37.88f, 38.12, 37.62});
+        inputHandler.send(new Object[]{39.00f, 39.25, 38.62});
+        inputHandler.send(new Object[]{36.88f, 37.75, 36.75});
+        inputHandler.send(new Object[]{38.12f, 38.12, 37.75});
+        inputHandler.send(new Object[]{38.12f, 40, 37.75});
 
         Thread.sleep(300);
         Assert.assertEquals(6, count);
@@ -215,8 +216,8 @@ public class MaxForeverFunctionExtensionTestCase {
     }
 
     @Test
-    public void testMaxForeverFunctionExtension4() throws InterruptedException {
-        log.info("MaxForeverFunctionExecutor TestCase 4");
+    public void testMaxForeverAggregatorExtension4() throws InterruptedException {
+        log.info("MaxForeverAggregator TestCase 4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 long, price2 long, price3 long);";
@@ -252,9 +253,9 @@ public class MaxForeverFunctionExtensionTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{36, 38, 74});
-        inputHandler.send(new Object[]{78, 38, 37});
-        inputHandler.send(new Object[]{9, 39, 38});
+        inputHandler.send(new Object[]{36l, 38, 74});
+        inputHandler.send(new Object[]{78l, 38, 37});
+        inputHandler.send(new Object[]{9l, 39, 38});
 
         Thread.sleep(300);
         Assert.assertEquals(3, count);
@@ -265,8 +266,8 @@ public class MaxForeverFunctionExtensionTestCase {
 
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void testMaxForeverFunctionExtension5() throws InterruptedException {
-        log.info("MaxForeverFunctionExecutor TestCase 5");
+    public void testMaxForeverAggregatorExtension5() throws InterruptedException {
+        log.info("MaxForeverAggregator TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 int,price2 double, price3 double);";
