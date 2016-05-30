@@ -130,6 +130,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Double value = (Double) data;
+            if (minValue == null || minValue > value) {
+                minValue = value;
+            }
             return minValue;
         }
 
@@ -170,6 +174,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Float value = (Float) data;
+            if (minValue == null || minValue > value) {
+                minValue = value;
+            }
             return minValue;
         }
 
@@ -215,6 +223,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Integer value = (Integer) data;
+            if (minValue == null || minValue > value) {
+                minValue = value;
+            }
             return minValue;
         }
 
@@ -255,6 +267,10 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Long value = (Long) data;
+            if (minValue == null || minValue > value) {
+                minValue = value;
+            }
             return minValue;
         }
 

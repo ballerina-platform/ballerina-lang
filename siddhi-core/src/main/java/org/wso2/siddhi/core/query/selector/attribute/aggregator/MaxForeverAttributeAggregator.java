@@ -133,6 +133,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Double value = (Double) data;
+            if (maxValue == null || maxValue < value) {
+                maxValue = value;
+            }
             return maxValue;
         }
 
@@ -173,6 +177,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Float value = (Float) data;
+            if (maxValue == null || maxValue < value) {
+                maxValue = value;
+            }
             return maxValue;
         }
 
@@ -213,6 +221,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Integer value = (Integer) data;
+            if (maxValue == null || maxValue < value) {
+                maxValue = value;
+            }
             return maxValue;
         }
 
@@ -253,6 +265,10 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public synchronized Object processRemove(Object data) {
+            Long value = (Long) data;
+            if (maxValue == null || maxValue < value) {
+                maxValue = value;
+            }
             return maxValue;
         }
 
