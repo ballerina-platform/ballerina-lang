@@ -19,6 +19,7 @@ package org.wso2.siddhi.core.query.processor.stream.function;
 
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -27,9 +28,9 @@ import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
 public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
 
     @Override
-    protected void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        while (complexEventChunk.hasNext()) {
-            ComplexEvent complexEvent = complexEventChunk.next();
+    protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+        while (streamEventChunk.hasNext()) {
+            ComplexEvent complexEvent = streamEventChunk.next();
             Object[] outputData;
             switch (attributeExpressionLength) {
                 case 0:
@@ -49,7 +50,7 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
                     complexEventPopulater.populateComplexEvent(complexEvent, outputData);
             }
         }
-        nextProcessor.process(complexEventChunk);
+        nextProcessor.process(streamEventChunk);
 
     }
 
