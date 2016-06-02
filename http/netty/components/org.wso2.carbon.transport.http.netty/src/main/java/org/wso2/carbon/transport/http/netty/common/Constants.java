@@ -109,6 +109,8 @@ public final class Constants {
 
     public static final String EXECUTOR_WORKER_POOL = "executor.workerpool";
 
+    public static final String OUTPUT_CONTENT_BUFFER_SIZE = "output.content.buffer.size";
+
 
     private Constants() {
     }

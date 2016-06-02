@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.transport.http.netty;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -41,6 +40,7 @@ public class NettyCarbonMessage extends CarbonMessage {
     private static final Logger LOG = LoggerFactory.getLogger(NettyCarbonMessage.class);
 
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<ByteBuffer> outContentQueue = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
         if (httpContent instanceof LastHttpContent) {
@@ -119,8 +119,20 @@ public class NettyCarbonMessage extends CarbonMessage {
 
     @Override
     public void addMessageBody(ByteBuffer msgBody) {
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(msgBody);
-        HttpContent httpContent = new DefaultHttpContent(byteBuf);
-        httpContentQueue.add(httpContent);
+        if (isAlreadyRead()) {
+            outContentQueue.add(msgBody);
+        } else {
+            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody.array())));
+        }
+    }
+
+    @Override
+    public void setEndOfMsgAdded(boolean endOfMsgAdded) {
+        super.setEndOfMsgAdded(endOfMsgAdded);
+        if (isAlreadyRead()) {
+            outContentQueue.forEach(buffer -> {
+                httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(buffer.array())));
+            });
+        }
     }
 }
