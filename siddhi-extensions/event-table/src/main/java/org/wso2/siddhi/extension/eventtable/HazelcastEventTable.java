@@ -25,9 +25,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -37,13 +35,18 @@ import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
+import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastCollectionEventHolder;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastEventTableConstants;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastOperatorParser;
+import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastPrimaryKeyEventHolder;
 import org.wso2.siddhi.extension.eventtable.hazelcast.internal.ds.HazelcastEventTableServiceValueHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -53,7 +56,6 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Hazelcast event table implementation of SiddhiQL.
@@ -63,27 +65,23 @@ public class HazelcastEventTable implements EventTable {
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     private TableDefinition tableDefinition;
     private ExecutionPlanContext executionPlanContext;
-    private StreamEventCloner streamEventCloner;
-    private StreamEventPool streamEventPool;
-    private List<StreamEvent> eventsList = null;
+    private StreamEventCloner tableStreamEventCloner;
     private String elementId;
-
-    // For Indexed table
-    private ConcurrentMap<Object, StreamEvent> eventsMap = null;
-    private String indexAttribute = null;
-    private int indexPosition;
+    private EventHolder eventHolder = null;
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     *  @param tableDefinition      Definition of event table.
+     *
+     * @param tableDefinition        Definition of event table.
      * @param tableMetaStreamEvent
      * @param tableStreamEventPool
      * @param tableStreamEventCloner
-     * @param executionPlanContext ExecutionPlan related meta information.
+     * @param executionPlanContext   ExecutionPlan related meta information.
      */
     @Override
     public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
+        this.tableStreamEventCloner = tableStreamEventCloner;
         this.executionPlanContext = executionPlanContext;
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
@@ -110,16 +108,16 @@ public class HazelcastEventTable implements EventTable {
                         tableDefinition.getId() + " contains " + annotation.getElements().size() +
                         " elements, Siddhi Hazelcast event table only supports indexing based on a single attribute");
             }
-            indexAttribute = annotation.getElements().get(0).getValue();
-            indexPosition = tableDefinition.getAttributePosition(indexAttribute);
-            eventsMap = hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX +
-                    executionPlanContext.getName() + '_' + tableDefinition.getId());
+            String indexAttribute = annotation.getElements().get(0).getValue();
+            int indexPosition = tableDefinition.getAttributePosition(indexAttribute);
+            eventHolder = new HazelcastPrimaryKeyEventHolder(hcInstance.getMap(HazelcastEventTableConstants.HAZELCAST_MAP_INSTANCE_PREFIX +
+                    executionPlanContext.getName() + '_' + tableDefinition.getId()), tableStreamEventPool, eventConverter, indexPosition, indexAttribute);
         } else {
-            eventsList = hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
-                    executionPlanContext.getName() + '_' + tableDefinition.getId());
+            eventHolder = new HazelcastCollectionEventHolder(hcInstance.getList(HazelcastEventTableConstants.HAZELCAST_LIST_INSTANCE_PREFIX +
+                    executionPlanContext.getName() + '_' + tableDefinition.getId()), tableStreamEventPool, eventConverter);
         }
-        streamEventPool = new StreamEventPool(metaStreamEvent, HazelcastEventTableConstants.STREAM_EVENT_POOL_SIZE);
-        streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
+//        streamEventPool = new StreamEventPool(metaStreamEvent, HazelcastEventTableConstants.STREAM_EVENT_POOL_SIZE);
+//        tableStreamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
@@ -181,142 +179,59 @@ public class HazelcastEventTable implements EventTable {
         return tableDefinition;
     }
 
-    /**
-     * Called when adding an event to the event table.
-     *
-     * @param addingEventChunk input event list.
-     */
     @Override
     public synchronized void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
-        addingEventChunk.reset();
-        while (addingEventChunk.hasNext()) {
-            ComplexEvent complexEvent = addingEventChunk.next();
-            StreamEvent streamEvent = streamEventPool.borrowEvent();
-            eventConverter.convertComplexEvent(complexEvent, streamEvent);
-            if (indexAttribute != null) {
-                eventsMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
-            } else {
-                eventsList.add(streamEvent);
-            }
-        }
+        eventHolder.add(addingEventChunk);
     }
 
-    /**
-     * Called when deleting an event chunk from event table.
-     *  @param deletingEventChunk Event list for deletion.
-     * @param operator           Operator that perform Hazelcast related operations.*/
     @Override
     public synchronized void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator) {
-        if (indexAttribute != null) {
-            operator.delete(deletingEventChunk, eventsMap);
-        } else {
-            operator.delete(deletingEventChunk, eventsList);
-        }
+        operator.delete(deletingEventChunk, eventHolder);
     }
 
-    /**
-     * Called when updating the event table entries.
-     * @param updatingEventChunk Event list that needs to be updated.
-     * @param operator           Operator that perform Hazelcast related operations.
-     * @param updateAttributeMappers*/
     @Override
-    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers) {
-        if (indexAttribute != null) {
-            operator.update(updatingEventChunk, eventsMap, updateAttributeMappers);
-        } else {
-            operator.update(updatingEventChunk, eventsList, updateAttributeMappers);
-        }
+    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator,
+                                    UpdateAttributeMapper[] updateAttributeMappers) {
+        operator.update(updatingEventChunk, eventHolder, updateAttributeMappers);
+
     }
 
-    /**
-     * Called when insert or overwriting the event table entries.
-     * @param overwritingOrAddingEventChunk Event list that needs to be inserted or updated.
-     * @param operator                      Operator that perform Hazelcast related operations.
-     * @param updateAttributeMappers
-     * @param overwritingStreamEventExtractor */
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        if (indexAttribute != null) {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, updateAttributeMappers, overwritingStreamEventExtractor);
-        } else {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, updateAttributeMappers, overwritingStreamEventExtractor);
-        }
+    public synchronized void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator,
+                                            UpdateAttributeMapper[] updateAttributeMappers,
+                                            OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+        ComplexEventChunk<StreamEvent> failedEvents = operator.overwriteOrAdd(overwritingOrAddingEventChunk,
+                eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
+        eventHolder.add(failedEvents);
+
     }
 
-    /**
-     * Called when having "in" condition, to check the existence of the event.
-     *
-     * @param matchingEvent Event that need to be check for existence.
-     * @param finder        Operator that perform Hazelcast related search.
-     * @return boolean      whether event exists or not.
-     */
     @Override
     public synchronized boolean contains(StateEvent matchingEvent, Finder finder) {
-        if (indexAttribute != null) {
-            return finder.contains(matchingEvent, eventsMap);
-        } else {
-            return finder.contains(matchingEvent, eventsList);
-        }
+        return finder.contains(matchingEvent, eventHolder);
     }
 
-    /**
-     * Called to find a event from event table.
-     *
-     * @param matchingEvent the event to be matched with the events at the processor.
-     * @param finder        the execution element responsible for finding the corresponding events that matches.
-     *                      the matchingEvent based on pool of events at Processor.
-     * @return StreamEvent  event found.
-     */
     @Override
     public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        if (indexAttribute != null) {
-            return finder.find(matchingEvent, eventsMap, streamEventCloner);
-        } else {
-            return finder.find(matchingEvent, eventsList, streamEventCloner);
-        }
+        return finder.find(matchingEvent, eventHolder, tableStreamEventCloner);
     }
 
-    /**
-     * Called to construct a operator to perform search operations.
-     *
-     * @param expression                  the matching expression.
-     * @param matchingMetaComplexEvent    the meta structure of the incoming matchingEvent.
-     * @param executionPlanContext        current execution plan context.
-     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created.
-     * @param eventTableMap               map of event tables.
-     * @param matchingStreamIndex         the stream index of the incoming matchingEvent.
-     * @param withinTime                  the maximum time gap between the events to be matched.
-     * @return HazelcastOperator.
-     */
     @Override
-    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent,
+    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
                                   ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
-                                  Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return HazelcastOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute, indexPosition);
+                                  Map<String, EventTable> eventTableMap) {
+        return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 
-    /**
-     * Called to construct a operator to perform delete and update operations.
-     *
-     * @param expression                  the matching expression.
-     * @param metaComplexEvent            the meta structure of the incoming matchingEvent.
-     * @param executionPlanContext        current execution plan context.
-     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created.
-     * @param eventTableMap               map of event tables.
-     * @param matchingStreamIndex         the stream index of the incoming matchingEvent.
-     * @param withinTime                  the maximum time gap between the events to be matched.
-     * @return HazelcastOperator
-     */
+
     @Override
-    public Operator constructOperator(Expression expression, MetaComplexEvent metaComplexEvent,
+    public Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
                                       ExecutionPlanContext executionPlanContext,
                                       List<VariableExpressionExecutor> variableExpressionExecutors,
-                                      Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
-        return HazelcastOperatorParser.parse(expression, metaComplexEvent, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, matchingStreamIndex, tableDefinition, withinTime,
-                indexAttribute, indexPosition);
+                                      Map<String, EventTable> eventTableMap) {
+        return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 }

@@ -32,5 +32,4 @@ public final class HazelcastEventTableConstants {
     public static final String ANNOTATION_ELEMENT_CLUSTER_PASSWORD = "cluster.password";
     public static final String ANNOTATION_ELEMENT_CLUSTER_ADDRESSES = "cluster.addresses";
 
-    public static final int STREAM_EVENT_POOL_SIZE = 10;
 }
