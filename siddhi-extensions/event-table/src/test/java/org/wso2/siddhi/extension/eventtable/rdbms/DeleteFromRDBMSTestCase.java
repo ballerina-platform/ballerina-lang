@@ -541,5 +541,61 @@ public class DeleteFromRDBMSTestCase {
 
     }
 
+    @Test
+    public void deleteFromRDBMSTableTest11() throws InterruptedException {
+
+        log.info("deleteFromTableTest11");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
+        try {
+            if (dataSource.getConnection() != null) {
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+
+                String streams = "" +
+                                 "define stream StockStream (symbol string, price float, volume long); " +
+                                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
+                                 "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "', bloom.filters = 'enable')  " +
+                                 "define table StockTable (symbol string, price float, volume long); ";
+
+                String query = "" +
+                               "@info(name = 'query1') " +
+                               "from StockStream " +
+                               "insert into StockTable ;" +
+                               "" +
+                               "@info(name = 'query2') " +
+                               "from DeleteStockStream " +
+                               "delete StockTable " +
+                               "   on StockTable.symbol == symbol ;";
+
+                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler deleteStockStream = executionPlanRuntime.getInputHandler("DeleteStockStream");
+
+                executionPlanRuntime.start();
+
+                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
+                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+                deleteStockStream.send(new Object[]{"IBM", 57.6f, 100l});
+                Thread.sleep(1000);
+                long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
+                Assert.assertEquals("Deletion failed", 2, totalRowsInTable);
+                Thread.sleep(1000);
+                stockStream.send(new Object[]{null, 45.5f, 100l});
+                executionPlanRuntime.shutdown();
+                Thread.sleep(1000);
+                try{
+                    siddhiManager.createExecutionPlanRuntime(streams + query);
+                } catch (NullPointerException ex){
+                    Assert.fail("Cannot Process null values in bloom filter");
+                }
+            }
+        } catch (SQLException e) {
+            log.info("Test case ignored due to DB connection unavailability");
+        }
+
+    }
 
 }

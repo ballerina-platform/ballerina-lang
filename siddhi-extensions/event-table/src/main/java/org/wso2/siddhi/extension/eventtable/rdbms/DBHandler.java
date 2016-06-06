@@ -443,7 +443,7 @@ public class DBHandler {
             for (int i = 0; i < colOrder.size(); i++) {
                 attribute = colOrder.get(i);
                 Object value = o[i];
-                if (value != null) {
+                if (value != null || attribute.getType() == Attribute.Type.STRING) {
                     switch (attribute.getType()) {
                         case INT:
                             stmt.setInt(i + 1, (Integer) value);
@@ -697,7 +697,10 @@ public class DBHandler {
                             bloomFilters[i].add(new Key(Double.toString(results.getDouble(i + 1)).getBytes()));
                             break;
                         case STRING:
-                            bloomFilters[i].add(new Key(results.getString(i + 1).getBytes()));
+                            String attributeValue = results.getString(i + 1);
+                            if(attributeValue != null){
+                                bloomFilters[i].add(new Key(attributeValue.getBytes()));
+                            }
                             break;
                         case BOOL:
                             bloomFilters[i].add(new Key(Boolean.toString(results.getBoolean(i + 1)).getBytes()));
@@ -718,19 +721,25 @@ public class DBHandler {
 
     public void addToBloomFilters(ComplexEvent event) {
         for (int i = 0; i < attributeList.size(); i++) {
-            bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
+            if(event.getOutputData()[i] != null){
+                bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
+            }
         }
     }
 
     public void addToBloomFilters(Object[] obj) {
         for (int i = 0; i < attributeList.size(); i++) {
-            bloomFilters[i].add(new Key(obj[i].toString().getBytes()));
+            if(obj[i] != null){
+                bloomFilters[i].add(new Key(obj[i].toString().getBytes()));
+            }
         }
     }
 
     public void removeFromBloomFilters(Object[] obj) {
         for (int i = 0; i < attributeList.size(); i++) {
-            bloomFilters[i].delete(new Key(obj[i].toString().getBytes()));
+            if(obj[i] != null){
+                bloomFilters[i].delete(new Key(obj[i].toString().getBytes()));
+            }
         }
     }
 
