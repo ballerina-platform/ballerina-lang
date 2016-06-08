@@ -268,7 +268,7 @@ public class TimeBatchWindowTestCase {
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
             Thread.sleep(1500);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             Assert.assertEquals(1, inEventCount);
             Assert.assertEquals(2, removeEventCount);
             Assert.assertTrue(eventArrived);
