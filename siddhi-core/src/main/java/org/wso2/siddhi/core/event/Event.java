@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Event that is used external to Siddhi
@@ -29,6 +30,7 @@ public class Event {
     protected long timestamp = -1;
     protected Object[] data;
     protected boolean isExpired = false;
+    private Map<String, Object> arbitraryDataMap;
 
     public Event(long timestamp, Object[] data) {
         this.timestamp = timestamp;
@@ -92,6 +94,14 @@ public class Event {
         System.arraycopy(complexEvent.getOutputData(), 0, data, 0, data.length);
         isExpired = complexEvent.getType() == StreamEvent.Type.EXPIRED;
         return this;
+    }
+
+    public Map<String, Object> getArbitraryDataMap() {
+        return arbitraryDataMap;
+    }
+
+    public void setArbitraryDataMap(Map<String, Object> arbitraryDataMap) {
+        this.arbitraryDataMap = arbitraryDataMap;
     }
 
     @Override
