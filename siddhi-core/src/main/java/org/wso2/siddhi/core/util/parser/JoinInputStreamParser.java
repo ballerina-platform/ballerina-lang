@@ -89,7 +89,8 @@ public class JoinInputStreamParser {
             }
         } else {
             if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
-                rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), 2, latencyTracker);
+                String defaultLockKey = "";
+                rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), defaultLockKey, 2, latencyTracker);
                 leftProcessStreamReceiver = rightProcessStreamReceiver;
             } else {
                 throw new ExecutionPlanCreationException("Input of join is from static source " + leftInputStreamId + " and " + rightInputStreamId);

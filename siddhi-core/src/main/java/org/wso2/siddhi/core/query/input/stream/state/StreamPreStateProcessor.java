@@ -51,7 +51,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected Processor nextProcessor;
 
     protected ComplexEventChunk<StateEvent> currentStateEventChunk = new ComplexEventChunk<StateEvent>(false);
-    protected Queue<StateEvent> pendingStateEventList = new ConcurrentLinkedQueue<StateEvent>();
+    protected LinkedList<StateEvent> pendingStateEventList = new LinkedList<StateEvent>();
     protected LinkedList<StateEvent> newAndEveryStateEventList = new LinkedList<StateEvent>();
 
     protected StateEventPool stateEventPool;
@@ -323,7 +323,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     @Override
     public void restoreState(Object[] state) {
         currentStateEventChunk = (ComplexEventChunk<StateEvent>) state[0];
-        pendingStateEventList = (ConcurrentLinkedQueue<StateEvent>) state[1];
+        pendingStateEventList = (LinkedList<StateEvent>) state[1];
         newAndEveryStateEventList = (LinkedList<StateEvent>) state[2];
     }
 
