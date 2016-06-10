@@ -15,8 +15,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+regressTimeLength=org.wso2.siddhi.extension.timeseries.LinearRegressionStreamProcessorTimeLengthWindow
 regress=org.wso2.siddhi.extension.timeseries.LinearRegressionStreamProcessor
+forecastTimeLength=org.wso2.siddhi.extension.timeseries.LinearRegressionForecastStreamProcessorTimeLengthWindow
 forecast=org.wso2.siddhi.extension.timeseries.LinearRegressionForecastStreamProcessor
+outlierTimeLength=org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierStreamProcessorTimeLengthWindow
 outlier=org.wso2.siddhi.extension.timeseries.LinearRegressionOutlierStreamProcessor
 kalmanMinMax=org.wso2.siddhi.extension.timeseries.extrema.KalmanMinMaxStreamProcessor
 kernelMinMax=org.wso2.siddhi.extension.timeseries.extrema.KernelMinMaxStreamProcessor

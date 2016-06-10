@@ -54,7 +54,7 @@ public class SimpleLinearRegressionCalculator extends RegressionCalculator{
         double xValue = xValueList.remove(0);
 
         sumX -= xValue;
-        sumXsquared += xValue * xValue;
+        sumXsquared -= xValue * xValue;
         sumY  -= yValueList.remove(0);
     }
 
