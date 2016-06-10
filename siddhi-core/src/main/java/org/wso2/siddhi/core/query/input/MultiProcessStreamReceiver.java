@@ -40,11 +40,9 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
     protected int[] eventSequence;
-    protected final String lockKey;
 
-    public MultiProcessStreamReceiver(String streamId, String lockKey, int processCount, LatencyTracker latencyTracker) {
+    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
         super(streamId, latencyTracker);
-        this.lockKey = lockKey;
         this.processCount = processCount;
         nextProcessors = new Processor[processCount];
         metaStreamEvents = new MetaStreamEvent[processCount];
@@ -58,7 +56,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        return new MultiProcessStreamReceiver(streamId + key, key, processCount, latencyTracker);
+        return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
     }
 
     private void process(int eventSequence, StreamEvent borrowedEvent) {
@@ -78,7 +76,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     public void receive(ComplexEvent complexEvent) {
         ComplexEvent aComplexEvent = complexEvent;
         while (aComplexEvent != null) {
-            synchronized (lockKey) {
+            synchronized (this) {
                 stabilizeStates();
                 for (int anEventSequence : eventSequence) {
                     StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
@@ -95,7 +93,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     @Override
     public void receive(Event event) {
-        synchronized (lockKey) {
+        synchronized (this) {
             stabilizeStates();
             for (int anEventSequence : eventSequence) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
@@ -110,7 +108,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     @Override
     public void receive(Event[] events) {
         for (Event event : events) {
-            synchronized (lockKey) {
+            synchronized (this) {
                 stabilizeStates();
                 for (int anEventSequence : eventSequence) {
                     StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
@@ -128,7 +126,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
         eventBuffer.add(event);
         if (endOfBatch) {
             for (Event aEvent : eventBuffer) {
-                synchronized (lockKey) {
+                synchronized (this) {
                     stabilizeStates();
                     for (int anEventSequence : eventSequence) {
                         StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
@@ -145,7 +143,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        synchronized (lockKey) {
+        synchronized (this) {
             stabilizeStates();
             for (int anEventSequence : eventSequence) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
