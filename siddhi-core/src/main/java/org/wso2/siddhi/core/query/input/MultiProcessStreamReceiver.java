@@ -76,14 +76,16 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     public void receive(ComplexEvent complexEvent) {
         ComplexEvent aComplexEvent = complexEvent;
         while (aComplexEvent != null) {
-            stabilizeStates();
-            for (int anEventSequence : eventSequence) {
-                StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
-                StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
-                StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
-                aStreamEventConverter.convertStreamEvent(aComplexEvent, borrowedEvent);
-                process(anEventSequence, borrowedEvent);
+            synchronized (this) {
+                stabilizeStates();
+                for (int anEventSequence : eventSequence) {
+                    StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+                    StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
+                    StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
+                    aStreamEventConverter.convertStreamEvent(aComplexEvent, borrowedEvent);
+                    process(anEventSequence, borrowedEvent);
 
+                }
             }
             aComplexEvent = aComplexEvent.getNext();
         }
@@ -91,19 +93,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     @Override
     public void receive(Event event) {
-        stabilizeStates();
-        for (int anEventSequence : eventSequence) {
-            StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
-            StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
-            StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
-            aStreamEventConverter.convertEvent(event, borrowedEvent);
-            process(anEventSequence, borrowedEvent);
-        }
-    }
-
-    @Override
-    public void receive(Event[] events) {
-        for (Event event : events) {
+        synchronized (this) {
             stabilizeStates();
             for (int anEventSequence : eventSequence) {
                 StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
@@ -116,17 +106,35 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     @Override
-    public void receive(Event event, boolean endOfBatch) {
-        eventBuffer.add(event);
-        if (endOfBatch) {
-            for (Event aEvent : eventBuffer) {
+    public void receive(Event[] events) {
+        for (Event event : events) {
+            synchronized (this) {
                 stabilizeStates();
                 for (int anEventSequence : eventSequence) {
                     StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
                     StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                     StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
-                    aStreamEventConverter.convertEvent(aEvent, borrowedEvent);
+                    aStreamEventConverter.convertEvent(event, borrowedEvent);
                     process(anEventSequence, borrowedEvent);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void receive(Event event, boolean endOfBatch) {
+        eventBuffer.add(event);
+        if (endOfBatch) {
+            for (Event aEvent : eventBuffer) {
+                synchronized (this) {
+                    stabilizeStates();
+                    for (int anEventSequence : eventSequence) {
+                        StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+                        StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
+                        StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
+                        aStreamEventConverter.convertEvent(aEvent, borrowedEvent);
+                        process(anEventSequence, borrowedEvent);
+                    }
                 }
             }
             eventBuffer.clear();
@@ -135,13 +143,15 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     @Override
     public void receive(long timeStamp, Object[] data) {
-        stabilizeStates();
-        for (int anEventSequence : eventSequence) {
-            StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
-            StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
-            StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
-            aStreamEventConverter.convertData(timeStamp, data, borrowedEvent);
-            process(anEventSequence, borrowedEvent);
+        synchronized (this) {
+            stabilizeStates();
+            for (int anEventSequence : eventSequence) {
+                StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
+                StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
+                StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
+                aStreamEventConverter.convertData(timeStamp, data, borrowedEvent);
+                process(anEventSequence, borrowedEvent);
+            }
         }
     }
 

@@ -27,12 +27,10 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver {
 
-    private final String lockKey;
     private QuerySelector querySelector;
 
-    public StateMultiProcessStreamReceiver(String streamId, int processCount, String lockKey, LatencyTracker latencyTracker) {
+    public StateMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
         super(streamId, processCount, latencyTracker);
-        this.lockKey = lockKey;
     }
 
     public void setNext(Processor next) {
@@ -41,19 +39,18 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
     }
 
     public StateMultiProcessStreamReceiver clone(String key) {
-        return new StateMultiProcessStreamReceiver(streamId + key, processCount, key, latencyTracker);
+        return new StateMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
         ComplexEventChunk<StateEvent> retEventChunk =  new ComplexEventChunk<StateEvent>(false);
         ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, false);
-        synchronized (lockKey) {
-            ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) nextProcessors[processIndex]).processAndReturn(currentStreamEventChunk);
-            if(eventChunk.getFirst() != null){
-                retEventChunk.add(eventChunk.getFirst());
-            }
-            eventChunk.clear();
+
+        ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) nextProcessors[processIndex]).processAndReturn(currentStreamEventChunk);
+        if(eventChunk.getFirst() != null){
+            retEventChunk.add(eventChunk.getFirst());
         }
+        eventChunk.clear();
 
         if(querySelector!= null) {
             while (retEventChunk.hasNext()) {

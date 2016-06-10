@@ -44,8 +44,11 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -59,7 +62,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     private final StreamEventCloner streamEventCloner;
     private final StreamEventPool streamEventPool;
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
-    private List<StreamEvent> eventsList;
+    private Queue<StreamEvent> eventsList;
     private String elementId;
 
     // For indexed table.
@@ -92,9 +95,9 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
             }
             indexAttribute = annotation.getElements().get(0).getValue();
             indexPosition = tableDefinition.getAttributePosition(indexAttribute);
-            eventsMap = new TreeMap<Object, StreamEvent>();
+            eventsMap = new ConcurrentSkipListMap<Object, StreamEvent>();
         } else {
-            eventsList = new LinkedList<StreamEvent>();
+            eventsList = new ConcurrentLinkedQueue<StreamEvent>();
         }
         streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
@@ -231,8 +234,8 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
     @Override
     public void restoreState(Object[] state) {
-        eventsList = (LinkedList<StreamEvent>) state[0];
-        eventsMap = (TreeMap<Object, StreamEvent>) state[1];
+        eventsList = (ConcurrentLinkedQueue<StreamEvent>) state[0];
+        eventsMap = (ConcurrentSkipListMap<Object, StreamEvent>) state[1];
     }
 
     @Override
