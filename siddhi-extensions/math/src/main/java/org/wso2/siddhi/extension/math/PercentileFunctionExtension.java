@@ -69,7 +69,8 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         }
 
         if (percentileValue <= 0 || percentileValue > 100) {
-            throw new OperationNotSupportedException("Percentile value should be in 0 < p ≤ 100 range");
+            throw new OperationNotSupportedException(
+                    "Percentile value should be in 0 < p ≤ 100 range. But found " + percentileValue);
         }
 
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
