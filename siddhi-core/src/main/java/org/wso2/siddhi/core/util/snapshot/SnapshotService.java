@@ -41,7 +41,7 @@ public class SnapshotService {
 
     public byte[] snapshot() {
         HashMap<String, Object[]> snapshots = new HashMap<String, Object[]>(snapshotableList.size());
-        log.info("Taking snapshot ...");
+        log.debug("Taking snapshot ...");
         try {
             executionPlanContext.getThreadBarrier().lock();
             for (Snapshotable snapshotable : snapshotableList) {
@@ -50,11 +50,11 @@ public class SnapshotService {
         } finally {
             executionPlanContext.getThreadBarrier().unlock();
         }
-        log.info("Taking snapshot finished.");
+        log.info("Snapshot taken of Execution Plan '" + executionPlanContext.getName() + "'");
 
-        log.info("Snapshot serialization started ...");
+        log.debug("Snapshot serialization started ...");
         byte[] serializedSnapshots = ByteSerializer.OToB(snapshots);
-        log.info("Snapshot serialization finished.");
+        log.debug("Snapshot serialization finished.");
         return serializedSnapshots;
 
     }
