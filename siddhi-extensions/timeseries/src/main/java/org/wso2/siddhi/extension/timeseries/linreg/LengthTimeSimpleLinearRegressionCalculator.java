@@ -20,15 +20,14 @@ package org.wso2.siddhi.extension.timeseries.linreg;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.math3.distribution.TDistribution;
 
 /*
  * This class handles simple linear regression in real time
  * Simple linear regression concerns single dependent variable (Y) and single independent variable (X)
  */
-public class SimpleLinearRegressionCalculatorTimeLengthWindow extends
-        RegressionCalculatorTimeLengthWindow {
+public class LengthTimeSimpleLinearRegressionCalculator extends
+        LengthTimeRegressionCalculator {
     private List<Double> xValueList = new LinkedList<Double>();
     private List<Double> yValueList = new LinkedList<Double>();
     private double sumX = 0.0;
@@ -44,8 +43,8 @@ public class SimpleLinearRegressionCalculatorTimeLengthWindow extends
      * @param calcInt      Frequency of regression calculation
      * @param ci           Confidence interval
      */
-    public SimpleLinearRegressionCalculatorTimeLengthWindow(int paramCount, long timeWindow,
-                                                            int lengthWindow, int calcInt, double ci) {
+    public LengthTimeSimpleLinearRegressionCalculator(int paramCount, long timeWindow,
+                                                      int lengthWindow, int calcInt, double ci) {
         super(paramCount, timeWindow, lengthWindow, calcInt, ci);
     }
 

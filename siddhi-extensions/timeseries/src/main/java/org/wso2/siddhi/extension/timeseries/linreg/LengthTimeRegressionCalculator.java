@@ -23,7 +23,7 @@ import java.util.Queue;
 /*
  * Abstract class for regression calculation
  */
-public abstract  class RegressionCalculatorTimeLengthWindow {
+public abstract  class LengthTimeRegressionCalculator {
     protected long duration;
     protected int batchSize;
     protected int calcInterval = 1;
@@ -43,8 +43,8 @@ public abstract  class RegressionCalculatorTimeLengthWindow {
      * @param calcInt      Frequency of regression calculation
      * @param ci           Confidence interval
      */
-    public RegressionCalculatorTimeLengthWindow(int paramCount, long timeWindow, int lengthWindow,
-                                                int calcInt, double ci) {
+    public LengthTimeRegressionCalculator(int paramCount, long timeWindow, int lengthWindow,
+                                          int calcInt, double ci) {
         duration = timeWindow;
         batchSize = lengthWindow;
         calcInterval = calcInt;

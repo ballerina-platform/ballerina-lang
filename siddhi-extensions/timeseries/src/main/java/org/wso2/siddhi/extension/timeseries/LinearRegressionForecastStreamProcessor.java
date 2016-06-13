@@ -33,7 +33,6 @@ import org.wso2.siddhi.extension.timeseries.linreg.RegressionCalculator;
 import org.wso2.siddhi.extension.timeseries.linreg.SimpleLinearRegressionCalculator;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-
 import java.util.ArrayList;
 import java.util.List;
 

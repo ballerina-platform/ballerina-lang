@@ -22,9 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
-
 import org.apache.commons.math3.distribution.TDistribution;
-
 import Jama.Matrix;
 
 /*
@@ -32,8 +30,7 @@ import Jama.Matrix;
  * Multiple linear regression concerns single dependent variable (Y) and multiple independent
  * variables (X1, X2....Xn)
  */
-public class MultipleLinearRegressionCalculatorTimeLengthWindow extends
-        RegressionCalculatorTimeLengthWindow {
+public class LengthTimeMultipleLinearRegression extends LengthTimeRegressionCalculator {
     private List<double[]> yValueList = new LinkedList<double[]>();
     private List<double[]> xValueList = new LinkedList<double[]>();
     private Queue<Long> expiryTimeList = new PriorityQueue<Long>();
@@ -47,8 +44,8 @@ public class MultipleLinearRegressionCalculatorTimeLengthWindow extends
      * @param calcInt      Frequency of regression calculation
      * @param ci           Confidence interval
      */
-    public MultipleLinearRegressionCalculatorTimeLengthWindow(int paramCount, long timeWindow,
-                                                              int lengthWindow, int calcInt, double ci) {
+    public LengthTimeMultipleLinearRegression(int paramCount, long timeWindow, int lengthWindow,
+                                              int calcInt, double ci) {
         super(paramCount, timeWindow, lengthWindow, calcInt, ci);
     }
 

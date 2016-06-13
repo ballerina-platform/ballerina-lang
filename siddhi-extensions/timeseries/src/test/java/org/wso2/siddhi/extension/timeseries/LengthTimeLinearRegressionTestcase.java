@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class LinearRegressionTestcaseTimeLengthWindow {
-    static final Logger logger = Logger.getLogger(LinearRegressionTestcaseTimeLengthWindow.class);
+public class LengthTimeLinearRegressionTestcase {
+    static final Logger logger = Logger.getLogger(LengthTimeLinearRegressionTestcase.class);
     private static SiddhiManager siddhiManager;
     private int count;
     private double betaOne, betaTwo, forecastY;
@@ -49,10 +49,10 @@ public class LinearRegressionTestcaseTimeLengthWindow {
         String inputStream = "define stream InputStream (y int, x int);";
 
         // Limit number of events based on time window (query):
-        // String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:regressTimeLength(200, 10000, y, x) "
+        // String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:lengthTimeRegress(200, 10000, y, x) "
 
         // Limit number of events based on length window (query):
-        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:regressTimeLength(20 sec, 20, y, x) "
+        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:lengthTimeRegress(20 sec, 20, y, x) "
                 + "select * " + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + executionPlan);
@@ -243,10 +243,10 @@ public class LinearRegressionTestcaseTimeLengthWindow {
         String inputStream = "define stream InputStream (a int, b int, c int, d int, e int);";
 
         // Limit number of events based on time window (query):
-        // String eventFuseExecutionPlan = ("@info(name = 'query2') from InputStream#timeseries:regressTimeLength(200, 10000, 1, 0.95, a, c, b, e) "
+        // String eventFuseExecutionPlan = ("@info(name = 'query2') from InputStream#timeseries:lengthTimeRegress(200, 10000, 1, 0.95, a, c, b, e) "
 
         // Limit number of events based on length window (query):
-        String eventFuseExecutionPlan = ("@info(name = 'query2') from InputStream#timeseries:regressTimeLength(20 days, 30, 1, 0.95, a, c, b, e) "
+        String eventFuseExecutionPlan = ("@info(name = 'query2') from InputStream#timeseries:lengthTimeRegress(20 days, 30, 1, 0.95, a, c, b, e) "
                 + "select * " + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + eventFuseExecutionPlan);
@@ -333,10 +333,10 @@ public class LinearRegressionTestcaseTimeLengthWindow {
         String inputStream = "define stream InputStream (y double, x double);";
 
         // Limit number of events based on time window (query):
-        // String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:outlierTimeLength(200, 10000, 1, y, x) "
+        // String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:lengthTimeOutlier(200, 10000, 1, y, x) "
 
         // Limit number of events based on length window (query):
-        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:outlierTimeLength(20 min, 20, 1, y, x) "
+        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:lengthTimeOutlier(20 min, 20, 1, y, x) "
                 + "select * " + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + executionPlan);
@@ -424,10 +424,10 @@ public class LinearRegressionTestcaseTimeLengthWindow {
         String inputStream = "define stream InputStream (y double, symbol string, x double);";
 
         // Limit number of events based on time window (query):
-        // String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:forecastTimeLength(200, 100000, x+2, 2, 0.95, y, x) "
+        // String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:lengthTimeForecast(200, 100000, x+2, 2, 0.95, y, x) "
 
         // Limit number of events based on length window (query):
-        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:forecastTimeLength(20 min, 20, x+2, 2, 0.95, y, x) "
+        String executionPlan = ("@info(name = 'query1') from InputStream#timeseries:lengthTimeForecast(20 min, 20, x+2, 2, 0.95, y, x) "
                 + "select * "
                 + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + executionPlan);
