@@ -168,7 +168,7 @@ public class KSlackExtension extends StreamProcessor implements SchedulingProces
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors,
-                                   ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+                                   ExecutionPlanContext executionPlanContext) {
         ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 
         if (attributeExpressionLength > 4) {

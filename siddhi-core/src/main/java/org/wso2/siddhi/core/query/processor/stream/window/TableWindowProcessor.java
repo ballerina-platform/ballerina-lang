@@ -45,7 +45,7 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         // nothing to be done
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
     }

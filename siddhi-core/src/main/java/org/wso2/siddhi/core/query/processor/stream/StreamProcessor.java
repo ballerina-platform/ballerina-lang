@@ -17,11 +17,17 @@
  */
 package org.wso2.siddhi.core.query.processor.stream;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
+
+import java.util.List;
 
 /*
  * For Siddhi extensions, extend this class to use the functionality of
@@ -29,6 +35,9 @@ import org.wso2.siddhi.core.query.processor.Processor;
  * StreamFunctionProcessor to process StateEvents.
  */
 public abstract class StreamProcessor extends AbstractStreamProcessor {
+
+    //Introduced to maintain backward compatible
+    protected boolean outputExpectsExpiredEvents;
 
     @Override
     protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
@@ -47,5 +56,23 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
      */
     protected abstract void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                                     StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
+
+    /**
+     * The init method of the StreamProcessor, this method will be called before other methods
+     *
+     * @param inputDefinition              the incoming stream definition
+     * @param attributeExpressionExecutors the executors of each function parameters
+     * @param executionPlanContext         the context of the execution plan
+     * @param outputExpectsExpiredEvents
+     * @return the additional output attributes introduced by the function
+     */
+    protected List<Attribute> init(AbstractDefinition inputDefinition,
+                                   ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents){
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+        return init(inputDefinition,attributeExpressionExecutors,executionPlanContext);
+    }
+
+    protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
 }

@@ -39,7 +39,7 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
         if (attributeExpressionExecutors != null) {
             cronString = (String) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());

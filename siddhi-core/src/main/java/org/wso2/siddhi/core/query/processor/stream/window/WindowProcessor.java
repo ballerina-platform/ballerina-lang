@@ -33,8 +33,13 @@ import java.util.List;
 
 public abstract class WindowProcessor extends AbstractStreamProcessor {
 
+    //Introduced to maintain backward compatible
+    protected boolean outputExpectsExpiredEvents;
+
+    @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
-        init(attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+        init(attributeExpressionExecutors, executionPlanContext);
         return new ArrayList<Attribute>(0);
     }
 
@@ -43,9 +48,8 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
      *
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan
-     * @param outputExpectsExpiredEvents    is output is expecting expired events
      */
-    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents);
+    protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
 
     @Override
     protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {

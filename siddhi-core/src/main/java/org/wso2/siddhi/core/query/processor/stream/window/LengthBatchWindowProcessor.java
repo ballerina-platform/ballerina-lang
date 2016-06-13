@@ -44,14 +44,12 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
     private ExecutionPlanContext executionPlanContext;
-    private boolean outputExpectsExpiredEvents;
     private StreamEvent resetEvent = null;
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         if (outputExpectsExpiredEvents) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }

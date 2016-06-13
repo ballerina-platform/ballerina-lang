@@ -50,7 +50,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     private int mostFrequentCount;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue()));
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
         for (int i = 1; i < attributeExpressionExecutors.length; i++) {
