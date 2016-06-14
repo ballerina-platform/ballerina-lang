@@ -58,8 +58,9 @@ public class PercentileFunctionExtension extends AttributeAggregator {
             throw new OperationNotSupportedException("Percentile value has to be a constant");
         }
 
-        if (attributeExpressionExecutors[1].execute(null) instanceof Double) {
-            percentileValue = ((Double) attributeExpressionExecutors[1].execute(null));
+        Object percentileValueObject = attributeExpressionExecutors[1].execute(null);
+        if (percentileValueObject instanceof Double) {
+            percentileValue = ((Double) percentileValueObject);
         } else {
             throw new OperationNotSupportedException("Percentile value should be of type double. But found "
                     + attributeExpressionExecutors[1].getReturnType());
