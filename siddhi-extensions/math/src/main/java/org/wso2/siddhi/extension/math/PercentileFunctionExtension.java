@@ -19,7 +19,6 @@
 package org.wso2.siddhi.extension.math;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -55,16 +54,14 @@ public class PercentileFunctionExtension extends AttributeAggregator {
                     + attributeExpressionExecutors.length + " parameters provided");
         }
 
-        try {
+        if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
+            throw new OperationNotSupportedException("Percentile value has to be a constant");
+        }
 
-            if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
-                percentileValue = ((Double) attributeExpressionExecutors[1].execute(null));
-            } else {
-                throw new OperationNotSupportedException("Percentile value has to be a constant");
-            }
-
-        } catch (ClassCastException c) {
-            throw new ExecutionPlanCreationException("Percentile value should be of type double. But found "
+        if (attributeExpressionExecutors[1].execute(null) instanceof Double) {
+            percentileValue = ((Double) attributeExpressionExecutors[1].execute(null));
+        } else {
+            throw new OperationNotSupportedException("Percentile value should be of type double. But found "
                     + attributeExpressionExecutors[1].getReturnType());
         }
 
