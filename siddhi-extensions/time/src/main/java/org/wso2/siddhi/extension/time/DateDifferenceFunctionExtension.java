@@ -59,6 +59,8 @@ public class DateDifferenceFunctionExtension extends FunctionExecutor {
     private boolean useDefaultDateFormat = false;
     private String firstDateFormat = null;
     private String secondDateFormat = null;
+    private Calendar firstCalInstance = Calendar.getInstance();
+    private Calendar secondCalInstance = Calendar.getInstance();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -154,8 +156,6 @@ public class DateDifferenceFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
 
-        Calendar firstCalInstance = Calendar.getInstance();
-        Calendar secondCalInstance = Calendar.getInstance();
         String firstDate = null;
         String secondDate;
         FastDateFormat userSpecifiedFirstFormat;
