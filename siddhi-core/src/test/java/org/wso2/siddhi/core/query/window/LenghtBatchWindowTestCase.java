@@ -94,7 +94,7 @@ public class LenghtBatchWindowTestCase {
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.lengthBatch(" + length + ") " +
                 "select symbol,price,volume " +
-                "insert into outputStream ;";
+                "insert expired events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 

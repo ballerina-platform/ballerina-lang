@@ -106,7 +106,7 @@ public class LengthTimeSimpleLinearRegressionCalculator extends
             Double[] xArray = xValueList.toArray(new Double[eventCount]);
             Double[] yArray = yValueList.toArray(new Double[eventCount]);
             double meanX, meanY, varianceX = 0.0, varianceY = 0.0, covarXY = 0.0, beta1, beta0, R2,
-                    stderr, beta1err, beta0err, t_beta0, t_beta1, fit;
+                    stderr, beta1err, beta0err, tBeta0, tBeta1, fit;
             double resss = 0.0; // residual sum of squares
             // double regss = 0.0; // regression sum of squares [Required to calculate R2]
             int df = eventCount - 2; // degrees of freedom (n-k-1)
@@ -135,20 +135,21 @@ public class LengthTimeSimpleLinearRegressionCalculator extends
             beta1err = stderr / Math.sqrt(varianceX);
             beta0err = stderr * Math.sqrt(sumXsquared / (eventCount * varianceX));
             // calculating tstats
-            t_beta0 = beta0 / beta0err;
-            t_beta1 = beta1 / beta1err;
+            tBeta0 = beta0 / beta0err;
+            tBeta1 = beta1 / beta1err;
             // Eliminating weak coefficients
-            double pValue = 2 * (1 - t.cumulativeProbability(Math.abs(t_beta0)));
+            double pValue = 2 * (1 - t.cumulativeProbability(Math.abs(tBeta0)));
             if (pValue > (1 - confidenceInterval)) {
                 beta0 = 0;
             }
-            pValue = 2 * (1 - t.cumulativeProbability(Math.abs(t_beta1)));
+            pValue = 2 * (1 - t.cumulativeProbability(Math.abs(tBeta1)));
             if (pValue > (1 - confidenceInterval)) {
                 beta1 = 0;
             }
             regResult = new Object[] { stderr, beta0, beta1 };
         } catch (Exception e) {
             regResult = new Object[] { 0.0, 0.0, 0.0 };
+            //TODO should this be logged; reason for having this?
         }
         return regResult;
     }

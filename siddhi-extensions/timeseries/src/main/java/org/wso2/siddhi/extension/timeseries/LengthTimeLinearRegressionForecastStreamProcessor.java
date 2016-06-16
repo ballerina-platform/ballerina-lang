@@ -54,7 +54,9 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
     private int calcInterval = 1; // The frequency of regression calculation
     private double ci = 0.95; // Confidence Interval simple linear forecast
     private LengthTimeRegressionCalculator regressionCalculator = null;
-    private int paramPosition;
+    private int yParameterPosition;
+    private static final int SIMPLE_LINREG_INPUT_PARAM_COUNT = 2; //Number of input parameters in
+                                                                  // simple linear regression
 
     /**
      * The init method of the LinearRegressionOutlierStreamProcessor,
@@ -72,7 +74,7 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
                                    boolean outputExpectsExpiredEvents) {
         paramCount = attributeExpressionLength -3; // First three events are time window, length
                                                    // window and x value for forecasting y
-        paramPosition = 3;
+        yParameterPosition = 3;
         // Capture Constant inputs
         // Capture duration
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
@@ -84,11 +86,11 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
                         attributeExpressionExecutors[0]).getValue();
             } else {
                 throw new ExecutionPlanCreationException(
-                        "Time window's parameter attribute should be either int or long, but found "
+                        "Time duration parameter should be either int or long, but found "
                                 + attributeExpressionExecutors[0].getReturnType());
             }
         } else {
-            throw new ExecutionPlanCreationException("Time window must be a constant");
+            throw new ExecutionPlanCreationException("Time duration parameter must be a constant");
         }
         // Capture batchSize
         int batchSize; // Maximum # of events, used for regression calculation
@@ -98,18 +100,18 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
                         attributeExpressionExecutors[1]).getValue();
             } else {
                 throw new ExecutionPlanCreationException
-                        ("Length window's parameter attribute should be int, but found "
+                        ("Size parameter should be int, but found "
                                 + attributeExpressionExecutors[1].getReturnType());
             }
         } else {
-            throw new ExecutionPlanCreationException("Length window must be a constant");
+            throw new ExecutionPlanCreationException("Size parameter must be a constant");
         }
         // Capture calculation interval and ci if provided by user
         // Default values would be used otherwise
         if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 2; // When calcInterval and ci are given by user,
                                          // parameter count must exclude those two as well
-            paramPosition = 5;
+            yParameterPosition = 5;
             if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
                 calcInterval = (Integer) ((ConstantExpressionExecutor)
                         attributeExpressionExecutors[3]).getValue();
@@ -136,9 +138,6 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
             }
         }
         // Pick the appropriate regression calculator
-        final int SIMPLE_LINREG_INPUT_PARAM_COUNT; //Number of input parameters in simple
-                                                   // linear regression
-        SIMPLE_LINREG_INPUT_PARAM_COUNT = 2;
         if (paramCount > SIMPLE_LINREG_INPUT_PARAM_COUNT) {
             throw new ExecutionPlanCreationException(
                     "Forecast Function is available only for simple linear regression");
@@ -177,14 +176,15 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
                 long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
                 long eventExpiryTime = currentTime + duration;
                 Object[] inputData = new Object[paramCount];
-                // Obtain x value that user wants to use to forecast Y
-                // This could be a constant or an expression
+                // Obtain position of next x value (xDashPosition)
                 final int xDashPosition;
                 xDashPosition = 2;
+                // Obtain x value (xDash) that user wants to use to forecast Y
+                // This could be a constant or an expression
                 double xDash =
                         ((Number) attributeExpressionExecutors[xDashPosition].execute(streamEvent)).doubleValue();
-                for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                    inputData[i - paramPosition] =
+                for (int i = yParameterPosition; i < attributeExpressionLength; i++) {
+                    inputData[i - yParameterPosition] =
                             attributeExpressionExecutors[i].execute(streamEvent);
                 }
                 Object[] coefficients = regressionCalculator.calculateLinearRegression(inputData,

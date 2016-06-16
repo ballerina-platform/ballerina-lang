@@ -54,8 +54,10 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
     private int calcInterval = 1; // The frequency of regression calculation
     private double ci = 0.95; // Confidence Interval simple linear regression
     private LengthTimeRegressionCalculator regressionCalculator = null;
-    private int paramPosition;
+    private int yParameterPosition;
     private Object[] coefficients;
+    private static final int SIMPLE_LINREG_INPUT_PARAM_COUNT = 2; //Number of input parameters in
+                                                                  // simple linear regression
 
     /**
      * The init method of the LinearRegressionOutlierStreamProcessor,
@@ -73,7 +75,7 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
                                    boolean outputExpectsExpiredEvents) {
         paramCount = attributeExpressionLength - 3; // First three events are time window, length
                                                     // window and range
-        paramPosition = 3;
+        yParameterPosition = 3;
         // Capture duration
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -84,11 +86,11 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
                         attributeExpressionExecutors[0]).getValue();
             } else {
                 throw new ExecutionPlanCreationException(
-                        "Time window's parameter attribute should be either int or long, but found "
+                        "Time duration parameter should be either int or long, but found "
                                 + attributeExpressionExecutors[0].getReturnType());
             }
         } else {
-            throw new ExecutionPlanCreationException("Time window must be a constant");
+            throw new ExecutionPlanCreationException("Time duration parameter must be a constant");
         }
         // Capture batchSize
         int batchSize; // Maximum # of events, used for regression calculation
@@ -98,18 +100,18 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
                         attributeExpressionExecutors[1]).getValue();
             } else {
                 throw new ExecutionPlanCreationException
-                        ("Length window's parameter attribute should be int, but found "
+                        ("Size parameter should be int, but found "
                                 + attributeExpressionExecutors[1].getReturnType());
             }
         } else {
-            throw new ExecutionPlanCreationException("Length window must be a constant");
+            throw new ExecutionPlanCreationException("Size parameter must be a constant");
         }
         // Capture calculation interval and ci if provided by user
         // Default values would be used otherwise
         if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 2; // When calcInterval and ci are given by user,
                                          // parameter count must exclude those two as well
-            paramPosition = 5;
+            yParameterPosition = 5;
             if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
                 calcInterval = (Integer) ((ConstantExpressionExecutor)
                         attributeExpressionExecutors[3]).getValue();
@@ -136,9 +138,6 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
             }
         }
         // Pick the appropriate regression calculator
-        final int SIMPLE_LINREG_INPUT_PARAM_COUNT; //Number of input parameters in simple
-                                                   // linear regression
-        SIMPLE_LINREG_INPUT_PARAM_COUNT = 2;
         if (paramCount > SIMPLE_LINREG_INPUT_PARAM_COUNT) {
             throw new ExecutionPlanCreationException("Outlier Function is available only for " +
                     "simple linear regression");
@@ -182,8 +181,8 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
                 rangePosition = 2;
                 double range = ((Number)
                         attributeExpressionExecutors[rangePosition].execute(streamEvent)).doubleValue();
-                for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                    inputData[i - paramPosition] =
+                for (int i = yParameterPosition; i < attributeExpressionLength; i++) {
+                    inputData[i - yParameterPosition] =
                             attributeExpressionExecutors[i].execute(streamEvent);
                 }
                 if (coefficients != null) {

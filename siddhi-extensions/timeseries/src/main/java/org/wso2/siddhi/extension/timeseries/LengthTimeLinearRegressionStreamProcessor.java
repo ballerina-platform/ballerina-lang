@@ -56,7 +56,9 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
     private double ci = 0.95; // Confidence Interval
     // simple linear regression
     private LengthTimeRegressionCalculator regressionCalculator = null;
-    private int paramPosition;
+    private int yParameterPosition;
+    private static final int SIMPLE_LINREG_INPUT_PARAM_COUNT = 2; //Number of input parameters in
+                                                                  // simple linear regression
 
     /**
      * The init method of the LinearRegressionStreamProcessor,
@@ -73,7 +75,7 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
                                    ExecutionPlanContext executionPlanContext,
                                    boolean outputExpectsExpiredEvents) {
         paramCount = attributeExpressionLength - 2; // First two events are time, length windows.
-        paramPosition = 2;
+        yParameterPosition = 2;
         // Capture duration
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -84,11 +86,11 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
                         attributeExpressionExecutors[0]).getValue();
             } else {
                 throw new ExecutionPlanCreationException(
-                        "Time window's parameter attribute should be either int or long, but found "
+                        "Time duration parameter should be either int or long, but found "
                                 + attributeExpressionExecutors[0].getReturnType());
             }
         } else {
-            throw new ExecutionPlanCreationException("Time window must be a constant");
+            throw new ExecutionPlanCreationException("Time duration parameter must be a constant");
         }
         // Capture batchSize
         int batchSize; // Maximum # of events, used for regression calculation
@@ -97,19 +99,18 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
                 batchSize = (Integer)
                         ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             } else {
-                throw new ExecutionPlanCreationException("Length window's parameter" +
-                        " attribute should be int, but found "
+                throw new ExecutionPlanCreationException("Size parameter should be int, but found "
                         + attributeExpressionExecutors[1].getReturnType());
             }
         } else {
-            throw new ExecutionPlanCreationException("Length window must be a constant");
+            throw new ExecutionPlanCreationException("Size parameter must be a constant");
         }
         // Capture calculation interval and ci if provided by user
         // Default values would be used otherwise
         if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 2; // When calcInterval and ci are given by user,
                                          // parameter count must exclude those two as well
-            paramPosition = 4;
+            yParameterPosition = 4;
             if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
                 calcInterval = (Integer)
                         ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue();
@@ -136,9 +137,6 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
             }
         }
         // Pick the appropriate regression calculator
-        final int SIMPLE_LINREG_INPUT_PARAM_COUNT; // Number of input parameters in simple
-                                                   // linear regression
-        SIMPLE_LINREG_INPUT_PARAM_COUNT = 2;
         if (paramCount > SIMPLE_LINREG_INPUT_PARAM_COUNT) {
             regressionCalculator = new LengthTimeMultipleLinearRegression(paramCount,
                     duration, batchSize, calcInterval, ci);
@@ -175,8 +173,8 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
                 long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
                 long eventExpiryTime = currentTime + duration;
                 Object[] inputData = new Object[paramCount];
-                for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                    inputData[i - paramPosition] = attributeExpressionExecutors[i].execute(streamEvent);
+                for (int i = yParameterPosition; i < attributeExpressionLength; i++) {
+                    inputData[i - yParameterPosition] = attributeExpressionExecutors[i].execute(streamEvent);
                 }
                 Object[] outputData = regressionCalculator.calculateLinearRegression(inputData,
                         eventExpiryTime);
