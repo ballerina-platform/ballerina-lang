@@ -71,8 +71,7 @@ public class LengthTimeLinearRegressionOutlierStreamProcessor extends StreamProc
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors,
-                                   ExecutionPlanContext executionPlanContext,
-                                   boolean outputExpectsExpiredEvents) {
+                                   ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength - 3; // First three events are time window, length
                                                     // window and range
         yParameterPosition = 3;

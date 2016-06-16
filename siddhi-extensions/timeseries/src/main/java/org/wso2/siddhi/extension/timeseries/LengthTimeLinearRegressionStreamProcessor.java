@@ -72,8 +72,7 @@ public class LengthTimeLinearRegressionStreamProcessor extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors,
-                                   ExecutionPlanContext executionPlanContext,
-                                   boolean outputExpectsExpiredEvents) {
+                                   ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength - 2; // First two events are time, length windows.
         yParameterPosition = 2;
         // Capture duration

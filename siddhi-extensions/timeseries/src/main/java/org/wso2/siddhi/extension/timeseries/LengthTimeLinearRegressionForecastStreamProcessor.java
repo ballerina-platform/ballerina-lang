@@ -70,8 +70,7 @@ public class LengthTimeLinearRegressionForecastStreamProcessor extends StreamPro
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors,
-                                   ExecutionPlanContext executionPlanContext,
-                                   boolean outputExpectsExpiredEvents) {
+                                   ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength -3; // First three events are time window, length
                                                    // window and x value for forecasting y
         yParameterPosition = 3;
