@@ -21,11 +21,13 @@ package org.wso2.siddhi.extension.time;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.extension.time.util.TimeExtensionConstants;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -53,6 +55,8 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.INT;
     private boolean useDefaultDateFormat = false;
     private String dateFormat = null;
+    private Calendar cal = Calendar.getInstance();
+    private String unit = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -79,16 +83,17 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
                         "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
+            unit = (String)((ConstantExpressionExecutor)attributeExpressionExecutors[0]).getValue();
         } else if (attributeExpressionExecutors.length == 2) {
             if(useDefaultDateFormat){
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of " +
-                            "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                            "time:extract(unit,dateValue) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[0].getReturnType().toString());
                 }
                 if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of " +
-                            "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
+                            "time:extract(unit,dateValue) function, " + "required " + Attribute.Type.STRING +
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             } else{
@@ -103,6 +108,7 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             }
+            unit = (String)((ConstantExpressionExecutor)attributeExpressionExecutors[1]).getValue();
         } else {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:extract() function, " +
                     "required 2 or 3, but found " + attributeExpressionExecutors.length);
@@ -113,15 +119,9 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
 
-        Calendar cal = Calendar.getInstance();;
         String source = null;
-        String unit;
         if (data.length == 3 || useDefaultDateFormat) {
             try {
-                if (data[0] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(unit,dateValue," +
-                            "dateFormat) function" + ". First " + "argument cannot be null");
-                }
                 if (data[1] == null) {
                     throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(unit,dateValue," +
                             "dateFormat) function" + ". Second " + "argument cannot be null");
@@ -136,7 +136,6 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
 
                 FastDateFormat userSpecificFormat;
                 source = (String) data[1];
-                unit = (String) data[0];
                 userSpecificFormat = FastDateFormat.getInstance(dateFormat);
                 Date userSpecifiedDate = userSpecificFormat.parse(source);
                 cal.setTime(userSpecifiedDate);
@@ -154,14 +153,8 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
                 throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(timestampInMilliseconds," +
                         "unit) function" + ". First " + "argument cannot be null");
             }
-            if (data[1] == null) {
-                throw new ExecutionPlanRuntimeException("Invalid input given to time:extract(timestampInMilliseconds," +
-                        "unit) function" + ". Second " + "argument cannot be null");
-            }
-
             try {
                 long millis = (Long)data[0];
-                unit = (String) data[1];
                 cal.setTimeInMillis(millis);
             } catch (ClassCastException e){
                 String errorMsg ="Provided Data type cannot be cast to desired format. " + e.getMessage();
@@ -170,7 +163,6 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
         }
 
         int returnValue = 0;
-        unit = unit.toUpperCase();
 
         if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_YEAR)) {
             returnValue = cal.get(Calendar.YEAR);

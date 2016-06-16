@@ -59,13 +59,11 @@ public class UniqueExternalTimeBatchStreamProcessor extends StreamProcessor impl
     private long lastScheduledTime;
     private long lastCurrentEventTime;
     private boolean flushed = false;
-    private boolean outputExpectsExpiredEvents;
     private boolean storeExpiredEvents = false;
     private VariableExpressionExecutor variableExpressionExecutor;
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
-        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (outputExpectsExpiredEvents) {
             this.expiredEvents = new HashMap<Object, StreamEvent>();
             this.storeExpiredEvents = true;

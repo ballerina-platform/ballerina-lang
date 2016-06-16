@@ -21,6 +21,7 @@ package org.wso2.siddhi.extension.time;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.extension.time.util.TimeExtensionConstants;
@@ -56,6 +57,8 @@ public class DateAddFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.STRING;
     private boolean useDefaultDateFormat = false;
     private String dateFormat = null;
+    private Calendar calInstance = Calendar.getInstance();
+    private String unit = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -127,13 +130,12 @@ public class DateAddFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:dateAdd() function, " +
                     "required 3 or 4, but found " + attributeExpressionExecutors.length);
         }
+        unit = (String)((ConstantExpressionExecutor)attributeExpressionExecutors[2]).getValue();
     }
 
     @Override
     protected Object execute(Object[] data) {
 
-        Calendar calInstance = Calendar.getInstance();
-        String unit;
         int expression;
         String date = null;
         FastDateFormat formattedDate;
@@ -148,10 +150,6 @@ public class DateAddFunctionExtension extends FunctionExecutor {
                     throw new ExecutionPlanRuntimeException("Invalid input given to time:dateAdd(date,expr," +
                             "unit,dateFormat) function" + ". Second " + "argument cannot be null");
                 }
-                if (data[2] == null) {
-                    throw new ExecutionPlanRuntimeException("Invalid input given to time:dateAdd(date,expr," +
-                            "unit,dateFormat) function" + ". Third " + "argument cannot be null");
-                }
                 if(!useDefaultDateFormat){
                     if (data[3] == null) {
                         throw new ExecutionPlanRuntimeException("Invalid input given to time:dateAdd(date,expr," +
@@ -162,7 +160,6 @@ public class DateAddFunctionExtension extends FunctionExecutor {
 
                 date = (String) data[0];
                 expression = (Integer) data[1];
-                unit = (String) data[2];
                 formattedDate = FastDateFormat.getInstance(dateFormat);
                 Date userSpecifiedDate = formattedDate.parse(date);
                 calInstance.setTime(userSpecifiedDate);
@@ -210,7 +207,7 @@ public class DateAddFunctionExtension extends FunctionExecutor {
     }
 
     public Calendar getProcessedCalenderInstance(String unit, Calendar calInstance, int expression){
-        unit = unit.toUpperCase();
+
 
         if (unit.equals(TimeExtensionConstants.EXTENSION_TIME_UNIT_YEAR)) {
             calInstance.add(Calendar.YEAR, expression);
