@@ -30,7 +30,7 @@ public class KSlackExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (eventtt long, price long, volume long);";
-        String query = ("@info(name = 'query1') from inputStream#reorder:kslack(eventtt) select eventtt, price, volume " +
+        String query = ("@info(name = 'query1') from inputStream#reorder:kslack(eventtt, 1000l) select eventtt, price, volume " +
                 "insert into outputStream;");
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
