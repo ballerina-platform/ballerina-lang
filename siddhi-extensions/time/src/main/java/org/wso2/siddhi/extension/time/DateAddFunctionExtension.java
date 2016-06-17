@@ -21,6 +21,7 @@ package org.wso2.siddhi.extension.time;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
@@ -130,7 +131,13 @@ public class DateAddFunctionExtension extends FunctionExecutor {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:dateAdd() function, " +
                     "required 3 or 4, but found " + attributeExpressionExecutors.length);
         }
-        unit = (String)((ConstantExpressionExecutor)attributeExpressionExecutors[2]).getValue();
+
+        if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
+            unit = ((String) ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()).toUpperCase();
+        } else {
+            throw new OperationNotSupportedException("unit value has to be a constant");
+        }
+
     }
 
     @Override

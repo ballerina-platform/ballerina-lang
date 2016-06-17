@@ -21,6 +21,7 @@ package org.wso2.siddhi.extension.time;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
@@ -83,7 +84,13 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
                         "time:extract(unit,dateValue,dateFormat) function, " + "required " + Attribute.Type.STRING +
                         " but found " + attributeExpressionExecutors[2].getReturnType().toString());
             }
-            unit = (String)((ConstantExpressionExecutor)attributeExpressionExecutors[0]).getValue();
+
+            if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
+                unit = ((String)((ConstantExpressionExecutor)attributeExpressionExecutors[0]).getValue()).toUpperCase();
+            } else {
+                throw new OperationNotSupportedException("unit value has to be a constant");
+            }
+
         } else if (attributeExpressionExecutors.length == 2) {
             if(useDefaultDateFormat){
                 if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
@@ -108,7 +115,13 @@ public class ExtractAttributesFunctionExtension extends FunctionExecutor {
                             " but found " + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             }
-            unit = (String)((ConstantExpressionExecutor)attributeExpressionExecutors[1]).getValue();
+
+            if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
+                unit = ((String)((ConstantExpressionExecutor)attributeExpressionExecutors[1]).getValue()).toUpperCase();
+            } else {
+                throw new OperationNotSupportedException("unit value has to be a constant");
+            }
+
         } else {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to time:extract() function, " +
                     "required 2 or 3, but found " + attributeExpressionExecutors.length);
