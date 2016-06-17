@@ -62,7 +62,9 @@ public class NettyCarbonMessage extends CarbonMessage {
     public ByteBuffer getMessageBody() {
         try {
             HttpContent httpContent = httpContentQueue.take();
-            return httpContent.content().nioBuffer();
+            ByteBuffer byteBuffer = getCopiedByteBuffer(httpContent.content().nioBuffer());
+            httpContent.release();
+            return byteBuffer;
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving message body from queue.", e);
             return null;
@@ -79,7 +81,9 @@ public class NettyCarbonMessage extends CarbonMessage {
                     break;
                 }
                 HttpContent httpContent = httpContentQueue.take();
-                byteBufferList.add(httpContent.content().nioBuffer());
+                ByteBuffer byteBuffer = getCopiedByteBuffer(httpContent.content().nioBuffer());
+                httpContent.release();
+                byteBufferList.add(byteBuffer);
             } catch (InterruptedException e) {
                 LOG.error("Error while getting full message body", e);
             }
@@ -134,5 +138,12 @@ public class NettyCarbonMessage extends CarbonMessage {
                 httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(buffer.array())));
             });
         }
+    }
+
+    public ByteBuffer getCopiedByteBuffer(ByteBuffer initialArray) {
+        byte[] array = new byte[initialArray.capacity()];
+        initialArray.get(array);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(array);
+        return byteBuffer;
     }
 }

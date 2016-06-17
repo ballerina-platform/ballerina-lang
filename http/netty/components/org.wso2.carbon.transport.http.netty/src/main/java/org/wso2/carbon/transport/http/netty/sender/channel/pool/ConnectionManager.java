@@ -132,14 +132,16 @@ public class ConnectionManager {
             CarbonCallback carbonCallback, RingBuffer ringBuffer) throws Exception {
         TargetChannel targetChannel = null;
 
-        Class cl = NioSocketChannel.class;
-        EventLoopGroup group = new NioEventLoopGroup(Integer.parseInt(senderConfiguration.getSenderWorkerThreads()));
+        Class cl = null;
+        EventLoopGroup group = null;
 
         if (sourceHandler != null) {
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
             group = ctx.channel().eventLoop();
             cl = ctx.channel().getClass();
         } else {
+            cl = NioSocketChannel.class;
+            group = new NioEventLoopGroup(Integer.parseInt(senderConfiguration.getSenderWorkerThreads()));
             poolManagementPolicy = PoolManagementPolicy.DEFAULT_POOLING;
         }
 
