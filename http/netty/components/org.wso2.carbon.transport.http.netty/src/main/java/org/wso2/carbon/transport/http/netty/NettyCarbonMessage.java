@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -62,8 +63,11 @@ public class NettyCarbonMessage extends CarbonMessage {
     public ByteBuffer getMessageBody() {
         try {
             HttpContent httpContent = httpContentQueue.take();
-            ByteBuffer byteBuffer = getCopiedByteBuffer(httpContent.content().nioBuffer());
+            ByteBuf buf = httpContent.content();
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.readBytes(bytes);
             httpContent.release();
+            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
             return byteBuffer;
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving message body from queue.", e);
@@ -81,8 +85,11 @@ public class NettyCarbonMessage extends CarbonMessage {
                     break;
                 }
                 HttpContent httpContent = httpContentQueue.take();
-                ByteBuffer byteBuffer = getCopiedByteBuffer(httpContent.content().nioBuffer());
+                ByteBuf buf = httpContent.content();
+                byte[] bytes = new byte[buf.readableBytes()];
+                buf.readBytes(bytes);
                 httpContent.release();
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
                 byteBufferList.add(byteBuffer);
             } catch (InterruptedException e) {
                 LOG.error("Error while getting full message body", e);

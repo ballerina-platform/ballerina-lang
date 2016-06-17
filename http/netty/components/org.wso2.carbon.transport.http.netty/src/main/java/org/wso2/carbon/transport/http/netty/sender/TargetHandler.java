@@ -62,9 +62,8 @@ public class TargetHandler extends ReadTimeoutHandler {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                       .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
+                    .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-
 
         super.channelActive(ctx);
     }
@@ -82,7 +81,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
                     if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                   executeAtTargetResponseSending(cMsg);
+                                executeAtTargetResponseSending(cMsg);
                     }
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
@@ -98,7 +97,7 @@ public class TargetHandler extends ReadTimeoutHandler {
     public void channelInactive(ChannelHandlerContext ctx) {
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                       .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
+                    .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
         }
 
         log.debug("Target channel closed.");
@@ -131,7 +130,7 @@ public class TargetHandler extends ReadTimeoutHandler {
 
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                       getHttpRoute().toString() + "</errorMessage>";
+                    getHttpRoute().toString() + "</errorMessage>";
             FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
 
             if (faultHandler != null) {
@@ -143,7 +142,6 @@ public class TargetHandler extends ReadTimeoutHandler {
             }
         }
     }
-
 
     protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
         cMsg = new NettyCarbonMessage();

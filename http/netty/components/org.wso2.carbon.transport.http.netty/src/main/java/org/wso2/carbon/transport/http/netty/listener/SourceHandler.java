@@ -70,7 +70,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                       .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
+                    .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
 
         disruptorConfig = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
@@ -83,6 +83,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
         if (msg instanceof FullHttpMessage) {
 
             publishToDisruptor(msg);
@@ -93,7 +94,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
                 NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
             }
-
 
         } else if (msg instanceof HttpRequest) {
 
@@ -110,13 +110,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
                             NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                       executeAtSourceRequestSending(cMsg);
+                                    executeAtSourceRequestSending(cMsg);
                         }
 
                     }
                 }
             }
         }
+
     }
 
     private void publishToDisruptor(Object msg) {
@@ -129,15 +130,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
             boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                       .executeRequestContinuationValidator(cMsg, carbonMessage -> {
-                           CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
-                           responseCallback.done(carbonMessage);
-                       });
+                    .executeRequestContinuationValidator(cMsg, carbonMessage -> {
+                        CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
+                        responseCallback.done(carbonMessage);
+                    });
             if (continueRequest) {
                 disruptor.publishEvent(new CarbonEventPublisher(cMsg));
             }
         }
-
 
     }
 
@@ -147,7 +147,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                       .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+                    .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
 
         disruptorConfig.notifyChannelInactive();
