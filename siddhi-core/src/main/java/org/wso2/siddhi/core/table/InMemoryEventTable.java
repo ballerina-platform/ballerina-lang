@@ -170,10 +170,15 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     @Override
     public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator,
                                int[] mappingPosition) {
-        if (indexAttribute != null) {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
-        } else {
-            operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, mappingPosition);
+        try {
+            readWriteLock.writeLock().lock();
+            if (indexAttribute != null) {
+                operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
+            } else {
+                operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsList, mappingPosition);
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
     }
 

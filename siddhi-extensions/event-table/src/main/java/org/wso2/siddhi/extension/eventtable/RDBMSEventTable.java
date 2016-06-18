@@ -195,7 +195,7 @@ public class RDBMSEventTable implements EventTable {
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
-    public void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
+    public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         operator.delete(deletingEventChunk, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
@@ -209,7 +209,7 @@ public class RDBMSEventTable implements EventTable {
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
-    public void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
+    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
         operator.update(updatingEventChunk, null, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), mappingPosition);
@@ -217,7 +217,7 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+    public synchronized void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
         operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null);
         if(isCachingEnabled){
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), mappingPosition);
@@ -231,7 +231,7 @@ public class RDBMSEventTable implements EventTable {
      * @param finder        Operator that perform RDBMS related search
      */
     @Override
-    public boolean contains(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
         if (isCachingEnabled) {
             return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
         }
@@ -251,7 +251,7 @@ public class RDBMSEventTable implements EventTable {
      * Called to find a event from event table
      */
     @Override
-    public StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
         return finder.find(matchingEvent, null, null);
     }
 

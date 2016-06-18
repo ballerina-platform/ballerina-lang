@@ -233,7 +233,7 @@ public class HazelcastEventTable implements EventTable {
      * @param operator                      Operator that perform Hazelcast related operations.
      */
     @Override
-    public void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+    public synchronized void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
         if (indexAttribute != null) {
             operator.overwriteOrAdd(overwritingOrAddingEventChunk, eventsMap, mappingPosition);
         } else {
