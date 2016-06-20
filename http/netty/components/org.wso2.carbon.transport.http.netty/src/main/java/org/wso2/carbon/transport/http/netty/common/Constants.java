@@ -72,7 +72,6 @@ public final class Constants {
     public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "client.ssl.http.protocols";
     public static final String CLIENT_ENABLE_SESSION_CREATION = "client.eanble.session.creation";
 
-
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
 
@@ -97,6 +96,8 @@ public final class Constants {
     public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
     public static final String SSL_VERIFY_CLIENT = "ssl.verify.client";
+
+    public static final String SERVER_IS_SECURED = "server.is.secured";
 
     // Connection Pool parameters
     public static final String NUMBER_OF_POOLS = "connection.pool.count";
