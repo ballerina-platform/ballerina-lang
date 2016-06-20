@@ -71,8 +71,7 @@ public final class Constants {
     public static final String CLIENT_SUPPORT_CIPHERS = "client.ssl.ciphers";
     public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "client.ssl.http.protocols";
     public static final String CLIENT_ENABLE_SESSION_CREATION = "client.eanble.session.creation";
-    public static final String CLIENT_SUPPORTED_SERVER_NAMES = "client.suported.server.names";
-    public static final String CLIENT_SUPPORTED_SNIMATCHERS = "client.supported.snimatchers";
+   
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
