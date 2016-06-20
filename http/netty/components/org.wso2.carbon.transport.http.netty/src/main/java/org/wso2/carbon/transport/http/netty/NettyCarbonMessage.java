@@ -44,10 +44,10 @@ public class NettyCarbonMessage extends CarbonMessage {
     private BlockingQueue<ByteBuffer> outContentQueue = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
+        httpContentQueue.add(httpContent);
         if (httpContent instanceof LastHttpContent) {
             setEndOfMsgAdded(true);
         }
-        httpContentQueue.add(httpContent);
     }
 
     public HttpContent getHttpContent() {
