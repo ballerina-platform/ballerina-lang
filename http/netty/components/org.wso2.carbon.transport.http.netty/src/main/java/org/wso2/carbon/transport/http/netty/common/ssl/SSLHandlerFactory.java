@@ -31,10 +31,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -45,9 +48,12 @@ public class SSLHandlerFactory {
 
     private static final String protocol = "TLS";
     private final SSLContext serverContext;
+    private SSLConfig sslConfig;
     private boolean needClientAuth;
 
+
     public SSLHandlerFactory(SSLConfig sslConfig) {
+        this.sslConfig = sslConfig;
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
         if (algorithm == null) {
             algorithm = "SunX509";
@@ -56,8 +62,9 @@ public class SSLHandlerFactory {
             KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
             // Set up key manager factory to use our key store
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks, sslConfig.getCertPass() != null ? sslConfig.getCertPass().toCharArray()
-                    : sslConfig.getKeyStorePass().toCharArray());
+            kmf.init(ks, sslConfig.getCertPass() != null ?
+                    sslConfig.getCertPass().toCharArray() :
+                    sslConfig.getKeyStorePass().toCharArray());
             KeyManager[] keyManagers = kmf.getKeyManagers();
             TrustManager[] trustManagers = null;
             if (sslConfig.getTrustStore() != null) {
@@ -92,7 +99,26 @@ public class SSLHandlerFactory {
     public SslHandler create() {
         SSLEngine engine = serverContext.createSSLEngine();
         engine.setNeedClientAuth(needClientAuth);
-        engine.setUseClientMode(false);
+        engine.setUseClientMode(sslConfig.isClientMode());
+        if (sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0) {
+            engine.setEnabledCipherSuites(sslConfig.getCipherSuites());
+        }
+        if (sslConfig.getEnableProtocols() != null && sslConfig.getEnableProtocols().length > 0) {
+            engine.setEnabledCipherSuites(sslConfig.getEnableProtocols());
+
+        }
+        if (sslConfig.isEnableSessionCreation()) {
+            engine.setEnableSessionCreation(true);
+
+        }
+        if (sslConfig.getServerNames() != null && sslConfig.getServerNames().length > 0) {
+            SSLParameters sslParameters = engine.getSSLParameters();
+            sslParameters.setServerNames(new ArrayList(Arrays.asList(sslConfig.getServerNames())));
+        }
+        if (sslConfig.getSniMatchers() != null && sslConfig.getSniMatchers().length > 0) {
+            SSLParameters sslParameters = engine.getSSLParameters();
+            sslParameters.setServerNames(new ArrayList(Arrays.asList(sslConfig.getSniMatchers())));
+        }
         return new SslHandler(engine);
     }
 }

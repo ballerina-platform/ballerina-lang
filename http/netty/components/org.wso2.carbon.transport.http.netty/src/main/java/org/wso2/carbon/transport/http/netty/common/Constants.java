@@ -67,6 +67,12 @@ public final class Constants {
 
     public static final String CLINET_BOOTSTRAP_SO_TIMEOUT = "client.bootstrap.socket.timeout";
 
+    //Server side SSL Parameters
+    public static final String CLIENT_SUPPORT_CIPHERS = "client.ssl.ciphers";
+    public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "client.ssl.http.protocols";
+    public static final String CLIENT_ENABLE_SESSION_CREATION = "client.eanble.session.creation";
+    public static final String CLIENT_SUPPORTED_SERVER_NAMES = "client.suported.server.names";
+    public static final String CLIENT_SUPPORTED_SNIMATCHERS = "client.supported.snimatchers";
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -85,6 +91,13 @@ public final class Constants {
 
     public static final String SERVER_BOOTSTRAP_SO_TIMEOUT = "server.bootstrap.socket.timeout";
 
+    //Server side SSL Parameters
+    public static final String SERVER_SUPPORT_CIPHERS = "server.ssl.ciphers";
+    public static final String SERVER_SUPPORT_HTTPS_PROTOCOLS = "server.ssl.http.protocols";
+    public static final String SERVER_ENABLE_SESSION_CREATION = "server.eanble.session.creation";
+    public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
+    public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
+    public static final String SSL_VERIFY_CLIENT = "ssl.verify.client";
 
     // Connection Pool parameters
     public static final String NUMBER_OF_POOLS = "connection.pool.count";
@@ -103,14 +116,12 @@ public final class Constants {
 
     public static final String DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL = "disruptor.consumer.worker.pool.size";
 
-
     public static final String IS_DISRUPTOR_ENABLE = "enable.disruptor";
     public static final String EXECUTOR_WORKER_POOL_SIZE = "executor.workerpool.size";
 
     public static final String EXECUTOR_WORKER_POOL = "executor.workerpool";
 
     public static final String OUTPUT_CONTENT_BUFFER_SIZE = "output.content.buffer.size";
-
 
     private Constants() {
     }

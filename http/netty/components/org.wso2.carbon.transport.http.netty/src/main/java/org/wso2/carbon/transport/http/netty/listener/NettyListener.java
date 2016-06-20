@@ -39,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -209,13 +210,21 @@ public class NettyListener extends TransportListener {
     public boolean listen(String host, int port, Map<String, String> map) {
         String id = host + ":" + port;
         if (map != null) {
+            List<Parameter> parameters = new ArrayList<>();
             String certPass = map.get(Constants.CERTPASS);
             String keyStorePass = map.get(Constants.KEYSTOREPASS);
             String keyStoreFile = map.get(Constants.KEYSTOREFILE);
             String trustoreFile = map.get(Constants.TRUSTSTOREFILE);
             String trustorePass = map.get(Constants.TRUSTSTOREPASS);
+            for (Map.Entry entry : map.entrySet()) {
+                Parameter parameter = new Parameter();
+                parameter.setName((String) entry.getKey());
+                parameter.setValue((String) entry.getValue());
+                parameters.add(parameter);
+            }
             SSLConfig sslConfig = Util
-                    .getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustoreFile, trustorePass);
+                    .getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustoreFile, trustorePass,
+                            parameters);
             sslConfigMap.put(id, sslConfig);
         }
 

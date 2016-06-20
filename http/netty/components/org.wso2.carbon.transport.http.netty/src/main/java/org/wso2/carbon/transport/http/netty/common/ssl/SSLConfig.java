@@ -18,6 +18,9 @@
  */
 package org.wso2.carbon.transport.http.netty.common.ssl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 
 /**
@@ -25,13 +28,31 @@ import java.io.File;
  */
 
 public class SSLConfig {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SSLConfig.class);
+
+    private static final String separator = ",";
+
     private File keyStore;
     private String keyStorePass;
     private String certPass;
     private File trustStore;
     private String trustStorePass;
 
+    private String[] cipherSuites;
+    private String[] enableProtocols;
+    private boolean enableSessionCreation;
+    private boolean needClientAuth;
+    private boolean wantClientAuth;
+    private String[] serverNames;
+    private String[] sniMatchers;
+
+    private boolean clientMode;
+
     public SSLConfig(File keyStore, String keyStorePass) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Using key store" + keyStore);
+        }
         this.keyStore = keyStore;
         this.keyStorePass = keyStorePass;
     }
@@ -50,6 +71,9 @@ public class SSLConfig {
     }
 
     public SSLConfig setTrustStore(File trustStore) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Using trust store" + trustStore);
+        }
         this.trustStore = trustStore;
         return this;
     }
@@ -69,5 +93,90 @@ public class SSLConfig {
 
     public String getKeyStorePass() {
         return keyStorePass;
+    }
+
+    public String[] getSniMatchers() {
+        return sniMatchers == null ? null : sniMatchers.clone();
+    }
+
+    public void setSniMatchers(String sniMatchers) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Using sniMatchers" + sniMatchers);
+        }
+        this.sniMatchers = sniMatchers.split(separator);
+    }
+
+    public String[] getServerNames() {
+        return serverNames == null ? null : serverNames.clone();
+    }
+
+    public void setServerNames(String serverNames) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Using serverNames" + serverNames);
+        }
+        this.serverNames = serverNames.split(separator);
+    }
+
+    public boolean isWantClientAuth() {
+        return wantClientAuth;
+    }
+
+    public void setWantClientAuth(boolean wantClientAuth) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Set WantClientAuth" + wantClientAuth);
+        }
+        this.wantClientAuth = wantClientAuth;
+    }
+
+    public boolean isNeedClientAuth() {
+        return needClientAuth;
+    }
+
+    public void setNeedClientAuth(boolean needClientAuth) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Set NeedClientAuth" + needClientAuth);
+        }
+        this.needClientAuth = needClientAuth;
+    }
+
+    public boolean isEnableSessionCreation() {
+        return enableSessionCreation;
+    }
+
+    public void setEnableSessionCreation(boolean enableSessionCreation) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Enable Session Creation" + enableSessionCreation);
+        }
+        this.enableSessionCreation = enableSessionCreation;
+    }
+
+    public String[] getEnableProtocols() {
+        return enableProtocols == null ? null : enableProtocols.clone();
+    }
+
+    public void setEnableProtocols(String enableProtocols) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Set enable protocols" + enableProtocols);
+        }
+        this.enableProtocols = enableProtocols.split(separator);
+    }
+
+    public String[] getCipherSuites() {
+        return cipherSuites == null ? null : cipherSuites.clone();
+    }
+
+    public void setCipherSuites(String cipherSuites) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Set supported cipherSuites" + cipherSuites);
+        }
+        this.cipherSuites = cipherSuites.split(separator);
+    }
+
+    public boolean isClientMode() {
+        return clientMode;
+    }
+
+    public void setClientMode(boolean clientMode) {
+        this.clientMode = clientMode;
     }
 }

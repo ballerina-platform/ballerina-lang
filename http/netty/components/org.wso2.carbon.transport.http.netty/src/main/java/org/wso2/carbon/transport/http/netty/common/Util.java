@@ -27,9 +27,11 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.Parameter;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -81,16 +83,15 @@ public class Util {
 
     @SuppressWarnings("unchecked")
     public static HttpResponse createHttpResponse(CarbonMessage msg) {
-        HttpVersion httpVersion = new HttpVersion(Util.getStringValue(msg,
-                Constants.HTTP_VERSION, HTTP_1_1.text()), true);
+        HttpVersion httpVersion = new HttpVersion(Util.getStringValue(msg, Constants.HTTP_VERSION, HTTP_1_1.text()),
+                true);
 
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
 
         HttpResponseStatus httpResponseStatus = new HttpResponseStatus(statusCode,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
-        DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion,
-                httpResponseStatus, false);
+        DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
         Map<String, String> headerMap = msg.getHeaders();
 
@@ -120,21 +121,41 @@ public class Util {
         return outgoingRequest;
     }
 
-    public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass,
-                                                    String keyStoreFile, String trustStoreFile, String trustStorePass) {
+    public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFile,
+            String trustStoreFile, String trustStorePass, List<Parameter> parametersList) {
         if (certPass == null) {
             certPass = keyStorePass;
         }
         if (keyStoreFile == null || keyStorePass == null) {
-            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " +
-                                               "HTTPS scheme");
+            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " + "HTTPS scheme");
         }
         File keyStore = new File(keyStoreFile);
         if (!keyStore.exists()) {
             throw new IllegalArgumentException("KeyStore File " + keyStoreFile + " not found");
         }
-        SSLConfig sslConfig =
-                   new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+        SSLConfig sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+        for (Parameter parameter : parametersList) {
+            if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORT_CIPHERS)) {
+                sslConfig.setCipherSuites(parameter.getValue());
+
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS)) {
+                sslConfig.setEnableProtocols(parameter.getValue());
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
+                sslConfig.setSniMatchers(parameter.getValue());
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORTED_SERVER_NAMES)) {
+                sslConfig.setServerNames(parameter.getValue());
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_ENABLE_SESSION_CREATION)) {
+                sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SSL_VERIFY_CLIENT)) {
+                sslConfig.setNeedClientAuth(Boolean.parseBoolean(parameter.getValue()));
+            }
+        }
         if (trustStoreFile != null) {
             File trustStore = new File(trustStoreFile);
             if (!trustStore.exists()) {
@@ -144,6 +165,43 @@ public class Util {
                 throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
             }
             sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
+        }
+        return sslConfig;
+    }
+
+    public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFile,
+            String trustStoreFile, String trustStorePass, List<Parameter> parametersList) {
+
+        if (certPass == null) {
+            certPass = keyStorePass;
+        }
+        if (trustStoreFile == null || trustStorePass == null) {
+            throw new IllegalArgumentException("TrusstoreFile or keyStorePass not defined for " + "HTTPS scheme");
+        }
+        SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
+        if (keyStoreFile != null) {
+            File keyStore = new File(keyStoreFile);
+            if (!keyStore.exists()) {
+                throw new IllegalArgumentException("TrustStore File " + trustStoreFile + " not found");
+            }
+            sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
+        }
+        File trustStore = new File(trustStoreFile);
+
+        sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
+        sslConfig.setClientMode(true);
+        for (Parameter parameter : parametersList) {
+            if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_SUPPORT_CIPHERS)) {
+                sslConfig.setCipherSuites(parameter.getValue());
+
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS)) {
+                sslConfig.setEnableProtocols(parameter.getValue());
+            } else if (parameter.getName()
+                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_ENABLE_SESSION_CREATION)) {
+                sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+            }
         }
         return sslConfig;
     }
