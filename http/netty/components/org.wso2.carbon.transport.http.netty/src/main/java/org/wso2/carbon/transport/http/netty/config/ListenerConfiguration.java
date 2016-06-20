@@ -18,7 +18,6 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
-
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
@@ -26,13 +25,11 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-
 
 /**
  * JAXB representation of a transport listener.
@@ -40,7 +37,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @SuppressWarnings("unused")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
-
 
     public static final String DEFAULT_KEY = "netty";
     private int execHandlerThreadPoolSize = 60;
@@ -67,9 +63,6 @@ public class ListenerConfiguration {
 
     @XmlAttribute
     private int workerThreadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
-
-
-
 
     @XmlAttribute
     private String enableDisruptor;
@@ -199,9 +192,9 @@ public class ListenerConfiguration {
             return null;
         }
 
-        return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass);
+        return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
+                parameters);
     }
-
 
     public String getEnableDisruptor() {
         return enableDisruptor;

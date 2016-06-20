@@ -18,19 +18,19 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-import java.io.File;
+
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-
 
 /**
  * JAXB representation of the Netty transport sender configuration.
@@ -44,7 +44,6 @@ public class SenderConfiguration {
     private boolean disruptorOn = true;
 
     private ExecutorService executorService;
-
 
     public static SenderConfiguration getDefault() {
         SenderConfiguration defaultConfig;
@@ -88,7 +87,6 @@ public class SenderConfiguration {
 
     }
 
-
     public String getCertPass() {
         return certPass;
     }
@@ -96,7 +94,6 @@ public class SenderConfiguration {
     public void setCertPass(String certPass) {
         this.certPass = certPass;
     }
-
 
     public String getId() {
         return id;
@@ -138,7 +135,6 @@ public class SenderConfiguration {
         this.scheme = scheme;
     }
 
-
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -151,27 +147,8 @@ public class SenderConfiguration {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
         }
-        if (certPass == null) {
-            certPass = keyStorePass;
-        }
-        if (trustStoreFile == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrusstoreFile or keyStorePass not defined for " +
-                                               "HTTPS scheme");
-        }
-        SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
-        if (keyStoreFile != null) {
-            File keyStore = new File(keyStoreFile);
-            if (!keyStore.exists()) {
-                throw new IllegalArgumentException("TrustStore File " + trustStoreFile + " not found");
-            }
-            sslConfig =
-                       new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
-        }
-            File trustStore = new File(trustStoreFile);
-
-            sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-
-        return sslConfig;
+        return Util.getSSLConfigForSender(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
+                parameters);
     }
 
     public boolean isDisruptorOn() {
@@ -181,7 +158,6 @@ public class SenderConfiguration {
     public void setDisruptorOn(boolean disruptorOn) {
         this.disruptorOn = disruptorOn;
     }
-
 
     public ExecutorService getNettyHandlerExecutorService() {
         return executorService;
