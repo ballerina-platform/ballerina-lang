@@ -34,7 +34,6 @@ import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorCon
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.Map;
 
@@ -55,12 +54,11 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     @Override
     public void setup(Map<String, String> parameters) {
 
-        PoolConfiguration.createPoolConfiguration(parameters);
         if (parameters != null && parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE) != null) {
             BufferFactory.createInstance(Integer.parseInt(parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE)));
         }
         try {
-            connectionManager = ConnectionManager.getInstance();
+            connectionManager = ConnectionManager.getInstance(parameters);
 
             if (parameters != null && Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
                 log.debug("Disruptor is enabled");
@@ -113,7 +111,7 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
             if (Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
-                p.addLast("handler", new SourceHandler(connectionManager));
+                p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
             } else {
                 p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
             }

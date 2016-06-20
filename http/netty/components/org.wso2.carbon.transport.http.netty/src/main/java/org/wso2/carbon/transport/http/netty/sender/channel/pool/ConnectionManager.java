@@ -101,11 +101,15 @@ public class ConnectionManager {
 
     }
 
-    public static ConnectionManager getInstance() {
+    public static ConnectionManager getInstance(Map<String, String> parameters) {
         if (connectionManager == null) {
             synchronized (ConnectionManager.class) {
                 if (connectionManager == null) {
                     PoolConfiguration poolConfiguration = PoolConfiguration.getInstance();
+                    if (poolConfiguration == null) {
+                        PoolConfiguration.createPoolConfiguration(parameters);
+                        poolConfiguration = PoolConfiguration.getInstance();
+                    }
                     connectionManager = new ConnectionManager(poolConfiguration);
                 }
             }

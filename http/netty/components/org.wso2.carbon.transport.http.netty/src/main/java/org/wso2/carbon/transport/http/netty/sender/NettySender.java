@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
@@ -36,7 +37,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguratio
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,51 +60,72 @@ public class NettySender implements TransportSender {
                 paramMap.put(parameter.getName(), parameter.getValue());
             }
 
-
         }
-        DisruptorConfig disruptorConfig = new DisruptorConfig
-                   (paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_BUFFER_SIZE),
-                    paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_COUNT),
-                    paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                    paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.WAIT_STRATEGY),
-                    Boolean.parseBoolean
-                               (org.wso2.carbon.transport.http.netty.common.Constants.SHARE_DISRUPTOR_WITH_OUTBOUND),
-                    paramMap.get
-                               (org.wso2.carbon.transport.http.netty.common.Constants.
-                                           DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
+        DisruptorConfig disruptorConfig = new DisruptorConfig(
+                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_BUFFER_SIZE),
+                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_COUNT),
+                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
+                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.WAIT_STRATEGY), Boolean.parseBoolean(
+                org.wso2.carbon.transport.http.netty.common.Constants.SHARE_DISRUPTOR_WITH_OUTBOUND),
+                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.
+                        DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
         // TODO: Need to have a proper service
         DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.OUTBOUND, disruptorConfig);
-        PoolConfiguration.createPoolConfiguration(paramMap);
         BootstrapConfiguration.createBootStrapConfiguration(paramMap);
-        this.connectionManager = ConnectionManager.getInstance();
+        this.connectionManager = ConnectionManager.getInstance(paramMap);
     }
 
     @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
+
+        if (msg.getProperty(Constants.HOST) == null) {
+            log.warn("Cannot find property HOST hence using default as " + "localhost"
+                    + " Please specify remote host as 'HOST' in carbon message property ");
+            msg.setProperty(Constants.HOST, "localhost");
+        }
+        if (msg.getProperty(Constants.PORT) == null) {
+            SSLConfig sslConfig = senderConfiguration.getSslConfig();
+            int port = 80;
+            if (sslConfig != null) {
+                port = 443;
+            }
+            log.warn("Cannot find property PORT hence using default as " + port
+                    + " Please specify remote host as 'PORT' in carbon message property ");
+            msg.setProperty(Constants.PORT, port);
+        }
+
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
-                                              (Integer) msg.getProperty(Constants.PORT));
+                (Integer) msg.getProperty(Constants.PORT));
+
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
-        String enableDisruptor = (String) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
-                                                                     IS_DISRUPTOR_ENABLE);
+
+        String enableDisruptor = null;
+
+        if (msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
+                IS_DISRUPTOR_ENABLE) != null) {
+            enableDisruptor = (String) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
+                    IS_DISRUPTOR_ENABLE);
+        } else {
+            log.debug("Cannot find property 'enable.disruptor  from hence using worker pool as thread model "
+                    + "for client side'");
+        }
 
         if (ringBuffer == null && Boolean.parseBoolean(enableDisruptor)) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
-                       getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
+                    getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
         } else if (!Boolean.parseBoolean(enableDisruptor)) {
             senderConfiguration.setDisruptorOn(false);
         }
 
-
         Channel outboundChannel = null;
         try {
             TargetChannel targetChannel = connectionManager
-                       .getTargetChannel(route, srcHandler,
-                                         senderConfiguration, httpRequest, msg, callback, ringBuffer);
+                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);

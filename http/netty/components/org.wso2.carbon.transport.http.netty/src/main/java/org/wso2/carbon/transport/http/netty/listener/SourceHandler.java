@@ -36,6 +36,7 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -58,8 +59,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     private DisruptorConfig disruptorConfig;
     protected Map<String, GenericObjectPool> targetChannelPool;
+    protected ListenerConfiguration listenerConfiguration;
 
-    public SourceHandler(ConnectionManager connectionManager) throws Exception {
+    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration)
+            throws Exception {
+        this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
     }
 
@@ -199,6 +203,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
         cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         cMsg.setProperty(Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
+        if (listenerConfiguration.getSslConfig() != null) {
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_IS_SECURED, true);
+        }
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;
     }

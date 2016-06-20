@@ -226,6 +226,7 @@ public class NettyListener extends TransportListener {
                     .getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustoreFile, trustorePass,
                             parameters);
             sslConfigMap.put(id, sslConfig);
+            listen(host, port);
         }
 
         return false;
