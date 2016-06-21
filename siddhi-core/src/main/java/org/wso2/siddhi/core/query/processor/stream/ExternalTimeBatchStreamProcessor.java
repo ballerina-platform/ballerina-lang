@@ -206,8 +206,6 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
     private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
                                     long currentTime, boolean preserveCurrentEvents) {
 
-        try{
-
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
         if (outputExpectsExpiredEvents) {
             if (expiredEventChunk.getFirst() != null) {
@@ -250,9 +248,6 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
 
         if (newEventChunk.getFirst() != null) {
             complexEventChunks.add(newEventChunk);
-        }
-        }catch (NullPointerException n){
-            System.out.println("Null  pointer in internal");
         }
     }
 
