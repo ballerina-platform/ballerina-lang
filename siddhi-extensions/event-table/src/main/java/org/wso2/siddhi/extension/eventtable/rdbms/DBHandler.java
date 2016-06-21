@@ -466,12 +466,12 @@ public class DBHandler {
                     }
                 } else {
                     throw new ExecutionPlanRuntimeException("Cannot Execute Insert/Update. Null value detected for " +
-                            "attribute" + attribute.getName());
+                            "attribute '" + attribute.getName()+"'");
                 }
             }
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Cannot set value to attribute name " + attribute.getName() + ". " +
-                    "Hence dropping the event." + e.getMessage(), e);
+                    "Hence dropping the event. " + e.getMessage(), e);
         }
     }
 

@@ -78,19 +78,21 @@ public class CollectionOperator implements Operator {
 
     @Override
     public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
-        deletingEventChunk.reset();
-        while (deletingEventChunk.hasNext()) {
-            StateEvent deletingEvent = deletingEventChunk.next();
-            try {
-                for (Iterator<StreamEvent> iterator = ((Collection<StreamEvent>) candidateEvents).iterator(); iterator.hasNext(); ) {
-                    StreamEvent candidateEvent = iterator.next();
-                    deletingEvent.setEvent(candidateEventPosition, candidateEvent);
-                    if ((Boolean) expressionExecutor.execute(deletingEvent)) {
-                        iterator.remove();
+        if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
+            deletingEventChunk.reset();
+            while (deletingEventChunk.hasNext()) {
+                StateEvent deletingEvent = deletingEventChunk.next();
+                try {
+                    for (Iterator<StreamEvent> iterator = ((Collection<StreamEvent>) candidateEvents).iterator(); iterator.hasNext(); ) {
+                        StreamEvent candidateEvent = iterator.next();
+                        deletingEvent.setEvent(candidateEventPosition, candidateEvent);
+                        if ((Boolean) expressionExecutor.execute(deletingEvent)) {
+                            iterator.remove();
+                        }
                     }
+                } finally {
+                    deletingEvent.setEvent(candidateEventPosition, null);
                 }
-            } finally {
-                deletingEvent.setEvent(candidateEventPosition, null);
             }
         }
     }
@@ -98,21 +100,23 @@ public class CollectionOperator implements Operator {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
-        updatingEventChunk.reset();
-        while (updatingEventChunk.hasNext()) {
-            StateEvent updatingEvent = updatingEventChunk.next();
-            try {
-                for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
-                    updatingEvent.setEvent(candidateEventPosition, candidateEvent);
-                    if ((Boolean) expressionExecutor.execute(updatingEvent)) {
-                        for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            candidateEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                    updateAttributeMapper.getCandidateAttributePosition());
+        if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
+            updatingEventChunk.reset();
+            while (updatingEventChunk.hasNext()) {
+                StateEvent updatingEvent = updatingEventChunk.next();
+                try {
+                    for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
+                        updatingEvent.setEvent(candidateEventPosition, candidateEvent);
+                        if ((Boolean) expressionExecutor.execute(updatingEvent)) {
+                            for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+                                candidateEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
+                                        updateAttributeMapper.getCandidateAttributePosition());
+                            }
                         }
                     }
+                } finally {
+                    updatingEvent.setEvent(candidateEventPosition, null);
                 }
-            } finally {
-                updatingEvent.setEvent(candidateEventPosition, null);
             }
         }
     }
@@ -120,30 +124,32 @@ public class CollectionOperator implements Operator {
     @Override
     public ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents,
                                                          UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+
         overwritingOrAddingEventChunk.reset();
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
-        while (overwritingOrAddingEventChunk.hasNext()) {
-            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
-            try {
-                boolean updated = false;
-                for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
-                    overwritingOrAddingEvent.setEvent(candidateEventPosition, candidateEvent);
-                    if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
-                        for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            candidateEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                    updateAttributeMapper.getCandidateAttributePosition());
+        if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
+            while (overwritingOrAddingEventChunk.hasNext()) {
+                StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+                try {
+                    boolean updated = false;
+                    for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
+                        overwritingOrAddingEvent.setEvent(candidateEventPosition, candidateEvent);
+                        if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
+                            for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+                                candidateEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
+                                        updateAttributeMapper.getCandidateAttributePosition());
+                            }
+                            updated = true;
                         }
-                        updated = true;
                     }
+                    if (!updated) {
+                        failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
+                    }
+                } finally {
+                    overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
                 }
-                if (!updated) {
-                    failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
-                }
-            } finally {
-                overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
             }
         }
         return failedEventChunk;
     }
-
 }

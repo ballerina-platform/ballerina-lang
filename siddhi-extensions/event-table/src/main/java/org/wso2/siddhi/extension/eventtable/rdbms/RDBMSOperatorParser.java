@@ -21,13 +21,14 @@ package org.wso2.siddhi.extension.eventtable.rdbms;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -57,50 +58,33 @@ public class RDBMSOperatorParser {
      *
      * @param dbHandler                   dbHandler
      * @param expression                  Expression
-     * @param metaComplexEvent            MetaComplexEvent
+     * @param matchingMetaStateHolder     MetaComplexEvent and details
      * @param executionPlanContext        ExecutionPlanContext
      * @param variableExpressionExecutors list of VariableExpressionExecutor
      * @param eventTableMap               EventTable map
-     * @param matchingStreamIndex         matching stream index
-     * @param candidateDefinition         candidate definition
-     * @param withinTime                  within time
      * @param cachingTable                caching table
      * @return Operator
      */
-    public static Operator parse(DBHandler dbHandler, Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
+    public static Operator parse(DBHandler dbHandler, Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, TableDefinition tableDefinition, CachingTable cachingTable) {
 
 
         ExecutionInfo executionInfo = dbHandler.getExecutionInfoInstance();
         Map<String, String> elementMappings = dbHandler.getElementMappings();
         String tableName = dbHandler.getTableName();
         List<Attribute> conditionAttributeList = new ArrayList<Attribute>();
+
         List<Attribute> updateConditionAttributeList = new ArrayList<Attribute>();
-        if (metaComplexEvent instanceof MetaStreamEvent && ((MetaStreamEvent) metaComplexEvent).getOutputData() != null) {
-            updateConditionAttributeList.addAll(((MetaStreamEvent) metaComplexEvent).getOutputData());
-        } else {
-            updateConditionAttributeList.addAll(executionInfo.getInsertQueryColumnOrder());
-        }
+        updateConditionAttributeList.addAll(matchingMetaStateHolder.getMatchingStreamDefinition().getAttributeList());
 
         List<ExpressionExecutor> expressionExecutorList = new ArrayList<ExpressionExecutor>();
 
         StringBuilder conditionBuilder = new StringBuilder(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
 
-        MetaStateEvent metaStateEvent = null;
-        if (metaComplexEvent instanceof MetaStreamEvent) {
-            metaStateEvent = new MetaStateEvent(1);
-            metaStateEvent.addEvent(((MetaStreamEvent) metaComplexEvent));
-            matchingStreamIndex = 0;
-        } else {
-            metaStateEvent = ((MetaStateEvent) metaComplexEvent);
-        }
-
         Map<String, Boolean> isTableStreamMap = new HashMap<String, Boolean>();
 
-        MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
-        for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
+        for (MetaStreamEvent metaStreamEvent : matchingMetaStateHolder.getMetaStateEvent().getMetaStreamEvents()) {
             String referenceId = metaStreamEvent.getInputReferenceId();
-            AbstractDefinition abstractDefinition = metaStreamEvent.getInputDefinitions().get(0);
+            AbstractDefinition abstractDefinition = metaStreamEvent.getLastInputDefinition();
             if (!abstractDefinition.getId().trim().equals("")) {
                 if (abstractDefinition instanceof TableDefinition) {
                     isTableStreamMap.put(abstractDefinition.getId(), true);
@@ -117,11 +101,7 @@ public class RDBMSOperatorParser {
 
         }
 
-        if (candidateDefinition instanceof TableDefinition) {
-            isTableStreamMap.put(candidateDefinition.getId(), true);
-        }
-
-        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaComplexEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo);
+        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo);
 
         //Constructing query to delete a table row
         String deleteTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
@@ -157,8 +137,12 @@ public class RDBMSOperatorParser {
         executionInfo.setPreparedTableRowExistenceCheckStatement(isTableRowExistentQuery);
         executionInfo.setConditionQueryColumnOrder(conditionAttributeList);
 
-        Operator inMemoryEventTableOperator = parse(expression, metaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, candidateDefinition, withinTime, cachingTable);
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
+        Operator inMemoryEventTableOperator = null;
+        if (cachingTable != null) {
+            inMemoryEventTableOperator = OperatorParser.constructOperator(cachingTable.getCacheList(), expression, matchingMetaStateHolder,
+                    executionPlanContext, variableExpressionExecutors, eventTableMap);
+        }
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingMetaStateHolder.getMatchingStreamDefinition().getAttributeList().size());
     }
 
 
@@ -322,72 +306,5 @@ public class RDBMSOperatorParser {
             conditionBuilder.append(value ? RDBMSEventTableConstants.BOOLEAN_LITERAL_TRUE : RDBMSEventTableConstants.BOOLEAN_LITERAL_FALSE);
         }
     }
-
-    /**
-     * Method which creates the operator to perform event table cache related operations
-     *
-     * @param expression                  Expression
-     * @param metaComplexEvent            MetaComplexEvent
-     * @param executionPlanContext        ExecutionPlanContext
-     * @param variableExpressionExecutors List of VariableExpressionExecutor
-     * @param eventTableMap               EventTable Map
-     * @param matchingStreamIndex         matching stream index
-     * @param candidateDefinition         candidate definition
-     * @param withinTime                  within time
-     * @param cachingTable                caching table
-     * @return Operator
-     */
-    public static Operator parse(Expression expression, MetaComplexEvent metaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-                                 Map<String, EventTable> eventTableMap, int matchingStreamIndex, AbstractDefinition candidateDefinition, long withinTime, CachingTable cachingTable) {
-
-        int candidateEventPosition = 0;
-        int size = 0;
-
-        MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
-        eventTableStreamEvent.setTableEvent(true);
-        eventTableStreamEvent.addInputDefinition(candidateDefinition);
-        for (Attribute attribute : candidateDefinition.getAttributeList()) {
-            eventTableStreamEvent.addOutputData(attribute);
-        }
-
-        MetaStateEvent metaStateEvent = null;
-        if (metaComplexEvent instanceof MetaStreamEvent) {
-            metaStateEvent = new MetaStateEvent(2);
-            metaStateEvent.addEvent(((MetaStreamEvent) metaComplexEvent));
-            metaStateEvent.addEvent(eventTableStreamEvent);
-            candidateEventPosition = 1;
-            matchingStreamIndex = 0;
-            size = 2;
-        } else {
-
-            MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents();
-
-            //for join
-            for (; candidateEventPosition < metaStreamEvents.length; candidateEventPosition++) {
-                MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventPosition];
-                if (candidateEventPosition != matchingStreamIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candidateDefinition)) {
-                    metaStateEvent = ((MetaStateEvent) metaComplexEvent);
-                    size = metaStreamEvents.length;
-                    break;
-                }
-            }
-
-            if (metaStateEvent == null) {
-                metaStateEvent = new MetaStateEvent(metaStreamEvents.length + 1);
-                for (MetaStreamEvent metaStreamEvent : metaStreamEvents) {
-                    metaStateEvent.addEvent(metaStreamEvent);
-                }
-                metaStateEvent.addEvent(eventTableStreamEvent);
-                candidateEventPosition = metaStreamEvents.length;
-                size = metaStreamEvents.length + 1;
-            }
-        }
-
-        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-
-        return new CacheInMemoryOperator(expressionExecutor, candidateEventPosition, matchingStreamIndex, size, withinTime, cachingTable, metaStateEvent.getMetaStreamEvent(matchingStreamIndex).getLastInputDefinition().getAttributeList().size());
-    }
-
 
 }

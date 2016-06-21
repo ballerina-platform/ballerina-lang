@@ -47,8 +47,6 @@ public class RDBMSOperator implements Operator {
     private boolean isBloomEnabled;
     private final int[] attributeIndexArray;
     private ExecutionInfo executionInfo;
-    private final StreamEvent matchingEvent;
-    private final ZeroStreamEventConverter streamEventConverter;
     private int matchingEventOutputSize;
 
     public RDBMSOperator(ExecutionInfo executionInfo, List<ExpressionExecutor> expressionExecutorList, DBHandler dbHandler, Operator inMemoryEventTableOperator, int matchingEventOutputSize) {
@@ -57,8 +55,6 @@ public class RDBMSOperator implements Operator {
         this.inMemoryEventTableOperator = inMemoryEventTableOperator;
         this.executionInfo = executionInfo;
         this.matchingEventOutputSize = matchingEventOutputSize;
-        this.matchingEvent = new StreamEvent(0, 0, matchingEventOutputSize);
-        this.streamEventConverter = new ZeroStreamEventConverter();
 
         if (dbHandler.isBloomFilterEnabled() && executionInfo.isBloomFilterCompatible()) {
             this.isBloomEnabled = true;
@@ -79,12 +75,11 @@ public class RDBMSOperator implements Operator {
         while (deletingEventChunk.hasNext()) {
             Object[] obj;
             ComplexEvent deletingEvent = deletingEventChunk.next();
-            streamEventConverter.convertComplexEvent(deletingEvent, matchingEvent);
             if (expressionExecutorList != null) {
                 obj = new Object[expressionExecutorList.size()];
                 int count = 0;
                 for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
-                    Object value = expressionExecutor.execute(matchingEvent);
+                    Object value = expressionExecutor.execute(deletingEvent);
                     obj[count] = value;
                     count++;
                 }
@@ -105,14 +100,13 @@ public class RDBMSOperator implements Operator {
         updatingEventChunk.reset();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
         while (updatingEventChunk.hasNext()) {
-            ComplexEvent updatingEvent = updatingEventChunk.next();
-            streamEventConverter.convertComplexEvent(updatingEvent, matchingEvent);
-            Object[] incomingEvent = matchingEvent.getOutputData();
-            Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
-            System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
-            int count = incomingEvent.length;
+            StateEvent updatingEvent = updatingEventChunk.next();
+            Object[] incomingEvent = updatingEvent.getStreamEvent(0).getOutputData();
+            Object[] obj = new Object[matchingEventOutputSize + expressionExecutorList.size()];
+            System.arraycopy(incomingEvent, 0, obj, 0, matchingEventOutputSize);
+            int count = matchingEventOutputSize;
             for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
-                Object value = expressionExecutor.execute(matchingEvent);
+                Object value = expressionExecutor.execute(updatingEvent);
                 obj[count] = value;
                 count++;
             }
@@ -130,14 +124,13 @@ public class RDBMSOperator implements Operator {
         List<Object[]> updateEventList = new ArrayList<Object[]>();
 
         while (overwritingOrAddingEventChunk.hasNext()) {
-            ComplexEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
-            streamEventConverter.convertComplexEvent(overwritingOrAddingEvent, matchingEvent);
-            Object[] incomingEvent = matchingEvent.getOutputData();
-            Object[] obj = new Object[incomingEvent.length + expressionExecutorList.size()];
-            System.arraycopy(incomingEvent, 0, obj, 0, incomingEvent.length);
-            int count = incomingEvent.length;
+            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+            Object[] incomingEvent = overwritingOrAddingEvent.getStreamEvent(0).getOutputData();
+            Object[] obj = new Object[matchingEventOutputSize + expressionExecutorList.size()];
+            System.arraycopy(incomingEvent, 0, obj, 0, matchingEventOutputSize);
+            int count = matchingEventOutputSize;
             for (ExpressionExecutor expressionExecutor : expressionExecutorList) {
-                Object value = expressionExecutor.execute(matchingEvent);
+                Object value = expressionExecutor.execute(overwritingOrAddingEvent);
                 obj[count] = value;
                 count++;
             }
