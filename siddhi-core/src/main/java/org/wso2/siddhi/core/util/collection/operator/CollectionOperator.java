@@ -127,11 +127,11 @@ public class CollectionOperator implements Operator {
 
         overwritingOrAddingEventChunk.reset();
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
-        if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
-            while (overwritingOrAddingEventChunk.hasNext()) {
-                StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
-                try {
-                    boolean updated = false;
+        while (overwritingOrAddingEventChunk.hasNext()) {
+            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+            try {
+                boolean updated = false;
+                if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
                     for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
                         overwritingOrAddingEvent.setEvent(candidateEventPosition, candidateEvent);
                         if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
@@ -142,12 +142,12 @@ public class CollectionOperator implements Operator {
                             updated = true;
                         }
                     }
-                    if (!updated) {
-                        failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
-                    }
-                } finally {
-                    overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
                 }
+                if (!updated) {
+                    failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
+                }
+            } finally {
+                overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
             }
         }
         return failedEventChunk;
