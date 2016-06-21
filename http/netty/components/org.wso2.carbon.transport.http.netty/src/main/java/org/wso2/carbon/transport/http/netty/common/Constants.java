@@ -181,6 +181,15 @@ public final class Constants {
 
     public static final String SRC_HNDLR = "SRC_HNDLR";
 
+    //Server Connection Related Parameters
+    public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
+    public static final String LOCAL_NAME = "LOCAL_NAME";
+    public static final String LOCAL_PORT = "LOCAL_PORT";
+    public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
+    public static final String REMOTE_HOST = "REMOTE_HOST";
+    public static final String REMOTE_PORT = "REMOTE_PORT";
+    public static final String REQUEST_URL = "REQUEST_URL";
+
     private Constants() {
     }
 

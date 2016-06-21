@@ -207,7 +207,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
         if (listenerConfiguration.getSslConfig() != null) {
             cMsg.setProperty(Constants.IS_SECURED_CONNECTION, true);
+        } else {
+            cMsg.setProperty(Constants.IS_SECURED_CONNECTION, false);
         }
+        cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
+        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
+        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+        cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
+
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;
     }
