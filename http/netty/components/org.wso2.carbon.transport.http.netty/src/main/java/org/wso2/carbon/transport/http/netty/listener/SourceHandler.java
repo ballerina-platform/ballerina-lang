@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
@@ -135,7 +135,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeRequestContinuationValidator(cMsg, carbonMessage -> {
-                        CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
+                        CarbonCallback responseCallback = (CarbonCallback) cMsg
+                                .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
             if (continueRequest) {
@@ -193,7 +194,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-        cMsg.setProperty(Constants.CALL_BACK, responseCallback);
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, responseCallback);
         HttpRequest httpRequest = (HttpRequest) msg;
 
         cMsg.setProperty(Constants.TO, httpRequest.getUri());
@@ -201,10 +202,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.SRC_HNDLR, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
         cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
-        cMsg.setProperty(Constants.LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-        cMsg.setProperty(Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
+                ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, httpRequest.getProtocolVersion().protocolName());
         if (listenerConfiguration.getSslConfig() != null) {
-            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_IS_SECURED, true);
+            cMsg.setProperty(Constants.IS_SECURED_CONNECTION, true);
         }
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;

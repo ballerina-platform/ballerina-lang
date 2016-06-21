@@ -97,7 +97,7 @@ public final class Constants {
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
     public static final String SSL_VERIFY_CLIENT = "ssl.verify.client";
 
-    public static final String SERVER_IS_SECURED = "server.is.secured";
+    public static final String IS_SECURED_CONNECTION = "IS_SECURED_CONNECTION";
 
     // Connection Pool parameters
     public static final String NUMBER_OF_POOLS = "connection.pool.count";
@@ -122,6 +122,64 @@ public final class Constants {
     public static final String EXECUTOR_WORKER_POOL = "executor.workerpool";
 
     public static final String OUTPUT_CONTENT_BUFFER_SIZE = "output.content.buffer.size";
+
+    public static final String CERTPASS = "certPass";
+
+    public static final String KEYSTOREPASS = "keyStorePass";
+
+    public static final String KEYSTOREFILE = "keyStoreFile";
+
+    public static final String TRUSTSTOREFILE = "trustStoreFile";
+
+    public static final String TRUSTSTOREPASS = "trustStorePass";
+
+
+    public static final String RESPONSE_CALLBACK = "RESPONSE_CALLBACK";
+
+    public static final String HOST = "HOST";
+
+    public static final String PORT = "PORT";
+
+    public static final String TO = "TO";
+    public static final String DISRUPTOR = "DISRUPTOR";
+
+    public static final String PROTOCOL_NAME = "HTTP";
+
+    public static final String HTTP_VERSION = "HTTP_VERSION";
+
+    public static final String HTTP_METHOD = "HTTP_METHOD";
+
+    public static final String HTTP_CONTENT_TYPE = "Content-Type";
+
+    public static final String TEXT_XML = "text/xml";
+
+    public static final String TEXT_PLAIN = "text/plain";
+
+    public static final String APPLICATION_XML = "application/xml";
+
+    public static final String GZIP = "gzip";
+
+    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+
+    public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
+
+    public static final String HTTP_CONNECTION = "Connection";
+
+    public static final String KEEP_ALIVE = "keep-alive";
+
+    public static final String HTTP_SOAP_ACTION = "SOAPAction";
+
+    public static final String HTTP_CONTENT_ENCODING = "Accept-Encoding";
+
+    public static final String HTTP_HOST = "Host";
+
+    public static final String TRANSPORT_HEADERS = "TRANSPORT_HEADERS";
+
+    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+
+    public static final String CHNL_HNDLR_CTX = "CHNL_HNDLR_CTX";
+
+    public static final String SRC_HNDLR = "SRC_HNDLR";
 
     private Constants() {
     }

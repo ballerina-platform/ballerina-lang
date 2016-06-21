@@ -147,10 +147,4 @@ public class NettyCarbonMessage extends CarbonMessage {
         }
     }
 
-    public ByteBuffer getCopiedByteBuffer(ByteBuffer initialArray) {
-        byte[] array = new byte[initialArray.capacity()];
-        initialArray.get(array);
-        ByteBuffer byteBuffer = ByteBuffer.wrap(array);
-        return byteBuffer;
-    }
 }
