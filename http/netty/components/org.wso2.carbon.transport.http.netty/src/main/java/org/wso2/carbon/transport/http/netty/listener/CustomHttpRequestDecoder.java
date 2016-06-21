@@ -30,7 +30,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;

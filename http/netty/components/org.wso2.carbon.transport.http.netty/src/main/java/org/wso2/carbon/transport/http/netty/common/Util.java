@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 
@@ -139,23 +138,23 @@ public class Util {
         SSLConfig sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         for (Parameter parameter : parametersList) {
             if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORT_CIPHERS)) {
+                    .equals(Constants.SERVER_SUPPORT_CIPHERS)) {
                 sslConfig.setCipherSuites(parameter.getValue());
 
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS)) {
+                    .equals(Constants.SERVER_SUPPORT_HTTPS_PROTOCOLS)) {
                 sslConfig.setEnableProtocols(parameter.getValue());
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
+                    .equals(Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
                 sslConfig.setSniMatchers(parameter.getValue());
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_SUPPORTED_SERVER_NAMES)) {
+                    .equals(Constants.SERVER_SUPPORTED_SERVER_NAMES)) {
                 sslConfig.setServerNames(parameter.getValue());
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SERVER_ENABLE_SESSION_CREATION)) {
+                    .equals(Constants.SERVER_ENABLE_SESSION_CREATION)) {
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.SSL_VERIFY_CLIENT)) {
+                    .equals(Constants.SSL_VERIFY_CLIENT)) {
                 sslConfig.setNeedClientAuth(Boolean.parseBoolean(parameter.getValue()));
             }
         }
@@ -195,14 +194,14 @@ public class Util {
         sslConfig.setClientMode(true);
         for (Parameter parameter : parametersList) {
             if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_SUPPORT_CIPHERS)) {
+                    .equals(Constants.CLIENT_SUPPORT_CIPHERS)) {
                 sslConfig.setCipherSuites(parameter.getValue());
 
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS)) {
+                    .equals(Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS)) {
                 sslConfig.setEnableProtocols(parameter.getValue());
             } else if (parameter.getName()
-                    .equals(org.wso2.carbon.transport.http.netty.common.Constants.CLIENT_ENABLE_SESSION_CREATION)) {
+                    .equals(Constants.CLIENT_ENABLE_SESSION_CREATION)) {
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
             }
         }

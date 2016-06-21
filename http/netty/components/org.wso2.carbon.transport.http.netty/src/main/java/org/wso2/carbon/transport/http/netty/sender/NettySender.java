@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
@@ -81,7 +81,7 @@ public class NettySender implements TransportSender {
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
 
         if (msg.getProperty(Constants.HOST) == null) {
-            log.warn("Cannot find property HOST hence using default as " + "localhost"
+            log.debug("Cannot find property HOST hence using default as " + "localhost"
                     + " Please specify remote host as 'HOST' in carbon message property ");
             msg.setProperty(Constants.HOST, "localhost");
         }
@@ -91,7 +91,7 @@ public class NettySender implements TransportSender {
             if (sslConfig != null) {
                 port = 443;
             }
-            log.warn("Cannot find property PORT hence using default as " + port
+            log.debug("Cannot find property PORT hence using default as " + port
                     + " Please specify remote host as 'PORT' in carbon message property ");
             msg.setProperty(Constants.PORT, port);
         }
@@ -100,6 +100,10 @@ public class NettySender implements TransportSender {
                 (Integer) msg.getProperty(Constants.PORT));
 
         SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
+        if (srcHandler == null) {
+            log.debug("Cannot find property SRC_HNDLR hence Sender uses as standalone.If you need to use sender with"
+                    + "listener side please copy property SRC_HNDLR from incoming message");
+        }
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
 
@@ -110,8 +114,9 @@ public class NettySender implements TransportSender {
             enableDisruptor = (String) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
                     IS_DISRUPTOR_ENABLE);
         } else {
-            log.debug("Cannot find property 'enable.disruptor  from hence using worker pool as thread model "
-                    + "for client side'");
+            log.debug("Cannot find property 'enable.disruptor   hence using worker pool as thread model "
+                    + "for client side if you neeed to sender side compatible with Listener side please copy values"
+                    + "SRC_HANDLER property , enable.disruptor properties from ");
         }
 
         if (ringBuffer == null && Boolean.parseBoolean(enableDisruptor)) {
