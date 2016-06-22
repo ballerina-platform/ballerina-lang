@@ -149,7 +149,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         // Stop the connector timer
-
+        ctx.close();
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
