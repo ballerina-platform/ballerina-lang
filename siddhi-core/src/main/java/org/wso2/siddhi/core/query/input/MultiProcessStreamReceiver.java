@@ -82,7 +82,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
                     StreamEventConverter aStreamEventConverter = streamEventConverters[anEventSequence];
                     StreamEventPool aStreamEventPool = streamEventPools[anEventSequence];
                     StreamEvent borrowedEvent = aStreamEventPool.borrowEvent();
-                    aStreamEventConverter.convertStreamEvent(aComplexEvent, borrowedEvent);
+                    aStreamEventConverter.convertComplexEvent(aComplexEvent, borrowedEvent);
                     process(anEventSequence, borrowedEvent);
 
                 }

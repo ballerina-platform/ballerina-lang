@@ -194,6 +194,37 @@ public class RDBMSEventTable implements EventTable {
         dbHandler.addEvent(addingEventChunk);
     }
 
+    @Override
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers) {
+        operator.update(updatingEventChunk, null, null);
+        if (isCachingEnabled) {
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), updateAttributeMappers);
+        }
+    }
+
+    @Override
+    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null, overwritingStreamEventExtractor);
+        if (isCachingEnabled) {
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
+        }
+    }
+
+    /**
+     * Called when having "in" condition, to check the existence of the event
+     *
+     * @param matchingEvent Event that need to be check for existence
+     * @param finder        Operator that perform RDBMS related search
+     */
+    @Override
+    public synchronized boolean contains(StateEvent matchingEvent, Finder finder) {
+        if (isCachingEnabled) {
+            return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
+        } else {
+            return finder.contains(matchingEvent, null);
+        }
+    }
+
     /**
      * Called when deleting an event chunk from event table
      *
@@ -205,44 +236,6 @@ public class RDBMSEventTable implements EventTable {
         operator.delete(deletingEventChunk, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
-        }
-    }
-
-    /**
-     * Called when updating the event table entries
-     *
-     * @param updatingEventChunk     Event list that needs to be updated
-     * @param operator               Operator that perform RDBMS related operations
-     * @param updateAttributeMappers
-     */
-    @Override
-    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
-        operator.update(updatingEventChunk, null, null);
-        if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), updateAttributeMappers);
-        }
-    }
-
-    @Override
-    public synchronized void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
-        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null);
-        if(isCachingEnabled){
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), mappingPosition);
-        }
-    }
-
-    /**
-     * Called when having "in" condition, to check the existence of the event
-     *
-     * @param matchingEvent Event that need to be check for existence
-     * @param finder        Operator that perform RDBMS related search
-     */
-    @Override
-    public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
-        if (isCachingEnabled) {
-            return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
-        } else {
-            return finder.contains(matchingEvent, null);
         }
     }
 
