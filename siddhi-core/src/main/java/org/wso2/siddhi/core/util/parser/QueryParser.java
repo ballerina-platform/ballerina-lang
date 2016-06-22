@@ -40,6 +40,7 @@ import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
@@ -83,8 +84,13 @@ public class QueryParser {
                             .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
                 }
             }
+            OutputStream.OutputEventType outputEventType = query.getOutputStream().getOutputEventType();
+            boolean outputExpectsExpiredEvents = false;
+            if (outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS) {
+                outputExpectsExpiredEvents = true;
+            }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker,outputExpectsExpiredEvents);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
@@ -100,7 +106,12 @@ public class QueryParser {
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(query.getOutputStream().getId(),
                     query.getOutputRate(), query.getSelector().getGroupByList().size() != 0, isWindow,
                     executionPlanContext.getScheduledExecutorService());
-            outputRateLimiter.init(executionPlanContext, latencyTracker);
+            if (outputRateLimiter != null) {
+                outputRateLimiter.init(executionPlanContext, latencyTracker);
+            }
+            if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
+                selector.setBatchingEnabled(false);
+            }
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),

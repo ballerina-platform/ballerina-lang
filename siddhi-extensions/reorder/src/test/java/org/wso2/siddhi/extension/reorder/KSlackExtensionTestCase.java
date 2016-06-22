@@ -104,7 +104,7 @@ public class KSlackExtensionTestCase {
 
         Thread.sleep(2000);
         executionPlanRuntime.shutdown();
-        Assert.assertEquals("Event count", 9, count);
+        Assert.assertTrue("Event count is at least 9:",  count >= 9);
     }
 
     @Test

@@ -114,6 +114,9 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
                                 break;
                             }
                         }
+                    } else if (event.getType() == ComplexEvent.Type.RESET) {
+                        eventList.clear();
+                        aggregateAttributeValueMap.clear();
                     }
                 }
             }

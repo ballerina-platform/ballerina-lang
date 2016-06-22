@@ -44,7 +44,7 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
 
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length];
         for (int i = 0; i < attributeExpressionExecutors.length; i++) {
             variableExpressionExecutors[i] = (VariableExpressionExecutor) attributeExpressionExecutors[i];

@@ -16,24 +16,26 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.stream.window;
+package org.wso2.siddhi.core.query.processor.stream;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
+import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -42,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
+public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements SchedulingProcessor {
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
     private StreamEvent resetEvent = null;
@@ -60,7 +62,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private boolean storeExpiredEvents = false;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -113,16 +115,13 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             }
         }
+        ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
+        attributes.add(new Attribute("batchEndTime", Attribute.Type.LONG));
+        return attributes;
     }
 
-    /**
-     * Here an assumption is taken:
-     * Parameter: timestamp: The time which the window determines as current time and will act upon,
-     * the value of this parameter should be monotonically increasing.
-     * from https://docs.wso2.com/display/CEP400/Inbuilt+Windows#InbuiltWindows-externalTime
-     */
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
 
         // event incoming trigger process. No events means no action
         if (streamEventChunk.getFirst() == null) {
@@ -166,7 +165,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 }
 
                 if (currentEventTime < endTime) {
-                    cloneAppend(streamEventCloner, currStreamEvent);
+                    cloneAppend(streamEventCloner, currStreamEvent, complexEventPopulater);
                 } else {
                     if (flushed) {
                         appendToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime, false);
@@ -176,7 +175,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                     }
                     // update timestamp, call next processor
                     endTime = findEndTime(lastCurrentEventTime, startTime, timeToKeep);
-                    cloneAppend(streamEventCloner, currStreamEvent);
+                    cloneAppend(streamEventCloner, currStreamEvent, complexEventPopulater);
                     // triggering the last batch expiration.
                     if (schedulerTimeout > 0) {
                         lastScheduledTime = executionPlanContext.getTimestampGenerator().currentTime() + schedulerTimeout;
@@ -314,11 +313,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         return (currentTime + (timeToKeep - elapsedTimeSinceLastEmit));
     }
 
-    private void cloneAppend(StreamEventCloner streamEventCloner, StreamEvent currStreamEvent) {
+    private void cloneAppend(StreamEventCloner streamEventCloner, StreamEvent currStreamEvent, ComplexEventPopulater complexEventPopulater) {
         StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(currStreamEvent);
+        complexEventPopulater.populateComplexEvent(clonedStreamEvent, new Object[]{endTime});
         currentEventChunk.add(clonedStreamEvent);
         if (resetEvent == null) {
-            resetEvent = streamEventCloner.copyStreamEvent(currStreamEvent);
+            resetEvent = streamEventCloner.copyStreamEvent(clonedStreamEvent);
             resetEvent.setType(ComplexEvent.Type.RESET);
         }
     }
@@ -352,20 +352,6 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         flushed = (Boolean) state[7];
     }
 
-    public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
-    }
-
-    @Override
-    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
-                                  List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        if (expiredEventChunk == null) {
-            expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            storeExpiredEvents = true;
-        }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
-    }
-
     @Override
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -375,4 +361,5 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     public Scheduler getScheduler() {
         return this.scheduler;
     }
+
 }

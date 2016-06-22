@@ -38,6 +38,13 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     @Override
     public Object execute(ComplexEvent event) {
+        if (event.getType() == ComplexEvent.Type.RESET) {
+            Object aOutput = null;
+            for (AttributeAggregator attributeAggregator : aggregatorMap.values()) {
+                aOutput = attributeAggregator.process(event);
+            }
+            return aOutput;
+        }
         String key = QuerySelector.getThreadLocalGroupByKey();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {

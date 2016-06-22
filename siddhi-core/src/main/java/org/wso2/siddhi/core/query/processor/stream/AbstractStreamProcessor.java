@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
@@ -50,9 +51,11 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected int attributeExpressionLength;
     protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
+    private boolean outputExpectsExpiredEvents;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition,
-            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         try {
             this.inputDefinition = inputDefinition;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
@@ -62,7 +65,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
                 elementId = executionPlanContext.getElementIdGenerator().createNewId();
             }
             executionPlanContext.getSnapshotService().addSnapshotable(this);
-            this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+            this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
 
             executionPlanContext.addEternalReferencedHolder(this);
 
@@ -86,17 +89,18 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan
+     * @param outputExpectsExpiredEvents
      * @return the additional output attributes introduced by the function
      */
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
-            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext);
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents);
 
-    public void process(ComplexEventChunk complexEventChunk) {
-        complexEventChunk.reset();
+    public void process(ComplexEventChunk streamEventChunk) {
+        streamEventChunk.reset();
         try {
-            processEventChunk(complexEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
+            processEventChunk(streamEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
         } catch (RuntimeException e) {
-            log.error("Dropping event chunk " + complexEventChunk + ", error in processing " + this.getClass()
+            log.error("Dropping event chunk " + streamEventChunk + ", error in processing " + this.getClass()
                     .getCanonicalName() + ", " + e.getMessage(), e);
         }
     }
@@ -104,13 +108,13 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     /**
      * The main processing method that will be called upon event arrival
      *
-     * @param complexEventChunk    the event chunk that need to be processed
+     * @param streamEventChunk    the event chunk that need to be processed
      * @param nextProcessor        the next processor to which the success events need to be passed
      * @param streamEventCloner    helps to clone the incoming event for local storage or modification
      * @param complexEventPopulater helps to populate the events with the resultant attributes
      */
-    protected abstract void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor,
-            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
+    protected abstract void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                                              StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
 
     public void setNextProcessor(Processor processor) {
         this.nextProcessor = processor;
@@ -136,7 +140,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
             abstractStreamProcessor.complexEventPopulater = complexEventPopulater;
             abstractStreamProcessor.executionPlanContext = executionPlanContext;
             abstractStreamProcessor.elementId = elementId + "-" + key;
-            abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext);
+            abstractStreamProcessor.init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
             abstractStreamProcessor.start();
             return abstractStreamProcessor;
 

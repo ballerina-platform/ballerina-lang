@@ -45,9 +45,11 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private long timeInMilliSeconds;
     private long nextEmitTime = -1;
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
-    private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
+    private StreamEvent resetEvent = null;
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
+    private boolean outputExpectsExpiredEvents;
     private boolean isStartTimeEnabled = false;
     private long startTime = 0;
 
@@ -66,9 +68,12 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.executionPlanContext = executionPlanContext;
-        this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+        if (outputExpectsExpiredEvents) {
+            this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+        }
         if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
@@ -124,7 +129,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             boolean sendEvents;
             if (currentTime >= nextEmitTime) {
                 nextEmitTime += timeInMilliSeconds;
-                if (currentEventChunk.getFirst() != null || expiredEventChunk.getFirst() != null) {
+                if (currentEventChunk.getFirst() != null || (expiredEventChunk != null && expiredEventChunk.getFirst() != null)) {
                     scheduler.notifyAt(nextEmitTime);
                 }
                 sendEvents = true;
@@ -142,22 +147,38 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             }
             streamEventChunk.clear();
             if (sendEvents) {
-                currentEventChunk.reset();
-                while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = expiredEventChunk.next();
-                    expiredEvent.setTimestamp(currentTime);
+
+                if (outputExpectsExpiredEvents) {
+                    if (expiredEventChunk.getFirst() != null) {
+                        while (expiredEventChunk.hasNext()) {
+                            StreamEvent expiredEvent = expiredEventChunk.next();
+                            expiredEvent.setTimestamp(currentTime);
+                        }
+                        streamEventChunk.add(expiredEventChunk.getFirst());
+                    }
                 }
-                if (expiredEventChunk.getFirst() != null) {
-                    streamEventChunk.add(expiredEventChunk.getFirst());
+                if (expiredEventChunk != null) {
+                    expiredEventChunk.clear();
                 }
-                expiredEventChunk.clear();
-                while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = currentEventChunk.next();
-                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
-                    toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                    expiredEventChunk.add(toExpireEvent);
-                }
+
                 if (currentEventChunk.getFirst() != null) {
+
+                    // add reset event in front of current events
+                    streamEventChunk.add(resetEvent);
+                    resetEvent = null;
+
+                    if (expiredEventChunk != null) {
+                        currentEventChunk.reset();
+                        while (currentEventChunk.hasNext()) {
+                            StreamEvent currentEvent = currentEventChunk.next();
+                            StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+                            toExpireEvent.setType(StreamEvent.Type.EXPIRED);
+                            expiredEventChunk.add(toExpireEvent);
+                        }
+                    }
+
+                    resetEvent = streamEventCloner.copyStreamEvent(currentEventChunk.getFirst());
+                    resetEvent.setType(ComplexEvent.Type.RESET);
                     streamEventChunk.add(currentEventChunk.getFirst());
                 }
                 currentEventChunk.clear();
@@ -190,13 +211,26 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public Object[] currentState() {
-        return new Object[]{expiredEventChunk.getFirst()};
+        if (expiredEventChunk != null) {
+            return new Object[]{currentEventChunk.getFirst(), expiredEventChunk.getFirst(), resetEvent};
+        } else {
+            return new Object[]{currentEventChunk.getFirst(), resetEvent};
+        }
     }
 
     @Override
     public void restoreState(Object[] state) {
-        expiredEventChunk.clear();
-        expiredEventChunk.add((StreamEvent) state[0]);
+        if (state.length > 2) {
+            currentEventChunk.clear();
+            currentEventChunk.add((StreamEvent) state[0]);
+            expiredEventChunk.clear();
+            expiredEventChunk.add((StreamEvent) state[1]);
+            resetEvent = (StreamEvent) state[2];
+        } else {
+            currentEventChunk.clear();
+            currentEventChunk.add((StreamEvent) state[0]);
+            resetEvent = (StreamEvent) state[1];
+        }
     }
 
     @Override
@@ -207,6 +241,9 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+        if (expiredEventChunk == null) {
+            expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+        }
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 }

@@ -88,6 +88,8 @@ public class JoinProcessor implements Processor {
                         if (preJoinProcessor) {
                             continue;
                         }
+                    } else if (streamEvent.getType() == ComplexEvent.Type.RESET) {
+                        continue;
                     }
                     joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
                     StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);

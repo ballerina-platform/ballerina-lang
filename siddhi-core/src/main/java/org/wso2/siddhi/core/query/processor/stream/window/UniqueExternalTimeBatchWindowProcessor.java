@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.query.processor.stream.window;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -31,20 +31,20 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.CollectionOperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
-    private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
-    private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
+public class UniqueExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
+    private Map<Object, StreamEvent> currentEvents = new HashMap<Object, StreamEvent>();
+    private Map<Object, StreamEvent> expiredEvents = null;
     private StreamEvent resetEvent = null;
     private ExpressionExecutor timestampExpressionExecutor;
     private long timeToKeep;
@@ -58,59 +58,64 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private boolean flushed = false;
     private boolean outputExpectsExpiredEvents;
     private boolean storeExpiredEvents = false;
+    private VariableExpressionExecutor variableExpressionExecutor;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         if (outputExpectsExpiredEvents) {
-            this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            this.expiredEvents = new HashMap<Object, StreamEvent>();
             this.storeExpiredEvents = true;
         }
-        if (attributeExpressionExecutors.length >= 2 && attributeExpressionExecutors.length <= 4) {
+        if (attributeExpressionExecutors.length >= 3 && attributeExpressionExecutors.length <= 5) {
 
-            if ((attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
-                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should not be a constant ");
+            if (!(attributeExpressionExecutors[0] instanceof VariableExpressionExecutor)) {
+                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter uniqueAttribute should be a variable, but found " + attributeExpressionExecutors[0].getClass());
             }
-            if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.LONG) {
-                throw new ExecutionPlanValidationException("ExternalTime window's 1st parameter timestamp should be type long, but found " + attributeExpressionExecutors[0].getReturnType());
+            variableExpressionExecutor = (VariableExpressionExecutor) attributeExpressionExecutors[0];
+
+            if ((attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
+                throw new ExecutionPlanValidationException("ExternalTime window's 2nd parameter timestamp should not be a constant ");
             }
-            timestampExpressionExecutor = attributeExpressionExecutors[0];
+            if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.LONG) {
+                throw new ExecutionPlanValidationException("ExternalTime window's 2nd parameter timestamp should be type long, but found " + attributeExpressionExecutors[1].getReturnType());
+            }
+            timestampExpressionExecutor = attributeExpressionExecutors[1];
 
-            if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                timeToKeep = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
-
-            } else if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.LONG) {
-                timeToKeep = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+            if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
+                timeToKeep = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue();
+            } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
+                timeToKeep = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue();
             } else {
-                throw new ExecutionPlanValidationException("ExternalTimeBatch window's 2nd parameter windowTime should be either int or long, but found " + attributeExpressionExecutors[1].getReturnType());
+                throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter windowTime should be either int or long, but found " + attributeExpressionExecutors[2].getReturnType());
             }
 
-            if (attributeExpressionExecutors.length >= 3) {
+            if (attributeExpressionExecutors.length >= 4) {
                 isStartTimeEnabled = true;
-                if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                    startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
-                } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
-                    startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                    startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue()));
+                } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.LONG) {
+                    startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue()));
                 } else {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should be either int or long, but found " + attributeExpressionExecutors[2].getReturnType());
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 4th parameter startTime should be either int or long, but found " + attributeExpressionExecutors[3].getReturnType());
                 }
             }
 
-            if (attributeExpressionExecutors.length == 4) {
-                if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
-                    schedulerTimeout = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue()));
-                } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.LONG) {
-                    schedulerTimeout = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[3]).getValue()));
+            if (attributeExpressionExecutors.length == 5) {
+                if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.INT) {
+                    schedulerTimeout = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[4]).getValue()));
+                } else if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.LONG) {
+                    schedulerTimeout = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[4]).getValue()));
                 } else {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 4th parameter timeout should be either int or long, but found " + attributeExpressionExecutors[3].getReturnType());
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 5th parameter timeout should be either int or long, but found " + attributeExpressionExecutors[4].getReturnType());
                 }
             }
         } else {
-            throw new ExecutionPlanValidationException("ExternalTimeBatch window should only have two to four parameters (<long> timestamp, <int|long|time> windowTime, <long> startTime, <int|long|time> timeout), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("ExternalTimeBatch window should only have three to five parameters (<variable> uniqueAttribute, <long> timestamp, <int|long|time> windowTime, <long> startTime, <int|long|time> timeout), but found " + attributeExpressionExecutors.length + " input attributes");
         }
         if (schedulerTimeout > 0) {
-            if (expiredEventChunk == null) {
-                this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            if (expiredEvents == null) {
+                this.expiredEvents = new HashMap<Object, StreamEvent>();
             }
         }
     }
@@ -146,7 +151,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                             flushToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime, true);
                             flushed = true;
                         } else {
-                            if (currentEventChunk.getFirst() != null) {
+                            if (currentEvents.size() > 0) {
                                 appendToOutputChunk(streamEventCloner, complexEventChunks, lastCurrentEventTime, true);
                             }
                         }
@@ -209,23 +214,23 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
                                     long currentTime, boolean preserveCurrentEvents) {
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
+
         if (outputExpectsExpiredEvents) {
-            if (expiredEventChunk.getFirst() != null) {
+            if (expiredEvents.size() > 0) {
                 // mark the timestamp for the expiredType event
-                expiredEventChunk.reset();
-                while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = expiredEventChunk.next();
+                for (StreamEvent expiredEvent : expiredEvents.values()) {
                     expiredEvent.setTimestamp(currentTime);
+                    // add expired event to newEventChunk.
+                    newEventChunk.add(expiredEvent);
                 }
-                // add expired event to newEventChunk.
-                newEventChunk.add(expiredEventChunk.getFirst());
             }
         }
-        if (expiredEventChunk != null) {
-            expiredEventChunk.clear();
+        if (expiredEvents != null) {
+            expiredEvents.clear();
         }
 
-        if (currentEventChunk.getFirst() != null) {
+
+        if (currentEvents.size() > 0) {
 
             // add reset event in front of current events
             resetEvent.setTimestamp(currentTime);
@@ -234,19 +239,20 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
             // move to expired events
             if (preserveCurrentEvents || storeExpiredEvents) {
-                currentEventChunk.reset();
-                while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = currentEventChunk.next();
-                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+                for (Map.Entry<Object, StreamEvent> currentEventSet : currentEvents.entrySet()) {
+                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEventSet.getValue());
                     toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                    expiredEventChunk.add(toExpireEvent);
+                    expiredEvents.put(currentEventSet.getKey(), toExpireEvent);
                 }
             }
 
-            // add current event chunk to next processor
-            newEventChunk.add(currentEventChunk.getFirst());
+            for (StreamEvent currentEvent : currentEvents.values()) {
+                // add current event to next processor
+                newEventChunk.add(currentEvent);
+            }
+
         }
-        currentEventChunk.clear();
+        currentEvents.clear();
 
         if (newEventChunk.getFirst() != null) {
             complexEventChunks.add(newEventChunk);
@@ -256,25 +262,23 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private void appendToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
                                      long currentTime, boolean preserveCurrentEvents) {
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
-        ComplexEventChunk<StreamEvent> sentEventChunk = new ComplexEventChunk<StreamEvent>(true);
-        if (currentEventChunk.getFirst() != null) {
+        Map<Object, StreamEvent> currentEventSet = new HashMap<Object, StreamEvent>();
 
-            if (expiredEventChunk.getFirst() != null) {
+        if (currentEvents.size() > 0) {
+
+            if (expiredEvents.size() > 0) {
                 // mark the timestamp for the expiredType event
-                expiredEventChunk.reset();
-                while (expiredEventChunk.hasNext()) {
-                    StreamEvent expiredEvent = expiredEventChunk.next();
-
+                for (Map.Entry<Object, StreamEvent> expiredEventEntry : expiredEvents.entrySet()) {
                     if (outputExpectsExpiredEvents) {
                         // add expired event to newEventChunk.
-                        StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(expiredEvent);
+                        StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(expiredEventEntry.getValue());
                         toExpireEvent.setTimestamp(currentTime);
                         newEventChunk.add(toExpireEvent);
                     }
 
-                    StreamEvent toSendEvent = streamEventCloner.copyStreamEvent(expiredEvent);
+                    StreamEvent toSendEvent = streamEventCloner.copyStreamEvent(expiredEventEntry.getValue());
                     toSendEvent.setType(ComplexEvent.Type.CURRENT);
-                    sentEventChunk.add(toSendEvent);
+                    currentEventSet.put(expiredEventEntry.getKey(), toSendEvent);
                 }
             }
 
@@ -283,25 +287,22 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             toResetEvent.setTimestamp(currentTime);
             newEventChunk.add(toResetEvent);
 
-            //add old events
-            newEventChunk.add(sentEventChunk.getFirst());
 
-            // move to expired events
-            if (preserveCurrentEvents || storeExpiredEvents) {
-                currentEventChunk.reset();
-                while (currentEventChunk.hasNext()) {
-                    StreamEvent currentEvent = currentEventChunk.next();
-                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEvent);
+            for (Map.Entry<Object, StreamEvent> currentEventEntry : currentEvents.entrySet()) {
+                // move to expired events
+                if (preserveCurrentEvents || storeExpiredEvents) {
+                    StreamEvent toExpireEvent = streamEventCloner.copyStreamEvent(currentEventEntry.getValue());
                     toExpireEvent.setType(StreamEvent.Type.EXPIRED);
-                    expiredEventChunk.add(toExpireEvent);
+                    expiredEvents.put(currentEventEntry.getKey(), toExpireEvent);
                 }
+                currentEventSet.put(currentEventEntry.getKey(), currentEventEntry.getValue());
             }
 
-            // add current event chunk to next processor
-            newEventChunk.add(currentEventChunk.getFirst());
-
+            for (StreamEvent currentEventEntry : currentEventSet.values()) {
+                newEventChunk.add(currentEventEntry);
+            }
         }
-        currentEventChunk.clear();
+        currentEvents.clear();
 
         if (newEventChunk.getFirst() != null) {
             complexEventChunks.add(newEventChunk);
@@ -316,7 +317,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
     private void cloneAppend(StreamEventCloner streamEventCloner, StreamEvent currStreamEvent) {
         StreamEvent clonedStreamEvent = streamEventCloner.copyStreamEvent(currStreamEvent);
-        currentEventChunk.add(clonedStreamEvent);
+        currentEvents.put(variableExpressionExecutor.execute(clonedStreamEvent), clonedStreamEvent);
         if (resetEvent == null) {
             resetEvent = streamEventCloner.copyStreamEvent(currStreamEvent);
             resetEvent.setType(ComplexEvent.Type.RESET);
@@ -332,17 +333,15 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     }
 
     public Object[] currentState() {
-        return new Object[]{currentEventChunk.getFirst(), expiredEventChunk != null ? expiredEventChunk.getFirst() : null, resetEvent, endTime, startTime, lastScheduledTime, lastCurrentEventTime, flushed};
+        return new Object[]{currentEvents, currentEvents != null ? currentEvents : null, resetEvent, endTime, startTime, lastScheduledTime, lastCurrentEventTime, flushed};
     }
 
     public void restoreState(Object[] state) {
-        currentEventChunk.clear();
-        currentEventChunk.add((StreamEvent) state[0]);
+        currentEvents = (Map<Object, StreamEvent>) state[0];
         if (state[1] != null) {
-            expiredEventChunk.clear();
-            expiredEventChunk.add((StreamEvent) state[1]);
+            expiredEvents = (Map<Object, StreamEvent>) state[1];
         } else {
-            expiredEventChunk = null;
+            expiredEvents = null;
         }
         resetEvent = (StreamEvent) state[2];
         endTime = (Long) state[3];
@@ -352,18 +351,16 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         flushed = (Boolean) state[7];
     }
 
-    public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, expiredEventChunk, streamEventCloner);
+    public synchronized StreamEvent find(ComplexEvent matchingEvent, Finder finder) {
+        return finder.find(matchingEvent, expiredEvents, streamEventCloner);
     }
 
-    @Override
-    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
-                                  List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        if (expiredEventChunk == null) {
-            expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    public Finder constructFinder(Expression expression, MetaComplexEvent matchingMetaComplexEvent, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, int matchingStreamIndex, long withinTime) {
+        if (expiredEvents == null) {
+            expiredEvents = new HashMap<Object, StreamEvent>();
             storeExpiredEvents = true;
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return CollectionOperatorParser.parse(expression, matchingMetaComplexEvent, executionPlanContext, variableExpressionExecutors, eventTableMap, matchingStreamIndex, inputDefinition, withinTime);
     }
 
     @Override

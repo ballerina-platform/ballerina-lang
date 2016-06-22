@@ -1235,4 +1235,453 @@ public class SnapshotOutputRateLimitTestCase {
         executionPlanRuntime.shutdown();
 
     }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery22() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test22");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest22') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select  ip, calls " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                for (Event inEvent : inEvents) {
+                    value++;
+                    if (value == 1) {
+                        Assert.assertEquals("192.10.1.5", (String) inEvent.getData(0));
+                    } else if (value == 2) {
+                        Assert.assertEquals("192.10.1.6", (String) inEvent.getData(0));
+                    } else if (value == 3) {
+                        Assert.assertEquals("192.10.1.7", (String) inEvent.getData(0));
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 1, count.get());
+        Assert.assertEquals("Number of output events", 3, value);
+
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery23() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test23");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select  ip, sum(calls) as totalCalls " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                for (Event inEvent : inEvents) {
+                    value++;
+                    if (value == 1) {
+                        Assert.assertEquals("192.10.1.5", (String) inEvent.getData(0));
+                    } else if (value == 2) {
+                        Assert.assertEquals("192.10.1.6", (String) inEvent.getData(0));
+                    } else if (value == 3) {
+                        Assert.assertEquals("192.10.1.7", (String) inEvent.getData(0));
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 1, count.get());
+        Assert.assertEquals("Number of output events", 3, value);
+
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery24() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test24");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select  sum(calls) as totalCalls " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                for (Event inEvent : inEvents) {
+                    value++;
+                    if (value == 1) {
+                        Assert.assertEquals((Long) 4l, inEvent.getData(0));
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 1, count.get());
+        Assert.assertEquals("Number of output events", 1, value);
+
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery25() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test25");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select  sum(calls) as totalCalls " +
+                "group by ip " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                for (Event inEvent : inEvents) {
+                    value++;
+                    if (value == 1) {
+                        Assert.assertEquals((Long) 1l, inEvent.getData(0));
+                    } else if (value == 2) {
+                        Assert.assertEquals((Long) 1l, inEvent.getData(0));
+                    } else if (value == 3) {
+                        Assert.assertEquals((Long) 2l, inEvent.getData(0));
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 1, count.get());
+        Assert.assertEquals("Number of output events", 3, value);
+
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery26() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test26");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select ip, sum(calls) as totalCalls " +
+                "group by ip " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                for (Event inEvent : inEvents) {
+                    value++;
+                    if (value == 1) {
+                        Assert.assertEquals((Long) 1l, inEvent.getData(1));
+                    } else if (value == 2) {
+                        Assert.assertEquals((Long) 1l, inEvent.getData(1));
+                    } else if (value == 3) {
+                        Assert.assertEquals((Long) 2l, inEvent.getData(1));
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 1, count.get());
+        Assert.assertEquals("Number of output events", 3, value);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery27() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test27");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest27') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select ip  " +
+                "group by ip " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                for (Event inEvent : inEvents) {
+                    value++;
+                    if (value == 1) {
+                        Assert.assertEquals("192.10.1.5", (String) inEvent.getData(0));
+                    } else if (value == 2) {
+                        Assert.assertEquals("192.10.1.6", (String) inEvent.getData(0));
+                    } else if (value == 3) {
+                        Assert.assertEquals("192.10.1.7", (String) inEvent.getData(0));
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 1, count.get());
+        Assert.assertEquals("Number of output events", 3, value);
+
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void testSnapshotOutputRateLimitQuery28() throws InterruptedException {
+        log.info("SnapshotOutputRateLimit test28");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest27') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.lengthBatch(3) " +
+                "select ip  " +
+                "group by ip " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                count.incrementAndGet();
+                if (inEvents != null) {
+                    for (Event inEvent : inEvents) {
+                        value++;
+                    if (value == 1) {
+                        Assert.assertEquals("192.10.1.5", (String) inEvent.getData(0));
+                    }else  if (value == 2) {
+                        Assert.assertEquals("192.10.1.3", (String) inEvent.getData(0));
+                    }else if (value == 3) {
+                        Assert.assertEquals("192.10.1.4", (String) inEvent.getData(0));
+                    }else if (value == 4) {
+                        Assert.assertEquals("192.10.1.5", (String) inEvent.getData(0));
+                    }else  if (value == 5) {
+                        Assert.assertEquals("192.10.1.6", (String) inEvent.getData(0));
+                    }else if (value == 6) {
+                        Assert.assertEquals("192.10.1.7", (String) inEvent.getData(0));
+                    }
+                    }
+                }
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(1100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 6});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 1});
+        Thread.sleep(1200);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
+        Thread.sleep(1200);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertEquals("Number of output event bundles", 3, count.get());
+        Assert.assertEquals("Number of output events", 6, value);
+
+        executionPlanRuntime.shutdown();
+
+    }
 }

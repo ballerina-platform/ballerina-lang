@@ -31,9 +31,9 @@ import org.wso2.siddhi.core.query.processor.Processor;
 public abstract class StreamProcessor extends AbstractStreamProcessor {
 
     @Override
-    protected void processEventChunk(ComplexEventChunk complexEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        complexEventChunk.reset();
-        process(complexEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
+    protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+        streamEventChunk.reset();
+        process(streamEventChunk, nextProcessor, streamEventCloner, complexEventPopulater);
     }
 
 

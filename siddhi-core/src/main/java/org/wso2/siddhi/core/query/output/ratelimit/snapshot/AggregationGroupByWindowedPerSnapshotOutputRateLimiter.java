@@ -78,6 +78,9 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
                                 break;
                             }
                         }
+                    }else if (groupedComplexEvent.getType() == ComplexEvent.Type.RESET) {
+                        eventList.clear();
+                        groupByAggregateAttributeValueMap.clear();
                     }
                 }
             }
