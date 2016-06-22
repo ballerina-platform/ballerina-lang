@@ -28,7 +28,6 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -40,10 +39,10 @@ import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * A class that starts the netty server bootstrap in given port.
@@ -99,7 +98,6 @@ public class NettyListener extends TransportListener {
         bootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
         log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
 
-        setupChannelInitializer();
         try {
             ChannelFuture future = bootstrap.bind(new InetSocketAddress(nettyConfig.getHost(), nettyConfig.getPort()))
                     .sync();
@@ -118,30 +116,17 @@ public class NettyListener extends TransportListener {
         }
     }
 
-    private void setupChannelInitializer() {
-        CarbonTransportInitializer channelInitializer = NettyTransportContextHolder.getInstance()
-                .getServerChannelInitializer(nettyConfig.getId());
-        if (channelInitializer == null) {
-            // start with the default initializer
-            channelInitializer = new CarbonNettyServerInitializer(nettyConfig);
-        }
-
-        List<Parameter> parameters = nettyConfig.getParameters();
-        if (parameters != null && !parameters.isEmpty()) {
-            Map<String, String> paramMap = new HashMap<>(parameters.size());
-            for (Parameter parameter : parameters) {
-                paramMap.put(parameter.getName(), parameter.getValue());
-            }
-
-            channelInitializer.setup(paramMap);
-        }
-        NettyTransportContextHolder.getInstance().addNettyChannelInitializer(nettyConfig.getId(), channelInitializer);
-    }
-
     private void addChannelInitializer() {
-        NettyServerInitializer handler = new NettyServerInitializer(id);
+        CarbonNettyServerInitializer handler = new CarbonNettyServerInitializer(nettyConfig);
         handler.setSslConfig(nettyConfig.getSslConfig());
         handler.setSslConfigMap(sslConfigMap);
+        List<Parameter> parameters = nettyConfig.getParameters();
+        if (parameters != null && !parameters.isEmpty()) {
+            Map<String, String> paramMap = parameters.stream()
+                    .collect(Collectors.toMap(Parameter::getName, Parameter::getValue));
+
+            handler.setup(paramMap);
+        }
         bootstrap.childHandler(handler);
     }
 
@@ -216,12 +201,14 @@ public class NettyListener extends TransportListener {
             String keyStoreFile = map.get(Constants.KEYSTOREFILE);
             String trustoreFile = map.get(Constants.TRUSTSTOREFILE);
             String trustorePass = map.get(Constants.TRUSTSTOREPASS);
-            for (Map.Entry entry : map.entrySet()) {
-                Parameter parameter = new Parameter();
-                parameter.setName((String) entry.getKey());
-                parameter.setValue((String) entry.getValue());
-                parameters.add(parameter);
-            }
+
+            map.forEach((key, value) -> {
+                Parameter parm = new Parameter();
+                parm.setName(key);
+                parm.setValue(value);
+                parameters.add(parm);
+            });
+
             SSLConfig sslConfig = Util
                     .getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustoreFile, trustorePass,
                             parameters);

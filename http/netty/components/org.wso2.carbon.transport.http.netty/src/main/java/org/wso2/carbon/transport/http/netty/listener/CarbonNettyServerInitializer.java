@@ -19,11 +19,13 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,8 @@ import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -40,12 +44,17 @@ import java.util.Map;
 /**
  * A class that responsible for create server side channels.
  */
-public class CarbonNettyServerInitializer implements CarbonTransportInitializer {
+public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChannel>
+        implements CarbonTransportInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
     private ConnectionManager connectionManager;
 
     private ListenerConfiguration listenerConfiguration;
+
+    private SSLConfig sslConfig;
+
+    private Map<String, org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig> sslConfigMap;
 
     public CarbonNettyServerInitializer(ListenerConfiguration listenerConfiguration) {
         this.listenerConfiguration = listenerConfiguration;
@@ -93,9 +102,20 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     }
 
     @Override
-    public void initChannel(Object ch) {
+    public void initChannel(SocketChannel ch) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("Initializing source channel pipeline");
+        }
+        String host = ch.remoteAddress().getHostName();
+        int port = ch.remoteAddress().getPort();
+
+        String id = host + ":" + port;
+        if (sslConfigMap.get(id) != null) {
+            SslHandler sslHandler = new SSLHandlerFactory(sslConfigMap.get(id)).create();
+            ch.pipeline().addLast("ssl", sslHandler);
+        } else if (sslConfig != null) {
+            SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
+            ch.pipeline().addLast("ssl", sslHandler);
         }
         ChannelPipeline p = ((SocketChannel) ch).pipeline();
         p.addLast("encoder", new HttpResponseEncoder());
@@ -123,6 +143,14 @@ public class CarbonNettyServerInitializer implements CarbonTransportInitializer 
     @Override
     public boolean isServerInitializer() {
         return true;
+    }
+
+    public void setSslConfig(SSLConfig sslConfig) {
+        this.sslConfig = sslConfig;
+    }
+
+    public void setSslConfigMap(Map<String, SSLConfig> sslConfigMap) {
+        this.sslConfigMap = sslConfigMap;
     }
 
 }
