@@ -265,6 +265,7 @@ public class TimeBatchWindowTestCase {
             executionPlanRuntime.start();
             cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
             twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+            Thread.sleep(5);
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
             Thread.sleep(1100);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
