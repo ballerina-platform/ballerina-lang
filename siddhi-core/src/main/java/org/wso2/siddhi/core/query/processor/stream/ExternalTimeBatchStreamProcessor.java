@@ -50,12 +50,10 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
     private long lastScheduledTime;
     private long lastCurrentEventTime;
     private boolean flushed = false;
-    private boolean outputExpectsExpiredEvents;
     private boolean storeExpiredEvents = false;
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
-        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             this.storeExpiredEvents = true;
@@ -199,6 +197,7 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
 
     private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
                                     long currentTime, boolean preserveCurrentEvents) {
+
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
         if (outputExpectsExpiredEvents) {
             if (expiredEventChunk.getFirst() != null) {
@@ -334,7 +333,12 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
             expiredEventChunk.clear();
             expiredEventChunk.add((StreamEvent) state[1]);
         } else {
-            expiredEventChunk = null;
+            if (outputExpectsExpiredEvents) {
+                expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            }
+            if (schedulerTimeout > 0) {
+                expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            }
         }
         resetEvent = (StreamEvent) state[2];
         endTime = (Long) state[3];

@@ -201,7 +201,7 @@ public class RDBMSEventTable implements EventTable {
      * @param operator           Operator that perform RDBMS related operations
      */
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator) {
+    public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         operator.delete(deletingEventChunk, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
@@ -216,7 +216,7 @@ public class RDBMSEventTable implements EventTable {
      * @param updateAttributeMappers
      */
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers) {
+    public synchronized void update(ComplexEventChunk updatingEventChunk, Operator operator, int[] mappingPosition) {
         operator.update(updatingEventChunk, null, null);
         if (isCachingEnabled) {
             ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), updateAttributeMappers);
@@ -224,10 +224,10 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null, overwritingStreamEventExtractor);
-        if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
+    public synchronized void overwriteOrAdd(ComplexEventChunk overwritingOrAddingEventChunk, Operator operator, int[] mappingPosition) {
+        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null);
+        if(isCachingEnabled){
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), mappingPosition);
         }
     }
 
@@ -238,7 +238,7 @@ public class RDBMSEventTable implements EventTable {
      * @param finder        Operator that perform RDBMS related search
      */
     @Override
-    public boolean contains(StateEvent matchingEvent, Finder finder) {
+    public synchronized boolean contains(ComplexEvent matchingEvent, Finder finder) {
         if (isCachingEnabled) {
             return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
         } else {
@@ -258,7 +258,7 @@ public class RDBMSEventTable implements EventTable {
      * Called to find a event from event table
      */
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Finder finder) {
+    public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
         return finder.find(matchingEvent, null, null);
     }
 

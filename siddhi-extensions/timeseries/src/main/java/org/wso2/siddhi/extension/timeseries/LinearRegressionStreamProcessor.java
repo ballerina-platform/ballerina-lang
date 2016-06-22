@@ -57,7 +57,7 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
 
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
 
         // Capture constant inputs
@@ -73,7 +73,10 @@ public class LinearRegressionStreamProcessor extends StreamProcessor {
             try {
                 ci = ((Double) attributeExpressionExecutors[2].execute(null));
             } catch (ClassCastException c) {
-                throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
+                throw new ExecutionPlanCreationException("Confidence interval should be of type double");
+            }
+            if (!(0<=ci && ci<=1)){
+                throw new ExecutionPlanCreationException("Confidence interval should be a value between 0 and 1");
             }
         }
 

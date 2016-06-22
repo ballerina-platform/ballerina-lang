@@ -55,6 +55,7 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
     private static final Logger log = Logger.getLogger(DateFormatFunctionExtension.class);
     private boolean useDefaultDateFormat = false;
     private String sourceDateFormat = null;
+    private Calendar calInstance = Calendar.getInstance();
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
@@ -179,7 +180,7 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
             // Format the Date to specified Format
             FastDateFormat targetFormat;
             long dateInMills;
-            Calendar calInstance;
+
             String formattedNewDateValue = null;
 
             try {
@@ -188,7 +189,6 @@ public class DateFormatFunctionExtension extends FunctionExecutor {
                 // Format the Date to specified Format
                 targetFormat = FastDateFormat.getInstance(targetDataFormat);
                 dateInMills = (Long) data[0];
-                calInstance = Calendar.getInstance();
                 calInstance.setTimeInMillis(dateInMills);
                 userSpecifiedSourceDate = calInstance.getTime();
                 formattedNewDateValue = targetFormat.format(userSpecifiedSourceDate);

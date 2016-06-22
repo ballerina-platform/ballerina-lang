@@ -49,7 +49,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private StreamEvent resetEvent = null;
     private Scheduler scheduler;
     private ExecutionPlanContext executionPlanContext;
-    private boolean outputExpectsExpiredEvents;
     private boolean isStartTimeEnabled = false;
     private long startTime = 0;
 
@@ -68,9 +67,8 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
-        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }

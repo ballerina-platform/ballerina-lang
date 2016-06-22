@@ -56,12 +56,10 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private long lastScheduledTime;
     private long lastCurrentEventTime;
     private boolean flushed = false;
-    private boolean outputExpectsExpiredEvents;
     private boolean storeExpiredEvents = false;
 
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
-        this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             this.storeExpiredEvents = true;

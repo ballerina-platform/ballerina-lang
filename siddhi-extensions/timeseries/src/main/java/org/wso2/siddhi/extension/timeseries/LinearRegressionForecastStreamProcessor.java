@@ -33,7 +33,6 @@ import org.wso2.siddhi.extension.timeseries.linreg.RegressionCalculator;
 import org.wso2.siddhi.extension.timeseries.linreg.SimpleLinearRegressionCalculator;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +77,7 @@ public class LinearRegressionForecastStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
 
         // Capture Constant inputs
@@ -94,7 +93,10 @@ public class LinearRegressionForecastStreamProcessor extends StreamProcessor {
             try {
                 ci = ((Double) attributeExpressionExecutors[2].execute(null));
             } catch (ClassCastException c) {
-                throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
+                throw new ExecutionPlanCreationException("Confidence interval should be of type double");
+            }
+            if (!(0<=ci && ci<=1)){
+                throw new ExecutionPlanCreationException("Confidence interval should be a value between 0 and 1");
             }
         }
 

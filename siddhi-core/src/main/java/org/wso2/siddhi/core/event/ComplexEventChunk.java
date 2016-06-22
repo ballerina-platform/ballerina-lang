@@ -38,6 +38,20 @@ public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, S
         this.isBatch = isBatch;
     }
 
+    //Only to maintain backward compatibility
+    @Deprecated
+    public ComplexEventChunk() {
+        this.isBatch = true;
+    }
+
+    //Only to maintain backward compatibility
+    @Deprecated
+    public ComplexEventChunk(E first, E last) {
+        this.first = first;
+        this.last = last;
+        this.isBatch = true;
+    }
+
     public ComplexEventChunk(E first, E last, boolean isBatch) {
         this.first = first;
         this.last = last;
