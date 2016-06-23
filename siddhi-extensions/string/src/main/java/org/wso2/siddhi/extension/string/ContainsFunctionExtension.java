@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.string;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -37,6 +38,8 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
  */
 public class ContainsFunctionExtension extends FunctionExecutor {
     Attribute.Type returnType = Attribute.Type.BOOL;
+    private final static Logger log = Logger.getLogger(ContainsFunctionExtension.class);
+
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
@@ -58,7 +61,10 @@ public class ContainsFunctionExtension extends FunctionExecutor {
     @Override
     protected Object execute(Object[] data) {
         if (data[0] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to str:contains() function. First argument cannot be null");
+            if(log.isDebugEnabled()){
+                log.warn("Invalid input given to str:contains() function. First argument cannot be null, returning false");
+            }
+            return false;
         }
         if (data[1] == null) {
             throw new ExecutionPlanRuntimeException("Invalid input given to str:contains() function. Second argument cannot be null");

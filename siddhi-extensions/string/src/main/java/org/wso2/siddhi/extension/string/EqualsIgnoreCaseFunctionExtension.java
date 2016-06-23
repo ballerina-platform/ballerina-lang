@@ -35,37 +35,31 @@ public class EqualsIgnoreCaseFunctionExtension extends FunctionExecutor {
 
     @Override
     public Attribute.Type getReturnType() {
-        // TODO Auto-generated method stub
         return returnType;
     }
 
     @Override
     public void start() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public Object[] currentState() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void restoreState(Object[] state) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        // TODO Auto-generated method stub
         if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException(
                     "Invalid no of arguments passed to str:equalsIgnoreCase() function, " + "required 2, but found "
@@ -88,7 +82,6 @@ public class EqualsIgnoreCaseFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        // TODO Auto-generated method stub
         if (data[0] == null) {
             throw new ExecutionPlanRuntimeException(
                     "Invalid input given to str:equalsIgnoreCase() function. First argument cannot be null");
@@ -100,7 +93,6 @@ public class EqualsIgnoreCaseFunctionExtension extends FunctionExecutor {
 
     @Override
     protected Object execute(Object data) {
-        // TODO Auto-generated method stub
         return null;
     }
 
