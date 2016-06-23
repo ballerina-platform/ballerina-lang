@@ -39,6 +39,7 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class QueryRuntime {
 
@@ -48,18 +49,20 @@ public class QueryRuntime {
     private String queryId;
     private Query query;
     private OutputCallback outputCallback;
+    private boolean synchronised;
     private StreamDefinition outputStreamDefinition;
     private boolean toLocalStream;
     private QuerySelector selector;
     private MetaComplexEvent metaComplexEvent;
 
     public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime, QuerySelector selector,
-                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent metaComplexEvent) {
+                        OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent metaComplexEvent, boolean synchronised) {
         this.query = query;
         this.executionPlanContext = executionPlanContext;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
         this.outputCallback = outputCallback;
+        this.synchronised = synchronised;
 
         outputRateLimiter.setOutputCallback(outputCallback);
         setOutputRateLimiter(outputRateLimiter);
@@ -129,13 +132,18 @@ public class QueryRuntime {
 
     public QueryRuntime clone(String key, ConcurrentMap<String, StreamJunction> localStreamJunctionMap) {
 
+        ReentrantLock queryLock = null;
+        if (synchronised) {
+            queryLock = new ReentrantLock();
+        }
         StreamRuntime clonedStreamRuntime = this.streamRuntime.clone(key);
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
+        clonedOutputRateLimiter.init(executionPlanContext, queryLock);
 
         QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
-                clonedOutputRateLimiter, outputCallback, this.metaComplexEvent);
-        QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent);
+                clonedOutputRateLimiter, outputCallback, this.metaComplexEvent, synchronised);
+        QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, queryLock);
 
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);

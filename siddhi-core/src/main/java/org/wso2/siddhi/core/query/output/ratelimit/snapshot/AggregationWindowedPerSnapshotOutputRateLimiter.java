@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -37,8 +38,8 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     protected Scheduler scheduler;
     protected long scheduledTime;
 
-    protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        super(wrappedSnapshotOutputRateLimiter);
+    protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -128,8 +129,9 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        scheduler.init(queryLock);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -153,7 +155,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter);
+        return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
     }
 
 

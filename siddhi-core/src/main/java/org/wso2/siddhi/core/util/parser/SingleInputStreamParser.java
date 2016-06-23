@@ -103,8 +103,7 @@ public class SingleInputStreamParser {
                             processor.setToLast(entryValveProcessor);
                         }
                     }
-                    Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), entryValveProcessor);
-                    scheduler.init(executionPlanContext, latencyTracker);
+                    Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), entryValveProcessor, executionPlanContext);
                     ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
                 }
                 if (first) {

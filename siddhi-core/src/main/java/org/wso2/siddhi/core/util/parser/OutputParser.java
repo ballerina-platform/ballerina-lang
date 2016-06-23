@@ -170,7 +170,7 @@ public class OutputParser {
         }
     }
 
-    public static OutputRateLimiter constructOutputRateLimiter(String id, OutputRate outputRate, boolean isGroupBy, boolean isWindow, ScheduledExecutorService scheduledExecutorService) {
+    public static OutputRateLimiter constructOutputRateLimiter(String id, OutputRate outputRate, boolean isGroupBy, boolean isWindow, ScheduledExecutorService scheduledExecutorService, ExecutionPlanContext executionPlanContext) {
         if (outputRate == null) {
             return new PassThroughOutputRateLimiter(id);
         } else if (outputRate instanceof EventOutputRate) {
@@ -212,7 +212,7 @@ public class OutputParser {
             //never happens
             throw new OperationNotSupportedException(((TimeOutputRate) outputRate).getType() + " not supported in output rate limiting");
         } else {
-            return new WrappedSnapshotOutputRateLimiter(id, ((SnapshotOutputRate) outputRate).getValue(), scheduledExecutorService, isGroupBy, isWindow);
+            return new WrappedSnapshotOutputRateLimiter(id, ((SnapshotOutputRate) outputRate).getValue(), scheduledExecutorService, isGroupBy, isWindow, executionPlanContext);
         }
 
     }

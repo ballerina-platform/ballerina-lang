@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.query.output.ratelimit;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -28,6 +29,7 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable {
@@ -38,10 +40,13 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
     private String elementId;
     protected ExecutionPlanContext executionPlanContext;
     protected LatencyTracker latencyTracker;
+    protected ReentrantLock queryLock;
 
-    public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
+    public void init(ExecutionPlanContext executionPlanContext, ReentrantLock queryLock) {
         this.executionPlanContext = executionPlanContext;
-        this.latencyTracker = latencyTracker;
+        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
+            this.queryLock = queryLock;
+        }
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
@@ -52,7 +57,9 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
         if (latencyTracker != null) {
             latencyTracker.markOut();
         }
-
+        if (queryLock != null && queryLock.isHeldByCurrentThread()) {
+            queryLock.unlock();
+        }
         if (!queryCallbacks.isEmpty()) {
             for (QueryCallback callback : queryCallbacks) {
                 callback.receiveStreamEvent(complexEventChunk);
@@ -99,6 +106,10 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
 
     public String getElementId() {
         return elementId;
+    }
+
+    public void setLatencyTracker(LatencyTracker latencyTracker) {
+        this.latencyTracker = latencyTracker;
     }
 }
 

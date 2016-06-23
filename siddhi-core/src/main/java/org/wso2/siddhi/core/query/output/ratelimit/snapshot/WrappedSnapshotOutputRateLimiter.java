@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
@@ -33,6 +34,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.Abstract
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     SnapshotOutputRateLimiter outputRateLimiter;
@@ -41,22 +43,28 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     private final ScheduledExecutorService scheduledExecutorService;
     private final boolean groupBy;
     private final boolean windowed;
+    private ExecutionPlanContext executionPlanContext;
     private List<Integer> aggregateAttributePositionList = new ArrayList<Integer>();
 
-    public WrappedSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, boolean isGroupBy, boolean isWindowed) {
+    public WrappedSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, boolean isGroupBy, boolean isWindowed, ExecutionPlanContext executionPlanContext) {
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
         groupBy = isGroupBy;
         windowed = isWindowed;
+        this.executionPlanContext = executionPlanContext;
     }
 
     @Override
     public OutputRateLimiter clone(String key) {
-        WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, groupBy, windowed);
-        instance.init(executionPlanContext, latencyTracker);
+        WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, groupBy, windowed, executionPlanContext);
         instance.outputRateLimiter = this.outputRateLimiter.clone(key, instance);
         return instance;
+    }
+
+    public void init(ExecutionPlanContext executionPlanContext, ReentrantLock queryLock) {
+        super.init(executionPlanContext, queryLock);
+        outputRateLimiter.setQueryLock(queryLock);
     }
 
     public void init(int outPutAttributeSize, List<AttributeProcessor> attributeProcessorList, MetaComplexEvent metaComplexEvent) {
@@ -69,28 +77,28 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         if (windowed) {
             if (groupBy) {
                 if (outPutAttributeSize == aggregateAttributePositionList.size()) {   //All Aggregation
-                    outputRateLimiter = new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this);
+                    outputRateLimiter = new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext);
                 } else if (aggregateAttributePositionList.size() > 0) {   //Some Aggregation
-                    outputRateLimiter = new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, aggregateAttributePositionList, this);
+                    outputRateLimiter = new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, aggregateAttributePositionList, this, executionPlanContext);
                 } else { // No aggregation
                     //GroupBy is same as Non GroupBy
-                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this);
+                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext);
                 }
             } else {
                 if (outPutAttributeSize == aggregateAttributePositionList.size()) {   //All Aggregation
-                    outputRateLimiter = new AllAggregationPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this);
+                    outputRateLimiter = new AllAggregationPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext);
                 } else if (aggregateAttributePositionList.size() > 0) {   //Some Aggregation
-                    outputRateLimiter = new AggregationWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, aggregateAttributePositionList, this);
+                    outputRateLimiter = new AggregationWindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, aggregateAttributePositionList, this, executionPlanContext);
                 } else { // No aggregation
-                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this);
+                    outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext);
                 }
             }
 
         } else {
             if (groupBy) {
-                outputRateLimiter = new GroupByPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this);
+                outputRateLimiter = new GroupByPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext);
             } else {
-                outputRateLimiter = new PerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this);
+                outputRateLimiter = new PerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this, executionPlanContext);
             }
         }
 

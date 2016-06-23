@@ -42,7 +42,7 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public OutputRateLimiter clone(String key) {
         LastGroupByPerEventOutputRateLimiter instance = new LastGroupByPerEventOutputRateLimiter(id+key,value);
-        instance.init(executionPlanContext, latencyTracker);
+        instance.setLatencyTracker(latencyTracker);
         return instance;
     }
 
