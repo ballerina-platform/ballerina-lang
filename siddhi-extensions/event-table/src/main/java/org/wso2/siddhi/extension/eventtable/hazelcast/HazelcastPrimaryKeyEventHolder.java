@@ -80,6 +80,11 @@ public class HazelcastPrimaryKeyEventHolder implements EventHolder, Map<Object, 
         return candidateDataMap.put(key, value);
     }
 
+
+    public StreamEvent replace(Object key, StreamEvent value) {
+        return candidateDataMap.replace(key, value);
+    }
+
     @Override
     public StreamEvent remove(Object key) {
         return candidateDataMap.remove(key);

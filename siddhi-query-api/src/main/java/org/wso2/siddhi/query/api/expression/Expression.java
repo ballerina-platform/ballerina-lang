@@ -104,8 +104,8 @@ public abstract class Expression {
         return new Not(Expression);
     }
 
-    public static Expression isNull(Variable variable) {
-        return new IsNull(variable);
+    public static Expression isNull(Expression expression) {
+        return new IsNull(expression);
     }
 
     public static Expression isNullStream(String streamId) {

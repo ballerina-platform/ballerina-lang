@@ -18,22 +18,23 @@
 
 package org.wso2.siddhi.extension.eventtable.rdbms;
 
-
 import org.apache.hadoop.util.bloom.CountingBloomFilter;
-import org.apache.hadoop.util.bloom.Key;
-import org.apache.hadoop.util.hash.Hash;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,21 +44,19 @@ import java.util.Map;
  */
 public class DBHandler {
 
+    private static final Logger log = Logger.getLogger(DBHandler.class);
     private String tableName;
     private Map<String, String> elementMappings;
     private ExecutionInfo executionInfo;
     private List<Attribute> attributeList;
     private DataSource dataSource;
-    private CountingBloomFilter[] bloomFilters;
     private boolean isBloomFilterEnabled;
+    private BloomFilterImpl bloomFilterImpl;
     private TableDefinition tableDefinition;
-    private int bloomFilterSize;
-    private int bloomFilterHashFunction;
     private CachingTable cachingTable;
-    private static final Logger log = Logger.getLogger(DBHandler.class);
 
-
-    public DBHandler(DataSource dataSource, String tableName, List<Attribute> attributeList, TableDefinition tableDefinition) {
+    public DBHandler(DataSource dataSource, String tableName, List<Attribute> attributeList,
+                     TableDefinition tableDefinition) {
 
         Connection con = null;
         this.dataSource = dataSource;
@@ -98,17 +97,8 @@ public class DBHandler {
         return attributeList;
     }
 
-    public void setBloomFilterProperties(int bloomFilterSize, int bloomFilterHashFunction) {
-        this.bloomFilterSize = bloomFilterSize;
-        this.bloomFilterHashFunction = bloomFilterHashFunction;
-    }
-
     public boolean isBloomFilterEnabled() {
         return isBloomFilterEnabled;
-    }
-
-    public CountingBloomFilter[] getBloomFilters() {
-        return bloomFilters;
     }
 
     public void addEvent(ComplexEventChunk addingEventChunk) {
@@ -141,7 +131,7 @@ public class DBHandler {
 
                 if (isBloomFilterEnabled) {
                     for (ComplexEvent event : eventArrayList) {
-                        addToBloomFilters(event);
+                        bloomFilterImpl.addToBloomFilters(event);
                     }
                 }
             }
@@ -152,7 +142,6 @@ public class DBHandler {
             cleanUpConnections(stmt, con);
         }
     }
-
 
     public void deleteEvent(List<Object[]> eventList, ExecutionInfo executionInfo) {
 
@@ -186,7 +175,7 @@ public class DBHandler {
 
             if (isBloomFilterEnabled && (deletedRows != null && deletedRows.length > 0)) {
                 for (Object[] obj : selectedEventList) {
-                    removeFromBloomFilters(obj);
+                    bloomFilterImpl.removeFromBloomFilters(obj);
                 }
             }
 
@@ -236,11 +225,11 @@ public class DBHandler {
 
         if (isBloomFilterEnabled && (updatedRows != null && updatedRows.length > 0)) {
             for (Object[] obj : selectedEventList) {
-                removeFromBloomFilters(obj);
+                bloomFilterImpl.removeFromBloomFilters(obj);
             }
 
             for (Object[] obj : updateEventList) {
-                addToBloomFilters(obj);
+                bloomFilterImpl.addToBloomFilters(obj);
             }
         }
     }
@@ -284,7 +273,7 @@ public class DBHandler {
                     insertionPreparedStatement.addBatch();
 
                     if (isBloomFilterEnabled) {
-                        addToBloomFilters(updateEvent);
+                        bloomFilterImpl.addToBloomFilters(updateEvent);
                     }
                 }
             }
@@ -296,11 +285,11 @@ public class DBHandler {
 
             if (isBloomFilterEnabled) {
                 for (Object[] obj : selectedEventList) {
-                    removeFromBloomFilters(obj);
+                    bloomFilterImpl.removeFromBloomFilters(obj);
                 }
 
                 for (Object[] obj : updateEventList) {
-                    addToBloomFilters(obj);
+                    bloomFilterImpl.addToBloomFilters(obj);
                 }
             }
 
@@ -388,7 +377,6 @@ public class DBHandler {
         return false;
     }
 
-
     private void initializeConnection() {
         Statement stmt = null;
         Boolean tableExists = true;
@@ -432,7 +420,6 @@ public class DBHandler {
         }
     }
 
-
     /**
      * Populating column values to table Insert query
      */
@@ -466,15 +453,14 @@ public class DBHandler {
                     }
                 } else {
                     throw new ExecutionPlanRuntimeException("Cannot Execute Insert/Update. Null value detected for " +
-                            "attribute '" + attribute.getName()+"'");
+                                                            "attribute '" + attribute.getName() + "'");
                 }
             }
         } catch (SQLException e) {
             throw new ExecutionPlanRuntimeException("Cannot set value to attribute name " + attribute.getName() + ". " +
-                    "Hence dropping the event. " + e.getMessage(), e);
+                                                    "Hence dropping the event. " + e.getMessage(), e);
         }
     }
-
 
     /**
      * Generates an event list from db resultSet
@@ -515,7 +501,6 @@ public class DBHandler {
         }
         return selectedEventList;
     }
-
 
     /**
      * Construct all the queries and assign to executionInfo instance
@@ -580,15 +565,15 @@ public class DBHandler {
 
             //Constructing quert to create a new table
             String createTableQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants
-                    .EVENT_TABLE_RDBMS_CREATE_TABLE), columnTypes, null, null, null, null);
+                                                                                            .EVENT_TABLE_RDBMS_CREATE_TABLE), columnTypes, null, null, null, null);
 
             //constructing query to insert date into the table row
             String insertTableRowQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants
-                    .EVENT_TABLE_RDBMS_INSERT_DATA), null, columns, valuePositionsBuilder, null, null);
+                                                                                               .EVENT_TABLE_RDBMS_INSERT_DATA), null, columns, valuePositionsBuilder, null, null);
 
             //Constructing query to check for the table existence
             String isTableExistQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants
-                    .EVENT_TABLE_RDBMS_TABLE_EXIST), null, null, null, null, null);
+                                                                                             .EVENT_TABLE_RDBMS_TABLE_EXIST), null, null, null, null, null);
 
             executionInfo.setPreparedInsertStatement(insertTableRowQuery);
             executionInfo.setPreparedCreateTableStatement(createTableQuery);
@@ -622,26 +607,26 @@ public class DBHandler {
         }
         if (query.contains(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMN_TYPES)) {
             query = query.replace(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMN_TYPES,
-                    columnTypes.toString());
+                                  columnTypes.toString());
         }
         if (query.contains(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMNS)) {
             query = query.replace(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMNS,
-                    columns.toString());
+                                  columns.toString());
         }
         if (query.contains(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_VALUES)) {
             query = query.replace(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_VALUES, values.toString());
         }
         if (query.contains(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMN_VALUES)) {
             query = query.replace(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_COLUMN_VALUES,
-                    column_values.toString());
+                                  column_values.toString());
         }
         if (query.contains(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_CONDITION)) {
             if (condition == null || condition.toString().trim().equals("")) {
                 query = query.replace(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_CONDITION,
-                        "").replace("where", "").replace("WHERE", "");
+                                      "").replace("where", "").replace("WHERE", "");
             } else {
                 query = query.replace(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_ATTRIBUTE_CONDITION,
-                        condition.toString());
+                                      condition.toString());
             }
         }
         return query;
@@ -665,15 +650,14 @@ public class DBHandler {
         }
     }
 
+    //Configuting Bloom Filter related operations
 
-    //Bloom Filter Operations  -----------------------------------------------------------------------------------------
+    public void setBloomFilters(int bloomFilterSize, int bloomFilterHashFunction) {
+        bloomFilterImpl = new BloomFilterImpl(bloomFilterSize, bloomFilterHashFunction, attributeList);
+        isBloomFilterEnabled = true;
+    }
 
     public void buildBloomFilters() {
-        CountingBloomFilter[] bloomFilters = new CountingBloomFilter[tableDefinition.getAttributeList().size()];
-
-        for (int i = 0; i < bloomFilters.length; i++) {
-            bloomFilters[i] = new CountingBloomFilter(bloomFilterSize, bloomFilterHashFunction, Hash.MURMUR_HASH);
-        }
         Connection con = null;
         Statement stmt = null;
         try {
@@ -681,37 +665,7 @@ public class DBHandler {
             stmt = con.createStatement();
             String selectTableRowQuery = constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_SELECT_TABLE), null, null, null, null, null);
             ResultSet results = stmt.executeQuery(selectTableRowQuery);
-            while (results.next()) {
-                for (int i = 0; i < bloomFilters.length; i++) {
-                    switch (tableDefinition.getAttributeList().get(i).getType()) {
-                        case INT:
-                            bloomFilters[i].add(new Key(Integer.toString(results.getInt(i + 1)).getBytes()));
-                            break;
-                        case LONG:
-                            bloomFilters[i].add(new Key(Long.toString(results.getLong(i + 1)).getBytes()));
-                            break;
-                        case FLOAT:
-                            bloomFilters[i].add(new Key(Float.toString(results.getFloat(i + 1)).getBytes()));
-                            break;
-                        case DOUBLE:
-                            bloomFilters[i].add(new Key(Double.toString(results.getDouble(i + 1)).getBytes()));
-                            break;
-                        case STRING:
-                            String attributeValue = results.getString(i + 1);
-                            if(attributeValue != null){
-                                bloomFilters[i].add(new Key(attributeValue.getBytes()));
-                            }
-                            break;
-                        case BOOL:
-                            bloomFilters[i].add(new Key(Boolean.toString(results.getBoolean(i + 1)).getBytes()));
-                            break;
-
-                    }
-                }
-            }
-            results.close();
-            this.bloomFilters = bloomFilters;
-            this.isBloomFilterEnabled = true;
+            bloomFilterImpl.buildBloomFilters(results);
         } catch (SQLException ex) {
             throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex.getMessage(), ex);
         } finally {
@@ -719,30 +673,9 @@ public class DBHandler {
         }
     }
 
-    public void addToBloomFilters(ComplexEvent event) {
-        for (int i = 0; i < attributeList.size(); i++) {
-            if(event.getOutputData()[i] != null){
-                bloomFilters[i].add(new Key(event.getOutputData()[i].toString().getBytes()));
-            }
-        }
+    public CountingBloomFilter[] getBloomFilters() {
+        return bloomFilterImpl.getBloomFilters();
     }
-
-    public void addToBloomFilters(Object[] obj) {
-        for (int i = 0; i < attributeList.size(); i++) {
-            if(obj[i] != null){
-                bloomFilters[i].add(new Key(obj[i].toString().getBytes()));
-            }
-        }
-    }
-
-    public void removeFromBloomFilters(Object[] obj) {
-        for (int i = 0; i < attributeList.size(); i++) {
-            if(obj[i] != null){
-                bloomFilters[i].delete(new Key(obj[i].toString().getBytes()));
-            }
-        }
-    }
-
 
     //Pre loading the cache ---------------------------------------------------------------------------------------------------------
 

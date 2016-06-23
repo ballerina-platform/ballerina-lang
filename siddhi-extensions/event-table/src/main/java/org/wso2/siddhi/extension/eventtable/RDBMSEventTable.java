@@ -156,7 +156,7 @@ public class RDBMSEventTable implements EventTable {
                     bloomFilterHashFunctions = Integer.parseInt(bloomsFilterHash);
                 }
 
-                dbHandler.setBloomFilterProperties(bloomFilterSize, bloomFilterHashFunctions);
+                dbHandler.setBloomFilters(bloomFilterSize, bloomFilterHashFunctions);
                 dbHandler.buildBloomFilters();
                 if (bloomFilterValidityInterval != null) {
                     Long bloomTimeInterval = Long.parseLong(bloomFilterValidityInterval);

@@ -22,27 +22,58 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
 import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
 import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.handler.*;
-import org.wso2.siddhi.query.api.execution.query.input.state.*;
-import org.wso2.siddhi.query.api.execution.query.input.stream.*;
+import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunctionExtension;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
+import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
+import org.wso2.siddhi.query.api.execution.query.input.handler.WindowExtension;
+import org.wso2.siddhi.query.api.execution.query.input.state.CountStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.state.EveryStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.state.NextStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.state.State;
+import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
+import org.wso2.siddhi.query.api.execution.query.input.state.StreamStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.stream.AnonymousInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.TimeOutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.*;
+import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.InsertOverwriteStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.api.expression.constant.*;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
+import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.util.SiddhiConstants;
@@ -357,7 +388,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public RangePartitionType.RangePartitionProperty[] visitCondition_ranges(@NotNull SiddhiQLParser.Condition_rangesContext ctx) {
+    public RangePartitionType.RangePartitionProperty[] visitCondition_ranges(
+            @NotNull SiddhiQLParser.Condition_rangesContext ctx) {
         RangePartitionType.RangePartitionProperty[] rangePartitionProperties = new RangePartitionType.RangePartitionProperty[ctx.condition_range().size()];
         List<SiddhiQLParser.Condition_rangeContext> condition_range = ctx.condition_range();
         for (int i = 0; i < condition_range.size(); i++) {
@@ -496,7 +528,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         Source source = (Source) visit(ctx.source());
 
         BasicSingleInputStream basicSingleInputStream = new BasicSingleInputStream(null, source.streamId,
-                source.isInnerStream);
+                                                                                   source.isInnerStream);
 
         if (ctx.pre_window_handlers != null) {
             basicSingleInputStream.addStreamHandlers((List<StreamHandler>) visit(ctx.pre_window_handlers));
@@ -582,7 +614,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             activeStreams.add(streamAlias);
         }
         BasicSingleInputStream basicSingleInputStream = new BasicSingleInputStream(streamAlias, source.streamId,
-                source.isInnerStream);
+                                                                                   source.isInnerStream);
 
         if (ctx.basic_source_stream_handlers() != null) {
             basicSingleInputStream.addStreamHandlers((List<StreamHandler>) visit(ctx.basic_source_stream_handlers()));
@@ -637,7 +669,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             return stateElement;
         } else if (ctx.every_pattern_source_chain().size() == 2) { // every_pattern_source_chain  '->' every_pattern_source_chain
             return new NextStateElement(((StateElement) visit(ctx.every_pattern_source_chain(0))),
-                    ((StateElement) visit(ctx.every_pattern_source_chain(1))));
+                                        ((StateElement) visit(ctx.every_pattern_source_chain(1))));
         } else if (ctx.EVERY() != null) {
             if (ctx.pattern_source_chain() != null) { // EVERY '('pattern_source_chain ')' within_time?
                 EveryStateElement everyStateElement = new EveryStateElement((StateElement) visit(ctx.pattern_source_chain()));
@@ -688,7 +720,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             return stateElement;
         } else if (ctx.pattern_source_chain().size() == 2) {
             return new NextStateElement(((StateElement) visit(ctx.pattern_source_chain(0))),
-                    ((StateElement) visit(ctx.pattern_source_chain(1))));
+                                        ((StateElement) visit(ctx.pattern_source_chain(1))));
         } else if (ctx.pattern_source() != null) {
             StateElement stateElement = ((StateElement) visit(ctx.pattern_source()));
             if (ctx.within_time() != null) {
@@ -747,7 +779,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public CountStateElement visitPattern_collection_stateful_source(@NotNull SiddhiQLParser.Pattern_collection_stateful_sourceContext ctx) {
+    public CountStateElement visitPattern_collection_stateful_source(
+            @NotNull SiddhiQLParser.Pattern_collection_stateful_sourceContext ctx) {
 
         StreamStateElement streamStateElement = (StreamStateElement) visit(ctx.standard_stateful_source());
 
@@ -863,7 +896,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public List<StreamHandler> visitBasic_source_stream_handlers(@NotNull SiddhiQLParser.Basic_source_stream_handlersContext ctx) {
+    public List<StreamHandler> visitBasic_source_stream_handlers(
+            @NotNull SiddhiQLParser.Basic_source_stream_handlersContext ctx) {
         List<StreamHandler> streamHandlers = new ArrayList<StreamHandler>();
         for (SiddhiQLParser.Basic_source_stream_handlerContext handlerContext : ctx.basic_source_stream_handler()) {
             streamHandlers.add((StreamHandler) visit(handlerContext));
@@ -879,7 +913,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public StreamStateElement visitStandard_stateful_source(@NotNull SiddhiQLParser.Standard_stateful_sourceContext ctx) {
+    public StreamStateElement visitStandard_stateful_source(
+            @NotNull SiddhiQLParser.Standard_stateful_sourceContext ctx) {
 
 //        standard_stateful_source
 //        : (event '=')? basic_source
@@ -909,7 +944,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public CountStateElement visitSequence_collection_stateful_source(@NotNull SiddhiQLParser.Sequence_collection_stateful_sourceContext ctx) {
+    public CountStateElement visitSequence_collection_stateful_source(
+            @NotNull SiddhiQLParser.Sequence_collection_stateful_sourceContext ctx) {
 
 //        sequence_collection_stateful_source
 //        :standard_stateful_source ('<' collect '>'|zero_or_more='*'|zero_or_one='?'|one_or_more='+')
@@ -1059,7 +1095,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         return selector;
     }
 
-
     /**
      * {@inheritDoc}
      * <p>The default implementation returns the result of calling
@@ -1112,15 +1147,15 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 }
                 if (ctx.output_event_type() != null) {
                     return new InsertOverwriteStream(source.streamId,
-                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                            (Expression) visit(ctx.expression()));
+                                                     (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                                     (Expression) visit(ctx.expression()));
                 } else {
                     return new InsertOverwriteStream(source.streamId, (Expression) visit(ctx.expression()));
                 }
             } else {
                 if (ctx.output_event_type() != null) {
                     return new InsertIntoStream(source.streamId, source.isInnerStream,
-                            (OutputStream.OutputEventType) visit(ctx.output_event_type()));
+                                                (OutputStream.OutputEventType) visit(ctx.output_event_type()));
                 } else {
                     return new InsertIntoStream(source.streamId, source.isInnerStream);
                 }
@@ -1132,8 +1167,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             }
             if (ctx.output_event_type() != null) {
                 return new DeleteStream(source.streamId,
-                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                        (Expression) visit(ctx.expression()));
+                                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                        (Expression) visit(ctx.expression()));
             } else {
                 return new DeleteStream(source.streamId, (Expression) visit(ctx.expression()));
             }
@@ -1144,8 +1179,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             }
             if (ctx.output_event_type() != null) {
                 return new UpdateStream(source.streamId,
-                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                        (Expression) visit(ctx.expression()));
+                                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                                        (Expression) visit(ctx.expression()));
             } else {
                 return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
             }
@@ -1328,7 +1363,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public Expression visitGreaterthan_lessthan_math_operation(@NotNull SiddhiQLParser.Greaterthan_lessthan_math_operationContext ctx) {
+    public Expression visitGreaterthan_lessthan_math_operation(
+            @NotNull SiddhiQLParser.Greaterthan_lessthan_math_operationContext ctx) {
         if (ctx.gt != null) {
             return Expression.compare((Expression) visit(ctx.math_operation(0)), Compare.Operator.GREATER_THAN, (Expression) visit(ctx.math_operation(1)));
         } else if (ctx.lt != null) {
@@ -1368,7 +1404,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public Expression visitMultiplication_math_operation(@NotNull SiddhiQLParser.Multiplication_math_operationContext ctx) {
+    public Expression visitMultiplication_math_operation(
+            @NotNull SiddhiQLParser.Multiplication_math_operationContext ctx) {
         if (ctx.multiply != null) {
             return Expression.multiply((Expression) visit(ctx.math_operation(0)), (Expression) visit(ctx.math_operation(1)));
         } else if (ctx.devide != null) {
@@ -1499,8 +1536,10 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                     return Expression.isNull(Expression.variable(streamReference.streamId));
                 }
             }
+        } else if (ctx.function_operation() != null) {
+            return Expression.isNull((Expression) visit(ctx.function_operation()));
         } else { //attribute_reference
-            return Expression.isNull((Variable) visit(ctx.attribute_reference()));
+            return Expression.isNull((Expression) visit(ctx.attribute_reference()));
         }
     }
 

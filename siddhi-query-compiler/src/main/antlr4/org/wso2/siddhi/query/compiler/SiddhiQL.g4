@@ -310,7 +310,7 @@ attribute_list
     ;
 
 null_check
-    :( stream_reference  | attribute_reference) IS NULL
+    :( stream_reference  | attribute_reference | function_operation ) IS NULL
     ;
 
 stream_reference
