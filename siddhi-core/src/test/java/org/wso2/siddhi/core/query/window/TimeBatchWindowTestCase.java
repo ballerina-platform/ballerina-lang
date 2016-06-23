@@ -324,6 +324,56 @@ public class TimeBatchWindowTestCase {
         }
     }
 
+    @Test
+    public void timeWindowBatchTest7() throws InterruptedException {
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                                "define stream cseEventStream (symbol string, price float, volume int);";
+        String query = "" +
+                       "@info(name = 'query1') " +
+                       "from cseEventStream#window.timeBatch(2 sec , 0) " +
+                       "select symbol, sum(price) as sumPrice, volume " +
+                       "insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if(inEventCount==0){
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                }
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                } else if(removeEvents != null){
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 0});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
+        Thread.sleep(8000);
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
+        inputHandler.send(new Object[]{"II", 60.5f, 1});
+        Thread.sleep(13000);
+        inputHandler.send(new Object[]{"TT", 60.5f, 1});
+        inputHandler.send(new Object[]{"YY", 60.5f, 1});
+        Thread.sleep(5000);
+        Assert.assertEquals(3, inEventCount);
+        Assert.assertEquals(0, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
 
 //    @Test
 //    public void timeWindowBatchStartTimeTest() throws InterruptedException {
