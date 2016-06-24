@@ -205,6 +205,7 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
 
     private void flushToOutputChunk(StreamEventCloner streamEventCloner, List<ComplexEventChunk<StreamEvent>> complexEventChunks,
                                     long currentTime, boolean preserveCurrentEvents) {
+
         ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<StreamEvent>(true);
         if (outputExpectsExpiredEvents) {
             if (expiredEventChunk.getFirst() != null) {
@@ -340,7 +341,12 @@ public class ExternalTimeBatchStreamProcessor extends StreamProcessor implements
             expiredEventChunk.clear();
             expiredEventChunk.add((StreamEvent) state[1]);
         } else {
-            expiredEventChunk = null;
+            if (outputExpectsExpiredEvents) {
+                expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            }
+            if (schedulerTimeout > 0) {
+                expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            }
         }
         resetEvent = (StreamEvent) state[2];
         endTime = (Long) state[3];
