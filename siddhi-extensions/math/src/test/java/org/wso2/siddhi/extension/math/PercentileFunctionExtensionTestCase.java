@@ -42,7 +42,7 @@ public class PercentileFunctionExtensionTestCase {
     }
 
     @Test
-    public void PercentileFunctionExtensionDouble() throws Exception {
+    public void PercentileFunctionExtensionDouble1() throws Exception {
         logger.info("PercentileFunctionExtensionTestCase TestCase 1");
 
         siddhiManager = new SiddhiManager();
@@ -119,8 +119,138 @@ public class PercentileFunctionExtensionTestCase {
     }
 
     @Test
-    public void PercentileFunctionExtensionFloat() throws Exception {
+    public void PercentileFunctionExtensionDouble2() throws Exception {
         logger.info("PercentileFunctionExtensionTestCase TestCase 2");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature double);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(10.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(30.0, event.getData(0));
+                        break;
+                    case 3:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 4:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 5:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 6:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 7:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 8:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 9:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 10:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10d });
+        inputHandler.send(new Object[] { 2, 30d });
+        inputHandler.send(new Object[] { 3, 100d });
+        inputHandler.send(new Object[] { 4, 40d });
+        inputHandler.send(new Object[] { 5, 80d });
+        inputHandler.send(new Object[] { 6, 60d });
+        inputHandler.send(new Object[] { 7, 20d });
+        inputHandler.send(new Object[] { 8, 90d });
+        inputHandler.send(new Object[] { 9, 70d });
+        inputHandler.send(new Object[] { 10, 50d });
+
+        Thread.sleep(100);
+        Assert.assertEquals(10, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionDouble3() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 3");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature double);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10d });
+        inputHandler.send(new Object[] { 2, 30d });
+        inputHandler.send(new Object[] { 3, 100d });
+        inputHandler.send(new Object[] { 4, 40d });
+        inputHandler.send(new Object[] { 5, 80d });
+        inputHandler.send(new Object[] { 6, 60d });
+        inputHandler.send(new Object[] { 7, 20d });
+        inputHandler.send(new Object[] { 8, 90d });
+        inputHandler.send(new Object[] { 9, 70d });
+        inputHandler.send(new Object[] { 10, 50d });
+
+        Thread.sleep(100);
+        Assert.assertEquals(2, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionFloat1() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 4");
 
         siddhiManager = new SiddhiManager();
         String inStreamDefinition = "define stream inputStream (sensorId int, temperature float);";
@@ -196,8 +326,138 @@ public class PercentileFunctionExtensionTestCase {
     }
 
     @Test
-    public void PercentileFunctionExtensionInt() throws Exception {
-        logger.info("PercentileFunctionExtensionTestCase TestCase 3");
+    public void PercentileFunctionExtensionFloat2() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 5");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature float);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(10.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(30.0, event.getData(0));
+                        break;
+                    case 3:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 4:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 5:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 6:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 7:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 8:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 9:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 10:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10f });
+        inputHandler.send(new Object[] { 2, 30f });
+        inputHandler.send(new Object[] { 3, 100f });
+        inputHandler.send(new Object[] { 4, 40f });
+        inputHandler.send(new Object[] { 5, 80f });
+        inputHandler.send(new Object[] { 6, 60f });
+        inputHandler.send(new Object[] { 7, 20f });
+        inputHandler.send(new Object[] { 8, 90f });
+        inputHandler.send(new Object[] { 9, 70f });
+        inputHandler.send(new Object[] { 10, 50f });
+
+        Thread.sleep(100);
+        Assert.assertEquals(10, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionFloat3() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 6");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature float);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10f });
+        inputHandler.send(new Object[] { 2, 30f });
+        inputHandler.send(new Object[] { 3, 100f });
+        inputHandler.send(new Object[] { 4, 40f });
+        inputHandler.send(new Object[] { 5, 80f });
+        inputHandler.send(new Object[] { 6, 60f });
+        inputHandler.send(new Object[] { 7, 20f });
+        inputHandler.send(new Object[] { 8, 90f });
+        inputHandler.send(new Object[] { 9, 70f });
+        inputHandler.send(new Object[] { 10, 50f });
+
+        Thread.sleep(100);
+        Assert.assertEquals(2, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionInt1() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 7");
 
         siddhiManager = new SiddhiManager();
         String inStreamDefinition = "define stream inputStream (sensorId int, temperature int);";
@@ -273,8 +533,138 @@ public class PercentileFunctionExtensionTestCase {
     }
 
     @Test
-    public void PercentileFunctionExtensionLong() throws Exception {
-        logger.info("PercentileFunctionExtensionTestCase TestCase 4");
+    public void PercentileFunctionExtensionInt2() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 8");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature int);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(10.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(30.0, event.getData(0));
+                        break;
+                    case 3:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 4:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 5:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 6:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 7:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 8:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 9:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 10:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10 });
+        inputHandler.send(new Object[] { 2, 30 });
+        inputHandler.send(new Object[] { 3, 100 });
+        inputHandler.send(new Object[] { 4, 40 });
+        inputHandler.send(new Object[] { 5, 80 });
+        inputHandler.send(new Object[] { 6, 60 });
+        inputHandler.send(new Object[] { 7, 20 });
+        inputHandler.send(new Object[] { 8, 90 });
+        inputHandler.send(new Object[] { 9, 70 });
+        inputHandler.send(new Object[] { 10, 50 });
+
+        Thread.sleep(100);
+        Assert.assertEquals(10, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionInt3() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 9");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature int);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10 });
+        inputHandler.send(new Object[] { 2, 30 });
+        inputHandler.send(new Object[] { 3, 100 });
+        inputHandler.send(new Object[] { 4, 40 });
+        inputHandler.send(new Object[] { 5, 80 });
+        inputHandler.send(new Object[] { 6, 60 });
+        inputHandler.send(new Object[] { 7, 20 });
+        inputHandler.send(new Object[] { 8, 90 });
+        inputHandler.send(new Object[] { 9, 70 });
+        inputHandler.send(new Object[] { 10, 50 });
+
+        Thread.sleep(100);
+        Assert.assertEquals(2, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionLong1() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 10");
 
         siddhiManager = new SiddhiManager();
         String inStreamDefinition = "define stream inputStream (sensorId int, temperature long);";
@@ -345,6 +735,136 @@ public class PercentileFunctionExtensionTestCase {
 
         Thread.sleep(100);
         Assert.assertEquals(10, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionLong2() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 11");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature long);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(10.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(30.0, event.getData(0));
+                        break;
+                    case 3:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 4:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 5:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 6:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 7:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 8:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 9:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    case 10:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10l });
+        inputHandler.send(new Object[] { 2, 30l });
+        inputHandler.send(new Object[] { 3, 100l });
+        inputHandler.send(new Object[] { 4, 40l });
+        inputHandler.send(new Object[] { 5, 80l });
+        inputHandler.send(new Object[] { 6, 60l });
+        inputHandler.send(new Object[] { 7, 20l });
+        inputHandler.send(new Object[] { 8, 90l });
+        inputHandler.send(new Object[] { 9, 70l });
+        inputHandler.send(new Object[] { 10, 50l });
+
+        Thread.sleep(100);
+        Assert.assertEquals(10, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void PercentileFunctionExtensionLong3() throws Exception {
+        logger.info("PercentileFunctionExtensionTestCase TestCase 12");
+
+        siddhiManager = new SiddhiManager();
+        String inStreamDefinition = "define stream inputStream (sensorId int, temperature long);";
+
+        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+                + "select math:percentile(temperature, 97.0) as percentile " + "insert into outputStream;");
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager
+                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                eventArrived = true;
+                for (Event event : inEvents) {
+                    count++;
+                    switch (count) {
+                    case 1:
+                        Assert.assertEquals(100.0, event.getData(0));
+                        break;
+                    case 2:
+                        Assert.assertEquals(90.0, event.getData(0));
+                        break;
+                    default:
+                        Assert.fail();
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[] { 1, 10l });
+        inputHandler.send(new Object[] { 2, 30l });
+        inputHandler.send(new Object[] { 3, 100l });
+        inputHandler.send(new Object[] { 4, 40l });
+        inputHandler.send(new Object[] { 5, 80l });
+        inputHandler.send(new Object[] { 6, 60l });
+        inputHandler.send(new Object[] { 7, 20l });
+        inputHandler.send(new Object[] { 8, 90l });
+        inputHandler.send(new Object[] { 9, 70l });
+        inputHandler.send(new Object[] { 10, 50l });
+
+        Thread.sleep(100);
+        Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
     }
