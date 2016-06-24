@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -27,15 +28,20 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.util.Schedulable;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public abstract class SnapshotOutputRateLimiter implements Schedulable {
     static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
     private WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter;
+    protected ExecutionPlanContext executionPlanContext;
     protected StreamEventCloner streamEventCloner;
     protected StateEventCloner stateEventCloner;
     private boolean receiveStreamEvent;
+    protected ReentrantLock queryLock;
 
-    protected SnapshotOutputRateLimiter(WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
+    protected SnapshotOutputRateLimiter(WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
         this.wrappedSnapshotOutputRateLimiter = wrappedSnapshotOutputRateLimiter;
+        this.executionPlanContext = executionPlanContext;
     }
 
     public abstract void process(ComplexEventChunk complexEventChunk);
@@ -76,4 +82,8 @@ public abstract class SnapshotOutputRateLimiter implements Schedulable {
     public abstract Object[] currentState();
 
     public abstract void restoreState(Object[] state);
+
+    public void setQueryLock(ReentrantLock queryLock) {
+        this.queryLock = queryLock;
+    }
 }

@@ -1,0 +1,274 @@
+/*
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.wso2.siddhi.core.managment;
+
+import junit.framework.Assert;
+import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.query.output.callback.QueryCallback;
+import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
+import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class QuerySyncTestCase {
+    private static final Logger log = Logger.getLogger(QuerySyncTestCase.class);
+    private AtomicInteger inEventCount;
+    private AtomicInteger removeEventCount;
+    private boolean eventArrived;
+    private AtomicInteger count;
+
+    @Before
+    public void init() {
+        count = new AtomicInteger(0);
+        inEventCount = new AtomicInteger(0);
+        removeEventCount = new AtomicInteger(0);
+        eventArrived = false;
+    }
+
+    @Test
+    public void querySyncTest1() throws InterruptedException {
+        log.info("querySync test1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price float, volume int);";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "@synchronized('true') " +
+                "from cseEventStream#window.time(2 sec) " +
+                "select symbol,price,volume " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount.addAndGet(inEvents.length);
+                }
+                if (removeEvents != null) {
+                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount.get() > removeEventCount.get());
+                    removeEventCount.addAndGet(removeEvents.length);
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 0});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
+        Thread.sleep(4000);
+        Assert.assertEquals(2, inEventCount.get());
+        Assert.assertEquals(2, removeEventCount.get());
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+    @Test
+    public void querySyncTest2() throws InterruptedException {
+        log.info("querySync test2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "@Plan:name('SnapshotOutputRateLimitTest3') " +
+                "" +
+                "define stream LoginEvents (timeStamp long, ip string);" +
+                "" +
+                "@info(name = 'query1') " +
+                "@synchronized('true') " +
+                "from LoginEvents " +
+                "select ip " +
+                "output snapshot every 1 sec " +
+                "insert all events into uniqueIps ;";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        log.info("Running : " + executionPlanRuntime.getName());
+
+        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                eventArrived = true;
+                for (Event event : events) {
+                    if (event.isExpired()) {
+                        Assert.fail("Remove events emitted");
+                    } else {
+                        count.incrementAndGet();
+                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
+                    }
+                }
+            }
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        Thread.sleep(2200);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.9"});
+        Thread.sleep(100);
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});
+        Thread.sleep(1100);
+
+        executionPlanRuntime.shutdown();
+
+        Assert.assertEquals("Event arrived", true, eventArrived);
+        Assert.assertTrue("Number of output event value", 3 == count.get());
+
+    }
+
+    @Test
+    public void querySyncTest3() throws InterruptedException {
+        log.info("querySync test3");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define stream twitterStream (user string, tweet string, company string); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "@synchronized('true') " +
+                "from cseEventStream#window.time(1 sec) as a join twitterStream#window.time(1 sec) as b " +
+                "on a.symbol== b.company " +
+                "select a.symbol as symbol, b.tweet, a.price " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        inEventCount.addAndGet(inEvents.length);
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount.addAndGet(removeEvents.length);
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+            executionPlanRuntime.start();
+            cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
+            twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+            cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
+            Thread.sleep(500);
+            cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
+
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
+            Assert.assertEquals(2, inEventCount.get());
+            Assert.assertEquals(2, removeEventCount.get());
+            Assert.assertTrue(eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
+
+    @Test
+    public void querySyncTest4() throws InterruptedException {
+        log.info("querySync test4");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream Stream1 (symbol string, price float, volume int); " +
+                "define stream Stream2 (symbol string, price float, volume int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "@synchronized('true') " +
+                "from every ( e1=Stream1[price>20] -> e3=Stream1[price>20]) -> e2=Stream2[price>e1.price] " +
+                "select e1.price as price1, e3.price as price3, e2.price as price2 " +
+                "insert into OutputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount.incrementAndGet();
+                        switch (inEventCount.get()) {
+                            case 1:
+                                org.junit.Assert.assertArrayEquals(new Object[]{55.6f, 54f, 57.7f}, event.getData());
+                                break;
+                            case 2:
+                                org.junit.Assert.assertArrayEquals(new Object[]{53.6f, 53f, 57.7f}, event.getData());
+                                break;
+                            default:
+                                org.junit.Assert.assertSame(2, inEventCount);
+                        }
+
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount.addAndGet( removeEvents.length);
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+
+        executionPlanRuntime.start();
+
+        stream1.send(new Object[]{"WSO2", 55.6f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"GOOG", 54f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"WSO2", 53.6f, 100});
+        Thread.sleep(100);
+        stream1.send(new Object[]{"GOOG", 53f, 100});
+        Thread.sleep(100);
+        stream2.send(new Object[]{"IBM", 57.7f, 100});
+        Thread.sleep(100);
+
+        org.junit.Assert.assertEquals("Number of success events", 2, inEventCount.get());
+        org.junit.Assert.assertEquals("Number of remove events", 0, removeEventCount.get());
+        org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
+
+        executionPlanRuntime.shutdown();
+    }
+}

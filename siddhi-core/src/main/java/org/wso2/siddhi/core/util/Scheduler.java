@@ -33,6 +33,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Scheduler implements Snapshotable {
 
@@ -46,11 +47,13 @@ public class Scheduler implements Snapshotable {
     private ExecutionPlanContext executionPlanContext;
     private String elementId;
     private LatencyTracker latencyTracker;
+    private ReentrantLock queryLock;
 
 
-    public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve) {
+    public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
         this.scheduledExecutorService = scheduledExecutorService;
-        eventCaller = new EventCaller(singleThreadEntryValve);
+        this.eventCaller = new EventCaller(singleThreadEntryValve);
+        this.executionPlanContext = executionPlanContext;
     }
 
     public void notifyAt(long time) {
@@ -83,9 +86,8 @@ public class Scheduler implements Snapshotable {
         streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
-    public void init(ExecutionPlanContext executionPlanContext, LatencyTracker latencyTracker) {
-        this.latencyTracker = latencyTracker;
-        this.executionPlanContext = executionPlanContext;
+    public void init(ReentrantLock queryLock) {
+        this.queryLock = queryLock;
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
@@ -111,10 +113,13 @@ public class Scheduler implements Snapshotable {
     }
 
     public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
-        Scheduler scheduler = new Scheduler(scheduledExecutorService, entryValveProcessor);
+        Scheduler scheduler = new Scheduler(scheduledExecutorService, entryValveProcessor, executionPlanContext);
         scheduler.elementId = elementId + "-" + key;
-        scheduler.init(executionPlanContext, latencyTracker);
         return scheduler;
+    }
+
+    public void setLatencyTracker(LatencyTracker latencyTracker) {
+        this.latencyTracker = latencyTracker;
     }
 
     private class EventCaller implements Runnable {
@@ -130,7 +135,7 @@ public class Scheduler implements Snapshotable {
          * to create a thread, starting the thread causes the object's
          * <code>run</code> method to be called in that separately executing
          * thread.
-         * <p/>
+         * <p>
          * The general contract of the method <code>run</code> is that it may
          * take any action whatsoever.
          *
@@ -148,15 +153,24 @@ public class Scheduler implements Snapshotable {
                     timerEvent.setType(StreamEvent.Type.TIMER);
                     timerEvent.setTimestamp(toNotifyTime);
                     streamEventChunk.add(timerEvent);
-                    if (latencyTracker != null) {
-                        try {
-                            latencyTracker.markIn();
+                    if (queryLock != null) {
+                        queryLock.lock();
+                    }
+                    try {
+                        if (latencyTracker != null) {
+                            try {
+                                latencyTracker.markIn();
+                                singleThreadEntryValve.process(streamEventChunk);
+                            } finally {
+                                latencyTracker.markOut();
+                            }
+                        } else {
                             singleThreadEntryValve.process(streamEventChunk);
-                        } finally {
-                            latencyTracker.markOut();
                         }
-                    } else {
-                        singleThreadEntryValve.process(streamEventChunk);
+                    } finally {
+                        if (queryLock != null && queryLock.isHeldByCurrentThread()) {
+                            queryLock.unlock();
+                        }
                     }
                     streamEventChunk.clear();
 

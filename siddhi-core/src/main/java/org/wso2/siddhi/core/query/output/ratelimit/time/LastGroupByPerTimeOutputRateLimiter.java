@@ -52,7 +52,7 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
     @Override
     public OutputRateLimiter clone(String key) {
         LastGroupByPerTimeOutputRateLimiter instance = new LastGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
-        instance.init(executionPlanContext, latencyTracker);
+        instance.setLatencyTracker(latencyTracker);
         return instance;
     }
 
@@ -91,8 +91,9 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        scheduler.init(queryLock);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);

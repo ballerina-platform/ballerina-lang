@@ -52,7 +52,7 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
     @Override
     public OutputRateLimiter clone(String key) {
         FirstGroupByPerTimeOutputRateLimiter instance = new FirstGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
-        instance.init(executionPlanContext, latencyTracker);
+        instance.setLatencyTracker(latencyTracker);
         return instance;
     }
 
@@ -94,8 +94,9 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        scheduler.init(queryLock);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);

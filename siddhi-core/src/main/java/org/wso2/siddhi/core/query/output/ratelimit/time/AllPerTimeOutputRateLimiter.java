@@ -50,7 +50,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     @Override
     public OutputRateLimiter clone(String key) {
         AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
-        instance.init(executionPlanContext, latencyTracker);
+        instance.setLatencyTracker(latencyTracker);
         return instance;
     }
 
@@ -87,8 +87,9 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        scheduler.init(queryLock);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);

@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -37,8 +38,8 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     protected Scheduler scheduler;
     protected long scheduledTime;
 
-    protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        super(wrappedSnapshotOutputRateLimiter);
+    protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -83,21 +84,10 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
-                        for (ComplexEvent originalComplexEvent : eventList) {
-                            ComplexEvent eventCopy = cloneComplexEvent(originalComplexEvent);
-                            for (Integer position : aggregateAttributePositionList) {
-                                eventCopy.getOutputData()[position] = aggregateAttributeValueMap.get(position);
-                            }
-                            outputEventChunk.add(eventCopy);
-                        }
-                        outputEventChunks.add(outputEventChunk);
-                        scheduledTime += value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     if (event.getType() == ComplexEvent.Type.CURRENT) {
                         eventList.add(event);
                         for (Integer position : aggregateAttributePositionList) {
@@ -126,10 +116,27 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
         }
     }
 
+    private void tryFlushEvents(ArrayList<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+            for (ComplexEvent originalComplexEvent : eventList) {
+                ComplexEvent eventCopy = cloneComplexEvent(originalComplexEvent);
+                for (Integer position : aggregateAttributePositionList) {
+                    eventCopy.getOutputData()[position] = aggregateAttributeValueMap.get(position);
+                }
+                outputEventChunk.add(eventCopy);
+            }
+            outputEventChunks.add(outputEventChunk);
+            scheduledTime += value;
+            scheduler.notifyAt(scheduledTime);
+        }
+    }
+
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        scheduler.init(queryLock);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -153,7 +160,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter);
+        return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
     }
 
 

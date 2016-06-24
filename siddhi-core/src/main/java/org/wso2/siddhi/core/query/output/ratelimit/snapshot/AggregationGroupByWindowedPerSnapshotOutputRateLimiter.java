@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
@@ -29,8 +30,8 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
     private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
     protected LinkedList<GroupedComplexEvent> eventList;
 
-    protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter);
+    protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+        super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
         groupByAggregateAttributeValueMap = new HashMap<String, Map<Integer, Object>>();
         eventList = new LinkedList<GroupedComplexEvent>();
     }
@@ -46,13 +47,10 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        constructOutputChunk(outputEventChunks);
-                        scheduledTime = scheduledTime + value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     if (currentGroupByKey == null || !currentGroupByKey.equals(groupedComplexEvent.getGroupKey())) {
                         currentGroupByKey = groupedComplexEvent.getGroupKey();
@@ -90,6 +88,14 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
         }
     }
 
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            constructOutputChunk(outputEventChunks);
+            scheduledTime = scheduledTime + value;
+            scheduler.notifyAt(scheduledTime);
+        }
+    }
+
     private void constructOutputChunk(List<ComplexEventChunk<ComplexEvent>> outputEventChunks) {
         ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
         for (GroupedComplexEvent originalComplexEvent : eventList) {
@@ -117,6 +123,6 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter);
+        return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
     }
 }

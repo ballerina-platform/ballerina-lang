@@ -38,6 +38,7 @@ import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
@@ -131,23 +132,23 @@ public class QueryParserHelper {
         }
     }
 
-    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent) {
+    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, ReentrantLock queryLock) {
 
         if (runtime instanceof SingleStreamRuntime) {
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, queryLock);
         } else {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
             MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
             for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
                 initSingleStreamRuntime(runtime.getSingleStreamRuntimes().get(i),
-                        i, metaStateEvent, stateEventPool);
+                        i, metaStateEvent, stateEventPool, queryLock);
             }
         }
     }
 
     private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex,
-                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool) {
+                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, ReentrantLock queryLock) {
         MetaStreamEvent metaStreamEvent;
 
         if (metaComplexEvent instanceof MetaStateEvent) {
@@ -159,11 +160,13 @@ public class QueryParserHelper {
         ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
         processStreamReceiver.setMetaStreamEvent(metaStreamEvent);
         processStreamReceiver.setStreamEventPool(streamEventPool);
+        processStreamReceiver.setQueryLock(queryLock);
         processStreamReceiver.init();
         Processor processor = singleStreamRuntime.getProcessorChain();
         while (processor != null) {
             if (processor instanceof SchedulingProcessor) {
                 ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
+                ((SchedulingProcessor) processor).getScheduler().init(queryLock);
             }
             if (processor instanceof AbstractStreamProcessor) {
                 ((AbstractStreamProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,

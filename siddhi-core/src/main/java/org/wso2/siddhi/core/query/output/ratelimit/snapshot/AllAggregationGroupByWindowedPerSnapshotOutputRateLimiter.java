@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
@@ -36,8 +37,8 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     private Scheduler scheduler;
     private long scheduledTime;
 
-    public AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        super(wrappedSnapshotOutputRateLimiter);
+    public AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -45,7 +46,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter);
+        return new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext);
     }
 
     @Override
@@ -56,25 +57,10 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
-                        for (Iterator<Map.Entry<String, LastEventHolder>> iterator = groupByKeyEvents.entrySet().iterator(); iterator.hasNext(); ) {
-                            Map.Entry<String, LastEventHolder> lastEventHolderEntry = iterator.next();
-
-                            //clearing expired events after update
-                            lastEventHolderEntry.getValue().checkAndClearLastInEvent();
-                            if (lastEventHolderEntry.getValue().lastEvent == null) {
-                                iterator.remove();
-                            }else {
-                                outputEventChunk.add(cloneComplexEvent(lastEventHolderEntry.getValue().lastEvent));
-                            }
-                        }
-                        outputEventChunks.add(outputEventChunk);
-                        scheduledTime += value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     LastEventHolder lastEventHolder = groupByKeyEvents.get(groupedComplexEvent.getGroupKey());
                     if (lastEventHolder == null) {
@@ -97,10 +83,31 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     }
 
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+            for (Iterator<Map.Entry<String, LastEventHolder>> iterator = groupByKeyEvents.entrySet().iterator(); iterator.hasNext(); ) {
+                Map.Entry<String, LastEventHolder> lastEventHolderEntry = iterator.next();
+
+                //clearing expired events after update
+                lastEventHolderEntry.getValue().checkAndClearLastInEvent();
+                if (lastEventHolderEntry.getValue().lastEvent == null) {
+                    iterator.remove();
+                }else {
+                    outputEventChunk.add(cloneComplexEvent(lastEventHolderEntry.getValue().lastEvent));
+                }
+            }
+            outputEventChunks.add(outputEventChunk);
+            scheduledTime += value;
+            scheduler.notifyAt(scheduledTime);
+        }
+    }
+
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this);
+        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
+        scheduler.init(queryLock);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
