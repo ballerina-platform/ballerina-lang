@@ -190,6 +190,15 @@ public final class Constants {
     public static final String REMOTE_PORT = "REMOTE_PORT";
     public static final String REQUEST_URL = "REQUEST_URL";
 
+    //default values
+    public static final int DEFAULT_EXECUTOR_WORKER_POOL_SIZE = 512;
+    public static final String DEFAULT_DISRUPTOR_BUFFER_SIZE = "512";
+    public static final String DEFAULT_DISRUPTOR_COUNT = "5";
+    public static final String DEFAULT_DISRUPTOR_EVENT_HANDLER_COUNT = "1";
+    public static final String DEFAULT_WAIT_STRATEGY = Constants.PHASED_BACKOFF;
+    public static final String DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND = "false";
+    public static final String DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL = "0";
+
     private Constants() {
     }
 

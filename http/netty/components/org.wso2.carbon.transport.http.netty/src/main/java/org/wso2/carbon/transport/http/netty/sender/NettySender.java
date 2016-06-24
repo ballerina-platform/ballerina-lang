@@ -107,11 +107,11 @@ public class NettySender implements TransportSender {
 
         RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
 
-        String enableDisruptor = null;
+        Boolean enableDisruptor = false;
 
         if (msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
                 IS_DISRUPTOR_ENABLE) != null) {
-            enableDisruptor = (String) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
+            enableDisruptor = (Boolean) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
                     IS_DISRUPTOR_ENABLE);
         } else {
             log.debug("Cannot find property 'enable.disruptor   hence using worker pool as thread model "
@@ -119,11 +119,11 @@ public class NettySender implements TransportSender {
                     + "SRC_HANDLER property , enable.disruptor properties from ");
         }
 
-        if (ringBuffer == null && Boolean.parseBoolean(enableDisruptor)) {
+        if (ringBuffer == null && enableDisruptor) {
             DisruptorConfig disruptorConfig = DisruptorFactory.
                     getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
             ringBuffer = disruptorConfig.getDisruptor();
-        } else if (!Boolean.parseBoolean(enableDisruptor)) {
+        } else if (!enableDisruptor) {
             senderConfiguration.setDisruptorOn(false);
         }
 

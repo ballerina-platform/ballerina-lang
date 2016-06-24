@@ -69,31 +69,47 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         try {
             connectionManager = ConnectionManager.getInstance(parameters);
 
-            if (parameters != null && Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
-                log.debug("Disruptor is enabled");
-                log.debug("Disruptor configuration creating");
-                DisruptorConfig disruptorConfig = new DisruptorConfig(parameters.get(Constants.DISRUPTOR_BUFFER_SIZE),
-                        parameters.get(Constants.DISRUPTOR_COUNT),
-                        parameters.get(Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                        parameters.get(Constants.WAIT_STRATEGY),
-                        Boolean.parseBoolean(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND),
-                        parameters.get(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
-                // TODO: Need to have a proper service
-                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
-            } else if (!Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
-                int executorWorkerPoolSize = Integer.parseInt(parameters.get(Constants.EXECUTOR_WORKER_POOL_SIZE));
-                log.debug(
-                        "Disruptor is disabled and using executor thread pool with size of " + executorWorkerPoolSize);
-                if (executorWorkerPoolSize > 0) {
-                    listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
+            if (listenerConfiguration.getEnableDisruptor()) {
+                if (parameters != null && !parameters.isEmpty()) {
+                    log.debug("Disruptor is enabled");
+                    log.debug("Disruptor configuration creating");
+                    DisruptorConfig disruptorConfig = new DisruptorConfig(
+                            parameters.getOrDefault(Constants.DISRUPTOR_BUFFER_SIZE,
+                                    Constants.DEFAULT_DISRUPTOR_BUFFER_SIZE),
+                            parameters.getOrDefault(Constants.DISRUPTOR_COUNT, Constants.DEFAULT_DISRUPTOR_COUNT),
+                            parameters.getOrDefault(Constants.DISRUPTOR_EVENT_HANDLER_COUNT,
+                                    Constants.DEFAULT_DISRUPTOR_EVENT_HANDLER_COUNT),
+                            parameters.getOrDefault(Constants.WAIT_STRATEGY, Constants.DEFAULT_WAIT_STRATEGY),
+                            Boolean.parseBoolean(parameters.getOrDefault(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND,
+                                    Constants.DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND)),
+                            parameters.getOrDefault(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL,
+                                    Constants.DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
+                    // TODO: Need to have a proper service
+                    DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
                 } else {
-                    log.error("Please enable disruptor or specify executorHandlerThreadPool size greater that 0");
+                    log.warn("Disruptor specific parameters are not specified in "
+                            + "configuration hence using default configs");
+                    DisruptorConfig disruptorConfig = new DisruptorConfig();
+                    DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
                 }
             } else {
-                log.warn("Disruptor specific parameters are not specified in "
-                        + "configuration hence using default configs");
-                DisruptorConfig disruptorConfig = new DisruptorConfig();
-                DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
+                if (parameters != null && !parameters.isEmpty()) {
+                    int executorWorkerPoolSize = Integer.parseInt(parameters
+                            .getOrDefault(Constants.EXECUTOR_WORKER_POOL_SIZE, Constants.EXECUTOR_WORKER_POOL_SIZE));
+                    log.debug("Disruptor is disabled and using executor thread pool with size of "
+                            + executorWorkerPoolSize);
+                    if (executorWorkerPoolSize > 0) {
+                        listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
+                    } else {
+                        log.warn("Please enable disruptor or specify executorHandlerThreadPool size greater than 0,"
+                                + " starting with default value");
+                        listenerConfiguration.setExecHandlerThreadPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                    }
+                } else {
+                    log.warn("ExecutorHandlerThreadPool size is not specified using the default value");
+                    listenerConfiguration.setExecHandlerThreadPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                }
+
             }
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);
@@ -130,7 +146,7 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            if (Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
+            if (listenerConfiguration.getEnableDisruptor()) {
                 p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
             } else {
                 p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
