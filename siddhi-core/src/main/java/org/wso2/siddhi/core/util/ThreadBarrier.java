@@ -27,8 +27,12 @@ public class ThreadBarrier {
 
     public void pass() {
         if (lock != null) {
-            lock.lock();
-            lock.unlock();
+            synchronized (this) {
+                if (lock != null) {
+                    lock.lock();
+                    lock.unlock();
+                }
+            }
         }
     }
 
