@@ -125,11 +125,10 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
             }
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
             boolean sendEvents;
+
             if (currentTime >= nextEmitTime) {
                 nextEmitTime += timeInMilliSeconds;
-                if (currentEventChunk.getFirst() != null || (expiredEventChunk != null && expiredEventChunk.getFirst() != null)) {
-                    scheduler.notifyAt(nextEmitTime);
-                }
+                scheduler.notifyAt(nextEmitTime);
                 sendEvents = true;
             } else {
                 sendEvents = false;

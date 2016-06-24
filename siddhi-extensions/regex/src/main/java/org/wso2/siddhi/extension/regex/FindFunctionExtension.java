@@ -59,20 +59,20 @@ public class FindFunctionExtension extends FunctionExecutor {
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2 && attributeExpressionExecutors.length != 3){
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to regex:find() function, required 2 or 3, " +
-                    "but found " + attributeExpressionExecutors.length);
+                                                       "but found " + attributeExpressionExecutors.length);
         }else{
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of regex:find() function, " +
-                        "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
+                                                           "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
             }
             if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
                 throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of regex:find() function, " +
-                        "required " + Attribute.Type.STRING + ", but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                                                           "required " + Attribute.Type.STRING + ", but found " + attributeExpressionExecutors[1].getReturnType().toString());
             }
             if (attributeExpressionExecutors.length == 3){
                 if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.INT) {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the third argument of str:find() function, " +
-                            "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
+                                                               "required "+Attribute.Type.INT+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
                 }
             }
         }

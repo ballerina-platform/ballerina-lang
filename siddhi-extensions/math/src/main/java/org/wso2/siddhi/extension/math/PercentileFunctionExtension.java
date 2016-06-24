@@ -25,14 +25,14 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * percentile(values, p)
+ * percentile(value, p)
  * Returns an estimate for the pth percentile of the stored values
- * Accept Type(s): FLOAT,INT,LONG,DOUBLE
+ * Accept Type(s): value: FLOAT,INT,LONG,DOUBLE / p: DOUBLE
  * Return Type: DOUBLE
  */
 public class PercentileFunctionExtension extends AttributeAggregator {
@@ -91,6 +91,7 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         }
     }
 
+    @Override
     public Attribute.Type getReturnType() {
         return percentileOutputFunctionExtension.getReturnType();
     }
@@ -143,13 +144,84 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         percentileOutputFunctionExtension.restoreState(state);
     }
 
+    /**
+     * Percentile calculation method
+     *
+     * To calculate the pth percentile (where p is any number greater than 0 or less than or equal to 100), do the
+     * following steps:
+     * 1. Order all the values in the data set from smallest to largest.
+     * 2. Multiply p percent by the total number of values, n. This number is called the index.
+     * 3. If the index obtained in Step 2 is not a whole number, round it up to the nearest whole number and go to Step
+     * 4a. If the index obtained in Step 2 is a whole number, go to Step 4b.
+     * 4a. Count the values in your data set from left to right (from the smallest to the largest value) until you reach
+     * the number indicated by Step 3. The corresponding value in your data set is the pth percentile.
+     * 4b. Count the values in your data set from left to right until you reach the number indicated by Step 2.
+     * The pth percentile is the average of that corresponding value in your data set and the value that directly
+     * follows it.
+     *
+     * @param valuesList values list
+     * @param percentile percentile (p)
+     * @return pth percentile value
+     */
+    public double getPercentileValue(List<Double> valuesList, double percentile) {
+
+        double percentileIndexTemp;
+        int percentileIndex;
+
+        // calculating percentile index
+        percentileIndexTemp = percentile * valuesList.size() / 100;
+
+        if (percentileIndexTemp % 1 == 0) {
+            percentileIndex = (int) percentileIndexTemp;
+            if (percentileIndex == valuesList.size()) {
+                return valuesList.get(percentileIndex - 1);
+            } else {
+                return (valuesList.get(percentileIndex - 1) + valuesList.get(percentileIndex)) / 2;
+            }
+        } else {
+            percentileIndex = (int) Math.round(percentileIndexTemp);
+            return valuesList.get(percentileIndex - 1);
+        }
+    }
+
+    /**
+     * Adding values to the sorted ArrayList
+     *
+     * @param arrayList sorted ArrayList
+     * @param value new value
+     */
+    public void sortedArrayListAdd(List<Double> arrayList, double value) {
+
+        int insertIndex = Collections.binarySearch(arrayList, value);
+
+        if (insertIndex < 0) {
+            arrayList.add(-insertIndex - 1, value);
+        } else {
+            arrayList.add(insertIndex + 1, value);
+        }
+    }
+
+    /**
+     * Removing values from the sorted ArrayList
+     *
+     * @param arrayList Sorted ArrayList
+     * @param value expired value
+     */
+    public void sortedArrayListRemove(List<Double> arrayList, double value) {
+
+        int removeIndex = Collections.binarySearch(arrayList, value);
+
+        arrayList.remove(removeIndex);
+
+    }
+
     class PercentileFunctionExtensionDouble extends PercentileFunctionExtension {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private long count = 0;
-        private List<Double> values = new ArrayList<Double>();
-        private DescriptiveStatistics stat = new DescriptiveStatistics();
+        private List<Double> valuesList = new ArrayList<Double>();
 
+        @Override
         public Attribute.Type getReturnType() {
             return type;
         }
@@ -157,49 +229,46 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         @Override
         public Object processAdd(Object[] data) {
             count++;
-            values.add((Double) data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (double value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Double) data[0];
+
+            sortedArrayListAdd(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object processRemove(Object[] data) {
             count--;
-            values.remove(data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (double value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Double) data[0];
+
+            sortedArrayListRemove(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object reset() {
             count = 0;
-            values.clear();
-            stat.clear();
+            valuesList.clear();
             return 0.0;
         }
 
         @Override
         public Object[] currentState() {
-            return new Object[] { values, count };
+            return new Object[] { valuesList, count };
         }
 
         @Override
         public void restoreState(Object[] state) {
-            values = (List) state[0];
+            valuesList = (List) state[0];
             count = (Long) state[1];
         }
     }
@@ -208,9 +277,9 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private long count = 0;
-        private List<Float> values = new ArrayList<Float>();
-        private DescriptiveStatistics stat = new DescriptiveStatistics();
+        private List<Double> valuesList = new ArrayList<Double>();
 
+        @Override
         public Attribute.Type getReturnType() {
             return type;
         }
@@ -218,49 +287,46 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         @Override
         public Object processAdd(Object[] data) {
             count++;
-            values.add((Float) data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (float value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Float) data[0];
+
+            sortedArrayListAdd(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object processRemove(Object[] data) {
             count--;
-            values.remove(data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (float value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Float) data[0];
+
+            sortedArrayListRemove(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object reset() {
             count = 0;
-            values.clear();
-            stat.clear();
+            valuesList.clear();
             return 0.0;
         }
 
         @Override
         public Object[] currentState() {
-            return new Object[] { values, count };
+            return new Object[] { valuesList, count };
         }
 
         @Override
         public void restoreState(Object[] state) {
-            values = (List) state[0];
+            valuesList = (List) state[0];
             count = (Long) state[1];
         }
     }
@@ -269,9 +335,9 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private long count = 0;
-        private List<Integer> values = new ArrayList<Integer>();
-        private DescriptiveStatistics stat = new DescriptiveStatistics();
+        private List<Double> valuesList = new ArrayList<Double>();
 
+        @Override
         public Attribute.Type getReturnType() {
             return type;
         }
@@ -279,49 +345,46 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         @Override
         public Object processAdd(Object[] data) {
             count++;
-            values.add((Integer) data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (int value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Integer) data[0];
+
+            sortedArrayListAdd(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object processRemove(Object[] data) {
             count--;
-            values.remove(data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (int value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Integer) data[0];
+
+            sortedArrayListRemove(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object reset() {
             count = 0;
-            values.clear();
-            stat.clear();
+            valuesList.clear();
             return 0.0;
         }
 
         @Override
         public Object[] currentState() {
-            return new Object[] { values, count };
+            return new Object[] { valuesList, count };
         }
 
         @Override
         public void restoreState(Object[] state) {
-            values = (List) state[0];
+            valuesList = (List) state[0];
             count = (Long) state[1];
         }
 
@@ -331,9 +394,9 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private long count = 0;
-        private List<Long> values = new ArrayList<Long>();
-        private DescriptiveStatistics stat = new DescriptiveStatistics();
+        private List<Double> valuesList = new ArrayList<Double>();
 
+        @Override
         public Attribute.Type getReturnType() {
             return type;
         }
@@ -341,49 +404,46 @@ public class PercentileFunctionExtension extends AttributeAggregator {
         @Override
         public Object processAdd(Object[] data) {
             count++;
-            values.add((Long) data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (long value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Long) data[0];
+
+            sortedArrayListAdd(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object processRemove(Object[] data) {
             count--;
-            values.remove(data[0]);
             if (count == 0) {
                 return 0.0;
             }
 
-            stat.clear();
-            for (long value : values) {
-                stat.addValue(value);
-            }
-            return stat.getPercentile(percentileValue);
+            double value = (Long) data[0];
+
+            sortedArrayListRemove(valuesList, value);
+
+            return getPercentileValue(valuesList, percentileValue);
         }
 
         @Override
         public Object reset() {
             count = 0;
-            values.clear();
-            stat.clear();
+            valuesList.clear();
             return 0.0;
         }
 
         @Override
         public Object[] currentState() {
-            return new Object[] { values, count };
+            return new Object[] { valuesList, count };
         }
 
         @Override
         public void restoreState(Object[] state) {
-            values = (List) state[0];
+            valuesList = (List) state[0];
             count = (Long) state[1];
         }
 
