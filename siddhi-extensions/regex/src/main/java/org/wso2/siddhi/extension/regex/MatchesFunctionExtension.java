@@ -20,6 +20,7 @@
 
 package org.wso2.siddhi.extension.regex;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -44,6 +45,7 @@ import java.util.regex.Pattern;
 public class MatchesFunctionExtension extends FunctionExecutor{
 
     Attribute.Type returnType = Attribute.Type.BOOL;
+    private final static Logger log = Logger.getLogger(MatchesFunctionExtension.class);
 
     //state-variables
     private boolean isRegexConstant = false;
@@ -54,15 +56,15 @@ public class MatchesFunctionExtension extends FunctionExecutor{
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new ExecutionPlanValidationException("Invalid no of arguments passed to regex:matches() function, required 2, " +
-                    "but found " + attributeExpressionExecutors.length);
+                                                       "but found " + attributeExpressionExecutors.length);
         }
         if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
             throw new ExecutionPlanValidationException("Invalid parameter type found for the first argument of regex:matches() function, " +
-                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
+                                                       "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[0].getReturnType().toString());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
             throw new ExecutionPlanValidationException("Invalid parameter type found for the second argument of regex:matches() function, " +
-                    "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
+                                                       "required "+Attribute.Type.STRING+", but found "+attributeExpressionExecutors[1].getReturnType().toString());
         }
         if(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor){
             isRegexConstant = true;
@@ -81,7 +83,10 @@ public class MatchesFunctionExtension extends FunctionExecutor{
             throw new ExecutionPlanRuntimeException("Invalid input given to regex:matches() function. First argument cannot be null");
         }
         if (data[1] == null) {
-            throw new ExecutionPlanRuntimeException("Invalid input given to regex:matches() function. Second argument cannot be null");
+            if(log.isDebugEnabled()){
+                log.warn("Invalid input given to regex:matches() function. Second argument cannot be null, returning false");
+            }
+            return false;
         }
         String source = (String) data[1];
 
