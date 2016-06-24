@@ -98,7 +98,7 @@ public class SiddhiManager {
      * Method to validate provided String representation of Execution Plan. Method will throw
      * {@link org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException} if submitted Siddhi queries have
      * errors.
-     * @param executionPlan
+     * @param executionPlan execution plan
      */
     public void validateExecutionPlan(String executionPlan) {
         validateExecutionPlan(SiddhiCompiler.parse(executionPlan));
@@ -134,7 +134,7 @@ public class SiddhiManager {
 
     /**
      * Method to integrate Carbon Metrics into Siddhi
-     * @param statisticsConfiguration
+     * @param statisticsConfiguration statistics configuration
      */
     public void setStatisticsConfiguration(StatisticsConfiguration statisticsConfiguration){
         siddhiContext.setStatisticsConfiguration(statisticsConfiguration);

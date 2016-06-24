@@ -89,7 +89,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan
-     * @param outputExpectsExpiredEvents
+     * @param outputExpectsExpiredEvents   is output expects ExpiredEvents
      * @return the additional output attributes introduced by the function
      */
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
@@ -108,9 +108,9 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     /**
      * The main processing method that will be called upon event arrival
      *
-     * @param streamEventChunk    the event chunk that need to be processed
-     * @param nextProcessor        the next processor to which the success events need to be passed
-     * @param streamEventCloner    helps to clone the incoming event for local storage or modification
+     * @param streamEventChunk      the event chunk that need to be processed
+     * @param nextProcessor         the next processor to which the success events need to be passed
+     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
      * @param complexEventPopulater helps to populate the events with the resultant attributes
      */
     protected abstract void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,

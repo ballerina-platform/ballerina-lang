@@ -60,7 +60,6 @@ public class SingleInputStreamParser {
     /**
      * Parse single InputStream and return SingleStreamRuntime
      *
-     * @param latencyTracker              latency tracker
      * @param inputStream                 single input stream to be parsed
      * @param executionPlanContext        query to be parsed
      * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
@@ -69,7 +68,8 @@ public class SingleInputStreamParser {
      * @param eventTableMap               EventTable Map
      * @param metaComplexEvent            MetaComplexEvent
      * @param processStreamReceiver       ProcessStreamReceiver
-     * @param outputExpectsExpiredEvents
+     * @param supportsBatchProcessing     supports batch processing
+     * @param outputExpectsExpiredEvents  is output expects ExpiredEvents
      * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,

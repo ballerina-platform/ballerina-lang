@@ -86,7 +86,7 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan
-     * @param outputExpectsExpiredEvents
+     * @param outputExpectsExpiredEvents   is output expects ExpiredEvents
      * @return the additional output attributes introduced by the function
      */
     protected List<Attribute> init(AbstractDefinition inputDefinition,

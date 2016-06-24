@@ -44,7 +44,7 @@ public class InputStreamParser {
      * @param eventTableMap        EventTable Map
      * @param executors            List to hold VariableExpressionExecutors to update after query parsing
      * @param latencyTracker       latency tracker
-     * @param outputExpectsExpiredEvents
+     * @param outputExpectsExpiredEvents  is output expects ExpiredEvents
      * @return StreamRuntime Stream Runtime
      */
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,
