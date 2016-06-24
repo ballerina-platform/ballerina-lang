@@ -198,6 +198,7 @@ public final class Constants {
     public static final String DEFAULT_WAIT_STRATEGY = Constants.PHASED_BACKOFF;
     public static final String DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND = "false";
     public static final String DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL = "0";
+    public static final int DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE = 60;
 
     private Constants() {
     }

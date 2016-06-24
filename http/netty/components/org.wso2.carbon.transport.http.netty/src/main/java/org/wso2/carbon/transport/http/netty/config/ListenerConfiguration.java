@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
-    private int execHandlerThreadPoolSize = Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE;
+    private int execHandlerThreadPoolSize = Constants.DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
 
@@ -213,7 +213,7 @@ public class ListenerConfiguration {
         List<Parameter> defaultParams = new ArrayList<>();
         Parameter executorWorkerPoolSize = new Parameter();
         executorWorkerPoolSize.setName(Constants.EXECUTOR_WORKER_POOL_SIZE);
-        executorWorkerPoolSize.setValue(String.valueOf(execHandlerThreadPoolSize));
+        executorWorkerPoolSize.setValue(String.valueOf(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE));
         defaultParams.add(executorWorkerPoolSize);
         return defaultParams;
 
