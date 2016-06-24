@@ -41,7 +41,6 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.StreamFunctionProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.StreamProcessorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.WindowProcessorExtensionHolder;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
@@ -61,6 +60,7 @@ public class SingleInputStreamParser {
     /**
      * Parse single InputStream and return SingleStreamRuntime
      *
+     * @param latencyTracker              latency tracker
      * @param inputStream                 single input stream to be parsed
      * @param executionPlanContext        query to be parsed
      * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
@@ -69,14 +69,13 @@ public class SingleInputStreamParser {
      * @param eventTableMap               EventTable Map
      * @param metaComplexEvent            MetaComplexEvent
      * @param processStreamReceiver       ProcessStreamReceiver
-     * @param latencyTracker              latency tracker
      * @param outputExpectsExpiredEvents
      * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
                                                        Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
-                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents) {
+                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents) {
         Processor processor = null;
         EntryValveProcessor entryValveProcessor = null;
         boolean first = true;

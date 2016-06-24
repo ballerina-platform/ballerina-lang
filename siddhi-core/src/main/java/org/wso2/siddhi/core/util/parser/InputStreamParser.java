@@ -57,7 +57,7 @@ public class InputStreamParser {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
             ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(), latencyTracker);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                    executionPlanContext, executors, streamDefinitionMap, null, eventTableMap, new MetaStreamEvent(), processStreamReceiver, true, latencyTracker, outputExpectsExpiredEvents);
+                    executionPlanContext, executors, streamDefinitionMap, null, eventTableMap, new MetaStreamEvent(), processStreamReceiver, true, outputExpectsExpiredEvents);
         } else if (inputStream instanceof JoinInputStream) {
             return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext, streamDefinitionMap, tableDefinitionMap, eventTableMap, executors, latencyTracker, outputExpectsExpiredEvents);
         } else if (inputStream instanceof StateInputStream) {

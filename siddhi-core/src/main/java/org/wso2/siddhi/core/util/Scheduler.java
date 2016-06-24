@@ -39,6 +39,7 @@ public class Scheduler implements Snapshotable {
 
     private static final Logger log = Logger.getLogger(Scheduler.class);
     private final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
+    private final ThreadBarrier threadBarrier;
     private ScheduledExecutorService scheduledExecutorService;
     private EventCaller eventCaller;
     private volatile boolean running = false;
@@ -51,6 +52,7 @@ public class Scheduler implements Snapshotable {
 
 
     public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
+        this.threadBarrier = executionPlanContext.getThreadBarrier();
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventCaller = new EventCaller(singleThreadEntryValve);
         this.executionPlanContext = executionPlanContext;
@@ -156,6 +158,7 @@ public class Scheduler implements Snapshotable {
                     if (queryLock != null) {
                         queryLock.lock();
                     }
+                    threadBarrier.pass();
                     try {
                         if (latencyTracker != null) {
                             try {
