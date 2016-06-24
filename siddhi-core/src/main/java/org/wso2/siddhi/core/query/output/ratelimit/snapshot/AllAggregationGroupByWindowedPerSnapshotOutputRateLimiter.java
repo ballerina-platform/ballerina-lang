@@ -57,25 +57,10 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
-                        for (Iterator<Map.Entry<String, LastEventHolder>> iterator = groupByKeyEvents.entrySet().iterator(); iterator.hasNext(); ) {
-                            Map.Entry<String, LastEventHolder> lastEventHolderEntry = iterator.next();
-
-                            //clearing expired events after update
-                            lastEventHolderEntry.getValue().checkAndClearLastInEvent();
-                            if (lastEventHolderEntry.getValue().lastEvent == null) {
-                                iterator.remove();
-                            }else {
-                                outputEventChunk.add(cloneComplexEvent(lastEventHolderEntry.getValue().lastEvent));
-                            }
-                        }
-                        outputEventChunks.add(outputEventChunk);
-                        scheduledTime += value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     LastEventHolder lastEventHolder = groupByKeyEvents.get(groupedComplexEvent.getGroupKey());
                     if (lastEventHolder == null) {
@@ -96,6 +81,26 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
             sendToCallBacks(eventChunk);
         }
 
+    }
+
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+            for (Iterator<Map.Entry<String, LastEventHolder>> iterator = groupByKeyEvents.entrySet().iterator(); iterator.hasNext(); ) {
+                Map.Entry<String, LastEventHolder> lastEventHolderEntry = iterator.next();
+
+                //clearing expired events after update
+                lastEventHolderEntry.getValue().checkAndClearLastInEvent();
+                if (lastEventHolderEntry.getValue().lastEvent == null) {
+                    iterator.remove();
+                }else {
+                    outputEventChunk.add(cloneComplexEvent(lastEventHolderEntry.getValue().lastEvent));
+                }
+            }
+            outputEventChunks.add(outputEventChunk);
+            scheduledTime += value;
+            scheduler.notifyAt(scheduledTime);
+        }
     }
 
     @Override

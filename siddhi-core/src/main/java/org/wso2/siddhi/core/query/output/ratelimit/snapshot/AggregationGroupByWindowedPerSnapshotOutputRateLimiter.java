@@ -47,13 +47,10 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        constructOutputChunk(outputEventChunks);
-                        scheduledTime = scheduledTime + value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     if (currentGroupByKey == null || !currentGroupByKey.equals(groupedComplexEvent.getGroupKey())) {
                         currentGroupByKey = groupedComplexEvent.getGroupKey();
@@ -88,6 +85,14 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
         }
         for (ComplexEventChunk eventChunk : outputEventChunks) {
             sendToCallBacks(eventChunk);
+        }
+    }
+
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            constructOutputChunk(outputEventChunks);
+            scheduledTime = scheduledTime + value;
+            scheduler.notifyAt(scheduledTime);
         }
     }
 

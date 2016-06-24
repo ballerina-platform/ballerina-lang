@@ -60,17 +60,10 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
-                        for (ComplexEvent complexEvent : groupByKeyEvents.values()) {
-                            outputEventChunk.add(cloneComplexEvent(complexEvent));
-                        }
-                        outputEventChunks.add(outputEventChunk);
-                        scheduledTime += value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else if (event.getType() == ComplexEvent.Type.CURRENT) {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     groupByKeyEvents.put(groupedComplexEvent.getGroupKey(), groupedComplexEvent.getComplexEvent());
                 }
@@ -78,6 +71,18 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
         }
         for (ComplexEventChunk eventChunk : outputEventChunks) {
             sendToCallBacks(eventChunk);
+        }
+    }
+
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+            for (ComplexEvent complexEvent : groupByKeyEvents.values()) {
+                outputEventChunk.add(cloneComplexEvent(complexEvent));
+            }
+            outputEventChunks.add(outputEventChunk);
+            scheduledTime += value;
+            scheduler.notifyAt(scheduledTime);
         }
     }
 

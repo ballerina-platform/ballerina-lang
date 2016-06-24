@@ -69,19 +69,13 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
                     event = ((GroupedComplexEvent) event).getComplexEvent();
                 }
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
-                        for (ComplexEvent complexEvent : eventList) {
-                            outputEventChunk.add(cloneComplexEvent(complexEvent));
-                        }
-                        outputEventChunks.add(outputEventChunk);
-                        scheduledTime = scheduledTime + value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else if (event.getType() == ComplexEvent.Type.CURRENT) {
                     complexEventChunk.remove();
+                    tryFlushEvents(outputEventChunks, event);
                     eventList.add(event);
                 } else if (event.getType() == ComplexEvent.Type.EXPIRED) {
+                    tryFlushEvents(outputEventChunks, event);
                     for (Iterator<ComplexEvent> iterator = eventList.iterator(); iterator.hasNext(); ) {
                         ComplexEvent currentEvent = iterator.next();
                         if (comparator.compare(currentEvent, event) == 0) {
@@ -90,12 +84,25 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
                         }
                     }
                 } else if (event.getType() == ComplexEvent.Type.RESET) {
+                    tryFlushEvents(outputEventChunks, event);
                     eventList.clear();
                 }
             }
         }
         for (ComplexEventChunk eventChunk : outputEventChunks) {
             sendToCallBacks(eventChunk);
+        }
+    }
+
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+            for (ComplexEvent complexEvent : eventList) {
+                outputEventChunk.add(cloneComplexEvent(complexEvent));
+            }
+            outputEventChunks.add(outputEventChunk);
+            scheduledTime = scheduledTime + value;
+            scheduler.notifyAt(scheduledTime);
         }
     }
 

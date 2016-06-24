@@ -51,16 +51,9 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 if (event.getType() == ComplexEvent.Type.TIMER) {
-                    if (event.getTimestamp() >= scheduledTime) {
-                        ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
-                        if (lastEvent != null) {
-                            outputEventChunk.add(cloneComplexEvent(lastEvent));
-                        }
-                        outputEventChunks.add(outputEventChunk);
-                        scheduledTime += value;
-                        scheduler.notifyAt(scheduledTime);
-                    }
+                    tryFlushEvents(outputEventChunks, event);
                 } else {
+                    tryFlushEvents(outputEventChunks, event);
                     if (event.getType() == ComplexEvent.Type.CURRENT) {
                         complexEventChunk.remove();
                         lastEvent = event;
@@ -72,6 +65,18 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
         }
         for (ComplexEventChunk<ComplexEvent> eventChunk : outputEventChunks) {
             sendToCallBacks(eventChunk);
+        }
+    }
+
+    private void tryFlushEvents(List<ComplexEventChunk<ComplexEvent>> outputEventChunks, ComplexEvent event) {
+        if (event.getTimestamp() >= scheduledTime) {
+            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+            if (lastEvent != null) {
+                outputEventChunk.add(cloneComplexEvent(lastEvent));
+            }
+            outputEventChunks.add(outputEventChunk);
+            scheduledTime += value;
+            scheduler.notifyAt(scheduledTime);
         }
     }
 
