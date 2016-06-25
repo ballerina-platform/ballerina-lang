@@ -116,8 +116,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                                     executeAtSourceRequestSending(cMsg);
                         }
 
-                    } else {
-
                     }
                 }
             }
