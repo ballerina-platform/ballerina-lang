@@ -18,13 +18,14 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -39,7 +40,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
-    private int execHandlerThreadPoolSize = 60;
+    private int execHandlerThreadPoolSize = Constants.DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
 
@@ -65,7 +66,7 @@ public class ListenerConfiguration {
     private int workerThreadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     @XmlAttribute
-    private String enableDisruptor;
+    private Boolean enableDisruptor = false;
 
     @XmlAttribute
     private String scheme = "http";
@@ -87,7 +88,7 @@ public class ListenerConfiguration {
 
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
-    private List<Parameter> parameters;
+    private List<Parameter> parameters = getDefaultParameters();
 
     public ListenerConfiguration() {
     }
@@ -196,15 +197,25 @@ public class ListenerConfiguration {
                 parameters);
     }
 
-    public String getEnableDisruptor() {
+    public Boolean getEnableDisruptor() {
         return enableDisruptor;
     }
 
-    public void setEnableDisruptor(String enableDisruptor) {
+    public void setEnableDisruptor(Boolean enableDisruptor) {
         this.enableDisruptor = enableDisruptor;
     }
 
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    private List<Parameter> getDefaultParameters() {
+        List<Parameter> defaultParams = new ArrayList<>();
+        Parameter executorWorkerPoolSize = new Parameter();
+        executorWorkerPoolSize.setName(Constants.EXECUTOR_WORKER_POOL_SIZE);
+        executorWorkerPoolSize.setValue(String.valueOf(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE));
+        defaultParams.add(executorWorkerPoolSize);
+        return defaultParams;
+
     }
 }
