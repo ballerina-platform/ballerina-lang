@@ -39,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -121,12 +122,14 @@ public class NettyListener extends TransportListener {
         handler.setSslConfig(nettyConfig.getSslConfig());
         handler.setSslConfigMap(sslConfigMap);
         List<Parameter> parameters = nettyConfig.getParameters();
+        Map<String, String> paramMap = new HashMap<>();
         if (parameters != null && !parameters.isEmpty()) {
-            Map<String, String> paramMap = parameters.stream()
+            paramMap = parameters.stream()
                     .collect(Collectors.toMap(Parameter::getName, Parameter::getValue));
 
-            handler.setup(paramMap);
+
         }
+        handler.setup(paramMap);
         bootstrap.childHandler(handler);
     }
 

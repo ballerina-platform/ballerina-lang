@@ -146,14 +146,6 @@ public class ChannelUtils {
         if (carbonMessage instanceof NettyCarbonMessage) {
             while (true) {
                 NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
-                if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
-                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestReceiving(carbonMessage);
-                    }
-                    break;
-                }
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);

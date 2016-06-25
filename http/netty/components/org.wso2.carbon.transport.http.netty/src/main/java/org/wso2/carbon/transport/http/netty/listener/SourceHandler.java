@@ -109,13 +109,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        cMsg.setEndOfMsgAdded(true);
 
                         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
                             NettyTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtSourceRequestSending(cMsg);
                         }
+
+                    } else {
 
                     }
                 }
