@@ -75,13 +75,15 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
                    .getListenerConfiguration((String) ref.get(CHANNEL_ID_KEY));
 
         List<Parameter> parameters = listenerConfiguration.getParameters();
+        Map<String, String> paramMap = new HashMap<>();
         if (parameters != null && !parameters.isEmpty()) {
-            Map<String, String> paramMap = new HashMap<>(parameters.size());
+
             for (Parameter parameter : parameters) {
                 paramMap.put(parameter.getName(), parameter.getValue());
             }
-            serverInitializer.setup(paramMap);
+
         }
+        serverInitializer.setup(paramMap);
         NettyTransportContextHolder.getInstance()
                    .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
     }

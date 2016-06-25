@@ -70,7 +70,6 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
             publishToWorkerPool(msg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
-            cMsg.setEndOfMsgAdded(true);
             if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                 NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
             }
@@ -84,7 +83,6 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        cMsg.setEndOfMsgAdded(true);
                         NettyTransportContextHolder.getInstance().getHandlerExecutor()
                                 .executeAtSourceRequestSending(cMsg);
                     }
