@@ -79,6 +79,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    cMsg.setEndOfMsgAdded(true);
                     if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         NettyTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetResponseSending(cMsg);

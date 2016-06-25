@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -44,9 +43,6 @@ public class NettyCarbonMessage extends CarbonMessage {
     private BlockingQueue<ByteBuffer> outContentQueue = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
-        if (httpContent instanceof LastHttpContent) {
-            setEndOfMsgAdded(true);
-        }
         httpContentQueue.add(httpContent);
     }
 

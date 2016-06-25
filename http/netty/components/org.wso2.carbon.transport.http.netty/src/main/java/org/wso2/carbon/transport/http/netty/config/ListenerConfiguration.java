@@ -41,7 +41,7 @@ public class ListenerConfiguration {
     public static final String DEFAULT_KEY = "netty";
     private int execHandlerThreadPoolSize = 60;
 
-    private ExecutorService executorService;
+    private ExecutorService executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
 
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;

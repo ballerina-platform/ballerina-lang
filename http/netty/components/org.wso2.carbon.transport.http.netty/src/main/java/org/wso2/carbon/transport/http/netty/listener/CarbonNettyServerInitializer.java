@@ -81,14 +81,14 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
                 // TODO: Need to have a proper service
                 DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
             } else if (!Boolean.parseBoolean(listenerConfiguration.getEnableDisruptor())) {
-                int executorWorkerPoolSize = Integer.parseInt(parameters.get(Constants.EXECUTOR_WORKER_POOL_SIZE));
-                log.debug(
-                        "Disruptor is disabled and using executor thread pool with size of " + executorWorkerPoolSize);
-                if (executorWorkerPoolSize > 0) {
-                    listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
-                } else {
-                    log.error("Please enable disruptor or specify executorHandlerThreadPool size greater that 0");
+
+                if (parameters.get(Constants.EXECUTOR_WORKER_POOL_SIZE) != null) {
+                    int executorWorkerPoolSize = Integer.parseInt(parameters.get(Constants.EXECUTOR_WORKER_POOL_SIZE));
+                    log.debug("Disruptor is disabled and using executor thread pool with size of "
+                            + executorWorkerPoolSize);
+                        listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
                 }
+
             } else {
                 log.warn("Disruptor specific parameters are not specified in "
                         + "configuration hence using default configs");
