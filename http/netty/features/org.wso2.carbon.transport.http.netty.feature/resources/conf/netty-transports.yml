@@ -20,7 +20,6 @@ listenerConfigurations:
   port: 9090
   bossThreadPoolSize: 4
   workerThreadPoolSize: 8
-  execHandlerThreadPoolSize: 60
   enableDisruptor: false
   parameters:
     -
