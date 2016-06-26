@@ -95,7 +95,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
         ExecutorService executorService = listenerConfiguration.getExecutorService();
         cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
-                listenerConfiguration.getEnableDisruptor());
+                listenerConfiguration.isEnableDisruptor());
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL_SIZE,
                 listenerConfiguration.getExecHandlerThreadPoolSize());
 
