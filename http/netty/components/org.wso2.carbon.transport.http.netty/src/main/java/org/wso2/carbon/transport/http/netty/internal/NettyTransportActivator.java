@@ -30,8 +30,8 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
 import org.wso2.carbon.transport.http.netty.listener.NettyListener;
 import org.wso2.carbon.transport.http.netty.sender.NettySender;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * OSGi BundleActivator of the Netty transport component.
@@ -40,12 +40,10 @@ public class NettyTransportActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        for (NettyListener listener : createNettyListeners()) {
-            bundleContext.registerService(CarbonTransport.class, listener, null);
-        }
-        for (NettySender sender : createNettySenders()) {
-            bundleContext.registerService(TransportSender.class, sender, null);
-        }
+        createNettyListeners().
+                forEach(listener -> bundleContext.registerService(CarbonTransport.class, listener, null));
+        createNettySenders().
+                forEach(sender -> bundleContext.registerService(TransportSender.class, sender, null));
         NettyTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
         NettyTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
@@ -57,14 +55,12 @@ public class NettyTransportActivator implements BundleActivator {
      * @return Netty transport instances
      */
     private Set<NettyListener> createNettyListeners() {
-        Set<NettyListener> listeners = new HashSet<>();
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
-        for (ListenerConfiguration listenerConfiguration : listenerConfigurations) {
-            NettyTransportContextHolder.getInstance()
-                    .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
-            listeners.add(new NettyListener(listenerConfiguration));
-        }
+        listenerConfigurations.forEach(listenerConfiguration -> NettyTransportContextHolder.getInstance()
+                .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration));
+        Set<NettyListener> listeners = listenerConfigurations.stream()
+                .map((listenerConfiguration) -> new NettyListener(listenerConfiguration)).collect(Collectors.toSet());
         return listeners;
     }
 
@@ -74,12 +70,10 @@ public class NettyTransportActivator implements BundleActivator {
      * @return Netty transport instances
      */
     private Set<NettySender> createNettySenders() {
-        Set<NettySender> senders = new HashSet<>();
         Set<SenderConfiguration> senderConfigurations = YAMLTransportConfigurationBuilder.build()
                 .getSenderConfigurations();
-        for (SenderConfiguration senderConfiguration : senderConfigurations) {
-            senders.add(new NettySender(senderConfiguration));
-        }
+        Set<NettySender> senders = senderConfigurations.stream()
+                .map((senderConfiguration) -> new NettySender(senderConfiguration)).collect(Collectors.toSet());
         return senders;
     }
 
