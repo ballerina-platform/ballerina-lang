@@ -69,7 +69,7 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         try {
             connectionManager = ConnectionManager.getInstance(parameters);
 
-            if (listenerConfiguration.getEnableDisruptor()) {
+            if (listenerConfiguration.isEnableDisruptor()) {
                 if (parameters != null && !parameters.isEmpty()) {
                     log.debug("Disruptor is enabled");
                     log.debug("Disruptor configuration creating");
@@ -146,7 +146,7 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            if (listenerConfiguration.getEnableDisruptor()) {
+            if (listenerConfiguration.isEnableDisruptor()) {
                 p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
             } else {
                 p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));

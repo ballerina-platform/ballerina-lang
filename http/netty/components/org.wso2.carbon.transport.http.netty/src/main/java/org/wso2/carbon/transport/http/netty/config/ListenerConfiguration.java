@@ -197,7 +197,7 @@ public class ListenerConfiguration {
                 parameters);
     }
 
-    public Boolean getEnableDisruptor() {
+    public Boolean isEnableDisruptor() {
         return enableDisruptor;
     }
 
