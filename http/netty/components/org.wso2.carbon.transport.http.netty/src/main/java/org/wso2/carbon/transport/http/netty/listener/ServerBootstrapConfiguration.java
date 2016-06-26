@@ -46,7 +46,7 @@ public class ServerBootstrapConfiguration {
     private ServerBootstrapConfiguration(List<Parameter> parameters) {
 
         if (parameters != null) {
-            for (Parameter parameter : parameters) {
+            parameters.forEach(parameter -> {
                 if (Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT.equals(parameter.getName())) {
                     connectTimeOut = Integer.parseInt(parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_KEEPALIVE.equals(parameter.getName())) {
@@ -64,7 +64,7 @@ public class ServerBootstrapConfiguration {
                 } else if (Constants.SERVER_BOOTSTRAP_SO_TIMEOUT.equals(parameter.getName())) {
                     socketTimeOut = Integer.parseInt(parameter.getValue());
                 }
-            }
+            });
         }
     }
 

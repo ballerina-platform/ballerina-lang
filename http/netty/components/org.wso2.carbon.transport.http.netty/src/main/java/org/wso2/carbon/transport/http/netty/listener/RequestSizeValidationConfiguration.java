@@ -47,7 +47,7 @@ public class RequestSizeValidationConfiguration {
     private RequestSizeValidationConfiguration() {
         Set<TransportProperty> transportProperties = YAMLTransportConfigurationBuilder.build().getTransportProperties();
 
-        for (TransportProperty transportProperty : transportProperties) {
+         transportProperties.forEach(transportProperty -> {
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation")) {
                 requestSizeValidation = (Boolean) transportProperty.getValue();
             }
@@ -84,7 +84,7 @@ public class RequestSizeValidationConfiguration {
             if (transportProperty.getName().equalsIgnoreCase("header.validation.reject.message.content.type")) {
                 headerRejectMsgContentType = (String) transportProperty.getValue();
             }
-        }
+        });
     }
 
     public static RequestSizeValidationConfiguration getInstance() {
