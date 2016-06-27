@@ -92,10 +92,6 @@ public class OperatorParser {
                             return true;
                         }
                     }
-                } else {
-                    if (matchingMetaStateHolder.getCandsidateDefinition().getId().equals(variable.getStreamId())) {
-                        return true;
-                    }
                 }
             }
         }

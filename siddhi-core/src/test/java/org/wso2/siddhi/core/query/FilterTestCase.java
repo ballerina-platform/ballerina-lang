@@ -63,7 +63,7 @@ public class FilterTestCase {
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
                 "@info(name = 'query1') " +
-                "from cseEventStream[70 > price] " +
+                "from cseEventStream[70 > price) ] " +
                 "select symbol, price " +
                 "insert into outputStream;" +
                 "" +
