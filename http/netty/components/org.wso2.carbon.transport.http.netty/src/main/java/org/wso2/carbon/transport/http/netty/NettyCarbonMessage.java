@@ -147,4 +147,9 @@ public class NettyCarbonMessage extends CarbonMessage {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        httpContentQueue.forEach(content -> content.release());
+        super.finalize();
+    }
 }
