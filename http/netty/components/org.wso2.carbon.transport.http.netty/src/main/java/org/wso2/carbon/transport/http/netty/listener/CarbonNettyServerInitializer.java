@@ -94,8 +94,8 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
                 }
             } else {
                 if (parameters != null && !parameters.isEmpty()) {
-                    int executorWorkerPoolSize = Integer.parseInt(parameters
-                            .getOrDefault(Constants.EXECUTOR_WORKER_POOL_SIZE, Constants.EXECUTOR_WORKER_POOL_SIZE));
+                    int executorWorkerPoolSize = Integer.parseInt(parameters.getOrDefault(
+                            Constants.EXECUTOR_WORKER_POOL_SIZE, String.valueOf(Constants.EXECUTOR_WORKER_POOL_SIZE)));
                     log.debug("Disruptor is disabled and using executor thread pool with size of "
                             + executorWorkerPoolSize);
                     if (executorWorkerPoolSize > 0) {
