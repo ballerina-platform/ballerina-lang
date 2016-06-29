@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -48,6 +49,7 @@ public class NettyCarbonMessage extends CarbonMessage {
             setEndOfMsgAdded(true);
         }
         httpContentQueue.add(httpContent);
+        ReferenceCountUtil.releaseLater(httpContent);
     }
 
     public HttpContent getHttpContent() {
@@ -64,11 +66,7 @@ public class NettyCarbonMessage extends CarbonMessage {
         try {
             HttpContent httpContent = httpContentQueue.take();
             ByteBuf buf = httpContent.content();
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            httpContent.release();
-            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-            return byteBuffer;
+            return buf.nioBuffer();
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving message body from queue.", e);
             return null;
@@ -86,11 +84,7 @@ public class NettyCarbonMessage extends CarbonMessage {
                 }
                 HttpContent httpContent = httpContentQueue.take();
                 ByteBuf buf = httpContent.content();
-                byte[] bytes = new byte[buf.readableBytes()];
-                buf.readBytes(bytes);
-                httpContent.release();
-                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-                byteBufferList.add(byteBuffer);
+                byteBufferList.add(buf.nioBuffer());
             } catch (InterruptedException e) {
                 LOG.error("Error while getting full message body", e);
             }
@@ -147,9 +141,4 @@ public class NettyCarbonMessage extends CarbonMessage {
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        httpContentQueue.forEach(content -> content.release());
-        super.finalize();
-    }
 }
