@@ -13,6 +13,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ################################################################################
+transportProperties:
+ -
+  name: "latency.metrics.enabled"
+  value: true
 listenerConfigurations:
  -
   id: "netty-gw"
