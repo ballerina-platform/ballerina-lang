@@ -27,7 +27,6 @@ public class AndCollectionExpression implements CollectionExpression {
         return rightCollectionExpression;
     }
 
-    @Override
     public Expression getExpression() {
         return expression;
     }

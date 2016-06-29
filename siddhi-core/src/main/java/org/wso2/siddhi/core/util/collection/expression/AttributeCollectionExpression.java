@@ -13,7 +13,6 @@ public class AttributeCollectionExpression implements CollectionExpression {
     private String attribute;
 
     public AttributeCollectionExpression(Expression expression, String attribute) {
-
         this.expression = expression;
         this.attribute = attribute;
     }

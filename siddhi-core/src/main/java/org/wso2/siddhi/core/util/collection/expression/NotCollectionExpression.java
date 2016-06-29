@@ -21,7 +21,6 @@ public class NotCollectionExpression implements CollectionExpression {
         return collectionExpression;
     }
 
-    @Override
     public Expression getExpression() {
         return expression;
     }

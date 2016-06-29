@@ -3725,7 +3725,7 @@ public class FilterTestCase {
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
                 filter(Expression.compare(Expression.variable("price"),
-                        Compare.Operator.CONTAINS,
+                        Compare.Operator.EQUAL,
                         Expression.value("WS"))
                 )
         );

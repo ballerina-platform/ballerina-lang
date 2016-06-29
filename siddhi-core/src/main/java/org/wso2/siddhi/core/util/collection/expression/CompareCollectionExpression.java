@@ -1,19 +1,20 @@
 package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 /**
  * Created by suho on 6/25/16.
  */
 public class CompareCollectionExpression implements CollectionExpression {
 
-    private final Expression expression;
+    private final Compare compareExpression;
     private final CollectionScope collectionScope;
     private CollectionExpression leftCollectionExpression;
     private CollectionExpression rightCollectionExpression;
 
-    public CompareCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression leftCollectionExpression, CollectionExpression rightCollectionExpression) {
-        this.expression = expression;
+    public CompareCollectionExpression(Compare compareExpression, CollectionScope collectionScope, CollectionExpression leftCollectionExpression, CollectionExpression rightCollectionExpression) {
+        this.compareExpression = compareExpression;
         this.collectionScope = collectionScope;
         this.leftCollectionExpression = leftCollectionExpression;
         this.rightCollectionExpression = rightCollectionExpression;
@@ -27,9 +28,12 @@ public class CompareCollectionExpression implements CollectionExpression {
         return rightCollectionExpression;
     }
 
-    @Override
     public Expression getExpression() {
-        return expression;
+        return compareExpression;
+    }
+
+    public Compare.Operator getOperator() {
+        return compareExpression.getOperator();
     }
 
     @Override

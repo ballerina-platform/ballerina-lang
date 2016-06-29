@@ -22,7 +22,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 public class Compare extends Expression {
 
     public enum Operator {
-        LESS_THAN, GREATER_THAN, LESS_THAN_EQUAL, GREATER_THAN_EQUAL, EQUAL, NOT_EQUAL, CONTAINS, INSTANCE_OF
+        LESS_THAN, GREATER_THAN, LESS_THAN_EQUAL, GREATER_THAN_EQUAL, EQUAL, NOT_EQUAL
     }
 
     private Expression rightExpression;

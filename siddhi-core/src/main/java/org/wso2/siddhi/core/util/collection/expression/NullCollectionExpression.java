@@ -9,15 +9,15 @@ public class NullCollectionExpression implements CollectionExpression {
 
     private final Expression expression;
     private final CollectionScope collectionScope;
-    private CollectionExpression collectionExpression;
+    private String attribute;
 
-    public NullCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression collectionExpression) {
+    public NullCollectionExpression(Expression expression, CollectionScope collectionScope, String attribute) {
+
         this.expression = expression;
         this.collectionScope = collectionScope;
-        this.collectionExpression = collectionExpression;
+        this.attribute = attribute;
     }
 
-    @Override
     public Expression getExpression() {
         return expression;
     }
@@ -27,7 +27,7 @@ public class NullCollectionExpression implements CollectionExpression {
         return collectionScope;
     }
 
-    public CollectionExpression getCollectionExpression() {
-        return collectionExpression;
+    public String getAttribute() {
+        return attribute;
     }
 }
