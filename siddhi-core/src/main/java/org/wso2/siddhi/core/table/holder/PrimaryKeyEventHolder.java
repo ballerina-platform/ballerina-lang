@@ -12,12 +12,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implements IndexedEventHolder {
+public class PrimaryKeyEventHolder implements IndexedEventHolder {
 
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
     private int indexPosition;
     private String indexAttribute;
+    private TreeMap<Object, StreamEvent> data = new TreeMap<Object, StreamEvent>();
 
     public PrimaryKeyEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int indexPosition, String indexAttribute) {
         this.tableStreamEventPool = tableStreamEventPool;
@@ -33,7 +34,7 @@ public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implemen
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(complexEvent, streamEvent);
-            this.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+            data.put(streamEvent.getOutputData()[indexPosition], streamEvent);
         }
     }
 
@@ -50,27 +51,27 @@ public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implemen
 
     @Override
     public Set<StreamEvent> getAllEventSet() {
-        return new HashSet<StreamEvent>(this.values());
+        return new HashSet<StreamEvent>(data.values());
     }
 
     @Override
     public Set<StreamEvent> findEventSet(String attribute, Compare.Operator operator, Object value) {
         if (operator == Compare.Operator.EQUAL) {
             Set<StreamEvent> streamEventSet = new HashSet<StreamEvent>();
-            StreamEvent resultEvent = this.get(value);
+            StreamEvent resultEvent = data.get(value);
             if (resultEvent != null) {
                 streamEventSet.add(resultEvent);
             }
             return streamEventSet;
         } else if (operator == Compare.Operator.NOT_EQUAL) {
             Set<StreamEvent> streamEventSet;
-            if (size() > 0) {
-                streamEventSet = new HashSet<StreamEvent>(this.values());
+            if (data.size() > 0) {
+                streamEventSet = new HashSet<StreamEvent>(data.values());
             } else {
                 streamEventSet = new HashSet<StreamEvent>();
             }
 
-            StreamEvent resultEvent = this.get(value);
+            StreamEvent resultEvent = data.get(value);
             if (resultEvent != null) {
                 streamEventSet.remove(resultEvent);
             }
@@ -82,25 +83,25 @@ public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implemen
 
     @Override
     public void deleteAll() {
-        clear();
+        data.clear();
     }
 
     @Override
     public void deleteAll(Set<StreamEvent> candidateEventSet) {
         for (StreamEvent streamEvent : candidateEventSet) {
-            remove(streamEvent.getOutputData()[indexPosition]);
+            data.remove(streamEvent.getOutputData()[indexPosition]);
         }
     }
 
     @Override
     public void delete(String attribute, Compare.Operator operator, Object value) {
         if (operator == Compare.Operator.EQUAL) {
-            remove(value);
+            data.remove(value);
         } else if (operator == Compare.Operator.NOT_EQUAL) {
-            StreamEvent streamEvent = this.get(value);
+            StreamEvent streamEvent = data.get(value);
             deleteAll();
             if (streamEvent != null) {
-                put(value, streamEvent);
+                data.put(value, streamEvent);
             }
         } else {
             throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
