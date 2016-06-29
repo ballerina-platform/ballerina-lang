@@ -9,21 +9,18 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by suho on 6/25/16.
- */
-public class AnyAnyAndCollectionExecutor implements CollectionExecutor {
+public class AnyAndCollectionExecutor implements CollectionExecutor {
 
 
     private final CollectionExecutor rightCollectionExecutor;
     private final CollectionExecutor leftCollectionExecutor;
-    private CollectionExecutor aCollectionExecutor;
+    private CollectionExecutor exhaustiveCollectionExecutor;
 
-    public AnyAnyAndCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor rightCollectionExecutor, CollectionExecutor aCollectionExecutor) {
+    public AnyAndCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor rightCollectionExecutor, CollectionExecutor exhaustiveCollectionExecutor) {
 
         this.leftCollectionExecutor = leftCollectionExecutor;
         this.rightCollectionExecutor = rightCollectionExecutor;
-        this.aCollectionExecutor = aCollectionExecutor;
+        this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
@@ -33,11 +30,15 @@ public class AnyAnyAndCollectionExecutor implements CollectionExecutor {
 
         if (resultEventSet != null) {
             for (StreamEvent resultEvent : resultEventSet) {
-                returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                if (candidateEventCloner != null) {
+                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                } else {
+                    returnEventChunk.add(resultEvent);
+                }
             }
             return returnEventChunk.getFirst();
         } else {
-            return aCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
         }
     }
 
@@ -58,6 +59,26 @@ public class AnyAnyAndCollectionExecutor implements CollectionExecutor {
                 }
                 return returnSet;
             }
+        }
+    }
+
+    @Override
+    public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Set<StreamEvent> resultEventSet = findEventSet(matchingEvent, indexedEventHolder);
+        if (resultEventSet != null) {
+            return resultEventSet.size() > 0;
+        } else {
+            return exhaustiveCollectionExecutor.contains(matchingEvent, indexedEventHolder);
+        }
+    }
+
+    @Override
+    public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
+        Set<StreamEvent> resultEventSet = findEventSet(deletingEvent, indexedEventHolder);
+        if (resultEventSet != null) {
+            indexedEventHolder.deleteAll(resultEventSet);
+        } else {
+            exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         }
     }
 

@@ -10,9 +10,6 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Set;
 
-/**
- * Created by suho on 6/25/16.
- */
 public class CompareCollectionExecutor implements CollectionExecutor {
 
 
@@ -28,18 +25,33 @@ public class CompareCollectionExecutor implements CollectionExecutor {
     }
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        ComplexEventChunk<StreamEvent> candidateEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        candidateEventChunk.add(indexedEventHolder.findAllEvents(attribute, operator, valueExpressionExecutor.execute(matchingEvent)));
-        candidateEventChunk.reset();
-        while (candidateEventChunk.hasNext()) {
-            returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEventChunk.next()));
+        Set<StreamEvent> candidateEventSet = findEventSet(matchingEvent, indexedEventHolder);
+
+        for (StreamEvent candidateEvent : candidateEventSet) {
+            if (candidateEventCloner != null) {
+                returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+            } else {
+                returnEventChunk.add(candidateEvent);
+            }
         }
         return returnEventChunk.getFirst();
     }
 
     public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         return indexedEventHolder.findEventSet(attribute, operator, valueExpressionExecutor.execute(matchingEvent));
+    }
+
+    @Override
+    public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Set<StreamEvent> candidateEventSet = findEventSet(matchingEvent, indexedEventHolder);
+        return candidateEventSet.size() > 0;
+    }
+
+    @Override
+    public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
+        indexedEventHolder.delete(attribute, operator, valueExpressionExecutor.execute(deletingEvent));
     }
 
 }

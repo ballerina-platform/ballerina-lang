@@ -10,17 +10,14 @@ import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by suho on 6/25/16.
- */
-public class NonAnyAndCollectionExecutor implements CollectionExecutor {
+public class NonAndCollectionExecutor implements CollectionExecutor {
 
 
     private final CollectionExecutor collectionExecutor;
     private final CollectionExpression.CollectionScope collectionScope;
     private final ExpressionExecutor valueExpressionExecutor;
 
-    public NonAnyAndCollectionExecutor(ExpressionExecutor valueExpressionExecutor, CollectionExecutor aCollectionExecutor, CollectionExpression.CollectionScope collectionScope) {
+    public NonAndCollectionExecutor(ExpressionExecutor valueExpressionExecutor, CollectionExecutor aCollectionExecutor, CollectionExpression.CollectionScope collectionScope) {
 
         this.valueExpressionExecutor = valueExpressionExecutor;
         collectionExecutor = aCollectionExecutor;
@@ -50,6 +47,18 @@ public class NonAnyAndCollectionExecutor implements CollectionExecutor {
             return new HashSet<StreamEvent>();
         }
         return null;
+    }
+
+    @Override
+    public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        return (Boolean) valueExpressionExecutor.execute(matchingEvent) && collectionExecutor.contains(matchingEvent, indexedEventHolder);
+    }
+
+    @Override
+    public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
+        if ((Boolean) valueExpressionExecutor.execute(deletingEvent)) {
+            collectionExecutor.delete(deletingEvent, indexedEventHolder);
+        }
     }
 
 }

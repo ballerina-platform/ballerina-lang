@@ -8,11 +8,7 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by suho on 6/25/16.
- */
 public class CompareExhaustiveAndCollectionExecutor implements CollectionExecutor {
-
 
     private final CollectionExecutor compareCollectionExecutor;
     private CollectionExecutor aCollectionExecutor;
@@ -37,6 +33,24 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
             return null;
         } else {
             return new HashSet<StreamEvent>();
+        }
+    }
+
+    @Override
+    public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Set<StreamEvent> compareStreamEvents = findEventSet(matchingEvent, indexedEventHolder);
+        if (compareStreamEvents == null) {
+            return aCollectionExecutor.contains(matchingEvent, indexedEventHolder);
+        } else {
+            return compareStreamEvents.size() > 0;
+        }
+    }
+
+    @Override
+    public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
+        Set<StreamEvent> compareStreamEvents = findEventSet(deletingEvent, indexedEventHolder);
+        if (compareStreamEvents == null) {
+             aCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         }
     }
 

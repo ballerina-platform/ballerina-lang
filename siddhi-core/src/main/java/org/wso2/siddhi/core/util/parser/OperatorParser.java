@@ -7,21 +7,18 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.holder.PrimaryKeyEventHolder;
+import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
+import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
+import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
 import org.wso2.siddhi.core.util.collection.operator.*;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.api.expression.constant.Constant;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by suho on 5/22/16.
- */
 public class OperatorParser {
 
     public static Operator constructOperator(Object candidateEvents, Expression expression,
@@ -29,40 +26,12 @@ public class OperatorParser {
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
                                              Map<String, EventTable> eventTableMap) {
-        if (candidateEvents instanceof PrimaryKeyEventHolder) {
-            if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
-                Compare compare = (Compare) expression;
-                if ((compare.getLeftExpression() instanceof Variable || compare.getLeftExpression() instanceof Constant)
-                        && (compare.getRightExpression() instanceof Variable || compare.getRightExpression() instanceof Constant)) {
-
-                    boolean leftSideIndexed = false;
-                    boolean rightSideIndexed = false;
-
-                    if (isTableIndexVariable(matchingMetaStateHolder, compare.getLeftExpression(), ((PrimaryKeyEventHolder) candidateEvents).getIndexAttribute())) {
-                        leftSideIndexed = true;
-                    }
-
-                    if (isTableIndexVariable(matchingMetaStateHolder, compare.getRightExpression(), ((PrimaryKeyEventHolder) candidateEvents).getIndexAttribute())) {
-                        rightSideIndexed = true;
-                    }
-
-                    if (leftSideIndexed && !rightSideIndexed) {
-                        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-                        return new PrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((PrimaryKeyEventHolder) candidateEvents).getIndexPosition());
-
-                    } else if (!leftSideIndexed && rightSideIndexed) {
-                        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-                        return new PrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((PrimaryKeyEventHolder) candidateEvents).getIndexPosition());
-
-                    }
-                }
-            }
-            //fallback to not using primary key
-            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
-            return new MapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
+        if (candidateEvents instanceof IndexedEventHolder) {
+            CollectionExpression collectionExpression = CollectionExpressionParser.parseCollectionExpression(expression,
+                    matchingMetaStateHolder, (IndexedEventHolder) candidateEvents);
+            CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor(collectionExpression,
+                    matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true);
+            return new IndexOperator(collectionExecutor);
         } else if (candidateEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                     matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);

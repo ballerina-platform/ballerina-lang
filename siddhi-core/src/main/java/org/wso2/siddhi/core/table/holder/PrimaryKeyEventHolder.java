@@ -5,13 +5,14 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 
-/**
- * Created by suho on 5/22/16.
- */
-public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implements EventHolder {
+public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implements IndexedEventHolder {
 
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
@@ -36,11 +37,73 @@ public class PrimaryKeyEventHolder extends TreeMap<Object, StreamEvent> implemen
         }
     }
 
-    public String getIndexAttribute() {
-        return indexAttribute;
+    @Override
+    public boolean isSupportedIndex(String attribute, Compare.Operator operator) {
+        return indexAttribute.equalsIgnoreCase(attribute) &&
+                (operator == Compare.Operator.EQUAL || operator == Compare.Operator.NOT_EQUAL);
     }
 
-    public int getIndexPosition() {
-        return indexPosition;
+    @Override
+    public boolean isAttributeIndexed(String attribute) {
+        return indexAttribute.equalsIgnoreCase(attribute);
+    }
+
+    @Override
+    public Set<StreamEvent> getAllEventSet() {
+        return new HashSet<StreamEvent>(this.values());
+    }
+
+    @Override
+    public Set<StreamEvent> findEventSet(String attribute, Compare.Operator operator, Object value) {
+        if (operator == Compare.Operator.EQUAL) {
+            Set<StreamEvent> streamEventSet = new HashSet<StreamEvent>();
+            StreamEvent resultEvent = this.get(value);
+            if (resultEvent != null) {
+                streamEventSet.add(resultEvent);
+            }
+            return streamEventSet;
+        } else if (operator == Compare.Operator.NOT_EQUAL) {
+            Set<StreamEvent> streamEventSet;
+            if (size() > 0) {
+                streamEventSet = new HashSet<StreamEvent>(this.values());
+            } else {
+                streamEventSet = new HashSet<StreamEvent>();
+            }
+
+            StreamEvent resultEvent = this.get(value);
+            if (resultEvent != null) {
+                streamEventSet.remove(resultEvent);
+            }
+            return streamEventSet;
+        } else {
+            throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        clear();
+    }
+
+    @Override
+    public void deleteAll(Set<StreamEvent> candidateEventSet) {
+        for (StreamEvent streamEvent : candidateEventSet) {
+            remove(streamEvent.getOutputData()[indexPosition]);
+        }
+    }
+
+    @Override
+    public void delete(String attribute, Compare.Operator operator, Object value) {
+        if (operator == Compare.Operator.EQUAL) {
+            remove(value);
+        } else if (operator == Compare.Operator.NOT_EQUAL) {
+            StreamEvent streamEvent = this.get(value);
+            deleteAll();
+            if (streamEvent != null) {
+                put(value, streamEvent);
+            }
+        } else {
+            throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
+        }
     }
 }

@@ -10,28 +10,27 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by suho on 6/25/16.
- */
-public class NonBasicCollectionExecutor implements CollectionExecutor {
+public class NonCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;
 
-    public NonBasicCollectionExecutor(ExpressionExecutor expressionExecutor) {
+    public NonCollectionExecutor(ExpressionExecutor expressionExecutor) {
 
         this.expressionExecutor = expressionExecutor;
     }
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
 
-
         if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-            ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            ComplexEventChunk<StreamEvent> candidateEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            candidateEventChunk.add(indexedEventHolder.getAllEvents());
 
-            candidateEventChunk.reset();
-            while (candidateEventChunk.hasNext()) {
-                returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEventChunk.next()));
+            ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            Set<StreamEvent> candidateEventSet = indexedEventHolder.getAllEventSet();
+
+            for (StreamEvent candidateEvent : candidateEventSet) {
+                if (candidateEventCloner != null) {
+                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                } else {
+                    returnEventChunk.add(candidateEvent);
+                }
             }
             return returnEventChunk.getFirst();
         } else {
@@ -45,6 +44,18 @@ public class NonBasicCollectionExecutor implements CollectionExecutor {
             return indexedEventHolder.getAllEventSet();
         } else {
             return new HashSet<StreamEvent>();
+        }
+    }
+
+    @Override
+    public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        return (Boolean) expressionExecutor.execute(matchingEvent);
+    }
+
+    @Override
+    public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
+        if ((Boolean) expressionExecutor.execute(deletingEvent)) {
+            indexedEventHolder.deleteAll();
         }
     }
 }

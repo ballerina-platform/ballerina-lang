@@ -7,9 +7,6 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
 import java.util.Set;
 
-/**
- * Created by suho on 6/25/16.
- */
 public interface CollectionExecutor {
 
     /**
@@ -18,7 +15,7 @@ public interface CollectionExecutor {
      * @param matchingEvent        matching input event
      * @param indexedEventHolder   indexed EventHolder containing data
      * @param candidateEventCloner candidate event cloner
-     * @return matched StreamEvent, null if no events matched.
+     * @return matched StreamEvent, null if no events matched. If candidateEventCloner is null it will return the actual event references.
      */
     StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner);
 
@@ -30,4 +27,21 @@ public interface CollectionExecutor {
      * @return matched events as Set, null if Exhaustive processing need to be done.
      */
     Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder);
+
+    /**
+     * Checks if a matching event exist in indexedEventHolder
+     *
+     * @param matchingEvent      matching input event
+     * @param indexedEventHolder indexed EventHolder containing data
+     * @return true if a matching event is available in indexedEventHolder else false
+     */
+    boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder);
+
+    /**
+     * Delete matching events exists from indexedEventHolder
+     *
+     * @param deletingEvent      matching input event
+     * @param indexedEventHolder indexed EventHolder containing data
+     */
+    void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder);
 }
