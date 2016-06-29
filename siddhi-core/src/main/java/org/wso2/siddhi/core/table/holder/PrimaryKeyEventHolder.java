@@ -16,15 +16,15 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
 
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
-    private int indexPosition;
-    private String indexAttribute;
+    private int primaryKeyPosition;
+    private String primaryKeyAttribute;
     private TreeMap<Object, StreamEvent> data = new TreeMap<Object, StreamEvent>();
 
-    public PrimaryKeyEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int indexPosition, String indexAttribute) {
+    public PrimaryKeyEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int primaryKeyPosition, String primaryKeyAttribute) {
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;
-        this.indexPosition = indexPosition;
-        this.indexAttribute = indexAttribute;
+        this.primaryKeyPosition = primaryKeyPosition;
+        this.primaryKeyAttribute = primaryKeyAttribute;
     }
 
     @Override
@@ -34,19 +34,19 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(complexEvent, streamEvent);
-            data.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+            data.put(streamEvent.getOutputData()[primaryKeyPosition], streamEvent);
         }
     }
 
     @Override
     public boolean isSupportedIndex(String attribute, Compare.Operator operator) {
-        return indexAttribute.equalsIgnoreCase(attribute) &&
+        return primaryKeyAttribute.equalsIgnoreCase(attribute) &&
                 (operator == Compare.Operator.EQUAL || operator == Compare.Operator.NOT_EQUAL);
     }
 
     @Override
     public boolean isAttributeIndexed(String attribute) {
-        return indexAttribute.equalsIgnoreCase(attribute);
+        return primaryKeyAttribute.equalsIgnoreCase(attribute);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
     @Override
     public void deleteAll(Set<StreamEvent> candidateEventSet) {
         for (StreamEvent streamEvent : candidateEventSet) {
-            data.remove(streamEvent.getOutputData()[indexPosition]);
+            data.remove(streamEvent.getOutputData()[primaryKeyPosition]);
         }
     }
 
