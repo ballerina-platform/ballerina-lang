@@ -18,12 +18,22 @@
 
 package org.wso2.carbon.transport.http.netty.statistics.internal;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.messaging.handler.MessagingHandler;
 import org.wso2.carbon.metrics.core.MetricManagementService;
 import org.wso2.carbon.metrics.core.MetricService;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.statistics.StatisticsHandler;
+import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
+
+import java.util.Set;
 
 /**
  * Service component to refer metrics services
@@ -82,4 +92,31 @@ public class StatisticsServiceComponent {
     protected void unsetMetricManagementService(MetricManagementService metricManagementService) {
         DataHolder.getInstance().setMetricManagementService(null);
     }
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        if (getMetricsStatus()) {
+            bundleContext
+                    .registerService(MessagingHandler.class, new StatisticsHandler(TimerHolder.getInstance()), null);
+        }
+    }
+
+    @Deactivate
+    public void deactivate(BundleContext bundleContext) {
+
+    }
+
+    private boolean getMetricsStatus() {
+        boolean statStatus = false;
+
+        Set<TransportProperty> transportProperties = YAMLTransportConfigurationBuilder.build().getTransportProperties();
+        for (TransportProperty property : transportProperties) {
+            if (property.getName().equalsIgnoreCase("latency.metrics.enabled")) {
+                statStatus = (Boolean) property.getValue();
+            }
+        }
+
+        return statStatus;
+    }
+
 }

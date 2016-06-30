@@ -55,8 +55,6 @@
     </dependencies>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.transport.http.netty.statistics.internal.NettyTransportStatActivator
-        </bundle.activator>
         <private.package>org.wso2.carbon.transport.http.netty.statistics.internal</private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.statistics.internal,
