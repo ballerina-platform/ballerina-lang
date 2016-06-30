@@ -23,7 +23,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -49,7 +48,6 @@ public class NettyCarbonMessage extends CarbonMessage {
             setEndOfMsgAdded(true);
         }
         httpContentQueue.add(httpContent);
-        ReferenceCountUtil.releaseLater(httpContent);
     }
 
     public HttpContent getHttpContent() {
