@@ -93,7 +93,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             publishToDisruptor(msg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
-            cMsg.setEndOfMsgAdded(true);
             if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
                 NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
