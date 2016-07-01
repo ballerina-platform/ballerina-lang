@@ -80,7 +80,7 @@ public class ResponseCallback implements CarbonCallback {
                 DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
                 while (true) {
                     ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
+                    ByteBuf bbuf = Unpooled.copiedBuffer(byteBuffer);
                     DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                     ctx.write(httpContent);
                     if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
