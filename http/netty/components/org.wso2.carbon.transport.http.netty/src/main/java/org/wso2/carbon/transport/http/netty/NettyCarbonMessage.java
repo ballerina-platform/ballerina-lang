@@ -133,7 +133,7 @@ public class NettyCarbonMessage extends CarbonMessage {
         if (isAlreadyRead()) {
             outContentQueue.add(msgBody);
         } else {
-            httpContentQueue.add(new DefaultHttpContent(Unpooled.wrappedBuffer(msgBody.array())));
+            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody.array())));
         }
     }
 
@@ -142,7 +142,7 @@ public class NettyCarbonMessage extends CarbonMessage {
         super.setEndOfMsgAdded(endOfMsgAdded);
         if (isAlreadyRead()) {
             outContentQueue.forEach(buffer -> {
-                httpContentQueue.add(new DefaultHttpContent(Unpooled.wrappedBuffer(buffer.array())));
+                httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(buffer.array())));
             });
         }
     }
