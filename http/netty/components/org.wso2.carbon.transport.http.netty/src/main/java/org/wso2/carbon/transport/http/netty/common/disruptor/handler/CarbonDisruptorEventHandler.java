@@ -15,6 +15,8 @@
 
 package org.wso2.carbon.transport.http.netty.common.disruptor.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
@@ -28,6 +30,8 @@ import java.util.concurrent.locks.Lock;
  */
 public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(CarbonDisruptorEventHandler.class);
+
     public CarbonDisruptorEventHandler() {
     }
 
@@ -39,7 +43,13 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
             // Mechanism to process each event from only one event handler
             if (lock.tryLock()) {
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
-                NettyTransportContextHolder.getInstance().getMessageProcessor().receive(carbonMessage, carbonCallback);
+                if (NettyTransportContextHolder.getInstance().getMessageProcessor() != null) {
+                    NettyTransportContextHolder.getInstance().getMessageProcessor()
+                            .receive(carbonMessage, carbonCallback);
+                } else {
+                    logger.error("Cannot find registered MessageProcessor");
+                }
+
                 // lock.unlock() does not used because if there are multiple event handlers and same event
                 // should not processed by multiple event handlers .If  unlock happens too early for a event before
                 // other Event handler object reads that event then there will be a probability of executing
@@ -60,8 +70,12 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
             if (carbonMessage.getProperty(Constants.DIRECTION) == null) {
 
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
-                NettyTransportContextHolder.getInstance().getMessageProcessor().receive(carbonMessage, carbonCallback);
-
+                if (NettyTransportContextHolder.getInstance().getMessageProcessor() != null) {
+                    NettyTransportContextHolder.getInstance().getMessageProcessor()
+                            .receive(carbonMessage, carbonCallback);
+                } else {
+                    logger.error("Cannot find registered MessageProcessor");
+                }
 
             } else if (carbonMessage.getProperty(Constants.DIRECTION).equals(Constants.DIRECTION_RESPONSE)) {
 
