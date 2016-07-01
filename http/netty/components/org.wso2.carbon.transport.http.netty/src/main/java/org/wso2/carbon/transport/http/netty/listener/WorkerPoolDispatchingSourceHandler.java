@@ -116,8 +116,15 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                         try {
                             NettyTransportContextHolder.getInstance().getMessageProcessor()
                                     .receive(cMsg, carbonCallback);
+                            if (NettyTransportContextHolder.getInstance().getMessageProcessor() != null) {
+                                NettyTransportContextHolder.getInstance().getMessageProcessor()
+                                        .receive(cMsg, carbonCallback);
+                            } else {
+                                log.error("Cannot find registered MessageProcessor");
+                            }
+
                         } catch (Exception e) {
-                            log.error("Error occurred inside the messaging engine", e);
+                            log.error("Error occurred inside the messaging engine probabl", e);
                         }
                     }
                 });
