@@ -130,17 +130,20 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.setProperty(Constants.DISRUPTOR, disruptor);
         }
 
+        boolean continueRequest = true;
+
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
-            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+            continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeRequestContinuationValidator(cMsg, carbonMessage -> {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg
                                 .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
-            if (continueRequest) {
-                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
-            }
+
+        }
+        if (continueRequest) {
+            disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         }
 
     }

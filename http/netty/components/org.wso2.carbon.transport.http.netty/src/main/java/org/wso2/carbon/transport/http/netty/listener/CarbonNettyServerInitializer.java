@@ -143,8 +143,10 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
             if (listenerConfiguration.getEnableDisruptor()) {
+                log.debug("Selecting SourceHandler");
                 p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
             } else {
+                log.debug("Selecting WorkerPoolDispatchingSourceHandler");
                 p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
             }
         } catch (Exception e) {

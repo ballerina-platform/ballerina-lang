@@ -194,6 +194,12 @@
                 <artifactId>metrics-jvm</artifactId>
                 <version>${metrics.version}</version>
             </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -309,6 +315,8 @@
 
         <carbon.metrics.version>1.2.1</carbon.metrics.version>
         <metrics.version>3.1.2</metrics.version>
+
+        <junit.version>4.8.2</junit.version>
     </properties>
 
 </project>
