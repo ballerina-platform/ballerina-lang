@@ -18,40 +18,25 @@
 
 package org.wso2.siddhi.core.util;
 
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadBarrier {
 
-    private volatile Lock lock = null;
+    private ReentrantLock lock = new ReentrantLock();
 
     public void pass() {
-        if (lock != null) {
-            synchronized (this) {
-                if (lock != null) {
-                    lock.lock();
-                    lock.unlock();
-                }
-            }
+        if (lock.isLocked()) {
+            lock.lock();
+            lock.unlock();
         }
     }
 
-    public synchronized void lock() {
-        if (lock == null) {
-            lock = new ReentrantLock();
-        }
+    public void lock() {
         lock.lock();
-
     }
 
-    public synchronized void unlock() {
-        if (lock != null) {
-            try {
-            } finally {
-                lock.unlock();
-            }
-            lock = null;
-        }
+    public void unlock() {
+        lock.unlock();
     }
 
 }
