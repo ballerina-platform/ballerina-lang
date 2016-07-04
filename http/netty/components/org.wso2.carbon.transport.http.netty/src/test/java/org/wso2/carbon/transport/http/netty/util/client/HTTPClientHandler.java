@@ -20,15 +20,18 @@ package org.wso2.carbon.transport.http.netty.util.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class which handles responses for sent requests
  */
 public class HTTPClientHandler extends ChannelInboundHandlerAdapter {
-
+    private static final Logger logger = LoggerFactory.getLogger(HTTPClientHandler.class);
     private ResponseCallback responseCallback;
 
     private Response response;
@@ -39,7 +42,11 @@ public class HTTPClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpResponse) {
+        if (msg instanceof FullHttpResponse) {
+            response = new Response((HttpResponse) msg);
+            response.addContent(((FullHttpResponse) msg).content().nioBuffer());
+
+        } else if (msg instanceof HttpResponse) {
             response = new Response((HttpResponse) msg);
         } else if (msg instanceof HttpContent) {
             response.addContent(((HttpContent) msg).content().nioBuffer());

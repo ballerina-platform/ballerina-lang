@@ -32,9 +32,10 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
@@ -43,7 +44,6 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaders.is100ContinueExpected;
 import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -56,29 +56,33 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
     private ByteBuf content;
     private String contentType;
     private int responseStatusCode = 200;
+    private HttpRequest req;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         if (content != null) {
             if (msg instanceof HttpRequest) {
-                HttpRequest req = (HttpRequest) msg;
-
+                req = (HttpRequest) msg;
+            } else if (msg instanceof LastHttpContent) {
                 if (is100ContinueExpected(req)) {
                     ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
                 }
                 boolean keepAlive = isKeepAlive(req);
-                FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content.duplicate());
+                HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
+                        HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
+                FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
                 response.headers().set(CONTENT_TYPE, contentType);
-                response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
+                response.headers().set(CONTENT_LENGTH, content.readableBytes());
 
                 if (!keepAlive) {
-                    ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+                    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                 } else {
                     response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                    ctx.write(response);
+                    ctx.writeAndFlush(response);
                 }
             }
+
         } else {
             if (msg instanceof HttpRequest) {
                 HttpRequest req = (HttpRequest) msg;
@@ -116,7 +120,11 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
     public void setMessage(String message, String contentType) {
         if (message != null && contentType != null) {
             this.contentType = contentType;
-            content = Unpooled.unreleasableBuffer(Unpooled.copiedBuffer(message, CharsetUtil.US_ASCII));
+            try {
+                content = Unpooled.wrappedBuffer(message.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Encoding not supported", e);
+            }
         } else {
             logger.debug("Please specify message and contentType ");
         }

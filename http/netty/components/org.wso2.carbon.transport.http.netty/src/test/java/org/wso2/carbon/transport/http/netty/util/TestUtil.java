@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.transport.http.netty.util;
 
+import org.wso2.carbon.transport.http.netty.listener.NettyListener;
+import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+
 /**
  * A util class to be used for tests
  */
@@ -27,4 +30,15 @@ public class TestUtil {
     public static final int TEST_ESB_PORT = 8080;
     public static final String TEST_HOST = "localhost";
 
+    public static final int RESPONSE_WAIT_TIME = 10000;
+
+    public static void cleanUp(NettyListener nettyListener, HTTPServer httpServer) {
+        nettyListener.stop();
+        httpServer.shutdown();
+        try {
+            Thread.sleep(TestUtil.RESPONSE_WAIT_TIME);
+        } catch (InterruptedException e) {
+
+        }
+    }
 }

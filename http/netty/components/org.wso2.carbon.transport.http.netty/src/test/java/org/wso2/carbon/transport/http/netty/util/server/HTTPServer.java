@@ -26,7 +26,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.net.InetSocketAddress;
 import javax.net.ssl.SSLContext;
@@ -48,9 +48,7 @@ public class HTTPServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private SSLContext sslContext;
-    private String message;
-    private String contentType;
-    private int responseCode;
+    private HTTPServerInitializer httpServerInitializer;
 
     public HTTPServer(int port) {
         this.port = port;
@@ -68,10 +66,10 @@ public class HTTPServer {
             b.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
             b.option(ChannelOption.SO_KEEPALIVE, isKeepAlive);
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeOut);
-            HTTPServerInitializer httpServerInitializer = new HTTPServerInitializer();
+            httpServerInitializer = new HTTPServerInitializer();
             httpServerInitializer.setSslContext(sslContext);
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(httpServerInitializer);
-            ChannelFuture ch = b.bind(new InetSocketAddress("localhost", 9000)).sync();
+            ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port)).sync();
             logger.info("HTTPServer starting on port " + port);
             if (ch.isSuccess()) {
                 logger.info("HTTPServer started on port " + port);
@@ -119,17 +117,13 @@ public class HTTPServer {
     }
 
     public void setMessage(String message, String contentType) {
-        this.message = message;
-        this.contentType = contentType;
+        httpServerInitializer.setMessage(message, contentType);
+
     }
 
     public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
+     httpServerInitializer.setResponseCode(responseCode);
     }
 
-    //    public static void main(String[] args) {
-    //        HTTPServer httpServer = new HTTPServer(9000);
-    //        httpServer.start();
-    //    }
 
 }

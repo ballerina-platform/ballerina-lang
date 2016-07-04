@@ -109,7 +109,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
         boolean continueRequest = true;
 
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-           continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+            continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeRequestContinuationValidator(cMsg, carbonMessage -> {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
@@ -120,8 +120,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                 @Override
                 public void run() {
                     try {
-                        NettyTransportContextHolder.getInstance().getMessageProcessor()
-                                .receive(cMsg, carbonCallback);
+                        NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
                     } catch (Exception e) {
                         log.error("Error occurred inside the messaging engine", e);
                     }
@@ -132,8 +131,10 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+        }
         connectionManager.notifyChannelInactive();
     }
 }

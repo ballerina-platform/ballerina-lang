@@ -45,13 +45,15 @@ import java.net.URISyntaxException;
 /**
  * A test class for passthrough transport
  */
-public class PassThroughTestCase {
+public class PassThroughGetTestCase {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughTestCase.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughGetTestCase.class);
 
     private NettyListener nettyListener;
     private CarbonMessageProcessor messageProcessor;
     private TransportSender transportSender;
+
+    private static final String testValue = "Test Message";
 
     private HTTPServer httpServer;
 
@@ -69,10 +71,12 @@ public class PassThroughTestCase {
         NettyTransportContextHolder.getInstance().addMessageProcessor(messageProcessor);
         messageProcessor.setTransportSender(transportSender);
         httpServer = new HTTPServer(TestUtil.TEST_SERVER_PORT);
+
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 httpServer.start();
+                httpServer.setMessage(testValue, "text/plain");
             }
         });
         serverThread.start();
@@ -91,14 +95,12 @@ public class PassThroughTestCase {
     }
 
     @Test
-    public void passthroughTestCase() {
-        String testValue = "Test Message";
+    public void passthroughGetTestCase() {
         Object lock = new Object();
         ResponseCallback responseCallback1 = new PassthroughCallBack(lock);
         HTTPClient httpClient = new HTTPClient(responseCallback1, null);
         try {
-            Request request = new Request(HttpVersion.HTTP_1_1, HttpMethod.POST, new URI("http://localhost:8080/"));
-            request.setMessageBody(testValue, "text/plain");
+            Request request = new Request(HttpVersion.HTTP_1_1, HttpMethod.GET, new URI("http://localhost:8080/"));
             httpClient.send(request);
             if (((PassthroughCallBack) responseCallback1).getValue() == null) {
                 synchronized (lock) {
