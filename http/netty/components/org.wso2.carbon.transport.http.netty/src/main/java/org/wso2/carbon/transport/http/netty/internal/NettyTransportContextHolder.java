@@ -22,11 +22,9 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +36,6 @@ public class NettyTransportContextHolder {
     private static final Logger log = LoggerFactory.getLogger(NettyTransportContextHolder.class);
 
     private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
-    private Map<String, CarbonTransportInitializer> channelServerInitializers = new HashMap<>();
-    private Map<String, CarbonTransportInitializer> channelClientInitializers = new HashMap<>();
     private BundleContext bundleContext;
     private CarbonMessageProcessor messageProcessor;
     private HandlerExecutor handlerExecutor;
@@ -62,30 +58,6 @@ public class NettyTransportContextHolder {
         return instance;
     }
 
-    public synchronized void addNettyChannelInitializer(String key, CarbonTransportInitializer initializer) {
-        if (initializer.isServerInitializer()) {
-            if (channelServerInitializers.get(key) == null) {
-                this.channelServerInitializers.put(key, initializer);
-            } else {
-                if (channelServerInitializers.get(key) instanceof CarbonNettyServerInitializer) {
-                    channelServerInitializers.remove(key);
-                    this.channelServerInitializers.put(key, initializer);
-                }
-            }
-        }
-    }
-
-    public CarbonTransportInitializer getServerChannelInitializer(String key) {
-        return channelServerInitializers.get(key);
-    }
-
-    public CarbonTransportInitializer getClientChannelInitializer(String key) {
-        return channelClientInitializers.get(key);
-    }
-
-    public void removeNettyChannelInitializer(String key) {
-        channelServerInitializers.remove(key);
-    }
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -108,7 +80,6 @@ public class NettyTransportContextHolder {
             messageProcessor = null;
         }
     }
-
 
     public TransportListenerManager getManager() {
         return manager;

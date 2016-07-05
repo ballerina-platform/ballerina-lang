@@ -42,6 +42,7 @@ public class NettyCarbonMessage extends CarbonMessage {
 
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<ByteBuffer> outContentQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
         if (httpContent instanceof LastHttpContent) {
@@ -64,11 +65,8 @@ public class NettyCarbonMessage extends CarbonMessage {
         try {
             HttpContent httpContent = httpContentQueue.take();
             ByteBuf buf = httpContent.content();
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            httpContent.release();
-            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-            return byteBuffer;
+            garbageCollected.add(httpContent);
+            return buf.nioBuffer();
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving message body from queue.", e);
             return null;
@@ -86,11 +84,8 @@ public class NettyCarbonMessage extends CarbonMessage {
                 }
                 HttpContent httpContent = httpContentQueue.take();
                 ByteBuf buf = httpContent.content();
-                byte[] bytes = new byte[buf.readableBytes()];
-                buf.readBytes(bytes);
-                httpContent.release();
-                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-                byteBufferList.add(byteBuffer);
+                garbageCollected.add(httpContent);
+                byteBufferList.add(buf.nioBuffer());
             } catch (InterruptedException e) {
                 LOG.error("Error while getting full message body", e);
             }
@@ -148,8 +143,8 @@ public class NettyCarbonMessage extends CarbonMessage {
     }
 
     @Override
-    protected void finalize() throws Throwable {
+    public void release() {
         httpContentQueue.forEach(content -> content.release());
-        super.finalize();
+        garbageCollected.forEach(content -> content.release());
     }
 }
