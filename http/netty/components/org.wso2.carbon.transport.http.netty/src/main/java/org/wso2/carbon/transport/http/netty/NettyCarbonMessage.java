@@ -45,10 +45,11 @@ public class NettyCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
-        if (httpContent instanceof LastHttpContent) {
-            setEndOfMsgAdded(true);
+        try {
+            httpContentQueue.put(httpContent);
+        } catch (InterruptedException e) {
+            LOG.error("Cannot put content to queue", e);
         }
-        httpContentQueue.add(httpContent);
     }
 
     public HttpContent getHttpContent() {
@@ -77,12 +78,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     public List<ByteBuffer> getFullMessageBody() {
         List<ByteBuffer> byteBufferList = new ArrayList<>();
 
-        while (true) {
+        boolean isEndOfMessageProcessed = false;
+        while (!isEndOfMessageProcessed) {
             try {
-                if (isEndOfMsgAdded() && isEmpty()) {
-                    break;
-                }
                 HttpContent httpContent = httpContentQueue.take();
+                if (httpContent instanceof LastHttpContent) {
+                    isEndOfMessageProcessed = true;
+                }
                 ByteBuf buf = httpContent.content();
                 garbageCollected.add(httpContent);
                 byteBufferList.add(buf.nioBuffer());
@@ -102,12 +104,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public int getFullMessageLength() {
         List<HttpContent> contentList = new ArrayList<>();
-        while (true) {
+        boolean isEndOfMessageProcessed = false;
+        while (!isEndOfMessageProcessed) {
             try {
-                if (isEndOfMsgAdded() && isEmpty()) {
-                    break;
-                }
                 HttpContent httpContent = httpContentQueue.take();
+                if (httpContent instanceof LastHttpContent) {
+                    isEndOfMessageProcessed = true;
+                }
                 contentList.add(httpContent);
 
             } catch (InterruptedException e) {

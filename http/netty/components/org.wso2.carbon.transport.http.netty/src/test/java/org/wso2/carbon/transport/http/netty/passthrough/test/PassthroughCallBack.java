@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.transport.http.netty.passthrough.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.util.client.Response;
 import org.wso2.carbon.transport.http.netty.util.client.ResponseCallback;
 
@@ -26,6 +28,7 @@ import org.wso2.carbon.transport.http.netty.util.client.ResponseCallback;
  */
 public class PassthroughCallBack implements ResponseCallback {
 
+    private static final Logger logger = LoggerFactory.getLogger(PassthroughCallBack.class);
     private String value;
 
     Object lock;

@@ -36,7 +36,7 @@ public class HTTPServerInitializer extends ChannelInitializer {
     private SSLContext sslContext;
     private String message;
     private String contentType;
-    private int responseCode;
+    private int responseCode = 200;
 
     @Override
     protected void initChannel(Channel channel) throws Exception {

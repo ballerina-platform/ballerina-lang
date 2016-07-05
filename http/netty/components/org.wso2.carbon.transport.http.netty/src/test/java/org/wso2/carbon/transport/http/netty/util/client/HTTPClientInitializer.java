@@ -54,10 +54,10 @@ public class HTTPClientInitializer extends ChannelInitializer {
         p.addLast("codec", new HttpClientCodec());
 
         // Remove the following line if you don't want automatic content decompression.
-       // p.addLast("inflater", new HttpContentDecompressor());
+     //   p.addLast("inflater", new HttpContentDecompressor());
 
         // Uncomment the following line if you don't want to handle HttpChunks.
-        //p.addLast("aggregator", new HttpObjectAggregator(1048576));
+    //   p.addLast("aggregator", new HttpObjectAggregator(1048576));
 
         p.addLast("handler", new HTTPClientHandler(responseCallback));
     }

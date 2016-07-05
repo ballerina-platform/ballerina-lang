@@ -116,6 +116,18 @@
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-io.wso2</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.wso2.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+                <scope>test</scope>
+            </dependency>
 
             <!-- Carbon Metrics Dependency -->
             <dependency>
@@ -195,9 +207,9 @@
                 <version>${metrics.version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -295,6 +307,11 @@
 
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <commons.pool.package.import.version.range>[1.5.6, 2.0.0)</commons.pool.package.import.version.range>
+        <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
+        <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
+        <guava.version>18.0</guava.version>
+        <guava.version.range>[18.0,19.0)</guava.version.range>
+
 
         <carbon.messaging.version>1.0.4-SNAPSHOT</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
@@ -316,7 +333,7 @@
         <carbon.metrics.version>1.2.1</carbon.metrics.version>
         <metrics.version>3.1.2</metrics.version>
 
-        <junit.version>4.8.2</junit.version>
+        <testng.version>6.9.4</testng.version>
     </properties>
 
 </project>

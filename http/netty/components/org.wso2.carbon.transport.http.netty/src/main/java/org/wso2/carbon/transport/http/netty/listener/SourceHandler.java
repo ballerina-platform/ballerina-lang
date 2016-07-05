@@ -109,7 +109,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-
                         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
                             NettyTransportContextHolder.getInstance().getHandlerExecutor().
@@ -124,7 +123,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void publishToDisruptor(Object msg) {
-        cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
+        cMsg = (NettyCarbonMessage) setupCarbonMessage(msg);
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, true);
         if (disruptorConfig.isShared()) {
             cMsg.setProperty(Constants.DISRUPTOR, disruptor);
@@ -188,7 +187,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         log.error("Exception caught in Netty Source handler", cause);
     }
 
-    protected CarbonMessage setUPCarbonMessage(Object msg) {
+    protected CarbonMessage setupCarbonMessage(Object msg) {
         cMsg = new NettyCarbonMessage();
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);

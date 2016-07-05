@@ -49,7 +49,8 @@ public class Response {
         int size = contentQueue.stream().mapToInt(byteBuffer -> byteBuffer.limit()).sum();
         ByteBuffer byteBuffer = ByteBuffer.allocate(size);
         contentQueue.forEach(contentQueue -> byteBuffer.put(contentQueue));
-
+        byteBuffer.flip();
+        logger.info("MesssageReceived#################" + new String(byteBuffer.array()));
         return new String(byteBuffer.array());
 
     }

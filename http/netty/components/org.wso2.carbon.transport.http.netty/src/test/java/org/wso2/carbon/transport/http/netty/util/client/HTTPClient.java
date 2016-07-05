@@ -89,7 +89,7 @@ public class HTTPClient {
             return;
         }
         try {
-            ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port)).await();
+            ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port)).sync();
             if (channelFuture.isSuccess()) {
                 channelFuture.channel().writeAndFlush(request.getHTTPRequest());
             } else {
