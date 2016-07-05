@@ -126,73 +126,8 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.metrics</groupId>
-                <artifactId>org.wso2.carbon.metrics.manager</artifactId>
+                <artifactId>org.wso2.carbon.metrics.core</artifactId>
                 <version>${carbon.metrics.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.eclipse.osgi</groupId>
-                        <artifactId>org.eclipse.osgi.services</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.wso2.carbon.metrics</groupId>
-                <artifactId>org.wso2.carbon.metrics.impl</artifactId>
-                <version>${carbon.metrics.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.ws.commons.axiom.wso2</groupId>
-                        <artifactId>axiom</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.wso2.carbon</groupId>
-                        <artifactId>org.wso2.carbon.utils</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.wso2.carbon</groupId>
-                        <artifactId>org.wso2.carbon.registry.core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.wso2.securevault</groupId>
-                        <artifactId>org.wso2.securevault</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.osgi</groupId>
-                        <artifactId>org.eclipse.osgi</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-
-            <dependency>
-                <groupId>org.wso2.carbon.metrics</groupId>
-                <artifactId>org.wso2.carbon.metrics.common</artifactId>
-                <version>${carbon.metrics.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.ws.commons.axiom</groupId>
-                        <artifactId>axiom-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-jvm</artifactId>
-                <version>${metrics.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -307,7 +242,7 @@
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
         <maven.findbugs.plugin.version>3.0.3</maven.findbugs.plugin.version>
 
-        <carbon.metrics.version>1.2.1</carbon.metrics.version>
+        <carbon.metrics.version>2.0.0-SNAPSHOT</carbon.metrics.version>
         <metrics.version>3.1.2</metrics.version>
     </properties>
 

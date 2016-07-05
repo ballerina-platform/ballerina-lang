@@ -36,31 +36,6 @@
             <artifactId>org.wso2.carbon.transport.http.netty.statistics</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.wso2.carbon.metrics</groupId>
-            <artifactId>org.wso2.carbon.metrics.manager</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon.metrics</groupId>
-            <artifactId>org.wso2.carbon.metrics.impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon.metrics</groupId>
-            <artifactId>org.wso2.carbon.metrics.common</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-jvm</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -90,31 +65,17 @@
                                     <symbolicName>org.wso2.carbon.transport.http.netty.statistics</symbolicName>
                                     <version>${project.version}</version>
                                 </bundle>
-
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.metrics.manager</symbolicName>
-                                    <version>${carbon.metrics.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.metrics.impl</symbolicName>
-                                    <version>${carbon.metrics.version}</version>
-                                </bundle>
-
-                                <bundle>
-                                    <symbolicName>org.wso2.carbon.metrics.common</symbolicName>
-                                    <version>${carbon.metrics.version}</version>
-                                </bundle>
-
-                                <bundle>
-                                    <symbolicName>io.dropwizard.metrics.core</symbolicName>
-                                    <version>${metrics.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>io.dropwizard.metrics.jvm</symbolicName>
-                                    <version>${metrics.version}</version>
-                                </bundle>
-
                             </bundles>
+                            <importFeatures>
+                                <feature>
+                                    <id>org.wso2.carbon.metrics.core.feature</id>
+                                    <version>${carbon.metrics.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>org.wso2.carbon.transport.http.netty.feature</id>
+                                    <version>${project.version}</version>
+                                </feature>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
