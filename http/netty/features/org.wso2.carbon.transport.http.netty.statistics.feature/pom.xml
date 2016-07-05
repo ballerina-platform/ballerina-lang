@@ -68,7 +68,7 @@
                             </bundles>
                             <importFeatures>
                                 <feature>
-                                    <id>org.wso2.carbon.metrics.feature</id>
+                                    <id>org.wso2.carbon.metrics.core.feature</id>
                                     <version>${carbon.metrics.version}</version>
                                 </feature>
                                 <feature>
