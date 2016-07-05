@@ -151,7 +151,7 @@ public class ChannelUtils {
                     channel.writeAndFlush(httpContent);
                     if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestReceiving(carbonMessage);
+                                executeAtTargetRequestSending(carbonMessage);
                     }
                     break;
                 }
@@ -170,7 +170,7 @@ public class ChannelUtils {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestReceiving(carbonMessage);
+                                executeAtTargetRequestSending(carbonMessage);
                     }
                     break;
                 }
