@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.map;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -88,9 +89,13 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
                 if (elementText.equals("true") || elementText.equals("false")) {
                     value = Boolean.parseBoolean(elementText);
                 } else {
-                    try {
-                        value = numberFormat.parse(elementText);
-                    } catch (ParseException e) {
+                    if (NumberUtils.isNumber(elementText)) {
+                        try {
+                            value = numberFormat.parse(elementText);
+                        } catch (ParseException e) {
+                            value = elementText;
+                        }
+                    } else {
                         value = elementText;
                     }
                 }
