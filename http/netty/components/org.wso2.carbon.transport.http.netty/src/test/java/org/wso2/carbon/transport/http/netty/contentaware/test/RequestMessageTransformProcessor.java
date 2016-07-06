@@ -18,42 +18,44 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware.test;
 
-import io.netty.handler.codec.http.HttpHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * A Message processor which echos the incoming message
+ * Message processor for transform request message
  */
-public class MessageEchoingMessageProcessor implements CarbonMessageProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(MessageEchoingMessageProcessor.class);
+public class RequestMessageTransformProcessor implements CarbonMessageProcessor {
+
+    private String transformedValue;
 
     private TransportSender transportSender;
 
+    public RequestMessageTransformProcessor(String transformedValue) {
+        this.transformedValue = transformedValue;
+    }
+
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        int length = carbonMessage.getFullMessageLength();
-        List<ByteBuffer> fullMessage = carbonMessage.getFullMessageBody();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-        fullMessage.forEach(buffer -> byteBuffer.put(buffer));
-        CarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        cMsg.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(length));
-        cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        byteBuffer.flip();
-        cMsg.addMessageBody(byteBuffer);
-        cMsg.setEndOfMsgAdded(true);
-        carbonCallback.done(cMsg);
+        List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
+        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+
+        if (transformedValue != null) {
+            byte[] array = transformedValue.getBytes("UTF-8");
+            ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
+            byteBuffer.put(array);
+            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+            carbonMessage.addMessageBody(byteBuffer);
+            carbonMessage.setEndOfMsgAdded(true);
+            transportSender.send(carbonMessage, carbonCallback);
+        }
         return false;
     }
 
@@ -64,6 +66,6 @@ public class MessageEchoingMessageProcessor implements CarbonMessageProcessor {
 
     @Override
     public String getId() {
-        return "message-echo-processor";
+        return null;
     }
 }

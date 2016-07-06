@@ -54,7 +54,8 @@ public class PassThroughHttpPOSTMethodTestCase {
 
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8080));
 
-    @BeforeClass
+    @BeforeClass(groups = "passthroughPost",
+                 dependsOnGroups = "passthroughGET")
     public void setUp() {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
@@ -67,7 +68,8 @@ public class PassThroughHttpPOSTMethodTestCase {
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
-    @Test
+    @Test(groups = "passthroughPost",
+          dependsOnGroups = "passthroughGET")
     public void passthroughWorkerPoolEnabledPOSTTestCase() {
         String testValue = "Test Message";
         try {
@@ -83,17 +85,19 @@ public class PassThroughHttpPOSTMethodTestCase {
 
     }
 
-    @Test
+    @Test(groups = "passthroughPost",
+          dependsOnMethods = "passthroughWorkerPoolEnabledPOSTTestCase")
     public void passthroughDisruptorEnabledPOSTTestCase() {
         TestUtil.shutDownCarbonTransport(nettyListener);
         listenerConfiguration.setEnableDisruptor(true);
+        senderConfiguration.setDisruptorOn(true);
         nettyListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         String testValue = "Test Message";
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, testValue);
-         //   assertEquals(200, urlConn.getResponseCode());
+            assertEquals(200, urlConn.getResponseCode());
             String content = TestUtil.getContent(urlConn);
             assertEquals(testValue, content);
             urlConn.disconnect();
@@ -104,7 +108,8 @@ public class PassThroughHttpPOSTMethodTestCase {
 
     }
 
-    @AfterClass
+    @AfterClass(groups = "passthroughPost",
+                dependsOnGroups = "passthroughGET")
     public void cleanUp() {
         TestUtil.cleanUp(nettyListener, httpServer);
     }

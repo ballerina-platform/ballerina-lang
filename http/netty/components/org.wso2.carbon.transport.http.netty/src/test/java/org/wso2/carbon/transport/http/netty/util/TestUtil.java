@@ -164,4 +164,11 @@ public class TestUtil {
         return urlConn;
     }
 
+    public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
+            SenderConfiguration senderConfiguration) {
+        TransportSender transportSender = new NettySender(senderConfiguration);
+        carbonMessageProcessor.setTransportSender(transportSender);
+        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
+    }
+
 }

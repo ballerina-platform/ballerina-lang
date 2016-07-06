@@ -28,11 +28,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -45,7 +45,7 @@ import java.util.Map;
  * A class responsible for handling responses coming from BE.
  */
 public class TargetHandler extends ReadTimeoutHandler {
-    private static Logger log = LoggerFactory.getLogger(TargetHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
     protected CarbonCallback callback;
     private RingBuffer ringBuffer;
@@ -79,6 +79,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    cMsg.setEndOfMsgAdded(true);
                     if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         NettyTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetResponseSending(cMsg);
@@ -100,7 +101,7 @@ public class TargetHandler extends ReadTimeoutHandler {
                     .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
         }
 
-        log.debug("Target channel closed.");
+        LOG.debug("Target channel closed.");
     }
 
     public void setCallback(CarbonCallback callback) {
@@ -131,7 +132,13 @@ public class TargetHandler extends ReadTimeoutHandler {
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                     getHttpRoute().toString() + "</errorMessage>";
-            FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
+            FaultHandler faultHandler = null;
+            try {
+                faultHandler = incomingMsg.getFaultHandlerStack().pop();
+            } catch (Exception e) {
+                LOG.debug("Cannot find registered fault handler");
+                //expected no need to handle
+            }
 
             if (faultHandler != null) {
                 faultHandler.handleFault("504", new EndPointTimeOut(payload), incomingMsg, callback);

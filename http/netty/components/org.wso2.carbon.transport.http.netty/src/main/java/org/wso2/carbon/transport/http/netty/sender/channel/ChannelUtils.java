@@ -30,10 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
 
 import java.net.ConnectException;
@@ -136,6 +136,13 @@ public class ChannelUtils {
         return channel;
     }
 
+    /**
+     * Method used to write content to outbound endpoint.
+     * @param channel OutboundChanel
+     * @param httpRequest HTTPRequest
+     * @param carbonMessage Carbon Message
+     * @return
+     */
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor().
@@ -146,6 +153,10 @@ public class ChannelUtils {
         if (carbonMessage instanceof NettyCarbonMessage) {
             while (true) {
                 NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
+                if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
+                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    break;
+                }
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);
@@ -158,6 +169,7 @@ public class ChannelUtils {
                 if (httpContent != null) {
                     channel.write(httpContent);
                 }
+
             }
         } else if (carbonMessage instanceof DefaultCarbonMessage) {
             DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) carbonMessage;

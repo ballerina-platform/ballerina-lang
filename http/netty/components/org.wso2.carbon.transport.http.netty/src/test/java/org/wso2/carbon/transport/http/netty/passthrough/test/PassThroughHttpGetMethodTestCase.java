@@ -57,7 +57,7 @@ public class PassThroughHttpGetMethodTestCase {
 
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8080));
 
-    @BeforeClass
+    @BeforeClass(groups = "passthroughGET")
     public void setUp() {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
@@ -70,7 +70,7 @@ public class PassThroughHttpGetMethodTestCase {
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
     }
 
-    @Test
+    @Test(groups = "passthroughGET")
     public void passthroughWorkerPoolEnabledGetTestCase() {
         Object lock = new Object();
         try {
@@ -84,10 +84,12 @@ public class PassThroughHttpGetMethodTestCase {
         }
     }
 
-    @Test
+    @Test(groups = "passthroughGET",
+          dependsOnMethods = "passthroughWorkerPoolEnabledGetTestCase")
     public void passthroughDisruptorEnabledGetTestCase() {
         TestUtil.shutDownCarbonTransport(nettyListener);
         listenerConfiguration.setEnableDisruptor(true);
+        senderConfiguration.setDisruptorOn(true);
         nettyListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         try {
@@ -102,7 +104,7 @@ public class PassThroughHttpGetMethodTestCase {
 
     }
 
-    @AfterClass
+    @AfterClass(groups = "passthroughGET")
     public void cleanUp() {
         TestUtil.cleanUp(nettyListener, httpServer);
     }

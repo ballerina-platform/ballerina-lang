@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty;
+package org.wso2.carbon.transport.http.netty.message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -130,8 +130,10 @@ public class NettyCarbonMessage extends CarbonMessage {
     public void addMessageBody(ByteBuffer msgBody) {
         if (isAlreadyRead()) {
             outContentQueue.add(msgBody);
+        } else if (httpContentQueue.isEmpty()) {
+            httpContentQueue.add(new DefaultHttpContent(Unpooled.wrappedBuffer(msgBody.array())));
         } else {
-            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody.array())));
+            LOG.error("Please don't add message body before reading existing values");
         }
     }
 
@@ -140,7 +142,7 @@ public class NettyCarbonMessage extends CarbonMessage {
         super.setEndOfMsgAdded(endOfMsgAdded);
         if (isAlreadyRead()) {
             outContentQueue.forEach(buffer -> {
-                httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(buffer.array())));
+                httpContentQueue.add(new DefaultHttpContent(Unpooled.wrappedBuffer(buffer.array())));
             });
         }
     }

@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
 
 import java.nio.ByteBuffer;
 
@@ -65,6 +65,10 @@ public class ResponseCallback implements CarbonCallback {
             if (cMsg instanceof NettyCarbonMessage) {
                 NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
                 while (true) {
+                    if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
+                        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                        break;
+                    }
                     HttpContent httpContent = nettyCMsg.getHttpContent();
                     if (httpContent instanceof LastHttpContent) {
                         ctx.writeAndFlush(httpContent);
