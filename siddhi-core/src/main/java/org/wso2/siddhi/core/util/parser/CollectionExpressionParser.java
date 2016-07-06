@@ -436,7 +436,7 @@ public class CollectionExpressionParser {
                         exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
                                 matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0), matchingMetaStateHolder.getCandidateEventIndex());
                     }
-                    CollectionExecutor notCollectionExecutor = buildCollectionExecutor(((NotCollectionExpression) collectionExpression).getCollectionExpression(), matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false);
+                    CollectionExecutor notCollectionExecutor = buildCollectionExecutor(((NotCollectionExpression) collectionExpression).getCollectionExpression(), matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst);
                     return new NotCollectionExecutor(notCollectionExecutor, exhaustiveCollectionExecutor);
 
                 case EXHAUSTIVE:
