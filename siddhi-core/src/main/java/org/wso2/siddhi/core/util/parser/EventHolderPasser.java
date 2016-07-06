@@ -34,9 +34,6 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by suho on 5/26/16.
- */
 public class EventHolderPasser {
     public static EventHolder parse(AbstractDefinition tableDefinition, StreamEventPool tableStreamEventPool) {
         ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
@@ -60,7 +57,7 @@ public class EventHolderPasser {
             if (indexAttributes.length > 1) {
                 int indexPosition = tableDefinition.getAttributePosition(indexAttributes[0].trim());
                 Map<String, Integer> indexMetaData = new HashMap<String, Integer>();
-                for (int i = 1; i == indexAttributes.length - 1; i++) {
+                for (int i = 1; i < indexAttributes.length; i++) {
                     indexMetaData.put(indexAttributes[i].trim(), tableDefinition.getAttributePosition(indexAttributes[i].trim()));
                 }
                 return new PrimaryKeyIndexEventHolder(tableStreamEventPool, eventConverter, indexPosition, indexAttributes[0].trim(), indexMetaData);

@@ -18,39 +18,53 @@
 
 package org.wso2.siddhi.core.util.collection.executor;
 
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class CompareExhaustiveAndCollectionExecutor implements CollectionExecutor {
 
     private final CollectionExecutor compareCollectionExecutor;
-    private CollectionExecutor aCollectionExecutor;
+    private ExhaustiveCollectionExecutor exhaustiveCollectionExecutor;
 
-    public CompareExhaustiveAndCollectionExecutor(CollectionExecutor compareCollectionExecutor, CollectionExecutor aCollectionExecutor) {
+    public CompareExhaustiveAndCollectionExecutor(CollectionExecutor compareCollectionExecutor, ExhaustiveCollectionExecutor exhaustiveCollectionExecutor) {
         this.compareCollectionExecutor = compareCollectionExecutor;
-        this.aCollectionExecutor = aCollectionExecutor;
+        this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
-        Set<StreamEvent> compareStreamEvents = findEventSet(matchingEvent, indexedEventHolder);
-        if (compareStreamEvents == null) {
-            return aCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
+        Set<StreamEvent> resultEventSet = findEventSet(matchingEvent, indexedEventHolder);
+        if (resultEventSet != null) {
+            for (StreamEvent resultEvent : resultEventSet) {
+                if (candidateEventCloner != null) {
+                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                } else {
+                    returnEventChunk.add(resultEvent);
+                }
+            }
+            return returnEventChunk.getFirst();
         } else {
-            return null;
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
         }
     }
 
     public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         Set<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
-        if (compareStreamEvents == null || compareStreamEvents.size() > 0) {
+        if (compareStreamEvents == null) {
             return null;
+        } else if (compareStreamEvents.size() > 0) {
+            if (exhaustiveCollectionExecutor != null) {
+                return exhaustiveCollectionExecutor.findEventSet(matchingEvent, compareStreamEvents);
+            } else {
+                return null;
+            }
         } else {
-            return new HashSet<StreamEvent>();
+            return compareStreamEvents;
         }
     }
 
@@ -58,7 +72,7 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         Set<StreamEvent> compareStreamEvents = findEventSet(matchingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
-            return aCollectionExecutor.contains(matchingEvent, indexedEventHolder);
+            return exhaustiveCollectionExecutor.contains(matchingEvent, indexedEventHolder);
         } else {
             return compareStreamEvents.size() > 0;
         }
@@ -68,7 +82,7 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
         Set<StreamEvent> compareStreamEvents = findEventSet(deletingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
-             aCollectionExecutor.delete(deletingEvent, indexedEventHolder);
+            exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         }
     }
 

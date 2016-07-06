@@ -62,13 +62,13 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
 
     public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         Set<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
-        if (leftStreamEvents == null || (leftStreamEvents.size() > 0)) {
+        if (leftStreamEvents == null) {
             return null;
-        } else {
+        } else if (leftStreamEvents.size() > 0) {
             Set<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
-            if (rightStreamEvents == null || (rightStreamEvents.size() > 0)) {
+            if (rightStreamEvents == null) {
                 return null;
-            } else {
+            } else if (rightStreamEvents.size() > 0) {
                 Set<StreamEvent> returnSet = new HashSet<StreamEvent>();
                 for (StreamEvent aStreamEvent : leftStreamEvents) {
                     if (rightStreamEvents.contains(aStreamEvent)) {
@@ -76,7 +76,11 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
                     }
                 }
                 return returnSet;
+            } else {
+                return rightStreamEvents;
             }
+        } else {
+            return leftStreamEvents;
         }
     }
 

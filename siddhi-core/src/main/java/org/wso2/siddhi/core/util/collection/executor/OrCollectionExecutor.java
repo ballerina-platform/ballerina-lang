@@ -67,7 +67,6 @@ public class OrCollectionExecutor implements CollectionExecutor {
             Set<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
             if (rightStreamEvents == null) {
                 return null;
-
             } else {
                 leftStreamEvents.addAll(rightStreamEvents);
                 return leftStreamEvents;

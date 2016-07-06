@@ -56,6 +56,19 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
         return returnEventChunk.getFirst();
     }
 
+    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, Set<StreamEvent> preProcessedCandidateEventSet) {
+
+        for (Iterator<StreamEvent> iterator = preProcessedCandidateEventSet.iterator(); iterator.hasNext(); ) {
+            StreamEvent candidateEvent = iterator.next();
+            matchingEvent.setEvent(candidateEventIndex, candidateEvent);
+            if (!(Boolean) expressionExecutor.execute(matchingEvent)) {
+                iterator.remove();
+            }
+            matchingEvent.setEvent(candidateEventIndex, null);
+        }
+        return preProcessedCandidateEventSet;
+    }
+
     public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         return null;
     }
