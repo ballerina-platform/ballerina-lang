@@ -50,10 +50,16 @@ public class TestUtil {
 
     public static final int RESPONSE_WAIT_TIME = 10000;
     public static final int SERVERS_SETUP_TIME = 10000;
+    public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
 
     public static final String TRANSPORT_URI = "http://localhost:8080/";
 
     public static void cleanUp(NettyListener nettyListener, HTTPServer httpServer) {
+        try {
+            Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
+        } catch (InterruptedException e) {
+
+        }
         nettyListener.stop();
         httpServer.shutdown();
         try {
