@@ -59,6 +59,7 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
             ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
             byteBuffer.put(array);
             carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+            byteBuffer.flip();
             carbonMessage.addMessageBody(byteBuffer);
             carbonMessage.setEndOfMsgAdded(true);
             EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
@@ -106,6 +107,7 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                 byteBuff.put(array);
                 carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                byteBuff.flip();
                 carbonMessage.addMessageBody(byteBuff);
                 carbonMessage.setEndOfMsgAdded(true);
                 requestCallBack.done(carbonMessage);

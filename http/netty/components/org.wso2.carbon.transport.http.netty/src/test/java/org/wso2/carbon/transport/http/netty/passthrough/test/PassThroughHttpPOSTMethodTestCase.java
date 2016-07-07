@@ -60,7 +60,7 @@ public class PassThroughHttpPOSTMethodTestCase {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
         listenerConfiguration.setId("test-listener");
-        listenerConfiguration.setExecHandlerThreadPoolSize(Runtime.getRuntime().availableProcessors());
+        listenerConfiguration.setWorkerPoolSize(Runtime.getRuntime().availableProcessors());
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
         nettyListener = TestUtil

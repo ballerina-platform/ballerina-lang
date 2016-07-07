@@ -41,7 +41,7 @@ public class NettyCarbonMessage extends CarbonMessage {
     private static final Logger LOG = LoggerFactory.getLogger(NettyCarbonMessage.class);
 
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<ByteBuffer> outContentQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
@@ -129,12 +129,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public void addMessageBody(ByteBuffer msgBody) {
         if (isAlreadyRead()) {
-            outContentQueue.add(msgBody);
+            outContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
         } else if (httpContentQueue.isEmpty()) {
-            httpContentQueue.add(new DefaultHttpContent(Unpooled.wrappedBuffer(msgBody.array())));
+            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
         } else {
             LOG.error("Please don't add message body before reading existing values");
         }
+
     }
 
     @Override
@@ -142,9 +143,11 @@ public class NettyCarbonMessage extends CarbonMessage {
         super.setEndOfMsgAdded(endOfMsgAdded);
         if (isAlreadyRead()) {
             outContentQueue.forEach(buffer -> {
-                httpContentQueue.add(new DefaultHttpContent(Unpooled.wrappedBuffer(buffer.array())));
+                httpContentQueue.add(buffer);
             });
+            outContentQueue.clear();
         }
+
     }
 
     @Override

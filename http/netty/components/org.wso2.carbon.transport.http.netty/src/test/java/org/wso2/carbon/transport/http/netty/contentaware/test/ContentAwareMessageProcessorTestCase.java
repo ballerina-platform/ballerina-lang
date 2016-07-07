@@ -58,7 +58,7 @@ public class ContentAwareMessageProcessorTestCase {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
         listenerConfiguration.setId("test-listener");
-        listenerConfiguration.setExecHandlerThreadPoolSize(Runtime.getRuntime().availableProcessors());
+        listenerConfiguration.setWorkerPoolSize(Runtime.getRuntime().availableProcessors());
         listenerConfiguration.setEnableDisruptor(true);
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
@@ -148,7 +148,7 @@ public class ContentAwareMessageProcessorTestCase {
     }
 
     @Test(dependsOnMethods = "requestResponseTransformFromProcessorTestCase")
-    public void requestResponseCreationProcessorTestCase() {
+    public void requestResponseCreationFromProcessorTestCase() {
 
         String requestValue = "XXXXXXXX";
         String responseValue = "YYYYYYY";
@@ -161,6 +161,66 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(200, urlConn.getResponseCode());
             String content = TestUtil.getContent(urlConn);
             assertEquals(expectedValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
+            LOGGER.error("IO Exception occurred", e);
+            assertTrue(false);
+        }
+
+    }
+
+    @Test(dependsOnMethods = "requestResponseCreationFromProcessorTestCase")
+    public void requestResponseStreamingFromProcessorTestCase() {
+
+        String requestValue = "<A><B><C>Test Message</C></B></A>";
+        try {
+            CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationStreamingProcessor();
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            TestUtil.writeContent(urlConn, requestValue);
+            assertEquals(200, urlConn.getResponseCode());
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(requestValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
+            LOGGER.error("IO Exception occurred", e);
+            assertTrue(false);
+        }
+
+    }
+
+    @Test(dependsOnMethods = "requestResponseStreamingFromProcessorTestCase")
+    public void requestResponseTransformStreamingFromProcessorTestCase() {
+
+        String requestValue = "<A><B><C>Test Message</C></B></A>";
+        try {
+            CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformStreamingProcessor();
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            TestUtil.writeContent(urlConn, requestValue);
+            assertEquals(200, urlConn.getResponseCode());
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(requestValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
+            LOGGER.error("IO Exception occurred", e);
+            assertTrue(false);
+        }
+
+    }
+
+    @Test(dependsOnMethods = "requestResponseTransformStreamingFromProcessorTestCase")
+    public void responseStreamingWithoutBufferingTestCase() {
+
+        String requestValue = "<A><B><C>Test Message</C></B></A>";
+        try {
+            CarbonMessageProcessor carbonMessageProcessor = new ResponseStreamingWithoutBufferingProcessor();
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            TestUtil.writeContent(urlConn, requestValue);
+            assertEquals(200, urlConn.getResponseCode());
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(requestValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
             LOGGER.error("IO Exception occurred", e);

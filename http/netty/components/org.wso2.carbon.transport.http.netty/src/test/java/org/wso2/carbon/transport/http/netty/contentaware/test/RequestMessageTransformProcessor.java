@@ -52,6 +52,7 @@ public class RequestMessageTransformProcessor implements CarbonMessageProcessor 
             ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
             byteBuffer.put(array);
             carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+            byteBuffer.flip();
             carbonMessage.addMessageBody(byteBuffer);
             carbonMessage.setEndOfMsgAdded(true);
             transportSender.send(carbonMessage, carbonCallback);

@@ -16,14 +16,28 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.util.client;
+package org.wso2.carbon.transport.http.netty.common;
+
+import java.util.concurrent.ThreadFactory;
 
 /**
- * An  interface which notifies after response arrives
+ * A Thread Factory to be used  when creating transport level threads.
  */
-public interface ResponseCallback {
+public class TransportThreadFactory implements ThreadFactory {
+    private ThreadGroup threadGroup;
 
+    private int counter = 1;
 
-     void received(Response response);
+    public TransportThreadFactory(ThreadGroup threadGroup) {
+        this.threadGroup = threadGroup;
+    }
+
+    @Override
+    public Thread newThread(Runnable r) {
+        String name = threadGroup.getName() + "-" + counter;
+        Thread thread = new Thread(threadGroup, r, name);
+        counter++;
+        return thread;
+    }
 
 }
