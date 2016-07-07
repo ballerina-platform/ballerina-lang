@@ -53,7 +53,8 @@ public class ContentAwareMessageProcessorTestCase {
     private HTTPServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8080));
 
-    @BeforeClass(dependsOnGroups = "passthroughPost")
+    @BeforeClass(groups = "contentaware",
+                 dependsOnGroups = "passthroughPost")
     public void setUp() {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
@@ -67,7 +68,8 @@ public class ContentAwareMessageProcessorTestCase {
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
-    @Test(dependsOnGroups = "passthroughPost")
+    @Test(groups = "contentaware",
+          dependsOnGroups = "passthroughPost")
     public void disruptorEnabledMessageEchoingFromProcessorTestCase() {
         String testValue = "Test Message";
         try {
@@ -84,7 +86,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @Test(dependsOnMethods = "disruptorEnabledMessageEchoingFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "disruptorEnabledMessageEchoingFromProcessorTestCase")
     public void workerPoolEnabledMessageEchoingFromProcessorTestCase() {
         TestUtil.shutDownCarbonTransport(nettyListener);
         listenerConfiguration.setEnableDisruptor(false);
@@ -105,7 +108,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @Test(dependsOnMethods = "workerPoolEnabledMessageEchoingFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "workerPoolEnabledMessageEchoingFromProcessorTestCase")
     public void requestTransformFromProcessorTestCase() {
 
         String testValue = "<A><B><C>request</C></B></A>";
@@ -126,7 +130,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @Test(dependsOnMethods = "requestTransformFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "requestTransformFromProcessorTestCase")
     public void requestResponseTransformFromProcessorTestCase() {
 
         String requestValue = "XXXXXXXX";
@@ -147,7 +152,8 @@ public class ContentAwareMessageProcessorTestCase {
         }
     }
 
-    @Test(dependsOnMethods = "requestResponseTransformFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "requestResponseTransformFromProcessorTestCase")
     public void requestResponseCreationFromProcessorTestCase() {
 
         String requestValue = "XXXXXXXX";
@@ -169,7 +175,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @Test(dependsOnMethods = "requestResponseCreationFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "requestResponseCreationFromProcessorTestCase")
     public void requestResponseStreamingFromProcessorTestCase() {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
@@ -189,7 +196,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @Test(dependsOnMethods = "requestResponseStreamingFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "requestResponseStreamingFromProcessorTestCase")
     public void requestResponseTransformStreamingFromProcessorTestCase() {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
@@ -209,7 +217,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @Test(dependsOnMethods = "requestResponseTransformStreamingFromProcessorTestCase")
+    @Test(groups = "contentaware",
+          dependsOnMethods = "requestResponseTransformStreamingFromProcessorTestCase")
     public void responseStreamingWithoutBufferingTestCase() {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
@@ -229,7 +238,8 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass(groups = "contentaware",
+                alwaysRun = true)
     public void cleanUp() {
         TestUtil.cleanUp(nettyListener, httpServer);
     }
