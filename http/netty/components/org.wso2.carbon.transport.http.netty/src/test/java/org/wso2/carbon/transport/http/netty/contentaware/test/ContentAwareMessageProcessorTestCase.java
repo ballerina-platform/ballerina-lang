@@ -229,7 +229,7 @@ public class ContentAwareMessageProcessorTestCase {
 
     }
 
-    @AfterClass
+    @AfterClass(dependsOnGroups = "passthroughPost")
     public void cleanUp() {
         TestUtil.cleanUp(nettyListener, httpServer);
     }
