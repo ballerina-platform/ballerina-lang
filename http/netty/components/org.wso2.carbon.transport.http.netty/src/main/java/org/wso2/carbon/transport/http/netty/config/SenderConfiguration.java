@@ -18,13 +18,14 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.TransportThreadFactory;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -164,6 +165,7 @@ public class SenderConfiguration {
     }
 
     public void setNettyHandlerWorkerPool(int nettyHandlerWorkerPool) {
-        executorService = Executors.newFixedThreadPool(nettyHandlerWorkerPool);
+        executorService = Executors.newFixedThreadPool(nettyHandlerWorkerPool,
+                new TransportThreadFactory(new ThreadGroup(Constants.WORKER_POOL_SENDER_NAME)));
     }
 }

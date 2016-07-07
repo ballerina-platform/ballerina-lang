@@ -201,6 +201,7 @@ public final class Constants {
     public static final int DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE = 60;
 
     public static final String WORKER_POOL_NAME = "Transport-Worker-Pool";
+    public static final String WORKER_POOL_SENDER_NAME = "Transport-Sender-Worker-Pool";
     public static final String DISRUPTOR_WORKER_POOL = "Disruptor-Worker-Pool";
 
     private Constants() {
