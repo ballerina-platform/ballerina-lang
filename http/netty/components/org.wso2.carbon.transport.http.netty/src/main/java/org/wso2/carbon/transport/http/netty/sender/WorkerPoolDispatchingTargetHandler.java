@@ -42,7 +42,12 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
+
             cMsg = setUpCarbonMessage(ctx, msg);
+            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                        executeAtTargetResponseReceiving(cMsg);
+            }
 
             ExecutorService executorService = (ExecutorService) incomingMsg
                     .getProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
@@ -55,7 +60,7 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
                 });
             } else {
                 LOG.error("Executor service is not registered to request may be listener "
-                                + "configuration is wrong or incoming" + "request properties are modified incorrectly");
+                        + "configuration is wrong or incoming" + "request properties are modified incorrectly");
             }
 
         } else {
