@@ -15,6 +15,8 @@
 package org.wso2.carbon.transport.http.netty.sender;
 
 import com.lmax.disruptor.RingBuffer;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -95,12 +97,12 @@ public class TargetHandler extends ReadTimeoutHandler {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        ctx.close();
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-
         LOG.debug("Target channel closed.");
     }
 
@@ -188,5 +190,12 @@ public class TargetHandler extends ReadTimeoutHandler {
         response.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
         return response;
 
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if (ctx != null && ctx.channel().isActive()) {
+            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
     }
 }
