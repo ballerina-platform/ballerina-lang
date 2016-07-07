@@ -260,7 +260,7 @@
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
 
         <!-- Package exports -->
-        <netty.transport.package.export.version>2.1.1-SNAPSHOT</netty.transport.package.export.version>
+        <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
