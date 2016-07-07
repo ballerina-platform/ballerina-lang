@@ -269,7 +269,7 @@
         <carbon.metrics.version>2.0.0</carbon.metrics.version>
         <metrics.version>3.1.2</metrics.version>
 
-        <testng.version>6.9.4</testng.version>
+        <testng.version>6.9.10</testng.version>
     </properties>
 
 </project>
