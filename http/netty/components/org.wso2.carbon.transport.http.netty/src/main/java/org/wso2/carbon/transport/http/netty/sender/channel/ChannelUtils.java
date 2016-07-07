@@ -106,6 +106,9 @@ public class ChannelUtils {
 
         try {
             boolean wait = channelLatch.await(bootstrapConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
+            if (wait) {
+                log.debug("Waited for connection creation in Sender");
+            }
         } catch (InterruptedException ex) {
             throw new Exception("Interrupted while waiting for " + "connection to " + httpRoute.toString());
         }
@@ -138,8 +141,9 @@ public class ChannelUtils {
 
     /**
      * Method used to write content to outbound endpoint.
-     * @param channel OutboundChanel
-     * @param httpRequest HTTPRequest
+     *
+     * @param channel       OutboundChanel
+     * @param httpRequest   HTTPRequest
      * @param carbonMessage Carbon Message
      * @return
      */
