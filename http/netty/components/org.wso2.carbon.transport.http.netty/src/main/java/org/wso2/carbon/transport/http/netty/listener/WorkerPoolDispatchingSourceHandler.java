@@ -66,7 +66,6 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpMessage) {
-
             publishToWorkerPool(msg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
@@ -75,6 +74,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
             }
 
         } else if (msg instanceof HttpRequest) {
+
             publishToWorkerPool(msg);
 
         } else {
@@ -98,6 +98,9 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
     private void publishToWorkerPool(Object msg) {
         ExecutorService executorService = listenerConfiguration.getExecutorService();
         cMsg = (NettyCarbonMessage) setupCarbonMessage(msg);
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+        }
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
                 listenerConfiguration.getEnableDisruptor());
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL_SIZE,

@@ -74,7 +74,12 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
+
             cMsg = setUpCarbonMessage(ctx, msg);
+            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                        executeAtTargetResponseReceiving(cMsg);
+            }
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
         } else {
             if (cMsg != null) {

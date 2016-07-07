@@ -45,6 +45,7 @@ public class StatisticsHandler implements MessagingHandler {
         this.timerHolder = timerHolder;
 
     }
+
     @Override
     public boolean validateRequestContinuation(CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
         return true;
@@ -73,7 +74,10 @@ public class StatisticsHandler implements MessagingHandler {
     public void invokeAtSourceRequestSending(CarbonMessage carbonMessage) {
         SourceRequestStaticsHolder requestMetricsStaticsHolder = (SourceRequestStaticsHolder) carbonMessage
                 .getProperty(MetricsConstants.SOURCE_REQUEST_METRICS_HOLDER);
-        requestMetricsStaticsHolder.stopTimer();
+        if (requestMetricsStaticsHolder != null) {
+            requestMetricsStaticsHolder.stopTimer();
+        }
+
     }
 
     @Override
@@ -87,7 +91,9 @@ public class StatisticsHandler implements MessagingHandler {
     public void invokeAtTargetRequestSending(CarbonMessage carbonMessage) {
         TargetRequestStaticsHolder requestMetricsStaticsHolder = (TargetRequestStaticsHolder) carbonMessage
                 .getProperty(MetricsConstants.TARGET_REQUEST_METRICS_HOLDER);
-        requestMetricsStaticsHolder.stopTimer();
+        if (requestMetricsStaticsHolder != null) {
+            requestMetricsStaticsHolder.stopTimer();
+        }
     }
 
     @Override
@@ -101,7 +107,10 @@ public class StatisticsHandler implements MessagingHandler {
     public void invokeAtTargetResponseSending(CarbonMessage carbonMessage) {
         TargetResponseStaticsHolder responseMetricsStaticsHolder = (TargetResponseStaticsHolder) carbonMessage
                 .getProperty(MetricsConstants.TARGET_RESPONSE_METRICS_HOLDER);
-        responseMetricsStaticsHolder.stopTimer();
+        if (responseMetricsStaticsHolder != null) {
+            responseMetricsStaticsHolder.stopTimer();
+        }
+
     }
 
     @Override
@@ -115,7 +124,9 @@ public class StatisticsHandler implements MessagingHandler {
     public void invokeAtSourceResponseSending(CarbonMessage carbonMessage) {
         SourceResponseStaticsHolder responseMetricsStaticsHolder = (SourceResponseStaticsHolder) carbonMessage
                 .getProperty(MetricsConstants.SOURCE_RESPONSE_METRICS_HOLDER);
-        responseMetricsStaticsHolder.stopTimer();
+        if (responseMetricsStaticsHolder != null) {
+            responseMetricsStaticsHolder.stopTimer();
+        }
     }
 
     @Override
