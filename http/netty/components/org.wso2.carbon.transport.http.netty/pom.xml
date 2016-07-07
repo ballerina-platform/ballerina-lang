@@ -97,13 +97,33 @@
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io.wso2</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.wso2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
         <bundle.activator>org.wso2.carbon.transport.http.netty.internal.NettyTransportActivator</bundle.activator>
-        <private.package>org.wso2.carbon.transport.http.netty.internal</private.package>
+        <private.package>org.wso2.carbon.transport.http.netty.internal,
+            org.wso2.carbon.transport.http.netty.message,
+        </private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.internal,
+            !org.wso2.carbon.transport.http.netty.message,
             org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
 
         </export.package>

@@ -68,7 +68,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
             ch.pipeline().addLast(HANDLER, handler);
         } else {
             log.debug("Register  engine dispatching handler in pipeline ");
-            handler = new WorkerPoolDispatchingTargetHandler(soTimeOut, senderConfiguration);
+            handler = new WorkerPoolDispatchingTargetHandler(soTimeOut);
             ch.pipeline().addLast(HANDLER, handler);
         }
 

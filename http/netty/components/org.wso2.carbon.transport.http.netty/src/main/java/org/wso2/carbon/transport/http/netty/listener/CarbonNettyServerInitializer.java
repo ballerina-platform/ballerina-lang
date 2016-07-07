@@ -95,15 +95,15 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
                     log.debug("Disruptor is disabled and using executor thread pool with size of "
                             + executorWorkerPoolSize);
                     if (executorWorkerPoolSize > 0) {
-                        listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
+                        listenerConfiguration.setWorkerPoolSize(executorWorkerPoolSize);
                     } else {
                         log.warn("Please enable disruptor or specify executorHandlerThreadPool size greater than 0,"
                                 + " starting with default value");
-                        listenerConfiguration.setExecHandlerThreadPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                        listenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
                     }
                 } else {
                     log.warn("ExecutorHandlerThreadPool size is not specified using the default value");
-                    listenerConfiguration.setExecHandlerThreadPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                    listenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
                 }
 
             }
@@ -129,7 +129,7 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
             ch.pipeline().addLast("ssl", sslHandler);
         }
-        ChannelPipeline p = ((SocketChannel) ch).pipeline();
+        ChannelPipeline p = ch.pipeline();
         p.addLast("encoder", new HttpResponseEncoder());
         if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
             p.addLast("decoder", new CustomHttpRequestDecoder());
@@ -143,8 +143,10 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
             if (listenerConfiguration.getEnableDisruptor()) {
+                log.debug("Selecting SourceHandler");
                 p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
             } else {
+                log.debug("Selecting WorkerPoolDispatchingSourceHandler");
                 p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
             }
         } catch (Exception e) {

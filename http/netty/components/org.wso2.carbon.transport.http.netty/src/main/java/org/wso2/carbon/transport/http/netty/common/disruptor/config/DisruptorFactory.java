@@ -29,6 +29,7 @@ import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.TransportThreadFactory;
 import org.wso2.carbon.transport.http.netty.common.disruptor.event.CarbonDisruptorEvent;
 import org.wso2.carbon.transport.http.netty.common.disruptor.exception.GenericExceptionHandler;
 import org.wso2.carbon.transport.http.netty.common.disruptor.handler.CarbonDisruptorEventHandler;
@@ -50,19 +51,17 @@ public class DisruptorFactory {
         WaitStrategy inboundWaitStrategy = getWaitStrategy(disruptorConfig.getDisruptorWaitStrategy());
         int externalPoolWorkerCount = disruptorConfig.getNoOfThreadsInConsumerWorkerPool();
         for (int i = 0; i < disruptorConfig.getNoDisruptors(); i++) {
-            ExecutorService executorService  = null;
+            ExecutorService executorService = null;
             if (externalPoolWorkerCount > 0) {
-              executorService = Executors.newFixedThreadPool(disruptorConfig.getNoOfThreadsInConsumerWorkerPool());
+                executorService = Executors.newFixedThreadPool(disruptorConfig.getNoOfThreadsInConsumerWorkerPool(),
+                        new TransportThreadFactory(new ThreadGroup(Constants.DISRUPTOR_WORKER_POOL)));
             } else {
-             executorService =
-                        Executors.newFixedThreadPool(disruptorConfig.getNoOfEventHandlersPerDisruptor());
+                executorService = Executors.newFixedThreadPool(disruptorConfig.getNoOfEventHandlersPerDisruptor(),
+                        new TransportThreadFactory(new ThreadGroup(Constants.DISRUPTOR_WORKER_POOL)));
             }
             Disruptor disruptor = new Disruptor<>(CarbonDisruptorEvent.EVENT_FACTORY, disruptorConfig.getBufferSize(),
-                                                  executorService,
-                                                  ProducerType.MULTI,
-                                                  inboundWaitStrategy);
+                    executorService, ProducerType.MULTI, inboundWaitStrategy);
             ExceptionHandler exh = new GenericExceptionHandler();
-
 
             if (externalPoolWorkerCount > 0) {
 
@@ -90,35 +89,33 @@ public class DisruptorFactory {
         disruptorConfigHashMap.put(type, disruptorConfig);
     }
 
-
     private static WaitStrategy getWaitStrategy(String waitstrategy) {
         WaitStrategy waitStrategy;
         switch (waitstrategy) {
-            case Constants.BLOCKING_WAIT:
-                waitStrategy = new BlockingWaitStrategy();
-                break;
-            case Constants.BUSY_SPIN:
-                waitStrategy = new BusySpinWaitStrategy();
-                break;
-            case Constants.LITE_BLOCKING:
-                waitStrategy = new LiteBlockingWaitStrategy();
-                break;
-            case Constants.SLEEP_WAITING:
-                waitStrategy = new SleepingWaitStrategy();
-                break;
-            case Constants.TIME_BLOCKING:
-                waitStrategy = new TimeoutBlockingWaitStrategy(1, TimeUnit.SECONDS);
-                break;
-            case Constants.YIELD_WAITING:
-                waitStrategy = new YieldingWaitStrategy();
-                break;
-            default:
-                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS);
+        case Constants.BLOCKING_WAIT:
+            waitStrategy = new BlockingWaitStrategy();
+            break;
+        case Constants.BUSY_SPIN:
+            waitStrategy = new BusySpinWaitStrategy();
+            break;
+        case Constants.LITE_BLOCKING:
+            waitStrategy = new LiteBlockingWaitStrategy();
+            break;
+        case Constants.SLEEP_WAITING:
+            waitStrategy = new SleepingWaitStrategy();
+            break;
+        case Constants.TIME_BLOCKING:
+            waitStrategy = new TimeoutBlockingWaitStrategy(1, TimeUnit.SECONDS);
+            break;
+        case Constants.YIELD_WAITING:
+            waitStrategy = new YieldingWaitStrategy();
+            break;
+        default:
+            waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1, 4, TimeUnit.SECONDS);
 
         }
         return waitStrategy;
     }
-
 
     public static DisruptorConfig getDisruptorConfig(DisruptorType disruptorType) {
         return disruptorConfigHashMap.get(disruptorType);

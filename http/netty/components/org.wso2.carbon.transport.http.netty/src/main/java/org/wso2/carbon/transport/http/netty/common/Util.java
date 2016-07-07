@@ -114,7 +114,7 @@ public class Util {
             httpVersion = new HttpVersion(DEFAULT_VERSION_HTTP_1_1, true);
         }
         if ((String) msg.getProperty(Constants.TO) == null) {
-            msg.setProperty((String) msg.getProperty(Constants.TO), "/");
+            msg.setProperty(Constants.TO, "/");
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) msg.getProperty(Constants.TO), false);

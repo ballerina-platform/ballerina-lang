@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty;
+package org.wso2.carbon.transport.http.netty.message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,14 +41,15 @@ public class NettyCarbonMessage extends CarbonMessage {
     private static final Logger LOG = LoggerFactory.getLogger(NettyCarbonMessage.class);
 
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<ByteBuffer> outContentQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
     public void addHttpContent(HttpContent httpContent) {
-        if (httpContent instanceof LastHttpContent) {
-            setEndOfMsgAdded(true);
+        try {
+            httpContentQueue.put(httpContent);
+        } catch (InterruptedException e) {
+            LOG.error("Cannot put content to queue", e);
         }
-        httpContentQueue.add(httpContent);
     }
 
     public HttpContent getHttpContent() {
@@ -77,12 +78,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     public List<ByteBuffer> getFullMessageBody() {
         List<ByteBuffer> byteBufferList = new ArrayList<>();
 
-        while (true) {
+        boolean isEndOfMessageProcessed = false;
+        while (!isEndOfMessageProcessed) {
             try {
-                if (isEndOfMsgAdded() && isEmpty()) {
-                    break;
-                }
                 HttpContent httpContent = httpContentQueue.take();
+                if (httpContent instanceof LastHttpContent) {
+                    isEndOfMessageProcessed = true;
+                }
                 ByteBuf buf = httpContent.content();
                 garbageCollected.add(httpContent);
                 byteBufferList.add(buf.nioBuffer());
@@ -102,12 +104,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public int getFullMessageLength() {
         List<HttpContent> contentList = new ArrayList<>();
-        while (true) {
+        boolean isEndOfMessageProcessed = false;
+        while (!isEndOfMessageProcessed) {
             try {
-                if (isEndOfMsgAdded() && isEmpty()) {
-                    break;
-                }
                 HttpContent httpContent = httpContentQueue.take();
+                if (httpContent instanceof LastHttpContent) {
+                    isEndOfMessageProcessed = true;
+                }
                 contentList.add(httpContent);
 
             } catch (InterruptedException e) {
@@ -126,10 +129,13 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public void addMessageBody(ByteBuffer msgBody) {
         if (isAlreadyRead()) {
-            outContentQueue.add(msgBody);
+            outContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
+        } else if (httpContentQueue.isEmpty()) {
+            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
         } else {
-            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody.array())));
+            LOG.error("Please don't add message body before reading existing values");
         }
+
     }
 
     @Override
@@ -137,9 +143,11 @@ public class NettyCarbonMessage extends CarbonMessage {
         super.setEndOfMsgAdded(endOfMsgAdded);
         if (isAlreadyRead()) {
             outContentQueue.forEach(buffer -> {
-                httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(buffer.array())));
+                httpContentQueue.add(buffer);
             });
+            outContentQueue.clear();
         }
+
     }
 
     @Override
