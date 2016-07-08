@@ -35,6 +35,8 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_ASYNC = "Async";
     public static final String ANNOTATION_STATISTICS = "Statistics";
     public static final String ANNOTATION_INDEX_BY = "IndexBy";
+    public static final String ANNOTATION_INDEX = "Index";
+    public static final String ANNOTATION_PRIMARY_KEY = "PrimaryKey";
     public static final String ANNOTATION_FROM = "from";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
 

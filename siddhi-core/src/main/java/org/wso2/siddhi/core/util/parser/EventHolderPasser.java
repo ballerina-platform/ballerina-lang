@@ -18,15 +18,16 @@
 
 package org.wso2.siddhi.core.util.parser;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.holder.IndexEventHolder;
 import org.wso2.siddhi.core.table.holder.ListEventHolder;
-import org.wso2.siddhi.core.table.holder.PrimaryKeyEventHolder;
-import org.wso2.siddhi.core.table.holder.PrimaryKeyIndexEventHolder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.annotation.Annotation;
+import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
@@ -35,38 +36,71 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventHolderPasser {
+    private static final Logger log = Logger.getLogger(EventHolderPasser.class);
+
     public static EventHolder parse(AbstractDefinition tableDefinition, StreamEventPool tableStreamEventPool) {
         ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
-        // indexes.
-        Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
+        String primaryKeyAttribute = null;
+        int primaryKeyPosition = -1;
+
+        Map<String, Integer> indexMetaData = new HashMap<String, Integer>();
+
+        // primaryKey.
+        Annotation primaryKeyAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PRIMARY_KEY,
                 tableDefinition.getAnnotations());
-        if (indexByAnnotation != null) {
-            if (indexByAnnotation.getElements().size() > 1) {
-                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
-                        indexByAnnotation.getElements().size() +
+        if (primaryKeyAnnotation != null) {
+            if (primaryKeyAnnotation.getElements().size() > 1) {
+                throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation contains " +
+                        primaryKeyAnnotation.getElements().size() +
                         " elements, Siddhi in-memory table only supports indexing based on a single attribute");
             }
-            if (indexByAnnotation.getElements().size() == 0) {
-                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains "
-                        + indexByAnnotation.getElements().size() + " element");
+            if (primaryKeyAnnotation.getElements().size() == 0) {
+                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation contains "
+                        + primaryKeyAnnotation.getElements().size() + " element");
             }
-            String indexAttributesString = indexByAnnotation.getElements().get(0).getValue();
-            //todo fix indexing annotation
-            String[] indexAttributes = indexAttributesString.split(",");
-            if (indexAttributes.length > 1) {
-                int indexPosition = tableDefinition.getAttributePosition(indexAttributes[0].trim());
-                Map<String, Integer> indexMetaData = new HashMap<String, Integer>();
-                for (int i = 1; i < indexAttributes.length; i++) {
-                    indexMetaData.put(indexAttributes[i].trim(), tableDefinition.getAttributePosition(indexAttributes[i].trim()));
+            primaryKeyAttribute = primaryKeyAnnotation.getElements().get(0).getValue().trim();
+            primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
+        }
+
+        // indexes.
+        Annotation indexAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX,
+                tableDefinition.getAnnotations());
+        if (indexAnnotation != null) {
+            if (indexAnnotation.getElements().size() == 0) {
+                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX + " annotation contains "
+                        + indexAnnotation.getElements().size() + " element");
+            }
+            for (Element element : indexAnnotation.getElements()) {
+                indexMetaData.put(element.getValue().trim(), tableDefinition.getAttributePosition(element.getValue().trim()));
+            }
+        }
+
+        // deprecated indexBy.
+        if (primaryKeyAttribute == null) {
+            Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
+                    tableDefinition.getAnnotations());
+            if (indexByAnnotation != null) {
+                if (indexByAnnotation.getElements().size() > 1) {
+                    throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
+                            indexByAnnotation.getElements().size() +
+                            " elements, Siddhi in-memory table only supports indexing based on a single attribute");
                 }
-                return new PrimaryKeyIndexEventHolder(tableStreamEventPool, eventConverter, indexPosition, indexAttributes[0].trim(), indexMetaData);
+                if (indexByAnnotation.getElements().size() == 0) {
+                    throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains "
+                            + indexByAnnotation.getElements().size() + " element");
+                }
+
+                primaryKeyAttribute = indexByAnnotation.getElements().get(0).getValue().trim();
+                primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
 
             } else {
-                int indexPosition = tableDefinition.getAttributePosition(indexAttributes[0].trim());
-                return new PrimaryKeyEventHolder(tableStreamEventPool, eventConverter, indexPosition, indexAttributes[0].trim());
-
+                log.info("Ignoring '@" + SiddhiConstants.ANNOTATION_INDEX_BY + "' as @" + SiddhiConstants.ANNOTATION_PRIMARY_KEY + "' is already defined for event table " + tableDefinition.getId());
             }
+        }
+
+        if (primaryKeyAttribute != null || indexMetaData.size() > 0) {
+            return new IndexEventHolder(tableStreamEventPool, eventConverter, primaryKeyPosition, primaryKeyAttribute, indexMetaData);
         } else {
             return new ListEventHolder(tableStreamEventPool, eventConverter);
         }

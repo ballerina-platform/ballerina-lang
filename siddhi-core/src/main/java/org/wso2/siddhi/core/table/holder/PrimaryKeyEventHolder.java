@@ -26,9 +26,7 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class PrimaryKeyEventHolder implements IndexedEventHolder {
 
@@ -58,8 +56,7 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
 
     @Override
     public boolean isSupportedIndex(String attribute, Compare.Operator operator) {
-        return primaryKeyAttribute.equalsIgnoreCase(attribute) &&
-                (operator == Compare.Operator.EQUAL || operator == Compare.Operator.NOT_EQUAL);
+        return primaryKeyAttribute.equalsIgnoreCase(attribute);
     }
 
     @Override
@@ -94,6 +91,22 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
                 streamEventSet.remove(resultEvent);
             }
             return streamEventSet;
+        } else if (operator == Compare.Operator.LESS_THAN) {
+            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+            resultEventSet.addAll(data.headMap(value).values());
+            return resultEventSet;
+        } else if (operator == Compare.Operator.LESS_THAN_EQUAL) {
+            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+            resultEventSet.addAll(data.headMap(value, true).values());
+            return resultEventSet;
+        } else if (operator == Compare.Operator.GREATER_THAN) {
+            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+            resultEventSet.addAll(data.tailMap(value).values());
+            return resultEventSet;
+        } else if (operator == Compare.Operator.GREATER_THAN_EQUAL) {
+            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+            resultEventSet.addAll(data.tailMap(value, true).values());
+            return resultEventSet;
         } else {
             throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
         }
@@ -120,6 +133,30 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
             deleteAll();
             if (streamEvent != null) {
                 data.put(value, streamEvent);
+            }
+        } else if (operator == Compare.Operator.LESS_THAN) {
+            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.headMap(value, false).entrySet().iterator();
+                 iterator.hasNext(); ) {
+                iterator.next();
+                iterator.remove();
+            }
+        } else if (operator == Compare.Operator.LESS_THAN_EQUAL) {
+            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.headMap(value, true).entrySet().iterator();
+                 iterator.hasNext(); ) {
+                iterator.next();
+                iterator.remove();
+            }
+        } else if (operator == Compare.Operator.GREATER_THAN) {
+            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.tailMap(value, false).entrySet().iterator();
+                 iterator.hasNext(); ) {
+                iterator.next();
+                iterator.remove();
+            }
+        } else if (operator == Compare.Operator.GREATER_THAN_EQUAL) {
+            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.tailMap(value, true).entrySet().iterator();
+                 iterator.hasNext(); ) {
+                iterator.next();
+                iterator.remove();
             }
         } else {
             throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());

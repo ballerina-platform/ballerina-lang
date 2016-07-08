@@ -35,8 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IndexedTableTestCase {
-    private static final Logger log = Logger.getLogger(IndexedTableTestCase.class);
+public class IndexedByTableTestCase {
+    private static final Logger log = Logger.getLogger(IndexedByTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private int removeEventCount;
     private boolean eventArrived;

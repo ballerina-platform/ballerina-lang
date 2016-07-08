@@ -37,7 +37,7 @@ public class NoIndexingTablePerformance {
                 "define stream StockCheckStream (symbol string, company string, price float, volume int, timestamp long);" +
                 "define stream StockInputStream (symbol string, company string, price float, volume int); " +
                 "" +
-                "@IndexBy('volume, company')" +
+                "@IndexBy('volume')" +
                 "define table StockTable (symbol string, company string, price float, volume int);" +
                 "" +
                 "@info(name = 'query1') " +
@@ -45,36 +45,43 @@ public class NoIndexingTablePerformance {
                 "select symbol, company, price, volume " +
                 "insert into StockTable ;" +
                 "" +
+//                "@info(name = 'query2') " +
+//                "from StockCheckStream join StockTable " +
+//                "on StockCheckStream.volume < StockTable.volume " +
+//                "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, StockCheckStream.price, StockCheckStream.volume " +
+//                "insert into OutputStream ;" +
+//                "" +
                 "@info(name = 'query2') " +
-                "from StockCheckStream join StockTable " +
-                "on not (StockCheckStream.volume == StockTable.volume and StockCheckStream.company == StockTable.company) " +
-                "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, StockCheckStream.price, StockCheckStream.volume " +
-                "insert into OutputStream ;";
+                "from StockCheckStream " +
+                "select volume " +
+                "delete StockTable " +
+                "on volume < StockTable.volume " +
+                "";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
-            public int eventCount = 0;
-            public int timeSpent = 0;
-            long startTime = System.currentTimeMillis();
-
-            @Override
-            public void receive(Event[] events) {
-//                EventPrinter.print(events);
-                for (Event event : events) {
-                    eventCount++;
-                    timeSpent += (System.currentTimeMillis() - (Long) event.getData(0));
-                    if (eventCount % 100000 == 0) {
-                        System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
-                        System.out.println("Time spent :  " + (timeSpent * 1.0 / eventCount));
-                        startTime = System.currentTimeMillis();
-                        eventCount = 0;
-                        timeSpent = 0;
-                    }
-                }
-            }
-
-        });
+//        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+//            public int eventCount = 0;
+//            public int timeSpent = 0;
+//            long startTime = System.currentTimeMillis();
+//
+//            @Override
+//            public void receive(Event[] events) {
+////                EventPrinter.print(events);
+//                for (Event event : events) {
+//                    eventCount++;
+//                    timeSpent += (System.currentTimeMillis() - (Long) event.getData(0));
+//                    if (eventCount % 100000 == 0) {
+//                        System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
+//                        System.out.println("Time spent :  " + (timeSpent * 1.0 / eventCount));
+//                        startTime = System.currentTimeMillis();
+//                        eventCount = 0;
+//                        timeSpent = 0;
+//                    }
+//                }
+//            }
+//
+//        });
 
         InputHandler stockCheckInputHandler = executionPlanRuntime.getInputHandler("StockCheckStream");
         InputHandler stockInputInputHandler = executionPlanRuntime.getInputHandler("StockInputStream");
