@@ -355,7 +355,9 @@ public class IndexEventHolder implements IndexedEventHolder {
 
     private void deleteFromIndexesAndPrimaryKey(String currentAttribute, Set<StreamEvent> deletedEventSet) {
         for (StreamEvent deletedEvent : deletedEventSet) {
-            primaryKeyData.remove(deletedEvent.getOutputData()[primaryKeyPosition]);
+            if (primaryKeyData != null) {
+                primaryKeyData.remove(deletedEvent.getOutputData()[primaryKeyPosition]);
+            }
             for (Map.Entry<String, Integer> indexEntry : indexMetaData.entrySet()) {
                 if (!currentAttribute.equals(indexEntry.getKey())) {
                     TreeMap<Object, Set<StreamEvent>> indexMap = indexData.get(indexEntry.getKey());

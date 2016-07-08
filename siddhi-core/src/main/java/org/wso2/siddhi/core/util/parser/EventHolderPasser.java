@@ -77,10 +77,12 @@ public class EventHolderPasser {
         }
 
         // deprecated indexBy.
-        if (primaryKeyAttribute == null) {
-            Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
-                    tableDefinition.getAnnotations());
-            if (indexByAnnotation != null) {
+        Annotation indexByAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_INDEX_BY,
+                tableDefinition.getAnnotations());
+        if (indexByAnnotation != null) {
+            if (primaryKeyAttribute != null) {
+                log.info("Ignoring '@" + SiddhiConstants.ANNOTATION_INDEX_BY + "' as @" + SiddhiConstants.ANNOTATION_PRIMARY_KEY + "' is already defined for event table " + tableDefinition.getId());
+            } else {
                 if (indexByAnnotation.getElements().size() > 1) {
                     throw new OperationNotSupportedException(SiddhiConstants.ANNOTATION_INDEX_BY + " annotation contains " +
                             indexByAnnotation.getElements().size() +
@@ -93,9 +95,6 @@ public class EventHolderPasser {
 
                 primaryKeyAttribute = indexByAnnotation.getElements().get(0).getValue().trim();
                 primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
-
-            } else {
-                log.info("Ignoring '@" + SiddhiConstants.ANNOTATION_INDEX_BY + "' as @" + SiddhiConstants.ANNOTATION_PRIMARY_KEY + "' is already defined for event table " + tableDefinition.getId());
             }
         }
 

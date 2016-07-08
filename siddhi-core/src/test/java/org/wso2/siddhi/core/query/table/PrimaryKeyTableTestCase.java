@@ -35,8 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IndexTableTestCase {
-    private static final Logger log = Logger.getLogger(IndexTableTestCase.class);
+public class PrimaryKeyTableTestCase {
+    private static final Logger log = Logger.getLogger(PrimaryKeyTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private int removeEventCount;
     private boolean eventArrived;
@@ -53,15 +53,15 @@ public class IndexTableTestCase {
     //Join Test
 
     @Test
-    public void indexTableTest1() throws InterruptedException {
-        log.info("indexTableTest1");
+    public void primaryKeyTableTest1() throws InterruptedException {
+        log.info("primaryKeyTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -118,15 +118,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest2() throws InterruptedException {
-        log.info("indexTableTest2");
+    public void primaryKeyTableTest2() throws InterruptedException {
+        log.info("primaryKeyTableTest2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -182,15 +182,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest3() throws InterruptedException {
-        log.info("indexTableTest3");
+    public void primaryKeyTableTest3() throws InterruptedException {
+        log.info("primaryKeyTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -252,15 +252,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest4() throws InterruptedException {
-        log.info("indexTableTest4");
+    public void primaryKeyTableTest4() throws InterruptedException {
+        log.info("primaryKeyTableTest4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -317,15 +317,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest5() throws InterruptedException {
-        log.info("indexTableTest5");
+    public void primaryKeyTableTest5() throws InterruptedException {
+        log.info("primaryKeyTableTest5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -382,15 +382,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest6() throws InterruptedException {
-        log.info("indexTableTest6");
+    public void primaryKeyTableTest6() throws InterruptedException {
+        log.info("primaryKeyTableTest6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -447,15 +447,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest7() throws InterruptedException {
-        log.info("indexTableTest7");
+    public void primaryKeyTableTest7() throws InterruptedException {
+        log.info("primaryKeyTableTest7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -512,15 +512,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest8() throws InterruptedException {
-        log.info("indexTableTest8");
+    public void primaryKeyTableTest8() throws InterruptedException {
+        log.info("primaryKeyTableTest8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -565,12 +565,11 @@ public class IndexTableTestCase {
 
             List<Object[]> expected = Arrays.asList(
                     new Object[]{"IBM", "ABC", 70L},
-                    new Object[]{"IBM", "WSO2", 200L},
-                    new Object[]{"IBM", "FOO", 200L}
+                    new Object[]{"IBM", "WSO2", 200L}
             );
-            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
-            Assert.assertEquals("Number of success events", 3, inEventCount.get());
+            Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
@@ -581,15 +580,15 @@ public class IndexTableTestCase {
 
     //Update Test
     @Test
-    public void indexTableTest9() throws InterruptedException {
-        log.info("indexTableTest9");
+    public void primaryKeyTableTest9() throws InterruptedException {
+        log.info("primaryKeyTableTest9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -657,15 +656,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest10() throws InterruptedException {
-        log.info("indexTableTest10");
+    public void primaryKeyTableTest10() throws InterruptedException {
+        log.info("primaryKeyTableTest10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -715,19 +714,14 @@ public class IndexTableTestCase {
             updateStockStream.send(new Object[]{"IBM", 77.6f, 200L});
             checkStockStream.send(new Object[]{"WSO2", 100L});
 
-            List<Object[]> expected1 = Arrays.asList(
+            List<Object[]> expected = Arrays.asList(
                     new Object[]{"WSO2", 100L},
-                    new Object[]{"IBM", 100L}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"IBM", 200L}
             );
-            List<Object[]> expected2 = Arrays.asList(
-                    new Object[]{"IBM", 200L},
-                    new Object[]{"IBM", 100L}
-            );
-
-            SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList.subList(0,2), expected1));
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2,4), expected2));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
+            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
@@ -737,15 +731,15 @@ public class IndexTableTestCase {
 
     //Todo improve update to support non updatable condition parameters
     @Test
-    public void indexTableTest11() throws InterruptedException {
-        log.info("indexTableTest11");
+    public void primaryKeyTableTest11() throws InterruptedException {
+        log.info("primaryKeyTableTest11");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -799,16 +793,13 @@ public class IndexTableTestCase {
                     new Object[]{55.6f, 200L},
                     new Object[]{55.6f, 100L}
             );
+            List<Object[]> expected2 = new ArrayList<Object[]>();
+            expected2.add(new Object[]{77.6f, 200L});
 
-            List<Object[]> expected2 = Arrays.asList(
-                    new Object[]{77.6f, 200L},
-                    new Object[]{77.6f, 200L}
-            );
-
-            SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
+            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
@@ -817,15 +808,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest12() throws InterruptedException {
-        log.info("indexTableTest12");
+    public void primaryKeyTableTest12() throws InterruptedException {
+        log.info("primaryKeyTableTest12");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -879,16 +870,13 @@ public class IndexTableTestCase {
                     new Object[]{55.6f, 200L},
                     new Object[]{55.6f, 100L}
             );
+            List<Object[]> expected2 = new ArrayList<Object[]>();
+            expected2.add(new Object[]{77.6f, 200L});
 
-            List<Object[]> expected2 = Arrays.asList(
-                    new Object[]{77.6f, 200L},
-                    new Object[]{55.6f, 200L}
-            );
-
-            SiddhiTestHelper.waitForEvents(100, 4, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 3, inEventCount, 60000);
             Assert.assertEquals("In first events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(0, 2), expected1));
-            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 4), expected2));
-            Assert.assertEquals("Number of success events", 4, inEventCount.get());
+            Assert.assertEquals("In second events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList.subList(2, 3), expected2));
+            Assert.assertEquals("Number of success events", 3, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
@@ -897,15 +885,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest13() throws InterruptedException {
-        log.info("indexTableTest13");
+    public void primaryKeyTableTest13() throws InterruptedException {
+        log.info("primaryKeyTableTest13");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -971,15 +959,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest14() throws InterruptedException {
-        log.info("indexTableTest14");
+    public void primaryKeyTableTest14() throws InterruptedException {
+        log.info("primaryKeyTableTest14");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1046,15 +1034,15 @@ public class IndexTableTestCase {
 
     //Delete Test
     @Test
-    public void indexTableTest15() throws InterruptedException {
-        log.info("indexTableTest15");
+    public void primaryKeyTableTest15() throws InterruptedException {
+        log.info("primaryKeyTableTest15");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long);" +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1122,15 +1110,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest16() throws InterruptedException {
-        log.info("indexTableTest16");
+    public void primaryKeyTableTest16() throws InterruptedException {
+        log.info("primaryKeyTableTest16");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long);" +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1198,15 +1186,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest17() throws InterruptedException {
-        log.info("indexTableTest17");
+    public void primaryKeyTableTest17() throws InterruptedException {
+        log.info("primaryKeyTableTest17");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1274,15 +1262,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest18() throws InterruptedException {
-        log.info("indexTableTest18");
+    public void primaryKeyTableTest18() throws InterruptedException {
+        log.info("primaryKeyTableTest18");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1351,15 +1339,15 @@ public class IndexTableTestCase {
 
 
     @Test
-    public void indexTableTest19() throws InterruptedException {
-        log.info("indexTableTest19");
+    public void primaryKeyTableTest19() throws InterruptedException {
+        log.info("primaryKeyTableTest19");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1427,15 +1415,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest20() throws InterruptedException {
-        log.info("indexTableTest20");
+    public void primaryKeyTableTest20() throws InterruptedException {
+        log.info("primaryKeyTableTest20");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long);" +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1505,14 +1493,14 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest21() throws InterruptedException {
-        log.info("indexTableTest21");
+    public void primaryKeyTableTest21() throws InterruptedException {
+        log.info("primaryKeyTableTest21");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1567,14 +1555,14 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest22() throws InterruptedException {
-        log.info("indexTableTest22");
+    public void primaryKeyTableTest22() throws InterruptedException {
+        log.info("primaryKeyTableTest22");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1631,14 +1619,14 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest23() throws InterruptedException {
-        log.info("indexTableTest23");
+    public void primaryKeyTableTest23() throws InterruptedException {
+        log.info("primaryKeyTableTest23");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1695,14 +1683,14 @@ public class IndexTableTestCase {
 
 
     @Test
-    public void indexTableTest24() throws InterruptedException {
-        log.info("indexTableTest24");
+    public void primaryKeyTableTest24() throws InterruptedException {
+        log.info("primaryKeyTableTest24");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1757,14 +1745,14 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest25() throws InterruptedException {
-        log.info("indexTableTest25");
+    public void primaryKeyTableTest25() throws InterruptedException {
+        log.info("primaryKeyTableTest25");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1820,14 +1808,14 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest26() throws InterruptedException {
-        log.info("indexTableTest26");
+    public void primaryKeyTableTest26() throws InterruptedException {
+        log.info("primaryKeyTableTest26");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@Index('volume') " +
+                "@PrimaryKey('volume') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -1883,15 +1871,15 @@ public class IndexTableTestCase {
     }
 
     @Test
-    public void indexTableTest27() throws InterruptedException {
-        log.info("indexTableTest27");
+    public void primaryKeyTableTest27() throws InterruptedException {
+        log.info("primaryKeyTableTest27");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@Index('symbol') " +
+                "@PrimaryKey('symbol') " +
                 "define table StockTable (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
