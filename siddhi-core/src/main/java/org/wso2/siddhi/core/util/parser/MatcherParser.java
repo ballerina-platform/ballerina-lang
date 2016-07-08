@@ -28,9 +28,6 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
-/**
- * Created by suho on 5/21/16.
- */
 public class MatcherParser {
 
     public static MatchingMetaStateHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition) {

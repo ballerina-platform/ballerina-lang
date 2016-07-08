@@ -72,21 +72,26 @@ public class IndexOperator implements Operator {
 
             StreamEvent streamEvent = collectionExecutor.find(updatingEvent, (IndexedEventHolder) candidateEvents, null);
             if (streamEvent != null) {
-                ComplexEventChunk<StreamEvent> resultEventChunk = new ComplexEventChunk<StreamEvent>(false);
-                resultEventChunk.add(streamEvent);
                 collectionExecutor.delete(updatingEvent, (IndexedEventHolder) candidateEvents);
+                ComplexEventChunk<StreamEvent> toUpdateEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
-                while (resultEventChunk.hasNext()) {
-                    StreamEvent resultEvent = resultEventChunk.next();
+                while (streamEvent != null) {
+                    StreamEvent nextStreamEvent = streamEvent.getNext();
+                    streamEvent.setNext(null);
+
                     for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                        resultEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
+                        streamEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
                                 updateAttributeMapper.getCandidateAttributePosition());
                     }
-                }
-                ((IndexedEventHolder) candidateEvents).add(resultEventChunk);
-            }
+                    toUpdateEventChunk.add(streamEvent);
 
+                    streamEvent = nextStreamEvent;
+                }
+                ((IndexedEventHolder) candidateEvents).add(toUpdateEventChunk);
+            }
         }
+
+
     }
 
     @Override

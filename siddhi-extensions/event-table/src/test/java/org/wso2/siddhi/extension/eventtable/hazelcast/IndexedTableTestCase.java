@@ -52,7 +52,7 @@ public class IndexedTableTestCase {
 
     @Test
     public void indexedTableTest1() throws InterruptedException {
-        log.info("indexedTableTest1");
+        log.info("primaryKeyIndexTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +

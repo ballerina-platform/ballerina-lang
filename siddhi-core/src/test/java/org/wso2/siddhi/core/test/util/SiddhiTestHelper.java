@@ -55,4 +55,24 @@ public class SiddhiTestHelper {
             return true;
         }
     }
+
+    public static boolean isUnsortedEventsMatch(List<Object[]> actual, List<Object[]> expected) {
+        if (actual.size() != expected.size()) {
+            return false;
+        } else {
+            for (int i = 0; i < actual.size(); i++) {
+                boolean isThere = false;
+                for (int j = 0; j < expected.size(); j++) {
+                    if (Arrays.equals(actual.get(i), expected.get(j))) {
+                        isThere = true;
+                        break;
+                    }
+                }
+                if (!isThere) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 }

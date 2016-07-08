@@ -133,17 +133,16 @@ public class IndexEventHolder implements IndexedEventHolder {
     @Override
     public Set<StreamEvent> findEventSet(String attribute, Compare.Operator operator, Object value) {
 
-
         if (primaryKeyData != null && attribute.equals(primaryKeyAttribute)) {
             HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
             StreamEvent resultEvent;
 
             switch (operator) {
                 case LESS_THAN:
-                    resultEventSet.addAll(primaryKeyData.headMap(value).values());
+                    resultEventSet.addAll(primaryKeyData.headMap(value, false).values());
                     return resultEventSet;
                 case GREATER_THAN:
-                    resultEventSet.addAll(primaryKeyData.tailMap(value).values());
+                    resultEventSet.addAll(primaryKeyData.tailMap(value, false).values());
                     return resultEventSet;
                 case LESS_THAN_EQUAL:
                     resultEventSet.addAll(primaryKeyData.headMap(value, true).values());
@@ -178,12 +177,12 @@ public class IndexEventHolder implements IndexedEventHolder {
             switch (operator) {
 
                 case LESS_THAN:
-                    for (Set<StreamEvent> eventSet : currentIndexedData.headMap(value).values()) {
+                    for (Set<StreamEvent> eventSet : currentIndexedData.headMap(value, false).values()) {
                         resultEventSet.addAll(eventSet);
                     }
                     return resultEventSet;
                 case GREATER_THAN:
-                    for (Set<StreamEvent> eventSet : currentIndexedData.tailMap(value).values()) {
+                    for (Set<StreamEvent> eventSet : currentIndexedData.tailMap(value, false).values()) {
                         resultEventSet.addAll(eventSet);
                     }
                     return resultEventSet;
@@ -255,7 +254,7 @@ public class IndexEventHolder implements IndexedEventHolder {
             switch (operator) {
 
                 case LESS_THAN:
-                    for (Iterator<StreamEvent> iterator = primaryKeyData.headMap(value).values().iterator();
+                    for (Iterator<StreamEvent> iterator = primaryKeyData.headMap(value, false).values().iterator();
                          iterator.hasNext(); ) {
                         StreamEvent toDeleteEvent = iterator.next();
                         iterator.remove();
@@ -263,7 +262,7 @@ public class IndexEventHolder implements IndexedEventHolder {
                     }
                     return;
                 case GREATER_THAN:
-                    for (Iterator<StreamEvent> iterator = primaryKeyData.tailMap(value).values().iterator();
+                    for (Iterator<StreamEvent> iterator = primaryKeyData.tailMap(value, false).values().iterator();
                          iterator.hasNext(); ) {
                         StreamEvent toDeleteEvent = iterator.next();
                         iterator.remove();
@@ -304,7 +303,7 @@ public class IndexEventHolder implements IndexedEventHolder {
             switch (operator) {
 
                 case LESS_THAN:
-                    for (Iterator<Set<StreamEvent>> iterator = indexData.get(attribute).headMap(value).values().iterator();
+                    for (Iterator<Set<StreamEvent>> iterator = indexData.get(attribute).headMap(value, false).values().iterator();
                          iterator.hasNext(); ) {
                         Set<StreamEvent> deletedEventSet = iterator.next();
                         deleteFromIndexesAndPrimaryKey(attribute, deletedEventSet);
@@ -312,7 +311,7 @@ public class IndexEventHolder implements IndexedEventHolder {
                     }
                     return;
                 case GREATER_THAN:
-                    for (Iterator<Set<StreamEvent>> iterator = indexData.get(attribute).tailMap(value).values().iterator();
+                    for (Iterator<Set<StreamEvent>> iterator = indexData.get(attribute).tailMap(value, false).values().iterator();
                          iterator.hasNext(); ) {
                         Set<StreamEvent> deletedEventSet = iterator.next();
                         deleteFromIndexesAndPrimaryKey(attribute, deletedEventSet);

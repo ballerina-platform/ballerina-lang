@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Deprecated
 public class IndexedByTableTestCase {
     private static final Logger log = Logger.getLogger(IndexedByTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);
@@ -52,7 +53,7 @@ public class IndexedByTableTestCase {
 
     @Test
     public void indexedTableTest1() throws InterruptedException {
-        log.info("indexedTableTest1");
+        log.info("primaryKeyIndexTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
@@ -107,7 +108,6 @@ public class IndexedByTableTestCase {
             checkStockStream.send(new Object[]{"IBM", 100l});
             checkStockStream.send(new Object[]{"WSO2", 100l});
             updateStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            Thread.sleep(2000);
             checkStockStream.send(new Object[]{"IBM", 100l});
             checkStockStream.send(new Object[]{"WSO2", 100l});
 

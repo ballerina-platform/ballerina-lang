@@ -26,12 +26,14 @@ public class CompareCollectionExpression implements CollectionExpression {
     private final Compare compareExpression;
     private final CollectionScope collectionScope;
     private CollectionExpression attributeCollectionExpression;
+    private Compare.Operator operator;
     private CollectionExpression valueCollectionExpression;
 
     public CompareCollectionExpression(Compare compareExpression, CollectionScope collectionScope, CollectionExpression attributeCollectionExpression, Compare.Operator operator, CollectionExpression valueCollectionExpression) {
         this.compareExpression = compareExpression;
         this.collectionScope = collectionScope;
         this.attributeCollectionExpression = attributeCollectionExpression;
+        this.operator = operator;
         this.valueCollectionExpression = valueCollectionExpression;
     }
 
@@ -48,7 +50,7 @@ public class CompareCollectionExpression implements CollectionExpression {
     }
 
     public Compare.Operator getOperator() {
-        return compareExpression.getOperator();
+        return operator;
     }
 
     @Override
