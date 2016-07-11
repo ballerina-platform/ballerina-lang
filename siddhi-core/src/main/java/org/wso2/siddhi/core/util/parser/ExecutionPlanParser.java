@@ -24,12 +24,14 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.table.WindowEventTable;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -38,6 +40,7 @@ import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -142,14 +145,34 @@ public class ExecutionPlanParser {
 
         defineStreamDefinitions(executionPlanRuntimeBuilder, executionPlan.getStreamDefinitionMap());
         defineTableDefinitions(executionPlanRuntimeBuilder, executionPlan.getTableDefinitionMap());
+        defineWindowDefinitions(executionPlanRuntimeBuilder, executionPlan.getWindowDefinitionMap());
         defineFunctionDefinitions(executionPlanRuntimeBuilder, executionPlan.getFunctionDefinitionMap());
+        for (WindowEventTable windowEventTable : executionPlanRuntimeBuilder.getWindowEventTableMap().values()) {
+            String metricName =
+                    executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                            SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_WINDOWS +
+                            SiddhiConstants.METRIC_DELIMITER + windowEventTable.getWindowDefinition().getId();
+            LatencyTracker latencyTracker = null;
+            if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
+                latencyTracker = executionPlanContext.getSiddhiContext()
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
+            }
+            windowEventTable.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getWindowEventTableMap(), latencyTracker);
+        }
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
                     QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, executionPlanContext,
                             executionPlanRuntimeBuilder.getStreamDefinitionMap(),
                             executionPlanRuntimeBuilder.getTableDefinitionMap(),
-                            executionPlanRuntimeBuilder.getEventTableMap());
+                            executionPlanRuntimeBuilder.getWindowDefinitionMap(),
+                            executionPlanRuntimeBuilder.getEventTableMap(),
+                            executionPlanRuntimeBuilder.getWindowEventTableMap());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,
@@ -196,6 +219,13 @@ public class ExecutionPlanParser {
                                                Map<String, TableDefinition> tableDefinitionMap) {
         for (TableDefinition definition : tableDefinitionMap.values()) {
             executionPlanRuntimeBuilder.defineTable(definition);
+        }
+    }
+
+    private static void defineWindowDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder,
+                                                Map<String, WindowDefinition> windowDefinitionMap) {
+        for (WindowDefinition definition : windowDefinitionMap.values()) {
+            executionPlanRuntimeBuilder.defineWindow(definition);
         }
     }
 }

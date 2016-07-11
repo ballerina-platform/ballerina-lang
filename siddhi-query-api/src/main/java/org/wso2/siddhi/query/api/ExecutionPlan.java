@@ -37,6 +37,7 @@ public class ExecutionPlan {
 
     private Map<String, StreamDefinition> streamDefinitionMap = new HashMap<String, StreamDefinition>();
     private Map<String, TableDefinition> tableDefinitionMap = new HashMap<String, TableDefinition>();
+    private Map<String, WindowDefinition> windowDefinitionMap = new HashMap<String, WindowDefinition>();
     private Map<String, TriggerDefinition> triggerDefinitionMap = new HashMap<String, TriggerDefinition>();
     private List<ExecutionElement> executionElementList = new ArrayList<ExecutionElement>();
     private List<String> executionElementNameList = new ArrayList<String>();
@@ -89,6 +90,17 @@ public class ExecutionPlan {
         return this;
     }
 
+    public ExecutionPlan defineWindow(WindowDefinition windowDefinition) {
+        if (windowDefinition == null) {
+            throw new ExecutionPlanValidationException("Window Definition should not be null");
+        } else if (windowDefinition.getId() == null) {
+            throw new ExecutionPlanValidationException("Window Id should not be null for Window Definition");
+        }
+        checkDuplicateDefinition(windowDefinition);
+        this.windowDefinitionMap.put(windowDefinition.getId(), windowDefinition);
+        return this;
+    }
+
     public ExecutionPlan defineTrigger(TriggerDefinition triggerDefinition) {
         if (triggerDefinition == null) {
             throw new ExecutionPlanValidationException("Trigger Definition should not be null");
@@ -122,6 +134,12 @@ public class ExecutionPlan {
         if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition instanceof TableDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingStreamDefinition +
+                    ", hence cannot add " + definition);
+        }
+        WindowDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
+        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
+            throw new DuplicateDefinitionException("Stream Definition with same Window Id '" +
+                    definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
         }
     }
@@ -185,11 +203,17 @@ public class ExecutionPlan {
         return triggerDefinitionMap;
     }
 
+    public Map<String, WindowDefinition> getWindowDefinitionMap() {
+        return windowDefinitionMap;
+    }
+
+
     @Override
     public String toString() {
         return "ExecutionPlan{" +
                 "streamDefinitionMap=" + streamDefinitionMap +
                 ", tableDefinitionMap=" + tableDefinitionMap +
+                ", windowDefinitionMap=" + windowDefinitionMap +
                 ", executionElementList=" + executionElementList +
                 ", executionElementNameList=" + executionElementNameList +
                 ", annotations=" + annotations +

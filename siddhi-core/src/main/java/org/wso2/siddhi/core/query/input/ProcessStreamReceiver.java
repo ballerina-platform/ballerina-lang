@@ -46,6 +46,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     protected LatencyTracker latencyTracker;
     protected ReentrantLock queryLock;
     protected ComplexEventChunk<StreamEvent> batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    protected boolean batchProcessingAllowed;
 
     public ProcessStreamReceiver(String streamId, LatencyTracker latencyTracker) {
         this.streamId = streamId;
@@ -58,7 +59,9 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public ProcessStreamReceiver clone(String key) {
-        return new ProcessStreamReceiver(streamId + key, latencyTracker);
+        ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(streamId + key, latencyTracker);
+        processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
+        return processStreamReceiver;
     }
 
     private void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
@@ -96,7 +99,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
             currentEvent = nextEvent;
             complexEvents = complexEvents.getNext();
         }
-        process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, false));
+        process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, this.batchProcessingAllowed));
     }
 
     @Override
@@ -104,7 +107,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         if (event != null) {
             StreamEvent borrowedEvent = streamEventPool.borrowEvent();
             streamEventConverter.convertEvent(event, borrowedEvent);
-            process(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, false));
+            process(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
         }
     }
 
@@ -119,7 +122,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
         }
-        process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, false));
+        process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, this.batchProcessingAllowed));
     }
 
 
@@ -132,7 +135,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
             batchingStreamEventChunk.add(borrowedEvent);
             if (endOfBatch) {
                 streamEventChunk = batchingStreamEventChunk;
-                batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
+                batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(this.batchProcessingAllowed);
             }
         }
         if (streamEventChunk != null) {
@@ -144,7 +147,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     public void receive(long timeStamp, Object[] data) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         streamEventConverter.convertData(timeStamp, data, borrowedEvent);
-        process(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, false));
+        process(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
@@ -158,6 +161,10 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
     public boolean toTable() {
         return metaStreamEvent.isTableEvent();
+    }
+
+    public void setBatchProcessingAllowed(boolean batchProcessingAllowed) {
+        this.batchProcessingAllowed = batchProcessingAllowed;
     }
 
     public void setNext(Processor next) {

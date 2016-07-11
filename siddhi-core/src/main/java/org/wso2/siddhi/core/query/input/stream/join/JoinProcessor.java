@@ -34,18 +34,18 @@ import java.util.concurrent.locks.Lock;
  * Created on 12/8/14.
  */
 public class JoinProcessor implements Processor {
-    private boolean trigger;
-    private boolean leftJoinProcessor = false;
+    protected boolean trigger;
+    protected boolean leftJoinProcessor = false;
     private boolean preJoinProcessor = false;
-    private boolean outerJoinProcessor = false;
-    private int matchingStreamIndex;
-    private Lock joinLock;
+    protected boolean outerJoinProcessor = false;
+    protected int matchingStreamIndex;
+    protected Lock joinLock;
 
     private StateEventPool stateEventPool;
-    private Finder finder;
-    private FindableProcessor findableProcessor;
-    private Processor nextProcessor;
-    private QuerySelector selector;
+    protected Finder finder;
+    protected FindableProcessor findableProcessor;
+    protected Processor nextProcessor;
+    protected QuerySelector selector;
 
     public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;

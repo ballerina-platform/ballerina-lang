@@ -34,6 +34,7 @@ import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutpu
 import org.wso2.siddhi.core.query.output.ratelimit.time.*;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.table.WindowEventTable;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
@@ -55,9 +56,10 @@ public class OutputParser {
 
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, StreamDefinition outputStreamDefinition,
-                                                         Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext, boolean convertToStreamEvent) {
+                                                         Map<String, EventTable> eventTableMap, Map<String, WindowEventTable> windowEventTableMap, ExecutionPlanContext executionPlanContext, boolean convertToStreamEvent) {
         String id = outStream.getId();
         EventTable eventTable = eventTableMap.get(id);
+        WindowEventTable windowEventTable = windowEventTableMap.get(id);
         StreamEventPool streamEventPool = null;
         StreamEventConverter streamEventConvertor = null;
         MetaStreamEvent tableMetaStreamEvent = null;
@@ -79,7 +81,9 @@ public class OutputParser {
 
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
-            if (eventTable != null) {
+            if(windowEventTable != null) {
+                return new InsertIntoWindowCallback(windowEventTable, outputStreamDefinition);
+            } else if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                 return new InsertIntoTableCallback(eventTable, outputStreamDefinition, convertToStreamEvent, streamEventPool, streamEventConvertor);
             } else {

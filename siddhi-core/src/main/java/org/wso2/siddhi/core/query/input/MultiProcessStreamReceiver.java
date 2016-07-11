@@ -165,7 +165,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
-        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, false);
+        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, batchProcessingAllowed);
         nextProcessors[processIndex].process(currentStreamEventChunk);
     }
 

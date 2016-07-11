@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -74,7 +75,7 @@ public class SingleInputStreamParser {
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
-                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
+                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, AbstractDefinition> windowDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
                                                        ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents) {
         Processor processor = null;
         EntryValveProcessor entryValveProcessor = null;
@@ -83,11 +84,21 @@ public class SingleInputStreamParser {
         if (metaComplexEvent instanceof MetaStateEvent) {
             metaStreamEvent = new MetaStreamEvent();
             ((MetaStateEvent) metaComplexEvent).addEvent(metaStreamEvent);
-            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, metaStreamEvent);
+            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, metaStreamEvent);
         } else {
             metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
-            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, metaStreamEvent);
+            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, metaStreamEvent);
         }
+
+        // A window cannot be defined for a window stream
+        if (!inputStream.getStreamHandlers().isEmpty() && windowDefinitionMap != null && windowDefinitionMap.containsKey(inputStream.getStreamId())) {
+            for (StreamHandler handler : inputStream.getStreamHandlers()) {
+                if (handler instanceof Window) {
+                    throw new OperationNotSupportedException("Cannot create " + ((Window) handler).getFunction() + " window for the window stream " + inputStream.getStreamId());
+                }
+            }
+        }
+
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
                 Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap, supportsBatchProcessing, outputExpectsExpiredEvents);
@@ -212,11 +223,16 @@ public class SingleInputStreamParser {
      * @param metaStreamEvent     MetaStreamEvent
      */
     private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
-            AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, MetaStreamEvent metaStreamEvent) {
+            AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, Map<String, AbstractDefinition> windowDefinitionMap, MetaStreamEvent metaStreamEvent) {
 
         String streamId = inputStream.getStreamId();
 
-        if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
+        if (!inputStream.isInnerStream() && windowDefinitionMap != null && windowDefinitionMap.containsKey(streamId)) {
+            AbstractDefinition inputDefinition = windowDefinitionMap.get(streamId);
+            if (!metaStreamEvent.getInputDefinitions().contains(inputDefinition)) {
+                metaStreamEvent.addInputDefinition(inputDefinition);
+            }
+        } else if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);
             metaStreamEvent.addInputDefinition(inputDefinition);
         } else if (!inputStream.isInnerStream() && tableDefinitionMap != null && tableDefinitionMap.containsKey(streamId)) {
