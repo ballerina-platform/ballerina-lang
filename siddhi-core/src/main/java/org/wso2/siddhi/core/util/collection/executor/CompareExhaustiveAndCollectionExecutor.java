@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class CompareExhaustiveAndCollectionExecutor implements CollectionExecutor {
 
@@ -37,10 +37,27 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
     }
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        Set<StreamEvent> resultEventSet = findEventSet(matchingEvent, indexedEventHolder);
-        if (resultEventSet != null) {
-            for (StreamEvent resultEvent : resultEventSet) {
+        Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+        if (compareStreamEvents == null) {
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+        } else if (compareStreamEvents.size() > 0) {
+            compareStreamEvents = exhaustiveCollectionExecutor.findEvents(matchingEvent, compareStreamEvents);
+            if (compareStreamEvents != null) {
+                ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
+                for (StreamEvent resultEvent : compareStreamEvents) {
+                    if (candidateEventCloner != null) {
+                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                    } else {
+                        returnEventChunk.add(resultEvent);
+                    }
+                }
+                return returnEventChunk.getFirst();
+            } else {
+                return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            }
+        } else {
+            ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
+            for (StreamEvent resultEvent : compareStreamEvents) {
                 if (candidateEventCloner != null) {
                     returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
                 } else {
@@ -48,18 +65,16 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
                 }
             }
             return returnEventChunk.getFirst();
-        } else {
-            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
         }
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
             return null;
         } else if (compareStreamEvents.size() > 0) {
             if (exhaustiveCollectionExecutor != null) {
-                return exhaustiveCollectionExecutor.findEventSet(matchingEvent, compareStreamEvents);
+                return exhaustiveCollectionExecutor.findEvents(matchingEvent, compareStreamEvents);
             } else {
                 return null;
             }
@@ -70,7 +85,7 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> compareStreamEvents = findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> compareStreamEvents = findEvents(matchingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
             return exhaustiveCollectionExecutor.contains(matchingEvent, indexedEventHolder);
         } else {
@@ -80,7 +95,7 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
 
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> compareStreamEvents = findEventSet(deletingEvent, indexedEventHolder);
+        Collection<StreamEvent> compareStreamEvents = findEvents(deletingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
             exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         }

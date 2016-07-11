@@ -20,15 +20,18 @@ package org.wso2.siddhi.performance;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
 
 import java.util.Random;
 
 public class NoIndexingTablePerformance {
 
+    public static boolean output = false;
+    public static int numberOfEventsStored = 1000;
+    public static int numberOfEventsChunked = 10000;
+
     public static void main(String[] args) throws InterruptedException {
+
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
@@ -37,7 +40,8 @@ public class NoIndexingTablePerformance {
                 "define stream StockCheckStream (symbol string, company string, price float, volume int, timestamp long);" +
                 "define stream StockInputStream (symbol string, company string, price float, volume int); " +
                 "" +
-                "@IndexBy('volume')" +
+                "@PrimaryKey('volume')" +
+                "@Index('price')" +
                 "define table StockTable (symbol string, company string, price float, volume int);" +
                 "" +
                 "@info(name = 'query1') " +
@@ -45,38 +49,63 @@ public class NoIndexingTablePerformance {
                 "select symbol, company, price, volume " +
                 "insert into StockTable ;" +
                 "" +
-//                "@info(name = 'query2') " +
-//                "from StockCheckStream join StockTable " +
-//                "on StockCheckStream.volume < StockTable.volume " +
-//                "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, StockCheckStream.price, StockCheckStream.volume " +
-//                "insert into OutputStream ;" +
-//                "" +
                 "@info(name = 'query2') " +
-                "from StockCheckStream " +
-                "select volume " +
-                "delete StockTable " +
-                "on volume < StockTable.volume " +
+                "from StockCheckStream join StockTable " +
+                "on StockCheckStream.volume > StockTable.volume OR StockCheckStream.price > StockTable.price " +
+                "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, StockCheckStream.price, StockCheckStream.volume " +
+                "insert into OutputStream ;" +
+                "" +
+//                "@info(name = 'query2') " +
+//                "from StockCheckStream " +
+//                "select volume " +
+//                "delete StockTable " +
+//                "on volume < StockTable.volume " +
+//                "" +
+//                "@info(name = 'query2') " +
+//                "from StockCheckStream " +
+//                "select symbol, price " +
+//                "update StockTable " +
+//                "on symbol == StockTable.symbol " +
+//                "" +
+//                "@info(name = 'query2') " +
+//                "from StockCheckStream[volume > StockTable.volume in StockTable] " +
+//                "select symbol, price " +
+//                "insert into OutputStream; " +
                 "";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
+        System.out.println("Throughput\tLatency\tAvg Throughput\tAvg Latency");
+
 //        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
-//            public int eventCount = 0;
-//            public int timeSpent = 0;
-//            long startTime = System.currentTimeMillis();
+//            public volatile double eventCount = 0;
+//            public volatile double timeSpent = 0;
+//            public volatile double totalThroughput = 0;
+//            public volatile double totalLatency = 0;
+//            public volatile double totalIterations = 0;
+//            volatile long startTime = System.currentTimeMillis();
 //
 //            @Override
 //            public void receive(Event[] events) {
+//
 ////                EventPrinter.print(events);
 //                for (Event event : events) {
-//                    eventCount++;
-//                    timeSpent += (System.currentTimeMillis() - (Long) event.getData(0));
-//                    if (eventCount % 100000 == 0) {
-//                        System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
-//                        System.out.println("Time spent :  " + (timeSpent * 1.0 / eventCount));
-//                        startTime = System.currentTimeMillis();
-//                        eventCount = 0;
-//                        timeSpent = 0;
+//                    if (output) {
+//                        eventCount++;
+//                        timeSpent += (System.currentTimeMillis() - (Long) events[0].getData(0));
+//                        if (eventCount % numberOfEventsChunked == 0) {
+//                            synchronized (this) {
+//                                totalIterations++;
+//                                double throughput = (eventCount * 1000.0) / ((System.currentTimeMillis()) - startTime);
+//                                double latency = (timeSpent * 1.0 / eventCount);
+//                                totalThroughput += throughput;
+//                                totalLatency += latency;
+//                                System.out.println(throughput + "\t" + latency + "\t" + totalThroughput / totalIterations + "\t" + totalLatency / totalIterations);
+//                                startTime = System.currentTimeMillis();
+//                                eventCount = 0;
+//                                timeSpent = 0;
+//                            }
+//                        }
 //                    }
 //                }
 //            }
@@ -88,8 +117,8 @@ public class NoIndexingTablePerformance {
         executionPlanRuntime.start();
 
         Random random = new Random();
-        for (int i = 0; i < 1000; i++) {
-            stockInputInputHandler.send(new Object[]{"" + i, "" + i, random.nextFloat(), i});
+        for (int i = 0; i < numberOfEventsStored; i++) {
+            stockInputInputHandler.send(new Object[]{"" + i, "" + i, i * 1.0f, i});
         }
 
         for (int i = 0; i < 1; i++) {
@@ -102,6 +131,14 @@ public class NoIndexingTablePerformance {
 
     static class EventPublisher implements Runnable {
 
+        public volatile double eventCount = 0;
+        public volatile double timeSpent = 0;
+        public volatile double totalThroughput = 0;
+        public volatile double totalLatency = 0;
+        public volatile double totalIterations = 0;
+        volatile long startTime = System.currentTimeMillis();
+
+
         InputHandler inputHandler;
         private Random random;
 
@@ -112,10 +149,34 @@ public class NoIndexingTablePerformance {
 
         @Override
         public void run() {
-            while (true) {
+            int count = 100000000;
+            while (count > 0) {
+                count--;
                 try {
-                    int number = random.nextInt(1000);
+                    int number = random.nextInt(numberOfEventsStored);
+//                    int number = (numberOfEventsStored*75)/100;
+                    long startEventTime = System.currentTimeMillis();
                     inputHandler.send(new Object[]{"" + number, "" + number, random.nextFloat(), number, System.currentTimeMillis()});
+                    if (!output) {
+                        eventCount++;
+                        timeSpent += (System.currentTimeMillis() - startEventTime);
+                        if (eventCount % numberOfEventsChunked == 0) {
+                            synchronized (this) {
+                                totalIterations++;
+                                if (totalIterations == 1001) {
+                                    System.exit(0);
+                                }
+                                double throughput = (eventCount * 1000.0) / ((System.currentTimeMillis()) - startTime);
+                                double latency = (timeSpent * 1.0 / eventCount);
+                                totalThroughput += throughput;
+                                totalLatency += latency;
+                                System.out.println(throughput + "\t" + latency + "\t" + totalThroughput / totalIterations + "\t" + totalLatency / totalIterations);
+                                startTime = System.currentTimeMillis();
+                                eventCount = 0;
+                                timeSpent = 0;
+                            }
+                        }
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }

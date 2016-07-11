@@ -112,9 +112,9 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public Set<StreamEvent> getAllEventSet() {
+    public Collection<StreamEvent> getAllEvents() {
         if (primaryKeyData != null) {
-            return new HashSet<StreamEvent>(primaryKeyData.values());
+           return primaryKeyData.values();
         } else if (indexData != null) {
             HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
             Iterator<TreeMap<Object, Set<StreamEvent>>> iterator = indexData.values().iterator();
@@ -131,26 +131,23 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public Set<StreamEvent> findEventSet(String attribute, Compare.Operator operator, Object value) {
+    public Collection<StreamEvent> findEvents(String attribute, Compare.Operator operator, Object value) {
 
         if (primaryKeyData != null && attribute.equals(primaryKeyAttribute)) {
-            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
             StreamEvent resultEvent;
+            HashSet<StreamEvent> resultEventSet;
 
             switch (operator) {
                 case LESS_THAN:
-                    resultEventSet.addAll(primaryKeyData.headMap(value, false).values());
-                    return resultEventSet;
+                    return primaryKeyData.headMap(value, false).values();
                 case GREATER_THAN:
-                    resultEventSet.addAll(primaryKeyData.tailMap(value, false).values());
-                    return resultEventSet;
+                    return primaryKeyData.tailMap(value, false).values();
                 case LESS_THAN_EQUAL:
-                    resultEventSet.addAll(primaryKeyData.headMap(value, true).values());
-                    return resultEventSet;
+                    return primaryKeyData.headMap(value, true).values();
                 case GREATER_THAN_EQUAL:
-                    resultEventSet.addAll(primaryKeyData.tailMap(value, true).values());
-                    return resultEventSet;
+                    return primaryKeyData.tailMap(value, true).values();
                 case EQUAL:
+                    resultEventSet = new HashSet<StreamEvent>();
                     resultEvent = primaryKeyData.get(value);
                     if (resultEvent != null) {
                         resultEventSet.add(resultEvent);
@@ -160,7 +157,7 @@ public class IndexEventHolder implements IndexedEventHolder {
                     if (primaryKeyData.size() > 0) {
                         resultEventSet = new HashSet<StreamEvent>(primaryKeyData.values());
                     } else {
-                        resultEventSet = new HashSet<StreamEvent>();
+                        return new HashSet<StreamEvent>();
                     }
 
                     resultEvent = primaryKeyData.get(value);
@@ -235,7 +232,7 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public void deleteAll(Set<StreamEvent> candidateEventSet) {
+    public void deleteAll(Collection<StreamEvent> candidateEventSet) {
         for (StreamEvent streamEvent : candidateEventSet) {
             if (primaryKeyData != null) {
                 StreamEvent deletedEvent = primaryKeyData.remove(streamEvent.getOutputData()[primaryKeyPosition]);
@@ -352,6 +349,46 @@ public class IndexEventHolder implements IndexedEventHolder {
         throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass().getName());
     }
 
+    @Override
+    public boolean containsEventSet(String attribute, Compare.Operator operator, Object value) {
+        if (primaryKeyData != null && attribute.equals(primaryKeyAttribute)) {
+
+            switch (operator) {
+                case LESS_THAN:
+                    return primaryKeyData.lowerKey(value) != null;
+                case GREATER_THAN:
+                    return primaryKeyData.higherKey(value) != null;
+                case LESS_THAN_EQUAL:
+                    return primaryKeyData.ceilingKey(value) != null;
+                case GREATER_THAN_EQUAL:
+                    return primaryKeyData.floorKey(value) != null;
+                case EQUAL:
+                    return primaryKeyData.get(value) != null;
+                case NOT_EQUAL:
+                    return primaryKeyData.size() > 1;
+            }
+        } else {
+            TreeMap<Object, Set<StreamEvent>> currentIndexedData = indexData.get(attribute);
+
+            switch (operator) {
+
+                case LESS_THAN:
+                    return currentIndexedData.lowerKey(value) != null;
+                case GREATER_THAN:
+                    return currentIndexedData.higherKey(value) != null;
+                case LESS_THAN_EQUAL:
+                    return currentIndexedData.ceilingKey(value) != null;
+                case GREATER_THAN_EQUAL:
+                    return currentIndexedData.floorKey(value) != null;
+                case EQUAL:
+                    return currentIndexedData.get(value) != null;
+                case NOT_EQUAL:
+                    return currentIndexedData.size() > 1;
+            }
+        }
+        throw new OperationNotSupportedException(operator + " not supported for '" + value + "' by " + getClass().getName());
+    }
+
 
     private void deleteFromIndexesAndPrimaryKey(String currentAttribute, Set<StreamEvent> deletedEventSet) {
         for (StreamEvent deletedEvent : deletedEventSet) {
@@ -373,13 +410,15 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     private void deleteFromIndexes(StreamEvent toDeleteEvent) {
-        for (Map.Entry<String, Integer> indexEntry : indexMetaData.entrySet()) {
-            TreeMap<Object, Set<StreamEvent>> indexMap = indexData.get(indexEntry.getKey());
-            Object key = toDeleteEvent.getOutputData()[indexEntry.getValue()];
-            Set<StreamEvent> values = indexMap.get(key);
-            values.remove(toDeleteEvent);
-            if (values.size() == 0) {
-                indexMap.remove(key);
+        if (indexMetaData != null) {
+            for (Map.Entry<String, Integer> indexEntry : indexMetaData.entrySet()) {
+                TreeMap<Object, Set<StreamEvent>> indexMap = indexData.get(indexEntry.getKey());
+                Object key = toDeleteEvent.getOutputData()[indexEntry.getValue()];
+                Set<StreamEvent> values = indexMap.get(key);
+                values.remove(toDeleteEvent);
+                if (values.size() == 0) {
+                    indexMap.remove(key);
+                }
             }
         }
     }

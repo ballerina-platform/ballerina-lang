@@ -25,8 +25,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class NonCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;
@@ -41,9 +41,9 @@ public class NonCollectionExecutor implements CollectionExecutor {
         if ((Boolean) expressionExecutor.execute(matchingEvent)) {
 
             ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            Set<StreamEvent> candidateEventSet = indexedEventHolder.getAllEventSet();
+            Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
 
-            for (StreamEvent candidateEvent : candidateEventSet) {
+            for (StreamEvent candidateEvent : candidateEvents) {
                 if (candidateEventCloner != null) {
                     returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
                 } else {
@@ -56,10 +56,10 @@ public class NonCollectionExecutor implements CollectionExecutor {
         }
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
 
         if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-            return indexedEventHolder.getAllEventSet();
+            return indexedEventHolder.getAllEvents();
         } else {
             return new HashSet<StreamEvent>();
         }

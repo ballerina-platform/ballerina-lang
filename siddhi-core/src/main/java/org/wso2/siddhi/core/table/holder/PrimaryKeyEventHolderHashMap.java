@@ -26,17 +26,20 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-public class PrimaryKeyEventHolder implements IndexedEventHolder {
+public class PrimaryKeyEventHolderHashMap implements IndexedEventHolder {
 
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
     private int primaryKeyPosition;
     private String primaryKeyAttribute;
-    private TreeMap<Object, StreamEvent> data = new TreeMap<Object, StreamEvent>();
+    private HashMap<Object, StreamEvent> data = new HashMap<Object, StreamEvent>();
 
-    public PrimaryKeyEventHolder(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int primaryKeyPosition, String primaryKeyAttribute) {
+    public PrimaryKeyEventHolderHashMap(StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int primaryKeyPosition, String primaryKeyAttribute) {
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;
         this.primaryKeyPosition = primaryKeyPosition;
@@ -65,12 +68,12 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public Collection<StreamEvent> getAllEvents() {
-        return data.values();
+    public Set<StreamEvent> getAllEvents() {
+        return new HashSet<StreamEvent>(data.values());
     }
 
     @Override
-    public Collection<StreamEvent> findEvents(String attribute, Compare.Operator operator, Object value) {
+    public Set<StreamEvent> findEvents(String attribute, Compare.Operator operator, Object value) {
         if (operator == Compare.Operator.EQUAL) {
             Set<StreamEvent> streamEventSet = new HashSet<StreamEvent>();
             StreamEvent resultEvent = data.get(value);
@@ -91,14 +94,22 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
                 streamEventSet.remove(resultEvent);
             }
             return streamEventSet;
-        } else if (operator == Compare.Operator.LESS_THAN) {
-           return data.headMap(value, false).values();
-        } else if (operator == Compare.Operator.LESS_THAN_EQUAL) {
-            return data.headMap(value, true).values();
-        } else if (operator == Compare.Operator.GREATER_THAN) {
-            return data.tailMap(value, false).values();
-        } else if (operator == Compare.Operator.GREATER_THAN_EQUAL) {
-            return data.tailMap(value, true).values();
+//        } else if (operator == Compare.Operator.LESS_THAN) {
+//            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+//            resultEventSet.addAll(data.headMap(value).values());
+//            return resultEventSet;
+//        } else if (operator == Compare.Operator.LESS_THAN_EQUAL) {
+//            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+//            resultEventSet.addAll(data.headMap(value, true).values());
+//            return resultEventSet;
+//        } else if (operator == Compare.Operator.GREATER_THAN) {
+//            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+//            resultEventSet.addAll(data.tailMap(value).values());
+//            return resultEventSet;
+//        } else if (operator == Compare.Operator.GREATER_THAN_EQUAL) {
+//            HashSet<StreamEvent> resultEventSet = new HashSet<StreamEvent>();
+//            resultEventSet.addAll(data.tailMap(value, true).values());
+//            return resultEventSet;
         } else {
             throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
         }
@@ -126,30 +137,30 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
             if (streamEvent != null) {
                 data.put(value, streamEvent);
             }
-        } else if (operator == Compare.Operator.LESS_THAN) {
-            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.headMap(value, false).entrySet().iterator();
-                 iterator.hasNext(); ) {
-                iterator.next();
-                iterator.remove();
-            }
-        } else if (operator == Compare.Operator.LESS_THAN_EQUAL) {
-            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.headMap(value, true).entrySet().iterator();
-                 iterator.hasNext(); ) {
-                iterator.next();
-                iterator.remove();
-            }
-        } else if (operator == Compare.Operator.GREATER_THAN) {
-            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.tailMap(value, false).entrySet().iterator();
-                 iterator.hasNext(); ) {
-                iterator.next();
-                iterator.remove();
-            }
-        } else if (operator == Compare.Operator.GREATER_THAN_EQUAL) {
-            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.tailMap(value, true).entrySet().iterator();
-                 iterator.hasNext(); ) {
-                iterator.next();
-                iterator.remove();
-            }
+//        } else if (operator == Compare.Operator.LESS_THAN) {
+//            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.headMap(value, false).entrySet().iterator();
+//                 iterator.hasNext(); ) {
+//                iterator.next();
+//                iterator.remove();
+//            }
+//        } else if (operator == Compare.Operator.LESS_THAN_EQUAL) {
+//            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.headMap(value, true).entrySet().iterator();
+//                 iterator.hasNext(); ) {
+//                iterator.next();
+//                iterator.remove();
+//            }
+//        } else if (operator == Compare.Operator.GREATER_THAN) {
+//            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.tailMap(value, false).entrySet().iterator();
+//                 iterator.hasNext(); ) {
+//                iterator.next();
+//                iterator.remove();
+//            }
+//        } else if (operator == Compare.Operator.GREATER_THAN_EQUAL) {
+//            for (Iterator<Map.Entry<Object, StreamEvent>> iterator = data.tailMap(value, true).entrySet().iterator();
+//                 iterator.hasNext(); ) {
+//                iterator.next();
+//                iterator.remove();
+//            }
         } else {
             throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
         }
@@ -157,20 +168,12 @@ public class PrimaryKeyEventHolder implements IndexedEventHolder {
 
     @Override
     public boolean containsEventSet(String attribute, Compare.Operator operator, Object value) {
-        switch (operator) {
-            case LESS_THAN:
-                return data.lowerKey(value) != null;
-            case GREATER_THAN:
-                return data.higherKey(value) != null;
-            case LESS_THAN_EQUAL:
-                return data.ceilingKey(value) != null;
-            case GREATER_THAN_EQUAL:
-                return data.floorKey(value) != null;
-            case EQUAL:
-                return data.get(value) != null;
-            case NOT_EQUAL:
-                return data.size() > 1;
+        if (operator == Compare.Operator.EQUAL) {
+            return data.get(value) != null;
+        } else if (operator == Compare.Operator.NOT_EQUAL) {
+            return data.size() > 1;
+        } else {
+            throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
         }
-        throw new OperationNotSupportedException(operator + " not supported by " + getClass().getName());
     }
 }

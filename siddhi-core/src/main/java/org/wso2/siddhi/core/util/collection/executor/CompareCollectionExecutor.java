@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class CompareCollectionExecutor implements CollectionExecutor {
 
@@ -45,7 +45,7 @@ public class CompareCollectionExecutor implements CollectionExecutor {
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
 
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        Set<StreamEvent> candidateEventSet = findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> candidateEventSet = findEvents(matchingEvent, indexedEventHolder);
 
         for (StreamEvent candidateEvent : candidateEventSet) {
             if (candidateEventCloner != null) {
@@ -57,14 +57,13 @@ public class CompareCollectionExecutor implements CollectionExecutor {
         return returnEventChunk.getFirst();
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        return indexedEventHolder.findEventSet(attribute, operator, valueExpressionExecutor.execute(matchingEvent));
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        return indexedEventHolder.findEvents(attribute, operator, valueExpressionExecutor.execute(matchingEvent));
     }
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> candidateEventSet = findEventSet(matchingEvent, indexedEventHolder);
-        return candidateEventSet.size() > 0;
+        return indexedEventHolder.containsEventSet(attribute, operator, valueExpressionExecutor.execute(matchingEvent));
     }
 
     @Override

@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.table.holder;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 
-import java.util.Set;
+import java.util.Collection;
 
 public interface IndexedEventHolder extends EventHolder {
 
@@ -29,13 +29,15 @@ public interface IndexedEventHolder extends EventHolder {
 
     boolean isSupportedIndex(String attribute, Compare.Operator operator);
 
-    Set<StreamEvent> getAllEventSet();
+    Collection<StreamEvent> getAllEvents();
 
-    Set<StreamEvent> findEventSet(String attribute, Compare.Operator operator, Object value);
+    Collection<StreamEvent> findEvents(String attribute, Compare.Operator operator, Object value);
 
     void deleteAll();
 
-    void deleteAll(Set<StreamEvent> candidateEventSet);
+    void deleteAll(Collection<StreamEvent> candidateEventSet);
 
     void delete(String attribute, Compare.Operator operator, Object value);
+
+    boolean containsEventSet(String attribute, Compare.Operator operator, Object value);
 }

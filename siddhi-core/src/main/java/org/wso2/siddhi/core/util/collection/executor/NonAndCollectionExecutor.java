@@ -25,8 +25,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class NonAndCollectionExecutor implements CollectionExecutor {
 
@@ -50,14 +50,14 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
         }
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         if ((Boolean) valueExpressionExecutor.execute(matchingEvent)) {
             switch (collectionScope) {
                 case NON:
                 case INDEXED_ATTRIBUTE:
                 case INDEXED_RESULT_SET:
                 case OPTIMISED_RESULT_SET:
-                    return collectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+                    return collectionExecutor.findEvents(matchingEvent, indexedEventHolder);
                 case EXHAUSTIVE:
                     return null;
             }

@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
 
-        Set<StreamEvent> resultEventSet = findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> resultEventSet = findEvents(matchingEvent, indexedEventHolder);
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
         if (resultEventSet != null) {
@@ -60,19 +61,27 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
         }
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (leftStreamEvents == null) {
             return null;
         } else if (leftStreamEvents.size() > 0) {
-            Set<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
             if (rightStreamEvents == null) {
                 return null;
             } else if (rightStreamEvents.size() > 0) {
                 Set<StreamEvent> returnSet = new HashSet<StreamEvent>();
-                for (StreamEvent aStreamEvent : leftStreamEvents) {
-                    if (rightStreamEvents.contains(aStreamEvent)) {
-                        returnSet.add(aStreamEvent);
+                if (rightStreamEvents.size() > leftStreamEvents.size()) {
+                    for (StreamEvent aStreamEvent : leftStreamEvents) {
+                        if (rightStreamEvents.contains(aStreamEvent)) {
+                            returnSet.add(aStreamEvent);
+                        }
+                    }
+                } else {
+                    for (StreamEvent aStreamEvent : rightStreamEvents) {
+                        if (leftStreamEvents.contains(aStreamEvent)) {
+                            returnSet.add(aStreamEvent);
+                        }
                     }
                 }
                 return returnSet;
@@ -86,7 +95,7 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> resultEventSet = findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> resultEventSet = findEvents(matchingEvent, indexedEventHolder);
         if (resultEventSet != null) {
             return resultEventSet.size() > 0;
         } else {
@@ -96,7 +105,7 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
 
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> resultEventSet = findEventSet(deletingEvent, indexedEventHolder);
+        Collection<StreamEvent> resultEventSet = findEvents(deletingEvent, indexedEventHolder);
         if (resultEventSet != null) {
             indexedEventHolder.deleteAll(resultEventSet);
         } else {

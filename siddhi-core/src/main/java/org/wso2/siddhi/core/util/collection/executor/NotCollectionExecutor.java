@@ -24,6 +24,8 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 public class NotCollectionExecutor implements CollectionExecutor {
@@ -40,12 +42,12 @@ public class NotCollectionExecutor implements CollectionExecutor {
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
 
-        Set<StreamEvent> notStreamEvents = notCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> notStreamEvents = notCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (notStreamEvents == null) {
             return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
         } else if (notStreamEvents.size() == 0) {
             ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            Set<StreamEvent> candidateEventSet = indexedEventHolder.getAllEventSet();
+            Collection<StreamEvent> candidateEventSet = indexedEventHolder.getAllEvents();
 
             for (StreamEvent candidateEvent : candidateEventSet) {
                 if (candidateEventCloner != null) {
@@ -56,32 +58,34 @@ public class NotCollectionExecutor implements CollectionExecutor {
             }
             return returnEventChunk.getFirst();
         } else {
-            Set<StreamEvent> returnSet = indexedEventHolder.getAllEventSet();
-            for (StreamEvent aStreamEvent : notStreamEvents) {
-                returnSet.remove(aStreamEvent);
-            }
+            Collection<StreamEvent> allEvents = indexedEventHolder.getAllEvents();
             ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            for (StreamEvent resultEvent : returnSet) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
-                } else {
-                    returnEventChunk.add(resultEvent);
+            for (StreamEvent aEvent : allEvents) {
+                if (!notStreamEvents.contains(aEvent)) {
+                    if (candidateEventCloner != null) {
+                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(aEvent));
+                    } else {
+                        returnEventChunk.add(aEvent);
+                    }
                 }
             }
             return returnEventChunk.getFirst();
         }
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> notStreamEvents = notCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Collection<StreamEvent> notStreamEvents = notCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (notStreamEvents == null) {
             return null;
         } else if (notStreamEvents.size() == 0) {
-            return indexedEventHolder.getAllEventSet();
+            return indexedEventHolder.getAllEvents();
         } else {
-            Set<StreamEvent> returnSet = indexedEventHolder.getAllEventSet();
-            for (StreamEvent aStreamEvent : notStreamEvents) {
-                returnSet.remove(aStreamEvent);
+            Collection<StreamEvent> allEvents = indexedEventHolder.getAllEvents();
+            Set<StreamEvent> returnSet = new HashSet<StreamEvent>();
+            for (StreamEvent aEvent : allEvents) {
+                if (!notStreamEvents.contains(aEvent)) {
+                    returnSet.add(aEvent);
+                }
             }
             return returnSet;
         }
@@ -89,29 +93,31 @@ public class NotCollectionExecutor implements CollectionExecutor {
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> notStreamEvents = notCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> notStreamEvents = notCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (notStreamEvents == null) {
             return exhaustiveCollectionExecutor.contains(matchingEvent, indexedEventHolder);
         } else {
-            return notStreamEvents.size() == 0;
+            return notStreamEvents.size() != indexedEventHolder.getAllEvents().size();
         }
     }
 
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> notStreamEvents = notCollectionExecutor.findEventSet(deletingEvent, indexedEventHolder);
+        Collection<StreamEvent> notStreamEvents = notCollectionExecutor.findEvents(deletingEvent, indexedEventHolder);
         if (notStreamEvents == null) {
             exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
-        } else if (notStreamEvents.size() != 0) {
-            Set<StreamEvent> returnSet = indexedEventHolder.getAllEventSet();
-            if (returnSet.size() == notStreamEvents.size()) {
-                indexedEventHolder.deleteAll();
-            } else {
-                for (StreamEvent aStreamEvent : notStreamEvents) {
-                    returnSet.remove(aStreamEvent);
+        } else if (notStreamEvents.size() == 0) {
+
+            indexedEventHolder.deleteAll();
+        } else if (notStreamEvents.size() != indexedEventHolder.getAllEvents().size()) {
+            Collection<StreamEvent> allEvents = indexedEventHolder.getAllEvents();
+            Set<StreamEvent> returnSet = new HashSet<StreamEvent>();
+            for (StreamEvent aEvent : allEvents) {
+                if (!notStreamEvents.contains(aEvent)) {
+                    returnSet.add(aEvent);
                 }
-                indexedEventHolder.deleteAll(returnSet);
             }
+            indexedEventHolder.deleteAll(returnSet);
         }
     }
 

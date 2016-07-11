@@ -24,7 +24,8 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class OrCollectionExecutor implements CollectionExecutor {
 
@@ -42,46 +43,62 @@ public class OrCollectionExecutor implements CollectionExecutor {
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
 
-        Set<StreamEvent> resultEventSet = findEventSet(matchingEvent, indexedEventHolder);
-        ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-
-        if (resultEventSet != null) {
-            for (StreamEvent resultEvent : resultEventSet) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
-                } else {
-                    returnEventChunk.add(resultEvent);
-                }
-            }
-            return returnEventChunk.getFirst();
-        } else {
+        Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+        if (leftStreamEvents == null) {
             return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+        } else {
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+            if (rightStreamEvents == null) {
+                return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            } else {
+                ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
+                for (StreamEvent resultEvent : leftStreamEvents) {
+                    if (candidateEventCloner != null) {
+                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                    } else {
+                        returnEventChunk.add(resultEvent);
+                    }
+                }
+                for (StreamEvent resultEvent : rightStreamEvents) {
+                    if (!leftStreamEvents.contains(resultEvent)) {
+                        if (candidateEventCloner != null) {
+                            returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                        } else {
+                            returnEventChunk.add(resultEvent);
+                        }
+                    }
+                }
+                return returnEventChunk.getFirst();
+            }
         }
+
+
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (leftStreamEvents == null) {
             return null;
         } else {
-            Set<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
             if (rightStreamEvents == null) {
                 return null;
             } else {
-                leftStreamEvents.addAll(rightStreamEvents);
-                return leftStreamEvents;
+                HashSet<StreamEvent> resultSet = new HashSet<StreamEvent>(leftStreamEvents);
+                resultSet.addAll(rightStreamEvents);
+                return resultSet;
             }
         }
     }
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (leftStreamEvents != null && leftStreamEvents.size() > 0) {
             return true;
         }
 
-        Set<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEventSet(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (rightStreamEvents != null && rightStreamEvents.size() > 0) {
             return true;
         }
@@ -91,11 +108,11 @@ public class OrCollectionExecutor implements CollectionExecutor {
 
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEventSet(deletingEvent, indexedEventHolder);
+        Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(deletingEvent, indexedEventHolder);
         if (leftStreamEvents == null) {
             exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         } else {
-            Set<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEventSet(deletingEvent, indexedEventHolder);
+            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(deletingEvent, indexedEventHolder);
             if (rightStreamEvents == null) {
                 exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
             } else {

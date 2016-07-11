@@ -25,6 +25,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -40,9 +42,9 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
 
     public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        Set<StreamEvent> candidateEventSet = indexedEventHolder.getAllEventSet();
+        Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
 
-        for (StreamEvent candidateEvent : candidateEventSet) {
+        for (StreamEvent candidateEvent : candidateEvents) {
             matchingEvent.setEvent(candidateEventIndex, candidateEvent);
             if ((Boolean) expressionExecutor.execute(matchingEvent)) {
                 if (candidateEventCloner != null) {
@@ -56,28 +58,28 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
         return returnEventChunk.getFirst();
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, Set<StreamEvent> preProcessedCandidateEventSet) {
-
-        for (Iterator<StreamEvent> iterator = preProcessedCandidateEventSet.iterator(); iterator.hasNext(); ) {
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, Collection<StreamEvent> preProcessedCandidateEvents) {
+        HashSet<StreamEvent> streamEvents = new HashSet<StreamEvent>();
+        for (Iterator<StreamEvent> iterator = preProcessedCandidateEvents.iterator(); iterator.hasNext(); ) {
             StreamEvent candidateEvent = iterator.next();
             matchingEvent.setEvent(candidateEventIndex, candidateEvent);
-            if (!(Boolean) expressionExecutor.execute(matchingEvent)) {
-                iterator.remove();
+            if ((Boolean) expressionExecutor.execute(matchingEvent)) {
+                streamEvents.add(candidateEvent);
             }
             matchingEvent.setEvent(candidateEventIndex, null);
         }
-        return preProcessedCandidateEventSet;
+        return streamEvents;
     }
 
-    public Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+    public Set<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         return null;
     }
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> candidateEventSet = indexedEventHolder.getAllEventSet();
+        Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
 
-        for (StreamEvent candidateEvent : candidateEventSet) {
+        for (StreamEvent candidateEvent : candidateEvents) {
             matchingEvent.setEvent(candidateEventIndex, candidateEvent);
             try {
                 if ((Boolean) expressionExecutor.execute(matchingEvent)) {
@@ -92,16 +94,15 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
 
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
-        Set<StreamEvent> candidateEventSet = indexedEventHolder.getAllEventSet();
-
-        for (Iterator<StreamEvent> iterator = candidateEventSet.iterator(); iterator.hasNext(); ) {
-            StreamEvent candidateEvent = iterator.next();
+        Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
+        Set<StreamEvent> toDeleteEvents = new HashSet<StreamEvent>();
+        for (StreamEvent candidateEvent : candidateEvents) {
             deletingEvent.setEvent(candidateEventIndex, candidateEvent);
             if ((Boolean) expressionExecutor.execute(deletingEvent)) {
-                iterator.remove();
+                toDeleteEvents.add(candidateEvent);
             }
             deletingEvent.setEvent(candidateEventIndex, null);
         }
-        indexedEventHolder.deleteAll(candidateEventSet);
+        indexedEventHolder.deleteAll(toDeleteEvents);
     }
 }

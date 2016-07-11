@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
-import java.util.Set;
+import java.util.Collection;
 
 public interface CollectionExecutor {
 
@@ -44,7 +44,7 @@ public interface CollectionExecutor {
      * @param indexedEventHolder indexed EventHolder containing data
      * @return matched events as Set, null if Exhaustive processing need to be done.
      */
-    Set<StreamEvent> findEventSet(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder);
+    Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder);
 
     /**
      * Checks if a matching event exist in indexedEventHolder
