@@ -189,9 +189,7 @@ public class CustomJoinWindowEventTableTestCase {
         String streams = "" +
                 "define stream TempStream(deviceID long, roomNo int, temp double); " +
                 "define stream RegulatorStream(deviceID long, roomNo int, isOn bool); " +
-                "define window TempWindow(deviceID long, roomNo int, temp double) time(1 min); " +
-
-                "define table StockTable (symbol string, price float, volume long); ";
+                "define window TempWindow(deviceID long, roomNo int, temp double) time(1 min); ";
 
         String query = "" +
                 "@info(name = 'query1') " +
@@ -210,7 +208,7 @@ public class CustomJoinWindowEventTableTestCase {
         executionPlanRuntime.addCallback("RegulatorActionStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
-                // EventPrinter.print(events);
+                EventPrinter.print(events);
                 inEventCount++;
             }
         });
@@ -439,6 +437,20 @@ public class CustomJoinWindowEventTableTestCase {
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
+            executionPlanRuntime.addCallback("cseEventWindow", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    System.out.print("cseEventWindow: ");
+                    EventPrinter.print(events);
+                }
+            });
+            executionPlanRuntime.addCallback("twitterWindow", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    System.out.print("twitterWindow: ");
+                    EventPrinter.print(events);
+                }
+            });
             executionPlanRuntime.addCallback("query2", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {

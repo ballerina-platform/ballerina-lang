@@ -64,32 +64,28 @@ public class JoinStreamRuntime implements StreamRuntime {
         SingleStreamRuntime rightSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(1);
 
         Processor lastLeftProcessor = leftSingleStreamRuntime.getProcessorChain();
-
+        Processor preLastLeftProcessor = null;
         while (!(lastLeftProcessor instanceof JoinProcessor)) {
+            preLastLeftProcessor = lastLeftProcessor;
             lastLeftProcessor = lastLeftProcessor.getNextProcessor();
         }
 
-        JoinProcessor leftPreJoinProcessor = (JoinProcessor) lastLeftProcessor;
-        WindowProcessor leftWindowProcessor = (WindowProcessor) leftPreJoinProcessor.getNextProcessor();
-        JoinProcessor leftPostJoinProcessor = (JoinProcessor) leftWindowProcessor.getNextProcessor();
+        WindowProcessor leftWindowProcessor = (WindowProcessor) preLastLeftProcessor;
+        JoinProcessor leftPostJoinProcessor = (JoinProcessor) lastLeftProcessor;
 
         Processor lastRightProcessor = rightSingleStreamRuntime.getProcessorChain();
-
+        Processor preLastRightProcessor = null;
         while (!(lastRightProcessor instanceof JoinProcessor)) {
+            preLastRightProcessor = lastRightProcessor;
             lastRightProcessor = lastRightProcessor.getNextProcessor();
         }
 
-        JoinProcessor rightPreJoinProcessor = (JoinProcessor) lastRightProcessor;
-        WindowProcessor rightWindowProcessor = (WindowProcessor) rightPreJoinProcessor.getNextProcessor();
-        JoinProcessor rightPostJoinProcessor = (JoinProcessor) rightWindowProcessor.getNextProcessor();
+        WindowProcessor rightWindowProcessor = (WindowProcessor) preLastRightProcessor;
+        JoinProcessor rightPostJoinProcessor = (JoinProcessor) lastRightProcessor;
 
         rightPostJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
         rightPostJoinProcessor.setJoinLock(joinLock);
-        rightPreJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
-        rightPreJoinProcessor.setJoinLock(joinLock);
 
-        leftPreJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
-        leftPreJoinProcessor.setJoinLock(joinLock);
         leftPostJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
         leftPostJoinProcessor.setJoinLock(joinLock);
 

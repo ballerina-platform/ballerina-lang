@@ -30,7 +30,6 @@ import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
 import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.join.JoinWindowPreProcessor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
@@ -169,33 +168,17 @@ public class JoinInputStreamParser {
         }
 
         Lock joinLock = new ReentrantLock();
-        JoinProcessor leftPreJoinProcessor;
-        if (leftMetaStreamEvent.isWindowEvent()) {
-            leftPreJoinProcessor = new JoinWindowPreProcessor(true, leftOuterJoinProcessor, 0);
-        } else {
-            leftPreJoinProcessor = new JoinProcessor(true, true, leftOuterJoinProcessor, 0);
-        }
-        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false, leftOuterJoinProcessor, 0);
+        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, leftOuterJoinProcessor, 0);
 
-        FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
+        FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPostJoinProcessor, leftStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
 
-        JoinProcessor rightPreJoinProcessor;
-        if (rightMetaStreamEvent.isWindowEvent()) {
-            rightPreJoinProcessor = new JoinWindowPreProcessor(false, rightOuterJoinProcessor, 1);
-        } else {
-            rightPreJoinProcessor = new JoinProcessor(false, true, rightOuterJoinProcessor, 1);
-        }
-        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false, rightOuterJoinProcessor, 1);
+        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, rightOuterJoinProcessor, 1);
 
-        FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
+        FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPostJoinProcessor, rightStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
 
-        leftPreJoinProcessor.setFindableProcessor(rightFindableProcessor);
-        leftPreJoinProcessor.setJoinLock(joinLock);
         leftPostJoinProcessor.setFindableProcessor(rightFindableProcessor);
         leftPostJoinProcessor.setJoinLock(joinLock);
 
-        rightPreJoinProcessor.setFindableProcessor(leftFindableProcessor);
-        rightPreJoinProcessor.setJoinLock(joinLock);
         rightPostJoinProcessor.setFindableProcessor(leftFindableProcessor);
         rightPostJoinProcessor.setJoinLock(joinLock);
 
@@ -205,7 +188,7 @@ public class JoinInputStreamParser {
         }
 
         if (joinInputStream.getWithin() != null) {
-            throw new OperationNotSupportedException("within not support for joins, found withing time '"+((TimeConstant) joinInputStream.getWithin()).getValue()+" ms'");
+            throw new OperationNotSupportedException("within not support for joins, found withing time '" + ((TimeConstant) joinInputStream.getWithin()).getValue() + " ms'");
         }
 
         MatchingMetaStateHolder rightMatchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition());
@@ -214,14 +197,10 @@ public class JoinInputStreamParser {
         Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, leftMatchingMetaStateHolder, executionPlanContext, executors, eventTableMap);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
-            rightPreJoinProcessor.setTrigger(true);
-            rightPreJoinProcessor.setFinder(rightFinder);
             rightPostJoinProcessor.setTrigger(true);
             rightPostJoinProcessor.setFinder(rightFinder);
         }
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.RIGHT) {
-            leftPreJoinProcessor.setTrigger(true);
-            leftPreJoinProcessor.setFinder(leftFinder);
             leftPostJoinProcessor.setTrigger(true);
             leftPostJoinProcessor.setFinder(leftFinder);
         }
@@ -232,9 +211,8 @@ public class JoinInputStreamParser {
         return joinStreamRuntime;
     }
 
-    private static FindableProcessor insertJoinProcessorsAndGetFindable(JoinProcessor preJoinProcessor,
-                                                                        JoinProcessor postJoinProcessor,
-                                                                        SingleStreamRuntime streamRuntime, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+    private static FindableProcessor insertJoinProcessorsAndGetFindable(JoinProcessor postJoinProcessor, SingleStreamRuntime streamRuntime,
+                                                                        ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
 
         Processor lastProcessor = streamRuntime.getProcessorChain();
         Processor prevLastProcessor = null;
@@ -254,12 +232,10 @@ public class JoinInputStreamParser {
             lastProcessor = windowProcessor;
         }
         if (lastProcessor instanceof FindableProcessor) {
-            if (prevLastProcessor != null) {
-                prevLastProcessor.setNextProcessor(preJoinProcessor);
-            } else {
-                streamRuntime.setProcessorChain(preJoinProcessor);
+            if (prevLastProcessor == null) {
+                streamRuntime.setProcessorChain(lastProcessor);
             }
-            preJoinProcessor.setNextProcessor(lastProcessor);
+            //preJoinProcessor.setNextProcessor(lastProcessor);
             lastProcessor.setNextProcessor(postJoinProcessor);
             return (FindableProcessor) lastProcessor;
         } else {
