@@ -20,6 +20,7 @@ package org.wso2.siddhi.extension.map;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -29,25 +30,40 @@ import java.util.Map;
 
 
 /**
- * toXML(Map)
+ * toXML(Map) or toXML(Map, RootElementName)
  * Returns the string representation of the map in XML format
- * Accept Type(s): (Map)
+ * Accept Type(s): (Map) or (Map, String)
  * Return Type(s): String
  */
 public class ToXMLFunctionExtension extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.STRING;
+    private String rootElement = null;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        if ((attributeExpressionExecutors.length) != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:toXML() function, " +
-                    "required only 1, but found " + attributeExpressionExecutors.length);
+        if ((attributeExpressionExecutors.length) > 2) {
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to map:toXML() function, "
+                    + "required only 1 or 2, but found " + attributeExpressionExecutors.length);
+
+        } else if ((attributeExpressionExecutors.length) == 2) {
+            Object rootElementObject = attributeExpressionExecutors[1].execute(null);
+            if (rootElementObject instanceof String) {
+                rootElement = ((String) rootElementObject);
+            } else {
+                throw new OperationNotSupportedException("Root element name should be of type String. But found "
+                        + attributeExpressionExecutors[1].getReturnType());
+            }
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;
+        if (data[0] instanceof Map) {
+            Map<Object, Object> map = (Map<Object, Object>) data[0];
+            return getXmlFromMapWithRootElement(map);
+        } else {
+            throw new ExecutionPlanRuntimeException("Data should be a string");
+        }
     }
 
     @Override
@@ -61,6 +77,17 @@ public class ToXMLFunctionExtension extends FunctionExecutor {
     }
 
     private Object getXmlFromMap(Map<Object, Object> map) {
+        return addingElements(map);
+    }
+
+    private Object getXmlFromMapWithRootElement(Map<Object, Object> map) {
+        String xmlValue = "<" + rootElement + ">";
+        xmlValue += addingElements(map);
+        xmlValue += "</" + rootElement + ">";
+        return xmlValue;
+    }
+
+    private String addingElements(Map<Object, Object> map) {
         String xmlValue = "";
         for (Map.Entry<Object, Object> mapEntry : map.entrySet()) {
             xmlValue += "<" + mapEntry.getKey().toString() + ">";
