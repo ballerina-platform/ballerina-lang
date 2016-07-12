@@ -63,10 +63,8 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
     protected Object execute(Object data) {
         if (data instanceof String) {
             try {
-                Map<Object, Object> topLevelMap = new HashMap<Object, Object>();
                 OMElement parentElement = AXIOMUtil.stringToOM(data.toString());
-                topLevelMap.put(parentElement.getQName().toString(), getMapFromXML(parentElement));
-                return topLevelMap;
+                return getMapFromXML(parentElement);
             } catch (XMLStreamException e) {
                 throw new ExecutionPlanRuntimeException("Input data cannot be parsed to xml: " + e.getMessage(), e);
             }
@@ -76,7 +74,7 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
     }
 
     private Object getMapFromXML(OMElement parentElement) throws XMLStreamException {
-        Map<Object, Object> map = new HashMap<Object, Object>();
+        Map<Object, Object> topLevelMap = new HashMap<Object, Object>();
         Iterator iterator = parentElement.getChildElements();
         while (iterator.hasNext()) {
             OMElement streamAttributeElement = (OMElement) iterator.next();
@@ -100,11 +98,10 @@ public class CreateFromXMLFunctionExtension extends FunctionExecutor {
                     }
                 }
             }
-            map.put(key, value);
+            topLevelMap.put(key, value);
         }
-        return map;
+        return topLevelMap;
     }
-
 
     @Override
     public void start() {
