@@ -47,6 +47,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
     private StreamEvent resetEvent = null;
     private VariableExpressionExecutor timestampExpressionExecutor;
+    private ExpressionExecutor startTimeAsVariable;
     private long timeToKeep;
     private long endTime = -1;
     private long startTime = 0;
@@ -86,12 +87,18 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
             if (attributeExpressionExecutors.length >= 3) {
                 isStartTimeEnabled = true;
-                if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                    startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
-                } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
-                    startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                if ((attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
+                    if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
+                        startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                    } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
+                        startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                    } else {
+                        throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should either be a constant (of type int or long) or an attribute (of type long), but found " + attributeExpressionExecutors[2].getReturnType());
+                    }
+                } else if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should either be a constant (of type int or long) or an attribute (of type long), but found " + attributeExpressionExecutors[2].getReturnType());
                 } else {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should be either int or long, but found " + attributeExpressionExecutors[2].getReturnType());
+                    startTimeAsVariable = attributeExpressionExecutors[2];
                 }
             }
 
@@ -201,7 +208,12 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         // for window beginning, if window is empty, set lastSendTime to incomingChunk first.
         if (endTime < 0) {
             if (isStartTimeEnabled) {
-                endTime = findEndTime((Long) timestampExpressionExecutor.execute(firstStreamEvent), startTime, timeToKeep);
+                if (startTimeAsVariable == null) {
+                    endTime = findEndTime((Long) timestampExpressionExecutor.execute(firstStreamEvent), startTime, timeToKeep);
+                } else {
+                    startTime = (Long) startTimeAsVariable.execute(firstStreamEvent);
+                    endTime = startTime + timeToKeep;
+                }
             } else {
                 startTime = (Long) timestampExpressionExecutor.execute(firstStreamEvent);
                 endTime = startTime + timeToKeep;

@@ -1058,10 +1058,10 @@ public class ExternalTimeBatchWindowTestCase {
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
                     if (inEvents != null) {
-                        inEventCount += (inEvents.length);
+                        inEventCount+=(inEvents.length);
                     }
                     if (removeEvents != null) {
-                        removeEventCount += (removeEvents.length);
+                        removeEventCount+=(removeEvents.length);
                     }
                     eventArrived = true;
                 }
@@ -1070,8 +1070,8 @@ public class ExternalTimeBatchWindowTestCase {
             InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
             executionPlanRuntime.start();
             cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
-            twitterStreamHandler.send(new Object[]{1366335804341l, "User1", "Hello World", "WSO2"});
-            twitterStreamHandler.send(new Object[]{1366335805301l, "User2", "Hello World2", "WSO2"});
+            twitterStreamHandler.send(new Object[]{ 1366335804341l, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{ 1366335805301l, "User2", "Hello World2", "WSO2"});
             cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
@@ -1105,10 +1105,10 @@ public class ExternalTimeBatchWindowTestCase {
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
                     if (inEvents != null) {
-                        inEventCount += (inEvents.length);
+                        inEventCount+=(inEvents.length);
                     }
                     if (removeEvents != null) {
-                        removeEventCount += (removeEvents.length);
+                        removeEventCount+=(removeEvents.length);
                     }
                     eventArrived = true;
                 }
@@ -1117,8 +1117,8 @@ public class ExternalTimeBatchWindowTestCase {
             InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
             executionPlanRuntime.start();
             cseEventStreamHandler.send(new Object[]{1366335804341l, "WSO2", 55.6f, 100});
-            twitterStreamHandler.send(new Object[]{1366335804341l, "User1", "Hello World", "WSO2"});
-            twitterStreamHandler.send(new Object[]{1366335805301l, "User2", "Hello World2", "WSO2"});
+            twitterStreamHandler.send(new Object[]{ 1366335804341l, "User1", "Hello World", "WSO2"});
+            twitterStreamHandler.send(new Object[]{ 1366335805301l, "User2", "Hello World2", "WSO2"});
             cseEventStreamHandler.send(new Object[]{1366335805341l, "WSO2", 75.6f, 100});
             cseEventStreamHandler.send(new Object[]{1366335806541l, "WSO2", 57.6f, 100});
             Thread.sleep(1000);
@@ -1140,7 +1140,7 @@ public class ExternalTimeBatchWindowTestCase {
                 "define stream LoginEvents (timestamp long, ip string) ;";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from LoginEvents#window.externalTimeBatch(timestamp, 1 sec, 0) " +
+                "from LoginEvents#window.externalTimeBatch(timestamp, 1 sec, timestamp) " +
                 "select timestamp, ip, count() as total  " +
                 "insert all events into uniqueIps ;";
 
@@ -1190,7 +1190,7 @@ public class ExternalTimeBatchWindowTestCase {
                 "define stream LoginEvents (timestamp long, ip string) ;";
         String query = "" +
                 "@info(name = 'query1') " +
-                "from LoginEvents#window.externalTimeBatch(timestamp, 1 sec, 0, 100) " +
+                "from LoginEvents#window.externalTimeBatch(timestamp, 1 sec, timestamp, 100) " +
                 "select timestamp, ip, count() as total  " +
                 "insert all events into uniqueIps ;";
 
