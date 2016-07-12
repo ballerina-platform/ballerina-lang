@@ -46,7 +46,7 @@ import java.util.Map;
 public class UniqueExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
     private Map<Object, StreamEvent> currentEvents = new LinkedHashMap<Object, StreamEvent>();
     private Map<Object, StreamEvent> expiredEvents = null;
-    private StreamEvent resetEvent = null;
+    private volatile StreamEvent resetEvent = null;
     private VariableExpressionExecutor timestampExpressionExecutor;
     private long timeToKeep;
     private long endTime = -1;
