@@ -25,11 +25,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @since Dec 23, 2015
@@ -64,7 +60,7 @@ public class UniqueExternalTimeBatchWindowTestCase {
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.uniqueExternalTimeBatch(ip, timestamp, 1 sec, 0, 2 sec) " +
                 "select timestamp, ip, count() as total  " +
-                "insert all events into uniqueIps ;";
+                "insert into uniqueIps ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -909,5 +905,83 @@ public class UniqueExternalTimeBatchWindowTestCase {
         executionPlanRuntime.shutdown();
     }
 
+
+    @Test
+    public void uniqueExternalTimeBatchWindowTest15() throws InterruptedException {
+        log.info("uniqueExternalTimeBatchWindowTest test15");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                "define stream LoginEvents (timestamp long, ip string, val int) ;";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from LoginEvents#window.uniqueExternalTimeBatch(ip, timestamp, 1 sec, 0, 2 sec) " +
+                "select timestamp, ip, count() as totalCount, sum(val) as totalSum  " +
+                "insert into uniqueIps ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        if (inEventCount == 1) {
+                            Assert.assertEquals(3l, event.getData(2));
+                            Assert.assertEquals(18l, event.getData(3));
+                        } else if (inEventCount == 2) {
+                            Assert.assertEquals(2l, event.getData(2));
+                            Assert.assertEquals(5l, event.getData(3));
+                        } else if (inEventCount == 3) {
+                            Assert.assertEquals(3l, event.getData(2));
+                            Assert.assertEquals(11l, event.getData(3));
+                        } else if (inEventCount == 4) {
+                            Assert.assertEquals(4l, event.getData(2));
+                            Assert.assertEquals(20l, event.getData(3));
+                        } else if (inEventCount == 5) {
+                            Assert.assertEquals(2l, event.getData(2));
+                            Assert.assertEquals(10l, event.getData(3));
+                        }
+                    }
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3", 4});
+        inputHandler.send(new Object[]{1366335804599l, "192.10.1.3", 5});
+        inputHandler.send(new Object[]{1366335804600l, "192.10.1.5", 6});
+        inputHandler.send(new Object[]{1366335804607l, "192.10.1.6", 7});
+
+        inputHandler.send(new Object[]{1366335805599l, "192.10.1.4", 1});
+        inputHandler.send(new Object[]{1366335805600l, "192.10.1.4", 2});
+        inputHandler.send(new Object[]{1366335805607l, "192.10.1.6", 3});
+        Thread.sleep(2100);
+        inputHandler.send(new Object[]{1366335805606l, "192.10.1.6", 4});
+        inputHandler.send(new Object[]{1366335805605l, "192.10.1.8", 5});
+        Thread.sleep(2100);
+        inputHandler.send(new Object[]{1366335805606l, "192.10.1.6", 6});
+        inputHandler.send(new Object[]{1366335805605l, "192.10.1.92", 7});
+
+        inputHandler.send(new Object[]{1366335806606l, "192.10.1.9", 5});
+        inputHandler.send(new Object[]{1366335806690l, "192.10.1.10", 5});
+        Thread.sleep(3000);
+
+        junit.framework.Assert.assertEquals("Event arrived", true, eventArrived);
+        junit.framework.Assert.assertEquals("In Events ", 5, inEventCount);
+        junit.framework.Assert.assertEquals("Remove Events ", 0, removeEventCount);
+        executionPlanRuntime.shutdown();
+    }
 
 }
