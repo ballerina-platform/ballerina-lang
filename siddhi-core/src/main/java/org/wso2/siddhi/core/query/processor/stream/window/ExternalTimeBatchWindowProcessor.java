@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -47,9 +47,10 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     private ComplexEventChunk<StreamEvent> expiredEventChunk = null;
     private StreamEvent resetEvent = null;
     private ExpressionExecutor timestampExpressionExecutor;
+    private ExpressionExecutor startTimeAsVariable;
     private long timeToKeep;
     private long endTime = -1;
-    private long startTime = 0;
+    private long startTime;
     private boolean isStartTimeEnabled = false;
     private long schedulerTimeout = 0;
     private Scheduler scheduler;
@@ -85,13 +86,22 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
 
             if (attributeExpressionExecutors.length >= 3) {
                 isStartTimeEnabled = true;
-                if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                    startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
-                } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
-                    startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
-                } else {
-                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should be either int or long, but found " + attributeExpressionExecutors[2].getReturnType());
+                if ((attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
+                    if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
+                        startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                    } else if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.LONG) {
+                        startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue()));
+                    } else {
+                        throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should either be a constant (of type int or long) or an attribute (of type long), but found " + attributeExpressionExecutors[2].getReturnType());
+                    }
                 }
+                else if (attributeExpressionExecutors[2].getReturnType() != Attribute.Type.LONG) {
+                    throw new ExecutionPlanValidationException("ExternalTimeBatch window's 3rd parameter startTime should either be a constant (of type int or long) or an attribute (of type long), but found " + attributeExpressionExecutors[2].getReturnType());
+                }
+                else {
+                    startTimeAsVariable = attributeExpressionExecutors[2];
+                }
+
             }
 
             if (attributeExpressionExecutors.length == 4) {
@@ -132,6 +142,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             initTiming(streamEventChunk.getFirst());
 
             StreamEvent nextStreamEvent = streamEventChunk.getFirst();
+
             while (nextStreamEvent != null) {
 
                 StreamEvent currStreamEvent = nextStreamEvent;
@@ -192,7 +203,14 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         // for window beginning, if window is empty, set lastSendTime to incomingChunk first.
         if (endTime < 0) {
             if (isStartTimeEnabled) {
-                endTime = findEndTime((Long) timestampExpressionExecutor.execute(firstStreamEvent), startTime, timeToKeep);
+                if (startTimeAsVariable == null){
+                    endTime = findEndTime((Long) timestampExpressionExecutor.execute(firstStreamEvent), startTime, timeToKeep);
+                }
+                else{
+                    startTime = (Long) startTimeAsVariable.execute(firstStreamEvent);
+                    endTime = startTime + timeToKeep;
+                }
+
             } else {
                 startTime = (Long) timestampExpressionExecutor.execute(firstStreamEvent);
                 endTime = startTime + timeToKeep;
