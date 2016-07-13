@@ -42,6 +42,11 @@ public class GroupedComplexEvent implements ComplexEvent {
     }
 
     @Override
+    public void setAttribute(Object object, int[] position) {
+        complexEvent.setAttribute(object, position);
+    }
+
+    @Override
     public Type getType() {
         return complexEvent.getType();
     }

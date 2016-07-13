@@ -40,6 +40,8 @@ public interface ComplexEvent extends Serializable {
 
     Object getAttribute(int[] position);
 
+    void setAttribute(Object object, int[] position);
+
     Type getType();
 
     void setType(Type type);
