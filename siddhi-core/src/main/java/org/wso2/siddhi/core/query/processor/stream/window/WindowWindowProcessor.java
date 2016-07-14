@@ -38,10 +38,9 @@ import java.util.Map;
  * This is the {@link WindowProcessor} intended to be used with window join queries.
  * This processor keeps a reference of the {@link WindowEventTable} and directly find
  * the items from the {@link WindowEventTable}.
- * {@link org.wso2.siddhi.core.query.input.stream.join.JoinWindowPreProcessor} will call
- * he process method and this processor, just pass them to the post
+ * The process method just passes the events to the post
  * {@link org.wso2.siddhi.core.query.input.stream.join.JoinProcessor} inorder to handle
- * the expired events there.
+ * the events there.
  */
 public class WindowWindowProcessor extends WindowProcessor implements FindableProcessor {
 

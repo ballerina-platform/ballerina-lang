@@ -155,7 +155,7 @@ public class JoinTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.time(500 milliseconds) as a " +
-                "join cseEventStream#window.time(500 milliseconds) as b " +
+                "join cseEventStream#window.time(505 milliseconds) as b " +
                 "on a.symbol== b.symbol " +
                 "select a.symbol as symbol, a.price as priceA, b.price as priceB " +
                 "insert all events into outputStream ;";

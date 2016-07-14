@@ -212,7 +212,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
         }
 //        try {
 //            this.reentrantLock.lock();
-            return this.findableProcessor.find(matchingEvent, finder);
+        return this.findableProcessor.find(matchingEvent, finder);
 //        } finally {
 //            this.reentrantLock.unlock();
 //        }
@@ -356,7 +356,12 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
             complexEventChunk.reset();
             if (complexEventChunk.hasNext()) {
                 // Publish the events
-                outputPublisher.send(complexEventChunk.getFirst());
+                try {
+                    reentrantLock.lock();
+                    outputPublisher.send(complexEventChunk.getFirst());
+                } finally {
+                    reentrantLock.unlock();
+                }
             }
         }
 
