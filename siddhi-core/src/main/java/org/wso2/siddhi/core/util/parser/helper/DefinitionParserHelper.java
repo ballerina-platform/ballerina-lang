@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.trigger.PeriodicEventTrigger;
@@ -119,10 +119,10 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, WindowEventTable> windowEventTableMap, ExecutionPlanContext executionPlanContext) {
-        if (!windowEventTableMap.containsKey(windowDefinition.getId())) {
-            WindowEventTable eventTable = new WindowEventTable(windowDefinition, executionPlanContext);
-            windowEventTableMap.putIfAbsent(windowDefinition.getId(), eventTable);
+    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext) {
+        if (!eventWindowMap.containsKey(windowDefinition.getId())) {
+            EventWindow eventTable = new EventWindow(windowDefinition, executionPlanContext);
+            eventWindowMap.putIfAbsent(windowDefinition.getId(), eventTable);
         }
     }
 

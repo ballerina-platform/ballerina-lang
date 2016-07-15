@@ -40,7 +40,7 @@ import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.QueryParser;
@@ -250,7 +250,7 @@ public class EventTestCase {
         Map<String, AbstractDefinition> tableDefinitionMap = new HashMap<String, AbstractDefinition>();
         Map<String, AbstractDefinition> windowDefinitionMap = new HashMap<String, AbstractDefinition>();
         Map<String, EventTable> eventTableMap = new HashMap<String, EventTable>();
-        Map<String, WindowEventTable> windowEventTableMap = new HashMap<String, WindowEventTable>();
+        Map<String, EventWindow> eventWindowMap = new HashMap<String, EventWindow>();
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
         streamDefinitionMap.put("cseEventStream", streamDefinition);
         streamDefinitionMap.put("outputStream", outStreamDefinition);
@@ -259,7 +259,7 @@ public class EventTestCase {
         context.setSiddhiContext(siddhicontext);
         context.setElementIdGenerator(new ElementIdGenerator(context.getName()));
         context.setSnapshotService(new SnapshotService(context));
-        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, windowEventTableMap);
+        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap);
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());

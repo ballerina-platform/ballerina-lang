@@ -17,37 +17,37 @@
 package org.wso2.siddhi.core.query.output.callback;
 
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 /**
- * This callback is an adapter between {@link org.wso2.siddhi.core.stream.StreamJunction} and {@link WindowEventTable}.
- * It receives {@link ComplexEventChunk}s and insert them into {@link WindowEventTable}.
+ * This callback is an adapter between {@link org.wso2.siddhi.core.stream.StreamJunction} and {@link EventWindow}.
+ * It receives {@link ComplexEventChunk}s and insert them into {@link EventWindow}.
  */
 public class InsertIntoWindowCallback extends OutputCallback {
     /**
-     * WindowEventTable to which the events have to be inserted.
+     * EventWindow to which the events have to be inserted.
      */
-    private final WindowEventTable windowEventTable;
+    private final EventWindow eventWindow;
 
     /**
      * StreamDefinition of the window.
      */
     private final StreamDefinition outputStreamDefinition;
 
-    public InsertIntoWindowCallback(WindowEventTable windowEventTable, StreamDefinition outputStreamDefinition) {
-        this.windowEventTable = windowEventTable;
+    public InsertIntoWindowCallback(EventWindow eventWindow, StreamDefinition outputStreamDefinition) {
+        this.eventWindow = eventWindow;
         this.outputStreamDefinition = outputStreamDefinition;
     }
 
     /**
-     * Add the event into the {@link WindowEventTable}
+     * Add the event into the {@link EventWindow}
      *
      * @param complexEventChunk the event to add
      */
     @Override
     public void send(ComplexEventChunk complexEventChunk) {
-        windowEventTable.add(complexEventChunk);
+        eventWindow.add(complexEventChunk);
     }
 
     /**
@@ -60,11 +60,11 @@ public class InsertIntoWindowCallback extends OutputCallback {
     }
 
     /**
-     * Return the {@link WindowEventTable} associated with this callback.
+     * Return the {@link EventWindow} associated with this callback.
      *
-     * @return the WindowEventTable
+     * @return the EventWindow
      */
-    public WindowEventTable getWindowEventTable() {
-        return windowEventTable;
+    public EventWindow getEventWindow() {
+        return eventWindow;
     }
 }

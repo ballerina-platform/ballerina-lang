@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class FirstUniqueWindowEventTableTestCase {
-    private static final Logger log = Logger.getLogger(FirstUniqueWindowEventTableTestCase.class);
+public class FirstUniqueEventWindowTestCase {
+    private static final Logger log = Logger.getLogger(FirstUniqueEventWindowTestCase.class);
     private int count;
     private boolean eventArrived;
 

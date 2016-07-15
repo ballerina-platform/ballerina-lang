@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.*;
@@ -50,7 +50,7 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
-    private ConcurrentMap<String, WindowEventTable> windowEventTableMap = new ConcurrentHashMap<String, WindowEventTable>(); //contains event tables
+    private ConcurrentMap<String, EventWindow> eventWindowMap = new ConcurrentHashMap<String, EventWindow>(); //contains event tables
     private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = null;
@@ -84,7 +84,7 @@ public class ExecutionPlanRuntimeBuilder {
         if (!windowDefinitionMap.containsKey(windowDefinition.getId())) {
             windowDefinitionMap.putIfAbsent(windowDefinition.getId(), windowDefinition);
         }
-        DefinitionParserHelper.addWindow(windowDefinition, windowEventTableMap, executionPlanContext);
+        DefinitionParserHelper.addWindow(windowDefinition, eventWindowMap, executionPlanContext);
         // defineStream(windowDefinition);
         // DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
     }
@@ -141,7 +141,7 @@ public class ExecutionPlanRuntimeBuilder {
                         executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
-            insertIntoWindowCallback.getWindowEventTable().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
+            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
         }
 
         return queryRuntime.getQueryId();
@@ -163,8 +163,8 @@ public class ExecutionPlanRuntimeBuilder {
         return eventTableMap;
     }
 
-    public ConcurrentMap<String, WindowEventTable> getWindowEventTableMap() {
-        return windowEventTableMap;
+    public ConcurrentMap<String, EventWindow> getEventWindowMap() {
+        return eventWindowMap;
     }
 
     public ConcurrentMap<String, AbstractDefinition> getStreamDefinitionMap() {

@@ -32,8 +32,8 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
-public class CustomJoinWindowEventTableTestCase {
-    private static final Logger log = Logger.getLogger(CustomJoinWindowEventTableTestCase.class);
+public class CustomJoinEventWindowTestCase {
+    private static final Logger log = Logger.getLogger(CustomJoinEventWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private int count;

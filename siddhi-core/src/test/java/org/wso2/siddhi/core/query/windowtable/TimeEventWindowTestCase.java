@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.wso2.siddhi.core.query.windowtable;
-
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -26,10 +24,11 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class SortWindowEventTableTestCase {
-    private static final Logger log = Logger.getLogger(SortWindowEventTableTestCase.class);
+public class TimeEventWindowTestCase {
+    private static final Logger log = Logger.getLogger(TimeEventWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
@@ -42,14 +41,15 @@ public class SortWindowEventTableTestCase {
     }
 
     @Test
-    public void testSortWindow1() throws InterruptedException {
-        log.info("SortWindow test1");
+    public void testTimeWindow1() throws InterruptedException {
+        log.info("TimeWindow Test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "define stream cseEventStream (symbol string, price float, volume long); " +
-                "define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc'); ";
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define window cseEventWindow (symbol string, price float, volume int) time(2 sec) output all events; ";
+
         String query = "" +
                 "@info(name = 'query0') " +
                 "from cseEventStream " +
@@ -57,7 +57,7 @@ public class SortWindowEventTableTestCase {
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventWindow " +
-                "select volume " +
+                "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -70,6 +70,7 @@ public class SortWindowEventTableTestCase {
                     inEventCount = inEventCount + inEvents.length;
                 }
                 if (removeEvents != null) {
+                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
                     removeEventCount = removeEventCount + removeEvents.length;
                 }
                 eventArrived = true;
@@ -77,71 +78,116 @@ public class SortWindowEventTableTestCase {
 
         });
 
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        executionPlanRuntime.start();
+        inputHandler.send(new Object[]{"IBM", 700f, 0});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
+        Thread.sleep(4000);
+        Assert.assertEquals(2, inEventCount);
+        Assert.assertEquals(2, removeEventCount);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
+
+    @Test
+    public void testTimeWindow2() throws InterruptedException {
+        log.info("TimeWindow Test2");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define window cseEventWindow (symbol string, price float, volume int) time(1 sec) output all events; ";
+
+        String query = "" +
+                "@info(name = 'query0') " +
+                "from cseEventStream " +
+                "insert into cseEventWindow; " +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventWindow " +
+                "select symbol,price,volume " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    inEventCount = inEventCount + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount > removeEventCount);
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 100l});
-        inputHandler.send(new Object[]{"IBM", 75.6f, 300l});
-        inputHandler.send(new Object[]{"WSO2", 57.6f, 200l});
-        inputHandler.send(new Object[]{"WSO2", 55.6f, 20l});
-        inputHandler.send(new Object[]{"WSO2", 57.6f, 40l});
-        Thread.sleep(1000);
-        Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
+        inputHandler.send(new Object[]{"IBM", 700f, 1});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 2});
+        Thread.sleep(1100);
+        inputHandler.send(new Object[]{"IBM", 700f, 3});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 4});
+        Thread.sleep(1100);
+        inputHandler.send(new Object[]{"IBM", 700f, 5});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 6});
+        Thread.sleep(4000);
+        Assert.assertEquals(6, inEventCount);
+        Assert.assertEquals(6, removeEventCount);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
     }
 
     @Test
-    public void testSortWindow2() throws InterruptedException {
-        log.info("SortWindow test2");
+    public void testTimeWindow3() throws InterruptedException {
+        log.info("TimeWindow Test3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "" +
-                "define stream cseEventStream (symbol string, price float, volume long); " +
-                "define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc', price, 'desc'); ";
-        String query = "" +
+
+        String queries = "define stream fireAlarmEventStream (deviceID string, sonar double); " +
+                "define window fireAlarmEventWindow (deviceID string, sonar double) time(30 milliseconds) output expired events; " +
+                "" +
                 "@info(name = 'query0') " +
-                "from cseEventStream " +
-                "insert into cseEventWindow; " +
+                "from fireAlarmEventStream " +
+                "insert into fireAlarmEventWindow; " +
                 "" +
                 "@info(name = 'query1') " +
-                "from cseEventWindow " +
-                "select volume " +
-                "insert all events into outputStream ;";
+                "from fireAlarmEventWindow " +
+                "select deviceID " +
+                "insert expired events into analyzeStream; " +
+                "" +
+                "@info(name = 'query2') " +
+                "from analyzeStream " +
+                "select deviceID " +
+                "insert into bulbOnStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(queries);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        executionPlanRuntime.addCallback("analyzeStream", new StreamCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                if (inEvents != null) {
-                    inEventCount = inEventCount + inEvents.length;
-                }
-                if (removeEvents != null) {
-                    removeEventCount = removeEventCount + removeEvents.length;
-                }
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
                 eventArrived = true;
             }
-
         });
 
-
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("fireAlarmEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50, 100l});
-        inputHandler.send(new Object[]{"IBM", 20, 100l});
-        inputHandler.send(new Object[]{"WSO2", 40, 50l});
-        inputHandler.send(new Object[]{"WSO2", 100, 20l});
-        inputHandler.send(new Object[]{"WSO2", 50, 50l});
-        Thread.sleep(1000);
-        Assert.assertEquals(5, inEventCount);
-        Assert.assertEquals(3, removeEventCount);
+        inputHandler.send(new Object[]{"id1", 20d});
+        inputHandler.send(new Object[]{"id2", 20d});
+        Thread.sleep(2000);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
     }
+
 }

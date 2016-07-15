@@ -69,10 +69,21 @@ public class JoinProcessor implements Processor {
                 StreamEvent streamEvent = nextEvent;
                 nextEvent = streamEvent.getNext();
                 streamEvent.setNext(null);
+
+                if (streamEvent.getType() == ComplexEvent.Type.RESET) {
+                    if (outerJoinProcessor && !leftJoinProcessor) {
+                        returnEventChunk.add(joinEventBuilder(null, streamEvent, streamEvent.getType()));
+                    } else if (outerJoinProcessor && leftJoinProcessor) {
+                        returnEventChunk.add(joinEventBuilder(streamEvent, null, streamEvent.getType()));
+                    }
+                    selector.process(returnEventChunk);
+                    returnEventChunk.clear();
+                    continue;
+                }
                 joinLock.lock();
                 try {
                     ComplexEvent.Type eventType = streamEvent.getType();
-                    if (eventType == ComplexEvent.Type.TIMER || eventType == ComplexEvent.Type.RESET) {
+                    if (eventType == ComplexEvent.Type.TIMER) {
                         continue;
                     }
                     joinStateEvent.setEvent(matchingStreamIndex, streamEvent);

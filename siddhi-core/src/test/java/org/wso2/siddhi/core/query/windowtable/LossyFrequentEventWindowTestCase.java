@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class LossyFrequentWindowEventTableTestCase {
-    static final Logger log = Logger.getLogger(LossyFrequentWindowEventTableTestCase.class);
+public class LossyFrequentEventWindowTestCase {
+    static final Logger log = Logger.getLogger(LossyFrequentEventWindowTestCase.class);
 
     private int inEventCount;
     private int removeEventCount;

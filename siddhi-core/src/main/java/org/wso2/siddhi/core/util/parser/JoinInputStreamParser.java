@@ -38,7 +38,7 @@ import org.wso2.siddhi.core.query.processor.stream.window.TableWindowProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowWindowProcessor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
@@ -64,7 +64,7 @@ public class JoinInputStreamParser {
                                                  Map<String, AbstractDefinition> tableDefinitionMap,
                                                  Map<String, AbstractDefinition> windowDefinitionMap,
                                                  Map<String, EventTable> eventTableMap,
-                                                 Map<String, WindowEventTable> windowEventTableMap,
+                                                 Map<String, EventWindow> eventWindowMap,
                                                  List<VariableExpressionExecutor> executors,
                                                  LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents) {
 
@@ -138,7 +138,7 @@ public class JoinInputStreamParser {
             tableWindowProcessor.initProcessor(leftMetaStreamEvent.getLastInputDefinition(), new ExpressionExecutor[0], executionPlanContext, outputExpectsExpiredEvents);
             leftStreamRuntime.setProcessorChain(tableWindowProcessor);
         } else if (leftMetaStreamEvent.isWindowEvent()) {
-            WindowWindowProcessor windowWindowProcessor = new WindowWindowProcessor(windowEventTableMap.get(leftInputStreamId));
+            WindowWindowProcessor windowWindowProcessor = new WindowWindowProcessor(eventWindowMap.get(leftInputStreamId));
             windowWindowProcessor.initProcessor(leftMetaStreamEvent.getLastInputDefinition(), executors.toArray(new ExpressionExecutor[0]), executionPlanContext, outputExpectsExpiredEvents);
             leftStreamRuntime.setProcessorChain(windowWindowProcessor);
         }
@@ -147,7 +147,7 @@ public class JoinInputStreamParser {
             tableWindowProcessor.initProcessor(rightMetaStreamEvent.getLastInputDefinition(), new ExpressionExecutor[0], executionPlanContext, outputExpectsExpiredEvents);
             rightStreamRuntime.setProcessorChain(tableWindowProcessor);
         } else if (rightMetaStreamEvent.isWindowEvent()) {
-            WindowWindowProcessor windowWindowProcessor = new WindowWindowProcessor(windowEventTableMap.get(rightInputStreamId));
+            WindowWindowProcessor windowWindowProcessor = new WindowWindowProcessor(eventWindowMap.get(rightInputStreamId));
             windowWindowProcessor.initProcessor(rightMetaStreamEvent.getLastInputDefinition(), executors.toArray(new ExpressionExecutor[0]), executionPlanContext, outputExpectsExpiredEvents);
             rightStreamRuntime.setProcessorChain(windowWindowProcessor);
         }

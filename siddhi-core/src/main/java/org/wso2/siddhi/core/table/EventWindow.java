@@ -19,15 +19,12 @@ package org.wso2.siddhi.core.table;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -36,21 +33,15 @@ import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
-import org.wso2.siddhi.core.util.extension.holder.WindowProcessorExtensionHolder;
-import org.wso2.siddhi.core.util.parser.ExpressionParser;
+import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
-import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +52,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Window implementation of SiddhiQL.
  * It can be seen as a static Window which can be referred in multiple queries.
  */
-public class WindowEventTable implements FindableProcessor, Snapshotable {
+public class EventWindow implements FindableProcessor, Snapshotable {
     /**
      * Element id of this snapshot.
      */
@@ -89,24 +80,24 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
     private Processor windowProcessor;
 
     /**
-     * FindableProcessor reference for the this.windowProcessor.
+     * WindowProcessor reference to the actual processor which is holding the events.
      * If this.windowProcessor refers to EntryValveProcessor (if the Window is a scheduler based, it may be),
-     * findableProcessor refers to the this.windowProcessor.getNextProcessor()
+     * internalWindowProcessor refers to the this.windowProcessor.getNextProcessor()
      */
-    private FindableProcessor findableProcessor;
+    private WindowProcessor internalWindowProcessor;
 
     /**
      * Lock to coordinate asynchronous events.
      */
-    private final ReentrantLock reentrantLock = new ReentrantLock();
+    private ReentrantLock reentrantLock = new ReentrantLock();
 
     /**
-     * Construct a WindowEventTable object.
+     * Construct a EventWindow object.
      *
      * @param windowDefinition     definition of the window
      * @param executionPlanContext execution plan context of Siddhi
      */
-    public WindowEventTable(WindowDefinition windowDefinition, ExecutionPlanContext executionPlanContext) {
+    public EventWindow(WindowDefinition windowDefinition, ExecutionPlanContext executionPlanContext) {
         this.windowDefinition = windowDefinition;
         this.executionPlanContext = executionPlanContext;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
@@ -115,11 +106,11 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
     /**
      * Initialize the WindowEvent table by creating {@link WindowProcessor} to handle the events.
      *
-     * @param eventTableMap       map of {@link EventTable}s
-     * @param windowEventTableMap map of WindowEventTables
-     * @param latencyTracker      to rack the latency if statistic of underlying {@link WindowProcessor} is required
+     * @param eventTableMap  map of {@link EventTable}s
+     * @param eventWindowMap map of EventWindows
+     * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
      */
-    public void init(Map<String, EventTable> eventTableMap, Map<String, WindowEventTable> windowEventTableMap, LatencyTracker latencyTracker) {
+    public void init(Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, LatencyTracker latencyTracker) {
         if (this.windowProcessor != null) {
             return;
         }
@@ -138,34 +129,28 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
         OutputStream.OutputEventType outputEventType = windowDefinition.getOutputEventType();
         boolean outputExpectsExpiredEvents = outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS;
 
-        WindowProcessor currentProcessor = WindowEventTable.createWindowProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, eventTableMap, outputExpectsExpiredEvents);
-        currentProcessor.setStreamEventCloner(streamEventCloner);
-        currentProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
+        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, eventTableMap, false, outputExpectsExpiredEvents);
+        internalWindowProcessor.setStreamEventCloner(streamEventCloner);
+        internalWindowProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
 
         EntryValveProcessor entryValveProcessor = null;
-        if (currentProcessor instanceof SchedulingProcessor) {
+        if (internalWindowProcessor instanceof SchedulingProcessor) {
             entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
             Scheduler scheduler = new Scheduler(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
             scheduler.init(this.reentrantLock);
             scheduler.setStreamEventPool(streamEventPool);
-            ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
+            ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
         }
         if (entryValveProcessor != null) {
-            entryValveProcessor.setToLast(currentProcessor);
+            entryValveProcessor.setToLast(internalWindowProcessor);
             this.windowProcessor = entryValveProcessor;
         } else {
-            this.windowProcessor = currentProcessor;
+            this.windowProcessor = internalWindowProcessor;
         }
 
-        // PublishProcessor must be the last in chain so that it can publish the events to StreamJunction
-        this.windowProcessor.setToLast(new PublisherProcessor(outputEventType));
-
-        // Caste the processor to FindableProcessor
-        if (windowProcessor instanceof FindableProcessor) {
-            this.findableProcessor = (FindableProcessor) windowProcessor;
-        } else if (windowProcessor instanceof EntryValveProcessor && windowProcessor.getNextProcessor() instanceof FindableProcessor) {
-            this.findableProcessor = (FindableProcessor) windowProcessor.getNextProcessor();
-        }
+        // StreamPublishProcessor must be the last in chain so that it can publish the events to StreamJunction
+        this.windowProcessor.setToLast(new StreamPublishProcessor(outputEventType));
+        this.internalWindowProcessor = internalWindowProcessor;
     }
 
 
@@ -179,7 +164,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
     }
 
     /**
-     * Return the {@link WindowDefinition} used to construct this WindowEventTable.
+     * Return the {@link WindowDefinition} used to construct this EventWindow.
      *
      * @return the window definition
      */
@@ -188,7 +173,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
     }
 
     /**
-     * Add the given ComplexEventChunk to the WindowEventTable.
+     * Add the given ComplexEventChunk to the EventWindow.
      *
      * @param complexEventChunk the event chunk to be added
      */
@@ -207,15 +192,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
      */
     @Override
     public StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        if (this.findableProcessor == null) {
-            throw new OperationNotSupportedException("Cannot find in window " + this.windowDefinition.getWindow());
-        }
-//        try {
-//            this.reentrantLock.lock();
-        return this.findableProcessor.find(matchingEvent, finder);
-//        } finally {
-//            this.reentrantLock.unlock();
-//        }
+        return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, finder);
     }
 
     /**
@@ -223,31 +200,40 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
      */
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        if (this.findableProcessor == null) {
-            throw new OperationNotSupportedException("Cannot find in window " + this.windowDefinition.getWindow());
+        if (this.internalWindowProcessor instanceof FindableProcessor) {
+            return ((FindableProcessor) this.internalWindowProcessor).constructFinder(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        } else {
+            throw new OperationNotSupportedException("Cannot construct finder for the window " + this.windowDefinition.getWindow());
         }
-        return this.findableProcessor.constructFinder(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+
     }
 
+    public ReentrantLock getLock() {
+        return reentrantLock;
+    }
+
+    public void setLock(ReentrantLock reentrantLock) {
+        this.reentrantLock = reentrantLock;
+    }
 
     /**
-     * Return an object array containing the processor which keeps all the events.
+     * Return an object array containing the internal state of the internalWindowProcessor.
      *
-     * @return current state of the WindowEventTable
+     * @return current state of the EventWindow
      */
     @Override
     public Object[] currentState() {
-        return new Object[]{windowProcessor};
+        return new Object[]{this.internalWindowProcessor.currentState()};
     }
 
     /**
-     * Restore the windowProcessor using given state.
+     * Restore the internalWindowProcessor using given state.
      *
      * @param state the stateful objects of the element as an array on
      */
     @Override
     public void restoreState(Object[] state) {
-        this.windowProcessor = (Processor) state[0];
+        this.internalWindowProcessor.restoreState((Object[]) state[0]);
     }
 
 
@@ -261,66 +247,11 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
         return this.elementId;
     }
 
-
     /**
-     * A utility method to create a {@link WindowProcessor} for the window of WindowEventTable.
-     *
-     * @param window                      the window for which a processor is required
-     * @param metaEvent                   meta information of the WindowEventTable
-     * @param variableExpressionExecutors a list used to return any variables used in the window
-     * @param executionPlanContext        execution plan context of Siddhi
-     * @param eventTableMap               Map of {@link EventTable}s used ti initialize the {@link WindowProcessor}
-     * @param outputExpectsExpiredEvents  whether the {@link WindowProcessor} should return expired events or not
-     * @return windowProcessor for the given window
-     */
-    private static WindowProcessor createWindowProcessor(Window window, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap, boolean outputExpectsExpiredEvents) {
-        Expression[] parameters = window.getParameters();
-        MetaStreamEvent metaStreamEvent;
-        int stateIndex = SiddhiConstants.UNKNOWN_STATE;
-        if (metaEvent instanceof MetaStateEvent) {
-            stateIndex = ((MetaStateEvent) metaEvent).getStreamEventCount() - 1;
-            metaStreamEvent = ((MetaStateEvent) metaEvent).getMetaStreamEvent(stateIndex);
-        } else {
-            metaStreamEvent = (MetaStreamEvent) metaEvent;
-        }
-
-        ExpressionExecutor[] attributeExpressionExecutors;
-        if (parameters != null) {
-            if (parameters.length > 0) {
-                attributeExpressionExecutors = new ExpressionExecutor[parameters.length];
-                for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
-                    attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                            executionPlanContext, false, SiddhiConstants.CURRENT);
-                }
-            } else {
-                List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
-                int parameterSize = attributeList.size();
-                attributeExpressionExecutors = new ExpressionExecutor[parameterSize];
-                for (int i = 0; i < parameterSize; i++) {
-                    attributeExpressionExecutors[i] = ExpressionParser.parseExpression(new Variable(attributeList.get(i).getName()), metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                            executionPlanContext, false, SiddhiConstants.CURRENT);
-                }
-            }
-        } else {
-            attributeExpressionExecutors = new ExpressionExecutor[0];
-        }
-        WindowProcessor windowProcessor;
-        if (window instanceof Extension) {
-            windowProcessor = (WindowProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) window,
-                    WindowProcessorExtensionHolder.getInstance(executionPlanContext));
-        } else {
-            windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(window.getFunction(),
-                    WindowProcessor.class);
-        }
-        windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
-        return windowProcessor;
-    }
-
-    /**
-     * PublisherProcessor receives events from the last window processor of WindowEventTable,
+     * PublisherProcessor receives events from the last window processor of EventWindow,
      * filter them depending on user defined output type and publish them to the stream junction.
      */
-    private class PublisherProcessor implements Processor {
+    private class StreamPublishProcessor implements Processor {
         /**
          * Allow current events.
          */
@@ -337,7 +268,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
         private final OutputStream.OutputEventType outputEventType;
 
 
-        public PublisherProcessor(OutputStream.OutputEventType outputEventType) {
+        public StreamPublishProcessor(OutputStream.OutputEventType outputEventType) {
             this.outputEventType = outputEventType;
             this.allowCurrentEvents = (outputEventType == OutputStream.OutputEventType.CURRENT_EVENTS || outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
             this.allowExpiredEvents = (outputEventType == OutputStream.OutputEventType.EXPIRED_EVENTS || outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
@@ -356,12 +287,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
             complexEventChunk.reset();
             if (complexEventChunk.hasNext()) {
                 // Publish the events
-                try {
-                    reentrantLock.lock();
-                    outputPublisher.send(complexEventChunk.getFirst());
-                } finally {
-                    reentrantLock.unlock();
-                }
+                outputPublisher.send(complexEventChunk.getFirst());
             }
         }
 
@@ -381,7 +307,7 @@ public class WindowEventTable implements FindableProcessor, Snapshotable {
 
 
         public Processor cloneProcessor(String key) {
-            return new PublisherProcessor(this.outputEventType);
+            return new StreamPublishProcessor(this.outputEventType);
         }
     }
 }

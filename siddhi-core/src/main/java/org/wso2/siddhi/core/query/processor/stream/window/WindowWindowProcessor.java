@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -36,8 +36,8 @@ import java.util.Map;
 
 /**
  * This is the {@link WindowProcessor} intended to be used with window join queries.
- * This processor keeps a reference of the {@link WindowEventTable} and directly find
- * the items from the {@link WindowEventTable}.
+ * This processor keeps a reference of the {@link EventWindow} and directly find
+ * the items from the {@link EventWindow}.
  * The process method just passes the events to the post
  * {@link org.wso2.siddhi.core.query.input.stream.join.JoinProcessor} inorder to handle
  * the events there.
@@ -45,12 +45,12 @@ import java.util.Map;
 public class WindowWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     /**
-     * {@link WindowEventTable} from which the events have to be found.
+     * {@link EventWindow} from which the events have to be found.
      */
-    private WindowEventTable windowEventTable;
+    private EventWindow eventWindow;
 
-    public WindowWindowProcessor(WindowEventTable windowEventTable) {
-        this.windowEventTable = windowEventTable;
+    public WindowWindowProcessor(EventWindow eventWindow) {
+        this.eventWindow = eventWindow;
     }
 
 
@@ -68,12 +68,12 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
 
     @Override
     public StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        return windowEventTable.find(matchingEvent, finder);
+        return eventWindow.find(matchingEvent, finder);
     }
 
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return windowEventTable.constructFinder(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return eventWindow.constructFinder(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     public Processor cloneProcessor(String key) {
         try {
-            WindowWindowProcessor streamProcessor = new WindowWindowProcessor(windowEventTable);
+            WindowWindowProcessor streamProcessor = new WindowWindowProcessor(eventWindow);
             streamProcessor.inputDefinition = inputDefinition;
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
             ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;

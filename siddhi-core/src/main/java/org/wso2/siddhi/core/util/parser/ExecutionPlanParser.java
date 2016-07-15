@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.table.WindowEventTable;
+import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -52,7 +52,6 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ExecutionPlanParser {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntimeBuilder.class);
@@ -147,14 +146,14 @@ public class ExecutionPlanParser {
         defineTableDefinitions(executionPlanRuntimeBuilder, executionPlan.getTableDefinitionMap());
         defineWindowDefinitions(executionPlanRuntimeBuilder, executionPlan.getWindowDefinitionMap());
         defineFunctionDefinitions(executionPlanRuntimeBuilder, executionPlan.getFunctionDefinitionMap());
-        for (WindowEventTable windowEventTable : executionPlanRuntimeBuilder.getWindowEventTableMap().values()) {
+        for (EventWindow eventWindow : executionPlanRuntimeBuilder.getEventWindowMap().values()) {
             String metricName =
                     executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                             SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_WINDOWS +
-                            SiddhiConstants.METRIC_DELIMITER + windowEventTable.getWindowDefinition().getId();
+                            SiddhiConstants.METRIC_DELIMITER + eventWindow.getWindowDefinition().getId();
             LatencyTracker latencyTracker = null;
             if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
                 latencyTracker = executionPlanContext.getSiddhiContext()
@@ -162,7 +161,7 @@ public class ExecutionPlanParser {
                         .getFactory()
                         .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
             }
-            windowEventTable.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getWindowEventTableMap(), latencyTracker);
+            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker);
         }
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {
@@ -172,7 +171,7 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getTableDefinitionMap(),
                             executionPlanRuntimeBuilder.getWindowDefinitionMap(),
                             executionPlanRuntimeBuilder.getEventTableMap(),
-                            executionPlanRuntimeBuilder.getWindowEventTableMap());
+                            executionPlanRuntimeBuilder.getEventWindowMap());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,

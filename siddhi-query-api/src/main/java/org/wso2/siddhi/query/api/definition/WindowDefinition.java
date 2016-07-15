@@ -26,7 +26,7 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
  */
 public class WindowDefinition extends StreamDefinition {
     /**
-     * Internal window which has to be used within the WindowEventTable
+     * Internal window which has to be used within the EventWindow
      */
     private Window window;
 
