@@ -73,7 +73,7 @@ public class CreateFromXMLFunctionExtensionTestCase {
                 for (Event event : inEvents) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Map map = (Map) ((Map) event.getData(0)).get("sensor");
+                        Map map = (Map) event.getData(0);
                         Assert.assertEquals(map.get("commonAttr1"), 19l);
                         Assert.assertEquals(map.get("commonAttr2"), 11.45d);
                         Assert.assertEquals(map.get("commonAttr3"), true);
@@ -114,7 +114,7 @@ public class CreateFromXMLFunctionExtensionTestCase {
                 EventPrinter.print(inEvents);
                 for (Event event : inEvents) {
                     count.incrementAndGet();
-                    Map map = (Map) ((Map) event.getData(0)).get("sensor");
+                    Map map = (Map) event.getData(0);
                     if (count.get() == 1) {
                         Assert.assertEquals(map.get("commonAttr1"), 25l);
                         Assert.assertEquals(map.get("commonAttr2"), 100.1d);

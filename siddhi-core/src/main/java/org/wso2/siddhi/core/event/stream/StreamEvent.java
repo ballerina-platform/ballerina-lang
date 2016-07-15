@@ -134,6 +134,24 @@ public class StreamEvent implements ComplexEvent {
 
     }
 
+    @Override
+    public void setAttribute(Object object, int[] position) {
+        switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
+            case BEFORE_WINDOW_DATA_INDEX:
+                beforeWindowData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                break;
+            case OUTPUT_DATA_INDEX:
+                outputData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                break;
+            case ON_AFTER_WINDOW_DATA_INDEX:
+                onAfterWindowData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                break;
+            default:
+                throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " +
+                        position[STREAM_ATTRIBUTE_TYPE_INDEX]);
+        }
+    }
+
     public void setOutputData(Object object, int index) {
         this.outputData[index] = object;
     }

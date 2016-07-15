@@ -155,7 +155,7 @@ public class JoinTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.time(500 milliseconds) as a " +
-                "join cseEventStream#window.time(505 milliseconds) as b " +
+                "join cseEventStream#window.time(500 milliseconds) as b " +
                 "on a.symbol== b.symbol " +
                 "select a.symbol as symbol, a.price as priceA, b.price as priceB " +
                 "insert all events into outputStream ;";
@@ -191,12 +191,6 @@ public class JoinTestCase {
         }
     }
 
-    // TODO : Re-enable below test case, once the TimeWindowProcessor get fixed.
-    // Due to a bug in TimeWindowProcessor, below test case was commented out.
-    // It will be re-enabled once the bug get fixed.
-    // JIRA for the TimeWindowProcessor bug (https://wso2.org/jira/browse/CEP-1413).
-    // JIRA for re-enabling the test case (https://wso2.org/jira/browse/CEP-1452).
-    @Ignore("Due to a bug in TimeWindowProcessor, below test case was disabled.")
     @Test
     public void joinTest4() throws InterruptedException {
         log.info("Join test4");
@@ -209,7 +203,6 @@ public class JoinTestCase {
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.time(2 sec) join twitterStream#window.time(2 sec) " +
                 "on cseEventStream.symbol== twitterStream.company " +
-                "within 1 sec " +
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert all events into outputStream ;";
 
@@ -241,13 +234,13 @@ public class JoinTestCase {
             cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
             twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
-            Thread.sleep(2100);
+            Thread.sleep(1000);
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
 
-            SiddhiTestHelper.waitForEvents(100, 1, inEventCount, 60000);
-            SiddhiTestHelper.waitForEvents(100, 1, removeEventCount, 60000);
-            Assert.assertEquals(1, inEventCount.get());
-            Assert.assertEquals(1, removeEventCount.get());
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
+            SiddhiTestHelper.waitForEvents(100, 2, removeEventCount, 60000);
+            Assert.assertEquals(2, inEventCount.get());
+            Assert.assertEquals(2, removeEventCount.get());
             Assert.assertTrue(eventArrived);
         } finally {
             executionPlanRuntime.shutdown();
