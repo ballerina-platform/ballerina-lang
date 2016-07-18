@@ -977,7 +977,7 @@ public class ExpressionParser {
                 ((MetaStreamEvent) metaEvent).addData(new Attribute(attributeName, type));
             }
             VariableExpressionExecutor variableExpressionExecutor = new VariableExpressionExecutor(new Attribute(attributeName, type), eventPosition[STREAM_EVENT_CHAIN_INDEX], eventPosition[STREAM_EVENT_INDEX]);
-            if (((MetaStreamEvent) metaEvent).isTableEvent()) {
+            if (((MetaStreamEvent) metaEvent).isTableEvent() || ((MetaStreamEvent) metaEvent).isWindowEvent()) {
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = abstractDefinition.getAttributePosition(variableExpressionExecutor.getAttribute().getName());
             }
@@ -1075,6 +1075,14 @@ public class ExpressionParser {
                     variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaStreamEvent.getLastInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute().getName());
                     for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
                         ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addOutputData(new Attribute(attribute.getName(), attribute.getType()));
+                    }
+                } else if(metaStreamEvent.isWindowEvent()) {
+                    if(((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getOutputData().size() == 0) {
+                        variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = OUTPUT_DATA_INDEX;
+                        variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaStreamEvent.getLastInputDefinition().getAttributePosition(variableExpressionExecutor.getAttribute().getName());
+                        for (Attribute attribute : ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).getLastInputDefinition().getAttributeList()) {
+                            ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addOutputData(new Attribute(attribute.getName(), attribute.getType()));
+                        }
                     }
                 }
                 ((MetaStateEvent) metaEvent).getMetaStreamEvent(eventPosition[STREAM_EVENT_CHAIN_INDEX]).addData(new Attribute(attributeName, type));

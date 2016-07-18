@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.trigger.PeriodicEventTrigger;
@@ -51,7 +52,7 @@ import java.util.concurrent.ConcurrentMap;
 public class DefinitionParserHelper {
 
 
-    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap) {
+    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
         AbstractDefinition existingTableDefinition = tableDefinitionMap.get(definition.getId());
         if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
@@ -62,6 +63,12 @@ public class DefinitionParserHelper {
         if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition instanceof TableDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingStreamDefinition +
+                    ", hence cannot add " + definition);
+        }
+        AbstractDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
+        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
+            throw new DuplicateDefinitionException("Window Definition with same Window Id '" +
+                    definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
         }
     }
@@ -109,6 +116,13 @@ public class DefinitionParserHelper {
             }
             eventTable.init(tableDefinition, tableMetaStreamEvent, tableStreamEventPool, tableStreamEventCloner, executionPlanContext);
             eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+        }
+    }
+
+    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext) {
+        if (!eventWindowMap.containsKey(windowDefinition.getId())) {
+            EventWindow eventTable = new EventWindow(windowDefinition, executionPlanContext);
+            eventWindowMap.putIfAbsent(windowDefinition.getId(), eventTable);
         }
     }
 

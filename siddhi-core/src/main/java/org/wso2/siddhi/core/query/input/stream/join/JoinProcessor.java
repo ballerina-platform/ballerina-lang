@@ -73,47 +73,35 @@ public class JoinProcessor implements Processor {
                 streamEvent.setNext(null);
                 joinLock.lock();
                 try {
-                    if (streamEvent.getType() == ComplexEvent.Type.TIMER) {
-                        if (preJoinProcessor) {
-                            complexEventChunk.add(streamEvent);
-                            nextProcessor.process(complexEventChunk);
-                            complexEventChunk.clear();
-                        }
+                    ComplexEvent.Type eventType = streamEvent.getType();
+                    if (eventType == ComplexEvent.Type.TIMER) {
                         continue;
-                    } else if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
-                        if (!preJoinProcessor) {
-                            continue;
-                        }
-                    } else if (streamEvent.getType() == ComplexEvent.Type.EXPIRED) {
-                        if (preJoinProcessor) {
-                            continue;
-                        }
-                    } else if (streamEvent.getType() == ComplexEvent.Type.RESET) {
-                        continue;
-                    }
-                    joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
-                    StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);
-                    joinStateEvent.setEvent(matchingStreamIndex, null);
-                    if (foundStreamEvent == null) {
+                    } else if (eventType == ComplexEvent.Type.RESET) {
                         if (outerJoinProcessor && !leftJoinProcessor) {
-                            returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent));
+                            returnEventChunk.add(joinEventBuilder(null, streamEvent, eventType));
                         } else if (outerJoinProcessor && leftJoinProcessor) {
-                            returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent));
+                            returnEventChunk.add(joinEventBuilder(streamEvent, null, eventType));
                         }
                     } else {
-                        while (foundStreamEvent != null) {
-                            if (!leftJoinProcessor) {
-                                returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent));
-                            } else {
-                                returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent));
+                        joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
+                        StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);
+                        joinStateEvent.setEvent(matchingStreamIndex, null);
+                        if (foundStreamEvent == null) {
+                            if (outerJoinProcessor && !leftJoinProcessor) {
+                                returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
+                            } else if (outerJoinProcessor && leftJoinProcessor) {
+                                returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
                             }
-                            foundStreamEvent = foundStreamEvent.getNext();
+                        } else {
+                            while (foundStreamEvent != null) {
+                                if (!leftJoinProcessor) {
+                                    returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
+                                } else {
+                                    returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
+                                }
+                                foundStreamEvent = foundStreamEvent.getNext();
+                            }
                         }
-                    }
-                    if (preJoinProcessor) {
-                        complexEventChunk.add(streamEvent);
-                        nextProcessor.process(complexEventChunk);
-                        complexEventChunk.clear();
                     }
                 } finally {
                     joinLock.unlock();
@@ -122,7 +110,6 @@ public class JoinProcessor implements Processor {
                     selector.process(returnEventChunk);
                     returnEventChunk.clear();
                 }
-
             }
         } else {
             if (preJoinProcessor) {
@@ -216,15 +203,11 @@ public class JoinProcessor implements Processor {
      * @param rightStream event right stream
      * @return StateEvent state event
      */
-    public StateEvent joinEventBuilder(StreamEvent leftStream, StreamEvent rightStream) {
+    public StateEvent joinEventBuilder(StreamEvent leftStream, StreamEvent rightStream, ComplexEvent.Type type) {
         StateEvent returnEvent = stateEventPool.borrowEvent();
         returnEvent.setEvent(0, leftStream);
         returnEvent.setEvent(1, rightStream);
-        if (preJoinProcessor) {
-            returnEvent.setType(ComplexEvent.Type.CURRENT);
-        } else {
-            returnEvent.setType(ComplexEvent.Type.EXPIRED);
-        }
+        returnEvent.setType(type);
         if (!leftJoinProcessor) {
             returnEvent.setTimestamp(rightStream.getTimestamp());
         } else {

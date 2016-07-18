@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
 
-    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(batchProcessingAllowed);
     protected final String lockKey;
     private QuerySelector querySelector;
 

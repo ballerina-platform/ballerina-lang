@@ -115,7 +115,7 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     public void start() {
         scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
-        scheduler.init(queryLock);
+        scheduler.init(lockWrapper);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
