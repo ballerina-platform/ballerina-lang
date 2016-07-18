@@ -28,11 +28,11 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ProcessStreamReceiver implements StreamJunction.Receiver {
 
@@ -44,7 +44,7 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
     protected int stateProcessorsSize;
     protected LatencyTracker latencyTracker;
-    protected ReentrantLock queryLock;
+    protected LockWrapper lockWrapper;
     protected ComplexEventChunk<StreamEvent> batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
     protected boolean batchProcessingAllowed;
 
@@ -65,8 +65,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     private void process(ComplexEventChunk<StreamEvent> streamEventChunk) {
-        if(queryLock!=null) {
-            queryLock.lock();
+        if(lockWrapper !=null) {
+            lockWrapper.lock();
         }
         try {
             if (latencyTracker != null) {
@@ -80,8 +80,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
                 processAndClear(streamEventChunk);
             }
         } finally {
-            if (queryLock!=null && queryLock.isHeldByCurrentThread()) {
-                queryLock.unlock();
+            if (lockWrapper !=null) {
+                lockWrapper.unlock();
             }
         }
     }
@@ -175,8 +175,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         this.streamEventPool = streamEventPool;
     }
 
-    public void setQueryLock(ReentrantLock queryLock) {
-        this.queryLock = queryLock;
+    public void setLockWrapper(LockWrapper lockWrapper) {
+        this.lockWrapper = lockWrapper;
     }
 
     public void init() {

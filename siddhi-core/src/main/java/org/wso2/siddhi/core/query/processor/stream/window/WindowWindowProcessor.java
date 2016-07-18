@@ -26,9 +26,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.Map;
  * This is the {@link WindowProcessor} intended to be used with window join queries.
  * This processor keeps a reference of the {@link EventWindow} and directly find
  * the items from the {@link EventWindow}.
- * The process method just passes the events to the post
+ * The process method just passes the events to the next
  * {@link org.wso2.siddhi.core.query.input.stream.join.JoinProcessor} inorder to handle
  * the events there.
  */

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.windowtable;
+package org.wso2.siddhi.core.query.eventwindow;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -27,28 +27,26 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class UniqueEventWindowTestCase {
-    private static final Logger log = Logger.getLogger(UniqueEventWindowTestCase.class);
+public class FirstUniqueEventWindowTestCase {
+    private static final Logger log = Logger.getLogger(FirstUniqueEventWindowTestCase.class);
     private int count;
-    private long value;
     private boolean eventArrived;
 
     @Before
     public void init() {
         count = 0;
-        value = 0;
         eventArrived = false;
     }
 
     @Test
-    public void testUniqueWindow1() throws InterruptedException {
-        log.info("UniqueWindow Test1");
+    public void testFirstUniqueWindow1() throws InterruptedException {
+        log.info("FirstUniqueWindow test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
                 "define stream LoginEvents (timeStamp long, ip string); " +
-                "define window LoginWindow (timeStamp long, ip string) unique(ip) output all events; ";
+                "define window LoginWindow (timeStamp long, ip string) firstUnique(ip); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -56,7 +54,7 @@ public class UniqueEventWindowTestCase {
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginWindow " +
-                "select count(ip) as ipCount, ip " +
+                "select ip " +
                 "insert into uniqueIps ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -66,7 +64,10 @@ public class UniqueEventWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    value = (Long) inEvents[inEvents.length - 1].getData(0);
+                    count = count + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    Assert.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -85,20 +86,20 @@ public class UniqueEventWindowTestCase {
         Thread.sleep(1000);
 
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Event max value", 3, value);
-
+        Assert.assertEquals("Number of output event value", 3, count);
         executionPlanRuntime.shutdown();
+
     }
 
     @Test
-    public void testUniqueWindow2() throws InterruptedException {
-        log.info("UniqueWindow Test2");
+    public void testFirstUniqueWindow2() throws InterruptedException {
+        log.info("FirstUniqueWindow test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "define stream LoginEvents (id String , timeStamp long, ip string); " +
-                "define window LoginWindow (id String , timeStamp long, ip string) unique(ip) output all events; ";
+                "define stream LoginEvents (timeStamp long, ip string); " +
+                "define window LoginWindow (timeStamp long, ip string) firstUnique(ip); ";
         String query = "" +
                 "@info(name = 'query0') " +
                 "from LoginEvents " +
@@ -106,7 +107,7 @@ public class UniqueEventWindowTestCase {
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginWindow " +
-                "select id, count(ip) as ipCount, ip " +
+                "select ip " +
                 "insert into uniqueIps ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -116,7 +117,10 @@ public class UniqueEventWindowTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    value = (Long) inEvents[inEvents.length - 1].getData(1);
+                    count = count + inEvents.length;
+                }
+                if (removeEvents != null) {
+                    Assert.fail("Remove events emitted");
                 }
                 eventArrived = true;
             }
@@ -126,18 +130,18 @@ public class UniqueEventWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"A1", System.currentTimeMillis(), "192.10.1.3"});
-        inputHandler.send(new Object[]{"A2", System.currentTimeMillis(), "192.10.1.3"});
-        inputHandler.send(new Object[]{"A3", System.currentTimeMillis(), "192.10.1.4"});
-        inputHandler.send(new Object[]{"A4", System.currentTimeMillis(), "192.10.1.3"});
-        inputHandler.send(new Object[]{"A5", System.currentTimeMillis(), "192.10.1.5"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.12"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
 
         Thread.sleep(1000);
 
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("Event max value", 3, value);
-
+        Assert.assertEquals("Number of output event value", 2, count);
         executionPlanRuntime.shutdown();
+
     }
 
 }

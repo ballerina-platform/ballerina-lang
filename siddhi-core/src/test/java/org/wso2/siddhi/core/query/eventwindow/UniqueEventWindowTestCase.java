@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.windowtable;
+package org.wso2.siddhi.core.query.eventwindow;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -27,38 +27,37 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class FrequentWindowEventTbaleTestCase {
-    static final Logger log = Logger.getLogger(FrequentWindowEventTbaleTestCase.class);
-
-    private int inEventCount;
-    private int removeEventCount;
+public class UniqueEventWindowTestCase {
+    private static final Logger log = Logger.getLogger(UniqueEventWindowTestCase.class);
+    private int count;
+    private long value;
     private boolean eventArrived;
 
     @Before
-    public void initialize() {
+    public void init() {
+        count = 0;
+        value = 0;
         eventArrived = false;
-        inEventCount = 0;
-        removeEventCount = 0;
     }
 
     @Test
-    public void testFrequentUniqueWindow1() throws InterruptedException {
-        log.info("FrequentWindow test1");
+    public void testUniqueWindow1() throws InterruptedException {
+        log.info("UniqueWindow Test1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "define stream purchase (cardNo string, price float); " +
-                "define window purchaseWindow (cardNo string, price float) frequent(2); ";
+                "define stream LoginEvents (timeStamp long, ip string); " +
+                "define window LoginWindow (timeStamp long, ip string) unique(ip) output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
-                "from purchase[price >= 30] " +
-                "insert into purchaseWindow; " +
+                "from LoginEvents " +
+                "insert into LoginWindow; " +
                 "" +
                 "@info(name = 'query1') " +
-                "from purchaseWindow " +
-                "select cardNo, price " +
-                "insert all events into PotentialFraud ;";
+                "from LoginWindow " +
+                "select count(ip) as ipCount, ip " +
+                "insert into uniqueIps ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -67,52 +66,48 @@ public class FrequentWindowEventTbaleTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    inEventCount += inEvents.length;
-                }
-                if (removeEvents != null) {
-                    removeEventCount += removeEvents.length;
+                    value = (Long) inEvents[inEvents.length - 1].getData(0);
                 }
                 eventArrived = true;
             }
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        for (int i = 0; i < 2; i++) {
-            inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
-            inputHandler.send(new Object[]{"1234-3244-2432-123", 46.36f});
-            inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f});
-            inputHandler.send(new Object[]{"9853-3244-2432-4125", 78.36f});
-        }
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
+
         Thread.sleep(1000);
+
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Event count", 8, inEventCount);
-        Assert.assertEquals("Out Event count", 6, removeEventCount);
+        Assert.assertEquals("Event max value", 3, value);
 
         executionPlanRuntime.shutdown();
     }
 
-
     @Test
-    public void testFrequentUniqueWindow2() throws InterruptedException {
-        log.info("FrequentWindow test2");
+    public void testUniqueWindow2() throws InterruptedException {
+        log.info("UniqueWindow Test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "define stream purchase (cardNo string, price float); " +
-                "define window purchaseWindow (cardNo string, price float) frequent(2, cardNo); ";
+                "define stream LoginEvents (id String , timeStamp long, ip string); " +
+                "define window LoginWindow (id String , timeStamp long, ip string) unique(ip) output all events; ";
         String query = "" +
                 "@info(name = 'query0') " +
-                "from purchase[price >= 30] " +
-                "insert into purchaseWindow; " +
+                "from LoginEvents " +
+                "insert into LoginWindow; " +
                 "" +
                 "@info(name = 'query1') " +
-                "from purchaseWindow " +
-                "select cardNo, price " +
-                "insert all events into PotentialFraud ;";
+                "from LoginWindow " +
+                "select id, count(ip) as ipCount, ip " +
+                "insert into uniqueIps ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -121,33 +116,28 @@ public class FrequentWindowEventTbaleTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    inEventCount += inEvents.length;
-                }
-                if (removeEvents != null) {
-                    removeEventCount += removeEvents.length;
+                    value = (Long) inEvents[inEvents.length - 1].getData(1);
                 }
                 eventArrived = true;
             }
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        for (int i = 0; i < 2; i++) {
-            inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
-            inputHandler.send(new Object[]{"1234-3244-2432-123", 46.36f});
-            inputHandler.send(new Object[]{"3234-3244-2432-4124", 78.36f});
-            inputHandler.send(new Object[]{"1234-3244-2432-123", 86.36f});
-            inputHandler.send(new Object[]{"5768-3244-2432-5646", 48.36f});
-        }
+        inputHandler.send(new Object[]{"A1", System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{"A2", System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{"A3", System.currentTimeMillis(), "192.10.1.4"});
+        inputHandler.send(new Object[]{"A4", System.currentTimeMillis(), "192.10.1.3"});
+        inputHandler.send(new Object[]{"A5", System.currentTimeMillis(), "192.10.1.5"});
+
         Thread.sleep(1000);
+
         Assert.assertEquals("Event arrived", true, eventArrived);
-        Assert.assertEquals("In Event count", 8, inEventCount);
-        Assert.assertEquals("Out Event count", 0, removeEventCount);
+        Assert.assertEquals("Event max value", 3, value);
 
         executionPlanRuntime.shutdown();
-
     }
 
 }

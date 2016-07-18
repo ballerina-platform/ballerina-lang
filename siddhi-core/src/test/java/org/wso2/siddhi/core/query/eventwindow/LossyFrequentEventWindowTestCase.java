@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.windowtable;
+package org.wso2.siddhi.core.query.eventwindow;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;

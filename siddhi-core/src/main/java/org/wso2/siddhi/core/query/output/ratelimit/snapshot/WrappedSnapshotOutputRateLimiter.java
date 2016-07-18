@@ -30,11 +30,11 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     SnapshotOutputRateLimiter outputRateLimiter;
@@ -62,9 +62,9 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         return instance;
     }
 
-    public void init(ExecutionPlanContext executionPlanContext, ReentrantLock queryLock) {
-        super.init(executionPlanContext, queryLock);
-        outputRateLimiter.setQueryLock(queryLock);
+    public void init(ExecutionPlanContext executionPlanContext, LockWrapper lockWrapper) {
+        super.init(executionPlanContext, lockWrapper);
+        outputRateLimiter.setQueryLock(lockWrapper);
     }
 
     public void init(int outPutAttributeSize, List<AttributeProcessor> attributeProcessorList, MetaComplexEvent metaComplexEvent) {

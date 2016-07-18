@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.table.EventWindow;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -171,7 +171,8 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getTableDefinitionMap(),
                             executionPlanRuntimeBuilder.getWindowDefinitionMap(),
                             executionPlanRuntimeBuilder.getEventTableMap(),
-                            executionPlanRuntimeBuilder.getEventWindowMap());
+                            executionPlanRuntimeBuilder.getEventWindowMap(),
+                            executionPlanRuntimeBuilder.getLockSynchronizer());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,

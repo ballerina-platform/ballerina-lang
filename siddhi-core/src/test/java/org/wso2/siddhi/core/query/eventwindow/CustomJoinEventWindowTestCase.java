@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.windowtable;
+package org.wso2.siddhi.core.query.eventwindow;
 
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
@@ -556,5 +556,144 @@ public class CustomJoinEventWindowTestCase {
         Thread.sleep(500);
 
         executionPlanRuntime.shutdown();
+    }
+
+    /**
+     * EventWindow shares locks event outside of queries. This test is to ensure that there is no
+     * deadlock according to the implementation.
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testJoinWindowWithWindowForDeadLock() throws InterruptedException {
+        log.info("Test join window with another window for deadlock");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream TempStream(deviceID long, roomNo int, temp double); " +
+                "define stream RegulatorStream(deviceID long, roomNo int, isOn bool); " +
+                "define window TempWindow(deviceID long, roomNo int, temp double) time(1 min); " +
+                "define window RegulatorWindow(deviceID long, roomNo int, isOn bool) length(1); " +
+                "define window RegulatorActionWindow(deviceID long, roomNo int, action string) timeBatch(1 sec); ";
+
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from TempStream[temp > 30.0] " +
+                "insert into TempWindow; " +
+                "" +
+                "@info(name = 'query2') " +
+                "from RegulatorStream[isOn == false] " +
+                "insert into RegulatorWindow; " +
+                "" +
+                "@info(name = 'query3') " +
+                "from TempWindow " +
+                "join RegulatorWindow " +
+                "on TempWindow.roomNo == RegulatorWindow.roomNo " +
+                "select RegulatorWindow.deviceID as deviceID, TempWindow.roomNo as roomNo, 'start' as action " +
+                "insert into RegulatorActionWindow; " +
+                "" +
+                "@info(name = 'query5') " +
+                "from RegulatorActionWindow join TempWindow " +
+                "on TempWindow.roomNo == RegulatorActionWindow.roomNo " +
+                "select RegulatorActionWindow.deviceID as deviceID, TempWindow.roomNo as roomNo, true as isOn " +
+                "insert into OutputStream; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                inEventCount++;
+            }
+        });
+
+        InputHandler tempStream = executionPlanRuntime.getInputHandler("TempStream");
+        InputHandler regulatorStream = executionPlanRuntime.getInputHandler("RegulatorStream");
+
+        executionPlanRuntime.start();
+
+        tempStream.send(new Object[]{100L, 1, 20.0});
+        tempStream.send(new Object[]{100L, 2, 25.0});
+        tempStream.send(new Object[]{100L, 3, 30.0});
+        tempStream.send(new Object[]{100L, 4, 35.0});
+        tempStream.send(new Object[]{100L, 5, 40.0});
+
+        regulatorStream.send(new Object[]{100L, 1, false});
+        regulatorStream.send(new Object[]{100L, 2, false});
+        regulatorStream.send(new Object[]{100L, 3, false});
+        regulatorStream.send(new Object[]{100L, 4, false});
+        regulatorStream.send(new Object[]{100L, 5, false});
+
+        Thread.sleep(1500);
+        assertEquals("Number of success events", 2, inEventCount);
+        executionPlanRuntime.shutdown();
+    }
+
+    /**
+     * Behaviour of traditional Window and EventWindow are different in join  with themselves.
+     * Traditional Windows joins always maintain two windows and the event is passed to them one after
+     * the other. Therefore, when left window receives a current event right window will bbe empty and
+     * if an event is expired from left window it can join with right window since it will not expire at the same
+     * time. Since EventWindow maintains only one instance, when an event arrives to the window it will
+     * be compared to the internal event chunk, where the current event will match with itself.
+     * When an event expires, it will be immediately removed from the internal event chunk so that,
+     * when joined with the window, the expired event will not match with itself.
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testJoinWindowWithSameWindow() throws InterruptedException {
+        log.info("Test join window with the same window");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int); " +
+                "define window cseEventWindow (symbol string, price float, volume int) length(2); ";
+        String query = "" +
+                "@info(name = 'query0') " +
+                "from cseEventStream " +
+                "insert into " +
+                "cseEventWindow; " +
+                "" +
+                "@info(name = 'query1') " +
+                "from cseEventWindow as a " +
+                "join cseEventWindow as b " +
+                "on a.symbol== b.symbol " +
+                "select a.symbol as symbol, a.price as priceA, b.price as priceB " +
+                "insert all events into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    if (inEvents != null) {
+                        inEventCount += inEvents.length;
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount += removeEvents.length;
+                    }
+                    eventArrived = true;
+                }
+            });
+
+            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+            executionPlanRuntime.start();
+            cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});    // Match with itself
+            cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});   // Match with itself
+            // When the next event enters, the expired {"IBM", 75.6f, 100} will come out and joined
+            // with the window which contains [{"WSO2", 57.6f, 100}, {"IBM", 59.6f, 100}] and latter the
+            // current event {"IBM", 59.6f, 100} will match with the window.
+            cseEventStreamHandler.send(new Object[]{"IBM", 59.6f, 100});
+            Thread.sleep(1000);
+            Assert.assertEquals(3, inEventCount);
+            Assert.assertEquals(1, removeEventCount);
+            Assert.assertTrue(eventArrived);
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
     }
 }

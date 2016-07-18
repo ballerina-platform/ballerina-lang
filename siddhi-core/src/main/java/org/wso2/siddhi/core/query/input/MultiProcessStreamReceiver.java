@@ -60,8 +60,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     private void process(int eventSequence, StreamEvent borrowedEvent) {
-        if(queryLock != null) {
-            queryLock.lock();
+        if(lockWrapper != null) {
+            lockWrapper.lock();
         }
         try {
             if (latencyTracker != null) {
@@ -75,8 +75,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
                 processAndClear(eventSequence, borrowedEvent);
             }
         }finally {
-            if (queryLock != null && queryLock.isHeldByCurrentThread()) {
-                queryLock.unlock();
+            if (lockWrapper != null) {
+                lockWrapper.unlock();
             }
         }
     }

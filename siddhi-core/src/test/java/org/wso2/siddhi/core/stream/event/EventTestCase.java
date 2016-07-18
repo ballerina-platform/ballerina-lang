@@ -40,9 +40,10 @@ import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.EventWindow;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.QueryParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
@@ -252,6 +253,7 @@ public class EventTestCase {
         Map<String, EventTable> eventTableMap = new HashMap<String, EventTable>();
         Map<String, EventWindow> eventWindowMap = new HashMap<String, EventWindow>();
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
+        LockSynchronizer lockSynchronizer = new LockSynchronizer();
         streamDefinitionMap.put("cseEventStream", streamDefinition);
         streamDefinitionMap.put("outputStream", outStreamDefinition);
         SiddhiContext siddhicontext = new SiddhiContext();
@@ -259,7 +261,7 @@ public class EventTestCase {
         context.setSiddhiContext(siddhicontext);
         context.setElementIdGenerator(new ElementIdGenerator(context.getName()));
         context.setSnapshotService(new SnapshotService(context));
-        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap);
+        QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap, lockSynchronizer);
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());

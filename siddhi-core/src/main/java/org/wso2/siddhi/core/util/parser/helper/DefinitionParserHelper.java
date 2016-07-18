@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
-import org.wso2.siddhi.core.table.EventWindow;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.trigger.PeriodicEventTrigger;

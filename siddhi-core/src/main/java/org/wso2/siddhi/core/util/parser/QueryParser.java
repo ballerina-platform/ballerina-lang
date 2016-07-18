@@ -18,21 +18,26 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.lock.LockSynchronizer;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
@@ -66,12 +71,13 @@ public class QueryParser {
                                      Map<String, AbstractDefinition> tableDefinitionMap,
                                      Map<String, AbstractDefinition> windowDefinitionMap,
                                      Map<String, EventTable> eventTableMap,
-                                     Map<String, EventWindow> eventWindowMap) {
+                                     Map<String, EventWindow> eventWindowMap,
+                                     LockSynchronizer lockSynchronizer) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element nameElement = null;
         LatencyTracker latencyTracker = null;
-        ReentrantLock queryLock = null;
+        LockWrapper lockWrapper = null;
         try {
             nameElement = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
             if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
@@ -95,7 +101,7 @@ public class QueryParser {
                 outputExpectsExpiredEvents = true;
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap, executors, latencyTracker,outputExpectsExpiredEvents);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, eventTableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), eventTableMap, executors);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
@@ -111,11 +117,44 @@ public class QueryParser {
             Element synchronizedElement = AnnotationHelper.getAnnotationElement("synchronized", null, query.getAnnotations());
             if (synchronizedElement != null) {
                 if (!("false".equalsIgnoreCase(synchronizedElement.getValue()))) {
-                    queryLock = new ReentrantLock();
+                    lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since it will not be passed to the LockSynchronizer.
+                    lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
                 }
             } else {
                 if (isWindow || !(streamRuntime instanceof SingleStreamRuntime)) {
-                    queryLock = new ReentrantLock();
+                    if (streamRuntime instanceof JoinStreamRuntime) {
+                        // If at least one EventWindow is involved in the join, use the LockWrapper of that window for the query as well.
+                        // If join is between two EventWindows, sync the locks of the LockWrapper of those windows and use either of them for query.
+                        MetaStateEvent metaStateEvent = (MetaStateEvent) streamRuntime.getMetaComplexEvent();
+                        MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
+
+                        if (metaStreamEvents[0].isWindowEvent() && metaStreamEvents[1].isWindowEvent()) {
+                            LockWrapper leftLockWrapper = eventWindowMap.get(metaStreamEvents[0].getLastInputDefinition().getId()).getLock();
+                            LockWrapper rightLockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId()).getLock();
+
+                            if (!leftLockWrapper.equals(rightLockWrapper)) {
+                                // Sync the lock across both wrappers
+                                lockSynchronizer.sync(leftLockWrapper, rightLockWrapper);
+                            }
+                            // Can use either leftLockWrapper or rightLockWrapper since both of them will hold the same lock internally
+                            // If either of their lock is updated later, the other lock also will be update by the LockSynchronizer.
+                            lockWrapper = leftLockWrapper;
+                        } else if (metaStreamEvents[0].isWindowEvent()) {
+                            // Share the same wrapper as the query lock wrapper
+                            lockWrapper = eventWindowMap.get(metaStreamEvents[0].getLastInputDefinition().getId()).getLock();
+                        } else if (metaStreamEvents[1].isWindowEvent()) {
+                            // Share the same wrapper as the query lock wrapper
+                            lockWrapper = eventWindowMap.get(metaStreamEvents[1].getLastInputDefinition().getId()).getLock();
+                        } else {
+                            // Join does not contain any EventWindow
+                            lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since it will not be passed to the LockSynchronizer.
+                            lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
+                        }
+
+                    } else {
+                        lockWrapper = new LockWrapper("");
+                        lockWrapper.setLock(new ReentrantLock());
+                    }
                 }
             }
 
@@ -132,10 +171,10 @@ public class QueryParser {
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);
-            QueryParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent(), queryLock);
+            QueryParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent(), lockWrapper);
             selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime.getMetaComplexEvent()));
             queryRuntime = new QueryRuntime(query, executionPlanContext, streamRuntime, selector, outputRateLimiter,
-                    outputCallback, streamRuntime.getMetaComplexEvent(), queryLock != null);
+                    outputCallback, streamRuntime.getMetaComplexEvent(), lockWrapper != null);
 
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
                 selector.setBatchingEnabled(false);
@@ -143,7 +182,7 @@ public class QueryParser {
                         .init(streamRuntime.getMetaComplexEvent().getOutputStreamDefinition().getAttributeList().size(),
                                 selector.getAttributeProcessorList(), streamRuntime.getMetaComplexEvent());
             }
-            outputRateLimiter.init(executionPlanContext, queryLock);
+            outputRateLimiter.init(executionPlanContext, lockWrapper);
 
         } catch (DuplicateDefinitionException e) {
             if (nameElement != null) {

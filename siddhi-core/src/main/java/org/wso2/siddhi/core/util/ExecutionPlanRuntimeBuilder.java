@@ -31,8 +31,9 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.EventWindow;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.trigger.EventTrigger;
+import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.definition.*;
 
@@ -56,6 +57,7 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = null;
     private ExecutionPlanContext executionPlanContext;
     private InputManager inputManager;
+    private LockSynchronizer lockSynchronizer = new LockSynchronizer();
 
     public ExecutionPlanRuntimeBuilder(ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
@@ -177,6 +179,10 @@ public class ExecutionPlanRuntimeBuilder {
 
     public ConcurrentMap<String, AbstractDefinition> getWindowDefinitionMap() {
         return windowDefinitionMap;
+    }
+
+    public LockSynchronizer getLockSynchronizer() {
+        return lockSynchronizer;
     }
 
     public ExecutionPlanRuntime build() {

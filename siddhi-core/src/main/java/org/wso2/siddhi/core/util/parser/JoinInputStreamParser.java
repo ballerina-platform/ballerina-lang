@@ -38,11 +38,11 @@ import org.wso2.siddhi.core.query.processor.stream.window.TableWindowProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowWindowProcessor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.table.EventWindow;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
@@ -107,7 +107,13 @@ public class JoinInputStreamParser {
                 throw new ExecutionPlanCreationException("Both inputs of join are from static sources " + leftInputStreamId + " and " + rightInputStreamId);
             }
         } else {
-            if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
+            if (windowDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
+                leftMetaStreamEvent.setWindowEvent(true);
+                rightMetaStreamEvent.setWindowEvent(true);
+                rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), 1, latencyTracker);
+                rightProcessStreamReceiver.setBatchProcessingAllowed(true);
+                leftProcessStreamReceiver = rightProcessStreamReceiver;
+            } else if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
                 rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0), 2, latencyTracker);
                 leftProcessStreamReceiver = rightProcessStreamReceiver;
             } else {

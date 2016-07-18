@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.table;
+package org.wso2.siddhi.core.window;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
@@ -32,9 +33,11 @@ import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
@@ -50,7 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Window implementation of SiddhiQL.
- * It can be seen as a static Window which can be referred in multiple queries.
+ * It can be seen as a global Window which can be accessed from multiple queries.
  */
 public class EventWindow implements FindableProcessor, Snapshotable {
     /**
@@ -87,9 +90,19 @@ public class EventWindow implements FindableProcessor, Snapshotable {
     private WindowProcessor internalWindowProcessor;
 
     /**
-     * Lock to coordinate asynchronous events.
+     * LockWrapper to coordinate asynchronous events.
      */
-    private ReentrantLock reentrantLock = new ReentrantLock();
+    private final LockWrapper lockWrapper;
+
+    /**
+     * StreamEventPool to create new empty StreamEvent.
+     */
+    private StreamEventPool streamEventPool;
+
+    /**
+     * Converter to convert {@link StateEvent}s to {@link StreamEvent}s
+     */
+    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
     /**
      * Construct a EventWindow object.
@@ -101,6 +114,8 @@ public class EventWindow implements FindableProcessor, Snapshotable {
         this.windowDefinition = windowDefinition;
         this.executionPlanContext = executionPlanContext;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        this.lockWrapper = new LockWrapper(windowDefinition.getId());
+        this.lockWrapper.setLock(new ReentrantLock());
     }
 
     /**
@@ -124,8 +139,8 @@ public class EventWindow implements FindableProcessor, Snapshotable {
             metaStreamEvent.addOutputData(attribute);
         }
 
-        StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
-        StreamEventCloner streamEventCloner = new StreamEventCloner(metaStreamEvent, streamEventPool);
+        this.streamEventPool = new StreamEventPool(metaStreamEvent, 5);
+        StreamEventCloner streamEventCloner = new StreamEventCloner(metaStreamEvent, this.streamEventPool);
         OutputStream.OutputEventType outputEventType = windowDefinition.getOutputEventType();
         boolean outputExpectsExpiredEvents = outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS;
 
@@ -137,7 +152,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
         if (internalWindowProcessor instanceof SchedulingProcessor) {
             entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
             Scheduler scheduler = new Scheduler(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
-            scheduler.init(this.reentrantLock);
+            scheduler.init(this.lockWrapper);
             scheduler.setStreamEventPool(streamEventPool);
             ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
         }
@@ -179,11 +194,27 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      */
     public void add(ComplexEventChunk complexEventChunk) {
         try {
-            this.reentrantLock.lock();
+            this.lockWrapper.lock();
+            complexEventChunk.reset();
+
+            // Convert all events to StreamEvent because StateEvents can be passed if directly received from a join
+            ComplexEvent complexEvents = complexEventChunk.getFirst();
+            StreamEvent firstEvent = streamEventPool.borrowEvent();
+            eventConverter.convertComplexEvent(complexEvents, firstEvent);
+            StreamEvent currentEvent = firstEvent;
+            complexEvents = complexEvents.getNext();
+            while (complexEvents != null) {
+                StreamEvent nextEvent = streamEventPool.borrowEvent();
+                eventConverter.convertComplexEvent(complexEvents, nextEvent);
+                currentEvent.setNext(nextEvent);
+                currentEvent = nextEvent;
+                complexEvents = complexEvents.getNext();
+            }
+
             // Send to the window windowProcessor
-            windowProcessor.process(complexEventChunk);
+            windowProcessor.process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, complexEventChunk.isBatch()));
         } finally {
-            this.reentrantLock.unlock();
+            this.lockWrapper.unlock();
         }
     }
 
@@ -208,13 +239,10 @@ public class EventWindow implements FindableProcessor, Snapshotable {
 
     }
 
-    public ReentrantLock getLock() {
-        return reentrantLock;
+    public LockWrapper getLock() {
+        return lockWrapper;
     }
 
-    public void setLock(ReentrantLock reentrantLock) {
-        this.reentrantLock = reentrantLock;
-    }
 
     /**
      * Return an object array containing the internal state of the internalWindowProcessor.
