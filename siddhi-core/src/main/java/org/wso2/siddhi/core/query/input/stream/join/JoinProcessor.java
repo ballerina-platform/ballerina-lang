@@ -34,20 +34,22 @@ import java.util.concurrent.locks.Lock;
  * Created on 12/8/14.
  */
 public class JoinProcessor implements Processor {
-    protected boolean trigger;
-    protected boolean leftJoinProcessor = false;
-    protected boolean outerJoinProcessor = false;
-    protected int matchingStreamIndex;
-    protected Lock joinLock;
+    private boolean trigger;
+    private boolean leftJoinProcessor = false;
+    private boolean preJoinProcessor = false;
+    private boolean outerJoinProcessor = false;
+    private int matchingStreamIndex;
+    private Lock joinLock;
 
     private StateEventPool stateEventPool;
-    protected Finder finder;
-    protected FindableProcessor findableProcessor;
-    protected Processor nextProcessor;
-    protected QuerySelector selector;
+    private Finder finder;
+    private FindableProcessor findableProcessor;
+    private Processor nextProcessor;
+    private QuerySelector selector;
 
-    public JoinProcessor(boolean leftJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
+    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;
+        this.preJoinProcessor = preJoinProcessor;
         this.outerJoinProcessor = outerJoinProcessor;
         this.matchingStreamIndex = matchingStreamIndex;
     }
@@ -69,40 +71,36 @@ public class JoinProcessor implements Processor {
                 StreamEvent streamEvent = nextEvent;
                 nextEvent = streamEvent.getNext();
                 streamEvent.setNext(null);
-
-                if (streamEvent.getType() == ComplexEvent.Type.RESET) {
-                    if (outerJoinProcessor && !leftJoinProcessor) {
-                        returnEventChunk.add(joinEventBuilder(null, streamEvent, streamEvent.getType()));
-                    } else if (outerJoinProcessor && leftJoinProcessor) {
-                        returnEventChunk.add(joinEventBuilder(streamEvent, null, streamEvent.getType()));
-                    }
-                    selector.process(returnEventChunk);
-                    returnEventChunk.clear();
-                    continue;
-                }
                 joinLock.lock();
                 try {
                     ComplexEvent.Type eventType = streamEvent.getType();
                     if (eventType == ComplexEvent.Type.TIMER) {
                         continue;
-                    }
-                    joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
-                    StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);
-                    joinStateEvent.setEvent(matchingStreamIndex, null);
-                    if (foundStreamEvent == null) {
+                    } else if (eventType == ComplexEvent.Type.RESET) {
                         if (outerJoinProcessor && !leftJoinProcessor) {
-                            returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
+                            returnEventChunk.add(joinEventBuilder(null, streamEvent, eventType));
                         } else if (outerJoinProcessor && leftJoinProcessor) {
-                            returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
+                            returnEventChunk.add(joinEventBuilder(streamEvent, null, eventType));
                         }
                     } else {
-                        while (foundStreamEvent != null) {
-                            if (!leftJoinProcessor) {
+                        joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
+                        StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);
+                        joinStateEvent.setEvent(matchingStreamIndex, null);
+                        if (foundStreamEvent == null) {
+                            if (outerJoinProcessor && !leftJoinProcessor) {
                                 returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
-                            } else {
+                            } else if (outerJoinProcessor && leftJoinProcessor) {
                                 returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
                             }
-                            foundStreamEvent = foundStreamEvent.getNext();
+                        } else {
+                            while (foundStreamEvent != null) {
+                                if (!leftJoinProcessor) {
+                                    returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
+                                } else {
+                                    returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
+                                }
+                                foundStreamEvent = foundStreamEvent.getNext();
+                            }
                         }
                     }
                 } finally {
@@ -112,7 +110,15 @@ public class JoinProcessor implements Processor {
                     selector.process(returnEventChunk);
                     returnEventChunk.clear();
                 }
-
+            }
+        } else {
+            if (preJoinProcessor) {
+                joinLock.lock();
+                try {
+                    nextProcessor.process(complexEventChunk);
+                } finally {
+                    joinLock.unlock();
+                }
             }
         }
     }
@@ -166,7 +172,7 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, outerJoinProcessor, matchingStreamIndex);
+        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor, matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
             joinProcessor.setFinder(finder.cloneFinder(key));
