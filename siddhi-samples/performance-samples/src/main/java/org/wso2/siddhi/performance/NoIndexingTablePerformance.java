@@ -27,7 +27,7 @@ import java.util.Random;
 public class NoIndexingTablePerformance {
 
     public static boolean output = false;
-    public static int numberOfEventsStored = 1000;
+    public static int numberOfEventsStored = 1000000;
     public static int numberOfEventsChunked = 10000;
 
     public static void main(String[] args) throws InterruptedException {
@@ -40,8 +40,8 @@ public class NoIndexingTablePerformance {
                 "define stream StockCheckStream (symbol string, company string, price float, volume int, timestamp long);" +
                 "define stream StockInputStream (symbol string, company string, price float, volume int); " +
                 "" +
-                "@PrimaryKey('volume')" +
-                "@Index('price')" +
+                "@PrimaryKey('symbol')" +
+                "@Index('volume')" +
                 "define table StockTable (symbol string, company string, price float, volume int);" +
                 "" +
                 "@info(name = 'query1') " +
@@ -51,7 +51,7 @@ public class NoIndexingTablePerformance {
                 "" +
                 "@info(name = 'query2') " +
                 "from StockCheckStream join StockTable " +
-                "on StockCheckStream.volume > StockTable.volume OR StockCheckStream.price > StockTable.price " +
+                "on StockCheckStream.symbol == StockTable.symbol and StockCheckStream.volume == StockTable.volume  " +
                 "select StockCheckStream.timestamp, StockCheckStream.symbol, StockCheckStream.company, StockCheckStream.price, StockCheckStream.volume " +
                 "insert into OutputStream ;" +
                 "" +
@@ -68,7 +68,7 @@ public class NoIndexingTablePerformance {
 //                "on symbol == StockTable.symbol " +
 //                "" +
 //                "@info(name = 'query2') " +
-//                "from StockCheckStream[volume > StockTable.volume in StockTable] " +
+//                "from StockCheckStream[volume < StockTable.volume in StockTable] " +
 //                "select symbol, price " +
 //                "insert into OutputStream; " +
                 "";
@@ -154,7 +154,7 @@ public class NoIndexingTablePerformance {
                 count--;
                 try {
                     int number = random.nextInt(numberOfEventsStored);
-//                    int number = (numberOfEventsStored*75)/100;
+//                    int number = (numberOfEventsStored*99)/100;
                     long startEventTime = System.currentTimeMillis();
                     inputHandler.send(new Object[]{"" + number, "" + number, random.nextFloat(), number, System.currentTimeMillis()});
                     if (!output) {

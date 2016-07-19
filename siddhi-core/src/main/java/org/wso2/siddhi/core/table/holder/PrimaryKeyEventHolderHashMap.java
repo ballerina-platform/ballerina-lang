@@ -68,8 +68,8 @@ public class PrimaryKeyEventHolderHashMap implements IndexedEventHolder {
     }
 
     @Override
-    public Set<StreamEvent> getAllEvents() {
-        return new HashSet<StreamEvent>(data.values());
+    public Collection<StreamEvent> getAllEvents() {
+        return data.values();
     }
 
     @Override

@@ -262,14 +262,32 @@ public class CollectionExpressionParser {
                                                              ExecutionPlanContext executionPlanContext,
                                                              boolean isFirst) {
         if (collectionExpression instanceof AttributeCollectionExpression) {
-            return new CompareCollectionExecutor(((AttributeCollectionExpression) collectionExpression).getAttribute(), Compare.Operator.EQUAL, new ConstantExpressionExecutor(true, Attribute.Type.BOOL));
+            ExpressionExecutor expressionExecutor = null;
+            if (isFirst) {
+                expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
+                        matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(),
+                        eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+            }
+            return new CompareCollectionExecutor(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((AttributeCollectionExpression) collectionExpression).getAttribute(), Compare.Operator.EQUAL, new ConstantExpressionExecutor(true, Attribute.Type.BOOL));
         } else if (collectionExpression instanceof CompareCollectionExpression) {
             ExpressionExecutor valueExpressionExecutor = ExpressionParser.parseExpression(((CompareCollectionExpression) collectionExpression).getValueCollectionExpression().getExpression(),
                     matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
             AttributeCollectionExpression attributeCollectionExpression = ((AttributeCollectionExpression) ((CompareCollectionExpression) collectionExpression).getAttributeCollectionExpression());
-            return new CompareCollectionExecutor(attributeCollectionExpression.getAttribute(), ((CompareCollectionExpression) collectionExpression).getOperator(), valueExpressionExecutor);
+            ExpressionExecutor expressionExecutor = null;
+            if (isFirst) {
+                expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
+                        matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(),
+                        eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+            }
+            return new CompareCollectionExecutor(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), attributeCollectionExpression.getAttribute(), ((CompareCollectionExpression) collectionExpression).getOperator(), valueExpressionExecutor);
         } else if (collectionExpression instanceof NullCollectionExpression) {
-            return new CompareCollectionExecutor(((NullCollectionExpression) collectionExpression).getAttribute(),
+            ExpressionExecutor expressionExecutor = null;
+            if (isFirst) {
+                expressionExecutor = ExpressionParser.parseExpression(collectionExpression.getExpression(),
+                        matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(),
+                        eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+            }
+            return new CompareCollectionExecutor(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((NullCollectionExpression) collectionExpression).getAttribute(),
                     Compare.Operator.EQUAL, new ConstantExpressionExecutor(null, Attribute.Type.OBJECT));
         } else if (collectionExpression instanceof AndCollectionExpression) {
 

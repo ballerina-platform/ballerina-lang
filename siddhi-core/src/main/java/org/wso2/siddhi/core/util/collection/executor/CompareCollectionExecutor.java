@@ -31,11 +31,15 @@ import java.util.Collection;
 public class CompareCollectionExecutor implements CollectionExecutor {
 
 
+    private ExpressionExecutor expressionExecutor;
+    private int candidateEventIndex;
     private final String attribute;
     private final Compare.Operator operator;
     private final ExpressionExecutor valueExpressionExecutor;
 
-    public CompareCollectionExecutor(String attribute, Compare.Operator operator, ExpressionExecutor valueExpressionExecutor) {
+    public CompareCollectionExecutor(ExpressionExecutor expressionExecutor, int candidateEventIndex, String attribute, Compare.Operator operator, ExpressionExecutor valueExpressionExecutor) {
+        this.expressionExecutor = expressionExecutor;
+        this.candidateEventIndex = candidateEventIndex;
 
         this.attribute = attribute;
         this.operator = operator;
@@ -47,17 +51,36 @@ public class CompareCollectionExecutor implements CollectionExecutor {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
         Collection<StreamEvent> candidateEventSet = findEvents(matchingEvent, indexedEventHolder);
 
-        for (StreamEvent candidateEvent : candidateEventSet) {
-            if (candidateEventCloner != null) {
-                returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
-            } else {
-                returnEventChunk.add(candidateEvent);
+        if (candidateEventSet == null) {
+            Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
+            for (StreamEvent candidateEvent : candidateEvents) {
+                matchingEvent.setEvent(candidateEventIndex, candidateEvent);
+                if ((Boolean) expressionExecutor.execute(matchingEvent)) {
+                    if (candidateEventCloner != null) {
+                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                    } else {
+                        returnEventChunk.add(candidateEvent);
+                    }
+                }
+                matchingEvent.setEvent(candidateEventIndex, null);
             }
+            return returnEventChunk.getFirst();
+        } else {
+            for (StreamEvent candidateEvent : candidateEventSet) {
+                if (candidateEventCloner != null) {
+                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                } else {
+                    returnEventChunk.add(candidateEvent);
+                }
+            }
+            return returnEventChunk.getFirst();
         }
-        return returnEventChunk.getFirst();
     }
 
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
+        if (operator == Compare.Operator.NOT_EQUAL) {
+            return null;
+        }
         return indexedEventHolder.findEvents(attribute, operator, valueExpressionExecutor.execute(matchingEvent));
     }
 
