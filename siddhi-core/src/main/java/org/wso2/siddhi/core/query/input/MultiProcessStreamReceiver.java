@@ -60,7 +60,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     private void process(int eventSequence, StreamEvent borrowedEvent) {
-        if(lockWrapper != null) {
+        if (lockWrapper != null) {
             lockWrapper.lock();
         }
         try {
@@ -74,7 +74,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
             } else {
                 processAndClear(eventSequence, borrowedEvent);
             }
-        }finally {
+        } finally {
             if (lockWrapper != null) {
                 lockWrapper.unlock();
             }

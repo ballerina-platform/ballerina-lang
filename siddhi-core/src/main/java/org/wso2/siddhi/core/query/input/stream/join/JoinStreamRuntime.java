@@ -55,7 +55,6 @@ public class JoinStreamRuntime implements StreamRuntime {
     @Override
     public StreamRuntime clone(String key) {
 
-        Lock joinLock = new ReentrantLock();
         JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext, metaStateEvent);
         for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
             joinStreamRuntime.addRuntime((SingleStreamRuntime) singleStreamRuntime.clone(key));
@@ -63,35 +62,24 @@ public class JoinStreamRuntime implements StreamRuntime {
         SingleStreamRuntime leftSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(0);
         SingleStreamRuntime rightSingleStreamRuntime = joinStreamRuntime.getSingleStreamRuntimes().get(1);
 
-        Processor lastLeftProcessor = leftSingleStreamRuntime.getProcessorChain();
+        Processor leftWindowProcessor = leftSingleStreamRuntime.getProcessorChain();
+        Processor leftPostJoinProcessor = leftWindowProcessor.getNextProcessor();
 
-        while (!(lastLeftProcessor instanceof JoinProcessor)) {
-            lastLeftProcessor = lastLeftProcessor.getNextProcessor();
+        while (!(leftPostJoinProcessor instanceof JoinProcessor)) {
+            leftWindowProcessor = leftWindowProcessor.getNextProcessor();
+            leftPostJoinProcessor = leftWindowProcessor.getNextProcessor();
         }
 
-        JoinProcessor leftPreJoinProcessor = (JoinProcessor) lastLeftProcessor;
-        WindowProcessor leftWindowProcessor = (WindowProcessor) leftPreJoinProcessor.getNextProcessor();
-        JoinProcessor leftPostJoinProcessor = (JoinProcessor) leftWindowProcessor.getNextProcessor();
+        Processor rightWindowProcessor = rightSingleStreamRuntime.getProcessorChain();
+        Processor rightPostJoinProcessor = rightWindowProcessor.getNextProcessor();
 
-        Processor lastRightProcessor = rightSingleStreamRuntime.getProcessorChain();
-
-        while (!(lastRightProcessor instanceof JoinProcessor)) {
-            lastRightProcessor = lastRightProcessor.getNextProcessor();
+        while (!(rightPostJoinProcessor instanceof JoinProcessor)) {
+            rightWindowProcessor = rightWindowProcessor.getNextProcessor();
+            rightPostJoinProcessor = rightWindowProcessor.getNextProcessor();
         }
 
-        JoinProcessor rightPreJoinProcessor = (JoinProcessor) lastRightProcessor;
-        WindowProcessor rightWindowProcessor = (WindowProcessor) rightPreJoinProcessor.getNextProcessor();
-        JoinProcessor rightPostJoinProcessor = (JoinProcessor) rightWindowProcessor.getNextProcessor();
-
-        rightPostJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
-        rightPostJoinProcessor.setJoinLock(joinLock);
-        rightPreJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
-        rightPreJoinProcessor.setJoinLock(joinLock);
-
-        leftPreJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
-        leftPreJoinProcessor.setJoinLock(joinLock);
-        leftPostJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
-        leftPostJoinProcessor.setJoinLock(joinLock);
+        ((JoinProcessor) rightPostJoinProcessor).setFindableProcessor((FindableProcessor) leftWindowProcessor);
+        ((JoinProcessor) leftPostJoinProcessor).setFindableProcessor((FindableProcessor) rightWindowProcessor);
 
         return joinStreamRuntime;
     }

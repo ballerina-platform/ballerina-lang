@@ -173,26 +173,14 @@ public class JoinInputStreamParser {
                 break;
         }
 
-        Lock joinLock = new ReentrantLock();
-        JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true, leftOuterJoinProcessor, 0);
-        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false, leftOuterJoinProcessor, 0);
+        JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, leftOuterJoinProcessor, 0);
+        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, rightOuterJoinProcessor, 1);
 
-        FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor, leftPostJoinProcessor, leftStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
+        FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPostJoinProcessor, leftStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
+        FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPostJoinProcessor, rightStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
 
-        JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true, rightOuterJoinProcessor, 1);
-        JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false, rightOuterJoinProcessor, 1);
-
-        FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor, rightPostJoinProcessor, rightStreamRuntime, executionPlanContext, outputExpectsExpiredEvents);
-
-        leftPreJoinProcessor.setFindableProcessor(rightFindableProcessor);
-        leftPreJoinProcessor.setJoinLock(joinLock);
         leftPostJoinProcessor.setFindableProcessor(rightFindableProcessor);
-        leftPostJoinProcessor.setJoinLock(joinLock);
-
-        rightPreJoinProcessor.setFindableProcessor(leftFindableProcessor);
-        rightPreJoinProcessor.setJoinLock(joinLock);
         rightPostJoinProcessor.setFindableProcessor(leftFindableProcessor);
-        rightPostJoinProcessor.setJoinLock(joinLock);
 
         Expression compareCondition = joinInputStream.getOnCompare();
         if (compareCondition == null) {
@@ -209,14 +197,10 @@ public class JoinInputStreamParser {
         Finder rightFinder = leftFindableProcessor.constructFinder(compareCondition, leftMatchingMetaStateHolder, executionPlanContext, executors, eventTableMap);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
-            rightPreJoinProcessor.setTrigger(false);    // Pre JoinProcessor does not process the events
-            rightPreJoinProcessor.setFinder(rightFinder);
             rightPostJoinProcessor.setTrigger(true);
             rightPostJoinProcessor.setFinder(rightFinder);
         }
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.RIGHT) {
-            leftPreJoinProcessor.setTrigger(false);    // Pre JoinProcessor does not process the events
-            leftPreJoinProcessor.setFinder(leftFinder);
             leftPostJoinProcessor.setTrigger(true);
             leftPostJoinProcessor.setFinder(leftFinder);
         }
@@ -227,9 +211,9 @@ public class JoinInputStreamParser {
         return joinStreamRuntime;
     }
 
-    private static FindableProcessor insertJoinProcessorsAndGetFindable(JoinProcessor preJoinProcessor,
-                                                                        JoinProcessor postJoinProcessor,
-                                                                        SingleStreamRuntime streamRuntime, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+
+    private static FindableProcessor insertJoinProcessorsAndGetFindable(JoinProcessor postJoinProcessor, SingleStreamRuntime streamRuntime,
+                                                                        ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
 
         Processor lastProcessor = streamRuntime.getProcessorChain();
         Processor prevLastProcessor = null;
@@ -249,12 +233,9 @@ public class JoinInputStreamParser {
             lastProcessor = windowProcessor;
         }
         if (lastProcessor instanceof FindableProcessor) {
-            if (prevLastProcessor != null) {
-                prevLastProcessor.setNextProcessor(preJoinProcessor);
-            } else {
-                streamRuntime.setProcessorChain(preJoinProcessor);
+            if (prevLastProcessor == null) {
+                streamRuntime.setProcessorChain(lastProcessor);
             }
-            preJoinProcessor.setNextProcessor(lastProcessor);
             lastProcessor.setNextProcessor(postJoinProcessor);
             return (FindableProcessor) lastProcessor;
         } else {
