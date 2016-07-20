@@ -40,15 +40,16 @@ public class JoinProcessor implements Processor {
     private boolean outerJoinProcessor = false;
     private int matchingStreamIndex;
     private LockWrapper joinLockWrapper;
-
+    private boolean preJoinProcessor;
     private StateEventPool stateEventPool;
     private Finder finder;
     private FindableProcessor findableProcessor;
     private Processor nextProcessor;
     private QuerySelector selector;
 
-    public JoinProcessor(boolean leftJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
+    public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor, int matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;
+        this.preJoinProcessor = preJoinProcessor;
         this.outerJoinProcessor = outerJoinProcessor;
         this.matchingStreamIndex = matchingStreamIndex;
     }
@@ -110,6 +111,15 @@ public class JoinProcessor implements Processor {
                     returnEventChunk.clear();
                 }
             }
+        } else {
+            if (preJoinProcessor) {
+                joinLockWrapper.lock();
+                try {
+                    nextProcessor.process(complexEventChunk);
+                } finally {
+                    joinLockWrapper.unlock();
+                }
+            }
         }
     }
 
@@ -162,7 +172,7 @@ public class JoinProcessor implements Processor {
      */
     @Override
     public Processor cloneProcessor(String key) {
-        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, outerJoinProcessor, matchingStreamIndex);
+        JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor, matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
             joinProcessor.setFinder(finder.cloneFinder(key));
