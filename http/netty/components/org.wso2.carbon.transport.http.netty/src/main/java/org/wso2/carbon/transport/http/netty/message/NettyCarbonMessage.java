@@ -57,7 +57,6 @@ public class NettyCarbonMessage extends CarbonMessage {
             return httpContentQueue.take();
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving http content from queue.", e);
-            Thread.currentThread().interrupt();
             return null;
         }
     }
@@ -65,17 +64,14 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public ByteBuffer getMessageBody() {
         try {
-            HttpContent httpContent = httpContentQueue.poll();
-            if (httpContent != null) {
-                ByteBuf buf = httpContent.content();
-                garbageCollected.add(httpContent);
-                return buf.nioBuffer();
-            }
-        } catch (Exception e) {
+            HttpContent httpContent = httpContentQueue.take();
+            ByteBuf buf = httpContent.content();
+            garbageCollected.add(httpContent);
+            return buf.nioBuffer();
+        } catch (InterruptedException e) {
             LOG.error("Error while retrieving message body from queue.", e);
             return null;
         }
-        return null;
     }
 
     @Override
