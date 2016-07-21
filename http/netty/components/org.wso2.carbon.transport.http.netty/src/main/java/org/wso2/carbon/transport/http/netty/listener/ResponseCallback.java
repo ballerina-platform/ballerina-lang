@@ -89,19 +89,20 @@ public class ResponseCallback implements CarbonCallback {
                         ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
                         DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
                         ctx.write(httpContent);
-                        if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                            ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                                NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                        executeAtSourceResponseSending(cMsg);
-                            }
-                            String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
-                            if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
-                                future.addListener(ChannelFutureListener.CLOSE);
-                            }
-                            break;
-                        }
                     }
+                    if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+                        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtSourceResponseSending(cMsg);
+                        }
+                        String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
+                        if (connection != null && HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
+                            future.addListener(ChannelFutureListener.CLOSE);
+                        }
+                        break;
+                    }
+
                 }
             }
         }
