@@ -44,8 +44,6 @@ public class NettyCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
-    private boolean isLastMessageChunkRead = false;
-
     public void addHttpContent(HttpContent httpContent) {
         try {
             httpContentQueue.put(httpContent);
@@ -68,7 +66,7 @@ public class NettyCarbonMessage extends CarbonMessage {
         try {
             HttpContent httpContent = httpContentQueue.take();
             if (httpContent instanceof LastHttpContent) {
-                isLastMessageChunkRead = true;
+                super.setEndOfMsgAdded(true);
             }
             ByteBuf buf = httpContent.content();
             garbageCollected.add(httpContent);
@@ -133,7 +131,7 @@ public class NettyCarbonMessage extends CarbonMessage {
 
     @Override
     public boolean isEndOfMsgAdded() {
-        return (super.isEndOfMsgAdded() || isLastMessageChunkRead);
+        return super.isEndOfMsgAdded();
     }
 
     @Override
