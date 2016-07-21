@@ -84,12 +84,9 @@ public class ResponseCallback implements CarbonCallback {
                 DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
                 while (true) {
                     ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-
-                    if (byteBuffer != null) {
-                        ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-                        DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-                        ctx.write(httpContent);
-                    }
+                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
+                    DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+                    ctx.write(httpContent);
                     if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                         ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
@@ -102,7 +99,6 @@ public class ResponseCallback implements CarbonCallback {
                         }
                         break;
                     }
-
                 }
             }
         }
