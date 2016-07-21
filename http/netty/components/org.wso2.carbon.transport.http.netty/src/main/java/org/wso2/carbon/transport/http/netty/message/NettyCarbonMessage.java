@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Netty based implementation for Carbon Message.
@@ -45,13 +44,8 @@ public class NettyCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
-    private AtomicBoolean endOfMessageFlagUpdating = new AtomicBoolean(false);
-
     public void addHttpContent(HttpContent httpContent) {
         try {
-            if (httpContent instanceof LastHttpContent) {
-                endOfMessageFlagUpdating.set(true);
-            }
             httpContentQueue.put(httpContent);
         } catch (InterruptedException e) {
             LOG.error("Cannot put content to queue", e);
@@ -70,9 +64,6 @@ public class NettyCarbonMessage extends CarbonMessage {
     @Override
     public ByteBuffer getMessageBody() {
         try {
-            while (endOfMessageFlagUpdating.get() == true && !isEndOfMsgAdded()) {
-
-            }
             HttpContent httpContent = httpContentQueue.take();
             ByteBuf buf = httpContent.content();
             garbageCollected.add(httpContent);
