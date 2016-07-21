@@ -179,16 +179,19 @@ public class ChannelUtils {
             DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) carbonMessage;
             while (true) {
                 ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-                ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-                DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
-                channel.write(httpContent);
-                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                executeAtTargetRequestSending(carbonMessage);
+
+                if (byteBuffer != null) {
+                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
+                    DefaultHttpContent httpContent = new DefaultHttpContent(bbuf);
+                    channel.write(httpContent);
+                    if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+                        channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                                    executeAtTargetRequestSending(carbonMessage);
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
