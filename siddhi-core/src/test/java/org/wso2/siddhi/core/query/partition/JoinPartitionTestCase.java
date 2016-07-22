@@ -446,4 +446,64 @@ public class JoinPartitionTestCase {
 
 
     }
+
+    @Test
+    public void testJoinPartition10() throws InterruptedException {
+        log.info("Join partition test10");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String executionPlan = "" +
+                "" +
+                "define stream cseEventStream (symbol string, user string,volume int);  " +
+                "define stream twitterStream (user string, tweet string, company string); " +
+                "" +
+                "partition with (user of cseEventStream, user of twitterStream) " +
+                "begin " +
+                "   @info(name = 'query1') " +
+                "   from cseEventStream#window.length(1) unidirectional join twitterStream#window.length(1) " +
+                "   select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.volume, cseEventStream.user" +
+                "   insert all events into outputStream1 ;" + "" +
+                "end;" +
+                "" +
+                "partition with (user of outputStream1) " +
+                "begin " +
+                "   @info(name = 'query1') " +
+                "   from outputStream1#window.length(1) join twitterStream#window.length(1) " +
+                "   select outputStream1.symbol as symbol, twitterStream.tweet, outputStream1.volume " +
+                "   insert all events into outputStream ;" + "" +
+                "end;" +
+                " ";
+
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+                count.addAndGet(events.length);
+                eventArrived = true;
+            }
+        });
+
+        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        executionPlanRuntime.start();
+
+        twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
+
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User2", 100});
+        twitterStreamHandler.send(new Object[]{"User2", "Hello World", "WSO2"});
+
+        twitterStreamHandler.send(new Object[]{"User3", "Hello World", "WSO2"});
+        cseEventStreamHandler.send(new Object[]{"WSO2", "User3", 100});
+
+        SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
+        Assert.assertEquals(3, count.get());
+        executionPlanRuntime.shutdown();
+
+
+    }
 }
