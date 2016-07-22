@@ -73,45 +73,65 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         return streamId;
     }
 
+
     @Override
     public void receive(ComplexEvent complexEvent) {
 
         if (partitionExecutors.size() == 0) {
-            send(complexEvent);
+            StreamEvent borrowedEvent = eventPool.borrowEvent();
+            streamEventConverter.convertComplexEvent(complexEvent, borrowedEvent);
+            send(borrowedEvent);
         } else {
             if (complexEvent.getNext() == null) {
                 for (PartitionExecutor partitionExecutor : partitionExecutors) {
-                    String key = partitionExecutor.execute(complexEvent);
-                    send(key, complexEvent);
+                    StreamEvent borrowedEvent = eventPool.borrowEvent();
+                    streamEventConverter.convertComplexEvent(complexEvent, borrowedEvent);
+                    String key = partitionExecutor.execute(borrowedEvent);
+                    send(key, borrowedEvent);
                 }
             } else {
-                streamEventChunk.add(complexEvent);
+                ComplexEventChunk<ComplexEvent> complexEventChunk = new ComplexEventChunk<ComplexEvent>(false);
+                complexEventChunk.add(complexEvent);
                 String currentKey = null;
-                while (streamEventChunk.hasNext()) {
-                    ComplexEvent aEvent = streamEventChunk.next();
+                while (complexEventChunk.hasNext()) {
+                    ComplexEvent aEvent = complexEventChunk.next();
+                    complexEventChunk.remove();
+                    StreamEvent borrowedEvent = eventPool.borrowEvent();
+                    streamEventConverter.convertComplexEvent(aEvent, borrowedEvent);
+
                     boolean currentEventMatchedPrevPartitionExecutor = false;
                     for (PartitionExecutor partitionExecutor : partitionExecutors) {
-                        String key = partitionExecutor.execute(aEvent);
+
+                        String key = partitionExecutor.execute(borrowedEvent);
                         if (key != null) {
                             if (currentKey == null) {
                                 currentKey = key;
                             } else if (!currentKey.equals(key)) {
-                                ComplexEvent firstEvent = streamEventChunk.detachAllBeforeCurrent();
+
                                 if (!currentEventMatchedPrevPartitionExecutor) {
+                                    ComplexEvent firstEvent = streamEventChunk.getFirst();
                                     send(currentKey, firstEvent);
                                     currentKey = key;
+                                    streamEventChunk.clear();
                                 } else {
+
+                                    ComplexEvent firstEvent = streamEventChunk.getFirst();
+                                    send(currentKey, firstEvent);
+                                    currentKey = key;
+                                    streamEventChunk.clear();
+
                                     StreamEvent cloneEvent = eventPool.borrowEvent();
                                     streamEventConverter.convertComplexEvent(aEvent, cloneEvent);
-                                    if (firstEvent != null) {
-                                        firstEvent.setNext(cloneEvent);
-                                    } else {
-                                        firstEvent = cloneEvent;
-                                    }
-                                    send(currentKey, firstEvent);
-                                    currentKey = key;
+                                    streamEventChunk.add(cloneEvent);
+
                                 }
+
                             }
+
+                            if(!currentEventMatchedPrevPartitionExecutor) {
+                                streamEventChunk.add(borrowedEvent);
+                            }
+
                             currentEventMatchedPrevPartitionExecutor = true;
                         }
                     }
