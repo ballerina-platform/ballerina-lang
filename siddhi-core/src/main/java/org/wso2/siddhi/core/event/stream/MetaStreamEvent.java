@@ -39,6 +39,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     private String inputReferenceId;
     private StreamDefinition outputStreamDefinition;
     private boolean tableEvent = false;
+    private boolean windowEvent = false;
 
     public List<Attribute> getBeforeWindowData() {
         return beforeWindowData;
@@ -128,6 +129,14 @@ public class MetaStreamEvent implements MetaComplexEvent {
 
     public void setTableEvent(boolean tableEvent) {
         this.tableEvent = tableEvent;
+    }
+
+    public boolean isWindowEvent() {
+        return windowEvent;
+    }
+
+    public void setWindowEvent(boolean windowEvent) {
+        this.windowEvent = windowEvent;
     }
 
     public AbstractDefinition getLastInputDefinition() {

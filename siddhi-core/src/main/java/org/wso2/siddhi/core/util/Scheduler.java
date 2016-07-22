@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
@@ -33,7 +34,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Scheduler implements Snapshotable {
 
@@ -48,7 +48,7 @@ public class Scheduler implements Snapshotable {
     private ExecutionPlanContext executionPlanContext;
     private String elementId;
     private LatencyTracker latencyTracker;
-    private ReentrantLock queryLock;
+    private LockWrapper lockWrapper;
 
 
     public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
@@ -88,8 +88,8 @@ public class Scheduler implements Snapshotable {
         streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
-    public void init(ReentrantLock queryLock) {
-        this.queryLock = queryLock;
+    public void init(LockWrapper lockWrapper) {
+        this.lockWrapper = lockWrapper;
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
         }
@@ -155,8 +155,8 @@ public class Scheduler implements Snapshotable {
                     timerEvent.setType(StreamEvent.Type.TIMER);
                     timerEvent.setTimestamp(toNotifyTime);
                     streamEventChunk.add(timerEvent);
-                    if (queryLock != null) {
-                        queryLock.lock();
+                    if (lockWrapper != null) {
+                        lockWrapper.lock();
                     }
                     threadBarrier.pass();
                     try {
@@ -171,8 +171,8 @@ public class Scheduler implements Snapshotable {
                             singleThreadEntryValve.process(streamEventChunk);
                         }
                     } finally {
-                        if (queryLock != null && queryLock.isHeldByCurrentThread()) {
-                            queryLock.unlock();
+                        if (lockWrapper != null) {
+                            lockWrapper.unlock();
                         }
                     }
                     streamEventChunk.clear();
