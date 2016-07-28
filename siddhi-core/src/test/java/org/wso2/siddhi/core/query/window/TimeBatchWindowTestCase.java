@@ -362,7 +362,7 @@ public class TimeBatchWindowTestCase {
         while (System.currentTimeMillis() % 2000 != 0) ;
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
-        Thread.sleep(8000);
+        Thread.sleep(8500);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         inputHandler.send(new Object[]{"II", 60.5f, 1});
         Thread.sleep(13000);
