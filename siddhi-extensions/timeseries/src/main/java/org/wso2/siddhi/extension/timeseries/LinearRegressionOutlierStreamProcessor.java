@@ -103,7 +103,6 @@ public class LinearRegressionOutlierStreamProcessor extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength - 1;
-        System.out.println("paramCount: " + paramCount);
 
         if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
             paramCount = paramCount - 3;
