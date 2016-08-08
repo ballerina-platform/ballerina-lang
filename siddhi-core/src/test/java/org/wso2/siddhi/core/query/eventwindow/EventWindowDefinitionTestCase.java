@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import static org.junit.Assert.assertTrue;
@@ -113,6 +114,25 @@ public class EventWindowDefinitionTestCase {
         String streams = "define window CheckStockWindow(symbol string) output; ";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test(expected = DuplicateDefinitionException.class)
+    public void testEventWindow8() throws InterruptedException {
+        log.info("EventWindowDefinitionTestCase Test8");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String query = "define stream InStream (meta_tenantId int, contextId string, eventId string, eventType string, authenticationSuccess bool, username string, localUsername string, userStoreDomain string, tenantDomain string, remoteIp string, region string, inboundAuthType string, serviceProvider string, rememberMeEnabled bool, forceAuthEnabled bool, passiveAuthEnabled bool, rolesCommaSeparated string, authenticationStep string, identityProvider string, authStepSuccess bool, stepAuthenticator string, isFirstLogin bool, identityProviderType string, _timestamp long);\n" +
+                "define window countWindow (meta_tenantId int, batchEndTime long, timestamp long) externalTimeBatch(batchEndTime, 1 sec, 0, 10 sec, true);\n" +
+                "from InStream\n" +
+                "select meta_tenantId, eventId\n" +
+                "insert into countStream;\n" +
+                "from countStream\n" +
+                "select meta_tenantId, eventId\n" +
+                "insert into countWindow;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
         executionPlanRuntime.shutdown();
     }
 }

@@ -133,8 +133,8 @@ public class ExecutionPlanRuntimeBuilder {
             InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
             StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
 
-            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
+            windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
+            DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition.getId()));
             StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
 
             if (outputStreamJunction == null) {
