@@ -21,7 +21,6 @@ package org.wso2.siddhi.extension.eventtable.hazelcast;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
@@ -54,19 +53,20 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT011 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol=='IBM' ;";
+                "insert overwrite StockTableT011 " +
+                "   on StockTableT011.symbol=='IBM' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
@@ -90,14 +90,15 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
                 "from StockStream " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol ;";
+                "insert overwrite StockTableT021 " +
+                "   on StockTableT021.symbol==symbol ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
@@ -120,23 +121,25 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT031 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT031 " +
+                "   on StockTableT031.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT031.symbol" +
+                " and  volume==StockTableT031.volume) in StockTableT031] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -199,18 +202,20 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
                 "from StockStream " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT041 " +
+                "   on StockTableT041.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT041.symbol" +
+                " and  volume==StockTableT041.volume) in StockTableT041] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -272,21 +277,22 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT051 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol, vol as volume " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;";
+                "insert overwrite StockTableT051 " +
+                "   on StockTableT051.symbol==symbol;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
@@ -326,25 +332,27 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT061 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT061 " +
+                "   on StockTableT061.symbol==symbol;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol, 0f as price, vol as volume " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT061 " +
+                "   on StockTableT061.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT061.symbol" +
+                " and  volume==StockTableT061.volume) in StockTableT061] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -409,25 +417,26 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT071 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT071 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol,  0f as price, vol as volume " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT071 " +
+                "   on StockTableT071.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume" +
-                " and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT071.symbol and volume==StockTableT071.volume" +
+                " and price==StockTableT071.price) in StockTableT071] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -487,20 +496,21 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT081 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query2') " +
                 "from StockStream " +
                 "select symbol, price, volume " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT081 " +
+                "   on StockTableT081.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume" +
-                " and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT081.symbol and volume==StockTableT081.volume" +
+                " and price==StockTableT081.price) in StockTableT081] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -559,26 +569,27 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT091 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT091 ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from UpdateStockStream left outer join StockTable " +
-                "   on UpdateStockStream.comp == StockTable.symbol " +
+                "from UpdateStockStream left outer join StockTableT091 " +
+                "   on UpdateStockStream.comp == StockTableT091.symbol " +
                 "select symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT091 " +
+                "   on StockTableT091.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume" +
-                " and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT091.symbol and volume==StockTableT091.volume" +
+                " and price==StockTableT091.price) in StockTableT091] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -638,26 +649,27 @@ public class InsertOverwriteTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('InsertOverwriteTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance') " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast') " +
+                "define table StockTableT101 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT101 ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from UpdateStockStream left outer join StockTable " +
-                "   on UpdateStockStream.comp == StockTable.symbol " +
+                "from UpdateStockStream left outer join StockTableT101 " +
+                "   on UpdateStockStream.comp == StockTableT101.symbol " +
                 "select comp as symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                "insert overwrite StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "insert overwrite StockTableT101 " +
+                "   on StockTableT101.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume" +
-                " and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT101.symbol and volume==StockTableT101.volume" +
+                " and price==StockTableT101.price) in StockTableT101] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

@@ -24,12 +24,12 @@ public final class HazelcastEventTableConstants {
     }
 
     public static final String HAZELCAST_INSTANCE_PREFIX = "org.wso2.siddhi.hazelcast.cluster.instance.";
-    public static final String HAZELCAST_MAP_INSTANCE_PREFIX = "org.wso2.siddhi.hazelcast.cluster.instance.map.";
-    public static final String HAZELCAST_LIST_INSTANCE_PREFIX = "org.wso2.siddhi.hazelcast.cluster.instance.list.";
+    public static final String HAZELCAST_COLLECTION_PREFIX = "org.wso2.siddhi.hazelcast.cluster.collection.";
 
-    public static final String ANNOTATION_ELEMENT_INSTANCE_NAME = "instance.name";
-    public static final String ANNOTATION_ELEMENT_CLUSTER_NAME = "cluster.name";
-    public static final String ANNOTATION_ELEMENT_CLUSTER_PASSWORD = "cluster.password";
-    public static final String ANNOTATION_ELEMENT_CLUSTER_ADDRESSES = "cluster.addresses";
+    public static final String ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_NAME = "cluster.name";
+    public static final String ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_PASSWORD = "cluster.password";
+    public static final String ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_ADDRESSES = "cluster.addresses";
+    public static final String ANNOTATION_ELEMENT_HAZELCAST_WELL_KNOWN_ADDRESSES = "well.known.addresses";
+    public static final String ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_COLLECTION = "collection.name";
 
 }
