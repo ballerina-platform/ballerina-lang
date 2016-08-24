@@ -43,7 +43,7 @@ public class DivideExpressionExecutorInt implements ExpressionExecutor {
         if (right == 0) {
             return null;
         }
-        return  ((Number) leftExpressionExecutor.execute(event)).intValue() / right;
+        return  ((Number) leftObject).intValue() / right;
     }
 
     public Attribute.Type getReturnType() {

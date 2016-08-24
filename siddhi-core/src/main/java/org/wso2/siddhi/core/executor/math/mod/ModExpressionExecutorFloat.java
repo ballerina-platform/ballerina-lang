@@ -43,7 +43,7 @@ public class ModExpressionExecutorFloat implements ExpressionExecutor {
         if (right == 0.0f) {
             return null;
         }
-        return ((Number) leftExpressionExecutor.execute(event)).floatValue() % right;
+        return ((Number) leftObject).floatValue() % right;
     }
 
     public Attribute.Type getReturnType() {
