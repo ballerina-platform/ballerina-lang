@@ -28,8 +28,6 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class JoinStreamRuntime implements StreamRuntime {
 
@@ -55,7 +53,6 @@ public class JoinStreamRuntime implements StreamRuntime {
     @Override
     public StreamRuntime clone(String key) {
 
-        Lock joinLock = new ReentrantLock();
         JoinStreamRuntime joinStreamRuntime = new JoinStreamRuntime(executionPlanContext, metaStateEvent);
         for (SingleStreamRuntime singleStreamRuntime : singleStreamRuntimeList) {
             joinStreamRuntime.addRuntime((SingleStreamRuntime) singleStreamRuntime.clone(key));
@@ -84,14 +81,10 @@ public class JoinStreamRuntime implements StreamRuntime {
         JoinProcessor rightPostJoinProcessor = (JoinProcessor) rightWindowProcessor.getNextProcessor();
 
         rightPostJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
-        rightPostJoinProcessor.setJoinLock(joinLock);
         rightPreJoinProcessor.setFindableProcessor((FindableProcessor) leftWindowProcessor);
-        rightPreJoinProcessor.setJoinLock(joinLock);
 
         leftPreJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
-        leftPreJoinProcessor.setJoinLock(joinLock);
         leftPostJoinProcessor.setFindableProcessor((FindableProcessor) rightWindowProcessor);
-        leftPostJoinProcessor.setJoinLock(joinLock);
 
         return joinStreamRuntime;
     }

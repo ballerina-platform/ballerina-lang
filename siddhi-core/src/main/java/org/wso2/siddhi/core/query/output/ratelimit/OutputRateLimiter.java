@@ -23,13 +23,13 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable {
@@ -40,12 +40,12 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
     private String elementId;
     protected ExecutionPlanContext executionPlanContext;
     protected LatencyTracker latencyTracker;
-    protected ReentrantLock queryLock;
+    protected LockWrapper lockWrapper;
 
-    public void init(ExecutionPlanContext executionPlanContext, ReentrantLock queryLock) {
+    public void init(ExecutionPlanContext executionPlanContext, LockWrapper lockWrapper) {
         this.executionPlanContext = executionPlanContext;
         if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            this.queryLock = queryLock;
+            this.lockWrapper = lockWrapper;
         }
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
@@ -57,8 +57,8 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
         if (latencyTracker != null) {
             latencyTracker.markOut();
         }
-        if (queryLock != null && queryLock.isHeldByCurrentThread()) {
-            queryLock.unlock();
+        if (lockWrapper != null) {
+            lockWrapper.unlock();
         }
         if (!queryCallbacks.isEmpty()) {
             for (QueryCallback callback : queryCallbacks) {

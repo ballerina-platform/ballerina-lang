@@ -27,12 +27,17 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.test.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ComplexPatternTestCase {
 
     private static final Logger log = Logger.getLogger(ComplexPatternTestCase.class);
     private int inEventCount;
+    private AtomicInteger count;
     private int removeEventCount;
     private boolean eventArrived;
 
@@ -41,6 +46,7 @@ public class ComplexPatternTestCase {
         inEventCount = 0;
         removeEventCount = 0;
         eventArrived = false;
+        count = new AtomicInteger();
     }
 
     @Test

@@ -53,12 +53,12 @@ public class FilterTestCase {
 
     // Test cases for GREATER_THAN operator
     @Test
-    public void FilterTest1() throws InterruptedException {
+    public void filterTest1() throws InterruptedException {
         log.info("filter test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "@Plan:name('FilterTest1') " +
+                "@Plan:name('filterTest1') " +
                 "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
@@ -115,7 +115,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest2() throws InterruptedException {
+    public void filterTest2() throws InterruptedException {
         log.info("filter test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -4079,7 +4079,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest116() throws InterruptedException {
+    public void filterTest116() throws InterruptedException {
         log.info("filter test116");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -4111,7 +4111,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest117() throws InterruptedException {
+    public void filterTest117() throws InterruptedException {
         log.info("filter test116");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -4146,7 +4146,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest118() throws InterruptedException {
+    public void filterTest118() throws InterruptedException {
         log.info("filter test118");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -4178,7 +4178,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest119() throws InterruptedException {
+    public void filterTest119() throws InterruptedException {
         log.info("filter test119");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -4210,7 +4210,7 @@ public class FilterTestCase {
     }
 
     @Test
-    public void FilterTest120() throws InterruptedException {
+    public void filterTest120() throws InterruptedException {
         log.info("filter test120");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -4241,7 +4241,7 @@ public class FilterTestCase {
     }
 
 //    @Test
-//    public void FilterTest1023() throws InterruptedException {
+//    public void filterTest1023() throws InterruptedException {
 //        log.info("filter test2");
 //        SiddhiManager siddhiManager = new SiddhiManager();
 ////        siddhiManager.setExtension("str:concat", ConcatFunctionExtension.class);
@@ -4330,4 +4330,40 @@ public class FilterTestCase {
 //
 //        }
 //    }
+
+
+    @Test
+    public void filterTest121() throws InterruptedException {
+        log.info("filter test121");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+
+        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
+        String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price , symbol as sym1 insert into outputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                Assert.assertTrue("IBM".equals(inEvents[0].getData(2)));
+                count = count + inEvents.length;
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+
+        executionPlanRuntime.start();
+
+        inputHandler.send(new Object[]{"IBM", 700f, 100l});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        Thread.sleep(100);
+        Assert.assertEquals(1, count);
+        Assert.assertTrue(eventArrived);
+        executionPlanRuntime.shutdown();
+
+    }
+
 }

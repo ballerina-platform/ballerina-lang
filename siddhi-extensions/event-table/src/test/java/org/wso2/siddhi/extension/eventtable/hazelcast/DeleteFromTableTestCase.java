@@ -58,18 +58,19 @@ public class DeleteFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT011 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from DeleteStockStream " +
-                "delete StockTable " +
+                "delete StockTableT011 " +
                 "   on symbol=='IBM' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -94,19 +95,20 @@ public class DeleteFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT021 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from DeleteStockStream " +
-                "delete StockTable " +
-                "   on StockTable.symbol=='IBM' ;";
+                "delete StockTableT021 " +
+                "   on StockTableT021.symbol=='IBM' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
@@ -131,18 +133,19 @@ public class DeleteFromTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String streams = "" +
+                "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT031 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from DeleteStockStream " +
-                "delete StockTable " +
+                "delete StockTableT031 " +
                 "   on symbol=='IBM' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -167,23 +170,24 @@ public class DeleteFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string); " +
                 "define stream DeleteStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT041 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from DeleteStockStream " +
-                "delete StockTable " +
-                "   on StockTable.symbol=='IBM';" +
+                "delete StockTableT041 " +
+                "   on StockTableT041.symbol=='IBM';" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[symbol==StockTable.symbol in StockTable] " +
+                "from CheckStockStream[symbol==StockTableT041.symbol in StockTableT041] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -240,25 +244,26 @@ public class DeleteFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('DeleteFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, vol long); " +
                 "define stream DeleteStockStream (symbol string, price float, vol long); " +
                 "define stream CountStockStream (symbol string); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
                 "select symbol, price, vol as volume " +
-                "insert into StockTable ;" +
+                "insert into StockTableT051 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from DeleteStockStream[vol>=100] " +
-                "delete StockTable " +
-                "   on StockTable.symbol==symbol ;" +
+                "delete StockTableT051 " +
+                "   on StockTableT051.symbol==symbol ;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CountStockStream#window.length(0) join StockTable" +
-                " on CountStockStream.symbol==StockTable.symbol " +
+                "from CountStockStream#window.length(0) join StockTableT051" +
+                " on CountStockStream.symbol==StockTableT051.symbol " +
                 "select CountStockStream.symbol as symbol " +
                 "insert into CountResultsStream ;";
 

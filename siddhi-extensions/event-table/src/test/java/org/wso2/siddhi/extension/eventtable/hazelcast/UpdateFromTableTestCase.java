@@ -57,19 +57,20 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('UpdateFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT011 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT011 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "update StockTable " +
-                "   on StockTable.symbol=='IBM' ;";
+                "update StockTableT011 " +
+                "   on StockTableT011.symbol=='IBM' ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
@@ -94,19 +95,20 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('UpdateFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT021 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT021 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "update StockTable " +
-                "   on StockTable.symbol==symbol ;";
+                "update StockTableT021 " +
+                "   on StockTableT021.symbol==symbol ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {
@@ -130,23 +132,25 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('UpdateFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT031 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT031 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
-                "update StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "update StockTableT031 " +
+                "   on StockTableT031.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT031.symbol" +
+                "   and  volume==StockTableT031.volume) in StockTableT031] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -203,24 +207,26 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('UpdateFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT041 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT041 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol, vol as volume " +
-                "update StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "update StockTableT041 " +
+                "   on StockTableT041.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and  volume==StockTable.volume) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT041.symbol" +
+                "   and  volume==StockTableT041.volume) in StockTableT041] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -278,25 +284,26 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('UpdateFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT051 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT051 ;" +
                 "" +
                 "@info(name = 'query2') " +
                 "from UpdateStockStream " +
                 "select comp as symbol, vol as volume " +
-                "update StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "update StockTableT051 " +
+                "   on StockTableT051.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume " +
-                "and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT051.symbol and volume==StockTableT051.volume " +
+                "and price==StockTableT051.price) in StockTableT051] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -352,26 +359,27 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
+                "@Plan:name('UpdateFromTableExecutionPlan')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
-                "@from(eventtable = 'hazelcast', instance.name = 'siddhi_instance')" +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "@from(eventtable = 'hazelcast')" +
+                "define table StockTableT061 (symbol string, price float, volume long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
-                "insert into StockTable ;" +
+                "insert into StockTableT061 ;" +
                 "" +
                 "@info(name = 'query2') " +
-                "from UpdateStockStream join StockTable " +
-                "   on UpdateStockStream.comp == StockTable.symbol " +
+                "from UpdateStockStream join StockTableT061 " +
+                "   on UpdateStockStream.comp == StockTableT061.symbol " +
                 "select symbol, vol as volume " +
-                "update StockTable " +
-                "   on StockTable.symbol==symbol;" +
+                "update StockTableT061 " +
+                "   on StockTableT061.symbol==symbol;" +
                 "" +
                 "@info(name = 'query3') " +
-                "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume " +
-                "and price==StockTable.price) in StockTable] " +
+                "from CheckStockStream[(symbol==StockTableT061.symbol and volume==StockTableT061.volume " +
+                "and price==StockTableT061.price) in StockTableT061] " +
                 "insert into OutStream;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

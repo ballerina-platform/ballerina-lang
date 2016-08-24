@@ -60,8 +60,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     private void process(int eventSequence, StreamEvent borrowedEvent) {
-        if(queryLock != null) {
-            queryLock.lock();
+        if (lockWrapper != null) {
+            lockWrapper.lock();
         }
         try {
             if (latencyTracker != null) {
@@ -74,9 +74,9 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
             } else {
                 processAndClear(eventSequence, borrowedEvent);
             }
-        }finally {
-            if (queryLock != null && queryLock.isHeldByCurrentThread()) {
-                queryLock.unlock();
+        } finally {
+            if (lockWrapper != null) {
+                lockWrapper.unlock();
             }
         }
     }
@@ -165,7 +165,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
-        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, false);
+        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, batchProcessingAllowed);
         nextProcessors[processIndex].process(currentStreamEventChunk);
     }
 

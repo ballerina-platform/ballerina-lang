@@ -33,9 +33,9 @@ error
 
 execution_plan
     : (plan_annotation|error)*
-      ( (definition_stream|definition_table|definition_trigger|definition_function|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|error))* ';'?
+      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
       || (execution_element|error) (';' (execution_element|error))* ';'?
-      || (definition_stream|definition_table|definition_trigger|definition_function|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|error))* (';' (execution_element|error))* ';'? )
+      || (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
     ;
 
 execution_element
@@ -56,6 +56,14 @@ definition_table_final
 
 definition_table
     : annotation* DEFINE TABLE source '(' attribute_name attribute_type (',' attribute_name attribute_type )* ')'
+    ;
+
+definition_window_final
+    :definition_window ';'? EOF
+    ;
+
+definition_window
+    : annotation* DEFINE WINDOW source '(' attribute_name attribute_type (',' attribute_name attribute_type )* ')' function_operation ( OUTPUT output_event_type )?
     ;
 
 definition_function_final

@@ -27,6 +27,7 @@ import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
@@ -123,6 +124,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         }
         for (SiddhiQLParser.Definition_functionContext functionContext : ctx.definition_function()) {
             executionPlan.defineFunction((FunctionDefinition) visit(functionContext));
+        }
+        for (SiddhiQLParser.Definition_windowContext windowContext : ctx.definition_window()) {
+            executionPlan.defineWindow((WindowDefinition) visit(windowContext));
         }
         for (SiddhiQLParser.Execution_elementContext executionElementContext : ctx.execution_element()) {
             ExecutionElement executionElement = (ExecutionElement) visit(executionElementContext);
@@ -318,6 +322,46 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         }
         return tableDefinition;
 
+    }
+
+    @Override
+    public Object visitDefinition_window_final(@NotNull SiddhiQLParser.Definition_window_finalContext ctx) {
+        return visit(ctx.definition_window());
+    }
+
+    @Override
+    public Object visitDefinition_window(@NotNull SiddhiQLParser.Definition_windowContext ctx) {
+        Source source = (Source) visit(ctx.source());
+        if (source.isInnerStream) {
+            throw newSiddhiParserException(ctx, "'#' cannot be used, because Windows can't be defined as InnerStream!");
+        }
+        WindowDefinition windowDefinition = WindowDefinition.id(source.streamId);
+        List<SiddhiQLParser.Attribute_nameContext> attribute_names = ctx.attribute_name();
+        List<SiddhiQLParser.Attribute_typeContext> attribute_types = ctx.attribute_type();
+        for (int i = 0; i < attribute_names.size(); i++) {
+            SiddhiQLParser.Attribute_nameContext attributeNameContext = attribute_names.get(i);
+            SiddhiQLParser.Attribute_typeContext attributeTypeContext = attribute_types.get(i);
+            windowDefinition.attribute((String) visit(attributeNameContext), (Attribute.Type) visit(attributeTypeContext));
+
+        }
+        for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
+            windowDefinition.annotation((Annotation) visit(annotationContext));
+        }
+        AttributeFunction attributeFunction = (AttributeFunction) visit(ctx.function_operation());
+        Window window;
+        if (attributeFunction instanceof AttributeFunctionExtension) {
+            window = new WindowExtension(((AttributeFunctionExtension) attributeFunction).getNamespace(), attributeFunction.getFunction(), attributeFunction.getParameters());
+        } else {
+            window = new Window(attributeFunction.getFunction(), attributeFunction.getParameters());
+        }
+        windowDefinition.window(window);
+
+        // Optional output event type
+        if (ctx.output_event_type() != null) {
+            windowDefinition.setOutputEventType((OutputStream.OutputEventType) visit(ctx.output_event_type()));
+        }
+
+        return windowDefinition;
     }
 
     /**
