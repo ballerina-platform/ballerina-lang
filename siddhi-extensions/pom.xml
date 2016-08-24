@@ -41,6 +41,7 @@
         <module>reorder</module>
         <module>map</module>
         <module>kalman-filter</module>
+        <module>markov-models</module>
     </modules>
 
 </project>
