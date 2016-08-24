@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.markovmodels;
+package org.wso2.siddhi.extension.markov;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class MarkovChainTestcase {
         String markovMatrixStorageLocation = classLoader.getResource("markovMatrix.csv").getPath();
 
         String executionPlan = ("" + "@info(name = 'query1') "
-                + "from InputStream#markovmodels:markovChain(id, state, 60 min, 0.2, \'" + markovMatrixStorageLocation
+                + "from InputStream#markov:markovChain(id, state, 60 min, 0.2, \'" + markovMatrixStorageLocation
                 + "\', false) " + "select id, lastState, state, transitionProbability, notify "
                 + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
@@ -148,7 +148,7 @@ public class MarkovChainTestcase {
         String inputStream = "define stream InputStream (id string, state string);";
 
         String executionPlan = ("@info(name = 'query1') "
-                + "from InputStream#markovmodels:markovChain(id, state, 60 min, 0.2, 5) " // markov:markovChain
+                + "from InputStream#markov:markovChain(id, state, 60 min, 0.2, 5) "
                 + "select id, lastState, state, transitionProbability, notify " + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + executionPlan);
@@ -222,7 +222,7 @@ public class MarkovChainTestcase {
         String inputStream = "define stream InputStream (id string, state string, train bool);";
 
         String executionPlan = ("@info(name = 'query1') "
-                + "from InputStream#markovmodels:markovChain(id, state, 60 min, 0.2, 5, train) "
+                + "from InputStream#markov:markovChain(id, state, 60 min, 0.2, 5, train) "
                 + "select id, lastState, state, transitionProbability, notify " + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + executionPlan);

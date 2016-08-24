@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.markovmodels;
+package org.wso2.siddhi.extension.markov;
 
 import java.io.File;
 import java.util.ArrayList;

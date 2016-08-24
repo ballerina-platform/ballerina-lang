@@ -62,8 +62,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.markovmodels,
-                            org.wso2.siddhi.extension.markovmodels.*
+                            org.wso2.siddhi.extension.markov,
+                            org.wso2.siddhi.extension.markov.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
