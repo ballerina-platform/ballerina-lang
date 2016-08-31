@@ -25,9 +25,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
 
 import java.util.concurrent.ExecutorService;
 
@@ -36,42 +35,43 @@ import java.util.concurrent.ExecutorService;
  */
 public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
-    public WorkerPoolDispatchingTargetHandler(int timeoutSeconds, SenderConfiguration senderConfiguration) {
+    public WorkerPoolDispatchingTargetHandler(int timeoutSeconds) {
         super(timeoutSeconds);
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        super.channelInactive(ctx);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpResponse) {
+
             cMsg = setUpCarbonMessage(ctx, msg);
+            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                        executeAtTargetResponseReceiving(cMsg);
+            }
 
             ExecutorService executorService = (ExecutorService) incomingMsg
-                       .getProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    callback.done(cMsg);
-                }
-            });
+                    .getProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL);
+            if (executorService != null) {
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.done(cMsg);
+                    }
+                });
+            } else {
+                LOG.error("Executor service is not registered to request may be listener "
+                        + "configuration is wrong or incoming" + "request properties are modified incorrectly");
+            }
 
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
                     ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    cMsg.setEndOfMsgAdded(true);
                     if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                         NettyTransportContextHolder.getInstance().getHandlerExecutor().
-                                   executeAtTargetResponseSending(cMsg);
+                                executeAtTargetResponseSending(cMsg);
                     }
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
@@ -89,8 +89,14 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
 
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
-                       getHttpRoute().toString() + "</errorMessage>";
-            FaultHandler faultHandler = incomingMsg.getFaultHandlerStack().pop();
+                    getHttpRoute().toString() + "</errorMessage>";
+            FaultHandler faultHandler = null;
+            try {
+                faultHandler = incomingMsg.getFaultHandlerStack().pop();
+            } catch (Exception e) {
+                LOG.debug("Cannot find registered fault handler");
+                //expected
+            }
 
             if (faultHandler != null) {
                 faultHandler.handleFault("504", new EndPointTimeOut(payload), incomingMsg, callback);

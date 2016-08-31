@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty.statistics.holders;
 
-import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.metrics.core.Timer;
 import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
 /**

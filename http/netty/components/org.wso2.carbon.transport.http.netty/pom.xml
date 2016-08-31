@@ -14,13 +14,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.transport</groupId>
         <artifactId>org.wso2.carbon.transport.http.netty.parent</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.1.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -97,13 +96,33 @@
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io.wso2</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.wso2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
         <bundle.activator>org.wso2.carbon.transport.http.netty.internal.NettyTransportActivator</bundle.activator>
-        <private.package>org.wso2.carbon.transport.http.netty.internal</private.package>
+        <private.package>org.wso2.carbon.transport.http.netty.internal,
+            org.wso2.carbon.transport.http.netty.message,
+        </private.package>
         <export.package>
             !org.wso2.carbon.transport.http.netty.internal,
+            !org.wso2.carbon.transport.http.netty.message,
             org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
 
         </export.package>
@@ -125,9 +144,6 @@
             javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
-            org.wso2.carbon.metrics.manager.*;version="[1.2.0, 2.0.0)",
-            org.wso2.carbon.metrics.impl.*;version="[1.2.0, 2.0.0)",
-            org.wso2.carbon.metrics.common.*;version="[1.2.0, 2.0.0)",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
             com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",

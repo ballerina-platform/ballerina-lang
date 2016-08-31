@@ -19,6 +19,7 @@
 package org.wso2.carbon.transport.http.netty.config;
 
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.common.TransportThreadFactory;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -40,9 +42,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
-    private int execHandlerThreadPoolSize = Constants.DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE;
+    private int workerPoolSize = Constants.DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE;
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
+    private ExecutorService executorService = Executors.newFixedThreadPool(workerPoolSize,
+            new TransportThreadFactory(new ThreadGroup(Constants.WORKER_POOL_NAME)));
 
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
@@ -115,13 +118,14 @@ public class ListenerConfiguration {
         this.certPass = certPass;
     }
 
-    public int getExecHandlerThreadPoolSize() {
-        return execHandlerThreadPoolSize;
+    public int getWorkerPoolSize() {
+        return workerPoolSize;
     }
 
-    public void setExecHandlerThreadPoolSize(int execHandlerThreadPoolSize) {
-        this.execHandlerThreadPoolSize = execHandlerThreadPoolSize;
-        this.executorService = Executors.newFixedThreadPool(execHandlerThreadPoolSize);
+    public void setWorkerPoolSize(int workerPoolSize) {
+        this.workerPoolSize = workerPoolSize;
+        this.executorService = Executors.newFixedThreadPool(workerPoolSize,
+                new TransportThreadFactory(new ThreadGroup(Constants.WORKER_POOL_NAME)));
     }
 
     public String getHost() {

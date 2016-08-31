@@ -18,21 +18,24 @@
 
 package org.wso2.carbon.transport.http.netty.statistics;
 
-import org.wso2.carbon.metrics.manager.Level;
-import org.wso2.carbon.metrics.manager.MetricManager;
-import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.metrics.core.Level;
+import org.wso2.carbon.metrics.core.MetricService;
+import org.wso2.carbon.metrics.core.Timer;
+import org.wso2.carbon.transport.http.netty.statistics.internal.DataHolder;
 
 /**
  * Initialize all the timers.
  */
 public class TimerHolder {
 
-    private final Timer sourceConnectionTimer = MetricManager.timer("gw.source.connection.timer", Level.INFO);
-    private final Timer targetConnectionTimer = MetricManager.timer("gw.target.connection.timer", Level.INFO);
-    private final Timer sourceRequestTimer = MetricManager.timer("gw.source.request.timer", Level.INFO);
-    private final Timer targetRequestTimer = MetricManager.timer("gw.target.request.timer", Level.INFO);
-    private final Timer targetResponseTimer = MetricManager.timer("gw.target.response.timer", Level.INFO);
-    private final Timer sourceResponseTimer = MetricManager.timer("gw.source.response.timer", Level.INFO);
+    private final MetricService metricService = DataHolder.getInstance().getMetricService();
+
+    private final Timer sourceConnectionTimer = metricService.timer("gw.source.connection.timer", Level.INFO);
+    private final Timer targetConnectionTimer = metricService.timer("gw.target.connection.timer", Level.INFO);
+    private final Timer sourceRequestTimer = metricService.timer("gw.source.request.timer", Level.INFO);
+    private final Timer targetRequestTimer = metricService.timer("gw.target.request.timer", Level.INFO);
+    private final Timer targetResponseTimer = metricService.timer("gw.target.response.timer", Level.INFO);
+    private final Timer sourceResponseTimer = metricService.timer("gw.source.response.timer", Level.INFO);
 
     private static volatile TimerHolder timerHolder = new TimerHolder();
 

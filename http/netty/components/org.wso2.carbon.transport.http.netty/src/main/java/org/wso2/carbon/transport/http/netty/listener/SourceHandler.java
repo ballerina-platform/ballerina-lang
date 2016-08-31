@@ -17,6 +17,8 @@ package org.wso2.carbon.transport.http.netty.listener;
 
 import com.lmax.disruptor.RingBuffer;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -29,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
@@ -38,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFac
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -56,7 +58,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected NettyCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
-
     private DisruptorConfig disruptorConfig;
     protected Map<String, GenericObjectPool> targetChannelPool;
     protected ListenerConfiguration listenerConfiguration;
@@ -109,7 +110,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-
+                        cMsg.setEndOfMsgAdded(true);
                         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
                             NettyTransportContextHolder.getInstance().getHandlerExecutor().
@@ -124,36 +125,41 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void publishToDisruptor(Object msg) {
-        cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
+        cMsg = (NettyCarbonMessage) setupCarbonMessage(msg);
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+        }
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, true);
         if (disruptorConfig.isShared()) {
             cMsg.setProperty(Constants.DISRUPTOR, disruptor);
         }
 
+        boolean continueRequest = true;
+
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
 
-            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+            continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeRequestContinuationValidator(cMsg, carbonMessage -> {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg
                                 .getProperty(org.wso2.carbon.messaging.Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
-            if (continueRequest) {
-                disruptor.publishEvent(new CarbonEventPublisher(cMsg));
-            }
+
+        }
+        if (continueRequest) {
+            disruptor.publishEvent(new CarbonEventPublisher(cMsg));
         }
 
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         // Stop the connector timer
         ctx.close();
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-
         disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }
@@ -181,11 +187,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
-        log.error("Exception caught in Netty Source handler", cause);
+        if (ctx != null && ctx.channel().isActive()) {
+            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
     }
 
-    protected CarbonMessage setUPCarbonMessage(Object msg) {
+    protected CarbonMessage setupCarbonMessage(Object msg) {
         cMsg = new NettyCarbonMessage();
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);

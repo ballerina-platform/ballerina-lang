@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.transport.http.netty.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.concurrent.ExecutorService;
@@ -66,7 +66,6 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpMessage) {
-
             publishToWorkerPool(msg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
@@ -75,6 +74,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
             }
 
         } else if (msg instanceof HttpRequest) {
+
             publishToWorkerPool(msg);
 
         } else {
@@ -83,8 +83,12 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     HttpContent httpContent = (HttpContent) msg;
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                                .executeAtSourceRequestSending(cMsg);
+                        cMsg.setEndOfMsgAdded(true);
+                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                                    .executeAtSourceRequestSending(cMsg);
+                        }
+
                     }
                 }
             }
@@ -93,42 +97,49 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
     private void publishToWorkerPool(Object msg) {
         ExecutorService executorService = listenerConfiguration.getExecutorService();
-        cMsg = (NettyCarbonMessage) setUPCarbonMessage(msg);
+        cMsg = (NettyCarbonMessage) setupCarbonMessage(msg);
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+        }
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
                 listenerConfiguration.getEnableDisruptor());
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL_SIZE,
-                listenerConfiguration.getExecHandlerThreadPoolSize());
+                listenerConfiguration.getWorkerPoolSize());
 
         CarbonCallback carbonCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
 
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.EXECUTOR_WORKER_POOL, executorService);
 
+        boolean continueRequest = true;
+
         if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            boolean continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+            continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeRequestContinuationValidator(cMsg, carbonMessage -> {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
                     });
-            if (continueRequest) {
-                executorService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            NettyTransportContextHolder.getInstance().getMessageProcessor()
-                                    .receive(cMsg, carbonCallback);
-                        } catch (Exception e) {
-                            log.error("Error occurred inside the messaging engine", e);
-                        }
+        }
+        if (continueRequest) {
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
+                    } catch (Exception e) {
+                        log.error("Error occurred inside the messaging engine", e);
                     }
-                });
-            }
+                }
+            });
         }
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        NettyTransportContextHolder.getInstance().getHandlerExecutor()
-                .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        ctx.close();
+        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+        }
         connectionManager.notifyChannelInactive();
     }
 }

@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-=======
  *  Copyright (c) 2015 WSO2 Inc. (http://wso2.com) All Rights Reserved.
->>>>>>> upstream/master
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,16 +69,15 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
                 if (parameters != null && !parameters.isEmpty()) {
                     log.debug("Disruptor is enabled");
                     log.debug("Disruptor configuration creating");
-                    DisruptorConfig disruptorConfig = new DisruptorConfig(
-                            parameters.getOrDefault(Constants.DISRUPTOR_BUFFER_SIZE,
-                                    Constants.DEFAULT_DISRUPTOR_BUFFER_SIZE),
+                    DisruptorConfig disruptorConfig = new DisruptorConfig(parameters
+                            .getOrDefault(Constants.DISRUPTOR_BUFFER_SIZE, Constants.DEFAULT_DISRUPTOR_BUFFER_SIZE),
                             parameters.getOrDefault(Constants.DISRUPTOR_COUNT, Constants.DEFAULT_DISRUPTOR_COUNT),
                             parameters.getOrDefault(Constants.DISRUPTOR_EVENT_HANDLER_COUNT,
                                     Constants.DEFAULT_DISRUPTOR_EVENT_HANDLER_COUNT),
                             parameters.getOrDefault(Constants.WAIT_STRATEGY, Constants.DEFAULT_WAIT_STRATEGY),
                             Boolean.parseBoolean(parameters.getOrDefault(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND,
-                                    Constants.DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND)),
-                            parameters.getOrDefault(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL,
+                                    Constants.DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND)), parameters
+                            .getOrDefault(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL,
                                     Constants.DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
                     // TODO: Need to have a proper service
                     DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
@@ -94,20 +89,21 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
                 }
             } else {
                 if (parameters != null && !parameters.isEmpty()) {
-                    int executorWorkerPoolSize = Integer.parseInt(parameters.getOrDefault(
-                            Constants.EXECUTOR_WORKER_POOL_SIZE, String.valueOf(Constants.EXECUTOR_WORKER_POOL_SIZE)));
+                    int executorWorkerPoolSize = Integer.parseInt(parameters
+                            .getOrDefault(Constants.EXECUTOR_WORKER_POOL_SIZE,
+                                    String.valueOf(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE)));
                     log.debug("Disruptor is disabled and using executor thread pool with size of "
                             + executorWorkerPoolSize);
                     if (executorWorkerPoolSize > 0) {
-                        listenerConfiguration.setExecHandlerThreadPoolSize(executorWorkerPoolSize);
+                        listenerConfiguration.setWorkerPoolSize(executorWorkerPoolSize);
                     } else {
                         log.warn("Please enable disruptor or specify executorHandlerThreadPool size greater than 0,"
                                 + " starting with default value");
-                        listenerConfiguration.setExecHandlerThreadPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                        listenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
                     }
                 } else {
                     log.warn("ExecutorHandlerThreadPool size is not specified using the default value");
-                    listenerConfiguration.setExecHandlerThreadPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                    listenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
                 }
 
             }
@@ -133,7 +129,7 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
             SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
             ch.pipeline().addLast("ssl", sslHandler);
         }
-        ChannelPipeline p = ((SocketChannel) ch).pipeline();
+        ChannelPipeline p = ch.pipeline();
         p.addLast("encoder", new HttpResponseEncoder());
         if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
             p.addLast("decoder", new CustomHttpRequestDecoder());
@@ -147,8 +143,10 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
             if (listenerConfiguration.getEnableDisruptor()) {
+                log.debug("Selecting SourceHandler");
                 p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
             } else {
+                log.debug("Selecting WorkerPoolDispatchingSourceHandler");
                 p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
             }
         } catch (Exception e) {

@@ -28,16 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.handler.MessagingHandler;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.Parameter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Declarative service component for the Netty transport. This handles registration &amp; unregistration of relevant
@@ -61,33 +53,6 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     @Activate
     protected void activate(BundleContext bundleContext) {
         // Nothing to do
-    }
-
-    @Reference(
-            name = "transport-initializer",
-            service = CarbonTransportInitializer.class,
-            cardinality = ReferenceCardinality.OPTIONAL,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeTransportInitializer")
-    protected void addTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
-        ListenerConfiguration listenerConfiguration = NettyTransportContextHolder.getInstance()
-                .getListenerConfiguration((String) ref.get(CHANNEL_ID_KEY));
-
-        List<Parameter> parameters = listenerConfiguration.getParameters();
-        Map<String, String> paramMap = new HashMap<>();
-        if (parameters != null && !parameters.isEmpty()) {
-
-            paramMap = parameters.stream().collect(Collectors.toMap(Parameter::getName, Parameter::getValue));
-
-        }
-
-        serverInitializer.setup(paramMap);
-        NettyTransportContextHolder.getInstance()
-                .addNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY), serverInitializer);
-    }
-
-    protected void removeTransportInitializer(CarbonTransportInitializer serverInitializer, Map<String, ?> ref) {
-        NettyTransportContextHolder.getInstance().removeNettyChannelInitializer((String) ref.get(CHANNEL_ID_KEY));
     }
 
     @Reference(
