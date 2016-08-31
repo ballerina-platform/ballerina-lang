@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created on 1/26/15.
+ * Input attributes to log is (priority (String), logMessage (String), isEventLogged (Bool))
  */
 public class LogStreamProcessor extends StreamProcessor {
 
