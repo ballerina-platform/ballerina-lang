@@ -73,7 +73,8 @@ public class TestUtil {
             SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
         NettyListener nettyListener = new NettyListener(listenerConfiguration);
         TransportSender transportSender = new NettySender(senderConfiguration);
-        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
+        NettyTransportContextHolder.getInstance()
+                                   .addMessageProcessor(listenerConfiguration.getPort(), carbonMessageProcessor);
         carbonMessageProcessor.setTransportSender(transportSender);
         Thread transportRunner = new Thread(new Runnable() {
             @Override
@@ -171,10 +172,11 @@ public class TestUtil {
     }
 
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
-            SenderConfiguration senderConfiguration) {
+            SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
         TransportSender transportSender = new NettySender(senderConfiguration);
         carbonMessageProcessor.setTransportSender(transportSender);
-        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
+        NettyTransportContextHolder.getInstance()
+                                   .addMessageProcessor(listenerConfiguration.getPort(), carbonMessageProcessor);
     }
 
 }

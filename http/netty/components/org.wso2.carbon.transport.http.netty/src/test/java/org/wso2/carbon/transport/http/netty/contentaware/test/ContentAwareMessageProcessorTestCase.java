@@ -116,7 +116,7 @@ public class ContentAwareMessageProcessorTestCase {
         String transformValue = "<A><B><C>transformed</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestMessageTransformProcessor(transformValue);
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, testValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -139,7 +139,7 @@ public class ContentAwareMessageProcessorTestCase {
         String expectedValue = responseValue + ":" + requestValue;
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformProcessor(responseValue);
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -161,7 +161,7 @@ public class ContentAwareMessageProcessorTestCase {
         String expectedValue = responseValue + ":" + requestValue;
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationProcessor(responseValue);
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -182,7 +182,7 @@ public class ContentAwareMessageProcessorTestCase {
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationStreamingProcessor();
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -203,7 +203,7 @@ public class ContentAwareMessageProcessorTestCase {
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformStreamingProcessor();
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -224,7 +224,7 @@ public class ContentAwareMessageProcessorTestCase {
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new ResponseStreamingWithoutBufferingProcessor();
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
