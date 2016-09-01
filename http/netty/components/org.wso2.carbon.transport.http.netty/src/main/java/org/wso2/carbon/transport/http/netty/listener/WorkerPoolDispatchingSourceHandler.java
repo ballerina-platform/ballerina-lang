@@ -124,7 +124,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                 @Override
                 public void run() {
                     try {
-                        int port = Integer.parseInt(cMsg.getHeader("Host").split(":")[1]);
+                        int port = Integer.parseInt(cMsg.getProperty(Constants.LISTENER_PORT).toString());
                         NettyTransportContextHolder.getInstance().getMessageProcessor(port)
                                                    .receive(cMsg, carbonCallback);
                     } catch (Exception e) {
