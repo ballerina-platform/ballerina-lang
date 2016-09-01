@@ -124,7 +124,9 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                 @Override
                 public void run() {
                     try {
-                        NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
+                        int port = Integer.parseInt(cMsg.getProperty(Constants.LISTENER_PORT).toString());
+                        NettyTransportContextHolder.getInstance().getMessageProcessor(port)
+                                                   .receive(cMsg, carbonCallback);
                     } catch (Exception e) {
                         log.error("Error occurred inside the messaging engine", e);
                     }

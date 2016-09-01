@@ -28,6 +28,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * DataHolder for the Netty transport.
@@ -37,13 +38,17 @@ public class NettyTransportContextHolder {
 
     private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
     private BundleContext bundleContext;
-    private CarbonMessageProcessor messageProcessor;
+    private Map<Integer, CarbonMessageProcessor> messageProcessors = new HashMap<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
     private TransportListenerManager manager;
 
     public ListenerConfiguration getListenerConfiguration(String id) {
         return listenerConfigurations.get(id);
+    }
+
+    public Map<String, ListenerConfiguration> getListenerConfigurations() {
+        return listenerConfigurations;
     }
 
     public void setListenerConfiguration(String id, ListenerConfiguration config) {
@@ -67,17 +72,19 @@ public class NettyTransportContextHolder {
         return this.bundleContext;
     }
 
-    public CarbonMessageProcessor getMessageProcessor() {
-        return messageProcessor;
+    public CarbonMessageProcessor getMessageProcessor(int port) {
+        return messageProcessors.get(port);
     }
 
-    public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        this.messageProcessor = carbonMessageProcessor;
+    public void addMessageProcessor(int port, CarbonMessageProcessor carbonMessageProcessor) {
+        messageProcessors.put(port, carbonMessageProcessor);
     }
 
     public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        if (carbonMessageProcessor.getId().equals(messageProcessor.getId())) {
-            messageProcessor = null;
+        Optional<Map.Entry<Integer, CarbonMessageProcessor>> mapEntry = messageProcessors.entrySet().stream()
+                        .filter(entry -> entry.getValue().getId().equals(carbonMessageProcessor.getId())).findFirst();
+        if (mapEntry.isPresent()) {
+            messageProcessors.remove(mapEntry.get().getKey());
         }
     }
 
