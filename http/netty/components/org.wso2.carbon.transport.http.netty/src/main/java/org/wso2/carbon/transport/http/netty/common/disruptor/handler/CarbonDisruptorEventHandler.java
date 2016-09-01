@@ -39,7 +39,7 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
             // Mechanism to process each event from only one event handler
             if (lock.tryLock()) {
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
-                int port = Integer.parseInt(carbonMessage.getHeader("Host").split(":")[1]);
+                int port = Integer.parseInt(carbonMessage.getProperty(Constants.LISTENER_PORT).toString());
                 NettyTransportContextHolder.getInstance().getMessageProcessor(port)
                                            .receive(carbonMessage, carbonCallback);
                 // lock.unlock() does not used because if there are multiple event handlers and same event
