@@ -62,7 +62,7 @@ public class CarbonDisruptorEventHandler extends DisruptorEventHandler {
             if (carbonMessage.getProperty(Constants.DIRECTION) == null) {
 
                 CarbonCallback carbonCallback = (CarbonCallback) carbonMessage.getProperty(Constants.CALL_BACK);
-                int port = Integer.parseInt(carbonMessage.getHeader("Host").split(":")[1]);
+                int port = Integer.parseInt(carbonMessage.getProperty(Constants.LISTENER_PORT).toString());
                 NettyTransportContextHolder.getInstance().getMessageProcessor(port)
                                            .receive(carbonMessage, carbonCallback);
 
