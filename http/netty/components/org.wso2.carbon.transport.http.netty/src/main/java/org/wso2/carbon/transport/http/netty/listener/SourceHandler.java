@@ -223,7 +223,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
 
-        cMsg.setHeaders(Util.getHeaders(httpRequest));
+        cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         return cMsg;
     }
 }
