@@ -180,7 +180,11 @@ public class PercentileFunctionExtension extends AttributeAggregator {
             }
         } else {
             percentileIndex = (int) Math.round(percentileIndexTemp);
-            return valuesList.get(percentileIndex - 1);
+            if (percentileIndex == 0) {
+                return valuesList.get(percentileIndex);
+            } else {
+                return valuesList.get(percentileIndex - 1);
+            }
         }
     }
 
