@@ -28,21 +28,24 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.extension.markov.test.util.SiddhiTestHelper;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MarkovChainTestcase {
     private static final Logger logger = Logger.getLogger(MarkovChainTestcase.class);
     private static SiddhiManager siddhiManager;
-    private volatile int count;
+    private AtomicInteger count = new AtomicInteger(0);
     private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count = 0;
+        count.set(0);
         eventArrived = false;
     }
 
     @Test
-    public void MarkovChainTest1() throws Exception {
+    public void testMarkovChainPopulatingMatrixFromFile() throws Exception {
         logger.info("MarkovChain TestCase 1");
 
         siddhiManager = new SiddhiManager();
@@ -64,55 +67,55 @@ public class MarkovChainTestcase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for (Event event : inEvents) {
-                    count++;
-                    switch (count) {
-                    case 1:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 2:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 3:
-                        Assert.assertEquals(0.3, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 4:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 5:
-                        Assert.assertEquals(0.6, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
+                    count.incrementAndGet();
+                    switch (count.get()) {
+                        case 1:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 2:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 3:
+                            Assert.assertEquals(0.3, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 4:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 5:
+                            Assert.assertEquals(0.6, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
 
-                        break;
-                    case 6:
-                        Assert.assertEquals(0.6000000000000001, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 7:
-                        Assert.assertEquals(0.6, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 8:
-                        Assert.assertEquals(0.3, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 9:
-                        Assert.assertEquals(0.3, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 10:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 11:
-                        Assert.assertEquals(0.3, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    default:
-                        Assert.fail();
+                            break;
+                        case 6:
+                            Assert.assertEquals(0.6000000000000001, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 7:
+                            Assert.assertEquals(0.6, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 8:
+                            Assert.assertEquals(0.3, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 9:
+                            Assert.assertEquals(0.3, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 10:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 11:
+                            Assert.assertEquals(0.3, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        default:
+                            Assert.fail();
                     }
                 }
             }
@@ -121,27 +124,27 @@ public class MarkovChainTestcase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[] { "1", "state01" });
-        inputHandler.send(new Object[] { "2", "state02" });
-        inputHandler.send(new Object[] { "1", "state03" });
-        inputHandler.send(new Object[] { "3", "state01" });
-        inputHandler.send(new Object[] { "3", "state02" });
-        inputHandler.send(new Object[] { "1", "state01" });
-        inputHandler.send(new Object[] { "1", "state02" });
-        inputHandler.send(new Object[] { "2", "state01" });
-        inputHandler.send(new Object[] { "2", "state03" });
-        inputHandler.send(new Object[] { "4", "state01" });
-        inputHandler.send(new Object[] { "4", "state03" });
+        inputHandler.send(new Object[]{"1", "state01"});
+        inputHandler.send(new Object[]{"2", "state02"});
+        inputHandler.send(new Object[]{"1", "state03"});
+        inputHandler.send(new Object[]{"3", "state01"});
+        inputHandler.send(new Object[]{"3", "state02"});
+        inputHandler.send(new Object[]{"1", "state01"});
+        inputHandler.send(new Object[]{"1", "state02"});
+        inputHandler.send(new Object[]{"2", "state01"});
+        inputHandler.send(new Object[]{"2", "state03"});
+        inputHandler.send(new Object[]{"4", "state01"});
+        inputHandler.send(new Object[]{"4", "state03"});
 
-        Thread.sleep(100);
-        Assert.assertEquals(11, count);
-        Assert.assertTrue(eventArrived);
+        SiddhiTestHelper.waitForEvents(10, 11, count, 1000);
+        Assert.assertEquals("Number of success events", 11, count.get());
+        Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
 
     }
 
     @Test
-    public void MarkovChainTest2() throws Exception {
+    public void testMarkovChainContinuesTraining() throws Exception {
         logger.info("MarkovChain TestCase 2");
 
         siddhiManager = new SiddhiManager();
@@ -159,34 +162,34 @@ public class MarkovChainTestcase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for (Event event : inEvents) {
-                    count++;
-                    switch (count) {
-                    case 1:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(true, event.getData(4));
-                        break;
-                    case 2:
-                        Assert.assertEquals(0.5, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 3:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(true, event.getData(4));
-                        break;
-                    case 4:
-                        Assert.assertEquals(0.3333333333333333, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 5:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 6:
-                        Assert.assertEquals(0.5, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    default:
-                        Assert.fail();
+                    count.incrementAndGet();
+                    switch (count.get()) {
+                        case 1:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(true, event.getData(4));
+                            break;
+                        case 2:
+                            Assert.assertEquals(0.5, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 3:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(true, event.getData(4));
+                            break;
+                        case 4:
+                            Assert.assertEquals(0.3333333333333333, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 5:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 6:
+                            Assert.assertEquals(0.5, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        default:
+                            Assert.fail();
                     }
                 }
             }
@@ -195,27 +198,27 @@ public class MarkovChainTestcase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[] { "1", "state01" });
-        inputHandler.send(new Object[] { "2", "state02" });
-        inputHandler.send(new Object[] { "1", "state03" });
-        inputHandler.send(new Object[] { "3", "state01" });
-        inputHandler.send(new Object[] { "3", "state02" });
-        inputHandler.send(new Object[] { "1", "state01" });
-        inputHandler.send(new Object[] { "1", "state02" });
-        inputHandler.send(new Object[] { "2", "state01" });
-        inputHandler.send(new Object[] { "2", "state03" });
-        inputHandler.send(new Object[] { "4", "state01" });
-        inputHandler.send(new Object[] { "4", "state03" });
+        inputHandler.send(new Object[]{"1", "state01"});
+        inputHandler.send(new Object[]{"2", "state02"});
+        inputHandler.send(new Object[]{"1", "state03"});
+        inputHandler.send(new Object[]{"3", "state01"});
+        inputHandler.send(new Object[]{"3", "state02"});
+        inputHandler.send(new Object[]{"1", "state01"});
+        inputHandler.send(new Object[]{"1", "state02"});
+        inputHandler.send(new Object[]{"2", "state01"});
+        inputHandler.send(new Object[]{"2", "state03"});
+        inputHandler.send(new Object[]{"4", "state01"});
+        inputHandler.send(new Object[]{"4", "state03"});
 
-        Thread.sleep(100);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        SiddhiTestHelper.waitForEvents(10, 6, count, 1000);
+        Assert.assertEquals("Number of success events", 6, count.get());
+        Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
 
     }
 
     @Test
-    public void MarkovChainTest3() throws Exception {
+    public void testMarkovChainDiscontinuesTraining() throws Exception {
         logger.info("MarkovChain TestCase 3");
 
         siddhiManager = new SiddhiManager();
@@ -233,34 +236,34 @@ public class MarkovChainTestcase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for (Event event : inEvents) {
-                    count++;
-                    switch (count) {
-                    case 1:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(true, event.getData(4));
-                        break;
-                    case 2:
-                        Assert.assertEquals(0.5, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 3:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(true, event.getData(4));
-                        break;
-                    case 4:
-                        Assert.assertEquals(0.3333333333333333, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 5:
-                        Assert.assertEquals(0.0, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    case 6:
-                        Assert.assertEquals(0.3333333333333333, event.getData(3));
-                        Assert.assertEquals(false, event.getData(4));
-                        break;
-                    default:
-                        Assert.fail();
+                    count.incrementAndGet();
+                    switch (count.get()) {
+                        case 1:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(true, event.getData(4));
+                            break;
+                        case 2:
+                            Assert.assertEquals(0.5, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 3:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(true, event.getData(4));
+                            break;
+                        case 4:
+                            Assert.assertEquals(0.3333333333333333, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 5:
+                            Assert.assertEquals(0.0, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        case 6:
+                            Assert.assertEquals(0.3333333333333333, event.getData(3));
+                            Assert.assertEquals(false, event.getData(4));
+                            break;
+                        default:
+                            Assert.fail();
                     }
                 }
             }
@@ -269,21 +272,21 @@ public class MarkovChainTestcase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[] { "1", "state01", true });
-        inputHandler.send(new Object[] { "2", "state02", true });
-        inputHandler.send(new Object[] { "1", "state03", true });
-        inputHandler.send(new Object[] { "3", "state01", true });
-        inputHandler.send(new Object[] { "3", "state02", true });
-        inputHandler.send(new Object[] { "1", "state01", true });
-        inputHandler.send(new Object[] { "1", "state02", true });
-        inputHandler.send(new Object[] { "2", "state01", true });
-        inputHandler.send(new Object[] { "2", "state03", false });
-        inputHandler.send(new Object[] { "4", "state01", false });
-        inputHandler.send(new Object[] { "4", "state03", false });
+        inputHandler.send(new Object[]{"1", "state01", true});
+        inputHandler.send(new Object[]{"2", "state02", true});
+        inputHandler.send(new Object[]{"1", "state03", true});
+        inputHandler.send(new Object[]{"3", "state01", true});
+        inputHandler.send(new Object[]{"3", "state02", true});
+        inputHandler.send(new Object[]{"1", "state01", true});
+        inputHandler.send(new Object[]{"1", "state02", true});
+        inputHandler.send(new Object[]{"2", "state01", true});
+        inputHandler.send(new Object[]{"2", "state03", false});
+        inputHandler.send(new Object[]{"4", "state01", false});
+        inputHandler.send(new Object[]{"4", "state03", false});
 
-        Thread.sleep(100);
-        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
+        SiddhiTestHelper.waitForEvents(10, 6, count, 1000);
+        Assert.assertEquals("Number of success events", 6, count.get());
+        Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
 
     }
