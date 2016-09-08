@@ -81,24 +81,25 @@ public class ToXMLFunctionExtension extends FunctionExecutor {
     }
 
     private Object getXmlFromMapWithRootElement(Map<Object, Object> map) {
-        String xmlValue = "<" + rootElement + ">";
-        xmlValue += addingElements(map);
-        xmlValue += "</" + rootElement + ">";
-        return xmlValue;
+        StringBuilder xmlValue = new StringBuilder();
+        xmlValue.append("<" + rootElement + ">");
+        xmlValue.append(addingElements(map));
+        xmlValue.append("</" + rootElement + ">");
+        return xmlValue.toString();
     }
 
     private String addingElements(Map<Object, Object> map) {
-        String xmlValue = "";
+        StringBuilder xmlValue = new StringBuilder();
         for (Map.Entry<Object, Object> mapEntry : map.entrySet()) {
-            xmlValue += "<" + mapEntry.getKey().toString() + ">";
+            xmlValue.append("<" + mapEntry.getKey().toString() + ">");
             if (mapEntry.getValue() instanceof Map) {
-                xmlValue += getXmlFromMap((Map<Object, Object>) mapEntry.getValue());
+                xmlValue.append(getXmlFromMap((Map<Object, Object>) mapEntry.getValue()));
             } else {
-                xmlValue += mapEntry.getValue().toString();
+                xmlValue.append(mapEntry.getValue().toString());
             }
-            xmlValue += "</" + mapEntry.getKey().toString() + ">";
+            xmlValue.append("</" + mapEntry.getKey().toString() + ">");
         }
-        return xmlValue;
+        return xmlValue.toString();
     }
 
     @Override
