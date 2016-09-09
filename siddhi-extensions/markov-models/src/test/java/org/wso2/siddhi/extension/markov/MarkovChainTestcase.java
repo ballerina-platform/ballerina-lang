@@ -28,15 +28,23 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.extension.markov.test.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+/**
+ * Following scenarios will be tested here.
+ * Populating matrix from file.
+ * MarkovChain continues training.
+ * MarkovChain discontinues training.
+ */
 public class MarkovChainTestcase {
     private static final Logger logger = Logger.getLogger(MarkovChainTestcase.class);
-    private static SiddhiManager siddhiManager;
+    private SiddhiManager siddhiManager;
+    private CountDownLatch countDownLatch;
     private AtomicInteger count = new AtomicInteger(0);
-    private volatile boolean eventArrived;
+    private boolean eventArrived;
 
     @Before
     public void init() {
@@ -46,15 +54,17 @@ public class MarkovChainTestcase {
 
     @Test
     public void testMarkovChainPopulatingMatrixFromFile() throws Exception {
-        logger.info("MarkovChain TestCase 1");
+        logger.info("MarkovChain populating matrix from file test case.");
 
+        final int EXPECTED_NO_OF_EVENTS = 11;
+        countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (id string, state string);";
 
         ClassLoader classLoader = getClass().getClassLoader();
         String markovMatrixStorageLocation = classLoader.getResource("markovMatrix.csv").getPath();
 
-        String executionPlan = ("" + "@info(name = 'query1') "
+        String executionPlan = ("@info(name = 'query1') "
                 + "from InputStream#markov:markovChain(id, state, 60 min, 0.2, \'" + markovMatrixStorageLocation
                 + "\', false) " + "select id, lastState, state, transitionProbability, notify "
                 + "insert into OutputStream;");
@@ -67,6 +77,7 @@ public class MarkovChainTestcase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for (Event event : inEvents) {
+                    countDownLatch.countDown();
                     count.incrementAndGet();
                     switch (count.get()) {
                         case 1:
@@ -88,7 +99,6 @@ public class MarkovChainTestcase {
                         case 5:
                             Assert.assertEquals(0.6, event.getData(3));
                             Assert.assertEquals(false, event.getData(4));
-
                             break;
                         case 6:
                             Assert.assertEquals(0.6000000000000001, event.getData(3));
@@ -136,23 +146,25 @@ public class MarkovChainTestcase {
         inputHandler.send(new Object[]{"4", "state01"});
         inputHandler.send(new Object[]{"4", "state03"});
 
-        SiddhiTestHelper.waitForEvents(10, 11, count, 1000);
+        countDownLatch.await(1000, MILLISECONDS);
         Assert.assertEquals("Number of success events", 11, count.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
     public void testMarkovChainContinuesTraining() throws Exception {
-        logger.info("MarkovChain TestCase 2");
+        logger.info("MarkovChain continues training test case.");
 
+        final int EXPECTED_NO_OF_EVENTS = 6;
+        countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (id string, state string);";
 
         String executionPlan = ("@info(name = 'query1') "
                 + "from InputStream#markov:markovChain(id, state, 60 min, 0.2, 5) "
-                + "select id, lastState, state, transitionProbability, notify " + "insert into OutputStream;");
+                + "select id, lastState, state, transitionProbability, notify "
+                + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + executionPlan);
 
@@ -162,6 +174,7 @@ public class MarkovChainTestcase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for (Event event : inEvents) {
+                    countDownLatch.countDown();
                     count.incrementAndGet();
                     switch (count.get()) {
                         case 1:
@@ -210,23 +223,25 @@ public class MarkovChainTestcase {
         inputHandler.send(new Object[]{"4", "state01"});
         inputHandler.send(new Object[]{"4", "state03"});
 
-        SiddhiTestHelper.waitForEvents(10, 6, count, 1000);
+        countDownLatch.await(1000, MILLISECONDS);
         Assert.assertEquals("Number of success events", 6, count.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
     public void testMarkovChainDiscontinuesTraining() throws Exception {
-        logger.info("MarkovChain TestCase 3");
+        logger.info("MarkovChain discontinues training test case");
 
+        final int EXPECTED_NO_OF_EVENTS = 6;
+        countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (id string, state string, train bool);";
 
         String executionPlan = ("@info(name = 'query1') "
                 + "from InputStream#markov:markovChain(id, state, 60 min, 0.2, 5, train) "
-                + "select id, lastState, state, transitionProbability, notify " + "insert into OutputStream;");
+                + "select id, lastState, state, transitionProbability, notify "
+                + "insert into OutputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
                 .createExecutionPlanRuntime(inputStream + executionPlan);
 
@@ -236,6 +251,7 @@ public class MarkovChainTestcase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 eventArrived = true;
                 for (Event event : inEvents) {
+                    countDownLatch.countDown();
                     count.incrementAndGet();
                     switch (count.get()) {
                         case 1:
@@ -284,11 +300,10 @@ public class MarkovChainTestcase {
         inputHandler.send(new Object[]{"4", "state01", false});
         inputHandler.send(new Object[]{"4", "state03", false});
 
-        SiddhiTestHelper.waitForEvents(10, 6, count, 1000);
+        countDownLatch.await(1000, MILLISECONDS);
         Assert.assertEquals("Number of success events", 6, count.get());
         Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
-
     }
 
 }
