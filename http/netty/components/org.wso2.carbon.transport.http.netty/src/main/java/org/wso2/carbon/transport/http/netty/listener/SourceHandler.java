@@ -19,6 +19,7 @@ import com.lmax.disruptor.RingBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -61,6 +62,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private DisruptorConfig disruptorConfig;
     protected Map<String, GenericObjectPool> targetChannelPool;
     protected ListenerConfiguration listenerConfiguration;
+
+    public ListenerConfiguration getListenerConfiguration() {
+        return listenerConfiguration;
+    }
 
     public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration)
             throws Exception {
@@ -222,7 +227,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
-
+        ChannelHandler handler = ctx.handler();
+        if (handler instanceof WorkerPoolDispatchingSourceHandler) {
+            cMsg.setProperty(Constants.CHANNEL_ID,
+                             ((WorkerPoolDispatchingSourceHandler) handler).getListenerConfiguration().getId());
+        } else if (handler instanceof SourceHandler) {
+            cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
+        } else {
+            //Shouldn't come to here
+            throw new RuntimeException("Error while getting the channel ID");
+        }
         cMsg.setHeaders(Util.getHeaders(httpRequest));
         return cMsg;
     }

@@ -64,7 +64,7 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
     protected void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         NettyTransportContextHolder.getInstance().getListenerConfigurations().values().forEach(
                 listenerConfiguration -> NettyTransportContextHolder.getInstance().addMessageProcessor(
-                        listenerConfiguration.getPort(), carbonMessageProcessor));
+                        listenerConfiguration.getId(), carbonMessageProcessor));
     }
 
     protected void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {

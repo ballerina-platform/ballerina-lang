@@ -38,7 +38,7 @@ public class NettyTransportContextHolder {
 
     private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
     private BundleContext bundleContext;
-    private Map<Integer, CarbonMessageProcessor> messageProcessors = new HashMap<>();
+    private Map<String, CarbonMessageProcessor> messageProcessors = new HashMap<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
     private TransportListenerManager manager;
@@ -72,16 +72,16 @@ public class NettyTransportContextHolder {
         return this.bundleContext;
     }
 
-    public CarbonMessageProcessor getMessageProcessor(int port) {
-        return messageProcessors.get(port);
+    public CarbonMessageProcessor getMessageProcessor(String id) {
+        return messageProcessors.get(id);
     }
 
-    public void addMessageProcessor(int port, CarbonMessageProcessor carbonMessageProcessor) {
-        messageProcessors.put(port, carbonMessageProcessor);
+    public void addMessageProcessor(String id, CarbonMessageProcessor carbonMessageProcessor) {
+        messageProcessors.put(id, carbonMessageProcessor);
     }
 
     public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        Optional<Map.Entry<Integer, CarbonMessageProcessor>> mapEntry = messageProcessors.entrySet().stream()
+        Optional<Map.Entry<String, CarbonMessageProcessor>> mapEntry = messageProcessors.entrySet().stream()
                         .filter(entry -> entry.getValue().getId().equals(carbonMessageProcessor.getId())).findFirst();
         if (mapEntry.isPresent()) {
             messageProcessors.remove(mapEntry.get().getKey());
