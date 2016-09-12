@@ -307,10 +307,10 @@ var Diagrams = (function (diagrams) {
                 console.log(position);
                 if (Processors.manipulators[id]) {
                     var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.manipulators[id].name, createPoint(position.x, position.y));
-                    diagram.selectedNode.addFixedSizedMediator(mediator);
+                    diagram.selectedNode.addChild(mediator);
                 } else if (Processors.flowControllers[id]) {
                     var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.flowControllers[id].name, createPoint(position.x, position.y));
-                    diagram.selectedNode.addFixedSizedMediator(mediator);
+                    diagram.selectedNode.addChild(mediator);
                 } else if (id == "tool1") {
                     var lifeline = createLifeLine("Lifeline", createPoint(position.x, 50));
                     diagram.addElement(lifeline, lifeLineOptions);
@@ -416,7 +416,8 @@ var Diagrams = (function (diagrams) {
                     if (viewObj.model.clickedLifeLine.get('centerPoint').get('x') != diagram.destinationLifeLine.get('centerPoint').get('x')) {
 
                         var invisibleActivation = new SequenceD.Models.Activation({owner: diagram.destinationLifeLine});
-                        var messageOptions = {'class': 'message'};
+                        var messageOptionsInbound = {'class': 'message', 'direction' : 'inbound'};
+                        var messageOptionsOutbound = {'class': 'message', 'direction' : 'outbound'};
 
                         var lf1Activation1 = new SequenceD.Models.Activation({owner: viewObj.model.clickedLifeLine});
 
@@ -427,7 +428,11 @@ var Diagrams = (function (diagrams) {
                             }
                         );
 
-                        viewObj.model.addElement(dynamicMessage, messageOptions);
+                        var clickedLifeLine = viewObj.model.clickedLifeLine;
+                        clickedLifeLine.addChild(dynamicMessage, messageOptionsOutbound);
+                        //diagram.selectedNode.addChild(dynamicMessage, messageOptionsInbound);
+                        viewObj.model.addElement(dynamicMessage, messageOptionsInbound);
+
                     }
 
                     diagram.destinationLifeLine = null;

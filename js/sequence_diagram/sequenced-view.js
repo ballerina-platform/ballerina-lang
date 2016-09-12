@@ -67,6 +67,8 @@ var SequenceD = (function (sequenced) {
 
                 this.model.on("addFixedSizedMediator", this.onAddFixedSizedMediator, this);
 
+                this.model.on("addChild", this.onAddChild, this);
+
                 this.d3el = lifeLine;
                 this.el = lifeLine.node();
                 return lifeLine;
@@ -80,6 +82,24 @@ var SequenceD = (function (sequenced) {
                 var mediatorText = d3Ref.draw.centeredText(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), element.get('title'), this.group)
                     .classed(this.prefs.text.class, true);
                 //this.renderViewForElement(element, opts);
+            },
+
+
+            onAddChild: function (element, opts) {
+
+                if (element instanceof SequenceD.Models.FixedSizedMediator) {
+
+                    var d3Ref = this.getD3Ref();
+                    console.log("Mediator added");
+                    var rectBottomXXX = d3Ref.draw.centeredRect(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), this.prefs.rect.width, this.prefs.rect.height, 3, 3, this.group)
+                        .classed(this.prefs.rect.class, true);
+                    var mediatorText = d3Ref.draw.centeredText(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), element.get('title'), this.group)
+                        .classed(this.prefs.text.class, true);
+                    //this.renderViewForElement(element, opts);
+                } else if (element instanceof SequenceD.Models.Message) {
+                    console.log("Message Link added !!!")
+                }
+
             },
 
             drawlifeLine: function (center, title, prefs) {
