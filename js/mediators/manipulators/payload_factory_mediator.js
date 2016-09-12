@@ -18,21 +18,21 @@
 
 var Mediators = (function (mediators) {
 
-    var flowControllers = mediators.flowControllers || {};
+    var manipulators = mediators.manipulators || {};
 
-    //Define manipulator mediators
-    var tryBlockMediator = {
-        id: "TryBlockMediator",
-        name: "TryBlock Mediator",
-        icon: "images/TryBlockMediator.gif",
+    //Payload Factory mediator definition
+    var payloadFactoryMediator = {
+        id: "PayLoadFactoryMediator",
+        name: "PayLoad Factory",
+        icon: "images/PayloadFactoryMediator.gif",
         parameters: []
     };
 
     // Add defined mediators to manipulators
     // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    flowControllers.TryBlockMediator = tryBlockMediator;
+    manipulators.PayLoadFactoryMediator = payloadFactoryMediator;
 
-    mediators.flowControllers = flowControllers;
+    mediators.manipulators = manipulators;
 
     return mediators;
 

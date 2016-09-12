@@ -18,7 +18,7 @@
 
 var Mediators = (function (mediators) {
 
-    var manipulators = mediators.manipulators = {};
+    var manipulators = mediators.manipulators || {};
 
     //Log mediator definition
     var logMediator = {

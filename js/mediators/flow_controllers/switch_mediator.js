@@ -21,16 +21,16 @@ var Mediators = (function (mediators) {
     var flowControllers = mediators.flowControllers || {};
 
     //Define manipulator mediators
-    var tryBlockMediator = {
-        id: "TryBlockMediator",
-        name: "TryBlock Mediator",
-        icon: "images/TryBlockMediator.gif",
+    var switchMediator = {
+        id: "SwitchMediator",
+        name: "Switch Mediator",
+        icon: "images/SwitchMediator.gif",
         parameters: []
     };
 
     // Add defined mediators to manipulators
     // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    flowControllers.TryBlockMediator = tryBlockMediator;
+    flowControllers.SwitchMediator = switchMediator;
 
     mediators.flowControllers = flowControllers;
 
