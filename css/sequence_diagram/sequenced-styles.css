@@ -1,0 +1,36 @@
+.lifeline-title{
+    fill: #ffffff;
+    text-anchor:middle;
+    cursor:text;
+}
+
+.lifeline-line{
+    stroke: #666666;
+    stroke-dasharray: 4,1;
+    stroke-width: 2.5px;
+}
+
+.lifeline-rect{
+    fill: #4682B4;
+}
+
+.message{
+    stroke: #666666;
+    stroke-width: 2.5px;
+    marker-end: url('#markerArrow');
+}
+
+.message:hover{
+    cursor: pointer;
+}
+
+.lifeline{
+}
+
+.lifeline:hover{
+    cursor: pointer;
+}
+
+.marker{
+    fill: #666666;
+}

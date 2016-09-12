@@ -1,0 +1,201 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: arial, sans-serif;
+    font-weight: normal;
+    font-size: 12px;
+    background: #3f4348;
+    padding-top: 20px;
+}
+
+.scrollable-collapse {
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+.draggableIcon {
+    z-index: 400;
+}
+
+.draggable {
+    position: absolute;
+}
+
+.component {
+    border: 1px solid #346789;
+    border-radius: 0.5em;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+    background-color: white;
+    color: black;
+    padding: 0.5em;
+    font-size: 0.8em;
+}
+
+.component:hover {
+    border: 1px solid #123456;
+    box-shadow: 2px 2px 19px #444;
+    -o-box-shadow: 2px 2px 19px #444;
+    -webkit-box-shadow: 2px 2px 19px #444;
+    -moz-box-shadow: 2px 2px 19px #fff;
+    opacity: 0.9;
+    filter: alpha(opacity=90);
+}
+
+.window {
+    background-color: white;
+    border: 1px solid #346789;
+    box-shadow: 2px 2px 19px #e0e0e0;
+    -o-box-shadow: 2px 2px 19px #e0e0e0;
+    -webkit-box-shadow: 2px 2px 19px #e0e0e0;
+    -moz-box-shadow: 2px 2px 19px #e0e0e0;
+    -moz-border-radius: 0.5em;
+    border-radius: 0.5em;
+    width: 5em;
+    height: 5em;
+    position: absolute;
+    color: black;
+    padding: 0.5em;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    -webkit-transition: -webkit-box-shadow 0.15s ease-in;
+    -moz-transition: -moz-box-shadow 0.15s ease-in;
+    -o-transition: -o-box-shadow 0.15s ease-in;
+    transition: box-shadow 0.15s ease-in;
+}
+
+.window:hover {
+    border: 1px solid #123456;
+    box-shadow: 2px 2px 19px #444;
+    -o-box-shadow: 2px 2px 19px #444;
+    -webkit-box-shadow: 2px 2px 19px #444;
+    -moz-box-shadow: 2px 2px 19px #fff;
+    opacity: 0.9;
+    filter: alpha(opacity=90);
+}
+
+.list-group-item:hover {
+    background: gray;
+    color: #ffffff;
+    cursor: move;
+}
+
+.textareaCode {
+    font-family: consolas, "courier new", monospace;
+    font-size: 14px;
+    height: 99%;
+    width: 99%;
+    border: 1px solid #d3d3d3;
+    border-radius: 4px;
+    margin: 0px;
+    padding: 4px;
+    resize: none;
+}
+
+/* By awanthika to get teh switch mediator */
+.grandparent {
+    width: 250px;
+    height: 250px;
+    background-color: #CCCCCC;
+    position: relative;
+}
+
+.child1 {
+    width: 150px;
+    height: 150px;
+    background-color: #999999;
+    position: absolute;
+    bottom: 0px;
+}
+
+.child2 {
+    width: 70px;
+    height: 70px;
+    background-color: #666666;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+.child3 {
+    width: 70px;
+    height: 70px;
+    background-color: #666666;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+.switchDivStyle {
+    height: 200px;
+    width: 200px;
+    background: #fff000;
+}
+
+.jsuplumContainerStyle {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #ffff00;
+}
+
+.switchTableStyle {
+    width: 100%;
+    height: 100%;
+}
+
+.switchTableTDStyle {
+    border: 1px solid #ccc;
+    border-width: 1px 1px 1px 1px;
+    border-radius: 25px;
+}
+
+.switchTableLeftTDStyle {
+    border: 1px solid #ccc;
+    border-width: 1px 1px 1px 1px;
+    width: 100%;
+    height: 100%;
+}
+
+.switchJsWrapperStyle {
+    height: 100%;
+    width: 100%;
+    background: #ffffff;
+}
+
+.wso2Mediator_style {
+    border: 1px solid #346789;
+    box-shadow: 2px 2px 19px #aaa;
+    -o-box-shadow: 2px 2px 19px #aaa;
+    -webkit-box-shadow: 2px 2px 19px #aaa;
+    -moz-box-shadow: 2px 2px 19px #aaa;
+    -moz-border-radius: 0.5em;
+    border-radius: 0.5em;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+
+    text-align: center;
+    z-index: 20;
+    position: absolute;
+    background-color: #eeeeef;
+    color: black;
+    font-family: helvetica;
+    padding: 0.5em;
+    font-size: 0.9em;
+    background-position: center 0%;
+    background-repeat: no-repeat;
+}
+
+.wso2Mediator_style:hover {
+    box-shadow: 2px 2px 19px #444;
+    -o-box-shadow: 2px 2px 19px #444;
+    -webkit-box-shadow: 2px 2px 19px #444;
+    -moz-box-shadow: 2px 2px 19px #444;
+    opacity: 0.6;
+    filter: alpha(opacity=60);
+}

@@ -1,0 +1,172 @@
+#root-container {
+   margin: 0;
+   padding: 0;
+   height: 100vh;
+   width: 100vw;
+   overflow: hidden;
+}
+
+.shapes-container{
+   position: absolute;
+   top:50px;
+   left: 0;
+   width: 240px;
+   height: calc(100vh - 100px);
+   background-color: #BBBBBB;
+}
+
+.logo{
+   height: 25px;
+   margin: 15px;
+   float: right;
+}
+.header{
+   position: absolute;
+   top:0;
+   left: 0;
+   width: 100vw;
+   overflow: hidden;
+   height: 50px;
+   background-color: #333333;
+}
+
+.editor-container{
+   position: absolute;
+   top: 50px;
+   left: 240px;
+   bottom: 0%;
+   right: 0%;
+   margin-left: 0px;
+   height: calc(100vh - 100px);
+   width: calc(100vw - 240px);
+   background-color: #fff;
+   overflow: hidden;
+}
+
+.editor-scroller{
+   width: 100%;
+   height: 100%;
+   position: relative;
+   overflow: scroll;
+   cursor: move;
+   box-sizing: border-box;
+}
+
+svg text::selection { background: none; }
+
+.editor {
+   margin: 0;
+   position: relative;
+   display: inline-block;
+}
+
+.editor > svg {
+   display: block;
+}
+
+.ruled-paper{
+   background-image:
+   linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+   linear-gradient(#eee .1em, transparent .1em);
+   background-size: 100% 1.2em;
+}
+
+.gradient-pattern {
+   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
+   background-color: white;
+   box-shadow: 0 0 2px lightgray;
+}
+
+.cardboard{
+   background-color: #ffffff;
+   background-image: url("patterns/cardboard-flat.png");
+}
+
+.tool-container {
+   width: 80px;
+   height: 40px;
+}
+
+.ui-draggable {
+   z-index: 10000;
+}
+
+.mybs-container {
+
+}
+
+.mybs-row {
+  margin-top: 8px;
+}
+
+.mybs-glypicon {
+  bottom: 12px;
+}
+
+.panel-container {
+   margin-bottom: 2px;
+   margin-left: 4px;
+   margin-right: 4px;
+}
+
+
+.lifeline_selected{
+    background-color:#cc1;
+    stroke-width:3;
+    stroke:rgb(0,0,0);
+}
+
+.tool-image {
+   display: block;
+   max-width:30px;
+   max-height:30px;
+   width: auto;
+   height: auto;
+}
+
+.udcontrol-image {
+   width: 28px;
+   height: 28px;
+}
+
+.hidden-button {
+  display: none;
+  visibility: hidden;
+}
+.visible-button {
+   display: block;
+  visibility: visible;
+}
+
+#exTab1 {
+  height: calc(100vh - 50px);
+  width: calc(100vw);
+}
+
+#exTab1 .tab-content {
+  color : white;
+  background-color: #BBBBAA;
+  padding : 5px 15px;
+  height: calc(100vh - 50px);
+}
+
+#exTab1 .nav-pills > li > a {
+  border-radius: 0;
+  background-color: #BBBBAA;
+}
+
+textarea {
+    display: block;
+    width: 100%;
+    height: 100%;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+body{
+   margin: 0;
+   padding: 0;
+   width: 100vw;
+   height: 100vh;
+}
