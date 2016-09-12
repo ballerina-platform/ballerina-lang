@@ -228,14 +228,15 @@ var SequenceD = (function (sequenced) {
 
             },
 
-            getNextAvailableConnectionPoint: function (connecion) {
+            getNextAvailableConnectionPoint: function (connecion, x, y) {
                 var nextYCoordinate = diagram.deepestPointY + 50;
                 var nextXCoordinate = this.model.owner().get('centerPoint').x();
 
-                if (_.isEqual(connecion.type(), "incoming")) {
-                    lifeLineOptions.diagram.deepestPointY = nextYCoordinate;
-                }
-                return new GeoCore.Models.Point({'x': nextXCoordinate, 'y': nextYCoordinate});
+                // TODO: Until the layout finalize we will be drawing the message without offsetting dynamically
+                //if (_.isEqual(connecion.type(), "incoming")) {
+                //    lifeLineOptions.diagram.deepestPointY = nextYCoordinate;
+                //}
+                return new GeoCore.Models.Point({'x': nextXCoordinate, 'y': diagram.sourceLifeLineY});
             }
         });
 

@@ -1,6 +1,6 @@
-# Sequence Diagram Editor
+# Sequence Diagram Editor for WSO2 Integration Server
 
-This module includes two main features for modeling integration workflows for WSO2 Integration Server.
+This module includes two main features for modeling integration workflows in WSO2 Integration Server.
 
 - Design View
     
