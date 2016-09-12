@@ -16,24 +16,17 @@
  * under the License.
  */
 
-var Mediators = (function (mediators) {
+var Processors = (function (processors) {
 
-    var manipulators = mediators.manipulators || {};
+    var flowControllers = processors.flowControllers || {};
 
-    //Payload Factory mediator definition
-    var payloadFactoryMediator = {
-        id: "PayLoadFactoryMediator",
-        name: "PayLoad Factory",
-        icon: "images/PayloadFactoryMediator.gif",
-        parameters: []
+    // Methods
+    var get = function(mediatorId){
+        return flowControllers[mediatorId];
     };
 
-    // Add defined mediators to manipulators
-    // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    manipulators.PayLoadFactoryMediator = payloadFactoryMediator;
+    processors.getFlowController = get;
 
-    mediators.manipulators = manipulators;
+    return processors;
 
-    return mediators;
-
-}(Mediators || {}));
+}(Processors || {}));

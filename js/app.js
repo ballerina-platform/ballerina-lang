@@ -72,12 +72,12 @@ var log_mediator = new Tools.Models.Tool({
 // Create tool group
 var group = new Tools.Models.ToolGroup();
 group.add(lifeline);
-for (var manipulator in Mediators.manipulators) {
-    var tool = new Tools.Models.Tool(Mediators.manipulators[manipulator]);
+for (var manipulator in Processors.manipulators) {
+    var tool = new Tools.Models.Tool(Processors.manipulators[manipulator]);
     group.add(tool);
 }
-for (var flowController in Mediators.flowControllers) {
-    var tool = new Tools.Models.Tool(Mediators.flowControllers[flowController]);
+for (var flowController in Processors.flowControllers) {
+    var tool = new Tools.Models.Tool(Processors.flowControllers[flowController]);
     group.add(tool);
 }
 var toolGroupWrapper = new Tools.Models.ToolGroupWrapper({

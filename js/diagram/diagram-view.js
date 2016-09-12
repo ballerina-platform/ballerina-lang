@@ -305,11 +305,11 @@ var Diagrams = (function (diagrams) {
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
                 console.log(position);
-                if (Mediators.manipulators[id]) {
-                    var mediator = diagram.selectedNode.createFixedSizedMediator(Mediators.manipulators[id].name, createPoint(position.x, position.y));
+                if (Processors.manipulators[id]) {
+                    var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.manipulators[id].name, createPoint(position.x, position.y));
                     diagram.selectedNode.addFixedSizedMediator(mediator);
-                } else if (Mediators.flowControllers[id]) {
-                    var mediator = diagram.selectedNode.createFixedSizedMediator(Mediators.flowControllers[id].name, createPoint(position.x, position.y));
+                } else if (Processors.flowControllers[id]) {
+                    var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.flowControllers[id].name, createPoint(position.x, position.y));
                     diagram.selectedNode.addFixedSizedMediator(mediator);
                 } else if (id == "tool1") {
                     var lifeline = createLifeLine("Lifeline", createPoint(position.x, 50));

@@ -16,17 +16,17 @@
  * under the License.
  */
 
-var Mediators = (function (mediators) {
+var Processors = (function (processors) {
 
-    var manipulators = mediators.manipulators || {};
+    var manipulators = processors.manipulators || {};
 
     // Methods
     var get = function(mediatorId){
         return manipulators[mediatorId];
     };
 
-    mediators.getManipulator = get;
+    processors.getManipulator = get;
 
-    return mediators;
+    return processors;
 
-}(Mediators || {}));
+}(Processors || {}));
