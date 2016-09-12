@@ -98,6 +98,11 @@ var SequenceD = (function (sequenced) {
                     //this.renderViewForElement(element, opts);
                 } else if (element instanceof SequenceD.Models.Message) {
                     console.log("Message Link added !!!")
+                    if(opts.direction == 'inbound'){
+                        diagram.addElement(element, opts);
+                    }
+
+                    //viewObj.model.addElement(element, opts);
                 }
 
             },
