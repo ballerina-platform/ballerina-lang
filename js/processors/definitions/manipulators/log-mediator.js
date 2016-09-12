@@ -16,9 +16,9 @@
  * under the License.
  */
 
-var Mediators = (function (mediators) {
+var Processors = (function (processors) {
 
-    var manipulators = mediators.manipulators || {};
+    var manipulators = processors.manipulators || {};
 
     //Log mediator definition
     var logMediator = {
@@ -108,8 +108,8 @@ var Mediators = (function (mediators) {
     // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
     manipulators.LogMediator = logMediator;
 
-    mediators.manipulators = manipulators;
+    processors.manipulators = manipulators;
 
-    return mediators;
+    return processors;
 
-}(Mediators || {}));
+}(Processors || {}));

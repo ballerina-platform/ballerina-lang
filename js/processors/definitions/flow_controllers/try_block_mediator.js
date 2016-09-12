@@ -16,9 +16,9 @@
  * under the License.
  */
 
-var Mediators = (function (mediators) {
+var Processors = (function (processors) {
 
-    var flowControllers = mediators.flowControllers || {};
+    var flowControllers = processors.flowControllers || {};
 
     //Define manipulator mediators
     var tryBlockMediator = {
@@ -32,8 +32,8 @@ var Mediators = (function (mediators) {
     // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
     flowControllers.TryBlockMediator = tryBlockMediator;
 
-    mediators.flowControllers = flowControllers;
+    processors.flowControllers = flowControllers;
 
-    return mediators;
+    return processors;
 
-}(Mediators || {}));
+}(Processors || {}));
