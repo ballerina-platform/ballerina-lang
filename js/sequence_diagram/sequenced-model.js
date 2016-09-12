@@ -176,12 +176,12 @@ var SequenceD = (function (sequenced) {
 
             defaults: {},
 
-            source: function (ConnectionPoint) {
-                return Diagrams.Models.Link.prototype.source.call(this, ConnectionPoint);
+            source: function (ConnectionPoint, x, y) {
+                return Diagrams.Models.Link.prototype.source.call(this, ConnectionPoint,x, y);
             },
 
-            destination: function (ConnectionPoint) {
-                return Diagrams.Models.Link.prototype.destination.call(this, ConnectionPoint);
+            destination: function (ConnectionPoint, x, y) {
+                return Diagrams.Models.Link.prototype.destination.call(this, ConnectionPoint, x, y);
             },
 
             makeParallel: function () {

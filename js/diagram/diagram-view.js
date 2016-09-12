@@ -44,7 +44,11 @@ var Diagrams = (function (diagrams) {
                 var dy = this.verticalDrag() ? event.dy : 0;
                 d.x += dx;
                 d.y += dy;
-                var snappedPoint = this.snapToGrid(new GeoCore.Models.Point({'x': d.x, 'y': d.y}));
+                var snappedPoint = this.snapToGrid(new GeoCore.Models.Point({ 'x': d.x, 'y': d.y }));
+
+                if (this.model instanceof SequenceD.Models.LifeLine) {
+                    this.model.get('centerPoint').move(dx, 0);
+                }
                 this.d3el.translate(snappedPoint.x(), snappedPoint.y());
                 this.model.trigger("elementMoved", {dx: dx, dy: dy});
             },
@@ -213,8 +217,8 @@ var Diagrams = (function (diagrams) {
                 DiagramElementView.prototype.render.call(this, paperID);
             },
 
-            onConnectionMade: function (connection) {
-                connection.point(this.getNextAvailableConnectionPoint(connection));
+            onConnectionMade: function (connection, x, y) {
+                connection.point(this.getNextAvailableConnectionPoint(connection, x, y));
             },
 
             getNextAvailableConnectionPoint: function () {
@@ -381,8 +385,8 @@ var Diagrams = (function (diagrams) {
             },
 
             onLifelineClicked: function (x, y) {
-
-                console.log("{" + x + "," + y + "}");
+                var sourceX = x;
+                var sourceY = y;
                 var line = this.d3svg.append("line")
                     .attr("x1", x)
                     .attr("y1", y)
@@ -409,19 +413,24 @@ var Diagrams = (function (diagrams) {
                     var parent = l.parentNode;
                     parent.removeChild(l);
 
-                    var invisibleLifeline = viewObj.model.getNearestLifeLine(m[0]);
+                    if (viewObj.model.clickedLifeLine.get('centerPoint').get('x') != diagram.destinationLifeLine.get('centerPoint').get('x')) {
 
-                    var invisibleActivation = new SequenceD.Models.Activation({owner: invisibleLifeline});
-                    var messageOptions = {'class': 'message'};
+                        var invisibleActivation = new SequenceD.Models.Activation({owner: diagram.destinationLifeLine});
+                        var messageOptions = {'class': 'message'};
 
-                    var lf1Activation1 = new SequenceD.Models.Activation({owner: viewObj.model.clickedLifeLine});
+                        var lf1Activation1 = new SequenceD.Models.Activation({owner: viewObj.model.clickedLifeLine});
 
-                    var dynamicMessage = new SequenceD.Models.Message({
-                        source: lf1Activation1,
-                        destination: invisibleActivation
-                    });
+                        var dynamicMessage = new SequenceD.Models.Message(
+                            {
+                                source: {activation: lf1Activation1, x: sourceX, y: sourceY},
+                                destination: {activation: invisibleActivation, x: m[0], y: m[1]}
+                            }
+                        );
 
-                    viewObj.model.addElement(dynamicMessage, messageOptions);
+                        viewObj.model.addElement(dynamicMessage, messageOptions);
+                    }
+
+                    diagram.destinationLifeLine = null;
                 });
             }
         });

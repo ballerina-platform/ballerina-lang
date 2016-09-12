@@ -130,6 +130,7 @@ var SequenceD = (function (sequenced) {
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
+                    diagram.destinationLifeLine = diagram.selectedNode;
                     diagram.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {

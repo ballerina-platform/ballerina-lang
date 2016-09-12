@@ -82,8 +82,8 @@ var Diagrams = (function (diagrams) {
              */
             initialize: function (attrs, options) {
                 DiagramElement.prototype.initialize.call(this, attrs, options);
-                this.source(attrs['source']);
-                this.destination(attrs['destination']);
+                this.source(attrs['source']['activation'], attrs['source']['x'], attrs['source']['y']);
+                this.destination(attrs['destination']['activation'], attrs['destination']['x'], attrs['destination']['y']);
             },
 
             modelName: "Link",
@@ -96,11 +96,12 @@ var Diagrams = (function (diagrams) {
              * Gets or sets source connectionPoint for the link.
              * @param {ConnectionPoint} [connectionPoint] Source connectionPoint
              */
-            source: function (connectionPoint) {
+            source: function (connectionPoint, x, y) {
                 if (connectionPoint === undefined) {
                     return this.get('source');
                 }
-                var connection = connectionPoint.connectLink(this, {type: 'outgoing'});
+                diagram.sourceLifeLineY = y;
+                var connection = connectionPoint.connectLink(this, { type: 'outgoing', x: x, y: y});
                 if (this.makeParallel()) {
                     connection.point().y(this.destination().point().y());
                 }
@@ -110,11 +111,11 @@ var Diagrams = (function (diagrams) {
              * Gets or sets destination connectionPoint for the link.
              * @param {ConnectionPoint} [connectionPoint] Destination connectionPoint
              */
-            destination: function (connectionPoint) {
+            destination: function (connectionPoint, x, y) {
                 if (connectionPoint === undefined) {
                     return this.get('destination');
                 }
-                var connection = connectionPoint.connectLink(this, {type: 'incoming'});
+                var connection = connectionPoint.connectLink(this, { type: 'incoming', x: x, y: y});
                 if (this.makeParallel()) {
                     connection.point().y(this.source().point().y());
                 }
@@ -210,7 +211,7 @@ var Diagrams = (function (diagrams) {
             connectLink: function (link, options) {
                 var connection = new Connection({type: options.type, link: link, connectionPoint: this});
                 this.connections.add(connection);
-                this.trigger("connectionMade", connection);
+                this.trigger("connectionMade", connection, options.x, options.y);
                 return connection;
             },
 
@@ -265,7 +266,10 @@ var Diagrams = (function (diagrams) {
                 var elements = new DiagramElements([], {diagram: this});
                 this.diagramElements(elements);
                 this.selectedNode = null;
+                this.destinationLifeLine = null;
+                // TODO: won't be using this until the layout finalized
                 this.deepestPointY = 100;
+                this.sourceLifeLineY = 0;
             },
 
             modelName: "Diagram",
@@ -275,6 +279,8 @@ var Diagrams = (function (diagrams) {
             nameSpace: diagrams,
 
             lifeLineMap: {},
+
+            destinationLifeLine: null,
 
             addElement: function (element, opts) {
                 this.diagramElements().add(element, opts);
