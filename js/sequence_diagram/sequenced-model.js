@@ -17,7 +17,7 @@
  */
 
 var SequenceD = (function (sequenced) {
-    var models = sequenced.Models = {};
+    var models = sequenced.Models || {};
 
     var FixedSizedMediator = Diagrams.Models.Shape.extend(
         /** @lends DiagramElement.prototype */
