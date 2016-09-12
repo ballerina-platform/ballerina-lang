@@ -4,13 +4,6 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: arial, sans-serif;
-    font-weight: normal;
-    font-size: 12px;
-    background: #3f4348;
-    padding-top: 20px;
-}
 
 .scrollable-collapse {
     max-height: 500px;
@@ -83,18 +76,6 @@ body {
     background: gray;
     color: #ffffff;
     cursor: move;
-}
-
-.textareaCode {
-    font-family: consolas, "courier new", monospace;
-    font-size: 14px;
-    height: 99%;
-    width: 99%;
-    border: 1px solid #d3d3d3;
-    border-radius: 4px;
-    margin: 0px;
-    padding: 4px;
-    resize: none;
 }
 
 /* By awanthika to get teh switch mediator */

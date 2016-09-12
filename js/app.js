@@ -81,8 +81,8 @@ for (var flowController in Processors.flowControllers) {
     group.add(tool);
 }
 var toolGroupWrapper = new Tools.Models.ToolGroupWrapper({
-    toolGroupName: "Sequence Diagrams",
-    toolGroupID: "SequenceDiagrams",
+    toolGroupName: "Diagram Elements",
+    toolGroupID: "diagram-elements",
     toolGroup: group
 });
 
