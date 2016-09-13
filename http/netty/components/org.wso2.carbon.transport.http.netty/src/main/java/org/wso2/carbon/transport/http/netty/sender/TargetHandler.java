@@ -170,7 +170,7 @@ public class TargetHandler extends ReadTimeoutHandler {
         HttpResponse httpResponse = (HttpResponse) msg;
 
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
-        cMsg.setHeaders(Util.getHeaders(httpResponse));
+        cMsg.setHeaders(Util.getHeaders(httpResponse).getAll());
         return cMsg;
 
     }
