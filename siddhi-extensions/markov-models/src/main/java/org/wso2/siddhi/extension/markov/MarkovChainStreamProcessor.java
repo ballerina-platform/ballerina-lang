@@ -39,8 +39,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 /**
- * markovChain( id, state, durationToKeep, alertThreshold, notificationsHoldLimit/markovMatrixStorageLocation, train )
- * Returns last state, transition probability and notification
+ * StreamProcessor which implements the following function.
+ * <code>markovChain( id, state, durationToKeep, alertThreshold, notificationsHoldLimit/markovMatrixStorageLocation, train )</code>
+ * Returns last state, transition probability and notification.
  * Accept Type(s): STRING, STRING, INT/LONG/TIME, DOUBLE, (INT/LONG, STRING), BOOLEAN
  * Return Type: STRING, DOUBLE, BOOLEAN
  */
@@ -68,22 +69,22 @@ public class MarkovChainStreamProcessor extends StreamProcessor implements Sched
         if (!(attributeExpressionExecutors.length == 5 || attributeExpressionExecutors.length == 6)) {
             throw new ExecutionPlanValidationException(
                     "Markov chain function has to have exactly 5 or 6 parameters, currently "
-                            + attributeExpressionExecutors.length + " parameters provided");
+                            + attributeExpressionExecutors.length + " parameters provided.");
         }
 
         trainingOption = true;
         trainingMode = TrainingMode.REAL_TIME;
 
         if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
-            throw new ExecutionPlanValidationException("Duration has to be a constant");
+            throw new ExecutionPlanValidationException("Duration has to be a constant.");
         }
 
         if (!(attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor)) {
-            throw new ExecutionPlanValidationException("Alert threshold probability value has to be a constant");
+            throw new ExecutionPlanValidationException("Alert threshold probability value has to be a constant.");
         }
 
         if (!(attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor)) {
-            throw new ExecutionPlanValidationException("Training batch size has to be a constant");
+            throw new ExecutionPlanValidationException("Training batch size has to be a constant.");
         }
 
         Object durationObject = attributeExpressionExecutors[2].execute(null);
@@ -113,10 +114,10 @@ public class MarkovChainStreamProcessor extends StreamProcessor implements Sched
             File file = new File(markovMatrixStorageLocation);
             if (!file.exists()) {
                 throw new ExecutionPlanValidationException(
-                        markovMatrixStorageLocation + " does not exist. Please provide a valid file path");
+                        markovMatrixStorageLocation + " does not exist. Please provide a valid file path.");
             } else if (!file.isFile()) {
                 throw new ExecutionPlanValidationException(
-                        markovMatrixStorageLocation + " is not a file. Please provide a valid csv file");
+                        markovMatrixStorageLocation + " is not a file. Please provide a valid csv file.");
             }
         } else if (object instanceof Integer) {
             notificationsHoldLimit = (Integer) object;

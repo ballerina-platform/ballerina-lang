@@ -41,14 +41,14 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 public class MarkovChainTestcase {
     private static final Logger logger = Logger.getLogger(MarkovChainTestcase.class);
-    private SiddhiManager siddhiManager;
+    protected static SiddhiManager siddhiManager;
     private CountDownLatch countDownLatch;
-    private AtomicInteger count = new AtomicInteger(0);
-    private boolean eventArrived;
+    private volatile int count;
+    private volatile boolean eventArrived;
 
     @Before
     public void init() {
-        count.set(0);
+        count = 0;
         eventArrived = false;
     }
 
@@ -78,8 +78,8 @@ public class MarkovChainTestcase {
                 eventArrived = true;
                 for (Event event : inEvents) {
                     countDownLatch.countDown();
-                    count.incrementAndGet();
-                    switch (count.get()) {
+                    count++;
+                    switch (count) {
                         case 1:
                             Assert.assertEquals(0.0, event.getData(3));
                             Assert.assertEquals(false, event.getData(4));
@@ -134,20 +134,20 @@ public class MarkovChainTestcase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"1", "state01"});
-        inputHandler.send(new Object[]{"2", "state02"});
-        inputHandler.send(new Object[]{"1", "state03"});
-        inputHandler.send(new Object[]{"3", "state01"});
-        inputHandler.send(new Object[]{"3", "state02"});
-        inputHandler.send(new Object[]{"1", "state01"});
-        inputHandler.send(new Object[]{"1", "state02"});
-        inputHandler.send(new Object[]{"2", "state01"});
-        inputHandler.send(new Object[]{"2", "state03"});
-        inputHandler.send(new Object[]{"4", "state01"});
-        inputHandler.send(new Object[]{"4", "state03"});
+        inputHandler.send(new Object[]{"1", "testState01"});
+        inputHandler.send(new Object[]{"2", "testState02"});
+        inputHandler.send(new Object[]{"1", "testState03"});
+        inputHandler.send(new Object[]{"3", "testState01"});
+        inputHandler.send(new Object[]{"3", "testState02"});
+        inputHandler.send(new Object[]{"1", "testState01"});
+        inputHandler.send(new Object[]{"1", "testState02"});
+        inputHandler.send(new Object[]{"2", "testState01"});
+        inputHandler.send(new Object[]{"2", "testState03"});
+        inputHandler.send(new Object[]{"4", "testState01"});
+        inputHandler.send(new Object[]{"4", "testState03"});
 
         countDownLatch.await(1000, MILLISECONDS);
-        Assert.assertEquals("Number of success events", 11, count.get());
+        Assert.assertEquals("Number of success events", 11, count);
         Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -175,8 +175,8 @@ public class MarkovChainTestcase {
                 eventArrived = true;
                 for (Event event : inEvents) {
                     countDownLatch.countDown();
-                    count.incrementAndGet();
-                    switch (count.get()) {
+                    count++;
+                    switch (count) {
                         case 1:
                             Assert.assertEquals(0.0, event.getData(3));
                             Assert.assertEquals(true, event.getData(4));
@@ -211,20 +211,20 @@ public class MarkovChainTestcase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"1", "state01"});
-        inputHandler.send(new Object[]{"2", "state02"});
-        inputHandler.send(new Object[]{"1", "state03"});
-        inputHandler.send(new Object[]{"3", "state01"});
-        inputHandler.send(new Object[]{"3", "state02"});
-        inputHandler.send(new Object[]{"1", "state01"});
-        inputHandler.send(new Object[]{"1", "state02"});
-        inputHandler.send(new Object[]{"2", "state01"});
-        inputHandler.send(new Object[]{"2", "state03"});
-        inputHandler.send(new Object[]{"4", "state01"});
-        inputHandler.send(new Object[]{"4", "state03"});
+        inputHandler.send(new Object[]{"1", "testState01"});
+        inputHandler.send(new Object[]{"2", "testState02"});
+        inputHandler.send(new Object[]{"1", "testState03"});
+        inputHandler.send(new Object[]{"3", "testState01"});
+        inputHandler.send(new Object[]{"3", "testState02"});
+        inputHandler.send(new Object[]{"1", "testState01"});
+        inputHandler.send(new Object[]{"1", "testState02"});
+        inputHandler.send(new Object[]{"2", "testState01"});
+        inputHandler.send(new Object[]{"2", "testState03"});
+        inputHandler.send(new Object[]{"4", "testState01"});
+        inputHandler.send(new Object[]{"4", "testState03"});
 
         countDownLatch.await(1000, MILLISECONDS);
-        Assert.assertEquals("Number of success events", 6, count.get());
+        Assert.assertEquals("Number of success events", 6, count);
         Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
     }
@@ -252,8 +252,8 @@ public class MarkovChainTestcase {
                 eventArrived = true;
                 for (Event event : inEvents) {
                     countDownLatch.countDown();
-                    count.incrementAndGet();
-                    switch (count.get()) {
+                    count++;
+                    switch (count) {
                         case 1:
                             Assert.assertEquals(0.0, event.getData(3));
                             Assert.assertEquals(true, event.getData(4));
@@ -288,20 +288,20 @@ public class MarkovChainTestcase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"1", "state01", true});
-        inputHandler.send(new Object[]{"2", "state02", true});
-        inputHandler.send(new Object[]{"1", "state03", true});
-        inputHandler.send(new Object[]{"3", "state01", true});
-        inputHandler.send(new Object[]{"3", "state02", true});
-        inputHandler.send(new Object[]{"1", "state01", true});
-        inputHandler.send(new Object[]{"1", "state02", true});
-        inputHandler.send(new Object[]{"2", "state01", true});
-        inputHandler.send(new Object[]{"2", "state03", false});
-        inputHandler.send(new Object[]{"4", "state01", false});
-        inputHandler.send(new Object[]{"4", "state03", false});
+        inputHandler.send(new Object[]{"1", "testState01", true});
+        inputHandler.send(new Object[]{"2", "testState02", true});
+        inputHandler.send(new Object[]{"1", "testState03", true});
+        inputHandler.send(new Object[]{"3", "testState01", true});
+        inputHandler.send(new Object[]{"3", "testState02", true});
+        inputHandler.send(new Object[]{"1", "testState01", true});
+        inputHandler.send(new Object[]{"1", "testState02", true});
+        inputHandler.send(new Object[]{"2", "testState01", true});
+        inputHandler.send(new Object[]{"2", "testState03", false});
+        inputHandler.send(new Object[]{"4", "testState01", false});
+        inputHandler.send(new Object[]{"4", "testState03", false});
 
         countDownLatch.await(1000, MILLISECONDS);
-        Assert.assertEquals("Number of success events", 6, count.get());
+        Assert.assertEquals("Number of success events", 6, count);
         Assert.assertEquals("Event arrived", true, eventArrived);
         executionPlanRuntime.shutdown();
     }

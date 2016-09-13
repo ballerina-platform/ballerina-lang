@@ -28,8 +28,8 @@ public class MarkovMatrix implements Serializable {
 
     private static final Logger log = Logger.getLogger(MarkovMatrix.class);
     private static final long serialVersionUID = -6731569100412292454L;
-    Map<String, Double> transitionCount = new HashMap<String, Double>();
-    Map<String, Double> startStateCount = new HashMap<String, Double>();
+    private Map<String, Double> transitionCount = new HashMap<String, Double>();
+    private Map<String, Double> startStateCount = new HashMap<String, Double>();
 
     public void updateStartStateCount(String startState, double increment) {
         Double currentCount = startStateCount.get(startState);
