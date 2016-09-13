@@ -61,12 +61,8 @@ var createMessage = function (start, end) {
 // Create tool palette elements
 var lifeline = new Tools.Models.Tool({
     id: "tool1",
+    title: "Lifeline",
     icon: "images/icon1.png"
-});
-
-var log_mediator = new Tools.Models.Tool({
-    id: "log-mediator",
-    icon: "images/LogMediator.gif"
 });
 
 // Create tool group

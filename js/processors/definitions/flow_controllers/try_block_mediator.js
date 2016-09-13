@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Define manipulator mediators
     var tryBlockMediator = {
         id: "TryBlockMediator",
-        name: "TryBlock Mediator",
+        title: "TryBlock Mediator",
         icon: "images/TryBlockMediator.gif",
         parameters: []
     };

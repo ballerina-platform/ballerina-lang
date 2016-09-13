@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Payload Factory mediator definition
     var payloadFactoryMediator = {
         id: "PayLoadFactoryMediator",
-        name: "PayLoad Factory",
+        title: "PayLoad Factory Mediator",
         icon: "images/PayloadFactoryMediator.gif",
         parameters: []
     };

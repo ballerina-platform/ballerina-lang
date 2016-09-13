@@ -84,7 +84,6 @@ svg text::selection { background: none; }
 }
 
 .tool-container {
-   width: 80px;
    height: 40px;
 }
 
@@ -118,11 +117,16 @@ svg text::selection { background: none; }
 }
 
 .tool-image {
-   display: block;
    max-width:30px;
    max-height:30px;
    width: auto;
    height: auto;
+   float: left;
+}
+
+.tool-title {
+  padding-left: 10px;
+  float: left;
 }
 
 .udcontrol-image {

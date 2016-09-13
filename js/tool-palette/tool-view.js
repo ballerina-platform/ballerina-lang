@@ -21,7 +21,7 @@ var Tools = (function (tools) {
 
     var toolView = Backbone.View.extend({
 
-        toolTemplate: _.template(" <div id=\"<%=id%>\" class=\"tool-container\"> <img src=\"<%=icon%>\" class=\"tool-image\"  /></div>"),
+        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-container\"> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
         handleDragStopEvent: function (event, ui) {
             console.log("handleDragStopEvent");
         },
