@@ -4,6 +4,7 @@
    height: 100vh;
    width: 100vw;
    overflow: hidden;
+   background-color: #1e1e1e;
 }
 
 .shapes-container{
@@ -180,11 +181,20 @@ body{
 }
 
 iframe {
+  border: none;
   width: 100%;
+}
+
+.nav-tabs {
+  border: none;
 }
 
 .nav-tabs > li > a {
 -webkit-border-radius: 0;
 -moz-border-radius: 0;
 border-radius: 0;
+}
+
+.monaco-editor {
+  margin-top: 10px;
 }
