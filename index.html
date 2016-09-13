@@ -1,157 +1,37 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WSO2 Tooling</title>
-    <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
-    <link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
-    <link rel="stylesheet" type="text/css" href="css/app.css"/>
+	<meta charset="UTF-8">
+	<title>WSO2 Tooling</title>
 
-    <script>
-        // Renaming JS symbols that overlaps with Node
-        // https://github.com/electron/electron/blob/master/docs/faq.md#i-can-not-use-jqueryrequirejsmeteorangularjs-in-electron
-        window.nodeRequire = require;
-        delete window.require;
-        delete window.exports;
-        delete window.module;
-    </script>
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="css/app.css" />
+
+	<script src="lib/jquery_v1.9.1/jquery.js"></script>
+	<script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
 </head>
-
 <body>
-<script type="text/template" id="toolgroupWrapper">
-    <div class="mybs_container groupwrapper">
-        <div class="row mybs-row">
-            <div class="col-md-12">
-                <div class="panel panel-info panel-container">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><%=toolGroupName%></h3>
-                        <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up mybs-glypicon"></i></span>
-                    </div>
-                    <div class="panel-body toolgroup-container" id="toolgroup-container-<%=toolGroupID%>"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</script>
-
-
-<div id="root-container">
-    <div class="header">
-        <div class="toolbar-container"></div>
-        <img class="logo" src="images/logo.svg"/>
-    </div>
-    <div id="exTab1" class="container">
-        <div class="tab-content clearfix">
-            <div class="tab-pane active" id="1a">
-                <div id="designEditor">
-                    <div class="shapes-container">
-                        <div id="toolpalatte">
-                        </div>
-                    </div>
-
-                    <div class="editor-container" id="editorBottom">
-                        <div class="editor-scroller">
-                            <div class="editor gradient-pattern">
-                                <div id="udcontroldiv" class="hidden-button">
-                                    <img id="edit-image" src="images\edit.png" class="udcontrol-image"/>
-                                    <img id="delete-image" src="images\delete.png" class="udcontrol-image"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane" id="2a">
-                <div id="sourceEditor">
-                    <div width="500" height="800" background-color="yellow">
-                        <textarea id="sourceEditorTextBox" wrap="logical" rows="50" cols="200"> </textarea>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <ul class="nav nav-pills">
-            <li class="active">
-                <a href="#1a" data-toggle="tab">Design</a>
-            </li>
-            <li><a href="#2a" data-toggle="tab">Source</a>
-            </li>
-        </ul>
-    </div>
-</div>
-
-
-<!--
-    <div id="root-container">
-        <div class="header">
-            <div class="toolbar-container">
-            </div>
-            <img class="logo" src="images/logo.svg" />
-        </div>
-
-        <div class="shapes-container">
-            <div id="toolpalatte">
-            </div>
-        </div>
-
-        <div class="editor-container" id="editorBottom">
-            <div class="editor-scroller">
-                <div class="editor gradient-pattern">
-                  <div id="udcontroldiv" class="hidden-button" >
-                     <img id="edit-image" src="images\edit.png" class="udcontrol-image" />
-                     <img id="delete-image" src="images\delete.png" class="udcontrol-image" />
-                  </div>
-                </div>
-            </div>
-        </div>
-    </div>
-  -->
-
-<!-- Third party js libs -->
-<script src="lib/jquery_v1.9.1/jquery.js"></script>
-<!-- custom download of jquery-ui which has onlt drag and drop components can be download from here
-http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000000100110000000000010000000000000000000000
--->
-<script src="lib/jquery-ui_1.12.0.custom_dnd_only.js"></script>
-<script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
-<script src="lib/lodash_v4.13.1/lodash.js"></script>
-<script src="lib/backbone_v1.3.3/backbone.js"></script>
-<script src="lib/backbone_storage_adapter_v1.1.0/backbone.localStorage.js"></script>
-<script src="lib/d3_v4.1.1/d3.js"></script>
-<script src="lib/require_js/require.js"></script>
-<!-- custom js libs -->
-<script src="js/geometry/geometry-core.js"></script>
-<script src="js/d3-plugin/d3-utils.js"></script>
-<script src="js/diagram/diagram-model.js"></script>
-<script src="js/diagram/diagram-view.js"></script>
-<script src="js/diagram/diagram-utils.js"></script>
-<script src="js/tool-palette/tool.js"></script>
-<script src="js/tool-palette/tool-view.js"></script>
-<script src="js/tool-palette/toolgroup.js"></script>
-<script src="js/tool-palette/toolgroup-view.js"></script>
-<script src="js/tool-palette/toolgroupwrapper.js"></script>
-<script src="js/tool-palette/toolgroupwrapper-view.js"></script>
-<script src="js/tool-palette/toolpalette.js"></script>
-<script src="js/tool-palette/toolpalette-view.js"></script>
-<script src="js/dialogs/updatedeletecontroler.js"></script>
-<script src="js/dialogs/updatedeletecontroler-view.js"></script>
-<script src="js/sequence_diagram/sequenced-model.js"></script>
-
-<script src="js/processors/definitions/manipulators.js"></script>
-<script src="js/processors/definitions/manipulators/log_mediator.js"></script>
-<script src="js/processors/definitions/manipulators/payload_factory_mediator.js"></script>
-
-<script src="js/processors/definitions/flow_controllers.js"></script>
-<script src="js/processors/definitions/flow_controllers/try_block_mediator.js"></script>
-<script src="js/processors/definitions/flow_controllers/switch_mediator.js"></script>
-
-<script src="js/sequence_diagram/sequenced-model.js"></script>
-<script src="js/sequence_diagram/sequenced-view.js"></script>
-<script src="js/sequence_diagram/sequenced-utils.js"></script>
-<script src="js/app.js"></script>
-
+	<div id="container">
+		<ul class="nav nav-tabs">
+			<li class="active"><a data-toggle="tab" href="#home">Design View</a></li>
+			<li><a data-toggle="tab" href="#menu1">Source View</a></li>
+		</ul>
+		<div class="tab-content">
+			<div id="home" class="tab-pane fade in active">
+				<iframe id="iframe1" src="design-view.html"></iframe>
+			</div>
+			<div id="menu1" class="tab-pane fade">
+				<iframe id="iframe2" src="source-view.html"></iframe>
+			</div>
+		</div>
+	</div>
+	<script>
+		$("iframe").css("height", $(window).height() - 40 + "px");
+		window.onresize = function() {
+			$("iframe").css("height", $(window).height() - 40 + "px");
+		}
+	</script>
 </body>
 </html>

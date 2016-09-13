@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Define manipulator mediators
     var switchMediator = {
         id: "SwitchMediator",
-        name: "Switch Mediator",
+        title: "Switch Mediator",
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "DynamicContainableProcessor",

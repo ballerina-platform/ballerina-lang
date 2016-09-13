@@ -1,17 +1,18 @@
-#root-container {
+#container {
    margin: 0;
    padding: 0;
    height: 100vh;
    width: 100vw;
    overflow: hidden;
+   background-color: #1e1e1e;
 }
 
 .shapes-container{
    position: absolute;
-   top:50px;
+   top: 0;
    left: 0;
    width: 240px;
-   height: calc(100vh - 100px);
+   height: calc(100vh);
    background-color: #BBBBBB;
 }
 
@@ -27,17 +28,17 @@
    width: 100vw;
    overflow: hidden;
    height: 50px;
-   background-color: #333333;
+   background-color: #292929;
 }
 
 .editor-container{
    position: absolute;
-   top: 50px;
+   top: 0;
    left: 240px;
    bottom: 0%;
    right: 0%;
    margin-left: 0px;
-   height: calc(100vh - 100px);
+   height: calc(100vh);
    width: calc(100vw - 240px);
    background-color: #fff;
    overflow: hidden;
@@ -83,7 +84,6 @@ svg text::selection { background: none; }
 }
 
 .tool-container {
-   width: 80px;
    height: 40px;
 }
 
@@ -96,7 +96,7 @@ svg text::selection { background: none; }
 }
 
 .mybs-row {
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .mybs-glypicon {
@@ -117,11 +117,16 @@ svg text::selection { background: none; }
 }
 
 .tool-image {
-   display: block;
    max-width:30px;
    max-height:30px;
    width: auto;
    height: auto;
+   float: left;
+}
+
+.tool-title {
+  padding-left: 10px;
+  float: left;
 }
 
 .udcontrol-image {
@@ -138,23 +143,6 @@ svg text::selection { background: none; }
   visibility: visible;
 }
 
-#exTab1 {
-  height: calc(100vh - 50px);
-  width: calc(100vw);
-}
-
-#exTab1 .tab-content {
-  color : white;
-  background-color: #BBBBAA;
-  padding : 5px 15px;
-  height: calc(100vh - 50px);
-}
-
-#exTab1 .nav-pills > li > a {
-  border-radius: 0;
-  background-color: #BBBBAA;
-}
-
 textarea {
     display: block;
     width: 100%;
@@ -165,8 +153,52 @@ textarea {
 }
 
 body{
+   font-family: 'Roboto', sans-serif;
+   font-weight: normal;
+   font-size: 10pt;
+   background: #292929;
+   padding-top: 20px;
    margin: 0;
    padding: 0;
    width: 100vw;
    height: 100vh;
+}
+
+.glyphicon {
+  top: inherit;
+}
+.panel-info {
+    border: none;
+}
+
+.panel-info > .panel-heading {
+  color: whitesmoke;
+  background-color: steelblue;
+}
+
+.panel-title {
+  font-size: 10pt;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+  background-color: #ddd;
+}
+
+iframe {
+  border: none;
+  width: 100%;
+}
+
+.nav-tabs {
+  border: none;
+}
+
+.nav-tabs > li > a {
+-webkit-border-radius: 0;
+-moz-border-radius: 0;
+border-radius: 0;
+}
+
+.monaco-editor {
+  margin-top: 10px;
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>Source View</title>
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/app.css" />
+</head>
+
+<body>
+	<div id="container"></div>
+	<script src="lib/monaco-editor_v0.6.1/min/vs/loader.js"></script>
+	<script>
+	require.config({ paths: { 'vs': 'lib/monaco-editor_v0.6.1/min/vs' }});
+
+	require(['vs/editor/editor.main'], function() {
+		var editor = monaco.editor.create(document.getElementById('container'), {
+			value: [
+				'@Path ("/stock")',
+				'@Source (protocol="http", host="localhost", port=8080)',
+				'@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON))',
+				'package com.sample;',
+				'',
+				'constant endpoint stockEP = "http://localhost:8080/exchange/";',
+				'',
+				'@GET',
+				'@PUT',
+				'@POST',
+				'@Path ("/passthrough")',
+				'resource passthrough (message m) {',
+			    '    message response;',
+ 			    '    try {',
+        		'        response = invoke(stockEP, m);',
+   			    '    } catch (exception e) {',
+                '        response = new message();',
+        		'        response.setHeader(HTTP.StatusCode, 500);',
+        		'        response.setPayload(Type.JSON, {"error":"backend failed"});',
+    			'    }',
+    			'    reply response;',
+				'}'
+			].join('\n'),
+			language: 'javascript',
+			theme: "vs-dark",
+			automaticLayout: true,
+		});
+	});
+</script>
+</body>
+</html>

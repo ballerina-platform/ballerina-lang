@@ -175,7 +175,7 @@ var SequenceD = (function (sequenced) {
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
-                title: "lifeline"
+                title: "Lifeline"
             },
 
             createActivation: function (opts) {

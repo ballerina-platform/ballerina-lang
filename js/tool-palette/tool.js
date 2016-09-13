@@ -27,6 +27,7 @@ var Tools = (function (tools) {
 
         defaults: {
             id: "",
+            title: "",
             icon: ""
         }
     });

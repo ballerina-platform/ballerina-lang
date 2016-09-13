@@ -438,8 +438,8 @@ var Diagrams = (function (diagrams) {
 
                         var clickedLifeLine = viewObj.model.clickedLifeLine;
                         clickedLifeLine.addChild(dynamicMessage, messageOptionsOutbound);
-                        //diagram.selectedNode.addChild(dynamicMessage, messageOptionsInbound);
-                        viewObj.model.addElement(dynamicMessage, messageOptionsInbound);
+                        diagram.destinationLifeLine.addChild(dynamicMessage, messageOptionsInbound);
+                        //viewObj.model.addElement(dynamicMessage, messageOptionsInbound);
 
                     }
 

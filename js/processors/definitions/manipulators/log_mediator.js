@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Log mediator definition
     var logMediator = {
         id: "LogMediator",
-        name: "Log Mediator",
+        title: "Log Mediator",
         icon: "images/LogMediator.gif",
         colour : "#2e2eb8",
         type : "UnitProcessor",
