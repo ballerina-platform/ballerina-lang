@@ -301,13 +301,21 @@ var Diagrams = (function (diagrams) {
                 //var type = newDraggedElem.attr('id');
                 console.log("droped");
                 var id = ui.draggable.context.lastChild.id;
-                var position = {}
+                var position = {};
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
                 console.log(position);
                 if (Processors.manipulators[id] && diagram.selectedNode) {
-                    var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.manipulators[id].name, createPoint(position.x, position.y));
-                    diagram.selectedNode.addChild(mediator);
+                    //manipulators are unit processors
+                    var processor = diagram.selectedNode.createProcessor(
+                        Processors.manipulators[id].name,
+                        createPoint(position.x, position.y),
+                        Processors.manipulators[id].id,
+                        {type: Processors.manipulators[id].type || "UnitProcessor"},
+                        {colour: Processors.manipulators[id].colour},
+                        {parameters: Processors.manipulators[id].parameters}
+                    );
+                    diagram.selectedNode.addChild(processor);
                 } else if (Processors.flowControllers[id] && diagram.selectedNode) {
                     var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.flowControllers[id].name, createPoint(position.x, position.y));
                     diagram.selectedNode.addChild(mediator);

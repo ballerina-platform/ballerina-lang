@@ -75,7 +75,7 @@ var D3Utils = (function (d3_utils) {
             .attr("ry", ry);
     };
 
-    var rect = function (x, y, width, height, rx, ry, parent) {
+    var rect = function (x, y, width, height, rx, ry, parent, colour) {
         parent = parent || d3Ref;
 
         var defs = parent.append("defs");
@@ -98,7 +98,7 @@ var D3Utils = (function (d3_utils) {
         var feMerge = filter.append("feMerge");
 
         feMerge.append("feMergeNode")
-            .attr("in", "offsetBlur")
+            .attr("in", "offsetBlur");
         feMerge.append("feMergeNode")
             .attr("in", "SourceGraphic");
 
@@ -109,18 +109,18 @@ var D3Utils = (function (d3_utils) {
             .attr("y", y)
             .attr("width", width)
             .attr("height", height)
-            .attr("fill", "steelblue")
+            .attr("fill", colour || "steelblue")
             .attr("stroke-width", 2)
             .style("filter", "url(#drop-shadow)")
             .attr("rx", rx)
             .attr("ry", ry);
     };
 
-    var centeredRect = function (center, width, height, rx, ry, parent) {
+    var centeredRect = function (center, width, height, rx, ry, parent, colour) {
         parent = parent || d3Ref;
         rx = rx || 0;
         ry = ry || 0;
-        return parent.draw.rect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent);
+        return parent.draw.rect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour);
     };
 
 

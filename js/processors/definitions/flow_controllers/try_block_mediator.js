@@ -25,6 +25,8 @@ var Processors = (function (processors) {
         id: "TryBlockMediator",
         name: "TryBlock Mediator",
         icon: "images/TryBlockMediator.gif",
+        colour : "#998844",
+        type : "ComplexProcessor",
         parameters: []
     };
 

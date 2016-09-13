@@ -25,6 +25,8 @@ var Processors = (function (processors) {
         id: "PayLoadFactoryMediator",
         name: "PayLoad Factory",
         icon: "images/PayloadFactoryMediator.gif",
+        colour : "#FFC766",
+        type : "UnitProcessor",
         parameters: []
     };
 

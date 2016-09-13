@@ -25,6 +25,8 @@ var Processors = (function (processors) {
         id: "LogMediator",
         name: "Log Mediator",
         icon: "images/LogMediator.gif",
+        colour : "#2e2eb8",
+        type : "UnitProcessor",
         parameters: [
             {
                 key: "level",

@@ -24,6 +24,65 @@
 var SequenceD = (function (sequenced) {
     var views = sequenced.Views = sequenced.Views || {};
 
+    var Processor = Diagrams.Views.ShapeView.extend(
+        /** @lends Processor.prototype */
+        {
+            /**
+             * @augments ShapeView
+             * @constructs
+             * @class Processor Represents the view for processor components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.ShapeView.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID) {
+                Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
+                thisModel = this.model;
+                var processor = this.drawProcessor(this.modelAttr('centerPoint'), this.modelAttr('title'), this.options);
+                var viewObj = this;
+                var drag = d3.drag()
+                    .on("start", function () {
+                        viewObj.dragStart(d3.event);
+                    })
+                    .on("drag", function () {
+                        viewObj.dragMove(d3.event);
+                    })
+                    .on("end", function () {
+                        viewObj.dragStop();
+                    });
+
+                this.d3el = processor;
+                this.el = processor.node();
+                return processor;
+            },
+
+            drawProcessor: function (center, title, prefs) {
+                var d3Ref = this.getD3Ref();
+                var group = d3Ref.draw.group()
+                    .classed(prefs.class, true);
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
+                    .classed(prefs.rect.class, true);
+                var text = d3Ref.draw.centeredText(center, title, group)
+                    .classed(prefs.text.class, true);
+                Object.getPrototypeOf(group).rect = rect;
+                Object.getPrototypeOf(group).title = text;
+                Object.getPrototypeOf(group).translate = function (dx, dy) {
+                    this.attr("transform", function () {
+                        return "translate(" + [dx, dy] + ")"
+                    })
+                };
+
+                return group;
+            }
+
+        });
+
     var LifeLineView = Diagrams.Views.ShapeView.extend(
         /** @lends LifeLineView.prototype */
         {
@@ -69,6 +128,8 @@ var SequenceD = (function (sequenced) {
 
                 this.model.on("addChild", this.onAddChild, this);
 
+                this.model.on("addChildProcessor", this.onAddChildProcessor, this);
+
                 this.d3el = lifeLine;
                 this.el = lifeLine.node();
                 return lifeLine;
@@ -94,6 +155,34 @@ var SequenceD = (function (sequenced) {
                     var rectBottomXXX = d3Ref.draw.centeredRect(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), this.prefs.rect.width, this.prefs.rect.height, 3, 3, this.group)
                         .classed(this.prefs.rect.class, true);
                     var mediatorText = d3Ref.draw.centeredText(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), element.get('title'), this.group)
+                        .classed(this.prefs.text.class, true);
+                    //this.renderViewForElement(element, opts);
+                } else if (element instanceof SequenceD.Models.Message) {
+                    console.log("Message Link added !!!")
+                }
+
+            },
+
+            onAddChildProcessor: function (element, opts) {
+
+                if (element instanceof SequenceD.Models.Processor) {
+
+                    var d3Ref = this.getD3Ref();
+                    console.log("Processor added");
+                    var rectBottomXXX = d3Ref.draw.centeredRect(
+                        createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                        element.get('centerPoint').get('y')),
+                        this.prefs.rect.width,
+                        this.prefs.rect.height,
+                        3,
+                        3,
+                        this.group,element.viewAttributes.colour
+                    );
+                    var mediatorText = d3Ref.draw.centeredText(
+                        createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            element.get('centerPoint').get('y')),
+                        element.get('title'),
+                        this.group)
                         .classed(this.prefs.text.class, true);
                     //this.renderViewForElement(element, opts);
                 } else if (element instanceof SequenceD.Models.Message) {

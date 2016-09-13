@@ -46,16 +46,6 @@ var SequenceD = (function (sequenced) {
 
                 var unitProcessorElement = this.drawUnitProcessor(this.modelAttr('centerPoint'), this.modelAttr('title'), this.options);
                 var viewObj = this;
-                var drag = d3.drag()
-                    .on("start", function () {
-                        viewObj.dragStart(d3.event);
-                    })
-                    .on("drag", function () {
-                        viewObj.dragMove(d3.event);
-                    })
-                    .on("end", function () {
-                        viewObj.dragStop();
-                    });
 
                 this.d3el = unitProcessorElement;
                 this.el = unitProcessorElement.node();

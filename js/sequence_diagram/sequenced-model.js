@@ -19,6 +19,40 @@
 var SequenceD = (function (sequenced) {
     var models = sequenced.Models || {};
 
+    var Processor = Diagrams.Models.Shape.extend(
+        /** @lends Processor.prototype */
+        {
+
+            selectedNode: null,
+            /**
+             * @augments DiagramElement
+             * @constructs
+             * @class Processor represents the model for processors in diagram.
+             */
+            initialize: function (attrs, options) {
+                Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
+                this.type = attrs.type;
+                this.model = attrs.model;
+                this.viewAttributes = attrs.viewAttributes;
+                this.parameters = attrs.parameters;
+            },
+
+            modelName: "Processor",
+
+            nameSpace: sequenced,
+
+            idAttribute: this.cid,
+
+            parameters: {},
+
+            viewAttributes: {},
+
+            defaults: {
+                centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
+                title: "Processor"
+            }
+        });
+
     var FixedSizedMediator = Diagrams.Models.Shape.extend(
         /** @lends DiagramElement.prototype */
         {
@@ -42,7 +76,7 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 title: "Mediator"
-            },
+            }
         });
 
 
@@ -88,7 +122,7 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 title: "Child"
-            },
+            }
         });
 
 
@@ -162,6 +196,17 @@ var SequenceD = (function (sequenced) {
                 return new SequenceD.Models.FixedSizedMediator({title: title, centerPoint: center});
             },
 
+            createProcessor: function (title, center, type, model, viewAttributes, parameters) {
+                return new SequenceD.Models.Processor({
+                    title: title,
+                    centerPoint: center,
+                    type: type,
+                    model: model,
+                    viewAttributes: viewAttributes,
+                    parameters: parameters
+                });
+            },
+
             addFixedSizedMediator: function (element, opts) {
                 this.fixedSizedMediators().add(element, opts);
                 this.trigger("addFixedSizedMediator", element, opts);
@@ -171,6 +216,7 @@ var SequenceD = (function (sequenced) {
             addChild: function (element, opts) {
                 this.children().add(element, opts);
                 this.trigger("addChild", element, opts);
+                this.trigger("addChildProcessor", element, opts);
             },
 
             fixedSizedMediators: function (fixedSizedMediators) {
@@ -188,7 +234,7 @@ var SequenceD = (function (sequenced) {
                 } else {
                     this.set('children', children);
                 }
-            },
+            }
 
 
         });
@@ -249,6 +295,7 @@ var SequenceD = (function (sequenced) {
     models.LifeLine = LifeLine;
     models.FixedSizedMediator = FixedSizedMediator;
     models.FixedSizedMediators = FixedSizedMediators;
+    models.Processor = Processor;
 
     sequenced.Models = models;
 
