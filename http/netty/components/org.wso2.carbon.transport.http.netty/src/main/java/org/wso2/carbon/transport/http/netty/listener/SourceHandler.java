@@ -237,7 +237,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             //Shouldn't come to here
             throw new RuntimeException("Error while getting the channel ID");
         }
-        cMsg.setHeaders(Util.getHeaders(httpRequest));
+        cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         return cMsg;
     }
 }

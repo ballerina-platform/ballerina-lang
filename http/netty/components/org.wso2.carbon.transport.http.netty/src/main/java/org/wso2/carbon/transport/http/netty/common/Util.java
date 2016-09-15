@@ -25,11 +25,13 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,22 +45,20 @@ public class Util {
     private static final String DEFAULT_HTTP_METHOD_POST = "POST";
     private static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
 
-    public static Map<String, String> getHeaders(HttpMessage message) {
-        Map<String, String> headers = new HashMap<>();
+    public static Headers getHeaders(HttpMessage message) {
+        List<Header> headers = new LinkedList<>();
         if (message.headers() != null) {
-            for (String k : message.headers().names()) {
-                headers.put(k, message.headers().get(k));
-
+            for (Map.Entry<String, String> k : message.headers().entries()) {
+                headers.add(new Header(k.getKey(), k.getValue()));
             }
         }
-
-        return headers;
+        return new Headers(headers);
     }
 
-    public static void setHeaders(HttpMessage message, Map<String, String> headers) {
+    public static void setHeaders(HttpMessage message, Headers headers) {
         HttpHeaders httpHeaders = message.headers();
-        for (Map.Entry<String, String> e : headers.entrySet()) {
-            httpHeaders.add(e.getKey(), e.getValue());
+        for (Header header : headers.getAll()) {
+            httpHeaders.add(header.getName(), header.getValue());
         }
     }
 
@@ -92,9 +92,9 @@ public class Util {
 
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        Map<String, String> headerMap = msg.getHeaders();
+        Headers headers = msg.getHeaders();
 
-        Util.setHeaders(outgoingResponse, headerMap);
+        Util.setHeaders(outgoingResponse, headers);
 
         return outgoingResponse;
     }
@@ -118,7 +118,7 @@ public class Util {
         }
         HttpRequest outgoingRequest = new DefaultHttpRequest(httpVersion, httpMethod,
                 (String) msg.getProperty(Constants.TO), false);
-        Map headers = msg.getHeaders();
+        Headers headers = msg.getHeaders();
         Util.setHeaders(outgoingRequest, headers);
         return outgoingRequest;
     }

@@ -73,17 +73,13 @@ public class TestUtil {
             SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
         NettyListener nettyListener = new NettyListener(listenerConfiguration);
         TransportSender transportSender = new NettySender(senderConfiguration);
-        NettyTransportContextHolder.getInstance()
-                                   .addMessageProcessor(listenerConfiguration.getId(), carbonMessageProcessor);
+        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
         carbonMessageProcessor.setTransportSender(transportSender);
-        Thread transportRunner = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    nettyListener.start();
-                } catch (Exception e) {
-                    LOGGER.error("Unable to start Netty Listener ", e);
-                }
+        Thread transportRunner = new Thread(() -> {
+            try {
+                nettyListener.start();
+            } catch (Exception e) {
+                LOGGER.error("Unable to start Netty Listener ", e);
             }
         });
         transportRunner.start();
@@ -114,12 +110,9 @@ public class TestUtil {
 
     public static HTTPServer startHTTPServer(int port, String message, String contentType) {
         HTTPServer httpServer = new HTTPServer(port);
-        Thread serverThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                httpServer.start();
-                httpServer.setMessage(message, contentType);
-            }
+        Thread serverThread = new Thread(() -> {
+            httpServer.start();
+            httpServer.setMessage(message, contentType);
         });
         serverThread.start();
         try {
@@ -175,8 +168,7 @@ public class TestUtil {
             SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
         TransportSender transportSender = new NettySender(senderConfiguration);
         carbonMessageProcessor.setTransportSender(transportSender);
-        NettyTransportContextHolder.getInstance()
-                                   .addMessageProcessor(listenerConfiguration.getId(), carbonMessageProcessor);
+        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
     }
 
 }

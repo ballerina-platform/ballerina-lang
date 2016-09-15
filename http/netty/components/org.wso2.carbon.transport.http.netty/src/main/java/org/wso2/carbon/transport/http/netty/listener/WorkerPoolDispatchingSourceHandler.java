@@ -122,9 +122,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
         if (continueRequest) {
             executorService.execute(() -> {
                 try {
-                    NettyTransportContextHolder.getInstance().getMessageProcessor(
-                            cMsg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.CHANNEL_ID)
-                                .toString()).receive(cMsg, carbonCallback);
+                    NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
                 } catch (Exception e) {
                     log.error("Error occurred inside the messaging engine", e);
                 }

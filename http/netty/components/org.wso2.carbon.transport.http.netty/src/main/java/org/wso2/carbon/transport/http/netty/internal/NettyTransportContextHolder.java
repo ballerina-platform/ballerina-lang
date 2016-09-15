@@ -28,7 +28,6 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * DataHolder for the Netty transport.
@@ -38,17 +37,13 @@ public class NettyTransportContextHolder {
 
     private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
     private BundleContext bundleContext;
-    private Map<String, CarbonMessageProcessor> messageProcessors = new HashMap<>();
+    private CarbonMessageProcessor messageProcessor;
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
     private TransportListenerManager manager;
 
     public ListenerConfiguration getListenerConfiguration(String id) {
         return listenerConfigurations.get(id);
-    }
-
-    public Map<String, ListenerConfiguration> getListenerConfigurations() {
-        return listenerConfigurations;
     }
 
     public void setListenerConfiguration(String id, ListenerConfiguration config) {
@@ -72,19 +67,17 @@ public class NettyTransportContextHolder {
         return this.bundleContext;
     }
 
-    public CarbonMessageProcessor getMessageProcessor(String id) {
-        return messageProcessors.get(id);
+    public CarbonMessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 
-    public void addMessageProcessor(String id, CarbonMessageProcessor carbonMessageProcessor) {
-        messageProcessors.put(id, carbonMessageProcessor);
+    public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        this.messageProcessor = carbonMessageProcessor;
     }
 
     public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        Optional<Map.Entry<String, CarbonMessageProcessor>> mapEntry = messageProcessors.entrySet().stream()
-                        .filter(entry -> entry.getValue().getId().equals(carbonMessageProcessor.getId())).findFirst();
-        if (mapEntry.isPresent()) {
-            messageProcessors.remove(mapEntry.get().getKey());
+        if (carbonMessageProcessor.getId().equals(messageProcessor.getId())) {
+            messageProcessor = null;
         }
     }
 
