@@ -40,10 +40,15 @@ var Dialogs = (function (dialogs) {
 
             $("#edit-image").click(function () {
 
-                var languageModal =  "<script type=\"text/javascript\">function okClick (lifeline) {$(\"#udcModal\").modal('toggle'); $(\"#udcModal\").html('')}</script> "+
-                "<div style='background-color:lightgrey;'>Title: <input type=\"text\" id=\"forename\"/><br/>Data: <input type=\"text\" id=\"surname\"/><br/><br/><button onclick=\"okClick()\">OK</button><button>Cancel</button></iframe></div>";
-
                 var udcModalJQ = $("#udcModal");
+                udcModalJQ.data("modelObject", thisModel);
+                var languageModal =  "<script type=\"text/javascript\">var udParentDataObj=''; " +
+                    "$(document).ready(function() {udParentDataObj = $('#udcModal').data('modelObject');  $('#forename').val(udParentDataObj.attributes.title);}); " +
+                    "function closeThis() {$(\"#udcModal\").modal('toggle'); $(\"#udcModal\").html('');} " +
+                    "function okClick () {udParentDataObj.set('title',$('#forename').val()); closeThis(); }" +
+                    "function cancelClick() {closeThis();}</script> "+
+                "<div style='background-color:lightgrey;'>Title: <input type=\"text\" id=\"forename\"/><br/><button onclick=\"okClick()\">OK</button><button onclick=\"cancelClick()\">Cancel</button></div>";
+
                 if(!udcModalJQ.data('bs.modal') || ((udcModalJQ.data('bs.modal') && !udcModalJQ.data('bs.modal').isShown))) {
 
                     udcModalJQ.html(languageModal);

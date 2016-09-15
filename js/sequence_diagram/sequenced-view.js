@@ -37,6 +37,7 @@ var SequenceD = (function (sequenced) {
              */
             initialize: function (options) {
                 Diagrams.Views.ShapeView.prototype.initialize.call(this, options);
+                this.listenTo(this.model, 'change:title', this.renderTitle);
             },
 
             handleDropEvent: function (event, ui) {
@@ -48,6 +49,11 @@ var SequenceD = (function (sequenced) {
             },
 
             thisModel: '',
+
+            renderTitle: function () {
+                console.log("lifeline rendered again due to its title change");
+                this.render('.editor');
+            },
 
             render: function (paperID) {
                 Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
