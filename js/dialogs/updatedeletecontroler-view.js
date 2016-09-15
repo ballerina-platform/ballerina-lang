@@ -22,8 +22,10 @@ var Dialogs = (function (dialogs) {
     var udcontrolView = Backbone.View.extend({
 
         el: '#udcontroldiv',
+        thisModel:'',
 
         initialize: function () {
+            thisUDModel = this.model;
             this.listenTo(this.model, 'change', this.render);
             var controlDiv = this.$el;
 
@@ -37,7 +39,21 @@ var Dialogs = (function (dialogs) {
             });
 
             $("#edit-image").click(function () {
-                alert("Edit properties");
+
+                var languageModal =  "<script type=\"text/javascript\">function okClick (lifeline) {$(\"#udcModal\").modal('toggle'); $(\"#udcModal\").html('')}</script> "+
+                "<div style='background-color:lightgrey;'>Title: <input type=\"text\" id=\"forename\"/><br/>Data: <input type=\"text\" id=\"surname\"/><br/><br/><button onclick=\"okClick()\">OK</button><button>Cancel</button></iframe></div>";
+
+                var udcModalJQ = $("#udcModal");
+                if(!udcModalJQ.data('bs.modal') || ((udcModalJQ.data('bs.modal') && !udcModalJQ.data('bs.modal').isShown))) {
+
+                    udcModalJQ.html(languageModal);
+                    udcModalJQ.css({
+                        position: 'absolute',
+                        top: 300,
+                        left: 300
+                    });
+                    udcModalJQ.modal('toggle');
+                }
             });
         },
 

@@ -23,6 +23,8 @@
  */
 var SequenceD = (function (sequenced) {
     var views = sequenced.Views = sequenced.Views || {};
+    var toolPaletteWidth = 240;
+    var imageHeight = 20;
 
     var Processor = Diagrams.Views.ShapeView.extend(
         /** @lends Processor.prototype */
@@ -250,6 +252,15 @@ var SequenceD = (function (sequenced) {
                 }).on('mouseup', function (data) {
                 });
 
+                function updateudControlLocation(rect){
+                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
+                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
+                    udcontrol.set('visible', true);
+                    udcontrol.set('x', imgRight);
+                    udcontrol.set('y', imgTop);
+                    udcontrol.set('lifeline', thisModel);
+                }
+
                 rect.on("click", (function () {
                     if (selected) {
                         if (this == selected) {
@@ -260,22 +271,12 @@ var SequenceD = (function (sequenced) {
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
-                            var imgRight = this.x.baseVal.value + this.width.baseVal.value + 4;
-                            var imgTop = this.y.baseVal.value - this.height.baseVal.value / 2 - 4;
-                            udcontrol.set('visible', true);
-                            udcontrol.set('x', imgRight);
-                            udcontrol.set('y', imgTop);
-                            udcontrol.set('lifeline', thisModel);
+                            updateudControlLocation(this);
                             selected = this;
                         }
                     } else {
                         this.classList.toggle("lifeline_selected");
-                        var imgRight = this.x.baseVal.value + this.width.baseVal.value + 4;
-                        var imgTop = this.y.baseVal.value - this.height.baseVal.value / 2 - 4;
-                        udcontrol.set('visible', true);
-                        udcontrol.set('x', imgRight);
-                        udcontrol.set('y', imgTop);
-                        udcontrol.set('lifeline', thisModel);
+                        updateudControlLocation(this);
                         selected = this;
                     }
                 }));

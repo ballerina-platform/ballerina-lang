@@ -130,8 +130,8 @@ svg text::selection { background: none; }
 }
 
 .udcontrol-image {
-   width: 28px;
-   height: 28px;
+   width: 20px;
+   height: 20px;
 }
 
 .hidden-button {
