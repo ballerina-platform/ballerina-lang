@@ -16,6 +16,16 @@
    background-color: #BBBBBB;
 }
 
+.property-container{
+    position: absolute;
+    top: 0;
+    width: 240px;
+    bottom: 0%;
+    right: 0%;
+    height: calc(100vh);
+    background-color: #BBBBBB;
+}
+
 .logo{
    height: 25px;
    margin: 15px;
@@ -39,7 +49,7 @@
    right: 0%;
    margin-left: 0px;
    height: calc(100vh);
-   width: calc(100vw - 240px);
+   width: calc(100vw - 480px);
    background-color: #fff;
    overflow: hidden;
 }

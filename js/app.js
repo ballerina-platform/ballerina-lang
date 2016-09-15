@@ -125,3 +125,26 @@ selectedModel = "";
 var udcontrol = new Dialogs.Controls.UpdateDeleteControler({visible: false});
 var udcontrolView = new Dialogs.Views.UpdateDeletedControlerView({model: udcontrol});
 udcontrolView.render();
+
+// Initialize the editor
+var propertyPane = new JSONEditor(document.getElementById("propertyPane"),{
+    schema: {
+        "title": "Person",
+        type: "object",
+        properties: {
+            name: { "type": "string" }
+        }
+    },
+    no_additional_properties: true,
+    disable_properties:true,
+    disable_edit_json:true
+});
+
+// Set the value
+propertyPane.setValue({
+    name: "John Smith"
+});
+
+// Get the value
+var data = propertyPane.getValue();
+console.log(data.name); // "John Smith"
