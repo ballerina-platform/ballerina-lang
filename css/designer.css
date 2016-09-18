@@ -1,0 +1,190 @@
+.form-control[readonly] {
+    background: none;
+}
+
+.icon.disabled {
+    opacity: 0.1;
+}
+
+/**
+ * Designer styles
+ */
+.ues-component-fullview {
+    position: absolute !important;
+    top: 5px !important;
+    left: 5px !important;
+    right: 5px !important;
+    width: auto !important;
+}
+
+/**
+ * Gagdets relates styles
+ */
+.ues-store-assets .ues-thumbnail {
+    text-align: center;
+}
+
+.ues-store-assets .ues-thumbnail .ues-title {
+    text-align:  center;
+}
+
+.ues-thumbnail {
+    z-index:  1000;
+}
+
+/*
+ * Add block
+ */
+.ues-block-container {
+    width: 216px;
+    height: 216px;
+    background: url('../theme/images/grid.png') no-repeat center center;
+    margin: 0 auto 20px auto;
+}
+
+.ues-dummy-gadget {
+    width: 54px;
+    height: 54px;
+    background: #fff;
+    opacity: 0.8;
+}
+
+/**
+ * Banner
+ */
+.ues-banner-placeholder {
+    background: -webkit-repeating-linear-gradient(145deg, #ddd, #ddd 10px, #eee 10px, #eee 20px);
+    background: repeating-linear-gradient(-55deg, #ddd, #ddd 10px, #eee 10px, #eee 20px);
+    position: absolute;
+    top: 42px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+.ues-banner-placeholder .button-panel {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.ues-banner-placeholder button {
+    width: 80px;
+}
+
+.ues-banner-placeholder .ues-dashboard-banner-loading {
+    background: #0074cc;
+    color: #fff;
+    padding: 5px 10px;
+    display: inline-block;
+}
+
+.ues-banner-placeholder .banner-image {
+    width: 100%; 
+    height: 100%; 
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+.gadgets-grid {
+    padding: 40px 25px;
+}
+
+/**
+ * Theme overrides
+ */
+.gadgets-grid {
+    min-height: 100%;
+}
+
+.gadget .gadget-heading > .gadget-title {
+    width: calc(100% - 154px);
+}
+
+.ues-component-title-center .gadget-title {
+    text-align: center;
+}
+
+.ues-component-title-left .gadget-title {
+    text-align: left;
+}
+
+.ues-component-title-right .gadget-title {
+    text-align: right;
+}
+
+.page-content .nano-content {
+    bottom: 32px;
+}
+
+.form-inline .form-control.number-input {
+    width: 48px;
+}
+
+.ues-no-heading .ues-component-heading {
+    display: none;
+}
+
+@media screen and (min-width: 768px) {
+    .page-header > .page-title {
+        width: calc(100% - 320px);
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .page-header > .page-title {
+        width: 100%;
+    }
+}
+
+.page-header > .page-title > h1 {
+    max-width: 100%;
+}
+
+.btn-danger:hover {
+    background-color: #E45F5C;
+}
+
+.alert.alert-info {
+    background-color: #2A80B9;
+}
+
+/**
+ * Breadcrumb
+ */
+.breadcrumb li.dashboard-name {
+    max-width: calc(100% - 150px);
+    margin-bottom: -5px;
+}
+
+/**
+ * Gridstack
+ */
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+    left: 15px;
+    right: 15px;
+}
+
+.grid-stack .gadget-wrapper {
+    min-height: 100%;
+}
+
+.panel-default > .panel-heading.text-truncate > .panel-title {
+    line-height: 24px;
+}
+
+.grid-stack>.grid-stack-item>.ui-resizable-se::before, .grid-stack>.grid-stack-item>.ui-resizable-sw::before {
+    content: none;
+}
+
+.grid-stack > .grid-stack-item > .ui-resizable-se {
+    transform: none;
+    -webkit-transform: none;
+    width: 16px;
+    height: 16px;
+    right: 18px;
+    bottom: 4px;
+}
+

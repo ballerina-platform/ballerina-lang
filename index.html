@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>WSO2 Tooling</title>
+	<title>WSO2 Integration Server Tooling</title>
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
@@ -13,24 +13,11 @@
 	<script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
 </head>
 <body>
-	<div id="container">
-		<ul class="nav nav-tabs">
-			<li class="active"><a data-toggle="tab" href="#home">Design View</a></li>
-			<li><a data-toggle="tab" href="#menu1">Source View</a></li>
-		</ul>
-		<div class="tab-content">
-			<div id="home" class="tab-pane fade in active">
-				<iframe id="iframe1" src="design-view.html"></iframe>
-			</div>
-			<div id="menu1" class="tab-pane fade">
-				<iframe id="iframe2" src="source-view.html"></iframe>
-			</div>
-		</div>
-	</div>
+	<iframe id="iframe" src="window.html"></iframe>
 	<script>
-		$("iframe").css("height", $(window).height() - 40 + "px");
+		$("iframe").css("height", $(window).height() + "px");
 		window.onresize = function() {
-			$("iframe").css("height", $(window).height() - 40 + "px");
+			$("iframe").css("height", $(window).height() + "px");
 		}
 	</script>
 </body>
