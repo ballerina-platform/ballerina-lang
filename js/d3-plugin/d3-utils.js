@@ -33,6 +33,66 @@ var D3Utils = (function (d3_utils) {
         return parent.draw.circle(point.x(), point.y(), r);
     };
 
+    var rectWithTitle = function (center, width, height, rx, ry, parent, colour, title) {
+        parent = parent || d3Ref;
+
+        x = center.x() - width / 2;
+        y = center.y() - height / 2;
+        var defs = parent.append("defs");
+
+        var filter = defs.append("filter")
+            .attr("id", "drop-shadow")
+            .attr("height", "130%");
+
+        filter.append("feGaussianBlur")
+            .attr("in", "SourceAlpha")
+            .attr("stdDeviation", 1)
+            .attr("result", "blur");
+
+        filter.append("feOffset")
+            .attr("in", "blur")
+            .attr("dx", 5)
+            .attr("dy", 5)
+            .attr("result", "offsetBlur");
+
+        var feMerge = filter.append("feMerge");
+
+        feMerge.append("feMergeNode")
+            .attr("in", "offsetBlur");
+        feMerge.append("feMergeNode")
+            .attr("in", "SourceGraphic");
+
+        rx = rx || 0;
+        ry = ry || 0;
+        parent.append("rect")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", width)
+            .attr("height", height)
+            .attr("fill", colour)
+            .attr("stroke-width", 2)
+            .style("filter", "url(#drop-shadow)")
+            .attr("rx", rx)
+            .attr("ry", ry);
+        parent.append("rect")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", width)
+            .attr("height", 200)
+            .attr("fill", "grey")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2)
+            .attr("rx", rx)
+            .attr("fill-opacity", 0.2)
+            .attr("ry", ry);
+        parent.append("text")
+            .attr("x", x + 20)
+            .attr("y", y + 19)
+            .attr("fill", "white")
+            .text(title);
+        return parent;
+    };
+
     var basicRect = function (x, y, width, height, rx, ry, parent) {
         parent = parent || d3Ref;
 
@@ -219,6 +279,7 @@ var D3Utils = (function (d3_utils) {
         draw.circleOnPoint = circleOnPoint;
         draw.group = group;
         draw.svg = svg;
+        draw.rectWithTitle = rectWithTitle;
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;

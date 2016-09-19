@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Payload Factory mediator definition
     var payloadFactoryMediator = {
         id: "PayLoadFactoryMediator",
-        title: "PayLoad Factory Mediator",
+        title: "PayLoad Factory",
         icon: "images/PayloadFactoryMediator.gif",
         colour : "#FFC766",
         type : "UnitProcessor",

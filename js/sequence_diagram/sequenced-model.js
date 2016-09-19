@@ -157,8 +157,6 @@ var SequenceD = (function (sequenced) {
             initialize: function (attrs, options) {
                 Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
 
-                //var elements = new DiagramElements([], { diagram: this });
-
                 var elements = new FixedSizedMediators([], {diagram: this});
 
                 var fixedSizedMediators = new FixedSizedMediators([], {diagram: this});
@@ -166,6 +164,11 @@ var SequenceD = (function (sequenced) {
 
                 var children = new Children([], {diagram: this});
                 this.children(children);
+
+                this.viewAttributes = {
+                    leftUpperConer: {x: 0, y: 0},
+                    rightLowerConer: {x: 0, y: 0}
+                };
 
             },
 
@@ -176,6 +179,22 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 title: "Lifeline"
+            },
+
+            leftUpperConer: function (point) {
+                if (_.isUndefined(point)) {
+                    return this.viewAttributes.leftUpperConer;
+                } else {
+                    this.viewAttributes.leftUpperConer = point;
+                }
+            },
+
+            rightLowerConer: function (point) {
+                if (_.isUndefined(point)) {
+                    return this.viewAttributes.rightLowerConer;
+                } else {
+                    this.viewAttributes.rightLowerConer = point;
+                }
             },
 
             createActivation: function (opts) {
@@ -277,7 +296,7 @@ var SequenceD = (function (sequenced) {
             defaults: {},
 
             source: function (ConnectionPoint, x, y) {
-                return Diagrams.Models.Link.prototype.source.call(this, ConnectionPoint,x, y);
+                return Diagrams.Models.Link.prototype.source.call(this, ConnectionPoint, x, y);
             },
 
             destination: function (ConnectionPoint, x, y) {
