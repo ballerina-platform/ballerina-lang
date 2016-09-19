@@ -70,9 +70,44 @@ var SequenceD = (function (sequenced) {
             },
 
             addChild: function (element, opts) {
-                this.children().add(element, opts);
-                this.trigger("addChild", element, opts);
-                this.trigger("addChildProcessor", element, opts);
+                //this.children().add(element, opts);
+
+                var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
+                var index = position.index;
+                this.children().add(element, {at:index});
+
+                //this.trigger("addChild", element, opts);
+                //this.trigger("addChildProcessor", element, opts);
+            },
+
+
+            calculateIndex: function (element, y) {
+                var previousChild;
+                var count = 1;
+                var position = {};
+                this.children().each(function (child) {
+                    if (!_.isEqual(element, child)) {
+                        if (child.get('centerPoint').get('y') > y) {
+                            previousChild = child;
+                            return false;
+                        }
+                        count = count + 1;
+                    }
+                });
+                if (_.isUndefined(previousChild)) {
+                    if(this.children().size() == 0){
+                        position.index = 0;
+                    }else {
+                        position.index = this.children().indexOf(element);
+                    }
+                } else {
+                    position.index = this.children().indexOf(previousChild);
+                }
+                return position;
+            },
+
+            setY: function (y) {
+                this.get('centerPoint').set('y', y);
             },
 
             defaults: {
@@ -261,9 +296,42 @@ var SequenceD = (function (sequenced) {
             },
 
             addChild: function (element, opts) {
-                this.children().add(element, opts);
+                //this.children().add(element, opts);
+
+                if(element instanceof SequenceD.Models.Processor) {
+                    var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
+                    var index = position.index;
+                    this.children().add(element, {at: index});
+                }
+
                 this.trigger("addChild", element, opts);
                 this.trigger("addChildProcessor", element, opts);
+            },
+
+
+            calculateIndex: function (element, y) {
+                var previousChild;
+                var count = 1;
+                var position = {};
+                this.children().each(function (child) {
+                    if (!_.isEqual(element, child)) {
+                        if (child.get('centerPoint').get('y') > y) {
+                            previousChild = child;
+                            return false;
+                        }
+                        count = count + 1;
+                    }
+                });
+                if (_.isUndefined(previousChild)) {
+                    if(this.children().size() == 0){
+                        position.index = 0;
+                    }else {
+                        position.index = this.children().indexOf(element);
+                    }
+                } else {
+                    position.index = this.children().indexOf(previousChild);
+                }
+                return position;
             },
 
             fixedSizedMediators: function (fixedSizedMediators) {
