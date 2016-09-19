@@ -73,7 +73,7 @@ public class TestUtil {
             SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
         NettyListener nettyListener = new NettyListener(listenerConfiguration);
         TransportSender transportSender = new NettySender(senderConfiguration);
-        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
+        NettyTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
         carbonMessageProcessor.setTransportSender(transportSender);
         Thread transportRunner = new Thread(() -> {
             try {
@@ -168,7 +168,7 @@ public class TestUtil {
             SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
         TransportSender transportSender = new NettySender(senderConfiguration);
         carbonMessageProcessor.setTransportSender(transportSender);
-        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
+        NettyTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 
 }

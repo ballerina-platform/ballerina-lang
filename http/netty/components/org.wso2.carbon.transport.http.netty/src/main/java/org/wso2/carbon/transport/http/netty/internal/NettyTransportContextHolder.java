@@ -71,7 +71,7 @@ public class NettyTransportContextHolder {
         return messageProcessor;
     }
 
-    public void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         this.messageProcessor = carbonMessageProcessor;
     }
 
