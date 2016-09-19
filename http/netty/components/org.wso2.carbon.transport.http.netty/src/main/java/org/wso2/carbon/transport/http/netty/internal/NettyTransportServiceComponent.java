@@ -62,9 +62,7 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
             policy = ReferencePolicy.DYNAMIC,
             unbind = "removeMessageProcessor")
     protected void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        NettyTransportContextHolder.getInstance().getListenerConfigurations().values().forEach(
-                listenerConfiguration -> NettyTransportContextHolder.getInstance().addMessageProcessor(
-                        listenerConfiguration.getPort(), carbonMessageProcessor));
+        NettyTransportContextHolder.getInstance().addMessageProcessor(carbonMessageProcessor);
     }
 
     protected void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {

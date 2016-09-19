@@ -204,6 +204,8 @@ public final class Constants {
     public static final String WORKER_POOL_SENDER_NAME = "Transport-Sender-Worker-Pool";
     public static final String DISRUPTOR_WORKER_POOL = "Disruptor-Worker-Pool";
 
+    public static final String CHANNEL_ID = "CHANNEL_ID";
+
     private Constants() {
     }
 

@@ -120,16 +120,11 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     });
         }
         if (continueRequest) {
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int port = Integer.parseInt(cMsg.getProperty(Constants.LISTENER_PORT).toString());
-                        NettyTransportContextHolder.getInstance().getMessageProcessor(port)
-                                                   .receive(cMsg, carbonCallback);
-                    } catch (Exception e) {
-                        log.error("Error occurred inside the messaging engine", e);
-                    }
+            executorService.execute(() -> {
+                try {
+                    NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
+                } catch (Exception e) {
+                    log.error("Error occurred inside the messaging engine", e);
                 }
             });
         }
@@ -143,5 +138,9 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
         connectionManager.notifyChannelInactive();
+    }
+
+    public ListenerConfiguration getListenerConfiguration() {
+        return listenerConfiguration;
     }
 }
