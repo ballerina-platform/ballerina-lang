@@ -25,6 +25,8 @@ var Processors = (function (processors) {
         id: "SwitchMediator",
         title: "Switch Mediator",
         icon: "images/SwitchMediator.gif",
+        colour : "#334455",
+        type : "DynamicContainableProcessor",
         parameters: []
     };
 

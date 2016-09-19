@@ -101,7 +101,7 @@ var Diagrams = (function (diagrams) {
                     return this.get('source');
                 }
                 diagram.sourceLifeLineY = y;
-                var connection = connectionPoint.connectLink(this, { type: 'outgoing', x: x, y: y});
+                var connection = connectionPoint.connectLink(this, {type: 'outgoing', x: x, y: y});
                 if (this.makeParallel()) {
                     connection.point().y(this.destination().point().y());
                 }
@@ -115,7 +115,7 @@ var Diagrams = (function (diagrams) {
                 if (connectionPoint === undefined) {
                     return this.get('destination');
                 }
-                var connection = connectionPoint.connectLink(this, { type: 'incoming', x: x, y: y});
+                var connection = connectionPoint.connectLink(this, {type: 'incoming', x: x, y: y});
                 if (this.makeParallel()) {
                     connection.point().y(this.source().point().y());
                 }
@@ -270,6 +270,7 @@ var Diagrams = (function (diagrams) {
                 // TODO: won't be using this until the layout finalized
                 this.deepestPointY = 100;
                 this.sourceLifeLineY = 0;
+                this.X = 0;
             },
 
             modelName: "Diagram",

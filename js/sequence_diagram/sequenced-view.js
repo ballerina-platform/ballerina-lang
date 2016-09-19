@@ -26,6 +26,113 @@ var SequenceD = (function (sequenced) {
     var toolPaletteWidth = 240;
     var imageHeight = 20;
 
+    var Processor = Diagrams.Views.ShapeView.extend(
+        /** @lends Processor.prototype */
+        {
+            /**
+             * @augments ShapeView
+             * @constructs
+             * @class Processor Represents the view for processor components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.ShapeView.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID, centerPoint) {
+                Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
+                thisModel = this.model;
+                var processor = this.drawProcessor(centerPoint, this.modelAttr('title'), this.options);
+                var viewObj = this;
+                var drag = d3.drag()
+                    .on("start", function () {
+                        viewObj.dragStart(d3.event);
+                    })
+                    .on("drag", function () {
+                        viewObj.dragMove(d3.event);
+                    })
+                    .on("end", function () {
+                        viewObj.dragStop();
+                    });
+
+                this.d3el = processor;
+                this.el = processor.node();
+                return processor;
+            },
+
+            drawProcessor: function (center, title, prefs) {
+                var d3Ref = this.getD3Ref();
+                var group = d3Ref.draw.group()
+                    .classed(prefs.class, true);
+
+                if (this.model.model.type === "UnitProcessor") {
+
+                    var rectBottomXXX = d3Ref.draw.centeredRect(center,
+                        prefs.rect.width,
+                        prefs.rect.height,
+                        3,
+                        3,
+                        this.group, //element.viewAttributes.colour
+                        this.modelAttr('viewAttributes').colour
+                    );
+                    var mediatorText = d3Ref.draw.centeredText(center,
+                        title,
+                        this.group)
+                        .classed(prefs.text.class, true);
+                    Object.getPrototypeOf(group).rect = rectBottomXXX;
+                    Object.getPrototypeOf(group).title = mediatorText;
+                    //this.renderViewForElement(element, opts);
+                } else if (this.model.model.type === "DynamicContainableProcessor") {
+                    var d3Ref = this.getD3Ref();
+                    console.log("Processor added");
+                    var rectBottomXXX = d3Ref.draw.rectWithTitle(center,
+                        150,
+                        prefs.rect.height,
+                        3,
+                        3,
+                        d3Ref,
+                        this.modelAttr('viewAttributes').colour,
+                        this.modelAttr('title')
+                    );
+                    Object.getPrototypeOf(group).rect = rectBottomXXX;
+
+                } else if (this.model.model.type === "ComplexProcessor") {
+                    var d3Ref = this.getD3Ref();
+                    console.log("Processor added");
+                    var rectBottomXXX = d3Ref.draw.rectWithTitle(
+                        center,
+                        150,
+                        prefs.rect.height,
+                        3,
+                        3,
+                        d3Ref,
+                        this.modelAttr('viewAttributes').colour,
+                        this.modelAttr('title')
+                    );
+                    Object.getPrototypeOf(group).rect = rectBottomXXX;
+
+                }
+
+                /*var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
+                 .classed(prefs.rect.class, true);
+                 var text = d3Ref.draw.centeredText(center, title, group)
+                 .classed(prefs.text.class, true);*/
+
+                Object.getPrototypeOf(group).translate = function (dx, dy) {
+                    this.attr("transform", function () {
+                        return "translate(" + [dx, dy] + ")"
+                    })
+                };
+
+                return group;
+            }
+
+        });
+
     var LifeLineView = Diagrams.Views.ShapeView.extend(
         /** @lends LifeLineView.prototype */
         {
@@ -58,7 +165,8 @@ var SequenceD = (function (sequenced) {
             render: function (paperID) {
                 Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
                 thisModel = this.model;
-                var lifeLine = this.drawlifeLine(this.modelAttr('centerPoint'), this.modelAttr('title'), this.options);
+                var centerPoint = this.modelAttr('centerPoint');
+                var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options);
                 var viewObj = this;
                 var drag = d3.drag()
                     .on("start", function () {
@@ -70,52 +178,86 @@ var SequenceD = (function (sequenced) {
                     .on("end", function () {
                         viewObj.dragStop();
                     });
+                var xValue = centerPoint.x();
+                var yValue = centerPoint.y();
+                //lifeLine.call(drag);
+                for (var id in this.modelAttr("children").models) {
+                    yValue += 60;
+                    var processor = this.modelAttr("children").models[id];
+                    var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                    var processorCenterPoint = createPoint(xValue, yValue);
+                    processorView.render("#diagramWrapper", processorCenterPoint);
+                }
 
-                lifeLine.call(drag);
-
-                this.model.on("addFixedSizedMediator", this.onAddFixedSizedMediator, this);
-
-                this.model.on("addChild", this.onAddChild, this);
+                this.model.on("addChildProcessor", this.onAddChildProcessor, this);
 
                 this.d3el = lifeLine;
                 this.el = lifeLine.node();
                 return lifeLine;
             },
 
-            onAddFixedSizedMediator: function (element, opts) {
-                var d3Ref = this.getD3Ref();
-                console.log("Mediator added");
-                var rectBottomXXX = d3Ref.draw.centeredRect(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), this.prefs.rect.width, this.prefs.rect.height, 3, 3, this.group)
-                    .classed(this.prefs.rect.class, true);
-                var mediatorText = d3Ref.draw.centeredText(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), element.get('title'), this.group)
-                    .classed(this.prefs.text.class, true);
-                //this.renderViewForElement(element, opts);
-            },
+            onAddChildProcessor: function (element, opts) {
+
+                if (element instanceof SequenceD.Models.Processor) {
+
+                    if (element.model.type === "UnitProcessor") {
+
+                        var d3Ref = this.getD3Ref();
+                        console.log("Processor added");
+                        var rectBottomXXX = d3Ref.draw.centeredRect(
+                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                                element.get('centerPoint').get('y')),
+                            this.prefs.rect.width,
+                            this.prefs.rect.height,
+                            3,
+                            3,
+                            this.group, element.viewAttributes.colour
+                        );
+                        var mediatorText = d3Ref.draw.centeredText(
+                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                                element.get('centerPoint').get('y')),
+                            element.get('title'),
+                            this.group)
+                            .classed(this.prefs.text.class, true);
+                        //this.renderViewForElement(element, opts);
+                    } else if (element.model.type === "DynamicContainableProcessor") {
+                        var d3Ref = this.getD3Ref();
+                        console.log("Processor added");
+                        var rectBottomXXX = d3Ref.draw.rectWithTitle(
+                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                                element.get('centerPoint').get('y')),
+                            150,
+                            this.prefs.rect.height,
+                            3,
+                            3,
+                            this.group, element.viewAttributes.colour,
+                            element.attributes.title
+                        );
 
 
-            onAddChild: function (element, opts) {
+                    } else if (element.model.type === "ComplexProcessor") {
+                        var d3Ref = this.getD3Ref();
+                        console.log("Processor added");
+                        var rectBottomXXX = d3Ref.draw.rectWithTitle(
+                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                                element.get('centerPoint').get('y')),
+                            150,
+                            this.prefs.rect.height,
+                            3,
+                            3,
+                            this.group, element.viewAttributes.colour,
+                            element.attributes.title
+                        );
 
-                if (element instanceof SequenceD.Models.FixedSizedMediator) {
-
-                    var d3Ref = this.getD3Ref();
-                    console.log("Mediator added");
-                    var rectBottomXXX = d3Ref.draw.centeredRect(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), this.prefs.rect.width, this.prefs.rect.height, 3, 3, this.group)
-                        .classed(this.prefs.rect.class, true);
-                    var mediatorText = d3Ref.draw.centeredText(createPoint(diagram.selectedNode.get('centerPoint').get('x'), element.get('centerPoint').get('y')), element.get('title'), this.group)
-                        .classed(this.prefs.text.class, true);
-                    //this.renderViewForElement(element, opts);
-                } else if (element instanceof SequenceD.Models.Message) {
-                    console.log("Message Link added !!!")
-                    if(opts.direction == 'inbound'){
-                        diagram.addElement(element, opts);
                     }
 
-                    //viewObj.model.addElement(element, opts);
+                } else if (element instanceof SequenceD.Models.Message) {
+                    console.log("Message Link added !!!")
                 }
 
             },
 
-            drawlifeLine: function (center, title, prefs) {
+            drawLifeLine: function (center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 this.diagram = prefs.diagram;
                 var viewObj = this;
@@ -126,7 +268,7 @@ var SequenceD = (function (sequenced) {
                 this.prefs = prefs;
                 this.center = center;
                 this.title = title;
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
                     .classed(prefs.rect.class, true);
 
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 3, 3, group)
@@ -137,7 +279,7 @@ var SequenceD = (function (sequenced) {
                     });
 
 
-                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
+                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
                     .classed(prefs.rect.class, true);
                 var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
                     .classed(prefs.line.class, true);
@@ -169,7 +311,7 @@ var SequenceD = (function (sequenced) {
                 }).on('mouseup', function (data) {
                 });
 
-                function updateudControlLocation(rect){
+                function updateudControlLocation(rect) {
                     var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
                     var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
                     udcontrol.set('visible', true);
@@ -346,6 +488,7 @@ var SequenceD = (function (sequenced) {
     views.ActivationView = ActivationView;
     views.LifeLineView = LifeLineView;
     views.FixedSizedMediatorView = FixedSizedMediatorView;
+    views.Processor = Processor;
     return sequenced;
 
 }(SequenceD || {}));

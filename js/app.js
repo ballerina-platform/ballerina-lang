@@ -29,14 +29,14 @@ lifeLineOptions.rect.class = "lifeline-rect";
 // Lifeline middle-rect options
 lifeLineOptions.middleRect = {};
 lifeLineOptions.middleRect.width = 100;
-lifeLineOptions.middleRect.height = 500;
+lifeLineOptions.middleRect.height = 700;
 lifeLineOptions.middleRect.roundX = 1;
 lifeLineOptions.middleRect.roundY = 1;
 lifeLineOptions.middleRect.class = "lifeline-middleRect";
 
 // Lifeline options
 lifeLineOptions.line = {};
-lifeLineOptions.line.height = 500;
+lifeLineOptions.line.height = 700;
 lifeLineOptions.line.class = "lifeline-line";
 // Lifeline text options
 lifeLineOptions.text = {};
@@ -60,7 +60,7 @@ var createMessage = function (start, end) {
 
 // Create tool palette elements
 var lifeline = new Tools.Models.Tool({
-    id: "tool1",
+    id: "LifeLine",
     title: "Lifeline",
     icon: "images/icon1.png"
 });

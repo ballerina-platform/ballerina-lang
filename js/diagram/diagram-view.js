@@ -44,7 +44,7 @@ var Diagrams = (function (diagrams) {
                 var dy = this.verticalDrag() ? event.dy : 0;
                 d.x += dx;
                 d.y += dy;
-                var snappedPoint = this.snapToGrid(new GeoCore.Models.Point({ 'x': d.x, 'y': d.y }));
+                var snappedPoint = this.snapToGrid(new GeoCore.Models.Point({'x': d.x, 'y': d.y}));
 
                 if (this.model instanceof SequenceD.Models.LifeLine) {
                     this.model.get('centerPoint').move(dx, 0);
@@ -301,19 +301,52 @@ var Diagrams = (function (diagrams) {
                 //var type = newDraggedElem.attr('id');
                 console.log("droped");
                 var id = ui.draggable.context.lastChild.id;
-                var position = {}
+                var position = {};
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
                 console.log(position);
                 if (Processors.manipulators[id] && diagram.selectedNode) {
-                    var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.manipulators[id].name, createPoint(position.x, position.y));
-                    diagram.selectedNode.addChild(mediator);
+                    //manipulators are unit processors
+                    var processor = diagram.selectedNode.createProcessor(
+                        Processors.manipulators[id].title,
+                        createPoint(position.x, position.y),
+                        Processors.manipulators[id].id,
+                        {type: Processors.manipulators[id].type || "UnitProcessor"},
+                        {colour: Processors.manipulators[id].colour},
+                        {parameters: Processors.manipulators[id].parameters}
+                    );
+                    diagram.selectedNode.addChild(processor);
                 } else if (Processors.flowControllers[id] && diagram.selectedNode) {
-                    var mediator = diagram.selectedNode.createFixedSizedMediator(Processors.flowControllers[id].name, createPoint(position.x, position.y));
-                    diagram.selectedNode.addChild(mediator);
-                } else if (id == "tool1") {
-                    var lifeline = createLifeLine("Lifeline", createPoint(position.x, 50));
+                    var processor = diagram.selectedNode.createProcessor(
+                        Processors.flowControllers[id].title,
+                        createPoint(position.x, position.y),
+                        Processors.flowControllers[id].id,
+                        {type: Processors.flowControllers[id].type},
+                        {colour: Processors.flowControllers[id].colour},
+                        {parameters: Processors.flowControllers[id].parameters}
+                    );
+                    diagram.selectedNode.addChild(processor);
+                    diagram.trigger("renderDiagram");
+                } else if (id == "LifeLine") {
+
+                    var numOfElements = diagram.attributes.diagramElements.length;
+                    var centerPoint;
+                    if (numOfElements > 0) {
+                        var lastLifeLine = diagram.attributes.diagramElements.models[numOfElements - 1];
+                        centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
+                    } else {
+                        //initial life line position
+                        centerPoint = createPoint(200, 50);
+                    }
+                    var lifeline = createLifeLine("Lifeline", centerPoint);
+                    lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
+                    lifeline.rightLowerConer({
+                        x: centerPoint.attributes.x + 65,
+                        y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
+                    });
                     diagram.addElement(lifeline, lifeLineOptions);
+
+
                 } else {
 
                 }
@@ -321,6 +354,9 @@ var Diagrams = (function (diagrams) {
 
 
             render: function () {
+                //Remove previous diagram
+                d3.select(this.options.selector).selectAll("*").remove();
+
                 var container = d3.select(this.options.selector);
                 if (_.isUndefined(container)) {
                     throw this.options.selector + " is not a valid query selector for container";
@@ -350,7 +386,7 @@ var Diagrams = (function (diagrams) {
 
                 this.model.on("addElement", this.onAddElement, this);
                 this.model.on("llClicked", this.onLifelineClicked, this);
-
+                this.model.on("renderDiagram", this.renderDiagram);
                 this.d3svg = svg;
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
@@ -363,7 +399,17 @@ var Diagrams = (function (diagrams) {
                     //drag: function( event, ui ) {
                     //}
                 });
+
+                for (var id in this.model.attributes.diagramElements.models) {
+                    var lifeLine = this.model.attributes.diagramElements.models[id];
+                    var lifeLineView = new SequenceD.Views.LifeLineView({model: lifeLine, options: lifeLineOptions});
+                    lifeLineView.render("#" + this.options.diagram.wrapper.id);
+                }
                 return mainGroup;
+            },
+
+            renderDiagram: function () {
+                diagramView.render();
             },
 
             onAddElement: function (element, opts) {
@@ -416,8 +462,8 @@ var Diagrams = (function (diagrams) {
                     if (viewObj.model.clickedLifeLine.get('centerPoint').get('x') != diagram.destinationLifeLine.get('centerPoint').get('x')) {
 
                         var invisibleActivation = new SequenceD.Models.Activation({owner: diagram.destinationLifeLine});
-                        var messageOptionsInbound = {'class': 'message', 'direction' : 'inbound'};
-                        var messageOptionsOutbound = {'class': 'message', 'direction' : 'outbound'};
+                        var messageOptionsInbound = {'class': 'message', 'direction': 'inbound'};
+                        var messageOptionsOutbound = {'class': 'message', 'direction': 'outbound'};
 
                         var lf1Activation1 = new SequenceD.Models.Activation({owner: viewObj.model.clickedLifeLine});
 
