@@ -65,26 +65,35 @@ var lifeline = new Tools.Models.Tool({
     icon: "images/icon1.png"
 });
 
-// Create tool group
-var group = new Tools.Models.ToolGroup();
-group.add(lifeline);
+// Create main tool group
+var mainToolGroup = new Tools.Models.ToolGroup();
+mainToolGroup.add(lifeline);
+var mainToolGroupWrapper = new Tools.Models.ToolGroupWrapper({
+    toolGroupName: "Main Elements",
+    toolGroupID: "main-tool-group",
+    toolGroup: mainToolGroup
+});
+
+// Create mediators tool group
+var mediatorsToolGroup = new Tools.Models.ToolGroup();
 for (var manipulator in Processors.manipulators) {
     var tool = new Tools.Models.Tool(Processors.manipulators[manipulator]);
-    group.add(tool);
+    mediatorsToolGroup.add(tool);
 }
 for (var flowController in Processors.flowControllers) {
     var tool = new Tools.Models.Tool(Processors.flowControllers[flowController]);
-    group.add(tool);
+    mediatorsToolGroup.add(tool);
 }
-var toolGroupWrapper = new Tools.Models.ToolGroupWrapper({
-    toolGroupName: "Diagram Elements",
-    toolGroupID: "diagram-elements",
-    toolGroup: group
+var mediatorsToolGroupWrapper = new Tools.Models.ToolGroupWrapper({
+    toolGroupName: "Mediators",
+    toolGroupID: "mediators-tool-group",
+    toolGroup: mediatorsToolGroup
 });
 
 // Create tool palette
 var toolPalette = new Tools.Models.ToolPalatte();
-toolPalette.add(toolGroupWrapper);
+toolPalette.add(mainToolGroupWrapper);
+toolPalette.add(mediatorsToolGroupWrapper);
 var paletteView = new Tools.Views.ToolPalatteView({collection: toolPalette});
 paletteView.render();
 
