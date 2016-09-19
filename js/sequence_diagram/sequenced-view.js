@@ -272,12 +272,13 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.rect.class, true);
 
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 3, 3, group)
-                    .classed(prefs.middleRect.class, true)
+                    .classed(prefs.middleRect.class, true);
+
+                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width*0.4), prefs.middleRect.height, 3, 3, group)
                     .on("mousedown", function () {
                         var m = d3.mouse(this);
                         viewObj.mouseDown(prefs, center.x(), m[1]);
                     });
-
 
                 var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
                     .classed(prefs.rect.class, true);
@@ -291,6 +292,7 @@ var SequenceD = (function (sequenced) {
                 Object.getPrototypeOf(group).rectBottom = rectBottom;
                 Object.getPrototypeOf(group).line = line;
                 Object.getPrototypeOf(group).middleRect = middleRect;
+                Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
                 Object.getPrototypeOf(group).title = text;
                 Object.getPrototypeOf(group).titleBottom = textBottom;
                 Object.getPrototypeOf(group).translate = function (dx, dy) {
@@ -308,6 +310,15 @@ var SequenceD = (function (sequenced) {
                     diagram.destinationLifeLine = diagram.selectedNode;
                     diagram.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
+                }).on('mouseup', function (data) {
+                });
+
+                drawMessageRect.on('mouseover', function () {
+                    diagram.selectedNode = viewObj.model;
+                    d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
+                        .style("cursor", 'url(http://www.rw-designer.com/cursor-extern.php?id=93354), pointer');
+                }).on('mouseout', function () {
+                    d3.select(this).style("fill-opacity", 0.0);
                 }).on('mouseup', function (data) {
                 });
 
