@@ -316,6 +316,8 @@ var Diagrams = (function (diagrams) {
                         {parameters: Processors.manipulators[id].parameters}
                     );
                     diagram.selectedNode.addChild(processor);
+                    //diagram.trigger("renderDiagram");
+                    diagramView.render();
                 } else if (Processors.flowControllers[id] && diagram.selectedNode) {
                     var processor = diagram.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
@@ -326,7 +328,7 @@ var Diagrams = (function (diagrams) {
                         {parameters: Processors.flowControllers[id].parameters}
                     );
                     diagram.selectedNode.addChild(processor);
-                    diagram.trigger("renderDiagram");
+                    diagramView.render();
                 } else if (id == "LifeLine") {
 
                     var numOfElements = diagram.attributes.diagramElements.length;

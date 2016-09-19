@@ -35,6 +35,9 @@ var SequenceD = (function (sequenced) {
                 this.model = attrs.model;
                 this.viewAttributes = attrs.viewAttributes;
                 this.parameters = attrs.parameters;
+
+                var children = new Children([], {diagram: this});
+                this.children(children);
             },
 
             modelName: "Processor",
@@ -46,6 +49,31 @@ var SequenceD = (function (sequenced) {
             parameters: {},
 
             viewAttributes: {},
+
+            children: function (children) {
+                if (_.isUndefined(children)) {
+                    return this.get('children');
+                } else {
+                    this.set('children', children);
+                }
+            },
+
+            createProcessor: function (title, center, type, model, viewAttributes, parameters) {
+                return new SequenceD.Models.Processor({
+                    title: title,
+                    centerPoint: center,
+                    type: type,
+                    model: model,
+                    viewAttributes: viewAttributes,
+                    parameters: parameters
+                });
+            },
+
+            addChild: function (element, opts) {
+                this.children().add(element, opts);
+                this.trigger("addChild", element, opts);
+                this.trigger("addChildProcessor", element, opts);
+            },
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),

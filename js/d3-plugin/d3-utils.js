@@ -116,7 +116,7 @@ var D3Utils = (function (d3_utils) {
         var feMerge = filter.append("feMerge");
 
         feMerge.append("feMergeNode")
-            .attr("in", "offsetBlur")
+            .attr("in", "offsetBlur");
         feMerge.append("feMergeNode")
             .attr("in", "SourceGraphic");
 
@@ -127,7 +127,6 @@ var D3Utils = (function (d3_utils) {
             .attr("y", y)
             .attr("width", width)
             .attr("height", height)
-            //.attr("fill", "steelblue")
             .attr("fill-opacity", 0.01)
             .attr("stroke-width", 2)
             //.style("filter", "url(#drop-shadow)")
