@@ -52,7 +52,8 @@ var SequenceD = (function (sequenced) {
 
             renderTitle: function () {
                 console.log("lifeline rendered again due to its title change");
-                this.render('.editor');
+                this.d3el.title.text(this.model.attributes.title);
+                this.d3el.titleBottom.text(this.model.attributes.title);
             },
 
             render: function (paperID) {
