@@ -1,0 +1,194 @@
+<html lang="en" class=" webkit chrome mac js gr__localhost">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS Browser Selector JS -->
+    <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="lib/bootstrap_v3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <!-- Font WSO2 CSS -->
+    <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css">
+    <!-- Jquery Nanoscroller CSS -->
+    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css">
+    <!-- Theme WSO2 CSS -->
+    <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css">
+    <!-- Custom CSS -->
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
+    <!-- Common CSS -->
+    <link href="css/common.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
+    <script src="lib/respond_1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/designer.css">
+    <!-- link rel="stylesheet" type="text/css" href="css/app.css" / -->
+
+    <title>Integration Server Tooling</title>
+
+    <style type="text/css" data-gs-id="gridstack-style-29694"></style>
+</head>
+
+<body data-gr-c-s-loaded="true" style="cursor: auto;">
+
+    <!-- Modal -->
+    <div class="modal fade" id="designerModal" tabindex="-1" role="dialog" aria-labelledby="modalDemo">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content clearfix">
+            </div>
+        </div>
+    </div>
+
+    <!-- header -->
+    <header class="header header-default">
+        <div class="container-fluid">
+            <div class="pull-left brand float-remove-xs text-center-xs">
+                <a href="#">
+                    <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
+                    <h1>Integration Server Tooling</h1>
+                </a>
+            </div>
+            <div class="pull-right auth float-remove-xs text-center-xs">
+            </div>
+        </div>
+    </header>
+
+    <!-- navbar -->
+    <nav class="navbar sidebar-wrapper toggled sub-nav" role="navigation" data-side="left" data-width="58">
+        <ul class="nav navbar-nav nav-stacked">
+            <li aria-expanded="true" class="active">
+                <a data-toggle="sidebar" data-target="#left-sidebar" data-container=".page-content-wrapper" data-container-divide="true"
+                    aria-expanded="true" rel="sub-nav" onclick="updateSidebarNav('#sidebarNavFileExplorer', this)" title="File Explorer" id="btn-pages-sidebar"
+                    class="active">
+                    <i class="icon fw fw-pages"></i>
+                </a>
+            </li>
+            <li aria-expanded="false" class="">
+                <a data-toggle="sidebar" data-target="#left-sidebar" data-container=".page-content-wrapper" data-container-divide="true"
+                    aria-expanded="false" rel="sub-nav" onclick="updateSidebarNav('#sidebarNavSettings', this)" title="Settings"
+                    id="btn-sidebar-gadgets" class="">
+                    <i class="icon fw fw-gadget"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- #page-content-wrapper -->
+    <div class="page-content-wrapper fixed" style="padding-left: 305px;">
+
+        <!-- .left-sidebar -->
+        <div class="sidebar-wrapper sidebar-nav toggled" id="left-sidebar" data-side="left" data-width="250" data-offset-left="55"
+            style="left: 55px;">
+
+            <button class="btn btn-default close-handle close-sidebar" data-handle="close" data-toggle="sidebar" data-target="#left-sidebar"
+                data-container=".page-content-wrapper" data-container-divide="true" aria-expanded="true" rel="sub-nav"><i class="fw fw-left-arrow"></i></button>
+
+            <div class="nano">
+                <div class="nano-content" tabindex="0">
+                    <!-- File Explorer -->
+                    <div id="sidebarNavFileExplorer" style="display: block;">
+                        <div class="sidebar-brand">File Explorer</div>
+                        <div class="alert alert-info">
+                            File explorer planel will be added here.
+                        </div>
+                    </div>
+                    <!-- Settings -->
+                    <div id="sidebarNavSettings" class="ues-store-assets" data-type="gadget" style="display: none;">
+                        <div class="sidebar-brand">Settings</div>
+                        <div class="alert alert-info">
+                            Settings panel will be added here.
+                        </div>
+                    </div>
+                </div>
+                <div class="nano-pane" style="display: block;">
+                    <div class="nano-slider" style="height: 49px; transform: translate(0px, 0px);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- .left-sidebar-sub -->
+        <div class="sidebar-wrapper sidebar-nav sidebar-nav-sub" id="left-sidebar-sub" data-side="left" data-width="250" data-offset-left="305"
+            style="display: none; left: -555px;">
+            <div class="nano">
+                <div class="nano-content" tabindex="0">
+                    <button class="btn btn-default close-handle" data-handle="close" data-toggle="sidebar" data-target="#left-sidebar-sub" aria-expanded="true"
+                        rel="createPage"><i class="fw fw-cancel"></i></button>
+                </div>
+                <div class="nano-pane" style="display: none;">
+                    <div class="nano-slider" style="height: 278px; transform: translate(0px, 0px);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- page content -->
+        <div class="container-fluid body-wrapper">
+            <div class="page-content">
+                <ul class="nav nav-tabs" id="designer-view-mode">
+                    <li role="dashboard-view" data-view-mode="default" class="active">
+                        <a href="#designViewTab" aria-controls="defaultDashboardView" role="tab" data-toggle="tab">Design View</a>
+                    </li>
+                    <li role="dashboard-view" data-view-mode="anon" class="">
+                        <a href="#sourceViewTab" aria-controls="anonymousDashboardView" role="tab" data-toggle="tab">Source View</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div id="designViewTab" class="tab-pane fade in active">
+                        <iframe id="iframe1" src="design-view.html"></iframe>
+                    </div>
+                    <div id="sourceViewTab" class="tab-pane fade">
+                        <iframe id="iframe2" src="source-view.html"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /#page-content-wrapper -->
+
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <p>WSO2 Integration Server Tooling v0.0.1 | © <script>document.write(new Date().getFullYear());</script>
+                <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.</p>
+        </div>
+    </footer>
+
+    <!-- Jquery/Jquery UI JS -->
+    <script src="lib/jquery_1.11.0/jquery-1.11.3.min.js"></script>
+    <script src="lib/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+
+    <script>
+		$("iframe").css("height", $(window).height() - 40 + "px");
+		window.onresize = function() {
+			$("iframe").css("height", $(window).height() - 40 + "px");
+		}
+	</script>
+
+    <!-- Bootstrap JS -->
+    <script src="lib/bootstrap_v3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- Jquery Nanoscroller JS -->
+    <script src="lib/nanoscroller_0.8.7/jquery.nanoscroller.min.js"></script>
+
+    <!-- Theme WSO2 JS -->
+    <script src="lib/theme-wso2_1.0/js/theme-wso2.js"></script>
+
+    <script src="lib/underscore-1.8.3/underscore-min.js"></script>
+
+    <script src="js/jquery.noty.packaged.min.js"></script>
+    <script src="js/jquery.simulate.js"></script>
+    <script src="js/ues.js"></script>
+    <script src="js/ues-store.js"></script>
+    <script src="js/designer.js"></script>
+    <script src="js/wso2-noty-theme.js"></script>
+</body>
+
+</html>
