@@ -6,14 +6,15 @@
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
-	<link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
 	<link rel="stylesheet" type="text/css" href="css/app.css" />
 
 	<script src="lib/jquery_v1.9.1/jquery.js"></script>
-	<script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
 </head>
 <body>
+	<!-- An iframe has been used to avoid JS libarary conflicts in Electron -->
 	<iframe id="iframe" src="window.html"></iframe>
+
+	<!-- Update iframe height according to window height -->
 	<script>
 		$("iframe").css("height", $(window).height() + "px");
 		window.onresize = function() {
