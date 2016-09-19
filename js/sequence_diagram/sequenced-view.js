@@ -128,6 +128,7 @@ var SequenceD = (function (sequenced) {
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
                         processorView.render("#diagramWrapper", processorCenterPoint);
+                        processor.setY(yValue);
                     }
 
 
@@ -175,6 +176,7 @@ var SequenceD = (function (sequenced) {
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
                         processorView.render("#diagramWrapper", processorCenterPoint);
+                        processor.setY(yValue);
                     }
 
                 }
@@ -242,13 +244,14 @@ var SequenceD = (function (sequenced) {
                     });
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
-                //lifeLine.call(drag);
+                lifeLine.call(drag);
                 for (var id in this.modelAttr("children").models) {
                     yValue += 60;
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                     var processorCenterPoint = createPoint(xValue, yValue);
                     processorView.render("#diagramWrapper", processorCenterPoint);
+                    processor.setY(yValue);
                 }
 
                 this.model.on("addChildProcessor", this.onAddChildProcessor, this);
@@ -314,6 +317,9 @@ var SequenceD = (function (sequenced) {
 
                 } else if (element instanceof SequenceD.Models.Message) {
                     console.log("Message Link added !!!")
+                    if (opts.direction == 'inbound') {
+                        diagram.addElement(element, opts);
+                    }
                 }
 
             },
