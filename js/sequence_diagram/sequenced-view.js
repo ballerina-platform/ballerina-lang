@@ -223,7 +223,13 @@ var SequenceD = (function (sequenced) {
 
             renderTitle: function () {
                 console.log("lifeline rendered again due to its title change");
-                this.render('.editor');
+                this.d3el.title.text(this.model.attributes.title);
+                this.d3el.titleBottom.text(this.model.attributes.title);
+                if (propertyPane) {
+                    if (propertyPane.schema.title === thisModel.getSchema().title) {
+                        propertyPane.setValue(thisModel.getEditableProperties());
+                    }
+                }
             },
 
             render: function (paperID) {
@@ -404,17 +410,28 @@ var SequenceD = (function (sequenced) {
                     if (selected) {
                         if (this == selected) {
                             selected.classList.toggle("lifeline_selected");
+                            if (propertyPane) {
+                                propertyPane.destroy();
+                            }
                             udcontrol.set('visible', false);
                             udcontrol.set('lifeline', '');
                             selected = '';
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
+                            if (propertyPane) {
+                                propertyPane.destroy();
+                            }
+                            propertyPane = thisModel.getPropertyPane();
                             updateudControlLocation(this);
                             selected = this;
                         }
                     } else {
                         this.classList.toggle("lifeline_selected");
+                        if (propertyPane) {
+                            propertyPane.destroy();
+                        }
+                        propertyPane = thisModel.getPropertyPane();
                         updateudControlLocation(this);
                         selected = this;
                     }

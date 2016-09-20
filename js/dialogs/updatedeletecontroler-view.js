@@ -73,7 +73,7 @@ var Dialogs = (function (dialogs) {
                     position: 'absolute',
                     top: y,
                     left: x,
-                    zIndex: 5000
+                    zIndex: 10001
                 });
                 udControlDiv.removeClass("hidden-button");
                 udControlDiv.addClass("visible-button");
