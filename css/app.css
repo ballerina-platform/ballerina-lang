@@ -230,3 +230,7 @@ border-radius: 0;
     padding-left: 6px;
     padding-right: 4px;
 }
+
+.property-save {
+    margin: 2px;
+}
