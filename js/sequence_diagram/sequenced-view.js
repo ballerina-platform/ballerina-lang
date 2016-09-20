@@ -72,7 +72,7 @@ var SequenceD = (function (sequenced) {
                 if (this.model.model.type === "UnitProcessor") {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
-                        prefs.rect.width,
+                        130,
                         prefs.rect.height,
                         3,
                         3,
