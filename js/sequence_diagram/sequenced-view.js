@@ -76,12 +76,12 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         3,
                         3,
-                        this.group, //element.viewAttributes.colour
+                        group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
                     var mediatorText = d3Ref.draw.centeredText(center,
                         title,
-                        this.group)
+                        group)
                         .classed(prefs.text.class, true);
                     Object.getPrototypeOf(group).rect = rectBottomXXX;
                     Object.getPrototypeOf(group).title = mediatorText;
