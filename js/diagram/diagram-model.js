@@ -284,10 +284,10 @@ var Diagrams = (function (diagrams) {
             destinationLifeLine: null,
 
             addElement: function (element, opts) {
-                this.diagramElements().add(element, opts);
                 //this.trigger("addElement", element, opts);
 
                 if (element instanceof SequenceD.Models.LifeLine) {
+                    this.diagramElements().add(element, opts);
                     this.lifeLineMap[element.attributes.centerPoint.attributes.x] = element;
                 } else{
                     this.trigger("addElement", element, opts);
