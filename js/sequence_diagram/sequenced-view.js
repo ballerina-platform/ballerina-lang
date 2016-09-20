@@ -218,6 +218,9 @@ var SequenceD = (function (sequenced) {
             verticalDrag: function () {
                 return false;
             },
+            horizontalDrag: function () {
+                return false;
+            },
 
             thisModel: '',
 
@@ -245,8 +248,7 @@ var SequenceD = (function (sequenced) {
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
 
-                // Disabling the lifeline dragging
-                //lifeLine.call(drag);
+                lifeLine.call(drag);
                 for (var id in this.modelAttr("children").models) {
                     yValue += 60;
                     if(this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
@@ -350,8 +352,11 @@ var SequenceD = (function (sequenced) {
 
                 var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width*0.4), prefs.middleRect.height, 3, 3, group)
                     .on("mousedown", function () {
+                        d3.event.preventDefault();
+                        d3.event.stopPropagation();
                         var m = d3.mouse(this);
                         viewObj.mouseDown(prefs, center.x(), m[1]);
+
                     });
 
                 var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
