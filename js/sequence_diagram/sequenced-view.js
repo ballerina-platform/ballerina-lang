@@ -72,16 +72,16 @@ var SequenceD = (function (sequenced) {
                 if (this.model.model.type === "UnitProcessor") {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
-                        prefs.rect.width,
+                        130,
                         prefs.rect.height,
                         3,
                         3,
-                        this.group, //element.viewAttributes.colour
+                        group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
                     var mediatorText = d3Ref.draw.centeredText(center,
                         title,
-                        this.group)
+                        group)
                         .classed(prefs.text.class, true);
                     Object.getPrototypeOf(group).rect = rectBottomXXX;
                     Object.getPrototypeOf(group).title = mediatorText;
@@ -94,13 +94,13 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         3,
                         3,
-                        d3Ref,
+                        group,
                         this.modelAttr('viewAttributes').colour,
                         this.modelAttr('title')
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3);
+                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3, group);
                     middleRect.on("mousedown", function () {
                             var m = d3.mouse(this);
                             this.mouseDown(prefs, center.x(), m[1]);
@@ -142,13 +142,13 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         3,
                         3,
-                        d3Ref,
+                        group,
                         this.modelAttr('viewAttributes').colour,
                         this.modelAttr('title')
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3);
+                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3, group);
                     middleRect.on("mousedown", function () {
                             var m = d3.mouse(this);
                             this.mouseDown(prefs, center.x(), m[1]);
@@ -226,7 +226,13 @@ var SequenceD = (function (sequenced) {
 
             renderTitle: function () {
                 console.log("lifeline rendered again due to its title change");
-                this.render('.editor');
+                this.d3el.title.text(this.model.attributes.title);
+                this.d3el.titleBottom.text(this.model.attributes.title);
+                if (propertyPane) {
+                    if (propertyPane.schema.title === thisModel.getSchema().title) {
+                        propertyPane.setValue(thisModel.getEditableProperties());
+                    }
+                }
             },
 
             render: function (paperID) {
@@ -410,23 +416,39 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('lifeline', thisModel);
                 }
 
+                function updatePropertyPane(rect) {
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
+                    $('#propertySave').show();
+                    propertyPane = thisModel.getPropertyPane();
+                    $('#save-image').click(function () {
+                        thisModel.set('title', propertyPane.getValue().Title);
+                        $("#save-image").css({ opacity: 0.4 });
+                    });
+                    updateudControlLocation(rect);
+                    selected = rect;
+                }
+
                 rect.on("click", (function () {
                     if (selected) {
                         if (this == selected) {
                             selected.classList.toggle("lifeline_selected");
+                            if (propertyPane) {
+                                propertyPane.destroy();
+                            }
+                            $('#propertySave').hide();
                             udcontrol.set('visible', false);
                             udcontrol.set('lifeline', '');
                             selected = '';
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
-                            updateudControlLocation(this);
-                            selected = this;
+                            updatePropertyPane(this);
                         }
                     } else {
                         this.classList.toggle("lifeline_selected");
-                        updateudControlLocation(this);
-                        selected = this;
+                        updatePropertyPane(this);
                     }
                 }));
 

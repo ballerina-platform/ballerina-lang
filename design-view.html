@@ -39,18 +39,23 @@
         </div>
         <div class="editor-container" id="editorBottom">
             <div class="editor-scroller">
+                <div id="udcontroldiv" >
+                    <img id="edit-image" alt="edit" src="images/edit.svg" class="udcontrol-image"/>
+                    <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
+                    <div id="udcModal" style="display:none;"></div>
+                </div>
                 <div class="editor gradient-pattern">
-                    <div id="udcontroldiv" class="hidden-button">
-                        <img id="edit-image" alt="edit" src="images/edit.svg" class="udcontrol-image"/>
-                        <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
-                        <div id="udcModal" style="display:none;"></div>
-                    </div>
+
                 </div>
             </div>
         </div>
-        <!-- div class="property-container">
+        <div class="property-container">
+            <div id="propertySave" style="float: right; padding-right: 4px; display:none" >
+                <img id="save-image" alt="save" src="images/save.svg" class="udcontrol-image property-save " />
+                Save
+            </div>
             <div id="propertyPane"></div>
-        </div -->
+        </div>
     </div>
 </div>
 
