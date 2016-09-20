@@ -249,11 +249,16 @@ var SequenceD = (function (sequenced) {
                 //lifeLine.call(drag);
                 for (var id in this.modelAttr("children").models) {
                     yValue += 60;
-                    var processor = this.modelAttr("children").models[id];
-                    var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
-                    var processorCenterPoint = createPoint(xValue, yValue);
-                    processorView.render("#diagramWrapper", processorCenterPoint);
-                    processor.setY(yValue);
+                    if(this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
+                        var processor = this.modelAttr("children").models[id];
+                        var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                        var processorCenterPoint = createPoint(xValue, yValue);
+                        processorView.render("#diagramWrapper", processorCenterPoint);
+                        processor.setY(yValue);
+                    } else {
+                        var link = this.modelAttr("children").models[id];
+
+                    }
                 }
 
                 this.model.on("addChildProcessor", this.onAddChildProcessor, this);
