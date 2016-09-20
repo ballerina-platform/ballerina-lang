@@ -303,9 +303,12 @@ var SequenceD = (function (sequenced) {
                     var index = position.index;
                     this.children().add(element, {at: index});
                 }
+                if (!_.isUndefined(opts) && opts.direction == 'inbound') {
+                    diagram.addElement(element, opts);
+                }
 
-                this.trigger("addChild", element, opts);
-                this.trigger("addChildProcessor", element, opts);
+                //this.trigger("addChild", element, opts);
+                //this.trigger("addChildProcessor", element, opts);
             },
 
 

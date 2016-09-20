@@ -405,9 +405,16 @@ var Diagrams = (function (diagrams) {
                 this.htmlDiv.attr("ondragstart", "return false");
 
                 for (var id in this.model.attributes.diagramElements.models) {
-                    var lifeLine = this.model.attributes.diagramElements.models[id];
-                    var lifeLineView = new SequenceD.Views.LifeLineView({model: lifeLine, options: lifeLineOptions});
-                    lifeLineView.render("#" + this.options.diagram.wrapper.id);
+                    if(this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramElements.models[id];
+                        var lifeLineView = new SequenceD.Views.LifeLineView({
+                            model: lifeLine,
+                            options: lifeLineOptions
+                        });
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id);
+                    } else {
+
+                    }
                 }
                 return mainGroup;
             },
