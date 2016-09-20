@@ -416,6 +416,20 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('lifeline', thisModel);
                 }
 
+                function updatePropertyPane(rect) {
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
+                    $('#propertySave').show();
+                    propertyPane = thisModel.getPropertyPane();
+                    $('#save-image').click(function () {
+                        thisModel.set('title', propertyPane.getValue().Title);
+                        $("#save-image").css({ opacity: 0.4 });
+                    });
+                    updateudControlLocation(rect);
+                    selected = rect;
+                }
+
                 rect.on("click", (function () {
                     if (selected) {
                         if (this == selected) {
@@ -430,23 +444,11 @@ var SequenceD = (function (sequenced) {
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
-                            if (propertyPane) {
-                                propertyPane.destroy();
-                            }
-                            propertyPane = thisModel.getPropertyPane();
-                            $('#propertySave').show();
-                            updateudControlLocation(this);
-                            selected = this;
+                            updatePropertyPane(this);
                         }
                     } else {
                         this.classList.toggle("lifeline_selected");
-                        if (propertyPane) {
-                            propertyPane.destroy();
-                        }
-                        $('#propertySave').show();
-                        propertyPane = thisModel.getPropertyPane();
-                        updateudControlLocation(this);
-                        selected = this;
+                        updatePropertyPane(this);
                     }
                 }));
 
