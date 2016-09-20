@@ -244,7 +244,9 @@ var SequenceD = (function (sequenced) {
                     });
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
-                lifeLine.call(drag);
+
+                // Disabling the lifeline dragging
+                //lifeLine.call(drag);
                 for (var id in this.modelAttr("children").models) {
                     yValue += 60;
                     var processor = this.modelAttr("children").models[id];
