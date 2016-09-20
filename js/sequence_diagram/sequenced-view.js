@@ -94,13 +94,13 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         3,
                         3,
-                        d3Ref,
+                        group,
                         this.modelAttr('viewAttributes').colour,
                         this.modelAttr('title')
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3);
+                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3, group);
                     middleRect.on("mousedown", function () {
                             var m = d3.mouse(this);
                             this.mouseDown(prefs, center.x(), m[1]);
@@ -142,13 +142,13 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         3,
                         3,
-                        d3Ref,
+                        group,
                         this.modelAttr('viewAttributes').colour,
                         this.modelAttr('title')
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3);
+                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3, group);
                     middleRect.on("mousedown", function () {
                             var m = d3.mouse(this);
                             this.mouseDown(prefs, center.x(), m[1]);
