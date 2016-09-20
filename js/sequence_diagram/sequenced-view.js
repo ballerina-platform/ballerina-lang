@@ -423,6 +423,7 @@ var SequenceD = (function (sequenced) {
                             if (propertyPane) {
                                 propertyPane.destroy();
                             }
+                            $('#propertySave').hide();
                             udcontrol.set('visible', false);
                             udcontrol.set('lifeline', '');
                             selected = '';
@@ -433,6 +434,7 @@ var SequenceD = (function (sequenced) {
                                 propertyPane.destroy();
                             }
                             propertyPane = thisModel.getPropertyPane();
+                            $('#propertySave').show();
                             updateudControlLocation(this);
                             selected = this;
                         }
@@ -441,6 +443,7 @@ var SequenceD = (function (sequenced) {
                         if (propertyPane) {
                             propertyPane.destroy();
                         }
+                        $('#propertySave').show();
                         propertyPane = thisModel.getPropertyPane();
                         updateudControlLocation(this);
                         selected = this;
