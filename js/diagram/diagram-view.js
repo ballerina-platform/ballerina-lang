@@ -347,7 +347,7 @@ var Diagrams = (function (diagrams) {
                         y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
                     });
                     diagram.addElement(lifeline, lifeLineOptions);
-
+                    diagramView.render();
 
                 } else {
 
@@ -356,8 +356,6 @@ var Diagrams = (function (diagrams) {
 
 
             render: function () {
-                //Remove previous diagram
-                d3.select(this.options.selector).selectAll("*").remove();
 
                 var container = d3.select(this.options.selector);
                 if (_.isUndefined(container)) {
@@ -366,6 +364,20 @@ var Diagrams = (function (diagrams) {
                 // wrap d3 with custom drawing apis
                 container = D3Utils.decorate(container);
 
+                //Remove previous diagram
+                if(this.d3svg){
+                    this.d3svg.remove();
+                    for(var element in diagramViewElements){
+                        diagramViewElements[element].remove();
+                    }
+                } else{
+                    // When re-rendering the same event handler do not need to re-register.
+                    // Otherwise same function will call for multiple times.
+                    this.model.on("addElement", this.onAddElement, this);
+                    this.model.on("llClicked", this.onLifelineClicked, this);
+                    this.model.on("renderDiagram", this.renderDiagram);
+                }
+                diagramViewElements = [];
                 var svg = container.draw.svg(this.options.diagram);
 
                 var definitions = svg.append("defs");
@@ -408,9 +420,7 @@ var Diagrams = (function (diagrams) {
                 feMerge.append("feMergeNode")
                     .attr("in", "SourceGraphic");
 
-                this.model.on("addElement", this.onAddElement, this);
-                this.model.on("llClicked", this.onLifelineClicked, this);
-                this.model.on("renderDiagram", this.renderDiagram);
+
                 this.d3svg = svg;
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
@@ -433,6 +443,7 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
+                        diagramViewElements[diagramViewElements.length]=(lifeLineView);
                         lifeLineView.render("#" + this.options.diagram.wrapper.id);
                     } else {
 

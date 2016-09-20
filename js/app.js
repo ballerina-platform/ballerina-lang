@@ -104,6 +104,7 @@ var diagram = new Diagrams.Models.Diagram({});
 var diagramOptions = {selector: '.editor'};
 var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
 diagramView.render();
+var diagramViewElements = [];
 
 lifeLineOptions.diagram = diagram;
 
