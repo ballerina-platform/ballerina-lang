@@ -386,6 +386,28 @@ var Diagrams = (function (diagrams) {
                     .attr("d", "M2,2 L2,11 L10,6 L2,2")
                     .attr("class", "marker");
 
+                var filter = definitions.append("filter")
+                    .attr("id", "drop-shadow")
+                    .attr("height", "130%");
+
+                filter.append("feGaussianBlur")
+                    .attr("in", "SourceAlpha")
+                    .attr("stdDeviation", 1)
+                    .attr("result", "blur");
+
+                filter.append("feOffset")
+                    .attr("in", "blur")
+                    .attr("dx", 5)
+                    .attr("dy", 5)
+                    .attr("result", "offsetBlur");
+
+                var feMerge = filter.append("feMerge");
+
+                feMerge.append("feMergeNode")
+                    .attr("in", "offsetBlur");
+                feMerge.append("feMergeNode")
+                    .attr("in", "SourceGraphic");
+
                 this.model.on("addElement", this.onAddElement, this);
                 this.model.on("llClicked", this.onLifelineClicked, this);
                 this.model.on("renderDiagram", this.renderDiagram);

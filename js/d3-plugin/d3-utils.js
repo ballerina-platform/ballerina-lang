@@ -38,29 +38,6 @@ var D3Utils = (function (d3_utils) {
 
         x = center.x() - width / 2;
         y = center.y() - height / 2;
-        var defs = parent.append("defs");
-
-        var filter = defs.append("filter")
-            .attr("id", "drop-shadow")
-            .attr("height", "130%");
-
-        filter.append("feGaussianBlur")
-            .attr("in", "SourceAlpha")
-            .attr("stdDeviation", 1)
-            .attr("result", "blur");
-
-        filter.append("feOffset")
-            .attr("in", "blur")
-            .attr("dx", 5)
-            .attr("dy", 5)
-            .attr("result", "offsetBlur");
-
-        var feMerge = filter.append("feMerge");
-
-        feMerge.append("feMergeNode")
-            .attr("in", "offsetBlur");
-        feMerge.append("feMergeNode")
-            .attr("in", "SourceGraphic");
 
         rx = rx || 0;
         ry = ry || 0;
@@ -95,31 +72,6 @@ var D3Utils = (function (d3_utils) {
 
     var basicRect = function (x, y, width, height, rx, ry, parent) {
         parent = parent || d3Ref;
-
-        var defs = parent.append("defs");
-
-        var filter = defs.append("filter")
-            .attr("id", "drop-shadow")
-            .attr("height", "130%");
-
-        filter.append("feGaussianBlur")
-            .attr("in", "SourceAlpha")
-            .attr("stdDeviation", 1)
-            .attr("result", "blur");
-
-        filter.append("feOffset")
-            .attr("in", "blur")
-            .attr("dx", 5)
-            .attr("dy", 5)
-            .attr("result", "offsetBlur");
-
-        var feMerge = filter.append("feMerge");
-
-        feMerge.append("feMergeNode")
-            .attr("in", "offsetBlur");
-        feMerge.append("feMergeNode")
-            .attr("in", "SourceGraphic");
-
         rx = rx || 0;
         ry = ry || 0;
         return parent.append("rect")
@@ -136,30 +88,6 @@ var D3Utils = (function (d3_utils) {
 
     var rect = function (x, y, width, height, rx, ry, parent, colour) {
         parent = parent || d3Ref;
-
-        var defs = parent.append("defs");
-
-        var filter = defs.append("filter")
-            .attr("id", "drop-shadow")
-            .attr("height", "130%");
-
-        filter.append("feGaussianBlur")
-            .attr("in", "SourceAlpha")
-            .attr("stdDeviation", 1)
-            .attr("result", "blur");
-
-        filter.append("feOffset")
-            .attr("in", "blur")
-            .attr("dx", 5)
-            .attr("dy", 5)
-            .attr("result", "offsetBlur");
-
-        var feMerge = filter.append("feMerge");
-
-        feMerge.append("feMergeNode")
-            .attr("in", "offsetBlur");
-        feMerge.append("feMergeNode")
-            .attr("in", "SourceGraphic");
 
         rx = rx || 0;
         ry = ry || 0;
