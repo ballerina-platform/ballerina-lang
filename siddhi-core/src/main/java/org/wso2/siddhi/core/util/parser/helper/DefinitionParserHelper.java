@@ -180,7 +180,7 @@ public class DefinitionParserHelper {
             }
             StreamJunction streamJunction = streamJunctionMap.get(triggerDefinition.getId());
             eventTrigger.init(triggerDefinition, executionPlanContext, streamJunction);
-            executionPlanContext.getEternalReferencedHolders().add(eventTrigger);
+            executionPlanContext.addEternalReferencedHolder(eventTrigger);
             eventTriggerMap.putIfAbsent(eventTrigger.getId(), eventTrigger);
         }
     }
