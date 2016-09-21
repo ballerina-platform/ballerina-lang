@@ -24,6 +24,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This implements the markov matrix which is used in markovChain function.
+ */
 public class MarkovMatrix implements Serializable {
 
     private static final Logger log = Logger.getLogger(MarkovMatrix.class);
@@ -33,11 +36,7 @@ public class MarkovMatrix implements Serializable {
 
     public void updateStartStateCount(String startState, double increment) {
         Double currentCount = startStateCount.get(startState);
-        if (currentCount == null) {
-            startStateCount.put(startState, increment);
-        } else {
-            startStateCount.put(startState, currentCount + increment);
-        }
+        startStateCount.put(startState, (currentCount == null ? 0 : currentCount) + increment);
 
         if (log.isDebugEnabled()) {
             log.debug(String.format("updateStartStateCount: start state: %s count: %s", startState,
@@ -48,11 +47,7 @@ public class MarkovMatrix implements Serializable {
     public void updateTransitionCount(String startState, String endState, double increment) {
         String key = getKey(startState, endState);
         Double currentTransitionCount = transitionCount.get(key);
-        if (currentTransitionCount == null) {
-            transitionCount.put(key, increment);
-        } else {
-            transitionCount.put(key, increment + currentTransitionCount);
-        }
+        transitionCount.put(key, (currentTransitionCount == null ? 0 : currentTransitionCount) + increment);
 
         if (log.isDebugEnabled()) {
             log.debug(String.format("updateTransitionCount: start state: %s end state: %s count: %s total count: %s",

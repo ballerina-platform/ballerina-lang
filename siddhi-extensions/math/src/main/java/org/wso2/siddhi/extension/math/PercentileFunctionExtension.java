@@ -38,8 +38,9 @@ import java.util.List;
  */
 public class PercentileFunctionExtension extends AttributeAggregator {
 
-    private PercentileFunctionExtension percentileOutputFunctionExtension;
     private double percentileValue;
+    private Attribute.Type attributeType;
+    private List<Double> valuesList;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -66,29 +67,21 @@ public class PercentileFunctionExtension extends AttributeAggregator {
                     "Percentile value should be in 0 < p ≤ 100 range. But found " + percentileValue);
         }
 
-        Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
-
-        switch (type) {
-            case FLOAT:
-                percentileOutputFunctionExtension = new PercentileFunctionExtensionFloat();
-                break;
-            case INT:
-                percentileOutputFunctionExtension = new PercentileFunctionExtensionInt();
-                break;
-            case LONG:
-                percentileOutputFunctionExtension = new PercentileFunctionExtensionLong();
-                break;
-            case DOUBLE:
-                percentileOutputFunctionExtension = new PercentileFunctionExtensionDouble();
-                break;
-            default:
-                throw new OperationNotSupportedException("Percentile not supported for " + type);
+        attributeType = attributeExpressionExecutors[0].getReturnType();
+        if (!((attributeType == Attribute.Type.DOUBLE) || (attributeType == Attribute.Type.INT)
+                || (attributeType == Attribute.Type.FLOAT) || (attributeType == Attribute.Type.LONG))) {
+            throw new OperationNotSupportedException(
+                    "Invalid parameter type found for the first argument of percentile() function, " + "required "
+                            + Attribute.Type.INT + " or " + Attribute.Type.LONG + " or " + Attribute.Type.FLOAT + " or "
+                            + Attribute.Type.DOUBLE + ", but found " + attributeType.toString());
         }
+
+        valuesList = new ArrayList<Double>();
     }
 
     @Override
     public Attribute.Type getReturnType() {
-        return percentileOutputFunctionExtension.getReturnType();
+        return Attribute.Type.DOUBLE;
     }
 
     @Override
@@ -99,7 +92,9 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object[] data) {
-        return percentileOutputFunctionExtension.processAdd(data);
+        double value = parseValue(data[0]);
+        sortedArrayListAdd(valuesList, value);
+        return getPercentileValue(valuesList, percentileValue);
     }
 
     @Override
@@ -111,12 +106,15 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object[] data) {
-        return percentileOutputFunctionExtension.processRemove(data);
+        double value = parseValue(data[0]);
+        sortedArrayListRemove(valuesList, value);
+        return getPercentileValue(valuesList, percentileValue);
     }
 
     @Override
     public Object reset() {
-        return percentileOutputFunctionExtension.reset();
+        valuesList.clear();
+        return 0.0;
     }
 
     @Override
@@ -131,12 +129,33 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return percentileOutputFunctionExtension.currentState();
+        return new Object[] { valuesList };
     }
 
     @Override
     public void restoreState(Object[] state) {
-        percentileOutputFunctionExtension.restoreState(state);
+        valuesList = (List<Double>) state[0];
+    }
+    
+    private double parseValue(Object valueObject) {
+        double value = 0.0;
+        switch (attributeType) {
+        case FLOAT:
+            value = (Float) valueObject;
+            break;
+        case INT:
+            value = (Integer) valueObject;
+            break;
+        case LONG:
+            value = (Long) valueObject;
+            break;
+        case DOUBLE:
+            value = (Double) valueObject;
+            break;
+        default:
+            break;
+        }
+        return value;
     }
 
     /**
@@ -158,7 +177,7 @@ public class PercentileFunctionExtension extends AttributeAggregator {
      * @param percentile percentile (p)
      * @return pth percentile value
      */
-    public double getPercentileValue(List<Double> valuesList, double percentile) {
+    private double getPercentileValue(List<Double> valuesList, double percentile) {
 
         double percentileIndexTemp;
         int percentileIndex;
@@ -189,7 +208,7 @@ public class PercentileFunctionExtension extends AttributeAggregator {
      * @param arrayList sorted ArrayList
      * @param value new value
      */
-    public void sortedArrayListAdd(List<Double> arrayList, double value) {
+    private void sortedArrayListAdd(List<Double> arrayList, double value) {
 
         int insertIndex = Collections.binarySearch(arrayList, value);
 
@@ -206,174 +225,10 @@ public class PercentileFunctionExtension extends AttributeAggregator {
      * @param arrayList Sorted ArrayList
      * @param value expired value
      */
-    public void sortedArrayListRemove(List<Double> arrayList, double value) {
+    private void sortedArrayListRemove(List<Double> arrayList, double value) {
 
         int removeIndex = Collections.binarySearch(arrayList, value);
         arrayList.remove(removeIndex);
-    }
-
-    class PercentileFunctionExtensionDouble extends PercentileFunctionExtension {
-
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private List<Double> valuesList = new ArrayList<Double>();
-
-        @Override
-        public Attribute.Type getReturnType() {
-            return type;
-        }
-
-        @Override
-        public Object processAdd(Object[] data) {
-            double value = (Double) data[0];
-            sortedArrayListAdd(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object processRemove(Object[] data) {
-            double value = (Double) data[0];
-            sortedArrayListRemove(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object reset() {
-            valuesList.clear();
-            return 0.0;
-        }
-
-        @Override
-        public Object[] currentState() {
-            return new Object[] { valuesList};
-        }
-
-        @Override
-        public void restoreState(Object[] state) {
-            valuesList = (List) state[0];
-        }
-    }
-
-    class PercentileFunctionExtensionFloat extends PercentileFunctionExtension {
-
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private List<Double> valuesList = new ArrayList<Double>();
-
-        @Override
-        public Attribute.Type getReturnType() {
-            return type;
-        }
-
-        @Override
-        public Object processAdd(Object[] data) {
-            double value = (Float) data[0];
-            sortedArrayListAdd(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object processRemove(Object[] data) {
-            double value = (Float) data[0];
-            sortedArrayListRemove(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object reset() {
-            valuesList.clear();
-            return 0.0;
-        }
-
-        @Override
-        public Object[] currentState() {
-            return new Object[] { valuesList};
-        }
-
-        @Override
-        public void restoreState(Object[] state) {
-            valuesList = (List) state[0];
-        }
-    }
-
-    class PercentileFunctionExtensionInt extends PercentileFunctionExtension {
-
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private List<Double> valuesList = new ArrayList<Double>();
-
-        @Override
-        public Attribute.Type getReturnType() {
-            return type;
-        }
-
-        @Override
-        public Object processAdd(Object[] data) {
-            double value = (Integer) data[0];
-            sortedArrayListAdd(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object processRemove(Object[] data) {
-            double value = (Integer) data[0];
-            sortedArrayListRemove(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object reset() {
-            valuesList.clear();
-            return 0.0;
-        }
-
-        @Override
-        public Object[] currentState() {
-            return new Object[] { valuesList};
-        }
-
-        @Override
-        public void restoreState(Object[] state) {
-            valuesList = (List) state[0];
-        }
-    }
-
-    class PercentileFunctionExtensionLong extends PercentileFunctionExtension {
-
-        private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private List<Double> valuesList = new ArrayList<Double>();
-
-        @Override
-        public Attribute.Type getReturnType() {
-            return type;
-        }
-
-        @Override
-        public Object processAdd(Object[] data) {
-            double value = (Long) data[0];
-            sortedArrayListAdd(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object processRemove(Object[] data) {
-            double value = (Long) data[0];
-            sortedArrayListRemove(valuesList, value);
-            return getPercentileValue(valuesList, percentileValue);
-        }
-
-        @Override
-        public Object reset() {
-            valuesList.clear();
-            return 0.0;
-        }
-
-        @Override
-        public Object[] currentState() {
-            return new Object[] { valuesList};
-        }
-
-        @Override
-        public void restoreState(Object[] state) {
-            valuesList = (List) state[0];
-        }
     }
 
 }

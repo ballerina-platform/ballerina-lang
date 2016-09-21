@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+/**
+ * This includes the markov matrix probability calculation functionalities.
+ */
 public class MarkovChainTransitionProbabilitiesCalculator implements Serializable {
 
     private static final long serialVersionUID = -7632888859752532839L;
