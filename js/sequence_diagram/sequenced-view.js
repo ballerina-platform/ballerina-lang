@@ -43,25 +43,27 @@ var SequenceD = (function (sequenced) {
                 return false;
             },
 
-            render: function (paperID, centerPoint) {
-                Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
-                thisModel = this.model;
-                var processor = this.drawProcessor(centerPoint, this.modelAttr('title'), this.options);
-                var viewObj = this;
-                var drag = d3.drag()
-                    .on("start", function () {
-                        viewObj.dragStart(d3.event);
-                    })
-                    .on("drag", function () {
-                        viewObj.dragMove(d3.event);
-                    })
-                    .on("end", function () {
-                        viewObj.dragStop();
-                    });
+            render: function (paperID, centerPoint, status) {
+                if (status == "processors") {
+                    Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
+                    thisModel = this.model;
+                    var processor = this.drawProcessor(centerPoint, this.modelAttr('title'), this.options);
+                    var viewObj = this;
+                    var drag = d3.drag()
+                        .on("start", function () {
+                            viewObj.dragStart(d3.event);
+                        })
+                        .on("drag", function () {
+                            viewObj.dragMove(d3.event);
+                        })
+                        .on("end", function () {
+                            viewObj.dragStop();
+                        });
 
-                this.d3el = processor;
-                this.el = processor.node();
-                return processor;
+                    this.d3el = processor;
+                    this.el = processor.node();
+                    return processor;
+                }
             },
 
             drawProcessor: function (center, title, prefs) {
@@ -100,20 +102,20 @@ var SequenceD = (function (sequenced) {
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3, group);
+                        center.y() + 75), lifeLineOptions.rect.width - 20, 150, 3, 3, group);
                     middleRect.on("mousedown", function () {
-                            var m = d3.mouse(this);
-                            this.mouseDown(prefs, center.x(), m[1]);
-                        }).on('mouseover', function () {
-                            console.log("middle rect detected");
-                            diagram.selectedNode = viewObj.model;
-                            d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-                        }).on('mouseout', function () {
-                            diagram.destinationLifeLine = diagram.selectedNode;
-                            diagram.selectedNode = null;
-                            d3.select(this).style("fill-opacity", 0.01);
-                        }).on('mouseup', function (data) {
-                        });
+                        var m = d3.mouse(this);
+                        this.mouseDown(prefs, center.x(), m[1]);
+                    }).on('mouseover', function () {
+                        console.log("middle rect detected");
+                        diagram.selectedNode = viewObj.model;
+                        d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+                    }).on('mouseout', function () {
+                        diagram.destinationLifeLine = diagram.selectedNode;
+                        diagram.selectedNode = null;
+                        d3.select(this).style("fill-opacity", 0.01);
+                    }).on('mouseup', function (data) {
+                    });
                     console.log(middleRect);
                     Object.getPrototypeOf(group).rect = rectBottomXXX;
                     Object.getPrototypeOf(group).middleRect = middleRect;
@@ -127,10 +129,9 @@ var SequenceD = (function (sequenced) {
                         var processor = this.modelAttr("children").models[id];
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        processorView.render("#diagramWrapper", processorCenterPoint);
+                        processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                         processor.setY(yValue);
                     }
-
 
 
                 } else if (this.model.model.type === "ComplexProcessor") {
@@ -148,19 +149,19 @@ var SequenceD = (function (sequenced) {
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), lifeLineOptions.rect.width-20, 150, 3, 3, group);
+                        center.y() + 75), lifeLineOptions.rect.width - 20, 150, 3, 3, group);
                     middleRect.on("mousedown", function () {
-                            var m = d3.mouse(this);
-                            this.mouseDown(prefs, center.x(), m[1]);
-                        }).on('mouseover', function () {
-                            diagram.selectedNode = viewObj.model;
-                            d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-                        }).on('mouseout', function () {
-                            diagram.destinationLifeLine = diagram.selectedNode;
-                            diagram.selectedNode = null;
-                            d3.select(this).style("fill-opacity", 0.01);
-                        }).on('mouseup', function (data) {
-                        });
+                        var m = d3.mouse(this);
+                        this.mouseDown(prefs, center.x(), m[1]);
+                    }).on('mouseover', function () {
+                        diagram.selectedNode = viewObj.model;
+                        d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+                    }).on('mouseout', function () {
+                        diagram.destinationLifeLine = diagram.selectedNode;
+                        diagram.selectedNode = null;
+                        d3.select(this).style("fill-opacity", 0.01);
+                    }).on('mouseup', function (data) {
+                    });
                     console.log(middleRect);
 
                     Object.getPrototypeOf(group).middleRect = middleRect;
@@ -175,7 +176,7 @@ var SequenceD = (function (sequenced) {
                         var processor = this.modelAttr("children").models[id];
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        processorView.render("#diagramWrapper", processorCenterPoint);
+                        processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                         processor.setY(yValue);
                     }
 
@@ -193,6 +194,42 @@ var SequenceD = (function (sequenced) {
                 };
 
                 return group;
+            }
+
+        });
+
+    var MessageLink = Diagrams.Views.DiagramElementView.extend(
+        /** @lends Processor.prototype */
+        {
+            /**
+             * @augments ShapeView
+             * @constructs
+             * @class Processor Represents the view for processor components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.DiagramElementView.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID, status) {
+                if (status == "messages") {
+                    Diagrams.Views.DiagramElementView.prototype.render.call(this, paperID);
+                    var d3ref = this.getD3Ref();
+
+                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint, this.model.destination().centerPoint)
+                        .classed(this.options.class, true);
+
+                    //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
+                    //this.model.destination().on("connectingPointChanged", this.destinationMoved, this);
+
+                    this.d3el = line;
+                    this.el = line.node();
+                    return this.d3el;
+                }
             }
 
         });
@@ -235,45 +272,69 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
-            render: function (paperID) {
-                Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
-                thisModel = this.model;
-                var centerPoint = this.modelAttr('centerPoint');
-                var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options);
-                var viewObj = this;
-                var drag = d3.drag()
-                    .on("start", function () {
-                        viewObj.dragStart(d3.event);
-                    })
-                    .on("drag", function () {
-                        viewObj.dragMove(d3.event);
-                    })
-                    .on("end", function () {
-                        viewObj.dragStop();
-                    });
-                var xValue = centerPoint.x();
-                var yValue = centerPoint.y();
+            render: function (paperID, status) {
+                if (status == "processors") {
+                    Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
+                    thisModel = this.model;
+                    var centerPoint = this.modelAttr('centerPoint');
+                    var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options);
+                    var viewObj = this;
+                    var drag = d3.drag()
+                        .on("start", function () {
+                            viewObj.dragStart(d3.event);
+                        })
+                        .on("drag", function () {
+                            viewObj.dragMove(d3.event);
+                        })
+                        .on("end", function () {
+                            viewObj.dragStop();
+                        });
+                    var xValue = centerPoint.x();
+                    var yValue = centerPoint.y();
 
-                lifeLine.call(drag);
-                for (var id in this.modelAttr("children").models) {
-                    yValue += 60;
-                    if(this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
-                        var processor = this.modelAttr("children").models[id];
-                        var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
-                        var processorCenterPoint = createPoint(xValue, yValue);
-                        processorView.render("#diagramWrapper", processorCenterPoint);
-                        processor.setY(yValue);
-                    } else {
-                        var link = this.modelAttr("children").models[id];
+                    lifeLine.call(drag);
+                    for (var id in this.modelAttr("children").models) {
+                        yValue += 60;
+                        if (this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
+                            var processor = this.modelAttr("children").models[id];
+                            var processorView = new SequenceD.Views.Processor({
+                                model: processor,
+                                options: lifeLineOptions
+                            });
+                            var processorCenterPoint = createPoint(xValue, yValue);
+                            processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                            processor.setY(yValue);
+                        } else {
+                            var messagePoint = this.modelAttr("children").models[id];
+                            var linkCenterPoint = createPoint(xValue, yValue);
+                            //link.source.setY()
+                            if (messagePoint.direction == "inbound") {
+                                messagePoint.centerPoint.y(yValue);
+                                messagePoint.centerPoint.x(xValue);
+                            } else {
+                                messagePoint.centerPoint.y(yValue);
+                                messagePoint.centerPoint.x(xValue);
+                            }
+                        }
+                    }
 
+                    //this.model.on("addChildProcessor", this.onAddChildProcessor, this);
+
+                    this.d3el = lifeLine;
+                    this.el = lifeLine.node();
+                    return lifeLine;
+                } else if (status == "messages") {
+                    for (var id in this.modelAttr("children").models) {
+                        var messagePoint = this.modelAttr("children").models[id];
+                        if (messagePoint instanceof SequenceD.Models.MessagePoint) {
+                            var linkView = new SequenceD.Views.MessageLink({
+                                model: messagePoint.message,
+                                options: {class: "message"}
+                            });
+                            linkView.render("#diagramWrapper", "messages");
+                        }
                     }
                 }
-
-                this.model.on("addChildProcessor", this.onAddChildProcessor, this);
-
-                this.d3el = lifeLine;
-                this.el = lifeLine.node();
-                return lifeLine;
             },
 
             onAddChildProcessor: function (element, opts) {
@@ -356,7 +417,7 @@ var SequenceD = (function (sequenced) {
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 3, 3, group)
                     .classed(prefs.middleRect.class, true);
 
-                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width*0.4), prefs.middleRect.height, 3, 3, group)
+                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 3, 3, group)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
@@ -424,7 +485,7 @@ var SequenceD = (function (sequenced) {
                     propertyPane = thisModel.getPropertyPane();
                     $('#save-image').click(function () {
                         thisModel.set('title', propertyPane.getValue().Title);
-                        $("#save-image").css({ opacity: 0.4 });
+                        $("#save-image").css({opacity: 0.4});
                     });
                     updateudControlLocation(rect);
                     selected = rect;
@@ -599,8 +660,8 @@ var SequenceD = (function (sequenced) {
     views.MessageView = MessageView;
     views.ActivationView = ActivationView;
     views.LifeLineView = LifeLineView;
-    views.FixedSizedMediatorView = FixedSizedMediatorView;
     views.Processor = Processor;
+    views.MessageLink = MessageLink;
     return sequenced;
 
 }(SequenceD || {}));

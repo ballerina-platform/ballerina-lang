@@ -365,12 +365,12 @@ var Diagrams = (function (diagrams) {
                 container = D3Utils.decorate(container);
 
                 //Remove previous diagram
-                if(this.d3svg){
+                if (this.d3svg) {
                     this.d3svg.remove();
-                    for(var element in diagramViewElements){
+                    for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
-                } else{
+                } else {
                     // When re-rendering the same event handler do not need to re-register.
                     // Otherwise same function will call for multiple times.
                     this.model.on("addElement", this.onAddElement, this);
@@ -437,16 +437,25 @@ var Diagrams = (function (diagrams) {
                 this.htmlDiv.attr("ondragstart", "return false");
 
                 for (var id in this.model.attributes.diagramElements.models) {
-                    if(this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                    if (this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
                         var lifeLine = this.model.attributes.diagramElements.models[id];
                         var lifeLineView = new SequenceD.Views.LifeLineView({
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length]=(lifeLineView);
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id);
-                    } else {
-
+                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors");
+                    }
+                }
+                for (var id in this.model.attributes.diagramElements.models) {
+                    if (this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramElements.models[id];
+                        var lifeLineView = new SequenceD.Views.LifeLineView({
+                            model: lifeLine,
+                            options: lifeLineOptions
+                        });
+                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages");
                     }
                 }
                 return mainGroup;
@@ -505,27 +514,34 @@ var Diagrams = (function (diagrams) {
 
                     if (viewObj.model.clickedLifeLine.get('centerPoint').get('x') != diagram.destinationLifeLine.get('centerPoint').get('x')) {
 
-                        var invisibleActivation = new SequenceD.Models.Activation({owner: diagram.destinationLifeLine});
-                        var messageOptionsInbound = {'class': 'message', 'direction': 'inbound'};
-                        var messageOptionsOutbound = {'class': 'message', 'direction': 'outbound'};
+                        var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                        var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
 
-                        var lf1Activation1 = new SequenceD.Models.Activation({owner: viewObj.model.clickedLifeLine});
-
-                        var dynamicMessage = new SequenceD.Models.Message(
-                            {
-                                source: {activation: lf1Activation1, x: sourceX, y: sourceY},
-                                destination: {activation: invisibleActivation, x: m[0], y: m[1]}
-                            }
-                        );
+                        var sourcePoint = new SequenceD.Models.MessagePoint({
+                            x: sourceX,
+                            y: sourceY,
+                            direction: "inbound"
+                        });
+                        var destinationPoint = new SequenceD.Models.MessagePoint({
+                            x: m[0],
+                            y: m[1],
+                            direction: "outbound"
+                        });
+                        var messageLink = new SequenceD.Models.MessageLink({
+                            source: sourcePoint,
+                            destination: destinationPoint
+                        });
+                        sourcePoint.setMessage(messageLink);
+                        destinationPoint.setMessage(messageLink);
 
                         var clickedLifeLine = viewObj.model.clickedLifeLine;
-                        clickedLifeLine.addChild(dynamicMessage, messageOptionsOutbound);
-                        diagram.destinationLifeLine.addChild(dynamicMessage, messageOptionsInbound);
-                        //viewObj.model.addElement(dynamicMessage, messageOptionsInbound);
+                        clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
+                        diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
 
                     }
 
                     diagram.destinationLifeLine = null;
+                    diagramView.render();
                 });
             }
         });
