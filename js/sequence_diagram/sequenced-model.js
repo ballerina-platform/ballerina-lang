@@ -264,23 +264,6 @@ var SequenceD = (function (sequenced) {
                 return editableProperties;
             },
 
-            getPropertyPane: function (point) {
-                var pane = new JSONEditor(document.getElementById("propertyPane"),{
-                    schema: this.getSchema(),
-                    no_additional_properties: true,
-                    disable_properties:true,
-                    disable_edit_json:true
-                });
-                var thisLifeline = this;
-                pane.setValue(this.getEditableProperties());
-                pane.watch('root.Title',function() {
-                    $("#save-image").css({ opacity: 1 });
-                    //thisLifeline.set('title', pane.getValue().Title); //commented as this results recursive call and updated to theolder value.
-                });
-
-                return pane;
-            },
-
             leftUpperConer: function (point) {
                 if (_.isUndefined(point)) {
                     return this.viewAttributes.leftUpperConer;
