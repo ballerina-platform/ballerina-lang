@@ -47,7 +47,7 @@ var SequenceD = (function (sequenced) {
                 if (status == "processors") {
                     Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
                     thisModel = this.model;
-                    var processor = this.drawProcessor(centerPoint, this.modelAttr('title'), this.options);
+                    var processor = this.drawProcessor(paperID, centerPoint, this.modelAttr('title'), this.options);
                     var viewObj = this;
                     var drag = d3.drag()
                         .on("start", function () {
@@ -66,7 +66,7 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
-            drawProcessor: function (center, title, prefs) {
+            drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
@@ -94,6 +94,7 @@ var SequenceD = (function (sequenced) {
                     var rectBottomXXX = d3Ref.draw.rectWithTitle(center,
                         150,
                         prefs.rect.height,
+                        200,
                         3,
                         3,
                         group,
@@ -102,7 +103,7 @@ var SequenceD = (function (sequenced) {
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y() + 75), lifeLineOptions.rect.width - 20, 150, 3, 3, group);
+                        center.y()+75), 150, 200 - prefs.rect.height, 3, 3, group);
                     middleRect.on("mousedown", function () {
                         var m = d3.mouse(this);
                         this.mouseDown(prefs, center.x(), m[1]);
@@ -137,47 +138,25 @@ var SequenceD = (function (sequenced) {
                 } else if (this.model.model.type === "ComplexProcessor") {
 
                     console.log("Processor added");
-                    var rectBottomXXX = d3Ref.draw.rectWithTitle(
-                        center,
-                        150,
-                        prefs.rect.height,
-                        3,
-                        3,
-                        group,
-                        this.modelAttr('viewAttributes').colour,
-                        this.modelAttr('title')
-                    );
-                    console.log("started");
-                    var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y() + 75), lifeLineOptions.rect.width - 20, 150, 3, 3, group);
-                    middleRect.on("mousedown", function () {
-                        var m = d3.mouse(this);
-                        this.mouseDown(prefs, center.x(), m[1]);
-                    }).on('mouseover', function () {
-                        diagram.selectedNode = viewObj.model;
-                        d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-                    }).on('mouseout', function () {
-                        diagram.destinationLifeLine = diagram.selectedNode;
-                        diagram.selectedNode = null;
-                        d3.select(this).style("fill-opacity", 0.01);
-                    }).on('mouseup', function (data) {
-                    });
-                    console.log(middleRect);
 
-                    Object.getPrototypeOf(group).middleRect = middleRect;
-                    Object.getPrototypeOf(group).rect = rectBottomXXX;
 
                     var centerPoint = center;
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
-                    //lifeLine.call(drag);
-                    for (var id in this.modelAttr("children").models) {
-                        yValue += 60;
-                        var processor = this.modelAttr("children").models[id];
-                        var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+
+                    for (var id in this.modelAttr("containableProcessorElements").models) {
+
+                        var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
+                        var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        processorView.render("#diagramWrapper", processorCenterPoint, "processors");
-                        processor.setY(yValue);
+                        containableProcessorElementView.render("#diagramWrapper", processorCenterPoint);
+                        yValue = yValue+200;
+                        //yValue += 60;
+                        //var processor = this.modelAttr("children").models[id];
+                        //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                        // var processorCenterPoint = createPoint(xValue, yValue);
+                        //processorView.render("#diagramWrapper", processorCenterPoint);
+                        //processor.setY(yValue);
                     }
 
                 }
@@ -369,6 +348,7 @@ var SequenceD = (function (sequenced) {
                                 element.get('centerPoint').get('y')),
                             150,
                             this.prefs.rect.height,
+                            200,
                             3,
                             3,
                             this.group, element.viewAttributes.colour,
@@ -383,6 +363,7 @@ var SequenceD = (function (sequenced) {
                                 element.get('centerPoint').get('y')),
                             150,
                             this.prefs.rect.height,
+                            200,
                             3,
                             3,
                             this.group, element.viewAttributes.colour,
@@ -652,11 +633,102 @@ var SequenceD = (function (sequenced) {
 
         });
 
+
+
+    var ContainableProcessorElement = Diagrams.Views.ShapeView.extend(
+        /** @lends ContainableProcessorElement.prototype */
+        {
+            /**
+             * @augments ShapeView
+             * @constructs
+             * @class LifeLineView Represents the view for lifeline components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.ShapeView.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID, centerPoint) {
+                var thisModel = this.model;
+                Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
+
+                var unitProcessorElement = this.drawUnitProcessor(centerPoint, this.modelAttr('title'), this.options);
+                var viewObj = this;
+
+                this.d3el = unitProcessorElement;
+                this.el = unitProcessorElement.node();
+                return unitProcessorElement;
+            },
+
+            drawUnitProcessor: function (center, title, prefs) {
+
+
+                var d3Ref = this.getD3Ref();
+                var group = d3Ref.draw.group()
+                    .classed(prefs.class, true);
+                var viewObj = this;
+
+                var rectBottomXXX = d3Ref.draw.rectWithTitle(
+                    center,
+                    150,
+                    prefs.rect.height,
+                    200,
+                    3,
+                    3,
+                    d3Ref,
+                    this.modelAttr('viewAttributes').colour,
+                    this.modelAttr('title')
+                );
+                console.log("started");
+                var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
+                    center.y()+100), 150, 200 - prefs.rect.height, 3, 3);
+                middleRect.on("mousedown", function () {
+                    var m = d3.mouse(this);
+                    this.mouseDown(prefs, center.x(), m[1]);
+                }).on('mouseover', function () {
+                    diagram.selectedNode = viewObj.model;
+                    d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+                }).on('mouseout', function () {
+                    diagram.destinationLifeLine = diagram.selectedNode;
+                    diagram.selectedNode = null;
+                    d3.select(this).style("fill-opacity", 0.01);
+                }).on('mouseup', function (data) {
+                });
+                console.log(middleRect);
+
+                Object.getPrototypeOf(group).middleRect = middleRect;
+                Object.getPrototypeOf(group).rect = rectBottomXXX;
+
+                var centerPoint = center;
+                var xValue = centerPoint.x();
+                var yValue = centerPoint.y();
+                //lifeLine.call(drag);
+
+                for (var id in this.modelAttr("children").models) {
+                    yValue += 60;
+                    var processor = this.modelAttr("children").models[id];
+                    var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                    var processorCenterPoint = createPoint(xValue, yValue);
+                    processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                    processor.setY(yValue);
+                }
+
+                return group;
+            }
+
+        });
+
     views.MessageView = MessageView;
     views.ActivationView = ActivationView;
     views.LifeLineView = LifeLineView;
     views.Processor = Processor;
     views.MessageLink = MessageLink;
+    views.ContainableProcessorElement = ContainableProcessorElement;
+
     return sequenced;
 
 }(SequenceD || {}));

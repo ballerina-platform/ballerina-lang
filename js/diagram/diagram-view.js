@@ -296,6 +296,12 @@ var Diagrams = (function (diagrams) {
                 this.options = opts;
             },
 
+
+            addContainableProcessorElement: function (processor, center) {
+                var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                processor.containableProcessorElements().add(containableProcessorElem);
+            },
+
             handleDropEvent: function (event, ui) {
                 var newDraggedElem = $(ui.draggable).clone();
                 //var type = newDraggedElem.attr('id');
@@ -319,15 +325,28 @@ var Diagrams = (function (diagrams) {
                     //diagram.trigger("renderDiagram");
                     diagramView.render();
                 } else if (Processors.flowControllers[id] && diagram.selectedNode) {
+                    var center = createPoint(position.x, position.y);
                     var processor = diagram.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
-                        createPoint(position.x, position.y),
+                        center,
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type},
                         {colour: Processors.flowControllers[id].colour},
                         {parameters: Processors.flowControllers[id].parameters}
                     );
                     diagram.selectedNode.addChild(processor);
+
+                    if(processor.type == "TryBlockMediator") {
+                        var containableProcessorElem1 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                        containableProcessorElem1.set('title', "Try");
+                        processor.containableProcessorElements().add(containableProcessorElem1);
+
+                        var containableProcessorElem2 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                        containableProcessorElem2.set('title', "Catch");
+                        processor.containableProcessorElements().add(containableProcessorElem2);
+                    }
+
+
                     diagramView.render();
                 } else if (id == "LifeLine") {
 

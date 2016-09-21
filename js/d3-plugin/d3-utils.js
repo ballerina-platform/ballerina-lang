@@ -33,7 +33,7 @@ var D3Utils = (function (d3_utils) {
         return parent.draw.circle(point.x(), point.y(), r);
     };
 
-    var rectWithTitle = function (center, width, height, rx, ry, parent, colour, title) {
+    var rectWithTitle = function (center, width, height, containerHeight, rx, ry, parent, colour, title) {
         parent = parent || d3Ref;
 
         x = center.x() - width / 2;
@@ -55,7 +55,7 @@ var D3Utils = (function (d3_utils) {
             .attr("x", x)
             .attr("y", y)
             .attr("width", width)
-            .attr("height", 200)
+            .attr("height", containerHeight)
             .attr("fill", "grey")
             .attr("stroke", "black")
             .attr("stroke-width", 2)
