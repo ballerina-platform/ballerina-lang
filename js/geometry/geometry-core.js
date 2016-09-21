@@ -58,6 +58,14 @@ var GeoCore = (function (geo) {
                 this.set('y', newY);
             },
             /**
+             * get a clone of the point.
+             *
+             * @returns {*}
+             */
+            clone:function(){
+                return new Point({x:this.x(), y:this.y()});
+            },
+            /**
              * Move point by dx and dy
              * @param dx
              * @param dy
