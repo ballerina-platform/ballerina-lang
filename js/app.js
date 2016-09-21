@@ -136,7 +136,8 @@ var udcontrol = new Dialogs.Controls.UpdateDeleteControler({visible: false});
 var udcontrolView = new Dialogs.Views.UpdateDeletedControlerView({model: udcontrol});
 udcontrolView.render();
 
-//Initialize the editor
-JSONEditor.defaults.theme = 'bootstrap3';
-JSONEditor.defaults.iconlib = 'bootstrap3';
-var propertyPane ='';
+//var ppModel = new Editor.Views.PropertyPaneModel();
+var ppView = new Editor.Views.PropertyPaneView();
+propertyPane = ''; //ppView.getPropertyPane(schema, properties);
+
+

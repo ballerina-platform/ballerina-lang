@@ -249,8 +249,7 @@ var SequenceD = (function (sequenced) {
                     "title": "Lifeline",
                     type: "object",
                     properties: {
-                        Title: {"type": "string"},
-                        Uid: {"type": "number"}
+                        Title: { "type": "string" }
                     }
                 };
                 return schema;
@@ -259,11 +258,10 @@ var SequenceD = (function (sequenced) {
             getEditableProperties: function (point) {
                 var editableProperties = {};
                 editableProperties.Title = this.attributes.title;
-                editableProperties.Uid = 123;
+                //editableProperties.Uid = 123;
                 //here add properties you want to see in property panel, but those need to be defined in above getSchema() method
                 return editableProperties;
             },
-
             getPropertyPane: function (point) {
                 var pane = new JSONEditor(document.getElementById("propertyPane"), {
                     schema: this.getSchema(),
@@ -280,7 +278,6 @@ var SequenceD = (function (sequenced) {
 
                 return pane;
             },
-
             leftUpperConer: function (point) {
                 if (_.isUndefined(point)) {
                     return this.viewAttributes.leftUpperConer;

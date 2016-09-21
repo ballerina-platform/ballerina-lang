@@ -49,12 +49,17 @@
                 </div>
             </div>
         </div>
-        <div class="property-container">
-            <div id="propertySave" style="float: right; padding-right: 4px; display:none" >
-                <img id="save-image" alt="save" src="images/save.svg" class="udcontrol-image property-save " />
-                Save
+        <div class="property-container" id="property-container1">
+            <div id="expandcolapseDiv" style="float: left;" >
+                <img id="expand-image" alt="save" src="images/rightarrow.svg" class="udcontrol-image property-save" />
             </div>
-            <div id="propertyPane"></div>
+                <div id="propertySave" style="float: right; padding-right: 4px; padding-top: 4px; display:none" >
+                    <img id="save-image" alt="save" src="images/save.svg" class="udcontrol-image property-save" />
+                    Save
+                </div>
+                <div id="propertyPaneContainer" style="padding-top: 8px;">
+                    <div id="propertyPane"></div>
+                </div>
         </div>
     </div>
 </div>
@@ -90,6 +95,7 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
 <script src="js/dialogs/updatedeletecontroler.js"></script>
 <script src="js/dialogs/updatedeletecontroler-view.js"></script>
 <script src="js/sequence_diagram/sequenced-model.js"></script>
+<script src="js/property-pane/propertypane.js"></script>
 
 <script src="js/processors/definitions/manipulators.js"></script>
 <script src="js/processors/definitions/manipulators/log_mediator.js"></script>

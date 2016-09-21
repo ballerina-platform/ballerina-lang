@@ -477,18 +477,9 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('lifeline', thisModel);
                 }
 
-                function updatePropertyPane(rect) {
-                    if (propertyPane) {
-                        propertyPane.destroy();
-                    }
+                function updatePropertyPane() {
                     $('#propertySave').show();
-                    propertyPane = thisModel.getPropertyPane();
-                    $('#save-image').click(function () {
-                        thisModel.set('title', propertyPane.getValue().Title);
-                        $("#save-image").css({opacity: 0.4});
-                    });
-                    updateudControlLocation(rect);
-                    selected = rect;
+                    propertyPane = ppView.getPropertyPane(thisModel.getSchema(), thisModel.getEditableProperties(), thisModel);
                 }
 
                 rect.on("click", (function () {
@@ -505,11 +496,15 @@ var SequenceD = (function (sequenced) {
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
-                            updatePropertyPane(this);
+                            updatePropertyPane();
+                            updateudControlLocation(this);
+                            selected = this;
                         }
                     } else {
                         this.classList.toggle("lifeline_selected");
-                        updatePropertyPane(this);
+                        updatePropertyPane();
+                        updateudControlLocation(this);
+                        selected = this;
                     }
                 }));
 
