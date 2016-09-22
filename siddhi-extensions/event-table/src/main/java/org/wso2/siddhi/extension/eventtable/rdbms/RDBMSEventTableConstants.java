@@ -52,6 +52,8 @@ public interface RDBMSEventTableConstants {
     public static final String EVENT_TABLE_GENERIC_RDBMS_LIMIT_SELECT_TABLE = "limitSelectRow";
     public static final String EVENT_TABLE_GENERIC_RDBMS_TABLE_ROW_EXIST = "isTableRowExist";
     public static final String EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER = " ";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_IS_NULL = "isNull";
+    public static final String EVENT_TABLE_GENERIC_RDBMS_NOT = "not";
 
     public static final String ANNOTATION_ELEMENT_DATASOURCE_NAME = "datasource.name";
     public static final String ANNOTATION_ELEMENT_TABLE_NAME = "table.name";
