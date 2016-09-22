@@ -27,8 +27,8 @@ var Processors = (function (processors) {
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "Custom",
-        init: function (view){
-            if(!_.isUndefined(parent)){
+        init: function (view) {
+            if (!_.isUndefined(view.viewRoot)) {
                 var center = view.model.get('center');
                 var rectangle = view.viewRoot.draw.centeredRect(center, 20, 50, 1, 1, view.viewRoot, "#334455");
                 rectangle.on('mouseover', function () {
@@ -36,23 +36,62 @@ var Processors = (function (processors) {
                     rectangle.style("fill", "green").style("fill-opacity", 1)
                         .style("cursor", 'url(http://www.rw-designer.com/cursor-extern.php?id=93354), pointer');
                 }).on('mouseout', function () {
-                    diagram.destinationLifeLine = diagram.selectedNode;
-                    diagram.selectedNode = null;
+                    if(_.isEqual(diagram.selectedNode, view.model)){
+                        diagram.destinationLifeLine = null;
+                        diagram.destinationProcessor = view.model;
+                        diagram.selectedNode = null;
+                    }
                     rectangle.style("fill", "#334455").style("fill-opacity", 1);
                 }).on('mousedown', function () {
-                    var startPoint = center.clone().move(0, +20);
-                    var newStartPoint = function(endX, endY){
-                        if(startPoint.x() > endX){
-                            return {x:startPoint.x() - 10, y: startPoint.y()};
-                        }else{
-                            return {x:startPoint.x() + 10, y: startPoint.y()};
+                    var startPoint = center.clone().move(0, -20);
+                    var newStartPointFn = function (endX, endY) {
+                        if (startPoint.x() > endX) {
+                            return {x: startPoint.x() - 10, y: startPoint.y()};
+                        } else {
+                            return {x: startPoint.x() + 10, y: startPoint.y()};
                         }
                     };
-                    diagram.trigger("messageDrawStart", view.model, startPoint, newStartPoint);
-
+                    diagram.trigger("messageDrawStart", view.model, startPoint, newStartPointFn);
                 });
-                Object.getPrototypeOf(parent).rect = rectangle;
+                Object.getPrototypeOf(view.viewRoot).rect = rectangle;
+
+                //override addChild
+                view.model.addChild = function (messageLinkPoint, opts) {
+
+                    var sPX = messageLinkPoint.message.source().get('centerPoint').x();
+                    if (center.x() > sPX) {
+                        messageLinkPoint.get('centerPoint').x(center.x() - 10);
+                    } else {
+                        messageLinkPoint.get('centerPoint').x(center.x() + 10);
+                    }
+                    if (_.isEqual(messageLinkPoint.direction, "inbound")) {
+                        messageLinkPoint.get('centerPoint').y(center.x() + 20);
+                        view.modelAttr("children").add(messageLinkPoint, {at: 0});
+                    } else if (_.isEqual(messageLinkPoint.direction, "outbound")) {
+                        messageLinkPoint.get('centerPoint').y(center.x() - 20);
+                        view.modelAttr("children").add(messageLinkPoint, {at: 1});
+                    }
+                };
+
+                // render messages
+                var inboundPoint = view.modelAttr("children").at(0);
+                if(inboundPoint && inboundPoint instanceof SequenceD.Models.MessagePoint) {
+                    var linkView = new SequenceD.Views.MessageLink({
+                        model: inboundPoint.message,
+                        options: {class: "message"}
+                    });
+                    linkView.render("#diagramWrapper", "messages");
+                }
+                var outboundPoint = view.modelAttr("children").at(1);
+                if(outboundPoint && outboundPoint instanceof SequenceD.Models.MessagePoint) {
+                    var linkView = new SequenceD.Views.MessageLink({
+                        model: outboundPoint.message,
+                        options: {class: "message"}
+                    });
+                    linkView.render("#diagramWrapper", "messages");
+                }
             }
+
         },
         parameters: []
     };

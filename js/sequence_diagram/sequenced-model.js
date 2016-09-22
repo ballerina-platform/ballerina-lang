@@ -455,6 +455,8 @@ var SequenceD = (function (sequenced) {
                 Diagrams.Models.DiagramElement.prototype.initialize.call(this, attrs, options);
                 this.sourcePoint = attrs.source;
                 this.destinationPoint = attrs.destination;
+                this.sourcePoint.setMessage(this);
+                this.destinationPoint.setMessage(this);
             },
 
             modelName: "MessageLink",

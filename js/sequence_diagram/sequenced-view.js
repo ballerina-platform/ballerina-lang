@@ -71,6 +71,7 @@ var SequenceD = (function (sequenced) {
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
                 var viewObj = this;
+
                 if (this.model.model.type === "UnitProcessor") {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
@@ -180,6 +181,12 @@ var SequenceD = (function (sequenced) {
                         processor.setY(yValue);
                     }
 
+                } else if(this.model.model.type === "Custom") {
+                    if(!_.isUndefined(this.model.model.initMethod)){
+                        this.viewRoot = group;
+                        this.model.set('center', center);
+                        this.model.model.initMethod(this);
+                    }
                 }
 
                 /*var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
