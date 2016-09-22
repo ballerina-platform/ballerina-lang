@@ -74,8 +74,8 @@ var SequenceD = (function (sequenced) {
                 if (this.model.model.type === "UnitProcessor") {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
-                        130,
-                        prefs.rect.height,
+                        this.model.getWidth(),
+                        this.model.getHeight(),//prefs.rect.height,
                         3,
                         3,
                         group, //element.viewAttributes.colour
@@ -125,13 +125,14 @@ var SequenceD = (function (sequenced) {
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
                     //lifeLine.call(drag);
+                    yValue += 60;
                     for (var id in this.modelAttr("children").models) {
-                        yValue += 60;
                         var processor = this.modelAttr("children").models[id];
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
                         processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                         processor.setY(yValue);
+                        yValue += processor.getHeight()+ 30;
                     }
 
 
@@ -144,13 +145,16 @@ var SequenceD = (function (sequenced) {
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
 
+                    var totalHeight=0;
+
                     for (var id in this.modelAttr("containableProcessorElements").models) {
 
                         var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                         var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
                         containableProcessorElementView.render("#diagramWrapper", processorCenterPoint);
-                        yValue = yValue+200;
+                        yValue = yValue+containableProcessorElement.getHeight();
+                        totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
                         //var processor = this.modelAttr("children").models[id];
                         //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
@@ -158,6 +162,8 @@ var SequenceD = (function (sequenced) {
                         //processorView.render("#diagramWrapper", processorCenterPoint);
                         //processor.setY(yValue);
                     }
+
+                    this.model.setHeight(totalHeight);
 
                 }
 
@@ -272,18 +278,21 @@ var SequenceD = (function (sequenced) {
                     var yValue = centerPoint.y();
 
                     lifeLine.call(drag);
+                    yValue += 60;
                     for (var id in this.modelAttr("children").models) {
-                        yValue += 60;
                         if (this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
                             var processor = this.modelAttr("children").models[id];
                             var processorView = new SequenceD.Views.Processor({
                                 model: processor,
                                 options: lifeLineOptions
                             });
+
                             var processorCenterPoint = createPoint(xValue, yValue);
                             processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                             processor.setY(yValue);
+                            yValue += processor.getHeight()+ 30;
                         } else {
+                            yValue += 60;
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
                             //link.source.setY()
@@ -708,6 +717,9 @@ var SequenceD = (function (sequenced) {
                 var yValue = centerPoint.y();
                 //lifeLine.call(drag);
 
+                var totalHeight = 60;
+                this.model.setHeight(30);
+
                 for (var id in this.modelAttr("children").models) {
                     yValue += 60;
                     var processor = this.modelAttr("children").models[id];
@@ -715,7 +727,12 @@ var SequenceD = (function (sequenced) {
                     var processorCenterPoint = createPoint(xValue, yValue);
                     processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                     processor.setY(yValue);
+                    totalHeight = totalHeight + this.model.getHeight() + 30;
                 }
+
+                rectBottomXXX.attr("height", totalHeight);
+                this.model.setHeight(totalHeight);
+                middleRect.attr("height", totalHeight-30);
 
                 return group;
             }

@@ -137,8 +137,8 @@ var SequenceD = (function (sequenced) {
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
-                width : 0,
-                height : 0,
+                width : 130,
+                height : 30,
                 title: "Processor"
             }
         });
@@ -569,6 +569,8 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 title: "ContainableProcessorElement",
+                width : 130,
+                height : 30,
                 viewAttributes: {colour: "#998844"}
             },
 
