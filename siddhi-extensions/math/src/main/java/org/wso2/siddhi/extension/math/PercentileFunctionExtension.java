@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.extension.math.util.ValueParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 
@@ -38,8 +39,8 @@ import java.util.List;
  */
 public class PercentileFunctionExtension extends AttributeAggregator {
 
+    private ValueParser valueParser;
     private double percentileValue;
-    private Attribute.Type attributeType;
     private List<Double> valuesList;
 
     @Override
@@ -67,13 +68,24 @@ public class PercentileFunctionExtension extends AttributeAggregator {
                     "Percentile value should be in 0 < p ≤ 100 range. But found " + percentileValue);
         }
 
-        attributeType = attributeExpressionExecutors[0].getReturnType();
-        if (!((attributeType == Attribute.Type.DOUBLE) || (attributeType == Attribute.Type.INT)
-                || (attributeType == Attribute.Type.FLOAT) || (attributeType == Attribute.Type.LONG))) {
-            throw new OperationNotSupportedException(
-                    "Invalid parameter type found for the first argument of percentile() function, " + "required "
-                            + Attribute.Type.INT + " or " + Attribute.Type.LONG + " or " + Attribute.Type.FLOAT + " or "
-                            + Attribute.Type.DOUBLE + ", but found " + attributeType.toString());
+        Attribute.Type attributeType = attributeExpressionExecutors[0].getReturnType();
+
+        // This approach is used to avoid per event type check as it has a negative performance impact.
+        switch (attributeType) {
+        case FLOAT:
+            valueParser = new FloatValueParser();
+            break;
+        case INT:
+            valueParser = new IntValueParser();
+            break;
+        case LONG:
+            valueParser = new LongValueParser();
+            break;
+        case DOUBLE:
+            valueParser = new DoubleValueParser();
+            break;
+        default:
+            throw new OperationNotSupportedException("Percentile not supported for " + attributeType);
         }
 
         valuesList = new ArrayList<Double>();
@@ -92,7 +104,7 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object[] data) {
-        double value = parseValue(data[0]);
+        double value = valueParser.parseValue(data[0]);
         sortedArrayListAdd(valuesList, value);
         return getPercentileValue(valuesList, percentileValue);
     }
@@ -106,7 +118,7 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
     @Override
     public Object processRemove(Object[] data) {
-        double value = parseValue(data[0]);
+        double value = valueParser.parseValue(data[0]);
         sortedArrayListRemove(valuesList, value);
         return getPercentileValue(valuesList, percentileValue);
     }
@@ -135,27 +147,6 @@ public class PercentileFunctionExtension extends AttributeAggregator {
     @Override
     public void restoreState(Object[] state) {
         valuesList = (List<Double>) state[0];
-    }
-    
-    private double parseValue(Object valueObject) {
-        double value = 0.0;
-        switch (attributeType) {
-        case FLOAT:
-            value = (Float) valueObject;
-            break;
-        case INT:
-            value = (Integer) valueObject;
-            break;
-        case LONG:
-            value = (Long) valueObject;
-            break;
-        case DOUBLE:
-            value = (Double) valueObject;
-            break;
-        default:
-            break;
-        }
-        return value;
     }
 
     /**
@@ -229,6 +220,38 @@ public class PercentileFunctionExtension extends AttributeAggregator {
 
         int removeIndex = Collections.binarySearch(arrayList, value);
         arrayList.remove(removeIndex);
+    }
+
+    private class DoubleValueParser implements ValueParser {
+
+        @Override
+        public double parseValue(Object valueObject) {
+            return (Double) valueObject;
+        }
+    }
+
+    private class FloatValueParser implements ValueParser {
+
+        @Override
+        public double parseValue(Object valueObject) {
+            return (Float) valueObject;
+        }
+    }
+
+    private class IntValueParser implements ValueParser {
+
+        @Override
+        public double parseValue(Object valueObject) {
+            return (Integer) valueObject;
+        }
+    }
+
+    private class LongValueParser implements ValueParser {
+
+        @Override
+        public double parseValue(Object valueObject) {
+            return (Long) valueObject;
+        }
     }
 
 }
