@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,8 +37,16 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.And;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.wso2.siddhi.query.api.expression.condition.IsNull;
+import org.wso2.siddhi.query.api.expression.condition.Not;
 import org.wso2.siddhi.query.api.expression.condition.Or;
-import org.wso2.siddhi.query.api.expression.constant.*;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -203,6 +211,28 @@ public class RDBMSOperatorParser {
             conditionBuilder.append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER).append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_OR)).append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
             Expression rightExpression = ((Or) expression).getRightExpression();
             buildConditionQuery(isTableStreamMap, rightExpression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo);
+        }  else if (expression instanceof Not) {
+            Expression rightExpression = ((Not) expression).getExpression();
+            conditionBuilder.append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER)
+                    .append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_NOT))
+                    .append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+            buildConditionQuery(isTableStreamMap, rightExpression, conditionBuilder, conditionAttributeList,
+                    expressionExecutorList, dbHandler, elementMappings, metaStateEvent, matchingStreamIndex,
+                    eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo);
+        } else if (expression instanceof IsNull) {
+            Expression leftExpression = ((IsNull) expression).getExpression();
+            String streamId = ((Variable) leftExpression).getStreamId();
+            if (streamId != null) {
+                Boolean isEvenTable = isTableStreamMap.get(streamId);
+                if (isEvenTable != null) {
+                    if (isEvenTable) {
+                        setEventTableVariableAttribute(leftExpression, conditionBuilder);
+                        conditionBuilder
+                                .append(elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_IS_NULL))
+                                .append(RDBMSEventTableConstants.EVENT_TABLE_CONDITION_WHITE_SPACE_CHARACTER);
+                    }
+                }
+            }
         } else if (expression instanceof Compare) {
             Expression leftExpression = ((Compare) expression).getLeftExpression();
             Expression rightExpression = ((Compare) expression).getRightExpression();
