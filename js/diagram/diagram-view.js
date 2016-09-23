@@ -310,7 +310,6 @@ var Diagrams = (function (diagrams) {
                 var position = {};
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
-                console.log(position);
                 if (Processors.manipulators[id] && diagram.selectedNode) {
                     //manipulators are unit processors
                     var processor = diagram.selectedNode.createProcessor(
@@ -359,7 +358,8 @@ var Diagrams = (function (diagrams) {
                         //initial life line position
                         centerPoint = createPoint(200, 50);
                     }
-                    var lifeline = createLifeLine("Lifeline", centerPoint);
+                    lifelineCounter++;
+                    var lifeline = createLifeLine("Lifeline" + lifelineCounter, centerPoint);
                     lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                     lifeline.rightLowerConer({
                         x: centerPoint.attributes.x + 65,

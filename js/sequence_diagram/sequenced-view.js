@@ -46,7 +46,6 @@ var SequenceD = (function (sequenced) {
             render: function (paperID, centerPoint, status) {
                 if (status == "processors") {
                     Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
-                    thisModel = this.model;
                     var processor = this.drawProcessor(paperID, centerPoint, this.modelAttr('title'), this.options);
                     var viewObj = this;
                     var drag = d3.drag()
@@ -234,7 +233,6 @@ var SequenceD = (function (sequenced) {
             },
 
             handleDropEvent: function (event, ui) {
-                console.log("dropped in to LifeLineView ")
             },
 
             verticalDrag: function () {
@@ -244,15 +242,14 @@ var SequenceD = (function (sequenced) {
                 return false;
             },
 
-            thisModel: '',
-
             renderTitle: function () {
-                console.log("lifeline rendered again due to its title change");
-                this.d3el.title.text(this.model.attributes.title);
-                this.d3el.titleBottom.text(this.model.attributes.title);
-                if (propertyPane) {
-                    if (propertyPane.schema.title === thisModel.getSchema().title) {
-                        propertyPane.setValue(thisModel.getEditableProperties());
+                if (this.d3el) {
+                    this.d3el.svgTitle.text(this.model.attributes.title);
+                    this.d3el.svgTitleBottom.text(this.model.attributes.title);
+                    if (propertyPane) {
+                        if (propertyPane.schema.title === diagram.selectedNode.getSchema().title) {
+                            propertyPane.setValue(diagram.selectedNode.getEditableProperties());
+                        }
                     }
                 }
             },
@@ -430,8 +427,10 @@ var SequenceD = (function (sequenced) {
                 Object.getPrototypeOf(group).line = line;
                 Object.getPrototypeOf(group).middleRect = middleRect;
                 Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
-                Object.getPrototypeOf(group).title = text;
-                Object.getPrototypeOf(group).titleBottom = textBottom;
+                group.svgTitle = text;
+                group.svgTitleBottom = textBottom;
+                //Object.getPrototypeOf(group).title = text;
+                //Object.getPrototypeOf(group).titleBottom = textBottom;
                 Object.getPrototypeOf(group).translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
@@ -465,15 +464,16 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('visible', true);
                     udcontrol.set('x', imgRight);
                     udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', thisModel);
+                    udcontrol.set('lifeline', diagram.selectedNode);
                 }
 
                 function updatePropertyPane() {
                     $('#propertySave').show();
-                    propertyPane = ppView.getPropertyPane(thisModel.getSchema(), thisModel.getEditableProperties(), thisModel);
+                    propertyPane = ppView.createPropertyPane( diagram.selectedNode.getSchema(),  diagram.selectedNode.getEditableProperties(),  diagram.selectedNode);
                 }
 
                 rect.on("click", (function () {
+                    diagram.selectedNode = viewObj.model;
                     if (selected) {
                         if (this == selected) {
                             selected.classList.toggle("lifeline_selected");
