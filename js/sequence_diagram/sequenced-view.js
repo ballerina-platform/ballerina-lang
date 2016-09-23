@@ -70,6 +70,7 @@ var SequenceD = (function (sequenced) {
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
                 var viewObj = this;
+
                 if (this.model.model.type === "UnitProcessor") {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
@@ -161,9 +162,13 @@ var SequenceD = (function (sequenced) {
                         //processorView.render("#diagramWrapper", processorCenterPoint);
                         //processor.setY(yValue);
                     }
-
-                    this.model.setHeight(totalHeight);
-
+                       this.model.setHeight(totalHeight);
+                } else if(this.model.model.type === "Custom") {
+                    if(!_.isUndefined(this.model.model.initMethod)){
+                        this.viewRoot = group;
+                        this.model.set('center', center);
+                        this.model.model.initMethod(this);
+                    }
                 }
 
                 /*var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
@@ -204,7 +209,7 @@ var SequenceD = (function (sequenced) {
                     Diagrams.Views.DiagramElementView.prototype.render.call(this, paperID);
                     var d3ref = this.getD3Ref();
 
-                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint, this.model.destination().centerPoint)
+                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint())
                         .classed(this.options.class, true);
 
                     //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
@@ -293,12 +298,12 @@ var SequenceD = (function (sequenced) {
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
                             //link.source.setY()
-                            if (messagePoint.direction == "inbound") {
-                                messagePoint.centerPoint.y(yValue);
-                                messagePoint.centerPoint.x(xValue);
+                            if (messagePoint.direction() == "inbound") {
+                                messagePoint.y(yValue);
+                                messagePoint.x(xValue);
                             } else {
-                                messagePoint.centerPoint.y(yValue);
-                                messagePoint.centerPoint.x(xValue);
+                                messagePoint.y(yValue);
+                                messagePoint.x(xValue);
                             }
                             yValue += 60;
                         }
@@ -314,7 +319,7 @@ var SequenceD = (function (sequenced) {
                         var messagePoint = this.modelAttr("children").models[id];
                         if (messagePoint instanceof SequenceD.Models.MessagePoint) {
                             var linkView = new SequenceD.Views.MessageLink({
-                                model: messagePoint.message,
+                                model: messagePoint.message(),
                                 options: {class: "message"}
                             });
                             linkView.render("#diagramWrapper", "messages");
