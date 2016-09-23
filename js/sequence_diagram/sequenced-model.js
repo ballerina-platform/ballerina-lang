@@ -338,7 +338,8 @@ var SequenceD = (function (sequenced) {
                     this.children().add(element, {at: index});
                 } else if (!_.isUndefined(opts)) {
                     //diagram.addElement(element, opts);
-                    var position = this.calculateIndex(element, element.centerPoint.get('y'));
+                    // element is a message point
+                    var position = this.calculateIndex(element, element.y());
                     var index = position.index;
                     this.children().add(element, {at: index});
                 }
@@ -453,10 +454,10 @@ var SequenceD = (function (sequenced) {
              */
             initialize: function (attrs, options) {
                 Diagrams.Models.DiagramElement.prototype.initialize.call(this, attrs, options);
-                this.sourcePoint = attrs.source;
-                this.destinationPoint = attrs.destination;
-                this.sourcePoint.setMessage(this);
-                this.destinationPoint.setMessage(this);
+                this.set('sourcePoint', attrs.source);
+                this.set('destinationPoint', attrs.destination);
+                this.source().message(this);
+                this.destination().message(this);
             },
 
             modelName: "MessageLink",
@@ -467,17 +468,17 @@ var SequenceD = (function (sequenced) {
 
             source: function (messagePoint) {
                 if (messagePoint) {
-                    this.sourcePoint = messagePoint;
+                    this.set('sourcePoint', messagePoint);
                 } else {
-                    return this.sourcePoint;
+                    return this.get('sourcePoint');
                 }
             },
 
             destination: function (messagePoint) {
                 if (messagePoint) {
-                    this.destinationPoint = messagePoint;
+                    this.set('destinationPoint', messagePoint);
                 } else {
-                    return this.destinationPoint;
+                    return this.get('destinationPoint');
                 }
             }
 
@@ -493,8 +494,8 @@ var SequenceD = (function (sequenced) {
              */
             initialize: function (attrs, options) {
                 Diagrams.Models.DiagramElement.prototype.initialize.call(this, attrs, options);
-                this.centerPoint = new GeoCore.Models.Point({x: attrs.x, y: attrs.y});
-                this.direction = attrs.direction;
+                this.set("centerPoint", new GeoCore.Models.Point({x: attrs.x, y: attrs.y}));
+                this.set("direction", attrs.direction);
             },
 
             modelName: "MessagePoint",
@@ -502,19 +503,42 @@ var SequenceD = (function (sequenced) {
             nameSpace: sequenced,
 
             defaults: {
-                centerPoint: new GeoCore.Models.Point({x: 0, y: 0})
+                "centerPoint": new GeoCore.Models.Point({x: 0, y: 0})
             },
 
-            setY: function (y) {
-                this.get('centerPoint').set('y', y);
+            centerPoint: function (centerPoint) {
+                if(_.isUndefined(centerPoint)){
+                    return this.get('centerPoint');
+                }
+                this.set('centerPoint', centerPoint);
             },
 
-            setX: function (x) {
-                this.get('centerPoint').set('x', x);
+            y: function (y) {
+                if(_.isUndefined(y)){
+                    return this.get('centerPoint').y();
+                }
+                this.get('centerPoint').y(y);
             },
 
-            setMessage: function (Message) {
-                this.message = Message;
+            x: function (x) {
+                if(_.isUndefined(x)){
+                   return this.get('centerPoint').x();
+                }
+                this.get('centerPoint').x(x);
+            },
+
+            message: function (message) {
+                if(_.isUndefined(message)){
+                    return this.get("message");
+                }
+                this.set("message", message);
+            },
+
+            direction: function (direction) {
+                if(_.isUndefined(direction)){
+                    return this.get("direction");
+                }
+                this.set("direction", direction);
             }
 
         });

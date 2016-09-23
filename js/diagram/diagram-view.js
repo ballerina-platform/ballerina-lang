@@ -95,6 +95,7 @@ var Diagrams = (function (diagrams) {
              * @returns {*|void} Returns value if value is not passed. Else void.
              */
             modelAttr: function (name, value) {
+
                 if (value === undefined) {
                     return this.model.get(name);
                 }
@@ -598,14 +599,14 @@ var Diagrams = (function (diagrams) {
                         source: sourcePoint,
                         destination: destinationPoint
                     });
-                    sourcePoint.setMessage(messageLink);
-                    destinationPoint.setMessage(messageLink);
+                    sourcePoint.message(messageLink);
+                    destinationPoint.message(messageLink);
 
                     var clickedLifeLine = viewObj.model.clickedLifeLine;
                     clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
 
                     if (diagram.destinationLifeLine) {
-                        if (viewObj.model.clickedLifeLine.get('centerPoint').get('x') != diagram.destinationLifeLine.get('centerPoint').get('x')) {
+                        if (viewObj.model.clickedLifeLine.get('centerPoint').x() != diagram.destinationLifeLine.get('centerPoint').x()) {
                             diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
                             diagram.destinationLifeLine = null;
                             diagramView.render();

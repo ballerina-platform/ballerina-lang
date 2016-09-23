@@ -58,19 +58,19 @@ var Processors = (function (processors) {
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
 
-                    if (_.isEqual(messageLinkPoint.direction, "inbound")) {
-                        var sPX = messageLinkPoint.message.source().get('centerPoint').x();
-                        messageLinkPoint.get('centerPoint').y(center.y() + 20);
+                    if (_.isEqual(messageLinkPoint.direction(), "inbound")) {
+                        var sPX = messageLinkPoint.message().source().x();
+                        messageLinkPoint.y(center.y() + 20);
                         view.modelAttr("children").add(messageLinkPoint, {at: 0});
-                    } else if (_.isEqual(messageLinkPoint.direction, "outbound")) {
-                        var sPX = messageLinkPoint.message.destination().get('centerPoint').x();
-                        messageLinkPoint.get('centerPoint').y(center.y() - 20);
+                    } else if (_.isEqual(messageLinkPoint.direction(), "outbound")) {
+                        var sPX = messageLinkPoint.message().destination().x();
+                        messageLinkPoint.y(center.y() - 20);
                         view.modelAttr("children").add(messageLinkPoint, {at: 1});
                     }
                     if (center.x() > sPX) {
-                        messageLinkPoint.get('centerPoint').x(center.x() - 10);
+                        messageLinkPoint.x(center.x() - 10);
                     } else {
-                        messageLinkPoint.get('centerPoint').x(center.x() + 10);
+                        messageLinkPoint.x(center.x() + 10);
                     }
                 };
 
@@ -78,7 +78,7 @@ var Processors = (function (processors) {
                 var inboundPoint = view.modelAttr("children").at(0);
                 if(inboundPoint && inboundPoint instanceof SequenceD.Models.MessagePoint) {
                     var linkView = new SequenceD.Views.MessageLink({
-                        model: inboundPoint.message,
+                        model: inboundPoint.message(),
                         options: {class: "message"}
                     });
                     linkView.render("#diagramWrapper", "messages");
@@ -86,7 +86,7 @@ var Processors = (function (processors) {
                 var outboundPoint = view.modelAttr("children").at(1);
                 if(outboundPoint && outboundPoint instanceof SequenceD.Models.MessagePoint) {
                     var linkView = new SequenceD.Views.MessageLink({
-                        model: outboundPoint.message,
+                        model: outboundPoint.message(),
                         options: {class: "message"}
                     });
                     linkView.render("#diagramWrapper", "messages");

@@ -227,7 +227,7 @@ var SequenceD = (function (sequenced) {
                     Diagrams.Views.DiagramElementView.prototype.render.call(this, paperID);
                     var d3ref = this.getD3Ref();
 
-                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint, this.model.destination().centerPoint)
+                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint())
                         .classed(this.options.class, true);
 
                     //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
@@ -315,12 +315,12 @@ var SequenceD = (function (sequenced) {
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
                             //link.source.setY()
-                            if (messagePoint.direction == "inbound") {
-                                messagePoint.centerPoint.y(yValue);
-                                messagePoint.centerPoint.x(xValue);
+                            if (messagePoint.direction() == "inbound") {
+                                messagePoint.y(yValue);
+                                messagePoint.x(xValue);
                             } else {
-                                messagePoint.centerPoint.y(yValue);
-                                messagePoint.centerPoint.x(xValue);
+                                messagePoint.y(yValue);
+                                messagePoint.x(xValue);
                             }
                         }
                     }
@@ -335,7 +335,7 @@ var SequenceD = (function (sequenced) {
                         var messagePoint = this.modelAttr("children").models[id];
                         if (messagePoint instanceof SequenceD.Models.MessagePoint) {
                             var linkView = new SequenceD.Views.MessageLink({
-                                model: messagePoint.message,
+                                model: messagePoint.message(),
                                 options: {class: "message"}
                             });
                             linkView.render("#diagramWrapper", "messages");
