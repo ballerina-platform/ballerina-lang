@@ -606,12 +606,12 @@ var Diagrams = (function (diagrams) {
                     var sourcePoint = new SequenceD.Models.MessagePoint({
                         x: sourceX,
                         y: sourceY,
-                        direction: "inbound"
+                        direction: "outbound"
                     });
                     var destinationPoint = new SequenceD.Models.MessagePoint({
                         x: m[0],
                         y: m[1],
-                        direction: "outbound"
+                        direction: "inbound"
                     });
                     var messageLink = new SequenceD.Models.MessageLink({
                         source: sourcePoint,
