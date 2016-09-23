@@ -58,18 +58,19 @@ var Processors = (function (processors) {
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
 
-                    var sPX = messageLinkPoint.message.source().get('centerPoint').x();
+                    if (_.isEqual(messageLinkPoint.direction, "inbound")) {
+                        var sPX = messageLinkPoint.message.source().get('centerPoint').x();
+                        messageLinkPoint.get('centerPoint').y(center.y() + 20);
+                        view.modelAttr("children").add(messageLinkPoint, {at: 0});
+                    } else if (_.isEqual(messageLinkPoint.direction, "outbound")) {
+                        var sPX = messageLinkPoint.message.destination().get('centerPoint').x();
+                        messageLinkPoint.get('centerPoint').y(center.y() - 20);
+                        view.modelAttr("children").add(messageLinkPoint, {at: 1});
+                    }
                     if (center.x() > sPX) {
                         messageLinkPoint.get('centerPoint').x(center.x() - 10);
                     } else {
                         messageLinkPoint.get('centerPoint').x(center.x() + 10);
-                    }
-                    if (_.isEqual(messageLinkPoint.direction, "inbound")) {
-                        messageLinkPoint.get('centerPoint').y(center.x() + 20);
-                        view.modelAttr("children").add(messageLinkPoint, {at: 0});
-                    } else if (_.isEqual(messageLinkPoint.direction, "outbound")) {
-                        messageLinkPoint.get('centerPoint').y(center.x() - 20);
-                        view.modelAttr("children").add(messageLinkPoint, {at: 1});
                     }
                 };
 

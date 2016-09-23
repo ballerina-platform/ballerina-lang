@@ -533,13 +533,13 @@ var Diagrams = (function (diagrams) {
 
                     var sourcePoint = new SequenceD.Models.MessagePoint({
                         x: startPoint.x(),
-                        y: endpoint.y(),
-                        direction: "inbound"
+                        y: startPoint.y(),
+                        direction: "outbound"
                     });
                     var destinationPoint = new SequenceD.Models.MessagePoint({
-                        x: startPoint.x(),
+                        x: endpoint.x(),
                         y: endpoint.y(),
-                        direction: "outbound"
+                        direction: "inbound"
                     });
                     var messageLink = new SequenceD.Models.MessageLink({
                         source: sourcePoint,
