@@ -280,6 +280,7 @@ var SequenceD = (function (sequenced) {
                     lifeLine.call(drag);
                     yValue += 60;
                     for (var id in this.modelAttr("children").models) {
+
                         if (this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
                             var processor = this.modelAttr("children").models[id];
                             var processorView = new SequenceD.Views.Processor({
@@ -292,7 +293,6 @@ var SequenceD = (function (sequenced) {
                             processor.setY(yValue);
                             yValue += processor.getHeight()+ 30;
                         } else {
-                            yValue += 60;
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
                             //link.source.setY()
@@ -303,6 +303,7 @@ var SequenceD = (function (sequenced) {
                                 messagePoint.centerPoint.y(yValue);
                                 messagePoint.centerPoint.x(xValue);
                             }
+                            yValue += 60;
                         }
                     }
 
