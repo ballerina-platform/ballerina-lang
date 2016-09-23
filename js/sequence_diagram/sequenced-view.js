@@ -720,14 +720,15 @@ var SequenceD = (function (sequenced) {
                 var totalHeight = 60;
                 this.model.setHeight(30);
 
+                yValue += 60;
                 for (var id in this.modelAttr("children").models) {
-                    yValue += 60;
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                     var processorCenterPoint = createPoint(xValue, yValue);
                     processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                     processor.setY(yValue);
-                    totalHeight = totalHeight + this.model.getHeight() + 30;
+                    totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
+                    yValue += processor.getHeight()+ 30;
                 }
 
                 rectBottomXXX.attr("height", totalHeight);
