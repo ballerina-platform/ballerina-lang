@@ -477,6 +477,17 @@ var Diagrams = (function (diagrams) {
                         lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages");
                     }
                 }
+
+                var viewObj = this;
+
+                this.d3svg.append('rect')
+                    .attr("x", 100)
+                    .attr("y", 500)
+                    .attr("width", 100)
+                    .attr("height", 50)
+                    .on("mousedown", function () {
+                        viewObj.model.parseTree();
+                    });
                 return mainGroup;
             },
 
@@ -539,12 +550,14 @@ var Diagrams = (function (diagrams) {
                         var sourcePoint = new SequenceD.Models.MessagePoint({
                             x: sourceX,
                             y: sourceY,
-                            direction: "inbound"
+                            direction: "inbound",
+                            owner: viewObj.model.clickedLifeLine
                         });
                         var destinationPoint = new SequenceD.Models.MessagePoint({
                             x: m[0],
                             y: m[1],
-                            direction: "outbound"
+                            direction: "outbound",
+                            owner: diagram.destinationLifeLine
                         });
                         var messageLink = new SequenceD.Models.MessageLink({
                             source: sourcePoint,

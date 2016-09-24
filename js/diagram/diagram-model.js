@@ -350,6 +350,119 @@ var Diagrams = (function (diagrams) {
                 }
 
                 return this.lifeLineMap[nearestKey];
+            },
+
+            parseTree: function() {
+
+                function TreeNode (value, type) {
+                    this.object = undefined;
+                    this.children = [];
+                    this.value = value;
+                    this.type = type;
+
+                    this.getChildren = function () {
+                        return this.children;
+                    };
+
+                    this.getValue = function () {
+                        return this.value;
+                    };
+                }
+
+                function RefMapNode (treeNode, cid, nextVisitPosition) {
+                    this.treeNode = treeNode;
+                    this.cid = cid;
+                    this.nextVisitPosition = nextVisitPosition;
+                    this.returnVisited = false;
+
+                    this.incrementNextVisitPosition = function () {
+                        this.nextVisitPosition++;
+                    }
+                }
+
+                var TreeRoot;
+
+                //diagram.get('diagramElements').each(function (model) {
+                //    if (model instanceof SequenceD.Models.LifeLine) {
+                //        var node = new TreeNode("resource", "resource");
+                //        node.setObject(model);
+                //        TreeRoot.getChildren().push(node);
+                //        if ((model.get('children').models).length > 0) {
+                //            (model.get('children').models).forEach (function(child) {
+                //                if(child instanceof SequenceD.Models.MessagePoint) {
+                //                    console.log(child);
+                //                }
+                //                var childNode = new TreeNode("child", child.type);
+                //                node.getChildren().push(childNode);
+                //            });
+                //        }
+                //    }
+                //});
+
+                var treeVisitMap = {};
+
+                var buildTree = function (model, resourceNode, isLifeLine) {
+
+                    var treeNode = undefined;
+                    var refMapNode = treeVisitMap[model.cid];
+
+                    if (_.isUndefined(refMapNode)) {
+
+                        if (resourceNode) {
+                            treeNode = new TreeNode(model, "Resource");
+                        } else if (isLifeLine) {
+                            treeNode = new TreeNode(model, "LifeLine");
+                        } else {
+                            treeNode = new TreeNode(model, model.type);
+                        }
+
+                        refMapNode = new RefMapNode(treeNode, model.cid, 0);
+                        treeVisitMap[model.cid] = refMapNode;
+                    } else {
+                        treeNode = (treeVisitMap[model.cid]).treeNode;
+                        treeNode.returnVisited = true;
+                    }
+
+                    var startPo = refMapNode.nextVisitPosition;
+
+                    for (var itr = startPo; itr < (model.get('children').models).length; itr++) {
+                        var child = (model.get('children').models)[itr];
+                        console.log(child.type);
+                        refMapNode.incrementNextVisitPosition();
+                        var childNode;
+                        if (child instanceof SequenceD.Models.MessagePoint && child.direction === "inbound") {
+                            childNode = buildTree(child.message.destinationPoint.owner, false, true);
+                            if (!childNode.returnVisited) {
+                                treeNode.getChildren().push(childNode);
+                            }
+                        } else if (!(child instanceof SequenceD.Models.MessagePoint)) {
+                            childNode = buildTree(child, false, false);
+                            if (!childNode.returnVisited) {
+                                treeNode.getChildren().push(childNode);
+                            }
+                        }
+                    }
+
+                    return treeNode;
+                };
+
+                var finalSource = "";
+
+                var traverse = function (tree, finalSource) {
+                    //console.log(tree);
+                    finalSource = finalSource + "" + tree.type + "{";
+                    var arr = tree.getChildren();
+                    for (var a = 0; a < arr.length; a++) {
+                        var node = arr[a];
+                        finalSource = traverse(node, finalSource);
+                    }
+                    finalSource = finalSource + "}";
+
+                    return finalSource;
+                };
+                TreeRoot = buildTree(diagram.get('diagramElements').models[0], true, false);
+                var x = traverse((TreeRoot), finalSource);
+                console.log(x);
             }
 
         });

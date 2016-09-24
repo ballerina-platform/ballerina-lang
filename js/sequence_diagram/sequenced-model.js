@@ -520,6 +520,7 @@ var SequenceD = (function (sequenced) {
                 Diagrams.Models.DiagramElement.prototype.initialize.call(this, attrs, options);
                 this.centerPoint = new GeoCore.Models.Point({x: attrs.x, y: attrs.y});
                 this.direction = attrs.direction;
+                this.owner = attrs.owner;
             },
 
             modelName: "MessagePoint",
