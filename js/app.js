@@ -138,6 +138,6 @@ udcontrolView.render();
 
 //var ppModel = new Editor.Views.PropertyPaneModel();
 var ppView = new Editor.Views.PropertyPaneView();
-propertyPane = ''; //ppView.getPropertyPane(schema, properties);
-
+propertyPane = ''; //ppView.createPropertyPane(schema, properties);
+lifelineCounter = 0;
 

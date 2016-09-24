@@ -294,6 +294,8 @@ var Diagrams = (function (diagrams) {
                 opts.diagram.grid.height = opts.diagram.grid.height || 25;
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
+                this.model.on("messageDrawStart", this.onMessageDrawStart, this);
+                this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
             },
 
 
@@ -310,14 +312,13 @@ var Diagrams = (function (diagrams) {
                 var position = {};
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
-                console.log(position);
                 if (Processors.manipulators[id] && diagram.selectedNode) {
                     //manipulators are unit processors
                     var processor = diagram.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
                         createPoint(position.x, position.y),
                         Processors.manipulators[id].id,
-                        {type: Processors.manipulators[id].type || "UnitProcessor"},
+                        {type: Processors.manipulators[id].type || "UnitProcessor", initMethod:Processors.manipulators[id].init},
                         {colour: Processors.manipulators[id].colour},
                         {parameters: Processors.manipulators[id].parameters}
                     );
@@ -330,7 +331,7 @@ var Diagrams = (function (diagrams) {
                         Processors.flowControllers[id].title,
                         center,
                         Processors.flowControllers[id].id,
-                        {type: Processors.flowControllers[id].type},
+                        {type: Processors.flowControllers[id].type, initMethod:Processors.flowControllers[id].init },
                         {colour: Processors.flowControllers[id].colour},
                         {parameters: Processors.flowControllers[id].parameters}
                     );
@@ -359,7 +360,8 @@ var Diagrams = (function (diagrams) {
                         //initial life line position
                         centerPoint = createPoint(200, 50);
                     }
-                    var lifeline = createLifeLine("Lifeline", centerPoint);
+                    lifelineCounter++;
+                    var lifeline = createLifeLine("Lifeline" + lifelineCounter, centerPoint);
                     lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                     lifeline.rightLowerConer({
                         x: centerPoint.attributes.x + 65,
@@ -513,6 +515,72 @@ var Diagrams = (function (diagrams) {
                 return this.options.diagram.grid.height;
             },
 
+            onMessageDrawEnd: function(sourceModel, destinationPoint) {
+                if (this.model.destinationLifeLine) {
+                    this.model.destinationLifeLine.addChild(destinationPoint);
+                    this.model.destinationLifeLine = null;
+                }else if(this.model.destinationProcessor){
+                    this.model.destinationProcessor.addChild(destinationPoint);
+                    this.model.destinationProcessor = null;
+                }
+                this.render();
+            },
+
+            onMessageDrawStart: function(sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback){
+
+                var diagView = this;
+
+                var line = this.d3svg.append("line")
+                    .attr("x1", startPoint.x())
+                    .attr("y1", startPoint.y())
+                    .attr("x2", startPoint.x())
+                    .attr("y2", startPoint.y())
+                    .attr("marker-end", "url(#markerArrow)")
+                    .attr("class", "message");
+
+                this.d3svg.on("mousemove", function () {
+                    var m = d3.mouse(this);
+                    line.attr("x2", m[0]);
+                    line.attr("y2", m[1]).attr("marker-end", "url(#markerArrow)");
+                    if(!_.isUndefined(calcNewStartPoint)){
+                        var newSP = calcNewStartPoint(m[0], m[1]);
+                        line.attr("x1", newSP.x);
+                        line.attr("y1", newSP.y);
+                    }
+                });
+
+                this.d3svg.on("mouseup", function () {
+                    // unbind current listeners
+                    diagView.d3svg.on("mousemove", null);
+                    diagView.d3svg.on("mouseup", null);
+                    var startPoint = new GeoCore.Models.Point({x:line.attr("x1"), y:line.attr("y1")}),
+                        endpoint = new GeoCore.Models.Point({x:line.attr("x2"), y:line.attr("y2")});
+                    line.remove();
+
+                    var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                    var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+
+                    var sourcePoint = new SequenceD.Models.MessagePoint({
+                        x: startPoint.x(),
+                        y: startPoint.y(),
+                        direction: "outbound"
+                    });
+                    var destinationPoint = new SequenceD.Models.MessagePoint({
+                        x: endpoint.x(),
+                        y: endpoint.y(),
+                        direction: "inbound"
+                    });
+                    var messageLink = new SequenceD.Models.MessageLink({
+                        source: sourcePoint,
+                        destination: destinationPoint
+                    });
+
+                    sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                    diagView.model.trigger("messageDrawEnd", sourceModel, destinationPoint);
+
+                });
+            },
+
             onLifelineClicked: function (x, y) {
                 var sourceX = x;
                 var sourceY = y;
@@ -542,38 +610,41 @@ var Diagrams = (function (diagrams) {
                     var parent = l.parentNode;
                     parent.removeChild(l);
 
-                    if (viewObj.model.clickedLifeLine.get('centerPoint').get('x') != diagram.destinationLifeLine.get('centerPoint').get('x')) {
+                    var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                    var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
 
-                        var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                        var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                    var sourcePoint = new SequenceD.Models.MessagePoint({
+                        x: sourceX,
+                        y: sourceY,
+                        direction: "outbound",
+                        owner: viewObj.model.clickedLifeLine
+                    });
+                    var destinationPoint = new SequenceD.Models.MessagePoint({
+                        x: m[0],
+                        y: m[1],
+                        direction: "inbound",
+                        owner: diagram.destinationLifeLine
+                    });
+                    var messageLink = new SequenceD.Models.MessageLink({
+                        source: sourcePoint,
+                        destination: destinationPoint
+                    });
+                    sourcePoint.message(messageLink);
+                    destinationPoint.message(messageLink);
 
-                        var sourcePoint = new SequenceD.Models.MessagePoint({
-                            x: sourceX,
-                            y: sourceY,
-                            direction: "inbound",
-                            owner: viewObj.model.clickedLifeLine
-                        });
-                        var destinationPoint = new SequenceD.Models.MessagePoint({
-                            x: m[0],
-                            y: m[1],
-                            direction: "outbound",
-                            owner: diagram.destinationLifeLine
-                        });
-                        var messageLink = new SequenceD.Models.MessageLink({
-                            source: sourcePoint,
-                            destination: destinationPoint
-                        });
-                        sourcePoint.setMessage(messageLink);
-                        destinationPoint.setMessage(messageLink);
+                    var clickedLifeLine = viewObj.model.clickedLifeLine;
+                    clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
 
-                        var clickedLifeLine = viewObj.model.clickedLifeLine;
-                        clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
-                        diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
-
+                    if (diagram.destinationLifeLine) {
+                        if (viewObj.model.clickedLifeLine.get('centerPoint').x() != diagram.destinationLifeLine.get('centerPoint').x()) {
+                            diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
+                            diagram.destinationLifeLine = null;
+                            diagramView.render();
+                        }
+                    } else {
+                        diagram.trigger("messageDrawEnd", viewObj.model.clickedLifeLine, destinationPoint);
                     }
 
-                    diagram.destinationLifeLine = null;
-                    diagramView.render();
                 });
             }
         });

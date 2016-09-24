@@ -26,11 +26,9 @@ var Editor = (function (editor) {
     var propertyPaneView = Backbone.View.extend({
 
         el:'#propertyPaneContainer',
-        propertyPane: '',
         dataObject:'',
 
         initialize: function () {
-            //Initialize the editor
             JSONEditor.defaults.theme = 'bootstrap3';
             JSONEditor.defaults.iconlib = 'bootstrap3';
 
@@ -53,14 +51,13 @@ var Editor = (function (editor) {
 
         onSaveImageClick: function() {
             if ($('#save-image').css('opacity') == 1) {
-                //This need to be handled in generic way
+                //TODO This need to be handled in generic way
                 ppView.dataObject.set('title', propertyPane.getValue().Title);
-                console.log('property pane save image clicked');
                 $('#save-image').css({opacity: 0.4});
             }
         },
 
-        getPropertyPane: function (schema, editableProperties, dataModel) {
+        createPropertyPane: function (schema, editableProperties, dataModel) {
             this.dataObject = dataModel;
             if (propertyPane) {
                 propertyPane.destroy();
@@ -76,8 +73,8 @@ var Editor = (function (editor) {
 
             propertyPane.watch('root',function() {
                 $("#save-image").css({ opacity: 1 });
-                console.log('property pane values changed');
-                //thisLifeline.set('title', pane.getValue().Title); //commented as this results recursive call and updated to the older value.
+                //commented as this results recursive call and updated to the older value.
+                //thisLifeline.set('title', pane.getValue().Title);
             });
 
 
@@ -89,8 +86,6 @@ var Editor = (function (editor) {
         render: function () {
             var schema = this.model.attributes.schema;
             var editableProperties = this.model.attributes.editableProperties;
-            updatePropertyPane(schema, editableProperties);
-            //this.$el.html(pane);
             return this;
         }
     });

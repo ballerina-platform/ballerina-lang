@@ -42,6 +42,7 @@ var D3Utils = (function (d3_utils) {
         rx = rx || 0;
         ry = ry || 0;
         parent.append("rect")
+            .attr("id", "titleRect")
             .attr("x", x)
             .attr("y", y)
             .attr("width", width)
@@ -51,7 +52,8 @@ var D3Utils = (function (d3_utils) {
             .style("filter", "url(#drop-shadow)")
             .attr("rx", rx)
             .attr("ry", ry);
-        parent.append("rect")
+        var containerRect = parent.append("rect")
+            .attr("id", "containerRect")
             .attr("x", x)
             .attr("y", y)
             .attr("width", width)
@@ -67,7 +69,7 @@ var D3Utils = (function (d3_utils) {
             .attr("y", y + 19)
             .attr("fill", "white")
             .text(title);
-        return parent;
+        return containerRect;
     };
 
     var basicRect = function (x, y, width, height, rx, ry, parent) {

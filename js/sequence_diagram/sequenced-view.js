@@ -46,7 +46,6 @@ var SequenceD = (function (sequenced) {
             render: function (paperID, centerPoint, status) {
                 if (status == "processors") {
                     Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
-                    thisModel = this.model;
                     var processor = this.drawProcessor(paperID, centerPoint, this.modelAttr('title'), this.options);
                     var viewObj = this;
                     var drag = d3.drag()
@@ -71,11 +70,12 @@ var SequenceD = (function (sequenced) {
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
                 var viewObj = this;
+
                 if (this.model.model.type === "UnitProcessor") {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
-                        130,
-                        prefs.rect.height,
+                        this.model.getWidth(),
+                        this.model.getHeight(),//prefs.rect.height,
                         3,
                         3,
                         group, //element.viewAttributes.colour
@@ -125,13 +125,14 @@ var SequenceD = (function (sequenced) {
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
                     //lifeLine.call(drag);
+                    yValue += 60;
                     for (var id in this.modelAttr("children").models) {
-                        yValue += 60;
                         var processor = this.modelAttr("children").models[id];
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
                         processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                         processor.setY(yValue);
+                        yValue += processor.getHeight()+ 30;
                     }
 
 
@@ -144,13 +145,16 @@ var SequenceD = (function (sequenced) {
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
 
+                    var totalHeight=0;
+
                     for (var id in this.modelAttr("containableProcessorElements").models) {
 
                         var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                         var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
                         containableProcessorElementView.render("#diagramWrapper", processorCenterPoint);
-                        yValue = yValue+200;
+                        yValue = yValue+containableProcessorElement.getHeight();
+                        totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
                         //var processor = this.modelAttr("children").models[id];
                         //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
@@ -158,7 +162,13 @@ var SequenceD = (function (sequenced) {
                         //processorView.render("#diagramWrapper", processorCenterPoint);
                         //processor.setY(yValue);
                     }
-
+                       this.model.setHeight(totalHeight);
+                } else if(this.model.model.type === "Custom") {
+                    if(!_.isUndefined(this.model.model.initMethod)){
+                        this.viewRoot = group;
+                        this.model.set('center', center);
+                        this.model.model.initMethod(this);
+                    }
                 }
 
                 /*var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
@@ -199,7 +209,7 @@ var SequenceD = (function (sequenced) {
                     Diagrams.Views.DiagramElementView.prototype.render.call(this, paperID);
                     var d3ref = this.getD3Ref();
 
-                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint, this.model.destination().centerPoint)
+                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint())
                         .classed(this.options.class, true);
 
                     //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
@@ -228,7 +238,6 @@ var SequenceD = (function (sequenced) {
             },
 
             handleDropEvent: function (event, ui) {
-                console.log("dropped in to LifeLineView ")
             },
 
             verticalDrag: function () {
@@ -238,15 +247,14 @@ var SequenceD = (function (sequenced) {
                 return false;
             },
 
-            thisModel: '',
-
             renderTitle: function () {
-                console.log("lifeline rendered again due to its title change");
-                this.d3el.title.text(this.model.attributes.title);
-                this.d3el.titleBottom.text(this.model.attributes.title);
-                if (propertyPane) {
-                    if (propertyPane.schema.title === thisModel.getSchema().title) {
-                        propertyPane.setValue(thisModel.getEditableProperties());
+                if (this.d3el) {
+                    this.d3el.svgTitle.text(this.model.attributes.title);
+                    this.d3el.svgTitleBottom.text(this.model.attributes.title);
+                    if (propertyPane) {
+                        if (propertyPane.schema.title === diagram.selectedNode.getSchema().title) {
+                            propertyPane.setValue(diagram.selectedNode.getEditableProperties());
+                        }
                     }
                 }
             },
@@ -272,28 +280,32 @@ var SequenceD = (function (sequenced) {
                     var yValue = centerPoint.y();
 
                     lifeLine.call(drag);
+                    yValue += 60;
                     for (var id in this.modelAttr("children").models) {
-                        yValue += 60;
+
                         if (this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
                             var processor = this.modelAttr("children").models[id];
                             var processorView = new SequenceD.Views.Processor({
                                 model: processor,
                                 options: lifeLineOptions
                             });
+
                             var processorCenterPoint = createPoint(xValue, yValue);
                             processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                             processor.setY(yValue);
+                            yValue += processor.getHeight()+ 30;
                         } else {
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
                             //link.source.setY()
-                            if (messagePoint.direction == "inbound") {
-                                messagePoint.centerPoint.y(yValue);
-                                messagePoint.centerPoint.x(xValue);
+                            if (messagePoint.direction() == "inbound") {
+                                messagePoint.y(yValue);
+                                messagePoint.x(xValue);
                             } else {
-                                messagePoint.centerPoint.y(yValue);
-                                messagePoint.centerPoint.x(xValue);
+                                messagePoint.y(yValue);
+                                messagePoint.x(xValue);
                             }
+                            yValue += 60;
                         }
                     }
 
@@ -307,7 +319,7 @@ var SequenceD = (function (sequenced) {
                         var messagePoint = this.modelAttr("children").models[id];
                         if (messagePoint instanceof SequenceD.Models.MessagePoint) {
                             var linkView = new SequenceD.Views.MessageLink({
-                                model: messagePoint.message,
+                                model: messagePoint.message(),
                                 options: {class: "message"}
                             });
                             linkView.render("#diagramWrapper", "messages");
@@ -420,8 +432,10 @@ var SequenceD = (function (sequenced) {
                 Object.getPrototypeOf(group).line = line;
                 Object.getPrototypeOf(group).middleRect = middleRect;
                 Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
-                Object.getPrototypeOf(group).title = text;
-                Object.getPrototypeOf(group).titleBottom = textBottom;
+                group.svgTitle = text;
+                group.svgTitleBottom = textBottom;
+                //Object.getPrototypeOf(group).title = text;
+                //Object.getPrototypeOf(group).titleBottom = textBottom;
                 Object.getPrototypeOf(group).translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
@@ -455,15 +469,16 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('visible', true);
                     udcontrol.set('x', imgRight);
                     udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', thisModel);
+                    udcontrol.set('lifeline', diagram.selectedNode);
                 }
 
                 function updatePropertyPane() {
                     $('#propertySave').show();
-                    propertyPane = ppView.getPropertyPane(thisModel.getSchema(), thisModel.getEditableProperties(), thisModel);
+                    propertyPane = ppView.createPropertyPane( diagram.selectedNode.getSchema(),  diagram.selectedNode.getEditableProperties(),  diagram.selectedNode);
                 }
 
                 rect.on("click", (function () {
+                    diagram.selectedNode = viewObj.model;
                     if (selected) {
                         if (this == selected) {
                             selected.classList.toggle("lifeline_selected");
@@ -708,14 +723,23 @@ var SequenceD = (function (sequenced) {
                 var yValue = centerPoint.y();
                 //lifeLine.call(drag);
 
+                var totalHeight = 60;
+                this.model.setHeight(30);
+
+                yValue += 60;
                 for (var id in this.modelAttr("children").models) {
-                    yValue += 60;
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                     var processorCenterPoint = createPoint(xValue, yValue);
                     processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                     processor.setY(yValue);
+                    totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
+                    yValue += processor.getHeight()+ 30;
                 }
+
+                rectBottomXXX.attr("height", totalHeight);
+                this.model.setHeight(totalHeight);
+                middleRect.attr("height", totalHeight-30);
 
                 return group;
             }
