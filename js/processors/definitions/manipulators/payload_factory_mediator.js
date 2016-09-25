@@ -27,7 +27,10 @@ var Processors = (function (processors) {
         icon: "images/PayloadFactoryMediator.gif",
         colour : "#FFC766",
         type : "UnitProcessor",
-        parameters: []
+        parameters: [],
+        getMySubTree: function (model) {
+            return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator");
+        }
     };
 
     // Add defined mediators to manipulators

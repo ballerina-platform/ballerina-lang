@@ -339,14 +339,15 @@ var SequenceD = (function (sequenced) {
                 return new SequenceD.Models.FixedSizedMediator({title: title, centerPoint: center});
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters) {
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree) {
                 return new SequenceD.Models.Processor({
                     title: title,
                     centerPoint: center,
                     type: type,
                     model: model,
                     viewAttributes: viewAttributes,
-                    parameters: parameters
+                    parameters: parameters,
+                    getMySubTree: getMySubTree
                 });
             },
 
@@ -640,14 +641,15 @@ var SequenceD = (function (sequenced) {
                 return position;
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters) {
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree) {
                 return new SequenceD.Models.Processor({
                     title: title,
                     centerPoint: center,
                     type: type,
                     model: model,
                     viewAttributes: viewAttributes,
-                    parameters: parameters
+                    parameters: parameters,
+                    getMySubTree: getMySubTree
                 });
             },
 

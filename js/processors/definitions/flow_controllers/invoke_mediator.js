@@ -94,7 +94,14 @@ var Processors = (function (processors) {
             }
 
         },
-        parameters: []
+        parameters: [],
+
+        getMySubTree: function (model) {
+            console.log("#########################");
+            console.log(model);
+            console.log("#########################");
+            return new TreeNode("InvokeMediator", "InvokeMediator", "invoke(EP)", ";");
+        }
     };
 
     // Add defined mediators to manipulators

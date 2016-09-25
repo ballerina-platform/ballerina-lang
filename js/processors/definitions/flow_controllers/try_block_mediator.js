@@ -27,7 +27,30 @@ var Processors = (function (processors) {
         icon: "images/TryBlockMediator.gif",
         colour : "#998844",
         type : "ComplexProcessor",
-        parameters: []
+        parameters: [],
+        getMySubTree: function (model) {
+            // Generate Subtree for the try block
+            var tryBlock = model.get('containableProcessorElements').models[0];
+            var tryBlockNode = new TreeNode("TryBlock", "TryBlock", "try{", "}");
+            for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
+                var child = tryBlock.get('children').models[itr];
+                tryBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
+            }
+
+            // Generate the Subtree for the catch block
+            var catchBlock = model.get('containableProcessorElements').models[1];
+            var catchBlockNode = new TreeNode("CatchBlock", "CatchBlock", "catch(exception e){", "}");
+            for (var itr = 0; itr < catchBlock.get('children').models.length; itr++) {
+                var child = catchBlock.get('children').models[itr];
+                catchBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
+            }
+            var tryCatchNode = new TreeNode("TryCatchMediator", "TryCatchMediator", "", "");
+            tryCatchNode.getChildren().push(tryBlockNode);
+            tryCatchNode.getChildren().push(catchBlockNode);
+
+            return tryCatchNode;
+
+        }
     };
 
     // Add defined mediators to manipulators

@@ -27,7 +27,10 @@ var Processors = (function (processors) {
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "DynamicContainableProcessor",
-        parameters: []
+        parameters: [],
+        getMySubTree: function (model) {
+            return new TreeNode("SwitchMediator", "SwitchMediator");
+        }
     };
 
     // Add defined mediators to manipulators

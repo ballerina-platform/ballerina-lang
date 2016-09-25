@@ -354,20 +354,20 @@ var Diagrams = (function (diagrams) {
 
             parseTree: function() {
 
-                function TreeNode (value, type) {
-                    this.object = undefined;
-                    this.children = [];
-                    this.value = value;
-                    this.type = type;
-
-                    this.getChildren = function () {
-                        return this.children;
-                    };
-
-                    this.getValue = function () {
-                        return this.value;
-                    };
-                }
+                //function TreeNode (value, type) {
+                //    this.object = undefined;
+                //    this.children = [];
+                //    this.value = value;
+                //    this.type = type;
+                //
+                //    this.getChildren = function () {
+                //        return this.children;
+                //    };
+                //
+                //    this.getValue = function () {
+                //        return this.value;
+                //    };
+                //}
 
                 function RefMapNode (treeNode, cid, nextVisitPosition) {
                     this.treeNode = treeNode;
@@ -401,66 +401,76 @@ var Diagrams = (function (diagrams) {
 
                 var treeVisitMap = {};
 
-                var buildTree = function (model, resourceNode, isLifeLine) {
+                //var buildTree = function (model, resourceNode, isLifeLine) {
+                //
+                //    var treeNode = undefined;
+                //    var refMapNode = treeVisitMap[model.cid];
+                //
+                //    if (_.isUndefined(refMapNode)) {
+                //
+                //        if (resourceNode) {
+                //            treeNode = new TreeNode(model, "Resource");
+                //        } else if (isLifeLine) {
+                //            treeNode = new TreeNode(model, "LifeLine");
+                //        } else {
+                //            treeNode = new TreeNode(model, model.type);
+                //        }
+                //
+                //        refMapNode = new RefMapNode(treeNode, model.cid, 0);
+                //        treeVisitMap[model.cid] = refMapNode;
+                //    } else {
+                //        treeNode = (treeVisitMap[model.cid]).treeNode;
+                //        treeNode.returnVisited = true;
+                //    }
+                //
+                //    var startPo = refMapNode.nextVisitPosition;
+                //
+                //    for (var itr = startPo; itr < (model.get('children').models).length; itr++) {
+                //        var child = (model.get('children').models)[itr];
+                //        console.log(child.type);
+                //        refMapNode.incrementNextVisitPosition();
+                //        var childNode;
+                //        if (child instanceof SequenceD.Models.MessagePoint && child.direction === "inbound") {
+                //            childNode = buildTree(child.message.destinationPoint.owner, false, true);
+                //            if (!childNode.returnVisited) {
+                //                treeNode.getChildren().push(childNode);
+                //            }
+                //        } else if (!(child instanceof SequenceD.Models.MessagePoint)) {
+                //            childNode = buildTree(child, false, false);
+                //            if (!childNode.returnVisited) {
+                //                treeNode.getChildren().push(childNode);
+                //            }
+                //        }
+                //    }
+                //
+                //    return treeNode;
+                //};
 
-                    var treeNode = undefined;
-                    var refMapNode = treeVisitMap[model.cid];
-
-                    if (_.isUndefined(refMapNode)) {
-
-                        if (resourceNode) {
-                            treeNode = new TreeNode(model, "Resource");
-                        } else if (isLifeLine) {
-                            treeNode = new TreeNode(model, "LifeLine");
-                        } else {
-                            treeNode = new TreeNode(model, model.type);
-                        }
-
-                        refMapNode = new RefMapNode(treeNode, model.cid, 0);
-                        treeVisitMap[model.cid] = refMapNode;
-                    } else {
-                        treeNode = (treeVisitMap[model.cid]).treeNode;
-                        treeNode.returnVisited = true;
+                var buildTree = function (resourceModel) {
+                    var rootNode = new TreeNode("Resource", "Resource", "resource passthrough (message m) {", "}");
+                    for (var itr = 0; itr < (resourceModel.get('children').models).length; itr++) {
+                        var mediator = (resourceModel.get('children').models)[itr];
+                        rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
                     }
-
-                    var startPo = refMapNode.nextVisitPosition;
-
-                    for (var itr = startPo; itr < (model.get('children').models).length; itr++) {
-                        var child = (model.get('children').models)[itr];
-                        console.log(child.type);
-                        refMapNode.incrementNextVisitPosition();
-                        var childNode;
-                        if (child instanceof SequenceD.Models.MessagePoint && child.direction === "inbound") {
-                            childNode = buildTree(child.message.destinationPoint.owner, false, true);
-                            if (!childNode.returnVisited) {
-                                treeNode.getChildren().push(childNode);
-                            }
-                        } else if (!(child instanceof SequenceD.Models.MessagePoint)) {
-                            childNode = buildTree(child, false, false);
-                            if (!childNode.returnVisited) {
-                                treeNode.getChildren().push(childNode);
-                            }
-                        }
-                    }
-
-                    return treeNode;
+                    console.log(rootNode);
+                    return rootNode;
                 };
 
                 var finalSource = "";
 
                 var traverse = function (tree, finalSource) {
                     //console.log(tree);
-                    finalSource = finalSource + "" + tree.type + "{";
+                    finalSource = finalSource + "" + tree.configStart;
                     var arr = tree.getChildren();
                     for (var a = 0; a < arr.length; a++) {
                         var node = arr[a];
                         finalSource = traverse(node, finalSource);
                     }
-                    finalSource = finalSource + "}";
+                    finalSource = finalSource + tree.configEnd;
 
                     return finalSource;
                 };
-                TreeRoot = buildTree(diagram.get('diagramElements').models[0], true, false);
+                TreeRoot = buildTree(diagram.get('diagramElements').models[0]);
                 var x = traverse((TreeRoot), finalSource);
                 console.log(x);
             }

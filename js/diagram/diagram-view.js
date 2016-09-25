@@ -320,7 +320,8 @@ var Diagrams = (function (diagrams) {
                         Processors.manipulators[id].id,
                         {type: Processors.manipulators[id].type || "UnitProcessor", initMethod:Processors.manipulators[id].init},
                         {colour: Processors.manipulators[id].colour},
-                        {parameters: Processors.manipulators[id].parameters}
+                        {parameters: Processors.manipulators[id].parameters},
+                        {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
                     //diagram.trigger("renderDiagram");
@@ -333,7 +334,8 @@ var Diagrams = (function (diagrams) {
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod:Processors.flowControllers[id].init },
                         {colour: Processors.flowControllers[id].colour},
-                        {parameters: Processors.flowControllers[id].parameters}
+                        {parameters: Processors.flowControllers[id].parameters},
+                        {getMySubTree: Processors.flowControllers[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
 
