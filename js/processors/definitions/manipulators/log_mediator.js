@@ -103,7 +103,10 @@ var Processors = (function (processors) {
                     ]
                 }
             }
-        ]
+        ],
+        getMySubTree: function (model) {
+            return new TreeNode("LogMediator", "LogMediator", "log(\"Test\"", ");");
+        }
     };
 
     // Add defined mediators to manipulators

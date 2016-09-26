@@ -141,3 +141,20 @@ var ppView = new Editor.Views.PropertyPaneView();
 propertyPane = ''; //ppView.createPropertyPane(schema, properties);
 lifelineCounter = 0;
 
+function TreeNode (value, type,cStart, cEnd) {
+    this.object = undefined;
+    this.children = [];
+    this.value = value;
+    this.type = type;
+    this.configStart = cStart;
+    this.configEnd = cEnd;
+
+    this.getChildren = function () {
+        return this.children;
+    };
+
+    this.getValue = function () {
+        return this.value;
+    };
+}
+

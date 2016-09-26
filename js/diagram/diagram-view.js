@@ -95,7 +95,6 @@ var Diagrams = (function (diagrams) {
              * @returns {*|void} Returns value if value is not passed. Else void.
              */
             modelAttr: function (name, value) {
-
                 if (value === undefined) {
                     return this.model.get(name);
                 }
@@ -321,7 +320,8 @@ var Diagrams = (function (diagrams) {
                         Processors.manipulators[id].id,
                         {type: Processors.manipulators[id].type || "UnitProcessor", initMethod:Processors.manipulators[id].init},
                         {colour: Processors.manipulators[id].colour},
-                        {parameters: Processors.manipulators[id].parameters}
+                        {parameters: Processors.manipulators[id].parameters},
+                        {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
                     //diagram.trigger("renderDiagram");
@@ -334,7 +334,8 @@ var Diagrams = (function (diagrams) {
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod:Processors.flowControllers[id].init },
                         {colour: Processors.flowControllers[id].colour},
-                        {parameters: Processors.flowControllers[id].parameters}
+                        {parameters: Processors.flowControllers[id].parameters},
+                        {getMySubTree: Processors.flowControllers[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
 
@@ -480,6 +481,17 @@ var Diagrams = (function (diagrams) {
                         lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages");
                     }
                 }
+
+                //var viewObj = this;
+
+                //this.d3svg.append('rect')
+                //    .attr("x", 100)
+                //    .attr("y", 500)
+                //    .attr("width", 100)
+                //    .attr("height", 50)
+                //    .on("mousedown", function () {
+                //        viewObj.model.parseTree();
+                //    });
                 return mainGroup;
             },
 
