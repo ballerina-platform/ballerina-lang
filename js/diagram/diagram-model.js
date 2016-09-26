@@ -32,6 +32,14 @@ var Diagrams = (function (diagrams) {
             initialize: function (attrs, options) {
             },
 
+            parent: function (parent) {
+                if (_.isUndefined(parent)) {
+                    return this.get("parent");
+                } else {
+                    this.set("parent", parent);
+                }
+            },
+
             modelName: "DiagramElement",
 
             nameSpace: diagrams,
