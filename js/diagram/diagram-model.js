@@ -467,7 +467,17 @@ var Diagrams = (function (diagrams) {
                 var finalSource = "";
 
                 var traverse = function (tree, finalSource) {
-                    //console.log(tree);
+                    // Defining the global constants
+                    for (var key in definedConstants) {
+                        if (_.isEqual(key, "HTTPEP")) {
+                            finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
+                                definedConstants[key].value + "\");\n";
+                        }
+                    }
+
+                    // Define the Resource methods and the context path (@GET, @POST, etc and @Path("/resourcePath")")
+
+                    // Define the mediation logic
                     finalSource = finalSource + "" + tree.configStart;
                     var arr = tree.getChildren();
                     for (var a = 0; a < arr.length; a++) {

@@ -158,3 +158,8 @@ function TreeNode (value, type,cStart, cEnd) {
     };
 }
 
+// defining the constants such as the endpoints, this variable need to be positioned properly when restructuring
+// This is a map of constants as --> constantType: constantValue
+// Ex: HttpEP: "http://localhost/test/test2"
+var definedConstants = {};
+
