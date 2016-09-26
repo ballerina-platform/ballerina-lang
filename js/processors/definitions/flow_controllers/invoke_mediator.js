@@ -58,6 +58,9 @@ var Processors = (function (processors) {
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
 
+                    // Set the parent of the message link point
+                    messageLinkPoint.parent(view.model);
+
                     if (_.isEqual(messageLinkPoint.direction(), "inbound")) {
                         var sPX = messageLinkPoint.message().source().x();
                         messageLinkPoint.y(center.y() + 20);
