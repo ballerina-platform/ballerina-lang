@@ -482,16 +482,16 @@ var Diagrams = (function (diagrams) {
                     }
                 }
 
-                var viewObj = this;
+                //var viewObj = this;
 
-                this.d3svg.append('rect')
-                    .attr("x", 100)
-                    .attr("y", 500)
-                    .attr("width", 100)
-                    .attr("height", 50)
-                    .on("mousedown", function () {
-                        viewObj.model.parseTree();
-                    });
+                //this.d3svg.append('rect')
+                //    .attr("x", 100)
+                //    .attr("y", 500)
+                //    .attr("width", 100)
+                //    .attr("height", 50)
+                //    .on("mousedown", function () {
+                //        viewObj.model.parseTree();
+                //    });
                 return mainGroup;
             },
 
@@ -618,14 +618,12 @@ var Diagrams = (function (diagrams) {
                     var sourcePoint = new SequenceD.Models.MessagePoint({
                         x: sourceX,
                         y: sourceY,
-                        direction: "outbound",
-                        owner: viewObj.model.clickedLifeLine
+                        direction: "outbound"
                     });
                     var destinationPoint = new SequenceD.Models.MessagePoint({
                         x: m[0],
                         y: m[1],
-                        direction: "inbound",
-                        owner: diagram.destinationLifeLine
+                        direction: "inbound"
                     });
                     var messageLink = new SequenceD.Models.MessageLink({
                         source: sourcePoint,
