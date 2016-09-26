@@ -61,11 +61,14 @@ var Processors = (function (processors) {
                     if (_.isEqual(messageLinkPoint.direction(), "inbound")) {
                         var sPX = messageLinkPoint.message().source().x();
                         messageLinkPoint.y(center.y() + 20);
-                        view.modelAttr("children").add(messageLinkPoint, {at: 0});
+                        messageLinkPoint.message().source().forceY = true;
+                        messageLinkPoint.message().source().y(messageLinkPoint.y());
+                        view.modelAttr("children").add(messageLinkPoint);
                     } else if (_.isEqual(messageLinkPoint.direction(), "outbound")) {
                         var sPX = messageLinkPoint.message().destination().x();
                         messageLinkPoint.y(center.y() - 20);
-                        view.modelAttr("children").add(messageLinkPoint, {at: 1});
+                        messageLinkPoint.message().destination().y(messageLinkPoint.y());
+                        view.modelAttr("children").add(messageLinkPoint);
                     }
                     if (center.x() > sPX) {
                         messageLinkPoint.x(center.x() - 10);
@@ -74,22 +77,15 @@ var Processors = (function (processors) {
                     }
                 };
 
-                // render messages
-                var inboundPoint = view.modelAttr("children").at(0);
-                if(inboundPoint && inboundPoint instanceof SequenceD.Models.MessagePoint) {
-                    var linkView = new SequenceD.Views.MessageLink({
-                        model: inboundPoint.message(),
-                        options: {class: "message"}
-                    });
-                    linkView.render("#diagramWrapper", "messages");
-                }
-                var outboundPoint = view.modelAttr("children").at(1);
-                if(outboundPoint && outboundPoint instanceof SequenceD.Models.MessagePoint) {
-                    var linkView = new SequenceD.Views.MessageLink({
-                        model: outboundPoint.message(),
-                        options: {class: "message"}
-                    });
-                    linkView.render("#diagramWrapper", "messages");
+                for(var index = 0; index < view.modelAttr("children").length; index++){
+                    var point = view.modelAttr("children").at(index);
+                    if(point && point instanceof SequenceD.Models.MessagePoint && _.isEqual(point.direction(), "outbound")) {
+                        var linkView = new SequenceD.Views.MessageLink({
+                            model: point.message(),
+                            options: {class: "message"}
+                        });
+                        linkView.render("#diagramWrapper", "messages");
+                    }
                 }
             }
 

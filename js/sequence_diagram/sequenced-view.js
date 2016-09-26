@@ -302,6 +302,9 @@ var SequenceD = (function (sequenced) {
                                 messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             } else {
+                                if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
+                                    yValue = messagePoint.y();
+                                }
                                 messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             }

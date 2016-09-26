@@ -80,6 +80,7 @@ var SequenceD = (function (sequenced) {
 
             addChild: function (element, opts) {
                 //this.children().add(element, opts);
+                _.isUndefined(element.setParent)
 
                 var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
                 var index = position.index;
