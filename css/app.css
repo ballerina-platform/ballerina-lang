@@ -139,6 +139,15 @@ svg text::selection { background: none; }
   float: left;
 }
 
+.non-user-selectable{
+   -webkit-touch-callout: none;
+   -webkit-user-select: none;
+   -khtml-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+
 .udcontrol-image {
    width: 20px;
    height: 20px;
