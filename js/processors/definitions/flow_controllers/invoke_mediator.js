@@ -58,16 +58,17 @@ var Processors = (function (processors) {
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
 
-                    // Set the parent of the message link point
-                    messageLinkPoint.parent(view.model);
-
                     if (_.isEqual(messageLinkPoint.direction(), "inbound")) {
+                        // Set the parent of the message link point
+                        messageLinkPoint.parent(diagram.clickedLifeLine);
                         var sPX = messageLinkPoint.message().source().x();
                         messageLinkPoint.y(center.y() + 20);
                         messageLinkPoint.message().source().forceY = true;
                         messageLinkPoint.message().source().y(messageLinkPoint.y());
                         view.modelAttr("children").add(messageLinkPoint);
                     } else if (_.isEqual(messageLinkPoint.direction(), "outbound")) {
+                        // Set the parent of the message link point
+                        messageLinkPoint.parent(view.model);
                         var sPX = messageLinkPoint.message().destination().x();
                         messageLinkPoint.y(center.y() - 20);
                         messageLinkPoint.message().destination().y(messageLinkPoint.y());
@@ -96,10 +97,16 @@ var Processors = (function (processors) {
         parameters: [],
 
         getMySubTree: function (model) {
-            console.log("#########################");
-            console.log(model);
-            console.log("#########################");
-            return new TreeNode("InvokeMediator", "InvokeMediator", "invoke(EP)", ";");
+            var messageLinks = model.get('children').models;
+            var endpoint = undefined;
+            messageLinks.forEach(function (child) {
+                if (_.isEqual(child.get('direction'), "inbound")) {
+                    endpoint = child.get('parent').get('title');
+                } else {
+                    endpoint = "anonymous";
+                }
+            });
+            return new TreeNode("InvokeMediator", "InvokeMediator", ("invoke(" + endpoint + ")"), ";");
         }
     };
 
