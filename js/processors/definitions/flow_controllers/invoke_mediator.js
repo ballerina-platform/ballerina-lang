@@ -55,34 +55,38 @@ var Processors = (function (processors) {
                 });
                 Object.getPrototypeOf(view.viewRoot).rect = rectangle;
 
-                //override addChild
-                view.model.addChild = function (messageLinkPoint, opts) {
-
-                    if (_.isEqual(messageLinkPoint.direction(), "inbound")) {
+                function resyncPointCordinates(messagePoint){
+                    if (_.isEqual(messagePoint.direction(), "inbound")) {
                         // Set the parent of the message link point
-                        messageLinkPoint.parent(diagram.clickedLifeLine);
-                        var sPX = messageLinkPoint.message().source().x();
-                        messageLinkPoint.y(center.y() + 20);
-                        messageLinkPoint.message().source().forceY = true;
-                        messageLinkPoint.message().source().y(messageLinkPoint.y());
-                        view.modelAttr("children").add(messageLinkPoint);
-                    } else if (_.isEqual(messageLinkPoint.direction(), "outbound")) {
+                        messagePoint.parent(diagram.clickedLifeLine);
+                        var sPX = messagePoint.message().source().x();
+                        messagePoint.y(center.y() + 20);
+                        messagePoint.message().source().forceY = true;
+                        messagePoint.message().source().y(messagePoint.y());
+                        view.modelAttr("children").add(messagePoint);
+                    } else if (_.isEqual(messagePoint.direction(), "outbound")) {
                         // Set the parent of the message link point
-                        messageLinkPoint.parent(view.model);
-                        var sPX = messageLinkPoint.message().destination().x();
-                        messageLinkPoint.y(center.y() - 20);
-                        messageLinkPoint.message().destination().y(messageLinkPoint.y());
-                        view.modelAttr("children").add(messageLinkPoint);
+                        messagePoint.parent(view.model);
+                        var sPX = messagePoint.message().destination().x();
+                        messagePoint.y(center.y() - 20);
+                        messagePoint.message().destination().y(messagePoint.y());
+                        view.modelAttr("children").add(messagePoint);
                     }
                     if (center.x() > sPX) {
-                        messageLinkPoint.x(center.x() - 10);
+                        messagePoint.x(center.x() - 10);
                     } else {
-                        messageLinkPoint.x(center.x() + 10);
+                        messagePoint.x(center.x() + 10);
                     }
+                }
+
+                //override addChild
+                view.model.addChild = function (messageLinkPoint, opts) {
+                    resyncPointCordinates(messageLinkPoint);
                 };
 
                 for(var index = 0; index < view.modelAttr("children").length; index++){
                     var point = view.modelAttr("children").at(index);
+                    resyncPointCordinates(point);
                     if(point && point instanceof SequenceD.Models.MessagePoint && _.isEqual(point.direction(), "outbound")) {
                         var linkView = new SequenceD.Views.MessageLink({
                             model: point.message(),
