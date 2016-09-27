@@ -49,7 +49,6 @@ var D3Utils = (function (d3_utils) {
             .attr("height", height)
             .attr("fill", colour)
             .attr("stroke-width", 2)
-            .style("filter", "url(#drop-shadow)")
             .attr("rx", rx)
             .attr("ry", ry);
         var containerRect = parent.append("rect")
@@ -100,7 +99,6 @@ var D3Utils = (function (d3_utils) {
             .attr("height", height)
             .attr("fill", colour || "steelblue")
             .attr("stroke-width", 2)
-            .style("filter", "url(#drop-shadow)")
             .attr("rx", rx)
             .attr("ry", ry);
     };
