@@ -362,50 +362,7 @@ var Diagrams = (function (diagrams) {
 
             parseTree: function() {
 
-                //function TreeNode (value, type) {
-                //    this.object = undefined;
-                //    this.children = [];
-                //    this.value = value;
-                //    this.type = type;
-                //
-                //    this.getChildren = function () {
-                //        return this.children;
-                //    };
-                //
-                //    this.getValue = function () {
-                //        return this.value;
-                //    };
-                //}
-
-                function RefMapNode (treeNode, cid, nextVisitPosition) {
-                    this.treeNode = treeNode;
-                    this.cid = cid;
-                    this.nextVisitPosition = nextVisitPosition;
-                    this.returnVisited = false;
-
-                    this.incrementNextVisitPosition = function () {
-                        this.nextVisitPosition++;
-                    }
-                }
-
                 var TreeRoot;
-
-                //diagram.get('diagramElements').each(function (model) {
-                //    if (model instanceof SequenceD.Models.LifeLine) {
-                //        var node = new TreeNode("resource", "resource");
-                //        node.setObject(model);
-                //        TreeRoot.getChildren().push(node);
-                //        if ((model.get('children').models).length > 0) {
-                //            (model.get('children').models).forEach (function(child) {
-                //                if(child instanceof SequenceD.Models.MessagePoint) {
-                //                    console.log(child);
-                //                }
-                //                var childNode = new TreeNode("child", child.type);
-                //                node.getChildren().push(childNode);
-                //            });
-                //        }
-                //    }
-                //});
 
                 var treeVisitMap = {};
 
@@ -467,13 +424,14 @@ var Diagrams = (function (diagrams) {
                 var finalSource = "";
 
                 var traverse = function (tree, finalSource) {
+                    // TODO: Need to handle this properly
                     // Defining the global constants
-                    for (var key in definedConstants) {
-                        if (_.isEqual(key, "HTTPEP")) {
-                            finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
-                                definedConstants[key].value + "\");\n";
-                        }
-                    }
+                    //for (var key in definedConstants) {
+                    //    if (_.isEqual(key, "HTTPEP")) {
+                    //        finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
+                    //            definedConstants[key].value + "\");\n";
+                    //    }
+                    //}
 
                     // Define the Resource methods and the context path (@GET, @POST, etc and @Path("/resourcePath")")
 
@@ -489,8 +447,7 @@ var Diagrams = (function (diagrams) {
                     return finalSource;
                 };
                 TreeRoot = buildTree(diagram.get('diagramElements').models[0]);
-                var x = traverse((TreeRoot), finalSource);
-                console.log(x);
+                return traverse((TreeRoot), finalSource);
             }
 
         });
