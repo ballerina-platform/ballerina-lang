@@ -27,6 +27,15 @@ var Processors = (function (processors) {
         icon: "images/LogMediator.gif",
         colour : "#2e2eb8",
         type : "UnitProcessor",
+        dragCursorOffset : { left: 37.5, top: -5 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var svgRoot = view.createSVGForDraggable();
+                var rect = svgRoot.draw.basicRect(0, 0, 75, 50, 5, 5).attr("fill-opacity", 1);
+                return svgRoot.getDraggableRoot();
+            }
+            return cloneCallBack;
+        },
         parameters: [
             {
                 key: "level",
