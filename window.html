@@ -172,6 +172,33 @@
 		}
 	</script>
 
+    <script>
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href"); // activated tab
+            // If the changed tab is the source view tab, we need to trigger the source generation in the design view
+            // Fires the event message to the design view
+            // Design view will listen to the event and generate the source from the design
+            if (target == "#sourceViewTab") {
+                var DesignIFrame = document.getElementById("iframe1").contentWindow;
+                DesignIFrame.postMessage("Hello","*");
+            }
+        })
+    </script>
+
+
+    <script>
+        // Listens to the event messages fired by the two children iframes (Source-view and the diagram-view)
+        var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+        var eventer = window[eventMethod];
+        var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+
+        // Listen to message
+        eventer(messageEvent,function(e) {
+            var SourceIFrame = document.getElementById("iframe2").contentWindow;
+            SourceIFrame.postMessage(e.data,"*");
+        },false);
+    </script>
+
     <!-- Bootstrap JS -->
     <script src="lib/bootstrap_v3.3.6/js/bootstrap.min.js"></script>
 

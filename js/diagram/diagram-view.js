@@ -482,16 +482,6 @@ var Diagrams = (function (diagrams) {
                     }
                 }
 
-                //var viewObj = this;
-
-                //this.d3svg.append('rect')
-                //    .attr("x", 100)
-                //    .attr("y", 500)
-                //    .attr("width", 100)
-                //    .attr("height", 50)
-                //    .on("mousedown", function () {
-                //        viewObj.model.parseTree();
-                //    });
                 return mainGroup;
             },
 
