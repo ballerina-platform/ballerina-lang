@@ -460,7 +460,7 @@ var SequenceD = (function (sequenced) {
                 drawMessageRect.on('mouseover', function () {
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
-                        .style("cursor", 'url(http://www.rw-designer.com/cursor-extern.php?id=93354), pointer');
+                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                 }).on('mouseout', function () {
                     d3.select(this).style("fill-opacity", 0.0);
                 }).on('mouseup', function (data) {

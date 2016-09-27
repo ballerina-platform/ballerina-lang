@@ -34,7 +34,7 @@ var Processors = (function (processors) {
                 rectangle.on('mouseover', function () {
                     diagram.selectedNode = view.model;
                     rectangle.style("fill", "green").style("fill-opacity", 1)
-                        .style("cursor", 'url(http://www.rw-designer.com/cursor-extern.php?id=93354), pointer');
+                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                 }).on('mouseout', function () {
                     if(_.isEqual(diagram.selectedNode, view.model)){
                         diagram.destinationLifeLine = null;
