@@ -27,6 +27,17 @@ var Processors = (function (processors) {
         icon: "images/TryBlockMediator.gif",
         colour : "#998844",
         type : "ComplexProcessor",
+        dragCursorOffset : { left: 45, top: -5 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var svgRoot = view.createSVGForDraggable();
+                var group = svgRoot.draw.group(svgRoot).attr("class", "try-block-mediator-tool");
+                var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 3, 3, group);
+                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Try", group);
+                return svgRoot.getDraggableRoot();
+            }
+            return cloneCallBack;
+        },
         parameters: [],
         getMySubTree: function (model) {
             // Generate Subtree for the try block

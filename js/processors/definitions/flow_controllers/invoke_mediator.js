@@ -27,6 +27,15 @@ var Processors = (function (processors) {
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "Custom",
+        dragCursorOffset : { left: 10, top: -5 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var svgRoot = view.createSVGForDraggable();
+                var rect = svgRoot.draw.basicRect(0, 0, 20, 50, 0, 0).attr("fill-opacity", 1);
+                return svgRoot.getDraggableRoot();
+            }
+            return cloneCallBack;
+        },
         init: function (view) {
             if (!_.isUndefined(view.viewRoot)) {
                 var center = view.model.get('center');
