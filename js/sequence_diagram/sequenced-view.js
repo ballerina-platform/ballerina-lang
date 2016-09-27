@@ -702,8 +702,9 @@ var SequenceD = (function (sequenced) {
                     this.modelAttr('title')
                 );
                 console.log("started");
+                var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                    center.y()+100), 150, 200 - prefs.rect.height, 3, 3);
+                    center.y()+100), 150, height, 3, 3);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
                     this.mouseDown(prefs, center.x(), m[1]);
@@ -718,7 +719,24 @@ var SequenceD = (function (sequenced) {
                 });
                 console.log(middleRect);
 
+                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
+                    center.y()+100), (prefs.middleRect.width * 0.4), height, 3, 3, d3Ref)
+                    .on("mousedown", function () {
+                        d3.event.preventDefault();
+                        d3.event.stopPropagation();
+                        var m = d3.mouse(this);
+                        viewObj.mouseDown(prefs, center.x(), m[1]);
+
+                    }).on('mouseover', function () {
+                        diagram.selectedNode = viewObj.model;
+                        d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
+                            .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                    }).on('mouseout', function () {
+                        d3.select(this).style("fill-opacity", 0.0);
+                    });
+
                 Object.getPrototypeOf(group).middleRect = middleRect;
+                Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
                 Object.getPrototypeOf(group).rect = rectBottomXXX;
 
                 var centerPoint = center;
@@ -743,8 +761,14 @@ var SequenceD = (function (sequenced) {
                 rectBottomXXX.attr("height", totalHeight);
                 this.model.setHeight(totalHeight);
                 middleRect.attr("height", totalHeight-30);
+                drawMessageRect.attr("height", totalHeight-30);
 
                 return group;
+            },
+
+            mouseDown: function (prefs, x, y) {
+                prefs.diagram.clickedLifeLine = this.model;
+                prefs.diagram.onLifelineClicked(x, y);
             }
 
         });

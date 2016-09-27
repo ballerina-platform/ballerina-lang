@@ -606,11 +606,13 @@ var Diagrams = (function (diagrams) {
                     var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
 
                     var sourcePoint = new SequenceD.Models.MessagePoint({
+                        model : {type: "messagePoint"},
                         x: sourceX,
                         y: sourceY,
                         direction: "outbound"
                     });
                     var destinationPoint = new SequenceD.Models.MessagePoint({
+                        model : {type: "messagePoint"},
                         x: m[0],
                         y: m[1],
                         direction: "inbound"
