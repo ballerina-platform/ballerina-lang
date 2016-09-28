@@ -27,6 +27,17 @@ var Processors = (function (processors) {
         icon: "images/LogMediator.gif",
         colour : "#2e2eb8",
         type : "UnitProcessor",
+        dragCursorOffset : { left: 45, top: -5 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var svgRoot = view.createSVGForDraggable();
+                var group = svgRoot.draw.group(svgRoot).attr("class", "log-mediator-tool");
+                var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 3, 3, group);
+                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Log", group);
+                return svgRoot.getDraggableRoot();
+            }
+            return cloneCallBack;
+        },
         parameters: [
             {
                 key: "level",
@@ -103,7 +114,10 @@ var Processors = (function (processors) {
                     ]
                 }
             }
-        ]
+        ],
+        getMySubTree: function (model) {
+            return new TreeNode("LogMediator", "LogMediator", "log(\"Test\"", ");");
+        }
     };
 
     // Add defined mediators to manipulators

@@ -95,7 +95,6 @@ var Diagrams = (function (diagrams) {
              * @returns {*|void} Returns value if value is not passed. Else void.
              */
             modelAttr: function (name, value) {
-
                 if (value === undefined) {
                     return this.model.get(name);
                 }
@@ -285,8 +284,8 @@ var Diagrams = (function (diagrams) {
                 var opts = options.options || {};
                 opts.selector = opts.selector || ".editor";
                 opts.diagram = opts.diagram || {};
-                opts.diagram.height = opts.diagram.height || "2400";
-                opts.diagram.width = opts.diagram.width || "2400";
+                opts.diagram.height = opts.diagram.height || "100%";
+                opts.diagram.width = opts.diagram.width || "100%";
                 opts.diagram.class = opts.diagram.class || "diagram";
                 opts.diagram.selector = opts.diagram.selector || ".diagram";
                 opts.diagram.wrapper = opts.diagram.wrapper || {};
@@ -297,6 +296,77 @@ var Diagrams = (function (diagrams) {
                 this.options = opts;
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
+
+                var container = d3.select(this.options.selector);
+                if (_.isUndefined(container)) {
+                    throw this.options.selector + " is not a valid query selector for container";
+                }
+                // wrap d3 with custom drawing apis
+                container = D3Utils.decorate(container);
+
+                var svg = container.draw.svg(this.options.diagram);
+                this.d3svg = svg;
+
+                /*var svgPanNZoom = $(svg.node()).svgPanZoom({
+                    events: {
+
+                        // enables mouse wheel zooming events
+                        mouseWheel: true,
+
+                        // enables double-click to zoom-in events
+                        doubleClick: false,
+
+                        // enables drag and drop to move the SVG events
+                        drag: true,
+
+                        // cursor to use while dragging the SVG
+                        dragCursor: "move"
+                    },
+
+                    // time in milliseconds to use as default for animations.
+                    // Set 0 to remove the animation
+                    animationTime: 300,
+
+                    // how much to zoom-in or zoom-out
+                    zoomFactor: 0.25,
+
+                    // maximum zoom in, must be a number bigger than 1
+                    maxZoom: 3,
+
+                    // how much to move the viewBox when calling .panDirection() methods
+                    panFactor: 100,
+
+                    // the initial viewBox, if null or undefined will try to use the viewBox set in the svg tag.
+                    // Also accepts string in the format "X Y Width Height"
+                    initialViewBox: {
+
+                        // the top-left corner X coordinate
+                        x: 0,
+
+                        // the top-left corner Y coordinate
+                        y: 0,
+
+                        // the width of the viewBox
+                        width: 1000,
+
+                        // the height of the viewBox
+                        height: 1000
+                    },
+
+                    // the limits in which the image can be moved.
+                    // If null or undefined will use the initialViewBox plus 15% in each direction
+                    limits: {
+                        x: -150,
+                        y: -150,
+                        x2: 1150,
+                        y2: 1150
+                    }
+                });
+                $(svg.node()).dblclick(function(){
+                    svgPanNZoom.reset();
+                });
+                */
+
             },
 
 
@@ -321,7 +391,8 @@ var Diagrams = (function (diagrams) {
                         Processors.manipulators[id].id,
                         {type: Processors.manipulators[id].type || "UnitProcessor", initMethod:Processors.manipulators[id].init},
                         {colour: Processors.manipulators[id].colour},
-                        {parameters: Processors.manipulators[id].parameters}
+                        {parameters: Processors.manipulators[id].parameters},
+                        {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
                     //diagram.trigger("renderDiagram");
@@ -334,7 +405,8 @@ var Diagrams = (function (diagrams) {
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod:Processors.flowControllers[id].init },
                         {colour: Processors.flowControllers[id].colour},
-                        {parameters: Processors.flowControllers[id].parameters}
+                        {parameters: Processors.flowControllers[id].parameters},
+                        {getMySubTree: Processors.flowControllers[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
 
@@ -379,16 +451,9 @@ var Diagrams = (function (diagrams) {
 
             render: function () {
 
-                var container = d3.select(this.options.selector);
-                if (_.isUndefined(container)) {
-                    throw this.options.selector + " is not a valid query selector for container";
-                }
-                // wrap d3 with custom drawing apis
-                container = D3Utils.decorate(container);
-
                 //Remove previous diagram
-                if (this.d3svg) {
-                    this.d3svg.remove();
+                if (this.d3el) {
+                    this.d3el.remove();
                     for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
@@ -396,15 +461,14 @@ var Diagrams = (function (diagrams) {
                     // When re-rendering the same event handler do not need to re-register.
                     // Otherwise same function will call for multiple times.
                     this.model.on("addElement", this.onAddElement, this);
-                    this.model.on("llClicked", this.onLifelineClicked, this);
                     this.model.on("renderDiagram", this.renderDiagram);
                 }
                 diagramViewElements = [];
-                var svg = container.draw.svg(this.options.diagram);
 
-                var definitions = svg.append("defs");
 
-                var mainGroup = svg.draw.group(svg).attr("id", this.options.diagram.wrapper.id)
+                var definitions = this.d3svg.append("defs");
+
+                var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapper.id)
                     .attr("width", "100%")
                     .attr("height", "100%");
 
@@ -443,7 +507,7 @@ var Diagrams = (function (diagrams) {
                     .attr("in", "SourceGraphic");
 
 
-                this.d3svg = svg;
+
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
@@ -451,13 +515,6 @@ var Diagrams = (function (diagrams) {
                     drop: this.handleDropEvent,
                     tolerance: "pointer"
                 });
-                this.htmlDiv.draggable({
-                    //drag: function( event, ui ) {
-                    //}
-                });
-
-                this.htmlDiv.attr("ondragstart", "return false");
-
                 for (var id in this.model.attributes.diagramElements.models) {
                     if (this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
                         var lifeLine = this.model.attributes.diagramElements.models[id];
@@ -505,13 +562,24 @@ var Diagrams = (function (diagrams) {
                 return this.options.diagram.grid.height;
             },
 
-            onMessageDrawEnd: function(sourceModel, destinationPoint) {
+            onMessageDrawEnd: function(sourceModel, sourcePoint, destinationPoint) {
+
+                var destinationModel = null;
                 if (this.model.destinationLifeLine) {
-                    this.model.destinationLifeLine.addChild(destinationPoint);
+                    destinationModel = this.model.destinationLifeLine;
                     this.model.destinationLifeLine = null;
-                }else if(this.model.destinationProcessor){
-                    this.model.destinationProcessor.addChild(destinationPoint);
+                } else if(this.model.destinationProcessor){
+                    destinationModel = this.model.destinationProcessor;
                     this.model.destinationProcessor = null;
+                }
+
+                if(destinationModel){
+                    if(!_.isEqual(sourceModel.cid, destinationModel.cid )){
+                       var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                       var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                       sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                       destinationModel.addChild(destinationPoint, messageOptionsInbound);
+                    }
                 }
                 this.render();
             },
@@ -547,15 +615,14 @@ var Diagrams = (function (diagrams) {
                         endpoint = new GeoCore.Models.Point({x:line.attr("x2"), y:line.attr("y2")});
                     line.remove();
 
-                    var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                    var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-
                     var sourcePoint = new SequenceD.Models.MessagePoint({
+                        model : {type: "messagePoint"},
                         x: startPoint.x(),
                         y: startPoint.y(),
                         direction: "outbound"
                     });
                     var destinationPoint = new SequenceD.Models.MessagePoint({
+                        model : {type: "messagePoint"},
                         x: endpoint.x(),
                         y: endpoint.y(),
                         direction: "inbound"
@@ -564,74 +631,7 @@ var Diagrams = (function (diagrams) {
                         source: sourcePoint,
                         destination: destinationPoint
                     });
-
-                    sourceModel.addChild(sourcePoint, messageOptionsOutbound);
-                    diagView.model.trigger("messageDrawEnd", sourceModel, destinationPoint);
-
-                });
-            },
-
-            onLifelineClicked: function (x, y) {
-                var sourceX = x;
-                var sourceY = y;
-                var line = this.d3svg.append("line")
-                    .attr("x1", x)
-                    .attr("y1", y)
-                    .attr("x2", x)
-                    .attr("y2", y)
-                    .attr("marker-end", "url(#markerArrow)")
-                    .attr("class", "message")
-                    .attr("id", "dynamicLine");
-
-                var viewObj = this;
-                this.d3svg.on("mousemove", function () {
-                    var m = d3.mouse(this);
-                    line.attr("x2", m[0]);
-                    line.attr("y2", m[1]).attr("marker-end", "url(#markerArrow)");
-                });
-
-                this.d3svg.on("mouseup", function () {
-                    var m = d3.mouse(this);
-
-                    // Removing the registered mouse events from the svg
-                    viewObj.d3svg.on("mousemove", null)
-                        .on("mouseup", null);
-                    var l = document.getElementById("dynamicLine");
-                    var parent = l.parentNode;
-                    parent.removeChild(l);
-
-                    var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                    var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-
-                    var sourcePoint = new SequenceD.Models.MessagePoint({
-                        x: sourceX,
-                        y: sourceY,
-                        direction: "outbound"
-                    });
-                    var destinationPoint = new SequenceD.Models.MessagePoint({
-                        x: m[0],
-                        y: m[1],
-                        direction: "inbound"
-                    });
-                    var messageLink = new SequenceD.Models.MessageLink({
-                        source: sourcePoint,
-                        destination: destinationPoint
-                    });
-                    sourcePoint.message(messageLink);
-                    destinationPoint.message(messageLink);
-
-                    var clickedLifeLine = viewObj.model.clickedLifeLine;
-                    clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
-
-                    if (diagram.destinationLifeLine) {
-                        if (viewObj.model.clickedLifeLine.get('centerPoint').x() != diagram.destinationLifeLine.get('centerPoint').x()) {
-                            diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
-                            diagram.destinationLifeLine = null;
-                            diagramView.render();
-                        }
-                    } else {
-                        diagram.trigger("messageDrawEnd", viewObj.model.clickedLifeLine, destinationPoint);
-                    }
+                    diagView.model.trigger("messageDrawEnd", sourceModel, sourcePoint, destinationPoint);
 
                 });
             }

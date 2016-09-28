@@ -31,15 +31,32 @@ var Tools = (function (tools) {
         render: function () {
             var id = this.model.attributes.id;
             var icon = this.model.attributes.icon;
+            var createCloneCallback = this.model.get("createCloneCallback");
+            var dragCursorOffset = this.model.get("dragCursorOffset");
+            var self = this;
             this.$el.html(this.toolTemplate(this.model.attributes));
             this.$el.draggable({
-                helper: 'clone',
+                helper: _.isUndefined(createCloneCallback) ?  'clone' : createCloneCallback(self),
                 cursor: 'move',
+                cursorAt: _.isUndefined(dragCursorOffset) ?  { left: -2, top: -2 } : dragCursorOffset,
+                zIndex: 10001,
                 stop: this.handleDragStopEvent
             });
             
             return this;
+        },
+
+        createSVGForDraggable: function(){
+            var body = d3.select("body");
+            var div = body.append("div").attr("id", "draggingToolClone");
+            div =  D3Utils.decorate(div);
+            var svg = div.draw.svg({height: "100px", width: "100px", class: "test"});
+            svg.getDraggableRoot = function(){
+              return div.node();
+            };
+            return D3Utils.decorate(svg);
         }
+
     });
 
     views.ToolView = toolView;

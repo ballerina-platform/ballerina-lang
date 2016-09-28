@@ -35,13 +35,11 @@ var Editor = (function (editor) {
             $('#expand-image').click(function (){
                 if ($('#property-container1').width() == 240) {
                     $('#property-container1').css("width", 20);
-                    $('#editorBottom').css("width", "calc(100vw - 260px)");
                     $('#expand-image').attr("src", "images/leftarrow.svg");
                     $('#propertyPaneContainer').hide();
                     $('#propertySave').hide();
                 } else {
                     $('#property-container1').css("width", 240);
-                    $('#editorBottom').css("width", "calc(100vw - 480px)");
                     $('#expand-image').attr("src", "images/rightarrow.svg");
                     $('#propertyPaneContainer').show();
                     $('#propertySave').show();

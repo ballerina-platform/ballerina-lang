@@ -13,39 +13,34 @@
 	<div id="container"></div>
 	<script src="lib/monaco-editor_v0.6.1/min/vs/loader.js"></script>
 	<script>
-	require.config({ paths: { 'vs': 'lib/monaco-editor_v0.6.1/min/vs' }});
+		var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+		var eventer = window[eventMethod];
+		var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
 
-	require(['vs/editor/editor.main'], function() {
-		var editor = monaco.editor.create(document.getElementById('container'), {
-			value: [
-				'@Path ("/stock")',
-				'@Source (protocol="http", host="localhost", port=8080)',
-				'@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON))',
-				'package com.sample;',
-				'',
-				'constant endpoint stockEP = "http://localhost:8080/exchange/";',
-				'',
-				'@GET',
-				'@PUT',
-				'@POST',
-				'@Path ("/passthrough")',
-				'resource passthrough (message m) {',
-			    '    message response;',
- 			    '    try {',
-        		'        response = invoke(stockEP, m);',
-   			    '    } catch (exception e) {',
-                '        response = new message();',
-        		'        response.setHeader(HTTP.StatusCode, 500);',
-        		'        response.setPayload(Type.JSON, {"error":"backend failed"});',
-    			'    }',
-    			'    reply response;',
-				'}'
-			].join('\n'),
-			language: 'javascript',
-			theme: "vs-dark",
-			automaticLayout: true,
+		require.config({ paths: { 'vs': 'lib/monaco-editor_v0.6.1/min/vs' }});
+
+		require(['vs/editor/editor.main'], function() {
+			editor = monaco.editor.create(document.getElementById('container'), {
+				value: 'test',
+				language: 'javascript',
+				theme: "vs-dark",
+				automaticLayout: true
+			});
 		});
-	});
+
+		// Listen to message from child window
+		eventer(messageEvent,function(e) {
+
+			// Need to get this content from the api resource properties
+			var source = '@Path ("/stock")\n' +
+					'@Source (protocol="http", host="localhost", port=8080)\n' +
+					'@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+					'package com.sample;\n\n';
+			source += e.data;
+			console.log('Source View received message!:  ',e.data);
+			editor.setValue(source);
+		},false);
+
 </script>
 </body>
 </html>

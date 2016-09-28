@@ -31,6 +31,7 @@ var Tools = (function (tools) {
                 var groupWrapperView = new Tools.Views.ToolGroupWrapperView({model: groupWrapper});
                 var wrapperHtml = groupWrapperView.render().el;
                 self.$el.append(wrapperHtml);
+                self.$el.addClass('non-user-selectable');
             });
             return this;
         }

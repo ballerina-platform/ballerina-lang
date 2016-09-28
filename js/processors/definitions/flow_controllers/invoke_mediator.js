@@ -27,6 +27,15 @@ var Processors = (function (processors) {
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "Custom",
+        dragCursorOffset : { left: 10, top: -5 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var svgRoot = view.createSVGForDraggable();
+                var rect = svgRoot.draw.basicRect(0, 0, 20, 50, 0, 0).attr("fill-opacity", 1);
+                return svgRoot.getDraggableRoot();
+            }
+            return cloneCallBack;
+        },
         init: function (view) {
             if (!_.isUndefined(view.viewRoot)) {
                 var center = view.model.get('center');
@@ -34,7 +43,7 @@ var Processors = (function (processors) {
                 rectangle.on('mouseover', function () {
                     diagram.selectedNode = view.model;
                     rectangle.style("fill", "green").style("fill-opacity", 1)
-                        .style("cursor", 'url(http://www.rw-designer.com/cursor-extern.php?id=93354), pointer');
+                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                 }).on('mouseout', function () {
                     if(_.isEqual(diagram.selectedNode, view.model)){
                         diagram.destinationLifeLine = null;
@@ -43,6 +52,8 @@ var Processors = (function (processors) {
                     }
                     rectangle.style("fill", "#334455").style("fill-opacity", 1);
                 }).on('mousedown', function () {
+                    d3.event.preventDefault();
+                    d3.event.stopPropagation();
                     var startPoint = center.clone().move(0, -20);
                     var newStartPointFn = function (endX, endY) {
                         if (startPoint.x() > endX) {
@@ -55,46 +66,68 @@ var Processors = (function (processors) {
                 });
                 Object.getPrototypeOf(view.viewRoot).rect = rectangle;
 
-                //override addChild
-                view.model.addChild = function (messageLinkPoint, opts) {
-
-                    if (_.isEqual(messageLinkPoint.direction(), "inbound")) {
-                        var sPX = messageLinkPoint.message().source().x();
-                        messageLinkPoint.y(center.y() + 20);
-                        view.modelAttr("children").add(messageLinkPoint, {at: 0});
-                    } else if (_.isEqual(messageLinkPoint.direction(), "outbound")) {
-                        var sPX = messageLinkPoint.message().destination().x();
-                        messageLinkPoint.y(center.y() - 20);
-                        view.modelAttr("children").add(messageLinkPoint, {at: 1});
+                function resyncPointCordinates(messagePoint){
+                    if (_.isEqual(messagePoint.direction(), "inbound")) {
+                        var sPX = messagePoint.message().source().x();
+                        messagePoint.y(center.y() + 20);
+                        messagePoint.message().source().forceY = true;
+                        messagePoint.message().source().y(messagePoint.y());
+                        view.modelAttr("children").add(messagePoint);
+                    } else if (_.isEqual(messagePoint.direction(), "outbound")) {
+                        var sPX = messagePoint.message().destination().x();
+                        messagePoint.y(center.y() - 20);
+                        var dest = messagePoint.message().destination();
+                        if(dest.parent()){
+                            dest.x(dest.parent().get("centerPoint").x());
+                        }
+                        dest.forceY = true;
+                        dest.y(messagePoint.y());
+                        view.modelAttr("children").add(messagePoint);
                     }
                     if (center.x() > sPX) {
-                        messageLinkPoint.x(center.x() - 10);
+                        messagePoint.x(center.x() - 10);
                     } else {
-                        messageLinkPoint.x(center.x() + 10);
+                        messagePoint.x(center.x() + 10);
                     }
+                }
+
+                //override addChild
+                view.model.addChild = function (messageLinkPoint, opts) {
+                    // Set the parent of the message link point
+                    messageLinkPoint.parent(view.model);
+                    resyncPointCordinates(messageLinkPoint);
                 };
 
-                // render messages
-                var inboundPoint = view.modelAttr("children").at(0);
-                if(inboundPoint && inboundPoint instanceof SequenceD.Models.MessagePoint) {
-                    var linkView = new SequenceD.Views.MessageLink({
-                        model: inboundPoint.message(),
-                        options: {class: "message"}
-                    });
-                    linkView.render("#diagramWrapper", "messages");
-                }
-                var outboundPoint = view.modelAttr("children").at(1);
-                if(outboundPoint && outboundPoint instanceof SequenceD.Models.MessagePoint) {
-                    var linkView = new SequenceD.Views.MessageLink({
-                        model: outboundPoint.message(),
-                        options: {class: "message"}
-                    });
-                    linkView.render("#diagramWrapper", "messages");
+                for(var index = 0; index < view.modelAttr("children").length; index++){
+                    var point = view.modelAttr("children").at(index);
+                    resyncPointCordinates(point);
+                    if(point && point instanceof SequenceD.Models.MessagePoint && _.isEqual(point.direction(), "outbound")) {
+                        var linkView = new SequenceD.Views.MessageLink({
+                            model: point.message(),
+                            options: {class: "message"}
+                        });
+                        linkView.render("#diagramWrapper", "messages");
+                    }
                 }
             }
 
         },
-        parameters: []
+        parameters: [],
+
+        getMySubTree: function (model) {
+            var messageLinks = model.get('children').models;
+            var endpoint = undefined;
+            messageLinks.forEach(function (child) {
+                if (_.isEqual(child.get('direction'), "inbound")) {
+                    endpoint = child.get('parent').get('title');
+                    // When we define the properties, need to extract the endpoint from the property
+                    definedConstants["HTTPEP"] = {name: endpoint, value: "https://www.google.lk"};
+                } else {
+                    endpoint = "anonymous";
+                }
+            });
+            return new TreeNode("InvokeMediator", "InvokeMediator", ("invoke(" + endpoint + ")"), ";");
+        }
     };
 
     // Add defined mediators to manipulators
