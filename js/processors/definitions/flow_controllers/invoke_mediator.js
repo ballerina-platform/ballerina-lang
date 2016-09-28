@@ -94,7 +94,7 @@ var Processors = (function (processors) {
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
                     // Set the parent of the message link point
-                    messageLinkPoint.parent(view.model);
+                    //messageLinkPoint.parent(view.model);
                     resyncPointCordinates(messageLinkPoint);
                 };
 
@@ -119,7 +119,7 @@ var Processors = (function (processors) {
             var endpoint = undefined;
             messageLinks.forEach(function (child) {
                 if (_.isEqual(child.get('direction'), "inbound")) {
-                    endpoint = child.get('parent').get('title');
+                    endpoint = child.get('message').get('source').get('parent').get('title');
                     // When we define the properties, need to extract the endpoint from the property
                     definedConstants["HTTPEP"] = {name: endpoint, value: "https://www.google.lk"};
                 } else {
