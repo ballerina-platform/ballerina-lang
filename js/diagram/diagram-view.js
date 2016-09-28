@@ -284,8 +284,8 @@ var Diagrams = (function (diagrams) {
                 var opts = options.options || {};
                 opts.selector = opts.selector || ".editor";
                 opts.diagram = opts.diagram || {};
-                opts.diagram.height = opts.diagram.height || "2400";
-                opts.diagram.width = opts.diagram.width || "2400";
+                opts.diagram.height = opts.diagram.height || "100%";
+                opts.diagram.width = opts.diagram.width || "100%";
                 opts.diagram.class = opts.diagram.class || "diagram";
                 opts.diagram.selector = opts.diagram.selector || ".diagram";
                 opts.diagram.wrapper = opts.diagram.wrapper || {};
@@ -296,6 +296,76 @@ var Diagrams = (function (diagrams) {
                 this.options = opts;
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
+
+                var container = d3.select(this.options.selector);
+                if (_.isUndefined(container)) {
+                    throw this.options.selector + " is not a valid query selector for container";
+                }
+                // wrap d3 with custom drawing apis
+                container = D3Utils.decorate(container);
+
+                var svg = container.draw.svg(this.options.diagram);
+                this.d3svg = svg;
+
+                var svgPanNZoom = $(svg.node()).svgPanZoom({
+                    events: {
+
+                        // enables mouse wheel zooming events
+                        mouseWheel: true,
+
+                        // enables double-click to zoom-in events
+                        doubleClick: false,
+
+                        // enables drag and drop to move the SVG events
+                        drag: true,
+
+                        // cursor to use while dragging the SVG
+                        dragCursor: "move"
+                    },
+
+                    // time in milliseconds to use as default for animations.
+                    // Set 0 to remove the animation
+                    animationTime: 300,
+
+                    // how much to zoom-in or zoom-out
+                    zoomFactor: 0.25,
+
+                    // maximum zoom in, must be a number bigger than 1
+                    maxZoom: 3,
+
+                    // how much to move the viewBox when calling .panDirection() methods
+                    panFactor: 100,
+
+                    // the initial viewBox, if null or undefined will try to use the viewBox set in the svg tag.
+                    // Also accepts string in the format "X Y Width Height"
+                    initialViewBox: {
+
+                        // the top-left corner X coordinate
+                        x: 0,
+
+                        // the top-left corner Y coordinate
+                        y: 0,
+
+                        // the width of the viewBox
+                        width: 1000,
+
+                        // the height of the viewBox
+                        height: 1000
+                    },
+
+                    // the limits in which the image can be moved.
+                    // If null or undefined will use the initialViewBox plus 15% in each direction
+                    limits: {
+                        x: -150,
+                        y: -150,
+                        x2: 1150,
+                        y2: 1150
+                    }
+                });
+                $(svg.node()).dblclick(function(){
+                    svgPanNZoom.reset();
+                });
+
             },
 
 
@@ -380,16 +450,9 @@ var Diagrams = (function (diagrams) {
 
             render: function () {
 
-                var container = d3.select(this.options.selector);
-                if (_.isUndefined(container)) {
-                    throw this.options.selector + " is not a valid query selector for container";
-                }
-                // wrap d3 with custom drawing apis
-                container = D3Utils.decorate(container);
-
                 //Remove previous diagram
-                if (this.d3svg) {
-                    this.d3svg.remove();
+                if (this.d3el) {
+                    this.d3el.remove();
                     for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
@@ -401,11 +464,11 @@ var Diagrams = (function (diagrams) {
                     this.model.on("renderDiagram", this.renderDiagram);
                 }
                 diagramViewElements = [];
-                var svg = container.draw.svg(this.options.diagram);
 
-                var definitions = svg.append("defs");
 
-                var mainGroup = svg.draw.group(svg).attr("id", this.options.diagram.wrapper.id)
+                var definitions = this.d3svg.append("defs");
+
+                var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapper.id)
                     .attr("width", "100%")
                     .attr("height", "100%");
 
@@ -444,7 +507,7 @@ var Diagrams = (function (diagrams) {
                     .attr("in", "SourceGraphic");
 
 
-                this.d3svg = svg;
+
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
@@ -452,13 +515,6 @@ var Diagrams = (function (diagrams) {
                     drop: this.handleDropEvent,
                     tolerance: "pointer"
                 });
-                this.htmlDiv.draggable({
-                    //drag: function( event, ui ) {
-                    //}
-                });
-
-                this.htmlDiv.attr("ondragstart", "return false");
-
                 for (var id in this.model.attributes.diagramElements.models) {
                     if (this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
                         var lifeLine = this.model.attributes.diagramElements.models[id];
@@ -481,7 +537,6 @@ var Diagrams = (function (diagrams) {
                         lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages");
                     }
                 }
-
                 return mainGroup;
             },
 
