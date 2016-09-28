@@ -40,7 +40,7 @@ var Processors = (function (processors) {
         },
         parameters: [],
         getMySubTree: function (model) {
-            return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator");
+            return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator", "payloadFactory {", "}");
         }
     };
 
