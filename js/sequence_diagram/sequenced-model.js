@@ -80,7 +80,7 @@ var SequenceD = (function (sequenced) {
 
             addChild: function (element, opts) {
                 //this.children().add(element, opts);
-                _.isUndefined(element.setParent)
+                element.parent(this);
 
                 var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
                 var index = position.index;
@@ -361,6 +361,7 @@ var SequenceD = (function (sequenced) {
             addChild: function (element, opts) {
                 //this.children().add(element, opts);
 
+                element.parent(this);
                 if (element instanceof SequenceD.Models.Processor) {
                     var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
                     var index = position.index;

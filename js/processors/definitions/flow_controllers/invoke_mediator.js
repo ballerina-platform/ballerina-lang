@@ -68,16 +68,12 @@ var Processors = (function (processors) {
 
                 function resyncPointCordinates(messagePoint){
                     if (_.isEqual(messagePoint.direction(), "inbound")) {
-                        // Set the parent of the message link point
-                        messagePoint.parent(diagram.clickedLifeLine);
                         var sPX = messagePoint.message().source().x();
                         messagePoint.y(center.y() + 20);
                         messagePoint.message().source().forceY = true;
                         messagePoint.message().source().y(messagePoint.y());
                         view.modelAttr("children").add(messagePoint);
                     } else if (_.isEqual(messagePoint.direction(), "outbound")) {
-                        // Set the parent of the message link point
-                        messagePoint.parent(view.model);
                         var sPX = messagePoint.message().destination().x();
                         messagePoint.y(center.y() - 20);
                         messagePoint.message().destination().y(messagePoint.y());
@@ -92,6 +88,8 @@ var Processors = (function (processors) {
 
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
+                    // Set the parent of the message link point
+                    messageLinkPoint.parent(view.model);
                     resyncPointCordinates(messageLinkPoint);
                 };
 
