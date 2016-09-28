@@ -76,7 +76,12 @@ var Processors = (function (processors) {
                     } else if (_.isEqual(messagePoint.direction(), "outbound")) {
                         var sPX = messagePoint.message().destination().x();
                         messagePoint.y(center.y() - 20);
-                        messagePoint.message().destination().y(messagePoint.y());
+                        var dest = messagePoint.message().destination();
+                        if(dest.parent()){
+                            dest.x(dest.parent().get("centerPoint").x());
+                        }
+                        dest.forceY = true;
+                        dest.y(messagePoint.y());
                         view.modelAttr("children").add(messagePoint);
                     }
                     if (center.x() > sPX) {

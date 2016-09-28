@@ -298,7 +298,10 @@ var SequenceD = (function (sequenced) {
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
                             //link.source.setY()
-                            if (messagePoint.direction() == "inbound") {
+                            if (messagePoint.direction() == "outbound") {
+                                if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
+                                    yValue = messagePoint.y();
+                                }
                                 messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             } else {
