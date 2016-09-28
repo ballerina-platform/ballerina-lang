@@ -52,6 +52,8 @@ var Processors = (function (processors) {
                     }
                     rectangle.style("fill", "#334455").style("fill-opacity", 1);
                 }).on('mousedown', function () {
+                    d3.event.preventDefault();
+                    d3.event.stopPropagation();
                     var startPoint = center.clone().move(0, -20);
                     var newStartPointFn = function (endX, endY) {
                         if (startPoint.x() > endX) {
