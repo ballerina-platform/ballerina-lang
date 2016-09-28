@@ -180,3 +180,21 @@
     opacity: 0.6;
     filter: alpha(opacity=60);
 }
+
+.nav-tabs > li {
+    position:relative;
+}
+.nav-tabs > li > a {
+    display:inline-block;
+}
+.nav-tabs > li > span {
+    display:none;
+    cursor:pointer;
+    position:absolute;
+    right: 6px;
+    top: 8px;
+    color: red;
+}
+.nav-tabs > li:hover > span {
+    display: inline-block;
+}

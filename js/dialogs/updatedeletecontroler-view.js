@@ -19,6 +19,7 @@
 var Dialogs = (function (dialogs) {
     var views = dialogs.Views || {};
 
+
     var udcontrolView = Backbone.View.extend({
 
         el: '#udcontroldiv',

@@ -23,17 +23,44 @@
         <div class="shapes-container">
             <div id="toolpalatte"></div>
         </div>
+
         <div class="editor-container" id="editorBottom">
+            <div>
+                <ul class="nav nav-tabs"  role="tablist">
+                    <li><a href="#" class="add-resource">+</a></li>
+                </ul>
+            </div>
+            <div class="resource-content gradient-pattern">
+
+            </div>
+            <script type="text/template" id="resourceTabsTemplate">
+
+                <li class="series"><a href="<%=resourceId%>" data-toggle="tab"><%=resourceTitle%></a></li>
+
+
+                </script>
+            <script type="text/template" id="resourceContentTemplate">
+                <div class="tab-pane divr" id="<%=resourceId%>"></div>
+                </script>
+
+
+
             <div class="editor-scroller">
                 <div id="udcontroldiv" >
                     <img id="edit-image" alt="edit" src="images/edit.svg" class="udcontrol-image"/>
                     <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
                     <div id="udcModal" style="display:none;"></div>
                 </div>
+
                 <div class="editor gradient-pattern">
 
                 </div>
+
+
             </div>
+
+
+
         </div>
         <div class="property-container" id="property-container1">
             <div id="expandcolapseDiv" style="float: left;" >
@@ -100,6 +127,9 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
 <script src="js/sequence_diagram/sequenced-model.js"></script>
 <script src="js/sequence_diagram/sequenced-view.js"></script>
 <script src="js/sequence_diagram/sequenced-utils.js"></script>
+<script src="js/dialogs/resourceModel.js"></script>
+<script src="js/dialogs/resource-view.js"></script>
+<script src="js/dialogs/resourcecollection-view.js"></script>
 <script src="js/app.js"></script>
 
 <script>

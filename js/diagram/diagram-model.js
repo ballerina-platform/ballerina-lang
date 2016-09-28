@@ -489,6 +489,25 @@ var Diagrams = (function (diagrams) {
             }
 
         });
+// List of diagrams
+        var DiagramList = Backbone.Collection.extend(
+                {
+                            /**
+                             * @augments Backbone.Collection
+                             * @constructs
+                             * @class Diagrams represents the collection for elements in a diagram.
+                             */
+                            initialize: function (models, options) {
+                            },
+
+                            modelName: "DiagramList",
+
+                            nameSpace: diagrams,
+
+                            model: Diagram
+
+                        });
+
 
     models.DiagramElement = DiagramElement;
     models.DiagramElements = DiagramElements;
@@ -497,7 +516,9 @@ var Diagrams = (function (diagrams) {
     models.Link = Link;
     models.Connection = Connection;
     models.ConnectionPoint = ConnectionPoint;
+    models.DiagramList = DiagramList;
     diagrams.Models = models;
+
 
     return diagrams;
 }(Diagrams || {}));
