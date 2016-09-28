@@ -45,14 +45,14 @@ public class TestUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestUtil.class);
 
     public static final int TEST_SERVER_PORT = 9000;
-    public static final int TEST_ESB_PORT = 8080;
+    public static final int TEST_ESB_PORT = 8490;
     public static final String TEST_HOST = "localhost";
 
     public static final int RESPONSE_WAIT_TIME = 10000;
     public static final int SERVERS_SETUP_TIME = 10000;
     public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
 
-    public static final String TRANSPORT_URI = "http://localhost:8080/";
+    public static final String TRANSPORT_URI = "http://localhost:8490/";
 
     public static void cleanUp(NettyListener nettyListener, HTTPServer httpServer) {
         try {

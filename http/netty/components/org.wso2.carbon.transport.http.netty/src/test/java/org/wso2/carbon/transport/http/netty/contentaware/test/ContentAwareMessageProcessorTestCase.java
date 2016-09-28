@@ -51,7 +51,7 @@ public class ContentAwareMessageProcessorTestCase {
     private SenderConfiguration senderConfiguration;
 
     private HTTPServer httpServer;
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8080));
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
     @BeforeClass(groups = "contentaware",
                  dependsOnGroups = "passthroughPost")

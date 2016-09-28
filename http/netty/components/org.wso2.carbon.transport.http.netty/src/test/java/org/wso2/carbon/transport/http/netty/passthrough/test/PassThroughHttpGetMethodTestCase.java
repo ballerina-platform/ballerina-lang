@@ -55,7 +55,7 @@ public class PassThroughHttpGetMethodTestCase {
 
     private SenderConfiguration senderConfiguration;
 
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8080));
+    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
     @BeforeClass(groups = "passthroughGET")
     public void setUp() {
