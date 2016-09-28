@@ -307,7 +307,7 @@ var Diagrams = (function (diagrams) {
                 var svg = container.draw.svg(this.options.diagram);
                 this.d3svg = svg;
 
-                var svgPanNZoom = $(svg.node()).svgPanZoom({
+                /*var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
 
                         // enables mouse wheel zooming events
@@ -365,6 +365,7 @@ var Diagrams = (function (diagrams) {
                 $(svg.node()).dblclick(function(){
                     svgPanNZoom.reset();
                 });
+                */
 
             },
 
