@@ -63,14 +63,15 @@ var lifeline = new Tools.Models.Tool({
     id: "LifeLine",
     title: "Lifeline",
     icon: "images/icon1.png",
-    dragCursorOffset : { left: 30, top: 40 },
-    createCloneCallback : function(view){
+    dragCursorOffset: {left: 30, top: 40},
+    createCloneCallback: function (view) {
         function cloneCallBack() {
             var svgRoot = view.createSVGForDraggable();
             var line = svgRoot.draw.line(30, 10, 30, 60, svgRoot).attr("class", 'lifeline-tool-line');
             var rect = svgRoot.draw.basicRect(0, 0, 60, 20, 0, 0, svgRoot).attr("class", 'lifeline-tool-rect');
             return svgRoot.getDraggableRoot();
         }
+
         return cloneCallBack;
     },
 });
@@ -151,7 +152,7 @@ var ppView = new Editor.Views.PropertyPaneView();
 propertyPane = ''; //ppView.createPropertyPane(schema, properties);
 lifelineCounter = 0;
 
-function TreeNode (value, type,cStart, cEnd) {
+function TreeNode(value, type, cStart, cEnd) {
     this.object = undefined;
     this.children = [];
     this.value = value;
@@ -187,9 +188,8 @@ $('.gradient-pattern').on('click', function () {
         $('#propertyPane').empty();
         $('#propertySave').show();
 
-        propertyPane =
-            ppView.createPropertyPane(diagram.getDefinitionSchema(), diagram.getDefinitionEditableProperties(),
-                                      diagram);
+        propertyPane = ppView.createPropertyPane(diagram.getDefinitionSchema(),
+                                                 diagram.getDefinitionEditableProperties(), diagram);
     }
 });
 
