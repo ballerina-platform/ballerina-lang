@@ -33,10 +33,10 @@ var D3Utils = (function (d3_utils) {
         return parent.draw.circle(point.x(), point.y(), r);
     };
 
-    var rectWithTitle = function (center, width, height, containerHeight, rx, ry, parent, colour, title) {
+    var rectWithTitle = function (center, width, height, containerWidth, containerHeight, rx, ry, parent, colour, title) {
         parent = parent || d3Ref;
 
-        x = center.x() - width / 2;
+        x = center.x() - containerWidth / 2;
         y = center.y() - height / 2;
 
         rx = rx || 0;
@@ -48,14 +48,16 @@ var D3Utils = (function (d3_utils) {
             .attr("width", width)
             .attr("height", height)
             .attr("fill", colour)
+            .attr("stroke", "black")
             .attr("stroke-width", 2)
+            .attr("fill-opacity", 0.2)
             .attr("rx", rx)
             .attr("ry", ry);
         var containerRect = parent.append("rect")
             .attr("id", "containerRect")
             .attr("x", x)
             .attr("y", y)
-            .attr("width", width)
+            .attr("width", containerWidth)
             .attr("height", containerHeight)
             .attr("fill", "grey")
             .attr("stroke", "black")
@@ -66,7 +68,7 @@ var D3Utils = (function (d3_utils) {
         parent.append("text")
             .attr("x", x + 20)
             .attr("y", y + 19)
-            .attr("fill", "white")
+            .attr("fill", "black")
             .text(title);
         return containerRect;
     };

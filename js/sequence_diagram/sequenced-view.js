@@ -92,8 +92,9 @@ var SequenceD = (function (sequenced) {
 
                     console.log("Processor added");
                     var rectBottomXXX = d3Ref.draw.rectWithTitle(center,
-                        150,
+                        75,
                         prefs.rect.height,
+                        150,
                         200,
                         3,
                         3,
@@ -364,8 +365,9 @@ var SequenceD = (function (sequenced) {
                         var rectBottomXXX = d3Ref.draw.rectWithTitle(
                             createPoint(diagram.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
-                            150,
+                            75,
                             this.prefs.rect.height,
+                            150,
                             200,
                             3,
                             3,
@@ -379,8 +381,9 @@ var SequenceD = (function (sequenced) {
                         var rectBottomXXX = d3Ref.draw.rectWithTitle(
                             createPoint(diagram.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
-                            150,
+                            75,
                             this.prefs.rect.height,
+                            150,
                             200,
                             3,
                             3,
@@ -695,8 +698,9 @@ var SequenceD = (function (sequenced) {
 
                 var rectBottomXXX = d3Ref.draw.rectWithTitle(
                     center,
-                    150,
+                    75,
                     prefs.rect.height,
+                    150,
                     200,
                     3,
                     3,
