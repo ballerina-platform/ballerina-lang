@@ -322,10 +322,6 @@ var Diagrams = (function (diagrams) {
                 }
             },
 
-            onLifelineClicked: function (x, y) {
-                this.trigger("llClicked", x, y);
-            },
-
             clickedLifeLine: undefined,
 
             positionTemp: undefined,

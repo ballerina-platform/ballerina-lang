@@ -460,7 +460,6 @@ var Diagrams = (function (diagrams) {
                     // When re-rendering the same event handler do not need to re-register.
                     // Otherwise same function will call for multiple times.
                     this.model.on("addElement", this.onAddElement, this);
-                    this.model.on("llClicked", this.onLifelineClicked, this);
                     this.model.on("renderDiagram", this.renderDiagram);
                 }
                 diagramViewElements = [];
@@ -562,13 +561,24 @@ var Diagrams = (function (diagrams) {
                 return this.options.diagram.grid.height;
             },
 
-            onMessageDrawEnd: function(sourceModel, destinationPoint) {
+            onMessageDrawEnd: function(sourceModel, sourcePoint, destinationPoint) {
+
+                var destinationModel = null;
                 if (this.model.destinationLifeLine) {
-                    this.model.destinationLifeLine.addChild(destinationPoint);
+                    destinationModel = this.model.destinationLifeLine;
                     this.model.destinationLifeLine = null;
-                }else if(this.model.destinationProcessor){
-                    this.model.destinationProcessor.addChild(destinationPoint);
+                } else if(this.model.destinationProcessor){
+                    destinationModel = this.model.destinationProcessor;
                     this.model.destinationProcessor = null;
+                }
+
+                if(destinationModel){
+                    if(!_.isEqual(sourceModel.cid, destinationModel.cid )){
+                       var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                       var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                       sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                       destinationModel.addChild(destinationPoint, messageOptionsInbound);
+                    }
                 }
                 this.render();
             },
@@ -604,9 +614,6 @@ var Diagrams = (function (diagrams) {
                         endpoint = new GeoCore.Models.Point({x:line.attr("x2"), y:line.attr("y2")});
                     line.remove();
 
-                    var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                    var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-
                     var sourcePoint = new SequenceD.Models.MessagePoint({
                         model : {type: "messagePoint"},
                         x: startPoint.x(),
@@ -623,78 +630,8 @@ var Diagrams = (function (diagrams) {
                         source: sourcePoint,
                         destination: destinationPoint
                     });
+                    diagView.model.trigger("messageDrawEnd", sourceModel, sourcePoint, destinationPoint);
 
-                    sourceModel.addChild(sourcePoint, messageOptionsOutbound);
-                    diagView.model.trigger("messageDrawEnd", sourceModel, destinationPoint);
-
-                });
-            },
-
-            onLifelineClicked: function (x, y) {
-                var sourceX = x;
-                var sourceY = y;
-                var line = this.d3svg.append("line")
-                    .attr("x1", x)
-                    .attr("y1", y)
-                    .attr("x2", x)
-                    .attr("y2", y)
-                    .attr("marker-end", "url(#markerArrow)")
-                    .attr("class", "message")
-                    .attr("id", "dynamicLine");
-
-                var viewObj = this;
-                this.d3svg.on("mousemove", function () {
-                    var m = d3.mouse(this);
-                    line.attr("x2", m[0]);
-                    line.attr("y2", m[1]).attr("marker-end", "url(#markerArrow)");
-                });
-
-                this.d3svg.on("mouseup", function () {
-                    var m = d3.mouse(this);
-
-                    // Removing the registered mouse events from the svg
-                    viewObj.d3svg.on("mousemove", null)
-                        .on("mouseup", null);
-                    var l = document.getElementById("dynamicLine");
-                    var parent = l.parentNode;
-                    parent.removeChild(l);
-
-                    var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                    var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-
-                    var sourcePoint = new SequenceD.Models.MessagePoint({
-                        model : {type: "messagePoint"},
-                        x: sourceX,
-                        y: sourceY,
-                        direction: "outbound"
-                    });
-                    var destinationPoint = new SequenceD.Models.MessagePoint({
-                        model : {type: "messagePoint"},
-                        x: m[0],
-                        y: m[1],
-                        direction: "inbound"
-                    });
-                    var messageLink = new SequenceD.Models.MessageLink({
-                        source: sourcePoint,
-                        destination: destinationPoint
-                    });
-                    sourcePoint.message(messageLink);
-                    destinationPoint.message(messageLink);
-
-                    var clickedLifeLine = viewObj.model.clickedLifeLine;
-
-                    if (diagram.destinationLifeLine.cid != viewObj.model.clickedLifeLine.cid) {
-                        clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
-                        if (diagram.destinationLifeLine) {
-                            if (viewObj.model.clickedLifeLine.get('centerPoint').x() != diagram.destinationLifeLine.get('centerPoint').x()) {
-                                diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
-                                diagram.destinationLifeLine = null;
-                                diagramView.render();
-                            }
-                        } else {
-                            diagram.trigger("messageDrawEnd", viewObj.model.clickedLifeLine, destinationPoint);
-                        }
-                    }
                 });
             }
         });

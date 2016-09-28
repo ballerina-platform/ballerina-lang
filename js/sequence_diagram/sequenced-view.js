@@ -424,7 +424,8 @@ var SequenceD = (function (sequenced) {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
                         var m = d3.mouse(this);
-                        viewObj.mouseDown(prefs, center.x(), m[1]);
+                        prefs.diagram.clickedLifeLine = viewObj.model;
+                        prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
 
                     });
 
@@ -514,11 +515,6 @@ var SequenceD = (function (sequenced) {
                 }));
 
                 return group;
-            },
-
-            mouseDown: function (prefs, x, y) {
-                prefs.diagram.clickedLifeLine = this.model;
-                prefs.diagram.onLifelineClicked(x, y);
             }
 
         });
@@ -714,7 +710,7 @@ var SequenceD = (function (sequenced) {
                     center.y()+100), 150, height, 3, 3);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
-                    this.mouseDown(prefs, center.x(), m[1]);
+                    prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
                 }).on('mouseover', function () {
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
@@ -732,7 +728,9 @@ var SequenceD = (function (sequenced) {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
                         var m = d3.mouse(this);
-                        viewObj.mouseDown(prefs, center.x(), m[1]);
+
+                        prefs.diagram.clickedLifeLine = viewObj.model;
+                        prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
 
                     }).on('mouseover', function () {
                         diagram.selectedNode = viewObj.model;
@@ -771,11 +769,6 @@ var SequenceD = (function (sequenced) {
                 drawMessageRect.attr("height", totalHeight-30);
 
                 return group;
-            },
-
-            mouseDown: function (prefs, x, y) {
-                prefs.diagram.clickedLifeLine = this.model;
-                prefs.diagram.onLifelineClicked(x, y);
             }
 
         });
