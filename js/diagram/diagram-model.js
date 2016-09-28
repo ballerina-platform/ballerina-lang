@@ -83,7 +83,8 @@ var Diagrams = (function (diagrams) {
             initialize: function (attrs, options) {
                 DiagramElement.prototype.initialize.call(this, attrs, options);
                 this.source(attrs['source']['activation'], attrs['source']['x'], attrs['source']['y']);
-                this.destination(attrs['destination']['activation'], attrs['destination']['x'], attrs['destination']['y']);
+                this.destination(attrs['destination']['activation'], attrs['destination']['x'],
+                                 attrs['destination']['y']);
             },
 
             modelName: "Link",
@@ -289,7 +290,7 @@ var Diagrams = (function (diagrams) {
                 if (element instanceof SequenceD.Models.LifeLine) {
                     this.diagramElements().add(element, opts);
                     this.lifeLineMap[element.attributes.centerPoint.attributes.x] = element;
-                } else{
+                } else {
                     this.trigger("addElement", element, opts);
                 }
             },
@@ -350,6 +351,35 @@ var Diagrams = (function (diagrams) {
                 }
 
                 return this.lifeLineMap[nearestKey];
+            },
+
+            getDefinitionSchema: function () {
+                return {
+                    "title": "Resource",
+                    type: "object",
+                    properties: {
+                        Path: {"type": "string"},
+                        Get: {"type": "boolean"},
+                        Put: {"type": "boolean"},
+                        Post: {"type": "boolean"}
+                    }
+                };
+            },
+
+            getDefinitionEditableProperties: function (point) {
+                var editableProperties = {};
+                editableProperties.Path = this.attributes.path;
+                editableProperties.Get = this.attributes.get;
+                editableProperties.Put = this.attributes.put;
+                editableProperties.Post = this.attributes.post;
+                return editableProperties;
+            },
+
+            defaults: {
+                path: '',
+                get: false,
+                put: false,
+                post: false
             }
 
         });
