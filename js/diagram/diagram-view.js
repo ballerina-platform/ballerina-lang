@@ -682,18 +682,19 @@ var Diagrams = (function (diagrams) {
                     destinationPoint.message(messageLink);
 
                     var clickedLifeLine = viewObj.model.clickedLifeLine;
-                    clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
 
-                    if (diagram.destinationLifeLine) {
-                        if (viewObj.model.clickedLifeLine.get('centerPoint').x() != diagram.destinationLifeLine.get('centerPoint').x()) {
-                            diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
-                            diagram.destinationLifeLine = null;
-                            diagramView.render();
+                    if (diagram.destinationLifeLine.cid != viewObj.model.clickedLifeLine.cid) {
+                        clickedLifeLine.addChild(sourcePoint, messageOptionsOutbound);
+                        if (diagram.destinationLifeLine) {
+                            if (viewObj.model.clickedLifeLine.get('centerPoint').x() != diagram.destinationLifeLine.get('centerPoint').x()) {
+                                diagram.destinationLifeLine.addChild(destinationPoint, messageOptionsInbound);
+                                diagram.destinationLifeLine = null;
+                                diagramView.render();
+                            }
+                        } else {
+                            diagram.trigger("messageDrawEnd", viewObj.model.clickedLifeLine, destinationPoint);
                         }
-                    } else {
-                        diagram.trigger("messageDrawEnd", viewObj.model.clickedLifeLine, destinationPoint);
                     }
-
                 });
             }
         });
