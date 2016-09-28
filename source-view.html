@@ -35,12 +35,7 @@
 			var source = '@Path ("/stock")\n' +
 					'@Source (protocol="http", host="localhost", port=8080)\n' +
 					'@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
-					'package com.sample;\n\n' +
-					'constant endpoint stockEP = new HTTPEndPoint("http://localhost:8080/exchange/");\n\n' +
-					'@GET\n' +
-					'@PUT\n' +
-					'@POST\n' +
-					'@Path ("/passthrough")\n';
+					'package com.sample;\n\n';
 			source += e.data;
 			console.log('Source View received message!:  ',e.data);
 			editor.setValue(source);

@@ -423,15 +423,27 @@ var Diagrams = (function (diagrams) {
 
                 var finalSource = "";
 
-                var traverse = function (tree, finalSource) {
+
+                var includeConstants = function () {
                     // TODO: Need to handle this properly
                     // Defining the global constants
-                    //for (var key in definedConstants) {
-                    //    if (_.isEqual(key, "HTTPEP")) {
-                    //        finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
-                    //            definedConstants[key].value + "\");\n";
-                    //    }
-                    //}
+                    for (var key in definedConstants) {
+                        if (_.isEqual(key, "HTTPEP")) {
+                            finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
+                                definedConstants[key].value + "\");\n";
+                        }
+                    }
+
+                    // For the moment we are injecting the API methods directly hardcoded here at the moment.
+                    // After the properties view implementation those can be dynamically changed
+                    finalSource += "\n" +
+                        '@GET\n' +
+                        '@PUT\n' +
+                        '@POST\n' +
+                        '@Path ("/passthrough")\n'
+                };
+
+                var traverse = function (tree, finalSource) {
 
                     // Define the Resource methods and the context path (@GET, @POST, etc and @Path("/resourcePath")")
 
@@ -447,6 +459,7 @@ var Diagrams = (function (diagrams) {
                     return finalSource;
                 };
                 TreeRoot = buildTree(diagram.get('diagramElements').models[0]);
+                includeConstants();
                 return traverse((TreeRoot), finalSource);
             }
 
