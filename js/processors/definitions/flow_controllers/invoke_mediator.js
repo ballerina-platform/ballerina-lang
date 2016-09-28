@@ -94,7 +94,7 @@ var Processors = (function (processors) {
                 //override addChild
                 view.model.addChild = function (messageLinkPoint, opts) {
                     // Set the parent of the message link point
-                    //messageLinkPoint.parent(view.model);
+                    messageLinkPoint.parent(view.model);
                     resyncPointCordinates(messageLinkPoint);
                 };
 
