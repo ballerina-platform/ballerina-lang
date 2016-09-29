@@ -457,6 +457,35 @@ var Diagrams = (function (diagrams) {
                 TreeRoot = buildTree(diagram.get('diagramElements').models[0]);
                 includeConstants();
                 return traverse((TreeRoot), finalSource);
+            },
+
+            getDefinitionSchema: function () {
+                return {
+                    title: "Resource",
+                    type: "object",
+                    properties: {
+                        Path: {"type": "string"},
+                        Get: {"type": "boolean"},
+                        Put: {"type": "boolean"},
+                        Post: {"type": "boolean"}
+                    }
+                };
+            },
+
+            getDefinitionEditableProperties: function (point) {
+                var editableProperties = {};
+                editableProperties.Path = this.attributes.path;
+                editableProperties.Get = this.attributes.get;
+                editableProperties.Put = this.attributes.put;
+                editableProperties.Post = this.attributes.post;
+                return editableProperties;
+            },
+
+            defaults: {
+                path: '',
+                get: false,
+                put: false,
+                post: false
             }
 
         });

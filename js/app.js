@@ -172,4 +172,3 @@ function TreeNode (value, type,cStart, cEnd) {
 // This is a map of constants as --> constantType: constantValue
 // Ex: HttpEP: "http://localhost/test/test2"
 var definedConstants = {};
-

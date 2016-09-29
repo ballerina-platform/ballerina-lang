@@ -507,6 +507,7 @@ var SequenceD = (function (sequenced) {
                             selected = this;
                         }
                     } else {
+                        diagram.selected = false;
                         this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
                         updateudControlLocation(this);

@@ -306,6 +306,7 @@ var Diagrams = (function (diagrams) {
 
                 var svg = container.draw.svg(this.options.diagram);
                 this.d3svg = svg;
+                svg.on("click", this.onClickDiagram);
 
                 /*var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
@@ -546,6 +547,30 @@ var Diagrams = (function (diagrams) {
 
             onAddElement: function (element, opts) {
                 this.renderViewForElement(element, opts);
+            },
+
+            onClickDiagram: function () {
+                if (diagram.selected === true) {
+                    diagram.selected = false;
+                    $('#propertyPane').empty();
+                    $('#propertySave').hide();
+                } else if (!diagram.selectedNode) {
+
+                    if (selected.classList && selected.classList.contains("lifeline_selected")) {
+                        selected.classList.toggle("lifeline_selected");
+                    }
+
+                    udcontrol.set('visible', false);
+                    udcontrol.set('lifeline', '');
+                    selected = '';
+                    diagram.selected = true;
+
+                    $('#propertyPane').empty();
+                    $('#propertySave').show();
+
+                    propertyPane = ppView.createPropertyPane(diagram.getDefinitionSchema(),
+                                                             diagram.getDefinitionEditableProperties(), diagram);
+                }
             },
 
             renderViewForElement: function (element, renderOpts) {

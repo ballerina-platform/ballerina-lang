@@ -45,6 +45,17 @@ var Editor = (function (editor) {
                     $('#propertySave').show();
                 }
             });
+
+            $('#propertySave').on('click', this.updateResourceProperties);
+        },
+
+        updateResourceProperties: function () {
+            if (propertyPane.schema.title === "Resource") {
+                diagram.attributes.path = propertyPane.editors['root.Path'].value;
+                diagram.attributes.get = propertyPane.editors['root.Get'].value;
+                diagram.attributes.put = propertyPane.editors['root.Put'].value;
+                diagram.attributes.post = propertyPane.editors['root.Post'].value;
+            }
         },
 
         onSaveImageClick: function() {
