@@ -470,6 +470,13 @@ var SequenceD = (function (sequenced) {
 
             defaults: {},
 
+            sourcePoint: function (sourcePoint) {
+                if (_.isUndefined(sourcePoint)) {
+                    return this.get("sourcePoint");
+                }
+                this.set("sourcePoint", sourcePoint);
+            },
+
             source: function (ConnectionPoint, x, y) {
                 return Diagrams.Models.Link.prototype.source.call(this, ConnectionPoint, x, y);
             },
