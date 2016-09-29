@@ -505,10 +505,6 @@ var Diagrams = (function (diagrams) {
                     tolerance: "pointer"
                 });
 
-                this.htmlDiv.draggable({
-                    //drag: function( event, ui ) {
-                    //}
-                });
 
                 this.htmlDiv.attr("ondragstart", "return false");
 
