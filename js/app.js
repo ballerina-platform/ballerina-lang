@@ -172,31 +172,3 @@ function TreeNode (value, type,cStart, cEnd) {
 // This is a map of constants as --> constantType: constantValue
 // Ex: HttpEP: "http://localhost/test/test2"
 var definedConstants = {};
-
-$('.gradient-pattern').on('click', function () {
-    if (!diagram.selectedNode) {
-
-        if (selected.classList && selected.classList.contains("lifeline_selected")) {
-            selected.classList.toggle("lifeline_selected");
-        }
-
-        udcontrol.set('visible', false);
-        udcontrol.set('lifeline', '');
-        selected = '';
-
-        $('#propertyPane').empty();
-        $('#propertySave').show();
-
-        propertyPane = ppView.createPropertyPane(diagram.getDefinitionSchema(),
-                                                 diagram.getDefinitionEditableProperties(), diagram);
-    }
-});
-
-$('#propertySave').on('click', function () {
-    if (propertyPane.schema.title === "Resource") {
-        diagram.attributes.path = propertyPane.editors['root.Path'].value;
-        diagram.attributes.get = propertyPane.editors['root.Get'].value;
-        diagram.attributes.put = propertyPane.editors['root.Put'].value;
-        diagram.attributes.post = propertyPane.editors['root.Post'].value;
-    }
-});
