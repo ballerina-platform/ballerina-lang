@@ -306,7 +306,7 @@ var Diagrams = (function (diagrams) {
 
                 var svg = container.draw.svg(this.options.diagram);
                 this.d3svg = svg;
-                svg.on("click", this.onClickDiagram, this);
+                svg.on("click", this.onClickDiagram);
 
                 /*var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {

@@ -461,7 +461,7 @@ var Diagrams = (function (diagrams) {
 
             getDefinitionSchema: function () {
                 return {
-                    "title": "Resource",
+                    title: "Resource",
                     type: "object",
                     properties: {
                         Path: {"type": "string"},
