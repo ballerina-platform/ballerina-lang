@@ -35,18 +35,27 @@ var Editor = (function (editor) {
             $('#expand-image').click(function (){
                 if ($('#property-container1').width() == 240) {
                     $('#property-container1').css("width", 20);
-                    $('#editorBottom').css("width", "calc(100vw - 260px)");
                     $('#expand-image').attr("src", "images/leftarrow.svg");
                     $('#propertyPaneContainer').hide();
                     $('#propertySave').hide();
                 } else {
                     $('#property-container1').css("width", 240);
-                    $('#editorBottom').css("width", "calc(100vw - 480px)");
                     $('#expand-image').attr("src", "images/rightarrow.svg");
                     $('#propertyPaneContainer').show();
                     $('#propertySave').show();
                 }
             });
+
+            $('#propertySave').on('click', this.updateResourceProperties);
+        },
+
+        updateResourceProperties: function () {
+            if (propertyPane.schema.title === "Resource") {
+                diagram.attributes.path = propertyPane.editors['root.Path'].value;
+                diagram.attributes.get = propertyPane.editors['root.Get'].value;
+                diagram.attributes.put = propertyPane.editors['root.Put'].value;
+                diagram.attributes.post = propertyPane.editors['root.Post'].value;
+            }
         },
 
         onSaveImageClick: function() {

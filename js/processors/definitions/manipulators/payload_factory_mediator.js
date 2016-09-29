@@ -27,7 +27,21 @@ var Processors = (function (processors) {
         icon: "images/PayloadFactoryMediator.gif",
         colour : "#FFC766",
         type : "UnitProcessor",
-        parameters: []
+        dragCursorOffset : { left: 45, top: -5 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var svgRoot = view.createSVGForDraggable();
+                var group = svgRoot.draw.group(svgRoot).attr("class", "payload-factory-tool");
+                var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 3, 3, group);
+                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Payload", group);
+                return svgRoot.getDraggableRoot();
+            }
+            return cloneCallBack;
+        },
+        parameters: [],
+        getMySubTree: function (model) {
+            return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator", "payloadFactory {", "}");
+        }
     };
 
     // Add defined mediators to manipulators

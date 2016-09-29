@@ -58,6 +58,25 @@ var createMessage = function (start, end) {
     return new SequenceD.Models.Message({source: start, destination: end});
 };
 
+
+// Create tool palette elements
+//var lifeline = new Tools.Models.Tool({
+//    id: "LifeLine",
+//    title: "Lifeline",
+//    icon: "images/icon1.png",
+//    dragCursorOffset : { left: 30, top: 40 },
+//    createCloneCallback : function(view){
+//        function cloneCallBack() {
+//            var svgRoot = view.createSVGForDraggable();
+//            var line = svgRoot.draw.line(30, 10, 30, 60, svgRoot).attr("class", 'lifeline-tool-line');
+//            var rect = svgRoot.draw.basicRect(0, 0, 60, 20, 0, 0, svgRoot).attr("class", 'lifeline-tool-rect');
+//            return svgRoot.getDraggableRoot();
+//        }
+//        return cloneCallBack;
+//    },
+//});
+
+
 // Create main tool group
 var mainToolGroup = new Tools.Models.ToolGroup();
 //mainToolGroup.add(lifeline);
@@ -141,3 +160,24 @@ propertyPane = ''; //ppView.createPropertyPane(schema, properties);
 endpointLifelineCounter = 0;
 resourceLifelineCounter = 0;
 
+function TreeNode (value, type,cStart, cEnd) {
+    this.object = undefined;
+    this.children = [];
+    this.value = value;
+    this.type = type;
+    this.configStart = cStart;
+    this.configEnd = cEnd;
+
+    this.getChildren = function () {
+        return this.children;
+    };
+
+    this.getValue = function () {
+        return this.value;
+    };
+}
+
+// defining the constants such as the endpoints, this variable need to be positioned properly when restructuring
+// This is a map of constants as --> constantType: constantValue
+// Ex: HttpEP: "http://localhost/test/test2"
+var definedConstants = {};

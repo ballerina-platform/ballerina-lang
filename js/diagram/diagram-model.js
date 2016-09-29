@@ -32,6 +32,14 @@ var Diagrams = (function (diagrams) {
             initialize: function (attrs, options) {
             },
 
+            parent: function (parent) {
+                if (_.isUndefined(parent)) {
+                    return this.get("parent");
+                } else {
+                    this.set("parent", parent);
+                }
+            },
+
             modelName: "DiagramElement",
 
             nameSpace: diagrams,
@@ -322,6 +330,7 @@ var Diagrams = (function (diagrams) {
                 }
             },
 
+
             diagramResourceElements: function (diaElements) {
                 if (_.isUndefined(diaElements)) {
                     return this.get('diagramResourceElements');
@@ -341,6 +350,8 @@ var Diagrams = (function (diagrams) {
             onLifelineClicked: function (x, y) {
                 this.trigger("llClicked", x, y);
             },
+
+
 
             clickedLifeLine: undefined,
 
@@ -374,6 +385,139 @@ var Diagrams = (function (diagrams) {
                 }
 
                 return this.lifeLineMap[nearestKey];
+            },
+
+            parseTree: function() {
+
+                var TreeRoot;
+
+                var treeVisitMap = {};
+
+                //var buildTree = function (model, resourceNode, isLifeLine) {
+                //
+                //    var treeNode = undefined;
+                //    var refMapNode = treeVisitMap[model.cid];
+                //
+                //    if (_.isUndefined(refMapNode)) {
+                //
+                //        if (resourceNode) {
+                //            treeNode = new TreeNode(model, "Resource");
+                //        } else if (isLifeLine) {
+                //            treeNode = new TreeNode(model, "LifeLine");
+                //        } else {
+                //            treeNode = new TreeNode(model, model.type);
+                //        }
+                //
+                //        refMapNode = new RefMapNode(treeNode, model.cid, 0);
+                //        treeVisitMap[model.cid] = refMapNode;
+                //    } else {
+                //        treeNode = (treeVisitMap[model.cid]).treeNode;
+                //        treeNode.returnVisited = true;
+                //    }
+                //
+                //    var startPo = refMapNode.nextVisitPosition;
+                //
+                //    for (var itr = startPo; itr < (model.get('children').models).length; itr++) {
+                //        var child = (model.get('children').models)[itr];
+                //        console.log(child.type);
+                //        refMapNode.incrementNextVisitPosition();
+                //        var childNode;
+                //        if (child instanceof SequenceD.Models.MessagePoint && child.direction === "inbound") {
+                //            childNode = buildTree(child.message.destinationPoint.owner, false, true);
+                //            if (!childNode.returnVisited) {
+                //                treeNode.getChildren().push(childNode);
+                //            }
+                //        } else if (!(child instanceof SequenceD.Models.MessagePoint)) {
+                //            childNode = buildTree(child, false, false);
+                //            if (!childNode.returnVisited) {
+                //                treeNode.getChildren().push(childNode);
+                //            }
+                //        }
+                //    }
+                //
+                //    return treeNode;
+                //};
+
+                var buildTree = function (resourceModel) {
+                    var rootNode = new TreeNode("Resource", "Resource", "resource passthrough (message m) {", "}");
+                    for (var itr = 0; itr < (resourceModel.get('children').models).length; itr++) {
+                        var mediator = (resourceModel.get('children').models)[itr];
+                        rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
+                    }
+                    console.log(rootNode);
+                    return rootNode;
+                };
+
+                var finalSource = "";
+
+
+                var includeConstants = function () {
+                    // TODO: Need to handle this properly
+                    // Defining the global constants
+                    for (var key in definedConstants) {
+                        if (_.isEqual(key, "HTTPEP")) {
+                            finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
+                                definedConstants[key].value + "\");\n";
+                        }
+                    }
+
+                    // For the moment we are injecting the API methods directly hardcoded here at the moment.
+                    // After the properties view implementation those can be dynamically changed
+
+                    finalSource += "\n" +
+                        ((diagram.get('get')==true) ? '@GET\n' : '') +
+                        ((diagram.get('put')==true) ? '@PUT\n' : '') +
+                        ((diagram.get('post')==true) ? '@POST\n' : '') +
+                        '@Path ("' + diagram.get('path') +'")\n'
+                };
+
+                var traverse = function (tree, finalSource) {
+
+                    // Define the Resource methods and the context path (@GET, @POST, etc and @Path("/resourcePath")")
+
+                    // Define the mediation logic
+                    finalSource = finalSource + "" + tree.configStart;
+                    var arr = tree.getChildren();
+                    for (var a = 0; a < arr.length; a++) {
+                        var node = arr[a];
+                        finalSource = traverse(node, finalSource);
+                    }
+                    finalSource = finalSource + tree.configEnd;
+
+                    return finalSource;
+                };
+                TreeRoot = buildTree(diagram.get('diagramElements').models[0]);
+                includeConstants();
+                return traverse((TreeRoot), finalSource);
+            },
+
+            getDefinitionSchema: function () {
+                return {
+                    title: "Resource",
+                    type: "object",
+                    properties: {
+                        Path: {"type": "string"},
+                        Get: {"type": "boolean"},
+                        Put: {"type": "boolean"},
+                        Post: {"type": "boolean"}
+                    }
+                };
+            },
+
+            getDefinitionEditableProperties: function (point) {
+                var editableProperties = {};
+                editableProperties.Path = this.attributes.path;
+                editableProperties.Get = this.attributes.get;
+                editableProperties.Put = this.attributes.put;
+                editableProperties.Post = this.attributes.post;
+                return editableProperties;
+            },
+
+            defaults: {
+                path: '',
+                get: false,
+                put: false,
+                post: false
             }
 
         });

@@ -49,7 +49,7 @@
    right: 0%;
    margin-left: 0px;
    height: calc(100vh);
-   width: calc(100vw - 480px);
+   width: calc(100vw - 240px);
    background-color: #fff;
    overflow: hidden;
 }
@@ -58,7 +58,7 @@
    width: 100%;
    height: 100%;
    position: relative;
-   overflow: scroll;
+   overflow: hidden;
    cursor: move;
    box-sizing: border-box;
 }
@@ -66,9 +66,12 @@
 svg text::selection { background: none; }
 
 .editor {
+   width: 100%;
+   height: 100%;
    margin: 0;
    position: relative;
    display: inline-block;
+
 }
 
 .editor > svg {
@@ -137,6 +140,15 @@ svg text::selection { background: none; }
 .tool-title {
   padding-left: 10px;
   float: left;
+}
+
+.non-user-selectable{
+   -webkit-touch-callout: none;
+   -webkit-user-select: none;
+   -khtml-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
 }
 
 .udcontrol-image {
