@@ -36,19 +36,21 @@ var Dialogs = (function (dialogs) {
             this.$cl.append(htmContent); //added a new div content for resource
            var resourceId =  this.model.attributes.resourceId;
             var current = document.getElementById(resourceId);
-             var canvas= "hello";
-             current.append(canvas);
+             //var canvas= "hello" + resourceId;
+             //current.append(canvas);
+
+
+        var diagramOptions = {selector: '#'+resourceId};//{selector: id};
+         var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
+        var canvas = diagramView.render();
+
             //todo
            this.model.on("initialSetup",this.setCanvasToResource(resourceId,current));
                       return this.$el;
         },
         setCanvasToResource : function(id,element){
 
-        var diagramOptions = {selector: id};
-         var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
-        //var canvas = diagramView.render();
-        //var canvas= "hello";
-         element.append(canvas);
+          //todo:
         }
     });
 

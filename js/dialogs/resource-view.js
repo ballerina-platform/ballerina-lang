@@ -44,11 +44,12 @@ var Dialogs = (function (dialogs) {
              var id = $(".nav-tabs").children().length;
              var hrefId = '#seq_' + id;
              var resourceId = 'seq_' + id;
-
+             //todo:
+             var titlePrefix = resourceId.substring(resourceId.length,4);
              var resourceModel = new Dialogs.Models.ResourceModel({
              resourceId:resourceId,
              hrefId:hrefId,
-             resourceTitle: "title"
+             resourceTitle: "Resource"+titlePrefix
              });
 
               var nextResourceView = new Dialogs.Views.ResourceView({model:resourceModel});

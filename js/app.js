@@ -134,7 +134,7 @@ var diagram = new Diagrams.Models.Diagram({});
 // Create the diagram view
 var diagramOptions = {selector: '.editor'};
 var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
-diagramView.render();
+//diagramView.render();
 var diagramViewElements = [];
 
 lifeLineOptions.diagram = diagram;
@@ -199,7 +199,7 @@ var definedConstants = {};
 var resource = new Dialogs.Models.ResourceModel({
 resourceId:"seq_1",
 hrefId:"#seq_1",
-resourceTitle:"resource1"
+resourceTitle:"Resource1"
 });
 
 var resourceView = new Dialogs.Views.ResourceView({model:resource});
