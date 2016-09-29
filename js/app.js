@@ -46,8 +46,8 @@ var createPoint = function (x, y) {
     return new GeoCore.Models.Point({'x': x, 'y': y});
 };
 
-var createLifeLine = function (title, center) {
-    return new SequenceD.Models.LifeLine({title: title, centerPoint: center});
+var createLifeLine = function (title, center, colour) {
+    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
 };
 
 var createFixedSizedMediator = function (title, center) {
@@ -58,16 +58,15 @@ var createMessage = function (start, end) {
     return new SequenceD.Models.Message({source: start, destination: end});
 };
 
-// Create tool palette elements
-var lifeline = new Tools.Models.Tool({
-    id: "LifeLine",
-    title: "Lifeline",
-    icon: "images/icon1.png"
-});
-
 // Create main tool group
 var mainToolGroup = new Tools.Models.ToolGroup();
-mainToolGroup.add(lifeline);
+//mainToolGroup.add(lifeline);
+
+for (var lifeline in MainElements.lifelines) {
+    var tool = new Tools.Models.Tool(MainElements.lifelines[lifeline]);
+    mainToolGroup.add(tool);
+}
+
 var mainToolGroupWrapper = new Tools.Models.ToolGroupWrapper({
     toolGroupName: "Main Elements",
     toolGroupID: "main-tool-group",
@@ -139,5 +138,6 @@ udcontrolView.render();
 //var ppModel = new Editor.Views.PropertyPaneModel();
 var ppView = new Editor.Views.PropertyPaneView();
 propertyPane = ''; //ppView.createPropertyPane(schema, properties);
-lifelineCounter = 0;
+endpointLifelineCounter = 0;
+resourceLifelineCounter = 0;
 

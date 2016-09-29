@@ -256,6 +256,7 @@ var SequenceD = (function (sequenced) {
                 this.children(children);
 
                 this.viewAttributes = {
+                    colour: attrs.colour,
                     leftUpperConer: {x: 0, y: 0},
                     rightLowerConer: {x: 0, y: 0}
                 };
@@ -268,7 +269,8 @@ var SequenceD = (function (sequenced) {
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
-                title: "Lifeline"
+                title: "Lifeline",
+                viewAttributes: {colour: "#998844"}
             },
 
             getSchema: function () {
@@ -331,8 +333,8 @@ var SequenceD = (function (sequenced) {
                 return new GeoCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center) {
-                return new SequenceD.Models.LifeLine({title: title, centerPoint: center});
+            createLifeLine: function (title, center, colour) {
+                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
             },
 
             createFixedSizedMediator: function (title, center) {
@@ -416,8 +418,15 @@ var SequenceD = (function (sequenced) {
                 } else {
                     this.set('children', children);
                 }
-            }
+            },
 
+            setY: function (y) {
+                this.get('centerPoint').set('y', y);
+            },
+
+            setX: function (x) {
+                this.get('centerPoint').set('x', x);
+            }
 
         });
 

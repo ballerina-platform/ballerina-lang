@@ -259,12 +259,12 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
-            render: function (paperID, status) {
+            render: function (paperID, status, colour) {
                 if (status == "processors") {
                     Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
                     thisModel = this.model;
                     var centerPoint = this.modelAttr('centerPoint');
-                    var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options);
+                    var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options, colour);
                     var viewObj = this;
                     var drag = d3.drag()
                         .on("start", function () {
@@ -393,7 +393,7 @@ var SequenceD = (function (sequenced) {
 
             },
 
-            drawLifeLine: function (center, title, prefs) {
+            drawLifeLine: function (center, title, prefs, colour) {
                 var d3Ref = this.getD3Ref();
                 this.diagram = prefs.diagram;
                 var viewObj = this;
@@ -404,8 +404,8 @@ var SequenceD = (function (sequenced) {
                 this.prefs = prefs;
                 this.center = center;
                 this.title = title;
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
-                    .classed(prefs.rect.class, true);
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 3, 3, group, colour)
+                    .classed(prefs.rect.class, false);
 
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 3, 3, group)
                     .classed(prefs.middleRect.class, true);
@@ -419,8 +419,8 @@ var SequenceD = (function (sequenced) {
 
                     });
 
-                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
-                    .classed(prefs.rect.class, true);
+                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group, colour)
+                    .classed(prefs.rect.class, false);
                 var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
                     .classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
