@@ -303,13 +303,18 @@ var SequenceD = (function (sequenced) {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
                                     yValue = messagePoint.y();
                                 }
-                                messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             } else {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
                                     yValue = messagePoint.y();
                                 }
-                                messagePoint.y(yValue);
+                                var sourceY = messagePoint.message().source().y();
+                                if (yValue < sourceY) {
+                                    messagePoint.y(sourceY);
+                                } else {
+                                    messagePoint.y(yValue);
+                                    messagePoint.message().source().y(yValue);
+                                }
                                 messagePoint.x(xValue);
                             }
                             yValue += 60;
