@@ -432,11 +432,12 @@ var Diagrams = (function (diagrams) {
 
                     // For the moment we are injecting the API methods directly hardcoded here at the moment.
                     // After the properties view implementation those can be dynamically changed
+
                     finalSource += "\n" +
-                        '@GET\n' +
-                        '@PUT\n' +
-                        '@POST\n' +
-                        '@Path ("/passthrough")\n'
+                        ((diagram.get('get')==true) ? '@GET\n' : '') +
+                        ((diagram.get('put')==true) ? '@PUT\n' : '') +
+                        ((diagram.get('post')==true) ? '@POST\n' : '') +
+                        '@Path ("' + diagram.get('path') +'")\n'
                 };
 
                 var traverse = function (tree, finalSource) {
