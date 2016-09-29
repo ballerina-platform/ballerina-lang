@@ -272,7 +272,11 @@ var Diagrams = (function (diagrams) {
             initialize: function (attrs, options) {
 
                 var elements = new DiagramElements([], {diagram: this});
+                var resources = new DiagramElements([], {diagram: this});
+                var endPoints = new DiagramElements([], {diagram: this});
                 this.diagramElements(elements);
+                this.diagramResourceElements(resources);
+                this.diagramEndpointElements(endPoints);
                 this.selectedNode = null;
                 this.destinationLifeLine = null;
                 // TODO: won't be using this until the layout finalized
@@ -295,7 +299,11 @@ var Diagrams = (function (diagrams) {
                 //this.trigger("addElement", element, opts);
 
                 if (element instanceof SequenceD.Models.LifeLine) {
-                    this.diagramElements().add(element, opts);
+                    if(element.attributes.title.startsWith("Resource")) {
+                        this.diagramResourceElements().add(element, opts);
+                    } else {
+                        this.diagramEndpointElements().add(element, opts);
+                    }
                     this.lifeLineMap[element.attributes.centerPoint.attributes.x] = element;
                 } else{
                     this.trigger("addElement", element, opts);
@@ -322,6 +330,29 @@ var Diagrams = (function (diagrams) {
                 }
             },
 
+
+            diagramResourceElements: function (diaElements) {
+                if (_.isUndefined(diaElements)) {
+                    return this.get('diagramResourceElements');
+                } else {
+                    this.set('diagramResourceElements', diaElements);
+                }
+            },
+
+            diagramEndpointElements: function (diaElements) {
+                if (_.isUndefined(diaElements)) {
+                    return this.get('diagramEndpointElements');
+                } else {
+                    this.set('diagramEndpointElements', diaElements);
+                }
+            },
+
+            onLifelineClicked: function (x, y) {
+                this.trigger("llClicked", x, y);
+            },
+
+
+
             clickedLifeLine: undefined,
 
             positionTemp: undefined,
@@ -334,8 +365,8 @@ var Diagrams = (function (diagrams) {
                 return new GeoCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center) {
-                return new SequenceD.Models.LifeLine({title: title, centerPoint: center});
+            createLifeLine: function (title, center, colour) {
+                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
             },
 
             getNearestLifeLine: function (xPosition) {

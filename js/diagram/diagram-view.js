@@ -423,27 +423,15 @@ var Diagrams = (function (diagrams) {
 
 
                     diagramView.render();
-                } else if (id == "LifeLine") {
+                } else if (id == "EndPoint") {
+                    endpointLifelineCounter++;
+                    diagramView.renderMainElement(id, endpointLifelineCounter, MainElements.lifelines.EndPointLifeline.colour);
 
-                    var numOfElements = diagram.attributes.diagramElements.length;
-                    var centerPoint;
-                    if (numOfElements > 0) {
-                        var lastLifeLine = diagram.attributes.diagramElements.models[numOfElements - 1];
-                        centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
-                    } else {
-                        //initial life line position
-                        centerPoint = createPoint(200, 50);
+                } else if (id == "Resource") {
+                    resourceLifelineCounter++;
+                    if(resourceLifelineCounter == 1) {
+                        diagramView.renderMainElement(id, resourceLifelineCounter, MainElements.lifelines.ResourceLifeline.colour);
                     }
-                    lifelineCounter++;
-                    var lifeline = createLifeLine("Lifeline" + lifelineCounter, centerPoint);
-                    lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
-                    lifeline.rightLowerConer({
-                        x: centerPoint.attributes.x + 65,
-                        y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
-                    });
-                    diagram.addElement(lifeline, lifeLineOptions);
-                    diagramView.render();
-
                 } else {
 
                 }
@@ -516,29 +504,104 @@ var Diagrams = (function (diagrams) {
                     drop: this.handleDropEvent,
                     tolerance: "pointer"
                 });
-                for (var id in this.model.attributes.diagramElements.models) {
-                    if (this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
-                        var lifeLine = this.model.attributes.diagramElements.models[id];
+
+                this.htmlDiv.draggable({
+                    //drag: function( event, ui ) {
+                    //}
+                });
+
+                this.htmlDiv.attr("ondragstart", "return false");
+
+                for (var id in this.model.attributes.diagramResourceElements.models) {
+                    if (this.model.attributes.diagramResourceElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramResourceElements.models[id];
                         var lifeLineView = new SequenceD.Views.LifeLineView({
                             model: lifeLine,
                             options: lifeLineOptions
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors");
+                        var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors", rectColour);
                     }
                 }
-                for (var id in this.model.attributes.diagramElements.models) {
-                    if (this.model.attributes.diagramElements.models[id] instanceof SequenceD.Models.LifeLine) {
-                        var lifeLine = this.model.attributes.diagramElements.models[id];
+
+                for (var id in this.model.attributes.diagramResourceElements.models) {
+                    if (this.model.attributes.diagramResourceElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramResourceElements.models[id];
                         var lifeLineView = new SequenceD.Views.LifeLineView({
                             model: lifeLine,
                             options: lifeLineOptions
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages");
+                        var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages", rectColour);
                     }
                 }
+
+                for (var id in this.model.attributes.diagramEndpointElements.models) {
+                    if (this.model.attributes.diagramEndpointElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramEndpointElements.models[id];
+                        var lifeLineView = new SequenceD.Views.LifeLineView({
+                            model: lifeLine,
+                            options: lifeLineOptions
+                        });
+                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                        var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors", rectColour);
+                    }
+                }
+
+                for (var id in this.model.attributes.diagramEndpointElements.models) {
+                    if (this.model.attributes.diagramEndpointElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramEndpointElements.models[id];
+                        var lifeLineView = new SequenceD.Views.LifeLineView({
+                            model: lifeLine,
+                            options: lifeLineOptions
+                        });
+                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                        var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
+                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages", rectColour);
+                    }
+                }
+
                 return mainGroup;
+            },
+
+            renderMainElement: function (lifelineName, counter, colour) {
+                var numberOfResourceElements = diagram.attributes.diagramResourceElements.length;
+                var numberOfEndpointElements = diagram.attributes.diagramEndpointElements.length;
+                var centerPoint;
+                if(numberOfEndpointElements > 0) {
+                    if(lifelineName == "Resource") {
+                        centerPoint = createPoint(200, 50);
+                        diagram.attributes.diagramEndpointElements.each(function(model) {
+                            var xVal = model.get('centerPoint').attributes.x;
+                            model.get('centerPoint').move(180, 0);
+                            model.setX(xVal + 180);
+                            model.rightLowerConer({x: xVal + 245, y: 0});
+                        });
+                    } else {
+                        var lastLifeLine = diagram.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
+                        centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
+                    }
+                } else {
+                    if(numberOfResourceElements > 0) {
+                        var lastLifeLine = diagram.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
+                        centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
+                    } else {
+                        //initial life line position
+                        centerPoint = createPoint(200, 50);
+                    }
+                }
+                var lifeline = createLifeLine(lifelineName + counter, centerPoint, colour);
+                lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
+                lifeline.rightLowerConer({
+                    x: centerPoint.attributes.x + 65,
+                    y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
+                });
+                lifeLineOptions.colour = colour;
+                diagram.addElement(lifeline, lifeLineOptions);
+                diagramView.render();
             },
 
             renderDiagram: function () {
