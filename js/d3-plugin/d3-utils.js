@@ -161,7 +161,8 @@ var D3Utils = (function (d3_utils) {
 
     var centeredText = function (center, textContent, parent) {
         parent = parent || d3Ref;
-        return parent.draw.textElement(center.x(), center.y(), textContent, parent).attr('text-anchor', 'middle');
+        return parent.draw.textElement(center.x(), center.y(), textContent, parent)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
     };
 
 
