@@ -23,8 +23,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -154,20 +152,16 @@ public class NettyListener extends TransportListener {
     }
 
     private void shutdownEventLoops() {
-        Future<?> f = bossGroup.shutdownGracefully();
-        f.addListener(new GenericFutureListener<Future<Object>>() {
-            @Override
-            public void operationComplete(Future<Object> future) throws Exception {
-                Future f = workerGroup.shutdownGracefully();
-                f.addListener(new GenericFutureListener<Future<Object>>() {
-                    @Override
-                    public void operationComplete(Future<Object> future) throws Exception {
-                        log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
-                                " stopped successfully");
-                    }
-                });
-            }
-        });
+        try {
+            bossGroup.shutdownGracefully().sync();
+            workerGroup.shutdownGracefully().sync();
+
+            log.info("Netty transport " + id + " on port " + nettyConfig.getPort() +
+                    " stopped successfully");
+        } catch (InterruptedException e) {
+            log.error("Netty transport " + id + " on port " + nettyConfig.getPort() +
+                    " could not be stopped successfully");
+        }
     }
 
     @Override
