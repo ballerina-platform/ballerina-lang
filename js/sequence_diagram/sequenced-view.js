@@ -76,8 +76,8 @@ var SequenceD = (function (sequenced) {
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
                         this.model.getHeight(),//prefs.rect.height,
-                        3,
-                        3,
+                        0,
+                        0,
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
@@ -96,15 +96,15 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         150,
                         200,
-                        3,
-                        3,
+                        0,
+                        0,
                         group,
                         this.modelAttr('viewAttributes').colour,
                         this.modelAttr('title')
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), 150, 200 - prefs.rect.height, 3, 3, group);
+                        center.y()+75), 150, 200 - prefs.rect.height, 0, 0, group);
                     middleRect.on("mousedown", function () {
                         var m = d3.mouse(this);
                         this.mouseDown(prefs, center.x(), m[1]);
@@ -353,8 +353,8 @@ var SequenceD = (function (sequenced) {
                                 element.get('centerPoint').get('y')),
                             this.prefs.rect.width,
                             this.prefs.rect.height,
-                            3,
-                            3,
+                            0,
+                            0,
                             this.group, element.viewAttributes.colour
                         );
                         var mediatorText = d3Ref.draw.centeredText(
@@ -374,8 +374,8 @@ var SequenceD = (function (sequenced) {
                             this.prefs.rect.height,
                             150,
                             200,
-                            3,
-                            3,
+                            0,
+                            0,
                             this.group, element.viewAttributes.colour,
                             element.attributes.title
                         );
@@ -390,8 +390,8 @@ var SequenceD = (function (sequenced) {
                             this.prefs.rect.height,
                             150,
                             200,
-                            3,
-                            3,
+                            0,
+                            0,
                             this.group, element.viewAttributes.colour,
                             element.attributes.title
                         );
@@ -418,13 +418,14 @@ var SequenceD = (function (sequenced) {
                 this.prefs = prefs;
                 this.center = center;
                 this.title = title;
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 3, 3, group, colour)
-                    .classed(prefs.rect.class, false);
 
-                var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 3, 3, group)
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 0, 0, group)
+                    .classed(prefs.rect.class, true);
+
+                var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
                     .classed(prefs.middleRect.class, true);
 
-                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 3, 3, group)
+                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 0, 0, group)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
@@ -434,8 +435,9 @@ var SequenceD = (function (sequenced) {
 
                     });
 
-                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group, colour)
-                    .classed(prefs.rect.class, false);
+                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group)
+                    .classed(prefs.rect.class, true);
+
                 var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
                     .classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
@@ -633,7 +635,7 @@ var SequenceD = (function (sequenced) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
                 //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
                 //.classed(prefs.rect.class, true);
@@ -704,8 +706,8 @@ var SequenceD = (function (sequenced) {
                     prefs.rect.height,
                     150,
                     200,
-                    3,
-                    3,
+                    0,
+                    0,
                     d3Ref,
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
@@ -713,7 +715,7 @@ var SequenceD = (function (sequenced) {
                 console.log("started");
                 var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                    center.y()+100), 150, height, 3, 3);
+                    center.y()+100), 150, height, 0, 0);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
                     prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
@@ -729,7 +731,7 @@ var SequenceD = (function (sequenced) {
                 console.log(middleRect);
 
                 var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                    center.y()+100), (prefs.middleRect.width * 0.4), height, 3, 3, d3Ref)
+                    center.y()+100), (prefs.middleRect.width * 0.4), height, 0, 0, d3Ref)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();

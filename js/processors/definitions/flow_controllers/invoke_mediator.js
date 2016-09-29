@@ -39,7 +39,7 @@ var Processors = (function (processors) {
         init: function (view) {
             if (!_.isUndefined(view.viewRoot)) {
                 var center = view.model.get('center');
-                var rectangle = view.viewRoot.draw.centeredRect(center, 20, 50, 1, 1, view.viewRoot, "#334455");
+                var rectangle = view.viewRoot.draw.centeredRect(center, 20, 50, 0, 0, view.viewRoot, "#334455");
                 rectangle.on('mouseover', function () {
                     diagram.selectedNode = view.model;
                     rectangle.style("fill", "green").style("fill-opacity", 1)
