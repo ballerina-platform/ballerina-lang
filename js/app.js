@@ -198,46 +198,14 @@ var definedConstants = {};
 // Configuring dynamic  tab support
 var resource = new Dialogs.Models.ResourceModel({
 resourceId:"seq_1",
+hrefId:"#seq_1",
 resourceTitle:"resource1"
 });
 
 var resourceView = new Dialogs.Views.ResourceView({model:resource});
 resourceView.render();
-//var contentView = new Dialogs.Views.ResourceCollectionView({model:resource});
-//contentView.render();
- //$('a[href='seq_1']').tab('show');
-//create resourceContentView too
+var contentView = new Dialogs.Views.ResourceCollectionView({model:resource});
+contentView.render();
 
 
 
-
-
-
-///var contentView = new Dialogs.Views.ContentView();
-//contentView.render();
-//var diagramListView = new Dialogs.Views.ResourceView();
-//diagramListView.render();
-
-
-//diagramListView.render();
-//$(".nav-tabs").on("click", "a", function (e) {
-//        e.preventDefault();
-//        if (!$(this).hasClass('add-resource')) {
-//            $(this).tab('show');
-//        }
-//    })
-//    .on("click", "span", function () {
-//        var anchor = $(this).siblings('a');
-//        $(anchor.attr('href')).remove();
-//        $(this).parent().remove();
-//        $(".nav-tabs li").children('a').first().click();
-//    });
-//
-//    $('.add-resource').click(function (e) {
-//        e.preventDefault();
-//        var id = $(".nav-tabs").children().length;
-//        var tabId = 'seq_' + id;
-//        $(this).closest('li').before('<li><a href="#seq_' + id + '">New Seq</a> <span> x </span></li>');
-//        $('.tab-content').append('<div class="tab-pane" id="' + tabId + '">val </div>');
-//          $('.nav-tabs li:nth-child(' + id + ') a').click();
-//    });

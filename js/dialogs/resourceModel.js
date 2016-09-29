@@ -23,10 +23,16 @@ var Dialogs = (function (dialogs) {
         initialize: function (attrs, options) {
         },
         modelName: "ResourceModel",
+        nameSpace: dialogs,
         defaults: {
             resourceId: "id-not-set",
             resourceTitle: ""
-        }
+        },
+                    initialSetup :function(){
+                    //Todo when saving a diagram
+                  //  this.trigger("")
+
+                    }
     });
 
     models.ResourceModel = resourceModel;

@@ -20,7 +20,8 @@ var Dialogs = (function (dialogs) {
     var views = dialogs.Views || {};
 
     var resourceCollectionView = Backbone.View.extend({
-        el: '.resource-content',
+        el: '.editor',
+       $cl:$(".editor").find(".resource-content"),
 
         template: _.template($('#resourceContentTemplate').html()),
 
@@ -28,24 +29,27 @@ var Dialogs = (function (dialogs) {
         //create diagram view and object
         var diagram = new Diagrams.Models.Diagram({});
 
-        // Create the diagram view
 
         },
-
         render: function () {
-        // for each resource Model create a div content, and add a new canvas to each
             var htmContent = this.template(this.model.attributes);
-            this.$el.append(htmContent); //added a new div content for resource
- var diagramOptions = {selector: '.resource-content'};
-               //
-            var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
-
-               // var wrapperHtml = diagramView.render();
-               // var testhtml = "hello!";
-               //diagramView.render();
-                self.$el.append(diagramView.render());
+            this.$cl.append(htmContent); //added a new div content for resource
+           var resourceId =  this.model.attributes.resourceId;
+            var current = document.getElementById(resourceId);
+             var canvas= "hello";
+             current.append(canvas);
+            //todo
+           this.model.on("initialSetup",this.setCanvasToResource(resourceId,current));
                       return this.$el;
         },
+        setCanvasToResource : function(id,element){
+
+        var diagramOptions = {selector: id};
+         var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
+        //var canvas = diagramView.render();
+        //var canvas= "hello";
+         element.append(canvas);
+        }
     });
 
     views.ResourceCollectionView = resourceCollectionView;

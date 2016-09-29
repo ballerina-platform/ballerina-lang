@@ -25,25 +25,41 @@
         </div>
 
         <div class="editor-container" id="editorBottom">
-            <div>
+            <div id="sample">
                 <ul class="nav nav-tabs"  role="tablist">
+
                     <li><a href="#" class="add-resource">+</a></li>
                 </ul>
-            </div>
-            <div class="resource-content gradient-pattern">
 
             </div>
+
             <script type="text/template" id="resourceTabsTemplate">
-
-                <li class="series"><a href="<%=resourceId%>" data-toggle="tab"><%=resourceTitle%></a></li>
-
-
+                <li  role="presentation" class="series"><a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a><span class="remove-resource"> x </span></li>
                 </script>
             <script type="text/template" id="resourceContentTemplate">
-                <div class="tab-pane divr" id="<%=resourceId%>"></div>
+                <div  role="tabpanel" class="tab-pane" id="<%=resourceId%>"></div>
                 </script>
+<!--TEST-->
 
+            <!--ul class="nav nav-tabs" role="tablist">
+                <li role="presentation"><a href="#5" aria-controls="5" role="tab" data-toggle="tab">Home</a></li>
+                <li role="presentation"><a href="#6" aria-controls="6" role="tab" data-toggle="tab">Profile</a></li>
+                <li role="presentation"><a href="#7" aria-controls="7" role="tab" data-toggle="tab">Messages</a></li>
+                <li role="presentation"><a href="#8" aria-controls="8" role="tab" data-toggle="tab">Settings</a></li>
+            </ul-->
 
+            <!-- Tab panes -->
+            <!--div class="tab-content">
+                <div role="tabpanel" class="tab-pane" id="1">1</div>
+                <div role="tabpanel" class="tab-pane" id="2">2</div>
+                <div role="tabpanel" class="tab-pane" id="3">3</div>
+                <div role="tabpanel" class="tab-pane" id="4">4</div>
+                <div role="tabpanel" class="tab-pane" id="5">5</div>
+                <div role="tabpanel" class="tab-pane" id="6">6</div>
+                <div role="tabpanel" class="tab-pane" id="7">7</div>
+                <div role="tabpanel" class="tab-pane" id="8">8</div>
+            </div-->
+<!--TEST-->
 
             <div class="editor-scroller">
                 <div id="udcontroldiv" >
@@ -53,7 +69,9 @@
                 </div>
 
                 <div class="editor gradient-pattern">
+                    <div class="tab-content resource-content ">
 
+                    </div>
                 </div>
 
 
