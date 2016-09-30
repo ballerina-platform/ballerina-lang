@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Define manipulator mediators
     var invokeMediator = {
         id: "InvokeMediator",
-        title: "Invoke Mediator",
+        title: "Invoke",
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "Custom",
@@ -39,7 +39,7 @@ var Processors = (function (processors) {
         init: function (view) {
             if (!_.isUndefined(view.viewRoot)) {
                 var center = view.model.get('center');
-                var rectangle = view.viewRoot.draw.centeredRect(center, 20, 50, 1, 1, view.viewRoot, "#334455");
+                var rectangle = view.viewRoot.draw.centeredRect(center, 20, 50, 0, 0, view.viewRoot, "#334455");
                 rectangle.on('mouseover', function () {
                     diagram.selectedNode = view.model;
                     rectangle.style("fill", "green").style("fill-opacity", 1)
@@ -119,7 +119,7 @@ var Processors = (function (processors) {
             var endpoint = undefined;
             messageLinks.forEach(function (child) {
                 if (_.isEqual(child.get('direction'), "inbound")) {
-                    endpoint = child.get('parent').get('title');
+                    endpoint = child.get('message').get('source').get('parent').get('title');
                     // When we define the properties, need to extract the endpoint from the property
                     definedConstants["HTTPEP"] = {name: endpoint, value: "https://www.google.lk"};
                 } else {

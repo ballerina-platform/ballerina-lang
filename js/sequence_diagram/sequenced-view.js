@@ -67,8 +67,7 @@ var SequenceD = (function (sequenced) {
 
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
-                var group = d3Ref.draw.group()
-                    .classed(prefs.class, true);
+                var group = d3Ref.draw.group();
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
@@ -76,8 +75,8 @@ var SequenceD = (function (sequenced) {
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
                         this.model.getHeight(),//prefs.rect.height,
-                        3,
-                        3,
+                        0,
+                        0,
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
@@ -97,15 +96,15 @@ var SequenceD = (function (sequenced) {
                         prefs.rect.height,
                         150,
                         200,
-                        3,
-                        3,
+                        0,
+                        0,
                         group,
                         this.modelAttr('viewAttributes').colour,
                         this.modelAttr('title')
                     );
                     console.log("started");
                     var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                        center.y()+75), 150, 200 - prefs.rect.height, 3, 3, group);
+                        center.y()+75), 150, 200 - prefs.rect.height, 0, 0, group);
                     middleRect.on("mousedown", function () {
                         var m = d3.mouse(this);
                         this.mouseDown(prefs, center.x(), m[1]);
@@ -338,12 +337,12 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
-            render: function (paperID, status) {
+            render: function (paperID, status, colour) {
                 if (status == "processors") {
                     Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
                     thisModel = this.model;
                     var centerPoint = this.modelAttr('centerPoint');
-                    var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options);
+                    var lifeLine = this.drawLifeLine(centerPoint, this.modelAttr('title'), this.options, colour);
                     var viewObj = this;
                     var drag = d3.drag()
                         .on("start", function () {
@@ -381,13 +380,18 @@ var SequenceD = (function (sequenced) {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
                                     yValue = messagePoint.y();
                                 }
-                                messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             } else {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
                                     yValue = messagePoint.y();
                                 }
-                                messagePoint.y(yValue);
+                                var sourceY = messagePoint.message().source().y();
+                                if (yValue < sourceY) {
+                                    messagePoint.y(sourceY);
+                                } else {
+                                    messagePoint.y(yValue);
+                                    messagePoint.message().source().y(yValue);
+                                }
                                 messagePoint.x(xValue);
                             }
                             yValue += 60;
@@ -426,8 +430,8 @@ var SequenceD = (function (sequenced) {
                                 element.get('centerPoint').get('y')),
                             this.prefs.rect.width,
                             this.prefs.rect.height,
-                            3,
-                            3,
+                            0,
+                            0,
                             this.group, element.viewAttributes.colour
                         );
                         var mediatorText = d3Ref.draw.centeredText(
@@ -447,8 +451,8 @@ var SequenceD = (function (sequenced) {
                             this.prefs.rect.height,
                             150,
                             200,
-                            3,
-                            3,
+                            0,
+                            0,
                             this.group, element.viewAttributes.colour,
                             element.attributes.title
                         );
@@ -463,8 +467,8 @@ var SequenceD = (function (sequenced) {
                             this.prefs.rect.height,
                             150,
                             200,
-                            3,
-                            3,
+                            0,
+                            0,
                             this.group, element.viewAttributes.colour,
                             element.attributes.title
                         );
@@ -480,24 +484,25 @@ var SequenceD = (function (sequenced) {
 
             },
 
-            drawLifeLine: function (center, title, prefs) {
+            drawLifeLine: function (center, title, prefs, colour) {
                 var d3Ref = this.getD3Ref();
                 this.diagram = prefs.diagram;
                 var viewObj = this;
                 var group = d3Ref.draw.group()
-                    .classed(prefs.class, true);
+                    .classed(this.model.viewAttributes.class, true);
 
                 this.group = group;
                 this.prefs = prefs;
                 this.center = center;
                 this.title = title;
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
+
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width + 30, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
 
-                var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 3, 3, group)
+                var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
                     .classed(prefs.middleRect.class, true);
 
-                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 3, 3, group)
+                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 0, 0, group)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
@@ -507,8 +512,9 @@ var SequenceD = (function (sequenced) {
 
                     });
 
-                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 3, 3, group)
+                var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
+
                 var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
                     .classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
@@ -574,21 +580,17 @@ var SequenceD = (function (sequenced) {
                                 propertyPane.destroy();
                             }
                             $('#propertySave').hide();
-                            udcontrol.set('visible', false);
-                            udcontrol.set('lifeline', '');
                             selected = '';
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
                             updatePropertyPane();
-                            updateudControlLocation(this);
                             selected = this;
                         }
                     } else {
                         diagram.selected = false;
                         this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
-                        updateudControlLocation(this);
                         selected = this;
                     }
                 }));
@@ -706,7 +708,7 @@ var SequenceD = (function (sequenced) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
+                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
                 //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
                 //.classed(prefs.rect.class, true);
@@ -777,8 +779,8 @@ var SequenceD = (function (sequenced) {
                     prefs.rect.height,
                     150,
                     200,
-                    3,
-                    3,
+                    0,
+                    0,
                     d3Ref,
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
@@ -786,7 +788,7 @@ var SequenceD = (function (sequenced) {
                 console.log("started");
                 var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                    center.y()+100), 150, height, 3, 3);
+                    center.y()+100), 150, height, 0, 0);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
                     prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
@@ -802,7 +804,7 @@ var SequenceD = (function (sequenced) {
                 console.log(middleRect);
 
                 var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
-                    center.y()+100), (prefs.middleRect.width * 0.4), height, 3, 3, d3Ref)
+                    center.y()+100), (prefs.middleRect.width * 0.4), height, 0, 0, d3Ref)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();

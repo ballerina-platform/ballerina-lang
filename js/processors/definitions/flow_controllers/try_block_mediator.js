@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Define manipulator mediators
     var tryBlockMediator = {
         id: "TryBlockMediator",
-        title: "TryBlock Mediator",
+        title: "Try Block",
         icon: "images/TryBlockMediator.gif",
         colour : "#998844",
         type : "ComplexProcessor",
@@ -32,8 +32,8 @@ var Processors = (function (processors) {
             function cloneCallBack() {
                 var svgRoot = view.createSVGForDraggable();
                 var group = svgRoot.draw.group(svgRoot).attr("class", "try-block-mediator-tool");
-                var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 3, 3, group);
-                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Try", group);
+                var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 0, 0, group);
+                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Try Block", group);
                 return svgRoot.getDraggableRoot();
             }
             return cloneCallBack;

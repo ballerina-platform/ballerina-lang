@@ -194,6 +194,15 @@ body{
     border: none;
 }
 
+.panel{
+    border-radius: 0px;
+}
+
+.panel-heading {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
 .panel-info > .panel-heading {
   color: whitesmoke;
   background-color: #2A80B9;

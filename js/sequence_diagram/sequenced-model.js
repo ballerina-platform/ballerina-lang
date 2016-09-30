@@ -257,6 +257,7 @@ var SequenceD = (function (sequenced) {
                 this.children(children);
 
                 this.viewAttributes = {
+                    class: attrs.cssClass,
                     leftUpperConer: {x: 0, y: 0},
                     rightLowerConer: {x: 0, y: 0}
                 };
@@ -269,7 +270,8 @@ var SequenceD = (function (sequenced) {
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
-                title: "Lifeline"
+                title: "Lifeline",
+                viewAttributes: {colour: "#998844"}
             },
 
             getSchema: function () {
@@ -332,8 +334,8 @@ var SequenceD = (function (sequenced) {
                 return new GeoCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center) {
-                return new SequenceD.Models.LifeLine({title: title, centerPoint: center});
+            createLifeLine: function (title, center, colour) {
+                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
             },
 
             createFixedSizedMediator: function (title, center) {
@@ -419,8 +421,15 @@ var SequenceD = (function (sequenced) {
                 } else {
                     this.set('children', children);
                 }
-            }
+            },
 
+            setY: function (y) {
+                this.get('centerPoint').set('y', y);
+            },
+
+            setX: function (x) {
+                this.get('centerPoint').set('x', x);
+            }
 
         });
 
@@ -460,6 +469,13 @@ var SequenceD = (function (sequenced) {
             nameSpace: sequenced,
 
             defaults: {},
+
+            sourcePoint: function (sourcePoint) {
+                if (_.isUndefined(sourcePoint)) {
+                    return this.get("sourcePoint");
+                }
+                this.set("sourcePoint", sourcePoint);
+            },
 
             source: function (ConnectionPoint, x, y) {
                 return Diagrams.Models.Link.prototype.source.call(this, ConnectionPoint, x, y);
