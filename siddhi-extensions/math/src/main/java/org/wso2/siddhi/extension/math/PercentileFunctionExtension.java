@@ -202,7 +202,6 @@ public class PercentileFunctionExtension extends AttributeAggregator {
     private void sortedArrayListAdd(List<Double> arrayList, double value) {
 
         int insertIndex = Collections.binarySearch(arrayList, value);
-
         if (insertIndex < 0) {
             arrayList.add(-insertIndex - 1, value);
         } else {

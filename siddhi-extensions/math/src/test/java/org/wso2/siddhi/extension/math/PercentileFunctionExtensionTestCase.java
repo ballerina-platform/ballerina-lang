@@ -38,6 +38,10 @@ public class PercentileFunctionExtensionTestCase {
     private CountDownLatch countDownLatch;
     private volatile int count;
     private volatile boolean eventArrived;
+    private static final String INPUT_STREAM_DOUBLE= "define stream inputStream (sensorId int, temperature double);";
+    private static final String INPUT_STREAM_FLOAT= "define stream inputStream (sensorId int, temperature float);";
+    private static final String INPUT_STREAM_INT= "define stream inputStream (sensorId int, temperature int);";
+    private static final String INPUT_STREAM_LONG= "define stream inputStream (sensorId int, temperature long);";
 
     @Before
     public void init() {
@@ -52,13 +56,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature double);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream "
+        String executionPlan = ("@info(name = 'query1') from inputStream "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_DOUBLE + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -133,13 +136,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature double);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_DOUBLE + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -214,13 +216,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 2;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature double);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_DOUBLE + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -271,13 +272,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature float);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream "
+        String executionPlan = ("@info(name = 'query1') from inputStream "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_FLOAT + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -352,13 +352,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature float);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_FLOAT + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -433,13 +432,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 2;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature float);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_FLOAT + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -490,13 +488,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature int);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream "
+        String executionPlan = ("@info(name = 'query1') from inputStream "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_INT + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -571,13 +568,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature int);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_INT + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -652,13 +648,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 2;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature int);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_INT + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -709,13 +704,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature long);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream "
+        String executionPlan = ("@info(name = 'query1') from inputStream "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_LONG + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -790,13 +784,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 10;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature long);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.length(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_LONG + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -871,13 +864,12 @@ public class PercentileFunctionExtensionTestCase {
         final int EXPECTED_NO_OF_EVENTS = 2;
         countDownLatch = new CountDownLatch(EXPECTED_NO_OF_EVENTS);
         siddhiManager = new SiddhiManager();
-        String inStreamDefinition = "define stream inputStream (sensorId int, temperature long);";
 
-        String eventFuseExecutionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
+        String executionPlan = ("@info(name = 'query1') from inputStream#window.lengthBatch(5) "
                 + "select math:percentile(temperature, 97.0) as percentile "
                 + "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager
-                .createExecutionPlanRuntime(inStreamDefinition + eventFuseExecutionPlan);
+                .createExecutionPlanRuntime(INPUT_STREAM_LONG + executionPlan);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
