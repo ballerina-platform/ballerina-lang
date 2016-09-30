@@ -23,7 +23,18 @@ var MainElements = (function (mainElements) {
         id: "Resource",
         title: "Resource",
         icon: "images/icon1.png",
-        colour : "#998844"
+        colour : "#998844",
+        dragCursorOffset : { left: 30, top: 40 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var group= view.createSVGForDraggable();
+                group.attr("class", 'tool resource');
+                group.draw.line(30, 10, 30, 60, group);
+                group.draw.basicRect(0, 0, 60, 20, 0, 0, group);
+                return group.getDraggableRoot();
+            }
+            return cloneCallBack;
+        }
     };
 
     lifelines.ResourceLifeline = resourceLifeline;

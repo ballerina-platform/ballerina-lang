@@ -51,10 +51,11 @@ var Tools = (function (tools) {
             var div = body.append("div").attr("id", "draggingToolClone");
             div =  D3Utils.decorate(div);
             var svg = div.draw.svg({height: "100px", width: "100px", class: "test"});
-            svg.getDraggableRoot = function(){
+            var group = svg.append("g");
+            group.getDraggableRoot = function(){
               return div.node();
             };
-            return D3Utils.decorate(svg);
+            return D3Utils.decorate(group);
         }
 
     });

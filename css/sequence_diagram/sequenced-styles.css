@@ -21,6 +21,28 @@
     fill-opacity: 1;
 }
 
+.tool > line {
+    stroke-dasharray: 4,1;
+    stroke-width: 2.5px;
+}
+.tool > rect {
+    fill-opacity: 1;
+}
+
+.resource > line {
+    stroke: #666666;
+}
+.resource > rect {
+    fill: #998844;
+}
+
+.endpoint > line {
+    stroke: #666666;
+}
+.endpoint > rect {
+    fill: #800080;
+}
+
 .lifeline-rect{
     fill: #4682B4;
 }

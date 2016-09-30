@@ -24,7 +24,18 @@ var MainElements = (function (mainElements) {
         id: "EndPoint",
         title: "End Point",
         icon: "images/icon1.png",
-        colour : "purple"
+        colour : "purple",
+        dragCursorOffset : { left: 30, top: 40 },
+        createCloneCallback : function(view){
+            function cloneCallBack() {
+                var group = view.createSVGForDraggable();
+                group.attr("class", 'tool endpoint');
+                group.draw.line(30, 10, 30, 60, group);
+                group.draw.basicRect(0, 0, 60, 20, 0, 0, group);
+                return group.getDraggableRoot();
+            }
+            return cloneCallBack;
+        }
     };
 
     lifelines.EndPointLifeline = endPointLifeline;
