@@ -20,35 +20,56 @@ var Tools = (function (tools) {
     var views = tools.Views || {};
 
     var toolGroupWrapperView = Backbone.View.extend({
-        template: _.template($('#toolgroupWrapper').html()),
 
         initialize: function () {
             console.log("toolGroupWrapperView init");
         },
 
         render: function () {
-            var htmContent = this.template(this.model.attributes);
-            this.$el.html(htmContent);
+
+            var groupDiv = $('<div></div>');
+            groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
+            groupDiv.attr('class', "tool-group");
+
+            var groupHeaderDiv = $("<div></div>");
+            groupHeaderDiv.attr('class', "tool-group-header");
+
+            var groupTitle = $("<p></p>");
+            groupTitle.attr('class', "tool-group-header-title")
+                      .text(this.model.attributes.toolGroupName);
+
+            var groupCollapseIcon = $("<span></span>");
+            groupCollapseIcon.attr('class', "collapse-icon glyphicon glyphicon-chevron-down");
+
+            groupHeaderDiv.append(groupTitle);
+            groupHeaderDiv.append(groupCollapseIcon);
+            groupDiv.append(groupHeaderDiv);
+
+            var groupBodyDiv = $("<div></div>");
+            groupBodyDiv.attr('class', "tool-group-body");
             var toolGroupView = new Tools.Views.ToolGroupView({collection: this.model.attributes.toolGroup});
-            var groupHtml = toolGroupView.render().el;
-            var groupDiv = this.$el.find("#toolgroup-container-" + this.model.attributes.toolGroupID);
-            groupDiv.html(groupHtml);
+            var groupViewHtml = toolGroupView.render().el;
+            groupBodyDiv.html(groupViewHtml);
+
+            groupDiv.append(groupBodyDiv);
+            this.el =  groupDiv[0].outerHTML;
+            this.$el = groupDiv;
+            var groupID =  this.model.attributes.toolGroupID;
+
+            $(document).ready(function(){
+                $("#tool-group-" + groupID + " .tool-group-header").click(function(){
+                    $("#tool-group-" + groupID + " .tool-group-body")
+                        .slideToggle(500, function () {
+                        $("#tool-group-" + groupID + " .tool-group-header .collapse-icon")
+                            .toggleClass("glyphicon-chevron-up")
+                            .toggleClass("glyphicon-chevron-down");
+                    });
+                });
+            });
+
             return this;
         }
     });
-
-    $(document).on('click', '.panel-heading span.clickable', function (e) {
-        var $this = $(this);
-        if (!$this.hasClass('panel-collapsed')) {
-            $this.parents('.panel').find('.panel-body').slideUp();
-            $this.addClass('panel-collapsed');
-            $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-        } else {
-            $this.parents('.panel').find('.panel-body').slideDown();
-            $this.removeClass('panel-collapsed');
-            $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-        }
-    })
 
     views.ToolGroupWrapperView = toolGroupWrapperView;
     tools.Views = views;

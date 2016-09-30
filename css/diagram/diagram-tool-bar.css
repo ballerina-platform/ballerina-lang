@@ -1,30 +1,21 @@
-button.accordion {
-    background-color: #eee;
-    color: #444;
+.tool-group{
+
+}
+
+.tool-group-header{
     cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-    transition: 0.4s;
 }
 
-button.accordion.active, button.accordion:hover {
-    background-color: #ddd;
+.tool-group-header-title{
+    cursor: pointer;
+
 }
 
-div.panel {
-    padding: 0 18px;
-    background-color: white;
-    max-height: 0;
-    overflow: hidden;
-    transition: 0.6s ease-in-out;
-    opacity: 0;
+.tool-group-header-collapse-icon{
+
+
 }
 
-div.panel.show {
-    opacity: 1;
-    max-height: 500px;
+.tool-group-body{
+    display: none;
 }
