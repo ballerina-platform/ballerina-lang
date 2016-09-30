@@ -33,7 +33,7 @@ var Processors = (function (processors) {
                 var svgRoot = view.createSVGForDraggable();
                 var group = svgRoot.draw.group(svgRoot).attr("class", "payload-factory-tool");
                 var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 0, 0, group);
-                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Payload", group);
+                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Data Mapper", group);
                 return svgRoot.getDraggableRoot();
             }
             return cloneCallBack;
