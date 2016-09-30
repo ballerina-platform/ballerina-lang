@@ -60,7 +60,6 @@ var createMessage = function (start, end) {
     return new SequenceD.Models.Message({source: start, destination: end});
 };
 
-
 // Create tool palette elements
 //var lifeline = new Tools.Models.Tool({
 //    id: "LifeLine",
@@ -173,7 +172,6 @@ propertyPane = ''; //ppView.createPropertyPane(schema, properties);
 endpointLifelineCounter = 0;
 resourceLifelineCounter = 0;
 
-
 function TreeNode (value, type,cStart, cEnd) {
     this.object = undefined;
     this.children = [];
@@ -195,6 +193,8 @@ function TreeNode (value, type,cStart, cEnd) {
 // This is a map of constants as --> constantType: constantValue
 // Ex: HttpEP: "http://localhost/test/test2"
 var definedConstants = {};
+
+
 // Configuring dynamic  tab support
 var resource = new Dialogs.Models.ResourceModel({
 resourceId:"seq_1",
