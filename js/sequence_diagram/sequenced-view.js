@@ -502,21 +502,17 @@ var SequenceD = (function (sequenced) {
                                 propertyPane.destroy();
                             }
                             $('#propertySave').hide();
-                            udcontrol.set('visible', false);
-                            udcontrol.set('lifeline', '');
                             selected = '';
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
                             updatePropertyPane();
-                            updateudControlLocation(this);
                             selected = this;
                         }
                     } else {
                         diagram.selected = false;
                         this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
-                        updateudControlLocation(this);
                         selected = this;
                     }
                 }));
