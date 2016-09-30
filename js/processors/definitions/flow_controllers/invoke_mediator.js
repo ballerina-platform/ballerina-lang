@@ -23,7 +23,7 @@ var Processors = (function (processors) {
     //Define manipulator mediators
     var invokeMediator = {
         id: "InvokeMediator",
-        title: "Invoke Mediator",
+        title: "Invoke",
         icon: "images/SwitchMediator.gif",
         colour : "#334455",
         type : "Custom",

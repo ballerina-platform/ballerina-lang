@@ -21,7 +21,7 @@ var MainElements = (function (mainElements) {
 
     var resourceLifeline = {
         id: "Resource",
-        title: "Resource",
+        title: "Pipe Line",
         icon: "images/icon1.png",
         colour : "#998844",
         class : "resource",
