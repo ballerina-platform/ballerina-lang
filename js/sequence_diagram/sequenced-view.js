@@ -81,6 +81,7 @@ var SequenceD = (function (sequenced) {
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
+                    rectBottomXXX.on('click',this.updateProcessorProperties);
                     var mediatorText = d3Ref.draw.centeredText(center,
                         title,
                         group)
@@ -184,6 +185,83 @@ var SequenceD = (function (sequenced) {
                 };
 
                 return group;
+            },
+
+            updateProcessorProperties: function () {
+                console.log('processor');
+                function updateudControlLocation(rect) {
+                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
+                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
+                    udcontrol.set('visible', true);
+                    udcontrol.set('x', imgRight);
+                    udcontrol.set('y', imgTop);
+                    udcontrol.set('lifeline', diagram.selectedNode);
+                }
+
+                var editableProperties = {};
+                editableProperties.Message = "sample message";
+                editableProperties.LogLevel = "error";
+                editableProperties.Description = "temp description";
+                var schemaObj = {
+                    title: "Log Mediator",
+                    type: "object",
+                    properties: {
+                        Message: {"type": "string"},
+                        LogLevel: {
+                            "type": "string",
+                            "enum": [
+                                "debug",
+                                "info",
+                                "error"
+                            ],
+                            "default": "info"
+                        },
+                        Description: {"type": "string"}
+                    }
+                };
+
+                if(selected) {
+                    if(selected == this) {
+                        $('#propertyPane').empty();
+                        $('#propertySave').hide();
+                        this.classList.toggle("lifeline_selected");
+                        udcontrol.set('visible', false);
+                        selected = null;
+                        console.log('if if');
+                    } else {
+                        selected.classList.toggle("lifeline_selected");
+                        selected = this;
+                        diagram.selectedNode = this;
+                        selected.classList.toggle("lifeline_selected");
+                        $('#propertyPane').empty();
+                        $('#propertySave').show();
+                        propertyPane = ppView.createPropertyPane(schemaObj , editableProperties, this);
+                        console.log('if else');
+                        updateudControlLocation(this);
+                    }
+                } else {
+                    var children = thisModel.attributes.children.models;
+                    var msg = 'temp1';
+                    for(var i=0; i<children.length; i++) {
+                        //get msg
+                        var m = children[i];
+                        msg = m.parameters["parameters"][0]["message"];
+                    }
+
+                    this.classList.toggle("lifeline_selected");
+                    diagram.selectedNode = this;
+                    selected = this;
+                    console.log('else');
+                    updateudControlLocation(this);
+
+                    propertyPane = ppView.createPropertyPane(schemaObj , editableProperties, this);
+                }
+                // if (selected.classList && selected.classList.contains("lifeline_selected")) {
+                //     selected.classList.toggle("lifeline_selected");
+                // }
+                // this.model.classList.toggle("processor_selected");
+
+                //propertyPane = ppView.createPropertyPane(this.model.getSchema(),this.model.getEditableProperties(), diagram);
             }
 
         });

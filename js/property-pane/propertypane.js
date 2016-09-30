@@ -55,6 +55,11 @@ var Editor = (function (editor) {
                 diagram.attributes.get = propertyPane.editors['root.Get'].value;
                 diagram.attributes.put = propertyPane.editors['root.Put'].value;
                 diagram.attributes.post = propertyPane.editors['root.Post'].value;
+            } else if(propertyPane.schema.title === "Log Mediator") {
+                console.log('save log');
+                var msg = propertyPane.editors["root.Message"].value;
+                var desc = propertyPane.editors["root.Description"].value;
+                var loglevel = propertyPane.editors["root.LogLevel"].value;
             }
         },
 
