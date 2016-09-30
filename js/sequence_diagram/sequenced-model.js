@@ -257,7 +257,7 @@ var SequenceD = (function (sequenced) {
                 this.children(children);
 
                 this.viewAttributes = {
-                    colour: attrs.colour,
+                    class: attrs.cssClass,
                     leftUpperConer: {x: 0, y: 0},
                     rightLowerConer: {x: 0, y: 0}
                 };

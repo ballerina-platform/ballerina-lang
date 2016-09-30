@@ -425,12 +425,12 @@ var Diagrams = (function (diagrams) {
                     diagramView.render();
                 } else if (id == "EndPoint") {
                     endpointLifelineCounter++;
-                    diagramView.renderMainElement(id, endpointLifelineCounter, MainElements.lifelines.EndPointLifeline.colour);
+                    diagramView.renderMainElement(id, endpointLifelineCounter, MainElements.lifelines.EndPointLifeline);
 
                 } else if (id == "Resource") {
                     resourceLifelineCounter++;
                     if(resourceLifelineCounter == 1) {
-                        diagramView.renderMainElement(id, resourceLifelineCounter, MainElements.lifelines.ResourceLifeline.colour);
+                        diagramView.renderMainElement(id, resourceLifelineCounter, MainElements.lifelines.ResourceLifeline);
                     }
                 } else {
 
@@ -560,7 +560,7 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, colour) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef) {
                 var numberOfResourceElements = diagram.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = diagram.attributes.diagramEndpointElements.length;
                 var centerPoint;
@@ -586,13 +586,13 @@ var Diagrams = (function (diagrams) {
                         centerPoint = createPoint(200, 50);
                     }
                 }
-                var lifeline = createLifeLine(lifelineName + counter, centerPoint, colour);
+                var lifeline = createLifeLine(lifelineName + counter, centerPoint, lifeLineDef.class);
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,
                     y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
                 });
-                lifeLineOptions.colour = colour;
+                lifeLineOptions.class = lifeLineDef.class;
                 diagram.addElement(lifeline, lifeLineOptions);
                 diagramView.render();
             },

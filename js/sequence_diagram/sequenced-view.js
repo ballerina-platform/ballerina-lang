@@ -67,8 +67,7 @@ var SequenceD = (function (sequenced) {
 
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
-                var group = d3Ref.draw.group()
-                    .classed(prefs.class, true);
+                var group = d3Ref.draw.group();
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
@@ -412,7 +411,7 @@ var SequenceD = (function (sequenced) {
                 this.diagram = prefs.diagram;
                 var viewObj = this;
                 var group = d3Ref.draw.group()
-                    .classed(prefs.class, true);
+                    .classed(this.model.viewAttributes.class, true);
 
                 this.group = group;
                 this.prefs = prefs;
@@ -503,21 +502,17 @@ var SequenceD = (function (sequenced) {
                                 propertyPane.destroy();
                             }
                             $('#propertySave').hide();
-                            udcontrol.set('visible', false);
-                            udcontrol.set('lifeline', '');
                             selected = '';
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
                             updatePropertyPane();
-                            updateudControlLocation(this);
                             selected = this;
                         }
                     } else {
                         diagram.selected = false;
                         this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
-                        updateudControlLocation(this);
                         selected = this;
                     }
                 }));

@@ -24,6 +24,7 @@ var MainElements = (function (mainElements) {
         title: "Resource",
         icon: "images/icon1.png",
         colour : "#998844",
+        class : "resource",
         dragCursorOffset : { left: 30, top: 40 },
         createCloneCallback : function(view){
             function cloneCallBack() {
