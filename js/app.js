@@ -46,8 +46,8 @@ var createPoint = function (x, y) {
     return new GeoCore.Models.Point({'x': x, 'y': y});
 };
 
-var createLifeLine = function (title, center, colour) {
-    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
+var createLifeLine = function (title, center, cssClass) {
+    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass});
 };
 
 var createFixedSizedMediator = function (title, center) {

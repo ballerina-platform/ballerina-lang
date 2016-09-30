@@ -25,6 +25,7 @@ var MainElements = (function (mainElements) {
         title: "End Point",
         icon: "images/icon1.png",
         colour : "purple",
+        class : "endpoint",
         dragCursorOffset : { left: 30, top: 40 },
         createCloneCallback : function(view){
             function cloneCallBack() {
