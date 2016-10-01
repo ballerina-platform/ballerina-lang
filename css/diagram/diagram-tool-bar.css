@@ -1,5 +1,6 @@
 .tool-group{
     width: 100%;
+    border-bottom: 2px solid #1e1e1e;
 }
 
 .tool-group-header{
@@ -31,7 +32,29 @@
 
 .collapse-icon{
     float: right;
-    color: white;
     padding-top: 3px;
+    font-size: 10px;
     color: #8d8d8d;
+}
+
+.tool-container {
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+    display: block;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.tool-image {
+    max-width:50px;
+    max-height:80px;
+    width: auto;
+    height: auto;
+}
+
+.tool-title {
+    padding-left: 10px;
+    float: left;
+    color: white;
 }

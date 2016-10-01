@@ -96,9 +96,6 @@ svg text::selection { background: none; }
    background-image: url("patterns/cardboard-flat.png");
 }
 
-.tool-container {
-   height: 40px;
-}
 
 .ui-draggable {
    z-index: 10000;
@@ -127,19 +124,6 @@ svg text::selection { background: none; }
     background-color:#cc1;
     stroke-width:3;
     stroke:rgb(0,0,0);
-}
-
-.tool-image {
-   max-width:30px;
-   max-height:30px;
-   width: auto;
-   height: auto;
-   float: left;
-}
-
-.tool-title {
-  padding-left: 10px;
-  float: left;
 }
 
 .non-user-selectable{
