@@ -42,6 +42,7 @@
     height: 100px;
     margin: 10px;
     display: block;
+    cursor: pointer;
     border-style: solid;
     border-width: 1px;
 }

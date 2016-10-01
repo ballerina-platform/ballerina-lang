@@ -25,48 +25,41 @@ var Tools = (function (tools) {
             console.log("toolGroupWrapperView init");
         },
 
-        render: function () {
-
+        render: function (parent) {
             var groupDiv = $('<div></div>');
+            parent.append(groupDiv);
             groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
             groupDiv.attr('class', "tool-group");
 
             var groupHeaderDiv = $("<div></div>");
+            groupDiv.append(groupHeaderDiv);
             groupHeaderDiv.attr('class', "tool-group-header");
 
             var groupTitle = $("<a></a>");
+            groupHeaderDiv.append(groupTitle)
             groupTitle.attr('class', "tool-group-header-title")
                       .text(this.model.attributes.toolGroupName);
 
             var groupCollapseIcon = $("<span></span>");
+            groupHeaderDiv.append(groupCollapseIcon);
             groupCollapseIcon.attr('class', "collapse-icon glyphicon glyphicon-chevron-down");
 
-            groupHeaderDiv.append(groupTitle);
-            groupHeaderDiv.append(groupCollapseIcon);
-            groupDiv.append(groupHeaderDiv);
-
             var groupBodyDiv = $("<div></div>");
-            groupBodyDiv.attr('class', "tool-group-body");
-            var toolGroupView = new Tools.Views.ToolGroupView({collection: this.model.attributes.toolGroup});
-            var groupViewHtml = toolGroupView.render().el;
-            groupBodyDiv.html(groupViewHtml);
-
             groupDiv.append(groupBodyDiv);
+            groupBodyDiv.attr('class', "tool-group-body");
+
+            var toolGroupView = new Tools.Views.ToolGroupView({collection: this.model.attributes.toolGroup});
+            toolGroupView.render(groupBodyDiv);
+
             this.el =  groupDiv[0].outerHTML;
             this.$el = groupDiv;
-            var groupID =  this.model.attributes.toolGroupID;
 
-            $(document).ready(function(){
-                $("#tool-group-" + groupID + " .tool-group-header").click(function(){
-                    $("#tool-group-" + groupID + " .tool-group-body")
-                        .slideToggle(500, function () {
-                        $("#tool-group-" + groupID + " .tool-group-header .collapse-icon")
-                            .toggleClass("glyphicon-chevron-up")
-                            .toggleClass("glyphicon-chevron-down");
+            groupHeaderDiv.click(function(){
+                groupBodyDiv.slideToggle(500, function () {
+                        groupCollapseIcon.toggleClass("glyphicon-chevron-up")
+                                            .toggleClass("glyphicon-chevron-down");
                     });
-                });
             });
-
             return this;
         }
     });
