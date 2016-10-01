@@ -1,21 +1,37 @@
 .tool-group{
-
+    width: 100%;
 }
 
 .tool-group-header{
     cursor: pointer;
+    height: 40px;
+    padding: 10px 18px 10px 18px;
 }
 
 .tool-group-header-title{
     cursor: pointer;
+    color: white;
+    font-size: 14px;
+    text-transform: uppercase;
+}
 
+.tool-group-header-title:hover{
+    cursor: pointer;
+    color: white;
 }
 
 .tool-group-header-collapse-icon{
-
 
 }
 
 .tool-group-body{
     display: none;
+    padding: 15px;
+}
+
+.collapse-icon{
+    float: right;
+    color: white;
+    padding-top: 3px;
+    color: #8d8d8d;
 }

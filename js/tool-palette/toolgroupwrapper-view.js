@@ -34,7 +34,7 @@ var Tools = (function (tools) {
             var groupHeaderDiv = $("<div></div>");
             groupHeaderDiv.attr('class', "tool-group-header");
 
-            var groupTitle = $("<p></p>");
+            var groupTitle = $("<a></a>");
             groupTitle.attr('class', "tool-group-header-title")
                       .text(this.model.attributes.toolGroupName);
 
