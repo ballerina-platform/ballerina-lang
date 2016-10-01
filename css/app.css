@@ -11,7 +11,7 @@
    position: absolute;
    top: 0;
    left: 0;
-   width: 280px;
+   width: 274px;
    height: calc(100vh);
    background-color: #232323;
    overflow: scroll;
@@ -45,12 +45,12 @@
 .editor-container{
    position: absolute;
    top: 0;
-   left: 280px;
+   left: 274px;
    bottom: 0%;
    right: 0%;
    margin-left: 0px;
    height: calc(100vh);
-   width: calc(100vw - 280px);
+   width: calc(100vw - 274px);
    background-color: #fff;
    overflow: hidden;
 }
