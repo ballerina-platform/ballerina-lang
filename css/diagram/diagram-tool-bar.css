@@ -47,20 +47,20 @@
     border-style: solid;
     border-color: #8d8d8d;
     border-width: 1px;
-    padding: 15px;
+    padding: 5px;
     white-space: nowrap;
     text-align: center;
 }
 
 .tool-image {
-    max-width:50px;
-    max-height:80px;
+    max-width:60px;
+    max-height:75px;
     display : block;
     margin : auto;
 }
 
 .tool-title {
-    padding-top: 10px;
+    padding-top:0px;
     color: white;
     display : block;
     margin : auto;

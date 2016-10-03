@@ -24,15 +24,20 @@ var Processors = (function (processors) {
     var invokeMediator = {
         id: "InvokeMediator",
         title: "Invoke",
-        icon: "images/SwitchMediator.gif",
+        icon: "images/tool-icons/invoke.svg",
         colour : "#2c3e50",
         type : "Custom",
-        dragCursorOffset : { left: 10, top: -5 },
+        dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
-                var svgRoot = view.createSVGForDraggable();
-                var rect = svgRoot.draw.basicRect(0, 0, 20, 50, 0, 0).attr("fill-opacity", 1).style("fill", "#2c3e50");
-                return svgRoot.getDraggableRoot();
+                var div = view.createContainerForDraggable();
+                d3.xml("images/tool-icons/invoke_drag.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                    if (error) throw error;
+                    var svg = xml.getElementsByTagName("svg")[0];
+                    d3.select(svg).attr("width", "100px").attr("height", "42px");
+                    div.node().appendChild(svg);
+                });
+                return div.node();
             }
             return cloneCallBack;
         },
