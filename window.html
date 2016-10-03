@@ -140,6 +140,15 @@
         </div>
 
     </div>
+
+    <div class="alert alert-success alert-dismissable" id="successAlert" style="display: none; position: absolute; top: 50px; right: 50px; width: 400px">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        Configuration Saved Successfully!!
+    </div>
+    <div class="alert alert-danger alert-dismissable" id="failAlert" style="display: none; position: absolute; top: 50px; right: 50px; width: 400px">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        Configuration saving Failed!!
+    </div>
     <!-- /#page-content-wrapper -->
 
     <!-- footer -->
@@ -201,7 +210,18 @@
                     contentType:"text/plain; charset=utf-8",
                     async:false,
                     success: function(data, textStatus, xhr){
-                        console.log("SUCCESS !!!!!!!!!" + xhr.status);
+                        if (xhr.status == 200) {
+                            $('#successAlert').show();
+                            $("#successAlert").fadeTo(4000, 500).slideUp(500, function() {
+                                $("#successAlert").slideUp(500);
+                            });
+                        } else {
+                            $('#failAlert').show();
+                            $("#failAlert").fadeTo(4000, 500).slideUp(500, function() {
+                                $("#failAlert").slideUp(500);
+                            });
+                        }
+
                     }
                 });
                 saveConfig = false;
