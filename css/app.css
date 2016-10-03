@@ -14,7 +14,7 @@
    width: 274px;
    height: calc(100vh);
    background-color: #232323;
-   overflow: scroll;
+   overflow: hidden;
 }
 
 .property-container{
@@ -24,7 +24,34 @@
     bottom: 0%;
     right: 0%;
     height: calc(100vh);
-    background-color: #BBBBBB;
+    background-color: #232323;
+    color: white;
+}
+
+#propertyPane input{
+    border: 1px solid #8d8d8d;
+    background-color: #232323;
+    color: #8d8d8d;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+#propertyPane select{
+    border: 1px solid #8d8d8d;
+    color: #8d8d8d;
+    background-color: #232323;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+#propertyPane label{
+    font-weight: normal;
+}
+
+#propertyPane > div > div.well.well-sm{
+    border-radius:0;
+    border: none;
+    background: none;
 }
 
 .logo{
