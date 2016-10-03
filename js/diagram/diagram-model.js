@@ -283,6 +283,7 @@ var Diagrams = (function (diagrams) {
                 this.deepestPointY = 100;
                 this.sourceLifeLineY = 0;
                 this.X = 0;
+                this.highestLifeline = null;
             },
 
             modelName: "Diagram",

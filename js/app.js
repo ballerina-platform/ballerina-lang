@@ -29,14 +29,14 @@ lifeLineOptions.rect.class = "lifeline-rect";
 // Lifeline middle-rect options
 lifeLineOptions.middleRect = {};
 lifeLineOptions.middleRect.width = 100;
-lifeLineOptions.middleRect.height = 700;
+lifeLineOptions.middleRect.height = 300;
 lifeLineOptions.middleRect.roundX = 1;
 lifeLineOptions.middleRect.roundY = 1;
 lifeLineOptions.middleRect.class = "lifeline-middleRect";
 
 // Lifeline options
 lifeLineOptions.line = {};
-lifeLineOptions.line.height = 700;
+lifeLineOptions.line.height = 300;
 lifeLineOptions.line.class = "lifeline-line";
 // Lifeline text options
 lifeLineOptions.text = {};
