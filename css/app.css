@@ -11,9 +11,10 @@
    position: absolute;
    top: 0;
    left: 0;
-   width: 240px;
+   width: 274px;
    height: calc(100vh);
-   background-color: #BBBBBB;
+   background-color: #232323;
+   overflow: hidden;
 }
 
 .property-container{
@@ -23,7 +24,34 @@
     bottom: 0%;
     right: 0%;
     height: calc(100vh);
-    background-color: #BBBBBB;
+    background-color: #232323;
+    color: white;
+}
+
+#propertyPane input{
+    border: 1px solid #8d8d8d;
+    background-color: #232323;
+    color: #8d8d8d;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+#propertyPane select{
+    border: 1px solid #8d8d8d;
+    color: #8d8d8d;
+    background-color: #232323;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+#propertyPane label{
+    font-weight: normal;
+}
+
+#propertyPane > div > div.well.well-sm{
+    border-radius:0;
+    border: none;
+    background: none;
 }
 
 .logo{
@@ -44,12 +72,12 @@
 .editor-container{
    position: absolute;
    top: 0;
-   left: 240px;
+   left: 274px;
    bottom: 0%;
    right: 0%;
    margin-left: 0px;
    height: calc(100vh);
-   width: calc(100vw - 240px);
+   width: calc(100vw - 274px);
    background-color: #fff;
    overflow: hidden;
 }
@@ -96,9 +124,6 @@ svg text::selection { background: none; }
    background-image: url("patterns/cardboard-flat.png");
 }
 
-.tool-container {
-   height: 40px;
-}
 
 .ui-draggable {
    z-index: 10000;
@@ -129,26 +154,13 @@ svg text::selection { background: none; }
     stroke:rgb(0,0,0);
 }
 
-.tool-image {
-   max-width:30px;
-   max-height:30px;
-   width: auto;
-   height: auto;
-   float: left;
-}
-
-.tool-title {
-  padding-left: 10px;
-  float: left;
-}
-
 .non-user-selectable{
    -webkit-touch-callout: none;
    -webkit-user-select: none;
    -khtml-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
-   user-select: none;
+   user-select: none;`
 }
 
 .udcontrol-image {

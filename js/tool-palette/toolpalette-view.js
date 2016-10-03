@@ -29,8 +29,7 @@ var Tools = (function (tools) {
             var self = this;
             this.collection.each(function (groupWrapper) {
                 var groupWrapperView = new Tools.Views.ToolGroupWrapperView({model: groupWrapper});
-                var wrapperHtml = groupWrapperView.render().el;
-                self.$el.append(wrapperHtml);
+                groupWrapperView.render(self.$el);
                 self.$el.addClass('non-user-selectable');
             });
             return this;

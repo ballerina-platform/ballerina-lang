@@ -1,3 +1,33 @@
+#main-navbar{
+    background-color: #232323;
+    border-bottom: 2px solid #1e1e1e;
+}
+.navbar-default .navbar-nav > li a:hover {
+    background: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:active {
+    background: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:focus {
+    background: #8d8d8d;
+}
+#designer-view-mode{
+    background-color: #232323;
+    color:white;
+    border-bottom: 3px solid white;
+}
+
+.nav-tabs > li > a:hover {
+    background: #8d8d8d;
+    border:none;
+}
+.header{
+    background-color: #232323;
+}
+body > header > div{
+    background: #1e1e1e;
+}
+
 .truncate {
     white-space: nowrap;
     overflow: hidden;

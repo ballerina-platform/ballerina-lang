@@ -25,7 +25,7 @@ var Processors = (function (processors) {
         id: "PayLoadFactoryMediator",
         title: "Data Mapper",
         icon: "images/PayloadFactoryMediator.gif",
-        colour : "#FFC766",
+        colour : "#27ae60",
         type : "UnitProcessor",
         dragCursorOffset : { left: 45, top: -5 },
         createCloneCallback : function(view){

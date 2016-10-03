@@ -117,6 +117,17 @@ toolPalette.add(mediatorsToolGroupWrapper);
 var paletteView = new Tools.Views.ToolPalatteView({collection: toolPalette});
 paletteView.render();
 
+
+$(".shapes-container").resizable({
+    ghost: false,
+    minWidth:175,
+    maxWidth:500,
+    resize: function( event, ui ) {
+        var newWidth = ui.size.width;
+        $(".editor-container").css("left", newWidth);
+    }
+});
+
 // Create the model for the diagram
 var diagram = new Diagrams.Models.Diagram({});
 

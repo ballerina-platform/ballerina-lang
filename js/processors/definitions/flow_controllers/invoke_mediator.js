@@ -25,13 +25,13 @@ var Processors = (function (processors) {
         id: "InvokeMediator",
         title: "Invoke",
         icon: "images/SwitchMediator.gif",
-        colour : "#334455",
+        colour : "#2c3e50",
         type : "Custom",
         dragCursorOffset : { left: 10, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var svgRoot = view.createSVGForDraggable();
-                var rect = svgRoot.draw.basicRect(0, 0, 20, 50, 0, 0).attr("fill-opacity", 1);
+                var rect = svgRoot.draw.basicRect(0, 0, 20, 50, 0, 0).attr("fill-opacity", 1).style("fill", "#2c3e50");
                 return svgRoot.getDraggableRoot();
             }
             return cloneCallBack;
@@ -50,7 +50,7 @@ var Processors = (function (processors) {
                         diagram.destinationProcessor = view.model;
                         diagram.selectedNode = null;
                     }
-                    rectangle.style("fill", "#334455").style("fill-opacity", 1);
+                    rectangle.style("fill", "#2c3e50").style("fill-opacity", 1);
                 }).on('mousedown', function () {
                     d3.event.preventDefault();
                     d3.event.stopPropagation();
