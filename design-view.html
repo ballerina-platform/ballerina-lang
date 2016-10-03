@@ -110,7 +110,14 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
     // Listen to message
     eventer(messageEvent,function(e) {
         console.log('Design View received message!:  ',e.data);
-        parent.postMessage(diagram.parseTree(),"*");
+
+        if (e.data == "save-config") {
+            parent.postMessage(diagram.parseTree(),"*");
+        } else if (e.data == "new-config") {
+            diagram.reloadDiagramArea();
+        } else {
+            parent.postMessage(diagram.parseTree(),"*");
+        }
     },false);
 </script>
 

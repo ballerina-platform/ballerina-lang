@@ -443,6 +443,21 @@ var Diagrams = (function (diagrams) {
                 return traverse((TreeRoot), finalSource);
             },
 
+            reloadDiagramArea: function () {
+                endpointLifelineCounter = 0;
+                resourceLifelineCounter = 0;
+                if (diagramD3el) {
+                    diagramD3el.remove();
+                    for (var element in diagramViewElements) {
+                        diagramViewElements[element].remove();
+                    }
+                }
+                diagram.attributes.diagramResourceElements.models = [];
+                diagram.attributes.diagramResourceElements.length = 0;
+                diagram.attributes.diagramEndpointElements.models = [];
+                diagram.attributes.diagramEndpointElements.length = 0;
+            },
+
             getDefinitionSchema: function () {
                 return {
                     title: "Resource",

@@ -441,8 +441,8 @@ var Diagrams = (function (diagrams) {
             render: function () {
 
                 //Remove previous diagram
-                if (this.d3el) {
-                    this.d3el.remove();
+                if (diagramD3el) {
+                    diagramD3el.remove();
                     for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
@@ -497,7 +497,7 @@ var Diagrams = (function (diagrams) {
 
 
 
-                this.d3el = mainGroup;
+                diagramD3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
                 this.htmlDiv.droppable({

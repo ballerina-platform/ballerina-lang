@@ -46,6 +46,8 @@ var createPoint = function (x, y) {
     return new GeoCore.Models.Point({'x': x, 'y': y});
 };
 
+var diagramD3el = undefined;
+
 var createLifeLine = function (title, center, cssClass) {
     return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass});
 };
