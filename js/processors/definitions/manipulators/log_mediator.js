@@ -25,7 +25,7 @@ var Processors = (function (processors) {
         id: "LogMediator",
         title: "Logger",
         icon: "images/LogMediator.gif",
-        colour : "#2e2eb8",
+        colour : "#2980b9",
         type : "UnitProcessor",
         dragCursorOffset : { left: 45, top: -5 },
         createCloneCallback : function(view){
