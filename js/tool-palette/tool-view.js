@@ -28,13 +28,15 @@ var Tools = (function (tools) {
         initialize: function () {
         },
 
-        render: function () {
+        render: function (parent) {
             var id = this.model.attributes.id;
             var icon = this.model.attributes.icon;
             var createCloneCallback = this.model.get("createCloneCallback");
             var dragCursorOffset = this.model.get("dragCursorOffset");
             var self = this;
             this.$el.html(this.toolTemplate(this.model.attributes));
+            parent.append(this.$el);
+
             this.$el.draggable({
                 helper: _.isUndefined(createCloneCallback) ?  'clone' : createCloneCallback(self),
                 cursor: 'move',
@@ -42,7 +44,7 @@ var Tools = (function (tools) {
                 zIndex: 10001,
                 stop: this.handleDragStopEvent
             });
-            
+
             return this;
         },
 
