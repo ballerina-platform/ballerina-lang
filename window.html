@@ -47,6 +47,34 @@
         </div>
     </div>
 
+    <!--Modal for saving the configuration-->
+    <div class="modal fade" id="newConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="newConfigModalLabel">Save Integration Flow Configuration</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="location" class="form-control-label">Location</label>
+                        <input type="text" class="form-control" id="location">
+                    </div>
+                    <div class="form-group">
+                        <label for="configName" class="form-control-label">Config Name</label>
+                        <input class="form-control" id="configName">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="newConfiguration()" data-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- header -->
     <header class="header header-default">
         <div class="container-fluid">
@@ -64,66 +92,16 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="main-navbar">
                     <ul class="nav navbar-nav">
-                        <li><a href="#">New<span class="sr-only">(current)</span></a></li>
-                        <li><a href="#">Save</a></li>
+                        <li><a href="#" data-toggle="modal" data-target="#newConfigModal">New<span class="sr-only">(current)</span></a></li>
+                        <li><a href="#" onclick="saveConfiguration()">Save</a></li>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
         </nav>
     </header>
 
-    <!-- navbar -->
-    <!--<nav class="navbar sidebar-wrapper toggled sub-nav" role="navigation" data-side="left" data-width="58">-->
-        <!--<ul class="nav navbar-nav nav-stacked">-->
-            <!--<li aria-expanded="true" class="active">-->
-                <!--<a data-toggle="sidebar" data-target="#left-sidebar" data-container=".page-content-wrapper" data-container-divide="true"-->
-                    <!--aria-expanded="true" rel="sub-nav" onclick="updateSidebarNav('#sidebarNavFileExplorer', this)" title="File Explorer" id="btn-pages-sidebar"-->
-                    <!--class="active">-->
-                    <!--<i class="icon fw fw-pages"></i>-->
-                <!--</a>-->
-            <!--</li>-->
-            <!--<li aria-expanded="false" class="">-->
-                <!--<a data-toggle="sidebar" data-target="#left-sidebar" data-container=".page-content-wrapper" data-container-divide="true"-->
-                    <!--aria-expanded="false" rel="sub-nav" onclick="updateSidebarNav('#sidebarNavSettings', this)" title="Settings"-->
-                    <!--id="btn-sidebar-gadgets" class="">-->
-                    <!--<i class="icon fw fw-gadget"></i>-->
-                <!--</a>-->
-            <!--</li>-->
-        <!--</ul>-->
-    <!--</nav>-->
-
     <!-- #page-content-wrapper -->
     <div class="page-content-wrapper fixed" style="padding-left: 0px;">
-
-        <!-- .left-sidebar -->
-        <!--<div class="sidebar-wrapper sidebar-nav toggled" id="left-sidebar" data-side="left" data-width="250" data-offset-left="55"-->
-            <!--style="left: 55px;">-->
-
-            <!--<button class="btn btn-default close-handle close-sidebar" data-handle="close" data-toggle="sidebar" data-target="#left-sidebar"-->
-                <!--data-container=".page-content-wrapper" data-container-divide="true" aria-expanded="true" rel="sub-nav"><i class="fw fw-left-arrow"></i></button>-->
-
-            <!--&lt;!&ndash;<div class="nano">&ndash;&gt;-->
-                <!--&lt;!&ndash;<div class="nano-content" tabindex="0">&ndash;&gt;-->
-                    <!--&lt;!&ndash;&lt;!&ndash; File Explorer &ndash;&gt;&ndash;&gt;-->
-                    <!--&lt;!&ndash;<div id="sidebarNavFileExplorer" style="display: block;">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<div class="sidebar-brand">File Explorer</div>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<div class="alert alert-info">&ndash;&gt;-->
-                            <!--&lt;!&ndash;File explorer planel will be added here.&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;&lt;!&ndash; Settings &ndash;&gt;&ndash;&gt;-->
-                    <!--&lt;!&ndash;<div id="sidebarNavSettings" class="ues-store-assets" data-type="gadget" style="display: none;">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<div class="sidebar-brand">Settings</div>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<div class="alert alert-info">&ndash;&gt;-->
-                            <!--&lt;!&ndash;Settings panel will be added here.&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                <!--&lt;!&ndash;<div class="nano-pane" style="display: block;">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<div class="nano-slider" style="height: 49px; transform: translate(0px, 0px);"></div>&ndash;&gt;-->
-                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-            <!--&lt;!&ndash;</div>&ndash;&gt;-->
-        <!--</div>-->
 
         <!-- .left-sidebar-sub -->
         <div class="sidebar-wrapper sidebar-nav sidebar-nav-sub" id="left-sidebar-sub" data-side="left" data-width="250" data-offset-left="305"
@@ -202,12 +180,49 @@
         var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
         var eventer = window[eventMethod];
         var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+        var saveConfig = false;
+        var configLocation = undefined;
+        var configFileName = undefined;
 
         // Listen to message
         eventer(messageEvent,function(e) {
-            var SourceIFrame = document.getElementById("iframe2").contentWindow;
-            SourceIFrame.postMessage(e.data,"*");
+            if (saveConfig) {
+                var config = '@Path ("/stock")\n' +
+                        '@Source (protocol="http", host="localhost", port=8080)\n' +
+                        '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+                        'package com.sample;\n\n';
+                config += e.data;
+                var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
+
+                $.ajax({
+                    url:"http://localhost:8080/utility/saveconfig",
+                    type:"POST",
+                    data:payload,
+                    contentType:"text/plain; charset=utf-8",
+                    async:false,
+                    success: function(data, textStatus, xhr){
+                        console.log("SUCCESS !!!!!!!!!" + xhr.status);
+                    }
+                });
+                saveConfig = false;
+            } else {
+                var SourceIFrame = document.getElementById("iframe2").contentWindow;
+                SourceIFrame.postMessage(e.data, "*");
+            }
         },false);
+
+        function saveConfiguration() {
+            saveConfig = true;
+            var DesignIFrame = document.getElementById("iframe1").contentWindow;
+            DesignIFrame.postMessage("save-config","*");
+        }
+
+        function newConfiguration() {
+            var SourceIFrame = document.getElementById("iframe1").contentWindow;
+            SourceIFrame.postMessage("new-config", "*");
+            configLocation = document.getElementById("location");
+            configFileName = document.getElementById("configName");
+        }
     </script>
 
     <!-- Bootstrap JS -->
