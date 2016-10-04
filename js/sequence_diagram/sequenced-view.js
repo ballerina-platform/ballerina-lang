@@ -65,6 +65,83 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
+            updateProcessorProperties: function () {
+       
+                var editableProperties = {};
+                var message, logLevel, description;
+                selectedModel = this.__on[0].capture.model;
+                diagram.selectedNode = this.__on[0].capture.model;
+                diagram.selectedNodeId = selectedModel.cid;
+                if(selectedModel.type==="LogMediator") {
+                    var models = selectedModel.collection.models;
+                    for(var j=0;j<models.length;j++) {
+                        if (models[j].cid === diagram.selectedNodeId) {
+                            var processParameters = models[j].parameters.parameters;
+                            for (var i = 0; i < processParameters.length; i++) {
+                                var parameter = processParameters[i];
+                                if (parameter.key === "message") {
+                                 //   editableProperties.Message = parameter.value;
+                                    message = parameter.value;
+                                } else if (parameter.key === "logLevel") {
+                               //     editableProperties.LogLevel = parameter.value || "info";
+                                    logLevel = parameter.value || "info";
+                                } else if (parameter.key === "description") {
+                                //    editableProperties.Description = parameter.value;
+                                    description = parameter.value;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                function updateudControlLocation(rect) {
+                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
+                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
+                    udcontrol.set('visible', true);
+                    udcontrol.set('x', imgRight);
+                    udcontrol.set('y', imgTop);
+                    udcontrol.set('lifeline', diagram.selectedNode);
+                }
+
+                if(selected) {
+                    if(selected == this) {
+                        $('#propertyPane').empty();
+                        this.classList.toggle("lifeline_selected");
+                        udcontrol.set('visible', false);
+                        selected = null;
+                        console.log('if if');
+                    } else {
+                        selected.classList.toggle("lifeline_selected");
+                        selected = this;
+                        diagram.selectedNode = this;
+                        selected.classList.toggle("lifeline_selected");
+                        $('#propertyPane').empty();
+                        $('#propertySave').show();
+                        propertyPane = ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
+                                                                 Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
+                        console.log('if else');
+                        updateudControlLocation(this);
+                    }
+                } else {
+
+                    this.classList.toggle("lifeline_selected");
+                    diagram.selectedNode = this;
+                    selected = this;
+                    console.log('else');
+                    updateudControlLocation(this);
+                    $('#propertyPane').empty();
+                    propertyPane = ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
+                                                             Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
+                }
+                // if (selected.classList && selected.classList.contains("lifeline_selected")) {
+                //     selected.classList.toggle("lifeline_selected");
+                // }
+                // this.model.classList.toggle("processor_selected");
+
+                //propertyPane = ppView.createPropertyPane(this.model.getSchema(),this.model.getEditableProperties(),
+                // diagram);
+            },
+
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
@@ -80,13 +157,13 @@ var SequenceD = (function (sequenced) {
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
-                    rectBottomXXX.on('click',this.updateProcessorProperties);
+                    rectBottomXXX.on('click',this.updateProcessorProperties, this);
                     var mediatorText = d3Ref.draw.centeredText(center,
                         title,
                         group)
                         .classed(prefs.text.class, true);
-                    Object.getPrototypeOf(group).rect = rectBottomXXX;
-                    Object.getPrototypeOf(group).title = mediatorText;
+                    group.rect = rectBottomXXX;
+                    group.title = mediatorText;
                     //this.renderViewForElement(element, opts);
                 } else if (this.model.model.type === "DynamicContainableProcessor") {
 
@@ -158,10 +235,9 @@ var SequenceD = (function (sequenced) {
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
                         //var processor = this.modelAttr("children").models[id];
-                        //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
-                        // var processorCenterPoint = createPoint(xValue, yValue);
-                        //processorView.render("#diagramWrapper", processorCenterPoint);
-                        //processor.setY(yValue);
+                        //var processorView = new SequenceD.Views.Processor({model: processor, options:
+                        // lifeLineOptions}); var processorCenterPoint = createPoint(xValue, yValue);
+                        // processorView.render("#diagramWrapper", processorCenterPoint); processor.setY(yValue);
                     }
                        this.model.setHeight(totalHeight);
                 } else if(this.model.model.type === "Custom") {
@@ -184,83 +260,6 @@ var SequenceD = (function (sequenced) {
                 };
 
                 return group;
-            },
-
-            updateProcessorProperties: function () {
-                console.log('processor');
-                function updateudControlLocation(rect) {
-                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
-                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
-                    udcontrol.set('visible', true);
-                    udcontrol.set('x', imgRight);
-                    udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', diagram.selectedNode);
-                }
-
-                var editableProperties = {};
-                editableProperties.Message = "sample message";
-                editableProperties.LogLevel = "error";
-                editableProperties.Description = "temp description";
-                var schemaObj = {
-                    title: "Log Mediator",
-                    type: "object",
-                    properties: {
-                        Message: {"type": "string"},
-                        LogLevel: {
-                            "type": "string",
-                            "enum": [
-                                "debug",
-                                "info",
-                                "error"
-                            ],
-                            "default": "info"
-                        },
-                        Description: {"type": "string"}
-                    }
-                };
-
-                if(selected) {
-                    if(selected == this) {
-                        $('#propertyPane').empty();
-                        $('#propertySave').hide();
-                        this.classList.toggle("lifeline_selected");
-                        udcontrol.set('visible', false);
-                        selected = null;
-                        console.log('if if');
-                    } else {
-                        selected.classList.toggle("lifeline_selected");
-                        selected = this;
-                        diagram.selectedNode = this;
-                        selected.classList.toggle("lifeline_selected");
-                        $('#propertyPane').empty();
-                        $('#propertySave').show();
-                        propertyPane = ppView.createPropertyPane(schemaObj , editableProperties, this);
-                        console.log('if else');
-                        updateudControlLocation(this);
-                    }
-                } else {
-                    var children = thisModel.attributes.children.models;
-                    var msg = 'temp1';
-                    for(var i=0; i<children.length; i++) {
-                        //get msg
-                        var m = children[i];
-                        msg = m.parameters["parameters"][0]["message"];
-                    }
-
-                    this.classList.toggle("lifeline_selected");
-                    diagram.selectedNode = this;
-                    selected = this;
-                    console.log('else');
-                    updateudControlLocation(this);
-
-                    propertyPane = ppView.createPropertyPane(schemaObj , editableProperties, this);
-                }
-                // if (selected.classList && selected.classList.contains("lifeline_selected")) {
-                //     selected.classList.toggle("lifeline_selected");
-                // }
-                // this.model.classList.toggle("processor_selected");
-
-                //propertyPane = ppView.createPropertyPane(this.model.getSchema(),this.model.getEditableProperties(), diagram);
             }
 
         });
@@ -579,19 +578,20 @@ var SequenceD = (function (sequenced) {
                             if (propertyPane) {
                                 propertyPane.destroy();
                             }
-                            $('#propertySave').hide();
                             selected = '';
                         } else {
                             selected.classList.toggle("lifeline_selected");
                             this.classList.toggle("lifeline_selected");
                             updatePropertyPane();
                             selected = this;
+                            updateudControlLocation(this);
                         }
                     } else {
                         diagram.selected = false;
                         this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
                         selected = this;
+                        updateudControlLocation(this);
                     }
                 }));
 

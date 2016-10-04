@@ -24,6 +24,7 @@ var Diagrams = (function (diagrams) {
         {
 
             selectedNode: null,
+            //do we need to ad nodeid?*prabu
             /**
              * @augments DiagramElement
              * @constructs
@@ -278,6 +279,7 @@ var Diagrams = (function (diagrams) {
                 this.diagramResourceElements(resources);
                 this.diagramEndpointElements(endPoints);
                 this.selectedNode = null;
+                this.selectedNodeId = null;
                 this.destinationLifeLine = null;
                 // TODO: won't be using this until the layout finalized
                 this.deepestPointY = 100;
@@ -288,6 +290,8 @@ var Diagrams = (function (diagrams) {
             modelName: "Diagram",
 
             selectedNode: null,
+
+            selectedNodeId: null,
 
             nameSpace: diagrams,
 

@@ -37,38 +37,60 @@ var Editor = (function (editor) {
                     $('#property-container1').css("width", 20);
                     $('#expand-image').attr("src", "images/leftarrow.svg");
                     $('#propertyPaneContainer').hide();
-                    $('#propertySave').hide();
                 } else {
                     $('#property-container1').css("width", 240);
                     $('#expand-image').attr("src", "images/rightarrow.svg");
                     $('#propertyPaneContainer').show();
-                    $('#propertySave').show();
                 }
             });
 
-            $('#propertySave').on('click', this.updateResourceProperties);
+           // $('#propertyPaneContainer').on('mouseleave', this.onSaveImageClick);
         },
 
-        updateResourceProperties: function () {
-            if (propertyPane.schema.title === "Resource") {
-                diagram.attributes.path = propertyPane.editors['root.Path'].value;
-                diagram.attributes.get = propertyPane.editors['root.Get'].value;
-                diagram.attributes.put = propertyPane.editors['root.Put'].value;
-                diagram.attributes.post = propertyPane.editors['root.Post'].value;
-            } else if(propertyPane.schema.title === "Log Mediator") {
-                console.log('save log');
-                var msg = propertyPane.editors["root.Message"].value;
-                var desc = propertyPane.editors["root.Description"].value;
-                var loglevel = propertyPane.editors["root.LogLevel"].value;
-            }
-        },
+        onSaveImageClick: function(event) {
+            console.log('savee11');
+            if(propertyPane.schema) {
+                if (propertyPane.schema.title === "Lifeline") {
+                    //TODO This need to be handled in generic way
+                    console.log('lifeline');
+                    ppView.dataObject.set('title', propertyPane.getValue().Title);
+                } else if (propertyPane.schema.title === "Resource") {
+                    diagram.attributes.path = propertyPane.editors['root.Path'].value;
+                    diagram.attributes.get = propertyPane.editors['root.Get'].value;
+                    diagram.attributes.put = propertyPane.editors['root.Put'].value;
+                    diagram.attributes.post = propertyPane.editors['root.Post'].value;
+                } else if (propertyPane.schema.title === "Log Mediator") {
+                    console.log('save log');
+                    // var models = selectedModel.__on[0].capture.collection.models;
+                    //for(var j=0;j<models.length;j++) {
+                    // if(models[j].cid === diagram.selectedNodeId) {
+                    // console.log('cid'+models[j].cid);
 
-        onSaveImageClick: function() {
-            if ($('#save-image').css('opacity') == 1) {
-                //TODO This need to be handled in generic way
-                ppView.dataObject.set('title', propertyPane.getValue().Title);
-                $('#save-image').css({opacity: 0.4});
+                    // var processParameters = selectedModel.__on[0].capture.attributes.parameters.parameters;
+                    //
+                    // for(var i=0; i<processParameters.length; i++) {
+                    //     var parameter = processParameters[i];
+                    //     if(parameter.key === "message") {
+                    //         parameter.value =  propertyPane.editors["root.Message"].value; //propertyPane.getValue().Title
+                    //     } else if (parameter.key === "logLevel") {
+                    //         parameter.value =  propertyPane.editors["root.LogLevel"].value;
+                    //     } else if (parameter.key === "description") {
+                    //         parameter.value =  propertyPane.editors["root.Description"].value;
+                    //     }
+                    // }
+
+                    ppView.dataObject.parameters.parameters[0].value = propertyPane.getValue().Message;
+                    ppView.dataObject.parameters.parameters[1].value = propertyPane.getValue().LogLevel;
+                    ppView.dataObject.parameters.parameters[2].value = propertyPane.getValue().Description;
+                    // ppView.dataObject.set('message', propertyPane.getValue.Message);
+
+                    // break;
+                    //  }
+                    // }
+                }
             }
+           event.preventDefault();
+            event.stopPropagation();
         },
 
         createPropertyPane: function (schema, editableProperties, dataModel) {
@@ -84,16 +106,8 @@ var Editor = (function (editor) {
             });
 
             propertyPane.setValue(editableProperties);
-
-            propertyPane.watch('root',function() {
-                $("#save-image").css({ opacity: 1 });
-                //commented as this results recursive call and updated to the older value.
-                //thisLifeline.set('title', pane.getValue().Title);
-            });
-
-
+            $('#propertyPaneContainer').on('mouseleave', this.onSaveImageClick);
             $('#save-image').click(this.onSaveImageClick);
-
             return propertyPane;
         },
 

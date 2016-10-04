@@ -47,100 +47,36 @@ var Processors = (function (processors) {
                key: "logLevel"
             },
             {
-                key: "description"
+                key: "description",
+                value: "Temp description"
             }
-            // ,
-            // {
-            //     key: "level",
-            //     label: "Log Level",
-            //     required: true,
-            //     value: {
-            //         type: "String",
-            //         values: [
-            //             {key: "full", label: "FULL"}, {key: "simple", label: "SIMPLE"},
-            //             {key: "headers", label: "HEADERS"}, {key: "custom", label: "CUSTOM"}
-            //         ]
-            //     }
-            //
-            // },
-            // {
-            //     key: "category",
-            //     label: "Log Category",
-            //     required: true,
-            //     value: {
-            //         type: "String",
-            //         values: [
-            //             {key: "trace", label: "Trace"}, {key: "debug", label: "DEBUG"}, {key: "info", label: "INFO"}
-            //             , {key: "warn", label: "WARN"}, {key: "error", label: "ERROR"}, {key: "fatal", label: "FATAL"}
-            //         ]
-            //     }
-            // },
-            // {
-            //     key: "separator",
-            //     label: "Log Separator",
-            //     required: false,
-            //     value: {
-            //         type: "String"
-            //     }
-            // },
-            // {
-            //     key: "description",
-            //     label: "Log Description",
-            //     required: false,
-            //     value: {
-            //         type: "String"
-            //     }
-            // },
-            // {
-            //     key: "property",
-            //     label: "Properties",
-            //     required: false,
-            //     value: {
-            //         type: "Array",
-            //         parameters: [
-            //             {
-            //                 key: "name",
-            //                 label: "Property Name",
-            //                 required: true,
-            //                 value: {
-            //                     type: "String"
-            //                 }
-            //             },
-            //             {
-            //                 key: "value",
-            //                 label: "Property Value",
-            //                 required: false,
-            //                 value: {
-            //                     type: "String"
-            //                 }
-            //             },
-            //             {
-            //                 key: "expression",
-            //                 label: "Property Expression",
-            //                 required: false,
-            //                 value: {
-            //                     type: "String"
-            //                 }
-            //             }
-            //         ]
-            //     }
-            // }
         ],
 
         getSchema: function () {
             return {
-                title: this.properties.title,
+                title: "Log Mediator",
                 type: "object",
                 properties: {
-                    Message: {"type": "string"}
+                    Message: {"type": "string"},
+                    LogLevel: {
+                        "type": "string",
+                        "enum": [
+                            "debug",
+                            "info",
+                            "error"
+                        ],
+                        "default": "info"
+                    },
+                    Description: {"type": "string"}
                 }
-
-            }
+            };
         },
 
-        getEditableProperties: function () {
+        getEditableProperties: function (message, logLevel, description) {
             var editableProperties = {};
-            editableProperties.Message = "message1";
+            editableProperties.Message = message;//this.parameters["message"];
+            editableProperties.LogLevel = logLevel;//this.parameters["logLevel"];
+            editableProperties.Description = description; //this.parameters["description"];
             return editableProperties;
         },
 

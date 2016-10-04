@@ -396,6 +396,7 @@ var Diagrams = (function (diagrams) {
                         {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     diagram.selectedNode.addChild(processor);
+                    //does this change the selected on if so add
                     //diagram.trigger("renderDiagram");
                     diagramView.render();
                 } else if (Processors.flowControllers[id] && diagram.selectedNode) {
@@ -609,7 +610,7 @@ var Diagrams = (function (diagrams) {
                 if (diagram.selected === true) {
                     diagram.selected = false;
                     $('#propertyPane').empty();
-                    $('#propertySave').hide();
+                
                 } else if (!diagram.selectedNode) {
 
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
@@ -622,7 +623,6 @@ var Diagrams = (function (diagrams) {
                     diagram.selected = true;
 
                     $('#propertyPane').empty();
-                    $('#propertySave').show();
 
                     propertyPane = ppView.createPropertyPane(diagram.getDefinitionSchema(),
                                                              diagram.getDefinitionEditableProperties(), diagram);
