@@ -175,7 +175,7 @@ var SequenceD = (function (sequenced) {
                         var processor = this.modelAttr("children").models[id];
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                        processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                         processor.setY(yValue);
                         yValue += processor.getHeight()+ 30;
                     }
@@ -197,7 +197,7 @@ var SequenceD = (function (sequenced) {
                         var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                         var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        containableProcessorElementView.render("#diagramWrapper", processorCenterPoint);
+                        containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
                         yValue = yValue+containableProcessorElement.getHeight();
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
@@ -326,6 +326,10 @@ var SequenceD = (function (sequenced) {
 
                     lifeLine.call(drag);
                     yValue += 60;
+
+                    var initialHeight = parseInt(lifeLine.line.attr("y2")) - parseInt(lifeLine.line.attr("y1")) ;
+                    var totalIncrementedHeight = 0;
+
                     for (var id in this.modelAttr("children").models) {
 
                         if (this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
@@ -336,9 +340,10 @@ var SequenceD = (function (sequenced) {
                             });
 
                             var processorCenterPoint = createPoint(xValue, yValue);
-                            processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                            processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                             processor.setY(yValue);
                             yValue += processor.getHeight()+ 30;
+                            totalIncrementedHeight = totalIncrementedHeight + processor.getHeight()+ 30;
                         } else {
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
@@ -362,7 +367,21 @@ var SequenceD = (function (sequenced) {
                                 messagePoint.x(xValue);
                             }
                             yValue += 60;
+                            totalIncrementedHeight = totalIncrementedHeight + 40;
                         }
+                    }
+
+                    var totalHeight = totalIncrementedHeight + initialHeight;
+                    if (!_.isUndefined(diagram.highestLifeline) && diagram.highestLifeline !== null && diagram.highestLifeline.getHeight() > totalHeight) {
+                        totalHeight = diagram.highestLifeline.getHeight();
+                    }
+                    this.model.setHeight(totalHeight);
+                    this.adjustHeight(lifeLine, totalHeight - initialHeight);
+
+                    if (diagram.highestLifeline == undefined || diagram.highestLifeline.getHeight() < this.model.getHeight()) {
+                        diagram.highestLifeline = this.model;
+                        defaultView.render();
+                        return false;
                     }
 
                     //this.model.on("addChildProcessor", this.onAddChildProcessor, this);
@@ -378,10 +397,19 @@ var SequenceD = (function (sequenced) {
                                 model: messagePoint.message(),
                                 options: {class: "message"}
                             });
-                            linkView.render("#diagramWrapper", "messages");
+                            linkView.render("#" + defaultView.options.diagram.wrapperId, "messages");
                         }
                     }
                 }
+            },
+
+            adjustHeight: function (lifeLine, difference) {
+                lifeLine.rectBottom.attr("y", parseInt(lifeLine.rectBottom.attr("y")) + difference);
+                lifeLine.line.attr("y2", parseInt(lifeLine.line.attr("y2")) + difference);
+                lifeLine.textBottom.attr("y", parseInt(lifeLine.textBottom.attr("y")) + difference);
+                lifeLine.drawMessageRect.attr("height", parseInt(lifeLine.drawMessageRect.attr("height")) + difference);
+                lifeLine.middleRect.attr("height", parseInt(lifeLine.middleRect.attr("height")) + difference);
+
             },
 
             onAddChildProcessor: function (element, opts) {
@@ -488,11 +516,12 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.text.class, true);
                 var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group)
                     .classed(prefs.text.class, true);
-                Object.getPrototypeOf(group).rect = rect;
-                Object.getPrototypeOf(group).rectBottom = rectBottom;
-                Object.getPrototypeOf(group).line = line;
-                Object.getPrototypeOf(group).middleRect = middleRect;
-                Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
+                group.rect = rect;
+                group.rectBottom = rectBottom;
+                group.line = line;
+                group.middleRect = middleRect;
+                group.drawMessageRect = drawMessageRect;
+                group.textBottom = textBottom;
                 group.svgTitle = text;
                 group.svgTitleBottom = textBottom;
                 //Object.getPrototypeOf(group).title = text;
@@ -506,6 +535,8 @@ var SequenceD = (function (sequenced) {
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
+                    //setting current tab view based diagram model
+                     diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
@@ -516,6 +547,8 @@ var SequenceD = (function (sequenced) {
                 });
 
                 drawMessageRect.on('mouseover', function () {
+                    //setting current tab view based diagram model
+                    diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
@@ -535,7 +568,7 @@ var SequenceD = (function (sequenced) {
 
                 function updatePropertyPane() {
                     $('#propertySave').show();
-                    propertyPane = ppView.createPropertyPane( diagram.selectedNode.getSchema(),  diagram.selectedNode.getEditableProperties(),  diagram.selectedNode);
+                    propertyPane = ppView.createPropertyPane( defaultView.model.selectedNode.getSchema(),  defaultView.model.selectedNode.getEditableProperties(),  defaultView.model.selectedNode);
                 }
 
                 rect.on("click", (function () {
@@ -805,7 +838,7 @@ var SequenceD = (function (sequenced) {
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                     var processorCenterPoint = createPoint(xValue, yValue);
-                    processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                    processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
                     yValue += processor.getHeight()+ 30;

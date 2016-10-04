@@ -180,3 +180,34 @@
     opacity: 0.6;
     filter: alpha(opacity=60);
 }
+
+.nav-tabs > li {
+    position:relative;
+}
+.nav-tabs > li > a {
+    display:inline-block;
+}
+.nav-tabs > li > span {
+    cursor:pointer;
+    position:absolute;
+    right: 0;
+    top: 12px;
+    color: #c0392b;
+    font-size: 0.60em;
+}
+.nav-tabs > li:hover > span {
+    display: inline-block;
+}
+
+.nav-tabs > li > a {
+    padding-right: 32px;
+    border: 0;
+    color: black;
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.nav-tabs > li  {
+    background-color: #919294;
+    margin-left: 2px;
+}

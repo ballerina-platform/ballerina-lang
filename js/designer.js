@@ -2586,6 +2586,9 @@ function toggleHeading(source, show) {
     }
 }
 
+
+
+
 // Enforce min/max values of number fields
 $('input[type=number]').on('change', function () {
 
