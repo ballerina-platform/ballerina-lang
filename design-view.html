@@ -26,22 +26,22 @@
         </div>
         <div class="editor-container" id="editorBottom">
             <div id="sample">
-                <ul class="nav nav-tabs"  role="tablist">
+                <ul class="nav nav-tabs" id="tabList"  role="tablist">
                     <li><a href="#" class="add-resource">+</a></li>
                 </ul>
             </div>
 
             <script type="text/template" id="resourceTabsTemplate">
-                <li  role="presentation" class="series">
+
                     <a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
                     <span class="remove-resource fw-stack">
                         <i class="icon fw fw-circle fw-stack-2x"></i>
                         <i class="fw fw-cancel fw-stack-1x fw-inverse"></i>
                     </span>
-                </li>
+
                 </script>
             <script type="text/template" id="resourceContentTemplate">
-                <div  role="tabpanel" class="tab-pane" id="<%=resourceId%>"></div>
+                <div  role="tabpanel" class="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
                 </script>
 
             <div class="editor-scroller">
@@ -50,7 +50,7 @@
                     <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
                     <div id="udcModal" style="display:none;"></div>
                 </div>
-                <div class="editor gradient-pattern">
+                <div class="editor">
                     <div class="tab-content resource-content ">
 
                     </div>
@@ -122,9 +122,6 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
 <script src="js/sequence_diagram/sequenced-model.js"></script>
 <script src="js/sequence_diagram/sequenced-view.js"></script>
 <script src="js/sequence_diagram/sequenced-utils.js"></script>
-<script src="js/dialogs/resourceModel.js"></script>
-<script src="js/dialogs/resource-view.js"></script>
-<script src="js/dialogs/resourcecollection-view.js"></script>
 <script src="js/app.js"></script>
 
 <script>

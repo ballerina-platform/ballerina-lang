@@ -272,3 +272,10 @@ border-radius: 1px;
     opacity: 0.4;
 }
 
+.tab-divs{
+    position: absolute;
+    height: calc(100vh);
+    width: calc(100vw - 274px);
+    background-color: #fff;
+    overflow: hidden;
+}

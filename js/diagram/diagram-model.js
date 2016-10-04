@@ -260,7 +260,54 @@ var Diagrams = (function (diagrams) {
 
         });
 
+// Model for Tab based resources
+    var Tab = Backbone.Model.extend({
+        modelName: "Tab",
+        nameSpace: diagrams,
 
+
+        initialize: function (attrs, options) {
+            //store diagram object of a given tab
+            var diagramSet = new DiagramsList([]);
+            this.diagramForTab(diagramSet);
+            this.viewObj = {};
+
+        },
+        // mark already visited tabs
+        setSelectedTab: function () {
+            this.attributes.createdTab = true;
+        },
+        getSelectedTab: function () {
+            return this.createdTab;
+        },
+        setDiagramViewForTab: function (view) {
+            this.viewObj = view;
+        },
+
+        // diagram collection getters/setters
+        diagramForTab: function (element) {
+            if (_.isUndefined(element)) {
+                return this.get('diagramForTab');
+            } else {
+                this.set('diagramForTab', element);
+            }
+        },
+        // on new tab creation add the diagram object to list
+        addDiagramForTab: function (element) {
+
+            this.diagramForTab().add(element);
+        },
+        //get the diagram object from the collection
+        getDiagramOfTab: function (id) {
+            return this.diagramForTab().get(id);
+        },
+        defaults: {
+            resourceId: "id-not-set",
+            resourceTitle: "",
+            hrefId: "id-not-set",
+            createdTab: false,
+        }
+    });
     var Diagram = Backbone.Model.extend(
         /** @lends Diagram.prototype */
         {
@@ -284,6 +331,11 @@ var Diagrams = (function (diagrams) {
                 this.sourceLifeLineY = 0;
                 this.X = 0;
                 this.highestLifeline = null;
+                var resourceCounter = 0;
+                var endpointCounter = 0;
+                this.resourceLifeLineCounter(resourceCounter);
+                this.endpointLifeLineCounter(endpointCounter);
+                this.CurrentDiagram();
             },
 
             modelName: "Diagram",
@@ -295,6 +347,43 @@ var Diagrams = (function (diagrams) {
             lifeLineMap: {},
 
             destinationLifeLine: null,
+            //getter/setter for currentDiagram object of tab
+            CurrentDiagram: function (diagram) {
+                if (_.isUndefined(diagram)) {
+                    return this.get('CurrentDiagram');
+                } else {
+                    this.set('CurrentDiagram', diagram);
+                }
+            },
+            //create a diagram view  for new tab
+            createDiagramView: function (diagram, opts) {
+                var view = new Diagrams.Views.DiagramView({model: diagram, options: opts});
+                view.render();
+                return view;
+
+            },
+            //set current view as diagram view
+            setCurrentView: function (view1) {
+                view1.currentDiagramView(view1);
+            },
+            // setter/getter of resource element count
+            resourceLifeLineCounter: function (rCounter) {
+                if (_.isUndefined(rCounter)) {
+                    return this.get('resourceLifeLineCounter');
+                } else {
+                    this.set('resourceLifeLineCounter', rCounter);
+                }
+
+            },
+            // setter/getter of endpoint element count
+            endpointLifeLineCounter: function (eCounter) {
+                if (_.isUndefined(eCounter)) {
+                    return this.get('endpointLifeLineCounter');
+                } else {
+                    this.set('endpointLifeLineCounter', eCounter);
+                }
+
+            },
 
             addElement: function (element, opts) {
                 //this.trigger("addElement", element, opts);
@@ -489,7 +578,24 @@ var Diagrams = (function (diagrams) {
             }
 
         });
+    var DiagramsList = Backbone.Collection.extend(
+        /** @lends DiagramElements.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class DiagramElements represents the collection of diagrams
+             */
+            initialize: function (models, options) {
+            },
 
+            modelName: "DiagramsList",
+
+            nameSpace: diagrams,
+
+            model: Diagram
+
+        });
     models.DiagramElement = DiagramElement;
     models.DiagramElements = DiagramElements;
     models.Diagram = Diagram;
@@ -497,6 +603,8 @@ var Diagrams = (function (diagrams) {
     models.Link = Link;
     models.Connection = Connection;
     models.ConnectionPoint = ConnectionPoint;
+    models.Tab = Tab;
+    models.DiagramsList = DiagramsList;
     diagrams.Models = models;
 
 

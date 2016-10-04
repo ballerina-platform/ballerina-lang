@@ -194,18 +194,18 @@ function TreeNode (value, type,cStart, cEnd) {
 // Ex: HttpEP: "http://localhost/test/test2"
 var definedConstants = {};
 
-
 // Configuring dynamic  tab support
-var resource = new Dialogs.Models.ResourceModel({
-resourceId:"seq_1",
-hrefId:"#seq_1",
-resourceTitle:"Resource1"
+var tab = new Diagrams.Models.Tab({
+    resourceId:"seq_1",
+    hrefId:"#seq_1",
+    resourceTitle:"Resource1",
+    createdTab:false
 });
 
-var resourceView = new Dialogs.Views.ResourceView({model:resource});
-resourceView.render();
-var contentView = new Dialogs.Views.ResourceCollectionView({model:resource});
-contentView.render();
+var tabListView = new Diagrams.Views.TabListView({model:tab});
+tabListView.render(tab);
+var diagramObj1 = new Diagrams.Models.Diagram({});
+tab.addDiagramForTab(diagramObj1);
 
 
 

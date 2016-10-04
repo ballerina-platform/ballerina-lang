@@ -28,7 +28,6 @@ var Diagrams = (function (diagrams) {
      */
     var createViewForModel = function (model, options) {
         return new model.nameSpace.Views[model.modelName + "View"]({model: model, options: options});
-       return new Dialogs.Views.
     };
 
     utils.createViewForModel = createViewForModel;

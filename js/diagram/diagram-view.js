@@ -80,8 +80,8 @@ var Diagrams = (function (diagrams) {
              * @param {Point} point
              */
             snapToGrid: function (point) {
-                var newX = Math.round(point.x() / this.diagramView().gridWidth()) * this.diagramView().gridWidth();
-                var newY = Math.round(point.y() / this.diagramView().gridHeight()) * this.diagramView().gridHeight();
+                var newX = Math.round(point.x() / defaultView.gridWidth()) * defaultView.gridWidth();
+                var newY = Math.round(point.y() / defaultView.gridHeight()) * defaultView.gridHeight();
                 return new GeoCore.Models.Point({'x': newX, 'y': newY});
             },
 
@@ -269,7 +269,127 @@ var Diagrams = (function (diagrams) {
             }
 
         });
+// Holds the view for all tab elements
+    var TabListView = Backbone.View.extend({
+        //<ul> element for tabs
+        el: '#tabList',
+        initialize: function () {
 
+
+        },
+
+
+        events: {
+            "click .add-resource": "addResourceTab"
+        },
+        render: function (model) {
+            var tabView = new TabView({model: model});
+            tabView.render();
+            $(this.el).append(tabView.el);
+
+        },
+        //function to fire when a new resource tab button is clicked
+        addResourceTab: function (e) {
+            // required to clean previous views
+            this.undelegateEvents();
+            e.preventDefault();
+            var id = $(".nav-tabs").children().length;
+            var hrefId = '#seq_' + id;
+            var resourceId = 'seq_' + id;
+            var titlePrefix = resourceId.substring(resourceId.length, 4);
+            //create new Tab based resource model
+            var resourceModel = new Diagrams.Models.Tab({
+                resourceId: resourceId,
+                hrefId: hrefId,
+                resourceTitle: "Resource" + titlePrefix,
+                createdTab: false
+            });
+
+            var nextTabListView = new Diagrams.Views.TabListView({model: resourceModel});
+            nextTabListView.render(resourceModel);
+            //create new diagram object for the tab
+            var diagramObj = new Diagrams.Models.Diagram({});
+            resourceModel.addDiagramForTab(diagramObj);
+        }
+
+    });
+// View for each tab item (<li> item)
+    var TabView = Backbone.View.extend({
+        //create <li> element to hold each resource tab
+        tagName: "li",
+        className: "series ",
+        template: _.template($('#resourceTabsTemplate').html()),
+        initialize: function () {
+
+
+        },
+        events: {
+            "click a": "clickedResourceTab",
+            'click .remove-resource': 'removeResourceTab',
+        },
+        // on click of added tab
+        clickedResourceTab: function (e) {
+            e.preventDefault();
+            currentTabId = this.model.get("hrefId");
+            var currentTab = this.model;
+            //Unique Id created for the svg element where elements can be drawn
+            var svgUId = this.model.get("resourceId") + "4";
+            //first time click on the tab
+            if (this.model.attributes.createdTab === false) {
+                //get the diagram model for this tab
+                var dgModel = this.model.getDiagramOfTab(currentTab.attributes.diagramForTab.models[0].cid);
+                dgModel.CurrentDiagram(dgModel);
+                var options = {selector: currentTabId, wrapperId: svgUId};
+                // get the current diagram view for the tab
+                var currentView = dgModel.createDiagramView(dgModel, options);
+                // set current tab's diagram view as default view
+                currentView.currentDiagramView(currentView);
+                this.model.setDiagramViewForTab(currentView);
+                // mark tab as visited
+                this.model.setSelectedTab();
+
+            }
+            else {
+                // not the first time click on the given tab
+                var dgViewToRender = this.model.viewObj;
+                dgViewToRender.currentDiagramView(dgViewToRender);
+
+
+            }
+
+
+        },
+        //Remove tab and tab content on 'remove' button
+        removeResourceTab: function (e) {
+            e.preventDefault();
+            var anchor = $(e.currentTarget).siblings('a');
+            $(anchor.attr('href')).remove();
+            $(e.currentTarget).parent().remove();
+        },
+
+        render: function () {
+            var html = this.template(this.model.attributes);
+            $(this.el).append(html);
+            var tabContent = new TabContentView({model: this.model});
+            tabContent.render();
+
+        }
+    });
+//View to create matching tab content div for a tab
+    var TabContentView = Backbone.View.extend({
+        //Adding created template to editor div
+        el: ".resource-content",
+        template: _.template($('#resourceContentTemplate').html()),
+        initialize: function () {
+
+
+        },
+        render: function () {
+            var html = this.template(this.model.attributes);
+            $(this.el).append(html);
+        }
+
+    });
 
     var DiagramView = Backbone.View.extend(
         /** @lends DiagramView.prototype */
@@ -289,11 +409,13 @@ var Diagrams = (function (diagrams) {
                 opts.diagram.class = opts.diagram.class || "diagram";
                 opts.diagram.selector = opts.diagram.selector || ".diagram";
                 opts.diagram.wrapper = opts.diagram.wrapper || {};
-                opts.diagram.wrapper.id = opts.diagram.wrapper.id || "diagramWrapper";
+                // CHANGED
+                opts.diagram.wrapperId = opts.wrapperId || "diagramWrapper";
                 opts.diagram.grid = opts.diagram.grid || {};
                 opts.diagram.grid.height = opts.diagram.grid.height || 25;
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
+                var defaultView = {};
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
 
@@ -375,43 +497,54 @@ var Diagrams = (function (diagrams) {
                 var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
+            currentDiagramView: function (view1) {
+                if (_.isUndefined(view1)) {
+                    return defaultView;
+                } else {
+                    defaultView = view1;
 
+                }
+            },
             handleDropEvent: function (event, ui) {
                 var newDraggedElem = $(ui.draggable).clone();
+                var txt = defaultView.model;
                 //var type = newDraggedElem.attr('id');
-                console.log("droped");
+                console.log("dropped");
                 var id = ui.draggable.context.lastChild.id;
                 var position = {};
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
-                if (Processors.manipulators[id] && diagram.selectedNode) {
+                if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
-                    var processor = diagram.selectedNode.createProcessor(
+                    var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
                         createPoint(position.x, position.y),
                         Processors.manipulators[id].id,
-                        {type: Processors.manipulators[id].type || "UnitProcessor", initMethod:Processors.manipulators[id].init},
+                        {
+                            type: Processors.manipulators[id].type || "UnitProcessor",
+                            initMethod: Processors.manipulators[id].init
+                        },
                         {colour: Processors.manipulators[id].colour},
                         {parameters: Processors.manipulators[id].parameters},
                         {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
-                    diagram.selectedNode.addChild(processor);
-                    //diagram.trigger("renderDiagram");
-                    diagramView.render();
-                } else if (Processors.flowControllers[id] && diagram.selectedNode) {
+                    txt.selectedNode.addChild(processor);
+                    //TEST CHANGE
+                    defaultView.render();
+                } else if (Processors.flowControllers[id] && txt.selectedNode) {
                     var center = createPoint(position.x, position.y);
-                    var processor = diagram.selectedNode.createProcessor(
+                    var processor = txt.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
                         center,
                         Processors.flowControllers[id].id,
-                        {type: Processors.flowControllers[id].type, initMethod:Processors.flowControllers[id].init },
+                        {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
                         {parameters: Processors.flowControllers[id].parameters},
                         {getMySubTree: Processors.flowControllers[id].getMySubTree}
                     );
-                    diagram.selectedNode.addChild(processor);
+                    txt.selectedNode.addChild(processor);
 
-                    if(processor.type == "TryBlockMediator") {
+                    if (processor.type == "TryBlockMediator") {
                         var containableProcessorElem1 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                         containableProcessorElem1.set('title', "Try");
                         processor.containableProcessorElements().add(containableProcessorElem1);
@@ -422,27 +555,32 @@ var Diagrams = (function (diagrams) {
                     }
 
 
-                    diagramView.render();
+                    defaultView.render();
                 } else if (id == "EndPoint") {
-                    endpointLifelineCounter++;
-                    diagramView.renderMainElement(id, endpointLifelineCounter, MainElements.lifelines.EndPointLifeline);
+                    var countOfEndpoints = txt.endpointLifeLineCounter();
+                    ++countOfEndpoints;
+                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline);
+                    txt.endpointLifeLineCounter(countOfEndpoints);
 
                 } else if (id == "Resource") {
-                    resourceLifelineCounter++;
-                    if(resourceLifelineCounter == 1) {
-                        diagramView.renderMainElement(id, resourceLifelineCounter, MainElements.lifelines.ResourceLifeline);
+                    var countOfResources = txt.resourceLifeLineCounter();
+                    //if no resource elements added to this tab view, as only one resource element is allowed in a tab
+                    if (countOfResources === 0) {
+                        ++countOfResources;
+                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline);
+                        txt.resourceLifeLineCounter(countOfResources);
                     }
+
                 } else {
 
                 }
             },
 
-
             render: function () {
 
                 //Remove previous diagram
-                if (diagramD3el) {
-                    diagramD3el.remove();
+                if (this.d3el) {
+                    this.d3el.remove();
                     for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
@@ -457,7 +595,7 @@ var Diagrams = (function (diagrams) {
 
                 var definitions = this.d3svg.append("defs");
 
-                var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapper.id)
+                var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapperId)
                     .attr("width", "100%")
                     .attr("height", "100%");
 
@@ -497,7 +635,7 @@ var Diagrams = (function (diagrams) {
 
 
 
-                diagramD3el = mainGroup;
+                this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
                 this.htmlDiv.droppable({
@@ -514,7 +652,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
                 }
 
@@ -527,7 +665,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
                 }
 
@@ -540,7 +678,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
                 }
 
@@ -553,7 +691,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
                 }
 
@@ -561,25 +699,26 @@ var Diagrams = (function (diagrams) {
             },
 
             renderMainElement: function (lifelineName, counter, lifeLineDef) {
-                var numberOfResourceElements = diagram.attributes.diagramResourceElements.length;
-                var numberOfEndpointElements = diagram.attributes.diagramEndpointElements.length;
+                var txt = this.model;
+                var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
+                var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
                 var centerPoint;
-                if(numberOfEndpointElements > 0) {
-                    if(lifelineName == "Resource") {
+                if (numberOfEndpointElements > 0) {
+                    if (lifelineName == "Resource") {
                         centerPoint = createPoint(200, 50);
-                        diagram.attributes.diagramEndpointElements.each(function(model) {
+                        txt.attributes.diagramEndpointElements.each(function (model) {
                             var xVal = model.get('centerPoint').attributes.x;
                             model.get('centerPoint').move(180, 0);
                             model.setX(xVal + 180);
                             model.rightLowerConer({x: xVal + 245, y: 0});
                         });
                     } else {
-                        var lastLifeLine = diagram.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
+                        var lastLifeLine = txt.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
                         centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
                     }
                 } else {
-                    if(numberOfResourceElements > 0) {
-                        var lastLifeLine = diagram.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
+                    if (numberOfResourceElements > 0) {
+                        var lastLifeLine = txt.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
                         centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
                     } else {
                         //initial life line position
@@ -593,12 +732,17 @@ var Diagrams = (function (diagrams) {
                     y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
                 });
                 lifeLineOptions.class = lifeLineDef.class;
-                diagram.addElement(lifeline, lifeLineOptions);
-                diagramView.render();
+                //SETTING TOP SVG ELEMENT IN OPTIONS To Draw messages
+                lifeLineOptions.diagram = defaultView.model;
+                txt.addElement(lifeline, lifeLineOptions);
+                defaultView.render();
             },
 
             renderDiagram: function () {
-                diagramView.render();
+                defaultView.render();
+            },
+            onRenderForCurrentDiagram: function (element, opts) {
+                this.renderViewForElement(element, opts);
             },
 
             onAddElement: function (element, opts) {
@@ -606,11 +750,12 @@ var Diagrams = (function (diagrams) {
             },
 
             onClickDiagram: function () {
-                if (diagram.selected === true) {
-                    diagram.selected = false;
+                var txt = defaultView;
+                if (txt.model.selected === true) {
+                    txt.model.selected = false;
                     $('#propertyPane').empty();
                     $('#propertySave').hide();
-                } else if (!diagram.selectedNode) {
+                } else if (!txt.model.selectedNode) {
 
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
@@ -619,20 +764,21 @@ var Diagrams = (function (diagrams) {
                     udcontrol.set('visible', false);
                     udcontrol.set('lifeline', '');
                     selected = '';
-                    diagram.selected = true;
+                    txt.model.selected = true;
 
                     $('#propertyPane').empty();
                     $('#propertySave').show();
 
-                    propertyPane = ppView.createPropertyPane(diagram.getDefinitionSchema(),
-                                                             diagram.getDefinitionEditableProperties(), diagram);
+                    propertyPane = ppView.createPropertyPane(txt.model.getDefinitionSchema(),
+                        txt.model.getDefinitionEditableProperties(), txt.model);
                 }
             },
+
 
             renderViewForElement: function (element, renderOpts) {
                 var view = Diagrams.Utils.createViewForModel(element, renderOpts);
                 view.diagramView(this);
-                view.render("#" + this.options.diagram.wrapper.id);
+                view.render("#" + this.options.diagram.wrapperId);
             },
 
             gridWidth: function () {
@@ -667,7 +813,7 @@ var Diagrams = (function (diagrams) {
 
             onMessageDrawStart: function(sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback){
 
-                var diagView = this;
+                var diagView = defaultView;
 
                 var line = this.d3svg.append("line")
                     .attr("x1", startPoint.x())
@@ -724,6 +870,8 @@ var Diagrams = (function (diagrams) {
     views.ConnectionView = ConnectionView;
     views.ConnectionPointView = ConnectionPointView;
     views.DiagramView = DiagramView;
+    views.TabListView = TabListView;
+    views.TabView = TabView;
 
     diagrams.Views = views;
     return diagrams;
