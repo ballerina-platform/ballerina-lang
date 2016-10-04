@@ -430,7 +430,7 @@ var Diagrams = (function (diagrams) {
                 this.d3svg = svg;
                 svg.on("click", this.onClickDiagram);
 
-                /*var svgPanNZoom = $(svg.node()).svgPanZoom({
+                var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
 
                         // enables mouse wheel zooming events
@@ -488,10 +488,64 @@ var Diagrams = (function (diagrams) {
                 $(svg.node()).dblclick(function(){
                     svgPanNZoom.reset();
                 });
-                */
+                svg.attr("preserveAspectRatio", "xMinYMin meet");
+
 
             },
 
+            /**
+             * Gets the SVG Viewport size.
+             *
+             * @returns {{}} Viewport for Diagram SVG.
+             */
+            getViewPort: function(){
+                var viewPortHeight = $(this.d3svg.node()).height(),
+                    viewPortWidth  = $(this.d3svg.node()).width();
+                return {w: viewPortWidth, h: viewPortHeight};
+            },
+
+            /**
+             * Gets the SVG Viewbox attribute.
+             *
+             * @returns {{}} View Box for Diagram SVG.
+             */
+            getViewBox: function(){
+               var viewBoxAttr = this.d3svg.attr("viewBox"),
+                   viewBoxValues = _.split(viewBoxAttr, ' ', 4),
+                   viewBox = {};
+
+               viewBox.x = _.toNumber(viewBoxValues[0]);
+               viewBox.y = _.toNumber(viewBoxValues[1]);
+               viewBox.w = _.toNumber(viewBoxValues[2]);;
+               viewBox.h = _.toNumber(viewBoxValues[3]);;
+
+               return viewBox;
+            },
+
+            /**
+             * Sets the SVG Viewbox attribute.
+             *
+             * @param {number} x min X axis of the viewbox.
+             * @param {number} y min y axis of the viewbox.
+             * @param {number} w width of the viewbox.
+             * @param {number} h height of the viewbox
+             */
+            setViewBox: function(x, y, w, h){
+               this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
+            },
+
+            /**
+             * Covert a point in client viewport Coordinates to svg user space Coordinates.
+             * @param {Point} point a point in client viewport Coordinates
+             */
+            toViewBoxCoordinates: function(point){
+                var pt = this.d3svg.node().createSVGPoint();
+                pt.x = point.x();
+                pt.y = point.y();
+                pt = pt.matrixTransform(this.d3svg.node().getScreenCTM().inverse());
+
+                return new GeoCore.Models.Point({x:pt.x, y:pt.y});
+            },
 
             addContainableProcessorElement: function (processor, center) {
                 var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
@@ -508,17 +562,16 @@ var Diagrams = (function (diagrams) {
             handleDropEvent: function (event, ui) {
                 var newDraggedElem = $(ui.draggable).clone();
                 var txt = defaultView.model;
-                //var type = newDraggedElem.attr('id');
-                console.log("dropped");
                 var id = ui.draggable.context.lastChild.id;
-                var position = {};
-                position.x = ui.offset.left - $(this).offset().left;
-                position.y = ui.offset.top - $(this).offset().top;
+                var position =  new GeoCore.Models.Point({x:ui.offset.left.x, y:ui.offset.top});
+                    //convert drop position to relative svg coordinates
+                    position = defaultView.toViewBoxCoordinates(position);
+
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
                     var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
-                        createPoint(position.x, position.y),
+                        position,
                         Processors.manipulators[id].id,
                         {
                             type: Processors.manipulators[id].type || "UnitProcessor",
@@ -532,10 +585,9 @@ var Diagrams = (function (diagrams) {
                     //TEST CHANGE
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
-                    var center = createPoint(position.x, position.y);
                     var processor = txt.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
-                        center,
+                        position,
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
