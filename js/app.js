@@ -29,14 +29,14 @@ lifeLineOptions.rect.class = "lifeline-rect";
 // Lifeline middle-rect options
 lifeLineOptions.middleRect = {};
 lifeLineOptions.middleRect.width = 100;
-lifeLineOptions.middleRect.height = 700;
+lifeLineOptions.middleRect.height = 300;
 lifeLineOptions.middleRect.roundX = 1;
 lifeLineOptions.middleRect.roundY = 1;
 lifeLineOptions.middleRect.class = "lifeline-middleRect";
 
 // Lifeline options
 lifeLineOptions.line = {};
-lifeLineOptions.line.height = 700;
+lifeLineOptions.line.height = 300;
 lifeLineOptions.line.class = "lifeline-line";
 // Lifeline text options
 lifeLineOptions.text = {};
@@ -45,6 +45,8 @@ lifeLineOptions.text.class = "lifeline-title";
 var createPoint = function (x, y) {
     return new GeoCore.Models.Point({'x': x, 'y': y});
 };
+
+var diagramD3el = undefined;
 
 var createLifeLine = function (title, center, cssClass) {
     return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass});
@@ -114,6 +116,17 @@ toolPalette.add(mainToolGroupWrapper);
 toolPalette.add(mediatorsToolGroupWrapper);
 var paletteView = new Tools.Views.ToolPalatteView({collection: toolPalette});
 paletteView.render();
+
+
+$(".shapes-container").resizable({
+    ghost: false,
+    minWidth:175,
+    maxWidth:500,
+    resize: function( event, ui ) {
+        var newWidth = ui.size.width;
+        $(".editor-container").css("left", newWidth);
+    }
+});
 
 // Create the model for the diagram
 var diagram = new Diagrams.Models.Diagram({});

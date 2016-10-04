@@ -9,28 +9,14 @@
     <title>Design View</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/diagram/diagram-tool-bar.css" />
     <link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="lib/jquery-ui_v1.12.1/jquery-ui.css" />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/app.css" />
 </head>
 
 <body>
-<script type="text/template" id="toolgroupWrapper">
-    <div class="mybs_container groupwrapper">
-        <div class="row mybs-row">
-            <div class="col-md-12">
-                <div class="panel panel-info panel-container">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><%=toolGroupName%></h3>
-                        <span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up mybs-glypicon"></i></span>
-                    </div>
-                    <div class="panel-body toolgroup-container" id="toolgroup-container-<%=toolGroupID%>"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</script>
-
 
 <div id="container">
     <div id="design-editor">
@@ -69,7 +55,7 @@
 <!-- custom download of jquery-ui which has onlt drag and drop components can be download from here
 http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000000100110000000000010000000000000000000000
 -->
-<script src="lib/jquery-ui_1.12.0.custom_dnd_only.js"></script>
+<script src="lib/jquery-ui_v1.12.1/jquery-ui.js"></script>
 <script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
 <script src="lib/lodash_v4.13.1/lodash.js"></script>
 <script src="lib/backbone_v1.3.3/backbone.js"></script>
@@ -124,7 +110,14 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
     // Listen to message
     eventer(messageEvent,function(e) {
         console.log('Design View received message!:  ',e.data);
-        parent.postMessage(diagram.parseTree(),"*");
+
+        if (e.data == "save-config") {
+            parent.postMessage(diagram.parseTree(),"*");
+        } else if (e.data == "new-config") {
+            diagram.reloadDiagramArea();
+        } else {
+            parent.postMessage(diagram.parseTree(),"*");
+        }
     },false);
 </script>
 

@@ -358,6 +358,10 @@ var SequenceD = (function (sequenced) {
 
                     lifeLine.call(drag);
                     yValue += 60;
+
+                    var initialHeight = parseInt(lifeLine.line.attr("y2")) - parseInt(lifeLine.line.attr("y1")) ;
+                    var totalIncrementedHeight = 0;
+
                     for (var id in this.modelAttr("children").models) {
 
                         if (this.modelAttr("children").models[id] instanceof SequenceD.Models.Processor) {
@@ -371,6 +375,7 @@ var SequenceD = (function (sequenced) {
                             processorView.render("#diagramWrapper", processorCenterPoint, "processors");
                             processor.setY(yValue);
                             yValue += processor.getHeight()+ 30;
+                            totalIncrementedHeight = totalIncrementedHeight + processor.getHeight()+ 30;
                         } else {
                             var messagePoint = this.modelAttr("children").models[id];
                             var linkCenterPoint = createPoint(xValue, yValue);
@@ -394,7 +399,21 @@ var SequenceD = (function (sequenced) {
                                 messagePoint.x(xValue);
                             }
                             yValue += 60;
+                            totalIncrementedHeight = totalIncrementedHeight + 40;
                         }
+                    }
+
+                    var totalHeight = totalIncrementedHeight + initialHeight;
+                    if (!_.isUndefined(diagram.highestLifeline) && diagram.highestLifeline !== null && diagram.highestLifeline.getHeight() > totalHeight) {
+                        totalHeight = diagram.highestLifeline.getHeight();
+                    }
+                    this.model.setHeight(totalHeight);
+                    this.adjustHeight(lifeLine, totalHeight - initialHeight);
+
+                    if (diagram.highestLifeline == undefined || diagram.highestLifeline.getHeight() < this.model.getHeight()) {
+                        diagram.highestLifeline = this.model;
+                        diagramView.render();
+                        return false;
                     }
 
                     //this.model.on("addChildProcessor", this.onAddChildProcessor, this);
@@ -414,6 +433,15 @@ var SequenceD = (function (sequenced) {
                         }
                     }
                 }
+            },
+
+            adjustHeight: function (lifeLine, difference) {
+                lifeLine.rectBottom.attr("y", parseInt(lifeLine.rectBottom.attr("y")) + difference);
+                lifeLine.line.attr("y2", parseInt(lifeLine.line.attr("y2")) + difference);
+                lifeLine.textBottom.attr("y", parseInt(lifeLine.textBottom.attr("y")) + difference);
+                lifeLine.drawMessageRect.attr("height", parseInt(lifeLine.drawMessageRect.attr("height")) + difference);
+                lifeLine.middleRect.attr("height", parseInt(lifeLine.middleRect.attr("height")) + difference);
+
             },
 
             onAddChildProcessor: function (element, opts) {
@@ -520,11 +548,12 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.text.class, true);
                 var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group)
                     .classed(prefs.text.class, true);
-                Object.getPrototypeOf(group).rect = rect;
-                Object.getPrototypeOf(group).rectBottom = rectBottom;
-                Object.getPrototypeOf(group).line = line;
-                Object.getPrototypeOf(group).middleRect = middleRect;
-                Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
+                group.rect = rect;
+                group.rectBottom = rectBottom;
+                group.line = line;
+                group.middleRect = middleRect;
+                group.drawMessageRect = drawMessageRect;
+                group.textBottom = textBottom;
                 group.svgTitle = text;
                 group.svgTitleBottom = textBottom;
                 //Object.getPrototypeOf(group).title = text;

@@ -23,17 +23,21 @@ var MainElements = (function (mainElements) {
     var endPointLifeline = {
         id: "EndPoint",
         title: "End Point",
-        icon: "images/icon1.png",
+        icon: "images/tool-icons/lifeline.svg",
         colour : "purple",
         class : "endpoint",
-        dragCursorOffset : { left: 30, top: 40 },
+        dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {
-                var group = view.createSVGForDraggable();
-                group.attr("class", 'tool endpoint');
-                group.draw.line(30, 10, 30, 60, group);
-                group.draw.basicRect(0, 0, 60, 20, 0, 0, group);
-                return group.getDraggableRoot();
+                var div = view.createContainerForDraggable();
+                d3.xml("images/tool-icons/lifeline.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                    if (error) throw error;
+                    var svg = xml.getElementsByTagName("svg")[0];
+                    d3.select(svg).attr("width", "100px").attr("height", "100px");
+                    d3.select(svg).attr("width", "100px");
+                    div.node().appendChild(svg);
+                });
+                return div.node();
             }
             return cloneCallBack;
         }

@@ -1,30 +1,67 @@
-button.accordion {
-    background-color: #eee;
-    color: #444;
-    cursor: pointer;
-    padding: 18px;
+.tool-group{
     width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-    transition: 0.4s;
+    border-bottom: 2px solid #1e1e1e;
 }
 
-button.accordion.active, button.accordion:hover {
-    background-color: #ddd;
+.tool-group-header{
+    cursor: pointer;
+    height: 40px;
+    padding: 10px 18px 10px 18px;
 }
 
-div.panel {
-    padding: 0 18px;
-    background-color: white;
-    max-height: 0;
+.tool-group-header-title{
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.tool-group-header-title:hover{
+    cursor: pointer;
+    color: white;
+}
+
+.tool-group-header-collapse-icon{
+
+}
+
+.tool-group-body{
     overflow: hidden;
-    transition: 0.6s ease-in-out;
-    opacity: 0;
+    padding: 0px 15px 10px 15px;
 }
 
-div.panel.show {
-    opacity: 1;
-    max-height: 500px;
+.collapse-icon{
+    float: right;
+    padding-top: 3px;
+    font-size: 10px;
+    margin-right: 10px;
+    color: #8d8d8d;
+}
+
+.tool-container {
+    width: 110px;
+    height: 110px;
+    margin: 3px;
+    float: left;
+    cursor: pointer;
+    border-style: solid;
+    border-color: #8d8d8d;
+    border-width: 1px;
+    padding: 5px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.tool-image {
+    max-width:60px;
+    max-height:75px;
+    display : block;
+    margin : auto;
+}
+
+.tool-title {
+    padding-top:0px;
+    color: white;
+    display : block;
+    margin : auto;
 }

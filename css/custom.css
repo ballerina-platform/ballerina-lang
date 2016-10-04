@@ -542,7 +542,7 @@ html:not('.ie') .page-content-wrapper.fixed .sidebar-wrapper.sidebar-options {
 }
 
 .nav-tabs>li:first-child {
-    margin-left: 25px;
+    /*margin-left: 25px;*/
 }
 
 .nav-tabs>li>a {

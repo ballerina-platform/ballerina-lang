@@ -20,35 +20,49 @@ var Tools = (function (tools) {
     var views = tools.Views || {};
 
     var toolGroupWrapperView = Backbone.View.extend({
-        template: _.template($('#toolgroupWrapper').html()),
 
         initialize: function () {
             console.log("toolGroupWrapperView init");
         },
 
-        render: function () {
-            var htmContent = this.template(this.model.attributes);
-            this.$el.html(htmContent);
+        render: function (parent) {
+            var groupDiv = $('<div></div>');
+            parent.append(groupDiv);
+            groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
+            groupDiv.attr('class', "tool-group");
+
+            var groupHeaderDiv = $("<div></div>");
+            groupDiv.append(groupHeaderDiv);
+            groupHeaderDiv.attr('class', "tool-group-header");
+
+            var groupTitle = $("<a></a>");
+            groupHeaderDiv.append(groupTitle)
+            groupTitle.attr('class', "tool-group-header-title")
+                      .text(this.model.attributes.toolGroupName);
+
+            var groupCollapseIcon = $("<span></span>");
+            groupHeaderDiv.append(groupCollapseIcon);
+            groupCollapseIcon.attr('class', "collapse-icon glyphicon glyphicon-chevron-down");
+
+            var groupBodyDiv = $("<div></div>");
+            groupDiv.append(groupBodyDiv);
+            groupBodyDiv.attr('class', "tool-group-body");
+
             var toolGroupView = new Tools.Views.ToolGroupView({collection: this.model.attributes.toolGroup});
-            var groupHtml = toolGroupView.render().el;
-            var groupDiv = this.$el.find("#toolgroup-container-" + this.model.attributes.toolGroupID);
-            groupDiv.html(groupHtml);
+            toolGroupView.render(groupBodyDiv);
+
+            this.el =  groupDiv[0].outerHTML;
+            this.$el = groupDiv;
+
+            groupHeaderDiv.click(function(){
+                groupBodyDiv.slideToggle(500, function () {
+                        groupCollapseIcon.toggleClass("glyphicon-chevron-up")
+                                            .toggleClass("glyphicon-chevron-down");
+                    });
+            });
             return this;
         }
     });
-
-    $(document).on('click', '.panel-heading span.clickable', function (e) {
-        var $this = $(this);
-        if (!$this.hasClass('panel-collapsed')) {
-            $this.parents('.panel').find('.panel-body').slideUp();
-            $this.addClass('panel-collapsed');
-            $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-        } else {
-            $this.parents('.panel').find('.panel-body').slideDown();
-            $this.removeClass('panel-collapsed');
-            $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-        }
-    })
 
     views.ToolGroupWrapperView = toolGroupWrapperView;
     tools.Views = views;

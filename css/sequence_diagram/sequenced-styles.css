@@ -33,14 +33,14 @@
     stroke: #666666;
 }
 .resource > rect {
-    fill: #998844;
+    fill: #8e44ad;
 }
 
 .endpoint > line {
     stroke: #666666;
 }
 .endpoint > rect {
-    fill: #800080;
+    fill: #2c3e50;
 }
 
 .lifeline-rect{
@@ -49,7 +49,7 @@
 
 .try-block-mediator-tool > rect{
     fill-opacity: 1;
-    fill: #998844;
+    fill: #2c3e50;
 }
 
 .try-block-mediator-tool > text{
@@ -59,7 +59,7 @@
 
 .switch-mediator-tool > rect{
     fill-opacity: 1;
-    fill: #334455;
+    fill: #2c3e50;
 }
 
 .switch-mediator-tool > text{
@@ -69,7 +69,7 @@
 
 .payload-factory-tool > rect{
     fill-opacity: 1;
-    fill: #FFC766;
+    fill: #27ae60;
 }
 
 .payload-factory-tool > text{
@@ -79,7 +79,7 @@
 
 .log-mediator-tool > rect{
     fill-opacity: 1;
-    fill: #2e2eb8;
+    fill: #2980b9;
 }
 
 .log-mediator-tool > text{

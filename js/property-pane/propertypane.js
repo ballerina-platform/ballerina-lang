@@ -17,6 +17,7 @@ var Editor = (function (editor) {
     views.PropertyPaneModel = propertyView;
     editor.Views = views;
     return editor;
+
 }(Editor || {}));
 
 

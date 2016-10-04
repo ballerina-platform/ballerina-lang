@@ -24,17 +24,20 @@ var Processors = (function (processors) {
     var tryBlockMediator = {
         id: "TryBlockMediator",
         title: "Try Block",
-        icon: "images/TryBlockMediator.gif",
+        icon: "images/tool-icons/tryblock.svg",
         colour : "#998844",
         type : "ComplexProcessor",
-        dragCursorOffset : { left: 45, top: -5 },
+        dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
-                var svgRoot = view.createSVGForDraggable();
-                var group = svgRoot.draw.group(svgRoot).attr("class", "try-block-mediator-tool");
-                var rect = svgRoot.draw.basicRect(0, 0, 90, 30, 0, 0, group);
-                var text = svgRoot.draw.centeredText(new GeoCore.Models.Point({'x': 45, 'y': 15}), "Try Block", group);
-                return svgRoot.getDraggableRoot();
+                var div = view.createContainerForDraggable();
+                d3.xml("images/tool-icons/tryblock_drag.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                    if (error) throw error;
+                    var svg = xml.getElementsByTagName("svg")[0];
+                    d3.select(svg).attr("width", "100px").attr("height", "85px");
+                    div.node().appendChild(svg);
+                });
+                return div.node();
             }
             return cloneCallBack;
         },

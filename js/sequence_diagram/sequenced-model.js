@@ -271,6 +271,8 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 title: "Lifeline",
+                width : 0,
+                height : 300,
                 viewAttributes: {colour: "#998844"}
             },
 
@@ -425,6 +427,22 @@ var SequenceD = (function (sequenced) {
 
             setX: function (x) {
                 this.get('centerPoint').set('x', x);
+            },
+
+            getWidth: function () {
+                return this.get('width');
+            },
+
+            getHeight: function () {
+                return this.get('height');
+            },
+
+            setWidth: function (width) {
+                this.set('width', width);
+            },
+
+            setHeight: function (height) {
+                this.set('height', height);
             }
 
         });
