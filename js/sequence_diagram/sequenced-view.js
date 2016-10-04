@@ -68,9 +68,24 @@ var SequenceD = (function (sequenced) {
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
+                var deleteIconGroup = group.append("g")
+                    .attr("class", "close-icon circle-hide");
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
+                    var height = this.model.getHeight();
+                    var width = this.model.getWidth();
+                    var path = "M " + (center.x() + width/2 - 3) + "," + (center.y() - height/2 - 3) + " L " + (center.x() + width/2 + 3) + "," +
+                        (center.y() - height/2 + 3) + " M " + (center.x() + width/2 + 3) + "," + (center.y() - height/2 - 3) + " L " +
+                        (center.x() + width/2 - 3) + "," + (center.y() - height/2 + 3);
+
+                    var closeCircle = d3Ref.draw.circle((center.x() + width/2), (center.y() - height/2),
+                        7, deleteIconGroup).
+                        attr("fill", "#95a5a6").
+                        attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                    deleteIconGroup.append("path")
+                        .attr("d", path)
+                        .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
@@ -84,8 +99,38 @@ var SequenceD = (function (sequenced) {
                         title,
                         group)
                         .classed(prefs.text.class, true);
-                    Object.getPrototypeOf(group).rect = rectBottomXXX;
-                    Object.getPrototypeOf(group).title = mediatorText;
+
+                    var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup];
+
+                    var newGroup = d3Ref.draw.regroup(orderedElements);
+                    group.remove();
+
+                    // On click of the mediator show/hide the delete icon
+                    rectBottomXXX.on("click", function () {
+                        if (deleteIconGroup.classed("circle-hide")) {
+                            deleteIconGroup.classed("circle-hide", false);
+                            deleteIconGroup.classed("circle-show", true);
+                        } else {
+                            deleteIconGroup.classed("circle-hide", true);
+                            deleteIconGroup.classed("circle-show", false);
+                        }
+                    });
+
+                    deleteIconGroup.on("click", function () {
+                        // Get the parent of the model and delete it from the parent
+                        var parentModelChildren = viewObj.model.get("parent").get("children").models;
+                        for (var itr = 0; itr < parentModelChildren.length; itr ++) {
+                            if (parentModelChildren[itr].cid === viewObj.model.cid) {
+
+                                parentModelChildren.splice(itr, 1);
+                                diagramView.render();
+                                break;
+                            }
+                        }
+                    });
+
+                    group.rect = rectBottomXXX;
+                    group.title = mediatorText;
                     //this.renderViewForElement(element, opts);
                 } else if (this.model.model.type === "DynamicContainableProcessor") {
 

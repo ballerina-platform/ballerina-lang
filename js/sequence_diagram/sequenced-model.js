@@ -652,6 +652,7 @@ var SequenceD = (function (sequenced) {
             },
 
             addChild: function (element, opts) {
+                element.parent(this);
                 var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
                 var index = position.index;
                 this.children().add(element, {at:index});

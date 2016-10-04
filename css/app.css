@@ -268,3 +268,11 @@ border-radius: 0;
     margin: 2px;
     opacity: 0.4;
 }
+
+.close-icon {
+    cursor: pointer;
+}
+
+.circle-hide {
+    display: none;
+}
