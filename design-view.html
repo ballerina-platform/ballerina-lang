@@ -8,6 +8,7 @@
 
     <title>Design View</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css" />
     <link rel="stylesheet" type="text/css" href="css/diagram/diagram-tool-bar.css" />
     <link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
@@ -23,7 +24,6 @@
         <div class="shapes-container">
             <div id="toolpalatte"></div>
         </div>
-
         <div class="editor-container" id="editorBottom">
             <div id="sample">
                 <ul class="nav nav-tabs"  role="tablist">
@@ -32,7 +32,13 @@
             </div>
 
             <script type="text/template" id="resourceTabsTemplate">
-                <li  role="presentation" class="series"><a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a><span class="remove-resource"> x </span></li>
+                <li  role="presentation" class="series">
+                    <a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
+                    <span class="remove-resource fw-stack">
+                        <i class="icon fw fw-circle fw-stack-2x"></i>
+                        <i class="fw fw-cancel fw-stack-1x fw-inverse"></i>
+                    </span>
+                </li>
                 </script>
             <script type="text/template" id="resourceContentTemplate">
                 <div  role="tabpanel" class="tab-pane" id="<%=resourceId%>"></div>
@@ -44,7 +50,6 @@
                     <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
                     <div id="udcModal" style="display:none;"></div>
                 </div>
-
                 <div class="editor gradient-pattern">
                     <div class="tab-content resource-content ">
 

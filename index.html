@@ -16,10 +16,10 @@
 
 	<!-- Update iframe height according to window height -->
 	<script>
-		$("iframe").css("height", $(window).height() + "px");
 		window.onresize = function() {
-			$("iframe").css("height", $(window).height() + "px");
+		    $("iframe").css("height", ($(window).height() - 3) + "px");
 		}
+        $(window.onresize);
 	</script>
 <script>
 	var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";

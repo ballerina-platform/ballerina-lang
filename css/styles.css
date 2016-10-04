@@ -188,13 +188,26 @@
     display:inline-block;
 }
 .nav-tabs > li > span {
-    display:none;
     cursor:pointer;
     position:absolute;
-    right: 6px;
-    top: 8px;
-    color: red;
+    right: 0;
+    top: 12px;
+    color: #c0392b;
+    font-size: 0.60em;
 }
 .nav-tabs > li:hover > span {
     display: inline-block;
+}
+
+.nav-tabs > li > a {
+    padding-right: 32px;
+    border: 0;
+    color: black;
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.nav-tabs > li  {
+    background-color: #919294;
+    margin-left: 2px;
 }
