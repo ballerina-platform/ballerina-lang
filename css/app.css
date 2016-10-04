@@ -234,8 +234,8 @@ iframe {
 }
 
 .nav-tabs {
-  border:"#8d8d8d";
-  background:"#232323";
+ border:"#8d8d8d";
+  background-color:"#232323";
 }
 
 .nav-tabs > li > a {

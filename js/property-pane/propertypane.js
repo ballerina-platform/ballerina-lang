@@ -52,10 +52,10 @@ var Editor = (function (editor) {
 
         updateResourceProperties: function () {
             if (propertyPane.schema.title === "Resource") {
-                diagram.attributes.path = propertyPane.editors['root.Path'].value;
-                diagram.attributes.get = propertyPane.editors['root.Get'].value;
-                diagram.attributes.put = propertyPane.editors['root.Put'].value;
-                diagram.attributes.post = propertyPane.editors['root.Post'].value;
+                defaultView.model.attributes.path = propertyPane.editors['root.Path'].value;
+                defaultView.model.attributes.get = propertyPane.editors['root.Get'].value;
+                defaultView.model.attributes.put = propertyPane.editors['root.Put'].value;
+                defaultView.model.attributes.post = propertyPane.editors['root.Post'].value;
             }
         },
 

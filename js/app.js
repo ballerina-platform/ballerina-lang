@@ -136,7 +136,7 @@ var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagr
 //diagramView.render();
 var diagramViewElements = [];
 
-lifeLineOptions.diagram = diagram;
+//lifeLineOptions.diagram = defaultView.model;
 
 // var lifeline1 = createLifeLine("LifeLine1",createPoint(250, 50));
 // diagram.addElement(lifeline1, lifeLineOptions);

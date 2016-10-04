@@ -353,6 +353,8 @@ var Diagrams = (function (diagrams) {
                 // not the first time click on the given tab
                 var dgViewToRender = this.model.viewObj;
                 dgViewToRender.currentDiagramView(dgViewToRender);
+                //SETTING TO TEST
+                lifeLineOptions.diagram = defaultView.model;
 
 
             }
@@ -429,6 +431,7 @@ var Diagrams = (function (diagrams) {
                 var svg = container.draw.svg(this.options.diagram);
                 this.d3svg = svg;
                 svg.on("click", this.onClickDiagram);
+
 
                 var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
@@ -510,16 +513,16 @@ var Diagrams = (function (diagrams) {
              * @returns {{}} View Box for Diagram SVG.
              */
             getViewBox: function(){
-               var viewBoxAttr = this.d3svg.attr("viewBox"),
-                   viewBoxValues = _.split(viewBoxAttr, ' ', 4),
-                   viewBox = {};
+                var viewBoxAttr = this.d3svg.attr("viewBox"),
+                    viewBoxValues = _.split(viewBoxAttr, ' ', 4),
+                    viewBox = {};
 
-               viewBox.x = _.toNumber(viewBoxValues[0]);
-               viewBox.y = _.toNumber(viewBoxValues[1]);
-               viewBox.w = _.toNumber(viewBoxValues[2]);;
-               viewBox.h = _.toNumber(viewBoxValues[3]);;
+                viewBox.x = _.toNumber(viewBoxValues[0]);
+                viewBox.y = _.toNumber(viewBoxValues[1]);
+                viewBox.w = _.toNumber(viewBoxValues[2]);;
+                viewBox.h = _.toNumber(viewBoxValues[3]);;
 
-               return viewBox;
+                return viewBox;
             },
 
             /**
@@ -531,7 +534,7 @@ var Diagrams = (function (diagrams) {
              * @param {number} h height of the viewbox
              */
             setViewBox: function(x, y, w, h){
-               this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
+                this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
             },
 
             /**
@@ -546,6 +549,7 @@ var Diagrams = (function (diagrams) {
 
                 return new GeoCore.Models.Point({x:pt.x, y:pt.y});
             },
+
 
             addContainableProcessorElement: function (processor, center) {
                 var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
@@ -562,16 +566,17 @@ var Diagrams = (function (diagrams) {
             handleDropEvent: function (event, ui) {
                 var newDraggedElem = $(ui.draggable).clone();
                 var txt = defaultView.model;
+                //var type = newDraggedElem.attr('id');
+                console.log("dropped");
                 var id = ui.draggable.context.lastChild.id;
-                var position =  new GeoCore.Models.Point({x:ui.offset.left.x, y:ui.offset.top});
-                    //convert drop position to relative svg coordinates
-                    position = defaultView.toViewBoxCoordinates(position);
-
+                var position = {};
+                position.x = ui.offset.left - $(this).offset().left;
+                position.y = ui.offset.top - $(this).offset().top;
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
                     var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
-                        position,
+                        createPoint(position.x, position.y),
                         Processors.manipulators[id].id,
                         {
                             type: Processors.manipulators[id].type || "UnitProcessor",
@@ -582,12 +587,12 @@ var Diagrams = (function (diagrams) {
                         {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     txt.selectedNode.addChild(processor);
-                    //TEST CHANGE
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
+                    var center = createPoint(position.x, position.y);
                     var processor = txt.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
-                        position,
+                        center,
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
@@ -854,10 +859,10 @@ var Diagrams = (function (diagrams) {
 
                 if(destinationModel){
                     if(!_.isEqual(sourceModel.cid, destinationModel.cid )){
-                       var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                       var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-                       sourceModel.addChild(sourcePoint, messageOptionsOutbound);
-                       destinationModel.addChild(destinationPoint, messageOptionsInbound);
+                        var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                        var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                        sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                        destinationModel.addChild(destinationPoint, messageOptionsInbound);
                     }
                 }
                 this.render();

@@ -46,14 +46,14 @@ var Processors = (function (processors) {
                 var center = view.model.get('center');
                 var rectangle = view.viewRoot.draw.centeredRect(center, 20, 50, 0, 0, view.viewRoot, "#334455");
                 rectangle.on('mouseover', function () {
-                    diagram.selectedNode = view.model;
+                    defaultView.model.selectedNode = view.model;
                     rectangle.style("fill", "green").style("fill-opacity", 1)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                 }).on('mouseout', function () {
-                    if(_.isEqual(diagram.selectedNode, view.model)){
-                        diagram.destinationLifeLine = null;
-                        diagram.destinationProcessor = view.model;
-                        diagram.selectedNode = null;
+                    if(_.isEqual(defaultView.model.selectedNode, view.model)){
+                        defaultView.model.destinationLifeLine = null;
+                        defaultView.model.destinationProcessor = view.model;
+                        defaultView.model.selectedNode = null;
                     }
                     rectangle.style("fill", "#2c3e50").style("fill-opacity", 1);
                 }).on('mousedown', function () {
@@ -67,7 +67,7 @@ var Processors = (function (processors) {
                             return {x: startPoint.x() + 10, y: startPoint.y()};
                         }
                     };
-                    diagram.trigger("messageDrawStart", view.model, startPoint, newStartPointFn);
+                    defaultView.model.trigger("messageDrawStart", view.model, startPoint, newStartPointFn);
                 });
                 Object.getPrototypeOf(view.viewRoot).rect = rectangle;
 
@@ -111,7 +111,7 @@ var Processors = (function (processors) {
                             model: point.message(),
                             options: {class: "message"}
                         });
-                        linkView.render("#diagramWrapper", "messages");
+                        linkView.render("#" + defaultView.options.diagram.wrapperId, "messages");
                     }
                 }
             }
