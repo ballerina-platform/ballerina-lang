@@ -566,17 +566,16 @@ var Diagrams = (function (diagrams) {
             handleDropEvent: function (event, ui) {
                 var newDraggedElem = $(ui.draggable).clone();
                 var txt = defaultView.model;
-                //var type = newDraggedElem.attr('id');
-                console.log("dropped");
                 var id = ui.draggable.context.lastChild.id;
-                var position = {};
-                position.x = ui.offset.left - $(this).offset().left;
-                position.y = ui.offset.top - $(this).offset().top;
+                var position =  new GeoCore.Models.Point({x:ui.offset.left.x, y:ui.offset.top});
+                //convert drop position to relative svg coordinates
+                position = defaultView.toViewBoxCoordinates(position);
+
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
                     var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
-                        createPoint(position.x, position.y),
+                        position,
                         Processors.manipulators[id].id,
                         {
                             type: Processors.manipulators[id].type || "UnitProcessor",
@@ -587,12 +586,12 @@ var Diagrams = (function (diagrams) {
                         {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     txt.selectedNode.addChild(processor);
+                    //TEST CHANGE
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
-                    var center = createPoint(position.x, position.y);
                     var processor = txt.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
-                        center,
+                        position,
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
