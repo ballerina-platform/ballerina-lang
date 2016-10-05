@@ -457,7 +457,7 @@ var Diagrams = (function (diagrams) {
                     zoomFactor: 0.25,
 
                     // maximum zoom in, must be a number bigger than 1
-                    maxZoom: 3,
+                    maxZoom: 5,
 
                     // how much to move the viewBox when calling .panDirection() methods
                     panFactor: 100,
@@ -482,10 +482,10 @@ var Diagrams = (function (diagrams) {
                     // the limits in which the image can be moved.
                     // If null or undefined will use the initialViewBox plus 15% in each direction
                     limits: {
-                        x: -150,
-                        y: -150,
-                        x2: 1150,
-                        y2: 1150
+                        x: -1000,
+                        y: -1000,
+                        x2: 3000,
+                        y2: 3000
                     }
                 });
                 $(svg.node()).dblclick(function(){
