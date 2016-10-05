@@ -123,7 +123,7 @@ var SequenceD = (function (sequenced) {
                             if (parentModelChildren[itr].cid === viewObj.model.cid) {
 
                                 parentModelChildren.splice(itr, 1);
-                                diagramView.render();
+                                defaultView.render();
                                 break;
                             }
                         }
