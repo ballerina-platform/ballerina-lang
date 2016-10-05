@@ -238,12 +238,20 @@ iframe {
   background-color:"#232323";
 }
 
-.nav-tabs > li > a {
--webkit-border-radius: 0;
--moz-border-radius: 0;
-border-radius: 1px;
- background:"#232323";
+.nav-tabs > li {
+    height:35px;
+
 }
+.additionbtn {
+    width:40px;
+}
+/*.nav-tabs > li > a {*/
+/*-webkit-border-radius: 0;*/
+/*-moz-border-radius: 0;*/
+/*border-radius: 1px;*/
+    /*!*background-color:"#232323";  *!*/
+    /*padding-bottom:3px;*/
+/*}*/
 
 .monaco-editor {
   margin-top: 10px;
