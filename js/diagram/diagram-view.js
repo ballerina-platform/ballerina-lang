@@ -446,9 +446,44 @@ var Diagrams = (function (diagrams) {
                 container = D3Utils.decorate(container);
 
                 var svg = container.draw.svg(this.options.diagram);
+
+                var definitions = svg.append("defs");
+                // add marker definitions
+                definitions.append("marker")
+                    .attr("id", "markerArrow")
+                    .attr("markerWidth", "13")
+                    .attr("markerHeight", "13")
+                    .attr("refX", "10")
+                    .attr("refY", "6")
+                    .attr("orient", "auto")
+                    .append("path")
+                    .attr("d", "M2,2 L2,11 L10,6 L2,2")
+                    .attr("class", "marker");
+
+                var filter = definitions.append("filter")
+                    .attr("id", "drop-shadow")
+                    .attr("height", "130%");
+
+                filter.append("feGaussianBlur")
+                    .attr("in", "SourceAlpha")
+                    .attr("stdDeviation", 1)
+                    .attr("result", "blur");
+
+                filter.append("feOffset")
+                    .attr("in", "blur")
+                    .attr("dx", 5)
+                    .attr("dy", 5)
+                    .attr("result", "offsetBlur");
+
+                var feMerge = filter.append("feMerge");
+
+                feMerge.append("feMergeNode")
+                    .attr("in", "offsetBlur");
+                feMerge.append("feMergeNode")
+                    .attr("in", "SourceGraphic");
+
                 this.d3svg = svg;
                 svg.on("click", this.onClickDiagram);
-
 
                 var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
@@ -667,48 +702,9 @@ var Diagrams = (function (diagrams) {
                 }
                 diagramViewElements = [];
 
-
-                var definitions = this.d3svg.append("defs");
-
                 var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapperId)
                     .attr("width", "100%")
                     .attr("height", "100%");
-
-                // add marker definitions
-                definitions.append("marker")
-                    .attr("id", "markerArrow")
-                    .attr("markerWidth", "13")
-                    .attr("markerHeight", "13")
-                    .attr("refX", "10")
-                    .attr("refY", "6")
-                    .attr("orient", "auto")
-                    .append("path")
-                    .attr("d", "M2,2 L2,11 L10,6 L2,2")
-                    .attr("class", "marker");
-
-                var filter = definitions.append("filter")
-                    .attr("id", "drop-shadow")
-                    .attr("height", "130%");
-
-                filter.append("feGaussianBlur")
-                    .attr("in", "SourceAlpha")
-                    .attr("stdDeviation", 1)
-                    .attr("result", "blur");
-
-                filter.append("feOffset")
-                    .attr("in", "blur")
-                    .attr("dx", 5)
-                    .attr("dy", 5)
-                    .attr("result", "offsetBlur");
-
-                var feMerge = filter.append("feMerge");
-
-                feMerge.append("feMergeNode")
-                    .attr("in", "offsetBlur");
-                feMerge.append("feMergeNode")
-                    .attr("in", "SourceGraphic");
-
-
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
