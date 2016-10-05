@@ -14,23 +14,10 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css" />
     <link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="lib/jquery-ui_v1.12.1/jquery-ui.css" />
+    <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/app.css" />
-</head>
 
-<body>
-
-<div id="container">
-    <div id="design-editor">
-        <div class="shapes-container">
-            <div id="toolpalatte"></div>
-        </div>
-        <div class="editor-container" id="editorBottom">
-            <div id="sample">
-                <ul class="nav nav-tabs tabList" id="tabList"  role="tablist">
-                    <li class=".additionbtn"><a href="#" class="add-resource">+</a></li>
-                </ul>
-            </div>
 
             <script type="text/template" id="resourceTabsTemplate">
 
@@ -44,7 +31,58 @@
             <script type="text/template" id="resourceContentTemplate">
                 <div  role="tabpanel" class="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
                 </script>
+</head>
 
+<body>
+
+
+<div id="container">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">HolidayBooking</a></li>
+            <li class="breadcrumb-item"><a href="#">PackageSelection</a></li>
+            <li class="breadcrumb-item active">HolidayPackage.nel</li>
+        </ol>
+
+        <!--TODO: remove-->
+        <!--<ul class="nav navbar-nav">-->
+        <!--<li><a href="#" data-toggle="modal" data-target="#newConfigModal">New<span class="sr-only">(current)</span></a></li>-->
+        <!--<li><a href="#" onclick="saveConfiguration()">Save</a></li>-->
+        <!--</ul>-->
+    </div>
+    <div id="row" style="height: 100%">
+        <div id="tree-container" style="float: left; height: 100%">
+            <ul id="tree1" class="tree-view tree-view-lines">
+                <li><span>HolidayBooking</span>
+                    <ul>
+                        <li>Company Maintenance</li>
+                        <li>Employees
+                            <ul>
+                                <li>Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+        <div id="right-container" style="width: 100%;height: 100%">
+            <div id="tab-container">
+                <ul class="nav nav-tabs tabList" id="tabList"  role="tablist">
+                    <li class=".additionbtn"><a href="#" class="add-resource">+</a></li>
+                </ul>
+            </div>
+
+            <div id="toolpalatte" style="float: left;"></div>
+            <div id="editor-container" style="margin-right: 24px">
             <div class="editor-scroller">
                 <div id="udcontroldiv" >
                     <img id="edit-image" alt="edit" src="images/edit.svg" class="udcontrol-image"/>
@@ -73,6 +111,7 @@
                     <div id="propertyPane"></div>
                 </div>
         </div>
+    </div>
     </div>
 </div>
 
@@ -126,6 +165,7 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
 <script src="js/sequence_diagram/sequenced-model.js"></script>
 <script src="js/sequence_diagram/sequenced-view.js"></script>
 <script src="js/sequence_diagram/sequenced-utils.js"></script>
+<script src="js/tree.js"></script>
 <script src="js/app.js"></script>
 
 <script>

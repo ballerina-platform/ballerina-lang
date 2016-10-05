@@ -117,14 +117,37 @@ var paletteView = new Tools.Views.ToolPalatteView({collection: toolPalette});
 paletteView.render();
 
 
-$(".shapes-container").resizable({
-    ghost: false,
-    minWidth: 175,
-    maxWidth: 500,
-    resize: function (event, ui) {
-        var newWidth = ui.size.width;
-        $(".editor-container").css("left", newWidth);
-    }
+$(function () {
+    var scrWidth = $(window).width();
+    var treeContainer = $("#tree-container");
+    var rightContainer = $("#right-container");
+    treeContainer.width(scrWidth / 8);
+    treeContainer.resizable({
+        ghost: false,
+        minWidth: scrWidth / 16,
+        maxWidth: scrWidth / 2,
+        resize: function (event, el) {
+            rightContainer.css("padding-left", el.size.width);
+        }
+    });
+    rightContainer.css("padding-left", treeContainer.width());
+
+    var toolContainer = $("#toolpalatte");
+    var editorContainer = $("#editor-container");
+    toolContainer.width(scrWidth / 8);
+    toolContainer.resizable({
+        ghost: false,
+        minWidth: scrWidth / 16,
+        maxWidth: scrWidth / 2,
+        resize: function (event, el) {
+            editorContainer.css("padding-left", el.size.width);
+        }
+    });
+    //TODO: remove + 1
+    editorContainer.css("padding-left", toolContainer.width() + 1);
+
+    initTree($("#tree1"));
+
 });
 
 // Create the model for the diagram

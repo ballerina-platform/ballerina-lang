@@ -211,3 +211,16 @@
     background-color: #919294;
     margin-left: 2px;
 }
+
+.breadcrumb{
+    text-transform: none;
+    padding-left: 25px;
+}
+
+#toolpalatte{
+    padding: 0;
+}
+
+#tab-container > ul{
+    display: inline-block;
+}
