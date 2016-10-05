@@ -537,9 +537,8 @@ var Diagrams = (function (diagrams) {
                 viewBox.x = _.toNumber(viewBoxValues[0]);
                 viewBox.y = _.toNumber(viewBoxValues[1]);
                 viewBox.w = _.toNumber(viewBoxValues[2]);
-                ;
                 viewBox.h = _.toNumber(viewBoxValues[3]);
-                ;
+                
 
                 return viewBox;
             },
