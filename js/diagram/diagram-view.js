@@ -314,13 +314,17 @@ var Diagrams = (function (diagrams) {
             var diagramObj = new Diagrams.Models.Diagram({});
             resourceModel.addDiagramForTab(diagramObj);
             //Activating tab on creation itself
-            $('.tabList a[href="#' + resourceId + '"]').tab('show');
+                $('.tabList a[href="#' + resourceId + '"]').tab('show');
             var dgModel = resourceModel.getDiagramOfTab(resourceModel.attributes.diagramForTab.models[0].cid);
             dgModel.CurrentDiagram(dgModel);
             var svgUId = resourceId + "4";
             var options = {selector: hrefId, wrapperId: svgUId};
             // get the current diagram view for the tab
             var currentView = dgModel.createDiagramView(dgModel, options);
+            // add diagramModel
+            var preview = new DiagramOutlineView({mainView: currentView});
+            preview.render();
+            resourceModel.preview(preview);
             // set current tab's diagram view as default view
             currentView.currentDiagramView(currentView);
             resourceModel.setDiagramViewForTab(currentView);
@@ -364,7 +368,6 @@ var Diagrams = (function (diagrams) {
                 // this.model.setDiagramViewForTab(currentView);
                 // // mark tab as visited
                 // this.model.setSelectedTab();
-
             }
             else {
                 // not the first time click on the given tab
@@ -372,10 +375,8 @@ var Diagrams = (function (diagrams) {
                 dgViewToRender.currentDiagramView(dgViewToRender);
                 //Setting diagram model for lifeline message drawing context
                 lifeLineOptions.diagram = defaultView.model;
-
-
+                currentTab.preview().render(null, true);
             }
-
 
         },
         //Remove tab and tab content on 'remove' button
@@ -406,6 +407,63 @@ var Diagrams = (function (diagrams) {
         render: function () {
             var html = this.template(this.model.attributes);
             $(this.el).append(html);
+        }
+
+    });
+
+    // View to represent Diagram Preview.
+    var DiagramOutlineView = Backbone.View.extend(
+    /** @lends DiagramOutlineView.prototype */
+    {
+        /**
+         * @augments Backbone.View
+         * @constructs
+         * @class DiagramOutlineView Represents an outline view (a small preview) of the diagram
+         * @param {Object} options Rendering options for the view - Selector for container and Main DiagramView
+         */
+        initialize: function (options) {
+            if(_.isUndefined(options.mainView)){
+                throw "mainView is not set."
+            }
+            options.containerSelector = options.containerSelector || ".diagram-preview";
+            this.$el = $(options.containerSelector);
+            this.mainView = options.mainView;
+            this.mainView.on("renderCompleted", this.render, this);
+            this.width = options.width || this.$el.width() || "200px";
+            this.height = options.height || this.$el.height() || "100px";
+        },
+
+        render: function (mainSVG, forceLastViewBox) {
+            if(!mainSVG){
+                var mainSVG = this.mainView.d3svg.node();
+            }
+
+            if (!forceLastViewBox) {
+                // get view port of main diagram
+                var mainGroup = $(mainSVG).find("g").first()[0];
+                var bBox = mainGroup.getBBox()
+                this.viewBox = {
+                    x: bBox.x,
+                    y: bBox.y,
+                    width: bBox.width,
+                    height: bBox.height
+                } ;
+            }
+
+            // clone SVG for preview
+            var previewSVG = $(mainSVG).clone();
+
+            // set viewbox to fit in all content
+            d3.select(previewSVG.get((0)))
+                .attr("width", this.width)
+                .attr("height", this.height)
+                .attr("viewBox", this.viewBox.x + " " + this.viewBox.y + " "
+                                + this.viewBox.width + " " + this.viewBox.height)
+                .attr("preserveAspectRatio", "xMinYMin meet");
+
+            this.$el.empty();
+            this.$el.append(previewSVG);
+
         }
 
     });
@@ -562,7 +620,7 @@ var Diagrams = (function (diagrams) {
             /**
              * Gets the SVG Viewbox attribute.
              *
-             * @returns {{}} View Box for Diagram SVG.
+             * @returns {} View Box for Diagram SVG.
              */
             getViewBox: function () {
                 var viewBoxAttr = this.d3svg.attr("viewBox"),
@@ -765,6 +823,7 @@ var Diagrams = (function (diagrams) {
                     }
                 }
 
+                this.trigger("renderCompleted", this.d3svg.node());
                 return mainGroup;
             },
 
@@ -942,6 +1001,7 @@ var Diagrams = (function (diagrams) {
     views.DiagramView = DiagramView;
     views.TabListView = TabListView;
     views.TabView = TabView;
+    views.DiagramOutlineView = DiagramOutlineView;
 
     diagrams.Views = views;
     return diagrams;

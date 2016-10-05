@@ -132,7 +132,7 @@ var diagram = new Diagrams.Models.Diagram({});
 
 // Create the diagram view
 var diagramOptions = {selector: '.editor'};
-var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
+//var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
 //diagramView.render();
 var diagramViewElements = [];
 
@@ -221,6 +221,9 @@ currentView1.currentDiagramView(currentView1);
 tab.setDiagramViewForTab(currentView1);
 // mark tab as visited
 tab.setSelectedTab();
+var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
+preview.render();
+tab.preview(preview);
 
 
 
