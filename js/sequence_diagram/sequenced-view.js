@@ -767,11 +767,15 @@ var SequenceD = (function (sequenced) {
 
             drawUnitProcessor: function (center, title, prefs) {
 
-
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
                 var viewObj = this;
+                var deleteIconGroup = undefined;
+                var path = undefined;
+                var height = prefs.rect.height;
+                var width = prefs.rect.width;
+
 
                 var rectBottomXXX = d3Ref.draw.rectWithTitle(
                     center,
@@ -848,6 +852,49 @@ var SequenceD = (function (sequenced) {
                 this.model.setHeight(totalHeight);
                 middleRect.attr("height", totalHeight-30);
                 drawMessageRect.attr("height", totalHeight-30);
+
+                if (viewObj.model.get("title") === "Try") {
+                    var circleCenterX = center.x() + 75;
+                    var circleCenterY = center.y() - prefs.rect.height/2;
+                    deleteIconGroup = group.append("g")
+                        .attr("class", "close-icon circle-hide");
+                    path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
+                        (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
+                        (circleCenterX - 3) + "," + (circleCenterY + 3);
+                    var closeCircle = d3Ref.draw.circle(circleCenterX, circleCenterY, 7, deleteIconGroup).
+                        attr("fill", "#95a5a6").
+                        attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                    deleteIconGroup.append("path")
+                        .attr("d", path)
+                        .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+
+                    // On click of the mediator show/hide the delete icon
+                    rectBottomXXX.on("click", function () {
+                        if (deleteIconGroup.classed("circle-hide")) {
+                            deleteIconGroup.classed("circle-hide", false);
+                            deleteIconGroup.classed("circle-show", true);
+                        } else {
+                            deleteIconGroup.classed("circle-hide", true);
+                            deleteIconGroup.classed("circle-show", false);
+                        }
+                    });
+
+                    deleteIconGroup.on("click", function () {
+                         //Get the parent of the model and delete it from the parent
+                        var parentModelChildren = viewObj.model.get("parent").get("parent").get("children").models;
+                        for (var itr = 0; itr < parentModelChildren.length; itr ++) {
+                            if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
+                                parentModelChildren.splice(itr, 1);
+                                defaultView.render();
+                                break;
+                            }
+                        }
+                    });
+
+                    //group.remove();
+                    //
+                    //return newGroup;
+                }
 
                 return group;
             }

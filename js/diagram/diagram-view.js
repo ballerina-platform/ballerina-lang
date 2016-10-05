@@ -620,10 +620,12 @@ var Diagrams = (function (diagrams) {
                     if (processor.type == "TryBlockMediator") {
                         var containableProcessorElem1 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                         containableProcessorElem1.set('title', "Try");
+                        containableProcessorElem1.parent(processor);
                         processor.containableProcessorElements().add(containableProcessorElem1);
 
                         var containableProcessorElem2 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                         containableProcessorElem2.set('title', "Catch");
+                        containableProcessorElem2.parent(processor);
                         processor.containableProcessorElements().add(containableProcessorElem2);
                     }
 
