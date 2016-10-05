@@ -108,7 +108,7 @@ var Diagrams = (function (diagrams) {
                 if (connectionPoint === undefined) {
                     return this.get('source');
                 }
-                diagram.sourceLifeLineY = y;
+                defaultView.model.sourceLifeLineY = y;
                 var connection = connectionPoint.connectLink(this, {type: 'outgoing', x: x, y: y});
                 if (this.makeParallel()) {
                     connection.point().y(this.destination().point().y());
@@ -507,10 +507,10 @@ var Diagrams = (function (diagrams) {
                     // After the properties view implementation those can be dynamically changed
 
                     finalSource += "\n" +
-                        ((diagram.get('get')==true) ? '@GET\n' : '') +
-                        ((diagram.get('put')==true) ? '@PUT\n' : '') +
-                        ((diagram.get('post')==true) ? '@POST\n' : '') +
-                        '@Path ("' + diagram.get('path') +'")\n'
+                        ((defaultView.model.get('get')==true) ? '@GET\n' : '') +
+                        ((defaultView.model.get('put')==true) ? '@PUT\n' : '') +
+                        ((defaultView.model.get('post')==true) ? '@POST\n' : '') +
+                        '@Path ("' + defaultView.model.get('path') +'")\n'
                 };
 
                 var traverse = function (tree, finalSource) {
@@ -528,7 +528,7 @@ var Diagrams = (function (diagrams) {
 
                     return finalSource;
                 };
-                TreeRoot = buildTree(diagram.get('diagramResourceElements').models[0]);
+                TreeRoot = buildTree(defaultView.model.get('diagramResourceElements').models[0]);
                 includeConstants();
                 return traverse((TreeRoot), finalSource);
             },
@@ -542,10 +542,10 @@ var Diagrams = (function (diagrams) {
                         diagramViewElements[element].remove();
                     }
                 }
-                diagram.attributes.diagramResourceElements.models = [];
-                diagram.attributes.diagramResourceElements.length = 0;
-                diagram.attributes.diagramEndpointElements.models = [];
-                diagram.attributes.diagramEndpointElements.length = 0;
+                defaultView.model.attributes.diagramResourceElements.models = [];
+                defaultView.model.attributes.diagramResourceElements.length = 0;
+                defaultView.model.attributes.diagramEndpointElements.models = [];
+                defaultView.model.attributes.diagramEndpointElements.length = 0;
             },
 
             getDefinitionSchema: function () {

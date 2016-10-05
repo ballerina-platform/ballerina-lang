@@ -353,6 +353,8 @@ var Diagrams = (function (diagrams) {
                 // not the first time click on the given tab
                 var dgViewToRender = this.model.viewObj;
                 dgViewToRender.currentDiagramView(dgViewToRender);
+                //SETTING TO TEST
+                lifeLineOptions.diagram = defaultView.model;
 
 
             }
@@ -430,6 +432,7 @@ var Diagrams = (function (diagrams) {
                 this.d3svg = svg;
                 svg.on("click", this.onClickDiagram);
 
+
                 var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
 
@@ -454,7 +457,7 @@ var Diagrams = (function (diagrams) {
                     zoomFactor: 0.25,
 
                     // maximum zoom in, must be a number bigger than 1
-                    maxZoom: 3,
+                    maxZoom: 5,
 
                     // how much to move the viewBox when calling .panDirection() methods
                     panFactor: 100,
@@ -479,10 +482,10 @@ var Diagrams = (function (diagrams) {
                     // the limits in which the image can be moved.
                     // If null or undefined will use the initialViewBox plus 15% in each direction
                     limits: {
-                        x: -150,
-                        y: -150,
-                        x2: 1150,
-                        y2: 1150
+                        x: -1000,
+                        y: -1000,
+                        x2: 3000,
+                        y2: 3000
                     }
                 });
                 $(svg.node()).dblclick(function(){
@@ -510,16 +513,16 @@ var Diagrams = (function (diagrams) {
              * @returns {{}} View Box for Diagram SVG.
              */
             getViewBox: function(){
-               var viewBoxAttr = this.d3svg.attr("viewBox"),
-                   viewBoxValues = _.split(viewBoxAttr, ' ', 4),
-                   viewBox = {};
+                var viewBoxAttr = this.d3svg.attr("viewBox"),
+                    viewBoxValues = _.split(viewBoxAttr, ' ', 4),
+                    viewBox = {};
 
-               viewBox.x = _.toNumber(viewBoxValues[0]);
-               viewBox.y = _.toNumber(viewBoxValues[1]);
-               viewBox.w = _.toNumber(viewBoxValues[2]);;
-               viewBox.h = _.toNumber(viewBoxValues[3]);;
+                viewBox.x = _.toNumber(viewBoxValues[0]);
+                viewBox.y = _.toNumber(viewBoxValues[1]);
+                viewBox.w = _.toNumber(viewBoxValues[2]);;
+                viewBox.h = _.toNumber(viewBoxValues[3]);;
 
-               return viewBox;
+                return viewBox;
             },
 
             /**
@@ -531,7 +534,7 @@ var Diagrams = (function (diagrams) {
              * @param {number} h height of the viewbox
              */
             setViewBox: function(x, y, w, h){
-               this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
+                this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
             },
 
             /**
@@ -546,6 +549,7 @@ var Diagrams = (function (diagrams) {
 
                 return new GeoCore.Models.Point({x:pt.x, y:pt.y});
             },
+
 
             addContainableProcessorElement: function (processor, center) {
                 var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
@@ -564,8 +568,8 @@ var Diagrams = (function (diagrams) {
                 var txt = defaultView.model;
                 var id = ui.draggable.context.lastChild.id;
                 var position =  new GeoCore.Models.Point({x:ui.offset.left.x, y:ui.offset.top});
-                    //convert drop position to relative svg coordinates
-                    position = defaultView.toViewBoxCoordinates(position);
+                //convert drop position to relative svg coordinates
+                position = defaultView.toViewBoxCoordinates(position);
 
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
@@ -854,10 +858,10 @@ var Diagrams = (function (diagrams) {
 
                 if(destinationModel){
                     if(!_.isEqual(sourceModel.cid, destinationModel.cid )){
-                       var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                       var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-                       sourceModel.addChild(sourcePoint, messageOptionsOutbound);
-                       destinationModel.addChild(destinationPoint, messageOptionsInbound);
+                        var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                        var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                        sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                        destinationModel.addChild(destinationPoint, messageOptionsInbound);
                     }
                 }
                 this.render();

@@ -421,7 +421,7 @@ var SequenceD = (function (sequenced) {
                         var d3Ref = this.getD3Ref();
                         console.log("Processor added");
                         var rectBottomXXX = d3Ref.draw.centeredRect(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             this.prefs.rect.width,
                             this.prefs.rect.height,
@@ -430,7 +430,7 @@ var SequenceD = (function (sequenced) {
                             this.group, element.viewAttributes.colour
                         );
                         var mediatorText = d3Ref.draw.centeredText(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             element.get('title'),
                             this.group)
@@ -440,7 +440,7 @@ var SequenceD = (function (sequenced) {
                         var d3Ref = this.getD3Ref();
                         console.log("Processor added");
                         var rectBottomXXX = d3Ref.draw.rectWithTitle(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             60,
                             this.prefs.rect.height,
@@ -456,7 +456,7 @@ var SequenceD = (function (sequenced) {
                         var d3Ref = this.getD3Ref();
                         console.log("Processor added");
                         var rectBottomXXX = d3Ref.draw.rectWithTitle(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             60,
                             this.prefs.rect.height,
@@ -473,7 +473,7 @@ var SequenceD = (function (sequenced) {
                 } else if (element instanceof SequenceD.Models.Message) {
                     console.log("Message Link added !!!")
                     if (opts.direction == 'inbound') {
-                        diagram.addElement(element, opts);
+                        defaultView.model.addElement(element, opts);
                     }
                 }
 
@@ -563,7 +563,7 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('visible', true);
                     udcontrol.set('x', imgRight);
                     udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', diagram.selectedNode);
+                    udcontrol.set('lifeline', defaultView.model.selectedNode);
                 }
 
                 function updatePropertyPane() {
@@ -572,7 +572,7 @@ var SequenceD = (function (sequenced) {
                 }
 
                 rect.on("click", (function () {
-                    diagram.selectedNode = viewObj.model;
+                    defaultView.model.selectedNode = viewObj.model;
                     if (selected) {
                         if (this == selected) {
                             selected.classList.toggle("lifeline_selected");
@@ -588,7 +588,7 @@ var SequenceD = (function (sequenced) {
                             selected = this;
                         }
                     } else {
-                        diagram.selected = false;
+                        defaultView.model.selected = false;
                         this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
                         selected = this;
@@ -653,14 +653,14 @@ var SequenceD = (function (sequenced) {
             },
 
             getNextAvailableConnectionPoint: function (connecion, x, y) {
-                var nextYCoordinate = diagram.deepestPointY + 50;
+                var nextYCoordinate = defaultView.model.deepestPointY + 50;
                 var nextXCoordinate = this.model.owner().get('centerPoint').x();
 
                 // TODO: Until the layout finalize we will be drawing the message without offsetting dynamically
                 //if (_.isEqual(connecion.type(), "incoming")) {
                 //    lifeLineOptions.diagram.deepestPointY = nextYCoordinate;
                 //}
-                return new GeoCore.Models.Point({'x': nextXCoordinate, 'y': diagram.sourceLifeLineY});
+                return new GeoCore.Models.Point({'x': nextXCoordinate, 'y': defaultView.model.sourceLifeLineY});
             }
         });
 
@@ -793,11 +793,11 @@ var SequenceD = (function (sequenced) {
                     var m = d3.mouse(this);
                     prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
                 }).on('mouseover', function () {
-                    diagram.selectedNode = viewObj.model;
+                    defaultView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
-                    diagram.destinationLifeLine = diagram.selectedNode;
-                    diagram.selectedNode = null;
+                    defaultView.model.destinationLifeLine = defaultView.model.selectedNode;
+                    defaultView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
                 });
@@ -814,7 +814,7 @@ var SequenceD = (function (sequenced) {
                         prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
 
                     }).on('mouseover', function () {
-                        diagram.selectedNode = viewObj.model;
+                        defaultView.model.selectedNode = viewObj.model;
                         d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                             .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                     }).on('mouseout', function () {
