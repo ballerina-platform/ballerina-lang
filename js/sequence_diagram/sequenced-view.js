@@ -66,36 +66,16 @@ var SequenceD = (function (sequenced) {
             },
 
             updateProcessorProperties: function () {
-       
-                var editableProperties = {};
-                var message, logLevel, description;
+
+               // var message, logLevel, description;
+                var parameters = [];
                 selectedModel = this.__on[0].capture.model;
                 diagram.selectedNode = this.__on[0].capture.model;
                 diagram.selectedNodeId = selectedModel.cid;
-                if(selectedModel.type==="LogMediator") {
-                    var models = selectedModel.collection.models;
-                    for(var j=0;j<models.length;j++) {
-                        if (models[j].cid === diagram.selectedNodeId) {
-                            var processParameters = models[j].parameters.parameters;
-                            for (var i = 0; i < processParameters.length; i++) {
-                                var parameter = processParameters[i];
-                                if (parameter.key === "message") {
-                                 //   editableProperties.Message = parameter.value;
-                                    message = parameter.value;
-                                } else if (parameter.key === "logLevel") {
-                               //     editableProperties.LogLevel = parameter.value || "info";
-                                    logLevel = parameter.value || "info";
-                                } else if (parameter.key === "description") {
-                                //    editableProperties.Description = parameter.value;
-                                    description = parameter.value;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
+
                 function updateudControlLocation(rect) {
-                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
+                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth
+                                   + rect.getBoundingClientRect().width;
                     var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
                     udcontrol.set('visible', true);
                     udcontrol.set('x', imgRight);
@@ -103,13 +83,25 @@ var SequenceD = (function (sequenced) {
                     udcontrol.set('lifeline', diagram.selectedNode);
                 }
 
-                if(selected) {
-                    if(selected == this) {
+                function createPropertyPane (type, parameteres) {
+                    if(type ==="LogMediator") {
+                        return ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
+                                                         Processors.manipulators.LogMediator.getEditableProperties(parameteres[0], parameteres[1], parameteres[2]), selectedModel);
+                    }
+                }
+                
+                if (selectedModel.type === "LogMediator") {
+                    parameters[0] = diagram.selectedNode.parameters.parameters[0].value;
+                    parameters[1] = diagram.selectedNode.parameters.parameters[1].value || "info";
+                    parameters[2] = diagram.selectedNode.parameters.parameters[2].value;
+                }
+
+                if (selected) {
+                    if (selected == this) {
                         $('#propertyPane').empty();
                         this.classList.toggle("lifeline_selected");
                         udcontrol.set('visible', false);
                         selected = null;
-                        console.log('if if');
                     } else {
                         selected.classList.toggle("lifeline_selected");
                         selected = this;
@@ -117,30 +109,31 @@ var SequenceD = (function (sequenced) {
                         selected.classList.toggle("lifeline_selected");
                         $('#propertyPane').empty();
                         $('#propertySave').show();
-                        propertyPane = ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
-                                                                 Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
-                        console.log('if else');
+                        propertyPane = createPropertyPane(selectedModel.type, parameters);
                         updateudControlLocation(this);
                     }
-                } else {
-
-                    this.classList.toggle("lifeline_selected");
-                    diagram.selectedNode = this;
-                    selected = this;
-                    console.log('else');
-                    updateudControlLocation(this);
-                    $('#propertyPane').empty();
-                    propertyPane = ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
-                                                             Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
                 }
-                // if (selected.classList && selected.classList.contains("lifeline_selected")) {
-                //     selected.classList.toggle("lifeline_selected");
+                // else if(!selected && diagram.selected) {
+                //     this.classList.toggle("lifeline_selected");
+                //     diagram.selectedNode = this.__on[0].capture.model;
+                //     selected = this.__on[0].capture.model;
+                //     updateudControlLocation(this);
+                //     $('#propertyPane').empty();
+                //     propertyPane = ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
+                //                                              Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
                 // }
-                // this.model.classList.toggle("processor_selected");
+                else {
 
-                //propertyPane = ppView.createPropertyPane(this.model.getSchema(),this.model.getEditableProperties(),
-                // diagram);
+                        this.classList.toggle("lifeline_selected");
+                        diagram.selectedNode = this;
+                        selected = this;
+                        updateudControlLocation(this);
+                        $('#propertyPane').empty();
+                        propertyPane = createPropertyPane(selectedModel.type, parameters);//ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() , Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
+
+                }
             },
+
 
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
@@ -196,8 +189,8 @@ var SequenceD = (function (sequenced) {
                     }).on('mouseup', function (data) {
                     });
                     console.log(middleRect);
-                    Object.getPrototypeOf(group).rect = rectBottomXXX;
-                    Object.getPrototypeOf(group).middleRect = middleRect;
+                    group.rect = rectBottomXXX;
+                    group.middleRect = middleRect;
 
                     var centerPoint = center;
                     var xValue = centerPoint.x();
@@ -558,7 +551,7 @@ var SequenceD = (function (sequenced) {
                 group.svgTitleBottom = textBottom;
                 //Object.getPrototypeOf(group).title = text;
                 //Object.getPrototypeOf(group).titleBottom = textBottom;
-                Object.getPrototypeOf(group).translate = function (dx, dy) {
+                group.translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
                     })
@@ -739,20 +732,20 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.class, true);
                 var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
-                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
-                //.classed(prefs.rect.class, true);
-                //var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+ prefs.rect.height/2), prefs.line.height-prefs.rect.height, group)
-                //.classed(prefs.line.class, true);
+                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') +
+                // prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group) .classed(prefs.rect.class,
+                // true); var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+
+                // prefs.rect.height/2), prefs.line.height-prefs.rect.height, group) .classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
                     .classed(prefs.text.class, true);
-                //var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group)
-                // .classed(prefs.text.class, true);
-                Object.getPrototypeOf(group).rect = rect;
+                //var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') +
+                // prefs.line.height), title, group) .classed(prefs.text.class, true);
+                group.rect = rect;
                 //Object.getPrototypeOf(group).rectBottom = rectBottom;
                 //Object.getPrototypeOf(group).line = line;
-                Object.getPrototypeOf(group).title = text;
+                group.title = text;
                 //Object.getPrototypeOf(group).titleBottom = textBottom;
-                Object.getPrototypeOf(group).translate = function (dx, dy) {
+                group.translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
                     })
@@ -850,9 +843,9 @@ var SequenceD = (function (sequenced) {
                         d3.select(this).style("fill-opacity", 0.0);
                     });
 
-                Object.getPrototypeOf(group).middleRect = middleRect;
-                Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
-                Object.getPrototypeOf(group).rect = rectBottomXXX;
+                group.middleRect = middleRect;
+                group.drawMessageRect = drawMessageRect;
+                group.rect = rectBottomXXX;
 
                 var centerPoint = center;
                 var xValue = centerPoint.x();

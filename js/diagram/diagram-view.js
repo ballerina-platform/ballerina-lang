@@ -384,6 +384,11 @@ var Diagrams = (function (diagrams) {
                 var position = {};
                 position.x = ui.offset.left - $(this).offset().left;
                 position.y = ui.offset.top - $(this).offset().top;
+                if (propertyPane) {
+                    propertyPane.destroy();
+                }
+                udcontrol.set('visible', false);
+
                 if (Processors.manipulators[id] && diagram.selectedNode) {
                     //manipulators are unit processors
                     var processor = diagram.selectedNode.createProcessor(
@@ -611,7 +616,7 @@ var Diagrams = (function (diagrams) {
                     diagram.selected = false;
                     $('#propertyPane').empty();
                 
-                } else if (!diagram.selectedNode) {
+                } else if (!diagram.selectedNode && selected) {
 
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");

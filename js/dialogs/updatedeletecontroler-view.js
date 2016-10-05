@@ -33,6 +33,7 @@ var Dialogs = (function (dialogs) {
                 console.log("deleted the model");
                 controlDiv.removeClass("visible-button");
                 controlDiv.addClass("hidden-button");
+               // selected.classList.toggle("lifeline_selected");
                 if (selectedModel) {
                     diagram.removeElement(selectedModel);
                 }

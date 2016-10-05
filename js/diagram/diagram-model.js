@@ -316,11 +316,24 @@ var Diagrams = (function (diagrams) {
             },
 
             removeElement: function (element, opts) {
-                var index = this.diagramElements().indexOf(element);
+                // if(selectedModel.type === "LogMediator"){//change to not lifeline
+                //    var models = diagramView.model.destinationLifeLine.attributes.children.models; // insted of this diagramView.model
+                //     for(var i=0; i< models.length; i++) {
+                //         var cid = diagram.selectedNodeId;
+                //         if( cid === diagram.destinationLifeLine.attributes.children.models[i].cid) {
+                //             models.splice(i, 1);
+                //         }
+                //     }
+                // }
+                // diagramView.render();
+                // if (propertyPane) {
+                //     propertyPane.destroy();
+                // }
+               // var index = this.diagramElements().indexOf(element);
                 //TODO need to implement this 
                 //var elements = this.diagramElements();
                 //delete elements[index];
-                this.trigger("removeElement", element, opts);
+              //  this.trigger("removeElement", element, opts);
             },
 
             getElement: function (id) {

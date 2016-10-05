@@ -44,54 +44,41 @@ var Editor = (function (editor) {
                     $('#propertyPaneContainer').show();
                 }
             });
-
-           // $('#propertyPaneContainer').on('mouseleave', this.onSaveImageClick);
         },
 
-        onSaveImageClick: function(event) {
-            console.log('savee11');
-            if(propertyPane.schema) {
+        saveProperties: function(event) {
+
+           // if(propertyPane.schema) {
                 if (propertyPane.schema.title === "Lifeline") {
-                    //TODO This need to be handled in generic way
-                    console.log('lifeline');
+
                     ppView.dataObject.set('title', propertyPane.getValue().Title);
+
                 } else if (propertyPane.schema.title === "Resource") {
+
                     diagram.attributes.path = propertyPane.editors['root.Path'].value;
                     diagram.attributes.get = propertyPane.editors['root.Get'].value;
                     diagram.attributes.put = propertyPane.editors['root.Put'].value;
                     diagram.attributes.post = propertyPane.editors['root.Post'].value;
+
                 } else if (propertyPane.schema.title === "Log Mediator") {
-                    console.log('save log');
-                    // var models = selectedModel.__on[0].capture.collection.models;
-                    //for(var j=0;j<models.length;j++) {
-                    // if(models[j].cid === diagram.selectedNodeId) {
-                    // console.log('cid'+models[j].cid);
-
-                    // var processParameters = selectedModel.__on[0].capture.attributes.parameters.parameters;
-                    //
-                    // for(var i=0; i<processParameters.length; i++) {
-                    //     var parameter = processParameters[i];
-                    //     if(parameter.key === "message") {
-                    //         parameter.value =  propertyPane.editors["root.Message"].value; //propertyPane.getValue().Title
-                    //     } else if (parameter.key === "logLevel") {
-                    //         parameter.value =  propertyPane.editors["root.LogLevel"].value;
-                    //     } else if (parameter.key === "description") {
-                    //         parameter.value =  propertyPane.editors["root.Description"].value;
-                    //     }
-                    // }
-
-                    ppView.dataObject.parameters.parameters[0].value = propertyPane.getValue().Message;
-                    ppView.dataObject.parameters.parameters[1].value = propertyPane.getValue().LogLevel;
-                    ppView.dataObject.parameters.parameters[2].value = propertyPane.getValue().Description;
-                    // ppView.dataObject.set('message', propertyPane.getValue.Message);
-
-                    // break;
-                    //  }
-                    // }
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "message",
+                            value: propertyPane.getValue().Message
+                        },
+                        {
+                            key: "logLevel",
+                            value: propertyPane.getValue().LogLevel
+                        },
+                        {
+                            key: "description",
+                            value: propertyPane.getValue().Description
+                        }
+                    ];
                 }
-            }
-           event.preventDefault();
-            event.stopPropagation();
+          //  }
+         //  event.preventDefault();
+         //   event.stopPropagation();
         },
 
         createPropertyPane: function (schema, editableProperties, dataModel) {
@@ -107,8 +94,9 @@ var Editor = (function (editor) {
             });
 
             propertyPane.setValue(editableProperties);
-            $('#propertyPaneContainer').on('mouseleave', this.onSaveImageClick);
-            $('#save-image').click(this.onSaveImageClick);
+
+            $('#propertyPaneContainer').on('click', this.saveProperties);
+            $('#propertyPane').find('input').on('change', this.saveProperties)
             return propertyPane;
         },
 
