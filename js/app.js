@@ -185,9 +185,6 @@ var diagramViewElements = [];
 // diagram.addElement(msg5, messageOptions);
 selected = "";
 selectedModel = "";
-//var udcontrol = new Dialogs.Controls.UpdateDeleteControler({visible: false});
-//var udcontrolView = new Dialogs.Views.UpdateDeletedControlerView({model: udcontrol});
-//udcontrolView.render();
 
 //var ppModel = new Editor.Views.PropertyPaneModel();
 var ppView = new Editor.Views.PropertyPaneView();

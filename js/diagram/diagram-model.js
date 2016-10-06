@@ -24,7 +24,6 @@ var Diagrams = (function (diagrams) {
         {
 
             selectedNode: null,
-            //do we need to ad nodeid?*prabu
             /**
              * @augments DiagramElement
              * @constructs

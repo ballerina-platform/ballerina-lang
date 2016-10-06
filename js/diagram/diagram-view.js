@@ -703,7 +703,7 @@ var Diagrams = (function (diagrams) {
                 if (propertyPane) {
                     propertyPane.destroy();
                 }
-               // udcontrol.set('visible', false);
+
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
                     var processor = txt.selectedNode.createProcessor(
@@ -903,12 +903,11 @@ var Diagrams = (function (diagrams) {
             onClickDiagram: function () {
                 var txt = defaultView;
                 if (txt.model.selected === true) {
-                    
                     diagram.previousDeleteIconGroup = null;
                     txt.model.selected = false;
                     $('#propertyPane').empty();
-                } else if (!txt.model.selectedNode) {
 
+                } else if (!txt.model.selectedNode) {
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
                     }
@@ -916,6 +915,7 @@ var Diagrams = (function (diagrams) {
                         diagram.previousDeleteIconGroup.classed("circle-hide", true);
                         diagram.previousDeleteIconGroup.classed("circle-show", false);
                     }
+
                     diagram.previousDeleteIconGroup = null;
                     diagram.currentDeleteIconGroup = null;
                     selected = '';

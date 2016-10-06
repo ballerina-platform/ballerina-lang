@@ -68,12 +68,15 @@ var SequenceD = (function (sequenced) {
             updateProcessorProperties: function () {
 
                 diagram.selectedNode = this.model;
+
+                //get processor parameters
                 var parameters = [];
                 var processorParameters = diagram.selectedNode.parameters.parameters;
                 processorParameters.forEach(function (parameter, index) {
                     parameters[index] = parameter.value;
                 });
 
+                //get processor definition
                 var processorDefinition;
                 var type = this.model.type;
                 if (type === "LogMediator") {
@@ -88,6 +91,7 @@ var SequenceD = (function (sequenced) {
                     processorDefinition = Processors.flowControllers.SwitchMediator;
                 }
 
+                //render property view
                 if (selected) {
                     if (selected == this) {
                         $('#propertyPane').empty();
