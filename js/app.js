@@ -60,7 +60,6 @@ var createMessage = function (start, end) {
     return new SequenceD.Models.Message({source: start, destination: end});
 };
 
-
 // Create tool palette elements
 //var lifeline = new Tools.Models.Tool({
 //    id: "LifeLine",
@@ -134,10 +133,10 @@ var diagram = new Diagrams.Models.Diagram({});
 // Create the diagram view
 var diagramOptions = {selector: '.editor'};
 var diagramView = new Diagrams.Views.DiagramView({model: diagram, options: diagramOptions});
-diagramView.render();
+//diagramView.render();
 var diagramViewElements = [];
 
-lifeLineOptions.diagram = diagram;
+//lifeLineOptions.diagram = defaultView.model;
 
 // var lifeline1 = createLifeLine("LifeLine1",createPoint(250, 50));
 // diagram.addElement(lifeline1, lifeLineOptions);
@@ -163,9 +162,9 @@ lifeLineOptions.diagram = diagram;
 // diagram.addElement(msg5, messageOptions);
 selected = "";
 selectedModel = "";
-var udcontrol = new Dialogs.Controls.UpdateDeleteControler({visible: false});
-var udcontrolView = new Dialogs.Views.UpdateDeletedControlerView({model: udcontrol});
-udcontrolView.render();
+//var udcontrol = new Dialogs.Controls.UpdateDeleteControler({visible: false});
+//var udcontrolView = new Dialogs.Views.UpdateDeletedControlerView({model: udcontrol});
+//udcontrolView.render();
 
 //var ppModel = new Editor.Views.PropertyPaneModel();
 var ppView = new Editor.Views.PropertyPaneView();
@@ -194,3 +193,19 @@ function TreeNode (value, type,cStart, cEnd) {
 // This is a map of constants as --> constantType: constantValue
 // Ex: HttpEP: "http://localhost/test/test2"
 var definedConstants = {};
+
+// Configuring dynamic  tab support
+var tab = new Diagrams.Models.Tab({
+    resourceId:"seq_1",
+    hrefId:"#seq_1",
+    resourceTitle:"Resource1",
+    createdTab:false
+});
+
+var tabListView = new Diagrams.Views.TabListView({model:tab});
+tabListView.render(tab);
+var diagramObj1 = new Diagrams.Models.Diagram({});
+tab.addDiagramForTab(diagramObj1);
+
+
+

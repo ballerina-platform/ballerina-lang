@@ -160,7 +160,7 @@ svg text::selection { background: none; }
    -khtml-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
-   user-select: none;`
+   user-select: none;
 }
 
 .udcontrol-image {
@@ -234,13 +234,15 @@ iframe {
 }
 
 .nav-tabs {
-  border: none;
+ border:"#8d8d8d";
+  background-color:"#232323";
 }
 
 .nav-tabs > li > a {
 -webkit-border-radius: 0;
 -moz-border-radius: 0;
-border-radius: 0;
+border-radius: 1px;
+ background:"#232323";
 }
 
 .monaco-editor {
@@ -267,4 +269,20 @@ border-radius: 0;
 .property-save {
     margin: 2px;
     opacity: 0.4;
+}
+
+.tab-divs{
+    position: absolute;
+    height: calc(100vh);
+    width: calc(100vw - 274px);
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.close-icon {
+    cursor: pointer;
+}
+
+.circle-hide {
+    display: none;
 }

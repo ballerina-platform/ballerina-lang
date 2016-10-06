@@ -46,19 +46,16 @@ var Editor = (function (editor) {
             });
         },
 
-        saveProperties: function(event) {
-
-           // if(propertyPane.schema) {
+        saveProperties: function() {
+            if(propertyPane && propertyPane.schema) {
                 if (propertyPane.schema.title === "Lifeline") {
-
                     ppView.dataObject.set('title', propertyPane.getValue().Title);
 
                 } else if (propertyPane.schema.title === "Resource") {
-
-                    diagram.attributes.path = propertyPane.editors['root.Path'].value;
-                    diagram.attributes.get = propertyPane.editors['root.Get'].value;
-                    diagram.attributes.put = propertyPane.editors['root.Put'].value;
-                    diagram.attributes.post = propertyPane.editors['root.Post'].value;
+                    diagram.attributes.path = propertyPane.getValue().Path;
+                    diagram.attributes.get = propertyPane.getValue().Get;
+                    diagram.attributes.put = propertyPane.getValue().Put;
+                    diagram.attributes.post = propertyPane.getValue().Post;
 
                 } else if (propertyPane.schema.title === "Log Mediator") {
                     ppView.dataObject.parameters.parameters = [
@@ -75,10 +72,54 @@ var Editor = (function (editor) {
                             value: propertyPane.getValue().Description
                         }
                     ];
+
+                } else if (propertyPane.schema.title === "Data Mapper") {
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "configurationFile",
+                            value: propertyPane.getValue().ConfigurationFile
+                        },
+                        {
+                            key: "message",
+                            value: propertyPane.getValue().Message
+                        },
+                        {
+                            key: "description",
+                            value: propertyPane.getValue().Description
+                        }
+                    ];
+
+                } else if(propertyPane.schema.title === "Try Block") {
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "exception",
+                            value: propertyPane.getValue().Exception
+                        },
+                        {
+                            key: "description",
+                            value: propertyPane.getValue().Description
+                        }
+                    ];
+                } else if(propertyPane.schema.title === "Invoke") {
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "message",
+                            value: propertyPane.getValue().Message
+                        },
+                        {
+                            key: "description",
+                            value: propertyPane.getValue().Description
+                        }
+                    ];
+                } else if(propertyPane.schema.title === "Switch Mediator") {
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "description",
+                            value: propertyPane.getValue().Description
+                        }
+                    ];
                 }
-          //  }
-         //  event.preventDefault();
-         //   event.stopPropagation();
+            }
         },
 
         createPropertyPane: function (schema, editableProperties, dataModel) {
@@ -94,9 +135,7 @@ var Editor = (function (editor) {
             });
 
             propertyPane.setValue(editableProperties);
-
-            $('#propertyPaneContainer').on('click', this.saveProperties);
-            $('#propertyPane').find('input').on('change', this.saveProperties)
+            propertyPane.on('change', this.saveProperties);
             return propertyPane;
         },
 

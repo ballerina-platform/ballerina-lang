@@ -44,17 +44,17 @@ var Processors = (function (processors) {
         parameters: [
             {
                 key: "message",
-                value: 'Temp message'
+                value: "Log message"
             },
             {
-               key: "logLevel"
+                key: "logLevel",
+                value: "info"
             },
             {
                 key: "description",
-                value: "Temp description"
+                value: "Description"
             }
         ],
-
         getSchema: function () {
             return {
                 title: "Log Mediator",
@@ -74,15 +74,13 @@ var Processors = (function (processors) {
                 }
             };
         },
-
-        getEditableProperties: function (message, logLevel, description) {
+        getEditableProperties: function (parameters) {
             var editableProperties = {};
-            editableProperties.Message = message;//this.parameters["message"];
-            editableProperties.LogLevel = logLevel;//this.parameters["logLevel"];
-            editableProperties.Description = description; //this.parameters["description"];
+            editableProperties.Message = parameters[0];
+            editableProperties.LogLevel = parameters[1];
+            editableProperties.Description = parameters[2];
             return editableProperties;
         },
-
         getMySubTree: function (model) {
             return new TreeNode("LogMediator", "LogMediator", "log(\"Test\"", ");");
         }

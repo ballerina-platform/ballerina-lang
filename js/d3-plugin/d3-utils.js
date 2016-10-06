@@ -210,6 +210,7 @@ var D3Utils = (function (d3_utils) {
         draw.group = group;
         draw.svg = svg;
         draw.rectWithTitle = rectWithTitle;
+        draw.regroup = regroup;
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;

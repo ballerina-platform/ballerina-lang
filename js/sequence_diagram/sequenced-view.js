@@ -67,80 +67,75 @@ var SequenceD = (function (sequenced) {
 
             updateProcessorProperties: function () {
 
-               // var message, logLevel, description;
+                diagram.selectedNode = this.model;
                 var parameters = [];
-                selectedModel = this.__on[0].capture.model;
-                diagram.selectedNode = this.__on[0].capture.model;
-                diagram.selectedNodeId = selectedModel.cid;
+                var processorParameters = diagram.selectedNode.parameters.parameters;
+                processorParameters.forEach(function (parameter, index) {
+                    parameters[index] = parameter.value;
+                });
 
-                function updateudControlLocation(rect) {
-                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth
-                                   + rect.getBoundingClientRect().width;
-                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
-                    udcontrol.set('visible', true);
-                    udcontrol.set('x', imgRight);
-                    udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', diagram.selectedNode);
-                }
-
-                function createPropertyPane (type, parameteres) {
-                    if(type ==="LogMediator") {
-                        return ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
-                                                         Processors.manipulators.LogMediator.getEditableProperties(parameteres[0], parameteres[1], parameteres[2]), selectedModel);
-                    }
-                }
-                
-                if (selectedModel.type === "LogMediator") {
-                    parameters[0] = diagram.selectedNode.parameters.parameters[0].value;
-                    parameters[1] = diagram.selectedNode.parameters.parameters[1].value || "info";
-                    parameters[2] = diagram.selectedNode.parameters.parameters[2].value;
+                var processorDefinition;
+                var type = this.model.type;
+                if (type === "LogMediator") {
+                    processorDefinition = Processors.manipulators.LogMediator;
+                } else if (type === "PayLoadFactoryMediator") {
+                    processorDefinition = Processors.manipulators.PayLoadFactoryMediator;
+                } else if (type === "InvokeMediator") {
+                    processorDefinition = Processors.flowControllers.InvokeMediator;
+                } else if (type === "TryBlockMediator") {
+                    processorDefinition = Processors.flowControllers.TryBlockMediator;
+                } else if (type === "SwitchMediator") {
+                    processorDefinition = Processors.flowControllers.SwitchMediator;
                 }
 
                 if (selected) {
                     if (selected == this) {
                         $('#propertyPane').empty();
-                        this.classList.toggle("lifeline_selected");
-                        udcontrol.set('visible', false);
                         selected = null;
                     } else {
-                        selected.classList.toggle("lifeline_selected");
-                        selected = this;
-                        diagram.selectedNode = this;
-                        selected.classList.toggle("lifeline_selected");
+                        selected = diagram.selectedNode;
+                        if (diagram.previousDeleteIconGroup) {
+                            diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                            diagram.previousDeleteIconGroup.classed("circle-show", false);
+                        }
                         $('#propertyPane').empty();
-                        $('#propertySave').show();
-                        propertyPane = createPropertyPane(selectedModel.type, parameters);
-                        updateudControlLocation(this);
+                        propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
+                                                                 processorDefinition.getEditableProperties(parameters),
+                                                                 this.model);
                     }
+                } else {
+                    diagram.selectedNode = this;
+                    selected = this;
+                    $('#propertyPane').empty();
+                    propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
+                                                             processorDefinition.getEditableProperties(parameters),
+                                                             this.model);
+                    diagram.selected = false;
                 }
-                // else if(!selected && diagram.selected) {
-                //     this.classList.toggle("lifeline_selected");
-                //     diagram.selectedNode = this.__on[0].capture.model;
-                //     selected = this.__on[0].capture.model;
-                //     updateudControlLocation(this);
-                //     $('#propertyPane').empty();
-                //     propertyPane = ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() ,
-                //                                              Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
-                // }
-                else {
-
-                        this.classList.toggle("lifeline_selected");
-                        diagram.selectedNode = this;
-                        selected = this;
-                        updateudControlLocation(this);
-                        $('#propertyPane').empty();
-                        propertyPane = createPropertyPane(selectedModel.type, parameters);//ppView.createPropertyPane(Processors.manipulators.LogMediator.getSchema() , Processors.manipulators.LogMediator.getEditableProperties(message,logLevel, description), selectedModel);
-
-                }
+                diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
+                diagram.currentDeleteIconGroup = null;
             },
-
 
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
+                var deleteIconGroup = group.append("g").attr("class", "close-icon circle-hide");
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
+                    var height = this.model.getHeight();
+                    var width = this.model.getWidth();
+                    var path = "M " + (center.x() + width/2 - 3) + "," + (center.y() - height/2 - 3) + " L " + (center.x() + width/2 + 3) + "," +
+                        (center.y() - height/2 + 3) + " M " + (center.x() + width/2 + 3) + "," + (center.y() - height/2 - 3) + " L " +
+                        (center.x() + width/2 - 3) + "," + (center.y() - height/2 + 3);
+
+                    var closeCircle = d3Ref.draw.circle((center.x() + width/2), (center.y() - height/2),
+                        7, deleteIconGroup).
+                        attr("fill", "#95a5a6").
+                        attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                    deleteIconGroup.append("path")
+                        .attr("d", path)
+                        .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
@@ -150,11 +145,45 @@ var SequenceD = (function (sequenced) {
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
-                    rectBottomXXX.on('click',this.updateProcessorProperties, this);
                     var mediatorText = d3Ref.draw.centeredText(center,
                         title,
                         group)
                         .classed(prefs.text.class, true);
+                    group.rect = rectBottomXXX;
+                    group.title = mediatorText;
+
+                    var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup];
+
+                    var newGroup = d3Ref.draw.regroup(orderedElements);
+                    //group.remove();
+
+                    // On click of the mediator show/hide the delete icon
+                    rectBottomXXX.on("click", function () {
+                       // $('#propertyPane').find("h3").click();
+                        if (deleteIconGroup.classed("circle-hide")) {
+                            deleteIconGroup.classed("circle-hide", false);
+                            deleteIconGroup.classed("circle-show", true);
+                        } else {
+                            deleteIconGroup.classed("circle-hide", true);
+                            deleteIconGroup.classed("circle-show", false);
+                        }
+                        diagram.currentDeleteIconGroup = deleteIconGroup;
+                        viewObj.updateProcessorProperties();
+                    });
+
+                    deleteIconGroup.on("click", function () {
+                        // Get the parent of the model and delete it from the parent
+                        var parentModelChildren = viewObj.model.get("parent").get("children").models;
+                        for (var itr = 0; itr < parentModelChildren.length; itr ++) {
+                            if (parentModelChildren[itr].cid === viewObj.model.cid) {
+
+                                parentModelChildren.splice(itr, 1);
+                                defaultView.render();
+                                break;
+                            }
+                        }
+                    });
+
                     group.rect = rectBottomXXX;
                     group.title = mediatorText;
                     //this.renderViewForElement(element, opts);
@@ -201,7 +230,7 @@ var SequenceD = (function (sequenced) {
                         var processor = this.modelAttr("children").models[id];
                         var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                        processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                         processor.setY(yValue);
                         yValue += processor.getHeight()+ 30;
                     }
@@ -223,7 +252,7 @@ var SequenceD = (function (sequenced) {
                         var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                         var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        containableProcessorElementView.render("#diagramWrapper", processorCenterPoint);
+                        containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
                         yValue = yValue+containableProcessorElement.getHeight();
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
@@ -321,7 +350,7 @@ var SequenceD = (function (sequenced) {
                 if (this.d3el) {
                     this.d3el.svgTitle.text(this.model.attributes.title);
                     this.d3el.svgTitleBottom.text(this.model.attributes.title);
-                    if (propertyPane) {
+                    if (propertyPane && diagram.selectedNode) {
                         if (propertyPane.schema.title === diagram.selectedNode.getSchema().title) {
                             propertyPane.setValue(diagram.selectedNode.getEditableProperties());
                         }
@@ -365,7 +394,7 @@ var SequenceD = (function (sequenced) {
                             });
 
                             var processorCenterPoint = createPoint(xValue, yValue);
-                            processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                            processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                             processor.setY(yValue);
                             yValue += processor.getHeight()+ 30;
                             totalIncrementedHeight = totalIncrementedHeight + processor.getHeight()+ 30;
@@ -405,7 +434,7 @@ var SequenceD = (function (sequenced) {
 
                     if (diagram.highestLifeline == undefined || diagram.highestLifeline.getHeight() < this.model.getHeight()) {
                         diagram.highestLifeline = this.model;
-                        diagramView.render();
+                        defaultView.render();
                         return false;
                     }
 
@@ -422,7 +451,7 @@ var SequenceD = (function (sequenced) {
                                 model: messagePoint.message(),
                                 options: {class: "message"}
                             });
-                            linkView.render("#diagramWrapper", "messages");
+                            linkView.render("#" + defaultView.options.diagram.wrapperId, "messages");
                         }
                     }
                 }
@@ -446,7 +475,7 @@ var SequenceD = (function (sequenced) {
                         var d3Ref = this.getD3Ref();
                         console.log("Processor added");
                         var rectBottomXXX = d3Ref.draw.centeredRect(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             this.prefs.rect.width,
                             this.prefs.rect.height,
@@ -454,8 +483,9 @@ var SequenceD = (function (sequenced) {
                             0,
                             this.group, element.viewAttributes.colour
                         );
+                        rectBottomXXX.on('click',this.updateProcessorProperties, this);
                         var mediatorText = d3Ref.draw.centeredText(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             element.get('title'),
                             this.group)
@@ -465,7 +495,7 @@ var SequenceD = (function (sequenced) {
                         var d3Ref = this.getD3Ref();
                         console.log("Processor added");
                         var rectBottomXXX = d3Ref.draw.rectWithTitle(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             60,
                             this.prefs.rect.height,
@@ -481,7 +511,7 @@ var SequenceD = (function (sequenced) {
                         var d3Ref = this.getD3Ref();
                         console.log("Processor added");
                         var rectBottomXXX = d3Ref.draw.rectWithTitle(
-                            createPoint(diagram.selectedNode.get('centerPoint').get('x'),
+                            createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
                             60,
                             this.prefs.rect.height,
@@ -498,7 +528,7 @@ var SequenceD = (function (sequenced) {
                 } else if (element instanceof SequenceD.Models.Message) {
                     console.log("Message Link added !!!")
                     if (opts.direction == 'inbound') {
-                        diagram.addElement(element, opts);
+                        defaultView.model.addElement(element, opts);
                     }
                 }
 
@@ -510,6 +540,21 @@ var SequenceD = (function (sequenced) {
                 var viewObj = this;
                 var group = d3Ref.draw.group()
                     .classed(this.model.viewAttributes.class, true);
+
+                var deleteIconGroup = group.append("g").attr("class", "close-icon circle-hide");
+
+                var height = this.model.getHeight();
+                var width = this.model.getWidth();
+                var path = "M " + (center.x() + width/2 - 3) + "," + (center.y() - height/2 - 3) + " L " + (center.x() + width/2 + 3) + "," +
+                           (center.y() - height/2 + 3) + " M " + (center.x() + width/2 + 3) + "," + (center.y() - height/2 - 3) + " L " +
+                           (center.x() + width/2 - 3) + "," + (center.y() - height/2 + 3);
+
+                var closeCircle = d3Ref.draw.circle((center.x() + width/2), (center.y() - height/2), 7, deleteIconGroup).attr("fill", "#95a5a6").attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                deleteIconGroup.append("path").attr("d", path).attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+
+                deleteIconGroup.on("click", function () {
+                   console.log('delete lifeline');
+                });
 
                 this.group = group;
                 this.prefs = prefs;
@@ -560,6 +605,8 @@ var SequenceD = (function (sequenced) {
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
+                    //setting current tab view based diagram model
+                     diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
@@ -570,6 +617,8 @@ var SequenceD = (function (sequenced) {
                 });
 
                 drawMessageRect.on('mouseover', function () {
+                    //setting current tab view based diagram model
+                    diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
@@ -578,43 +627,42 @@ var SequenceD = (function (sequenced) {
                 }).on('mouseup', function (data) {
                 });
 
-                function updateudControlLocation(rect) {
-                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
-                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
-                    udcontrol.set('visible', true);
-                    udcontrol.set('x', imgRight);
-                    udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', diagram.selectedNode);
-                }
-
                 function updatePropertyPane() {
                     $('#propertySave').show();
-                    propertyPane = ppView.createPropertyPane( diagram.selectedNode.getSchema(),  diagram.selectedNode.getEditableProperties(),  diagram.selectedNode);
+                    propertyPane = ppView.createPropertyPane( defaultView.model.selectedNode.getSchema(),  defaultView.model.selectedNode.getEditableProperties(),  defaultView.model.selectedNode);
                 }
 
                 rect.on("click", (function () {
-                    diagram.selectedNode = viewObj.model;
+                    defaultView.model.selectedNode = viewObj.model;
+                    if (deleteIconGroup.classed("circle-hide")) {
+                        deleteIconGroup.classed("circle-hide", false);
+                        deleteIconGroup.classed("circle-show", true);
+                    } else {
+                        deleteIconGroup.classed("circle-hide", true);
+                        deleteIconGroup.classed("circle-show", false);
+                    }
+                    diagram.currentDeleteIconGroup = deleteIconGroup;
                     if (selected) {
                         if (this == selected) {
-                            selected.classList.toggle("lifeline_selected");
                             if (propertyPane) {
                                 propertyPane.destroy();
                             }
                             selected = '';
                         } else {
-                            selected.classList.toggle("lifeline_selected");
-                            this.classList.toggle("lifeline_selected");
+                            if(diagram.previousDeleteIconGroup) {
+                                diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                                diagram.previousDeleteIconGroup.classed("circle-show", false);
+                            }
                             updatePropertyPane();
                             selected = this;
-                            updateudControlLocation(this);
                         }
                     } else {
-                        diagram.selected = false;
-                        this.classList.toggle("lifeline_selected");
+                        defaultView.model.selected = false;
                         updatePropertyPane();
                         selected = this;
-                        updateudControlLocation(this);
                     }
+                    diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
+                    diagram.currentDeleteIconGroup = null;
                 }));
 
                 return group;
@@ -675,14 +723,14 @@ var SequenceD = (function (sequenced) {
             },
 
             getNextAvailableConnectionPoint: function (connecion, x, y) {
-                var nextYCoordinate = diagram.deepestPointY + 50;
+                var nextYCoordinate = defaultView.model.deepestPointY + 50;
                 var nextXCoordinate = this.model.owner().get('centerPoint').x();
 
                 // TODO: Until the layout finalize we will be drawing the message without offsetting dynamically
                 //if (_.isEqual(connecion.type(), "incoming")) {
                 //    lifeLineOptions.diagram.deepestPointY = nextYCoordinate;
                 //}
-                return new GeoCore.Models.Point({'x': nextXCoordinate, 'y': diagram.sourceLifeLineY});
+                return new GeoCore.Models.Point({'x': nextXCoordinate, 'y': defaultView.model.sourceLifeLineY});
             }
         });
 
@@ -807,6 +855,7 @@ var SequenceD = (function (sequenced) {
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
+                rectBottomXXX.on('click', this.saveProperties);
                 console.log("started");
                 var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
@@ -815,11 +864,11 @@ var SequenceD = (function (sequenced) {
                     var m = d3.mouse(this);
                     prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
                 }).on('mouseover', function () {
-                    diagram.selectedNode = viewObj.model;
+                    defaultView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
-                    diagram.destinationLifeLine = diagram.selectedNode;
-                    diagram.selectedNode = null;
+                    defaultView.model.destinationLifeLine = defaultView.model.selectedNode;
+                    defaultView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
                 });
@@ -836,7 +885,7 @@ var SequenceD = (function (sequenced) {
                         prefs.diagram.trigger("messageDrawStart", viewObj.model,  new GeoCore.Models.Point({'x': center.x(), 'y': m[1]}));
 
                     }).on('mouseover', function () {
-                        diagram.selectedNode = viewObj.model;
+                        defaultView.model.selectedNode = viewObj.model;
                         d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                             .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                     }).on('mouseout', function () {
@@ -860,7 +909,7 @@ var SequenceD = (function (sequenced) {
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
                     var processorCenterPoint = createPoint(xValue, yValue);
-                    processorView.render("#diagramWrapper", processorCenterPoint, "processors");
+                    processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
                     yValue += processor.getHeight()+ 30;

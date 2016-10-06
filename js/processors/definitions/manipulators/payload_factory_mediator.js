@@ -41,7 +41,38 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        parameters: [],
+        parameters: [
+            {
+                key: "configurationFile",
+                value: "Configuration file"
+            },
+            {
+                key: "message",
+                value: "Message"
+            },
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
+        getSchema: function () {
+            return {
+                title: "Data Mapper",
+                type: "object",
+                properties: {
+                    ConfigurationFile: {"type": "string"},
+                    Message: {"type": "string"},
+                    Description: {"type": "string"}
+                }
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.ConfigurationFile = parameters[0];
+            editableProperties.Message = parameters[1];
+            editableProperties.Description = parameters[2];
+            return editableProperties;
+        },
         getMySubTree: function (model) {
             return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator", "payloadFactory {", "}");
         }

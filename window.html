@@ -164,10 +164,10 @@
     <script src="lib/jquery-ui-1.11.4/jquery-ui.min.js"></script>
 
     <script>
-		$("iframe").css("height", $(window).height() - 40 + "px");
 		window.onresize = function() {
-			$("iframe").css("height", $(window).height() - 40 + "px");
+			$("iframe").css("height", $(window).height() - 130 + "px");
 		}
+        $(window.onresize);
 	</script>
 
     <script>

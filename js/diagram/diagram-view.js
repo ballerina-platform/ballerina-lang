@@ -80,8 +80,8 @@ var Diagrams = (function (diagrams) {
              * @param {Point} point
              */
             snapToGrid: function (point) {
-                var newX = Math.round(point.x() / this.diagramView().gridWidth()) * this.diagramView().gridWidth();
-                var newY = Math.round(point.y() / this.diagramView().gridHeight()) * this.diagramView().gridHeight();
+                var newX = Math.round(point.x() / defaultView.gridWidth()) * defaultView.gridWidth();
+                var newY = Math.round(point.y() / defaultView.gridHeight()) * defaultView.gridHeight();
                 return new GeoCore.Models.Point({'x': newX, 'y': newY});
             },
 
@@ -269,7 +269,148 @@ var Diagrams = (function (diagrams) {
             }
 
         });
+// Holds the view for all tab elements
+    var TabListView = Backbone.View.extend({
+        //<ul> element for tabs
+        el: '#tabList',
+        initialize: function () {
 
+
+        },
+
+
+        events: {
+            "click .add-resource": "addResourceTab"
+        },
+        render: function (model) {
+            var tabView = new TabView({model: model});
+            tabView.render();
+            $(this.el).append(tabView.el);
+
+        },
+        //function to fire when a new resource tab button is clicked
+        addResourceTab: function (e) {
+            // required to clean previous views
+            this.undelegateEvents();
+            e.preventDefault();
+            var id = $(".nav-tabs").children().length;
+            var hrefId = '#seq_' + id;
+            var resourceId = 'seq_' + id;
+            var titlePrefix = resourceId.substring(resourceId.length, 4);
+            //create new Tab based resource model
+            var resourceModel = new Diagrams.Models.Tab({
+                resourceId: resourceId,
+                hrefId: hrefId,
+                resourceTitle: "Resource" + titlePrefix,
+                createdTab: false
+            });
+           
+            if(diagram.previousDeleteIconGroup) {
+                diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                diagram.previousDeleteIconGroup.classed("circle-show", false);
+            }
+            diagram.previousDeleteIconGroup = null;
+            diagram.currentDeleteIconGroup = null;
+            if (propertyPane) {
+                propertyPane.destroy();
+            }
+
+            var nextTabListView = new Diagrams.Views.TabListView({model: resourceModel});
+            nextTabListView.render(resourceModel);
+            //create new diagram object for the tab
+            var diagramObj = new Diagrams.Models.Diagram({});
+            resourceModel.addDiagramForTab(diagramObj);
+        }
+
+    });
+// View for each tab item (<li> item)
+    var TabView = Backbone.View.extend({
+        //create <li> element to hold each resource tab
+        tagName: "li",
+        className: "series ",
+        template: _.template($('#resourceTabsTemplate').html()),
+        initialize: function () {
+
+
+        },
+        events: {
+            "click a": "clickedResourceTab",
+            'click .remove-resource': 'removeResourceTab',
+        },
+        // on click of added tab
+        clickedResourceTab: function (e) {
+            e.preventDefault();
+            currentTabId = this.model.get("hrefId");
+            var currentTab = this.model;
+            //Unique Id created for the svg element where elements can be drawn
+            var svgUId = this.model.get("resourceId") + "4";
+            if(diagram.previousDeleteIconGroup) {
+                diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                diagram.previousDeleteIconGroup.classed("circle-show", false);
+            }
+            diagram.previousDeleteIconGroup = null;
+            diagram.currentDeleteIconGroup = null;
+            if (propertyPane) {
+                propertyPane.destroy();
+            }
+            //first time click on the tab
+            if (this.model.attributes.createdTab === false) {
+                //get the diagram model for this tab
+                var dgModel = this.model.getDiagramOfTab(currentTab.attributes.diagramForTab.models[0].cid);
+                dgModel.CurrentDiagram(dgModel);
+                var options = {selector: currentTabId, wrapperId: svgUId};
+                // get the current diagram view for the tab
+                var currentView = dgModel.createDiagramView(dgModel, options);
+                // set current tab's diagram view as default view
+                currentView.currentDiagramView(currentView);
+                this.model.setDiagramViewForTab(currentView);
+                // mark tab as visited
+                this.model.setSelectedTab();
+
+            }
+            else {
+                // not the first time click on the given tab
+                var dgViewToRender = this.model.viewObj;
+                dgViewToRender.currentDiagramView(dgViewToRender);
+                //SETTING TO TEST
+                lifeLineOptions.diagram = defaultView.model;
+
+
+            }
+
+
+        },
+        //Remove tab and tab content on 'remove' button
+        removeResourceTab: function (e) {
+            e.preventDefault();
+            var anchor = $(e.currentTarget).siblings('a');
+            $(anchor.attr('href')).remove();
+            $(e.currentTarget).parent().remove();
+        },
+
+        render: function () {
+            var html = this.template(this.model.attributes);
+            $(this.el).append(html);
+            var tabContent = new TabContentView({model: this.model});
+            tabContent.render();
+
+        }
+    });
+//View to create matching tab content div for a tab
+    var TabContentView = Backbone.View.extend({
+        //Adding created template to editor div
+        el: ".resource-content",
+        template: _.template($('#resourceContentTemplate').html()),
+        initialize: function () {
+
+
+        },
+        render: function () {
+            var html = this.template(this.model.attributes);
+            $(this.el).append(html);
+        }
+
+    });
 
     var DiagramView = Backbone.View.extend(
         /** @lends DiagramView.prototype */
@@ -289,11 +430,13 @@ var Diagrams = (function (diagrams) {
                 opts.diagram.class = opts.diagram.class || "diagram";
                 opts.diagram.selector = opts.diagram.selector || ".diagram";
                 opts.diagram.wrapper = opts.diagram.wrapper || {};
-                opts.diagram.wrapper.id = opts.diagram.wrapper.id || "diagramWrapper";
+                // CHANGED
+                opts.diagram.wrapperId = opts.wrapperId || "diagramWrapper";
                 opts.diagram.grid = opts.diagram.grid || {};
                 opts.diagram.grid.height = opts.diagram.grid.height || 25;
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
+                var defaultView = {};
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
 
@@ -308,7 +451,8 @@ var Diagrams = (function (diagrams) {
                 this.d3svg = svg;
                 svg.on("click", this.onClickDiagram);
 
-                /*var svgPanNZoom = $(svg.node()).svgPanZoom({
+
+                var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
 
                         // enables mouse wheel zooming events
@@ -332,7 +476,7 @@ var Diagrams = (function (diagrams) {
                     zoomFactor: 0.25,
 
                     // maximum zoom in, must be a number bigger than 1
-                    maxZoom: 3,
+                    maxZoom: 5,
 
                     // how much to move the viewBox when calling .panDirection() methods
                     panFactor: 100,
@@ -357,17 +501,72 @@ var Diagrams = (function (diagrams) {
                     // the limits in which the image can be moved.
                     // If null or undefined will use the initialViewBox plus 15% in each direction
                     limits: {
-                        x: -150,
-                        y: -150,
-                        x2: 1150,
-                        y2: 1150
+                        x: -1000,
+                        y: -1000,
+                        x2: 3000,
+                        y2: 3000
                     }
                 });
                 $(svg.node()).dblclick(function(){
                     svgPanNZoom.reset();
                 });
-                */
+                svg.attr("preserveAspectRatio", "xMinYMin meet");
 
+
+            },
+
+            /**
+             * Gets the SVG Viewport size.
+             *
+             * @returns {{}} Viewport for Diagram SVG.
+             */
+            getViewPort: function(){
+                var viewPortHeight = $(this.d3svg.node()).height(),
+                    viewPortWidth  = $(this.d3svg.node()).width();
+                return {w: viewPortWidth, h: viewPortHeight};
+            },
+
+            /**
+             * Gets the SVG Viewbox attribute.
+             *
+             * @returns {{}} View Box for Diagram SVG.
+             */
+            getViewBox: function(){
+                var viewBoxAttr = this.d3svg.attr("viewBox"),
+                    viewBoxValues = _.split(viewBoxAttr, ' ', 4),
+                    viewBox = {};
+
+                viewBox.x = _.toNumber(viewBoxValues[0]);
+                viewBox.y = _.toNumber(viewBoxValues[1]);
+                viewBox.w = _.toNumber(viewBoxValues[2]);;
+                viewBox.h = _.toNumber(viewBoxValues[3]);;
+
+                return viewBox;
+            },
+
+            /**
+             * Sets the SVG Viewbox attribute.
+             *
+             * @param {number} x min X axis of the viewbox.
+             * @param {number} y min y axis of the viewbox.
+             * @param {number} w width of the viewbox.
+             * @param {number} h height of the viewbox
+             */
+            setViewBox: function(x, y, w, h){
+                this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
+            },
+
+            /**
+             * Covert a point in client viewport Coordinates to svg user space Coordinates.
+             * @param {Point} point a point in client viewport Coordinates
+             */
+            toViewBoxCoordinates: function(point){
+                var pt = this.d3svg.node().createSVGPoint();
+                pt.x = point.x();
+                pt.y = point.y();
+                pt = pt.matrixTransform(this.d3svg.node().getScreenCTM().inverse());
+
+                return new GeoCore.Models.Point({x:pt.x, y:pt.y});
             },
 
 
@@ -375,49 +574,55 @@ var Diagrams = (function (diagrams) {
                 var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
+            currentDiagramView: function (view1) {
+                if (_.isUndefined(view1)) {
+                    return defaultView;
+                } else {
+                    defaultView = view1;
 
+                }
+            },
             handleDropEvent: function (event, ui) {
                 var newDraggedElem = $(ui.draggable).clone();
-                //var type = newDraggedElem.attr('id');
-                console.log("droped");
+                var txt = defaultView.model;
                 var id = ui.draggable.context.lastChild.id;
-                var position = {};
-                position.x = ui.offset.left - $(this).offset().left;
-                position.y = ui.offset.top - $(this).offset().top;
+                var position =  new GeoCore.Models.Point({x:ui.offset.left.x, y:ui.offset.top});
+                //convert drop position to relative svg coordinates
+                position = defaultView.toViewBoxCoordinates(position);
                 if (propertyPane) {
                     propertyPane.destroy();
                 }
-                udcontrol.set('visible', false);
-
-                if (Processors.manipulators[id] && diagram.selectedNode) {
+               // udcontrol.set('visible', false);
+                if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
-                    var processor = diagram.selectedNode.createProcessor(
+                    var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
-                        createPoint(position.x, position.y),
+                        position,
                         Processors.manipulators[id].id,
-                        {type: Processors.manipulators[id].type || "UnitProcessor", initMethod:Processors.manipulators[id].init},
+                        {
+                            type: Processors.manipulators[id].type || "UnitProcessor",
+                            initMethod: Processors.manipulators[id].init
+                        },
                         {colour: Processors.manipulators[id].colour},
                         {parameters: Processors.manipulators[id].parameters},
                         {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
-                    diagram.selectedNode.addChild(processor);
-                    //does this change the selected on if so add
-                    //diagram.trigger("renderDiagram");
-                    diagramView.render();
-                } else if (Processors.flowControllers[id] && diagram.selectedNode) {
-                    var center = createPoint(position.x, position.y);
-                    var processor = diagram.selectedNode.createProcessor(
+                    txt.selectedNode.addChild(processor);
+                    //TEST CHANGE
+                    defaultView.render();
+                } else if (Processors.flowControllers[id] && txt.selectedNode) {
+                    var processor = txt.selectedNode.createProcessor(
                         Processors.flowControllers[id].title,
-                        center,
+                        position,
                         Processors.flowControllers[id].id,
-                        {type: Processors.flowControllers[id].type, initMethod:Processors.flowControllers[id].init },
+                        {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
                         {parameters: Processors.flowControllers[id].parameters},
                         {getMySubTree: Processors.flowControllers[id].getMySubTree}
                     );
-                    diagram.selectedNode.addChild(processor);
+                    txt.selectedNode.addChild(processor);
 
-                    if(processor.type == "TryBlockMediator") {
+                    if (processor.type == "TryBlockMediator") {
                         var containableProcessorElem1 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                         containableProcessorElem1.set('title', "Try");
                         processor.containableProcessorElements().add(containableProcessorElem1);
@@ -428,27 +633,32 @@ var Diagrams = (function (diagrams) {
                     }
 
 
-                    diagramView.render();
+                    defaultView.render();
                 } else if (id == "EndPoint") {
-                    endpointLifelineCounter++;
-                    diagramView.renderMainElement(id, endpointLifelineCounter, MainElements.lifelines.EndPointLifeline);
+                    var countOfEndpoints = txt.endpointLifeLineCounter();
+                    ++countOfEndpoints;
+                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline);
+                    txt.endpointLifeLineCounter(countOfEndpoints);
 
                 } else if (id == "Resource") {
-                    resourceLifelineCounter++;
-                    if(resourceLifelineCounter == 1) {
-                        diagramView.renderMainElement(id, resourceLifelineCounter, MainElements.lifelines.ResourceLifeline);
+                    var countOfResources = txt.resourceLifeLineCounter();
+                    //if no resource elements added to this tab view, as only one resource element is allowed in a tab
+                    if (countOfResources === 0) {
+                        ++countOfResources;
+                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline);
+                        txt.resourceLifeLineCounter(countOfResources);
                     }
+
                 } else {
 
                 }
             },
 
-
             render: function () {
 
                 //Remove previous diagram
-                if (diagramD3el) {
-                    diagramD3el.remove();
+                if (this.d3el) {
+                    this.d3el.remove();
                     for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
@@ -463,7 +673,7 @@ var Diagrams = (function (diagrams) {
 
                 var definitions = this.d3svg.append("defs");
 
-                var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapper.id)
+                var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapperId)
                     .attr("width", "100%")
                     .attr("height", "100%");
 
@@ -503,7 +713,7 @@ var Diagrams = (function (diagrams) {
 
 
 
-                diagramD3el = mainGroup;
+                this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
                 this.htmlDiv.droppable({
@@ -520,7 +730,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
                 }
 
@@ -533,7 +743,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "processors", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
                 }
 
@@ -546,7 +756,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
                 }
 
@@ -559,7 +769,7 @@ var Diagrams = (function (diagrams) {
                         });
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
-                        lifeLineView.render("#" + this.options.diagram.wrapper.id, "messages", rectColour);
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
                 }
 
@@ -567,25 +777,26 @@ var Diagrams = (function (diagrams) {
             },
 
             renderMainElement: function (lifelineName, counter, lifeLineDef) {
-                var numberOfResourceElements = diagram.attributes.diagramResourceElements.length;
-                var numberOfEndpointElements = diagram.attributes.diagramEndpointElements.length;
+                var txt = this.model;
+                var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
+                var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
                 var centerPoint;
-                if(numberOfEndpointElements > 0) {
-                    if(lifelineName == "Resource") {
+                if (numberOfEndpointElements > 0) {
+                    if (lifelineName == "Resource") {
                         centerPoint = createPoint(200, 50);
-                        diagram.attributes.diagramEndpointElements.each(function(model) {
+                        txt.attributes.diagramEndpointElements.each(function (model) {
                             var xVal = model.get('centerPoint').attributes.x;
                             model.get('centerPoint').move(180, 0);
                             model.setX(xVal + 180);
                             model.rightLowerConer({x: xVal + 245, y: 0});
                         });
                     } else {
-                        var lastLifeLine = diagram.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
+                        var lastLifeLine = txt.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
                         centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
                     }
                 } else {
-                    if(numberOfResourceElements > 0) {
-                        var lastLifeLine = diagram.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
+                    if (numberOfResourceElements > 0) {
+                        var lastLifeLine = txt.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
                         centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
                     } else {
                         //initial life line position
@@ -599,12 +810,17 @@ var Diagrams = (function (diagrams) {
                     y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
                 });
                 lifeLineOptions.class = lifeLineDef.class;
-                diagram.addElement(lifeline, lifeLineOptions);
-                diagramView.render();
+                //SETTING TOP SVG ELEMENT IN OPTIONS To Draw messages
+                lifeLineOptions.diagram = defaultView.model;
+                txt.addElement(lifeline, lifeLineOptions);
+                defaultView.render();
             },
 
             renderDiagram: function () {
-                diagramView.render();
+                defaultView.render();
+            },
+            onRenderForCurrentDiagram: function (element, opts) {
+                this.renderViewForElement(element, opts);
             },
 
             onAddElement: function (element, opts) {
@@ -612,32 +828,35 @@ var Diagrams = (function (diagrams) {
             },
 
             onClickDiagram: function () {
-                if (diagram.selected === true) {
-                    diagram.selected = false;
+                var txt = defaultView;
+                if (txt.model.selected === true) {
+                    
+                    diagram.previousDeleteIconGroup = null;
+                    txt.model.selected = false;
                     $('#propertyPane').empty();
-                
-                } else if (!diagram.selectedNode && selected) {
+                } else if (!txt.model.selectedNode) {
 
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
                     }
-
-                    udcontrol.set('visible', false);
-                    udcontrol.set('lifeline', '');
+                    if(diagram.previousDeleteIconGroup) {
+                        diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                        diagram.previousDeleteIconGroup.classed("circle-show", false);
+                    }
+                    diagram.previousDeleteIconGroup = null;
+                    diagram.currentDeleteIconGroup = null;
                     selected = '';
-                    diagram.selected = true;
-
+                    txt.model.selected = true;
                     $('#propertyPane').empty();
-
-                    propertyPane = ppView.createPropertyPane(diagram.getDefinitionSchema(),
-                                                             diagram.getDefinitionEditableProperties(), diagram);
+                    propertyPane = ppView.createPropertyPane(txt.model.getDefinitionSchema(),
+                        txt.model.getDefinitionEditableProperties(), txt.model);
                 }
             },
 
             renderViewForElement: function (element, renderOpts) {
                 var view = Diagrams.Utils.createViewForModel(element, renderOpts);
                 view.diagramView(this);
-                view.render("#" + this.options.diagram.wrapper.id);
+                view.render("#" + this.options.diagram.wrapperId);
             },
 
             gridWidth: function () {
@@ -661,10 +880,10 @@ var Diagrams = (function (diagrams) {
 
                 if(destinationModel){
                     if(!_.isEqual(sourceModel.cid, destinationModel.cid )){
-                       var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
-                       var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-                       sourceModel.addChild(sourcePoint, messageOptionsOutbound);
-                       destinationModel.addChild(destinationPoint, messageOptionsInbound);
+                        var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                        var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                        sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                        destinationModel.addChild(destinationPoint, messageOptionsInbound);
                     }
                 }
                 this.render();
@@ -672,7 +891,7 @@ var Diagrams = (function (diagrams) {
 
             onMessageDrawStart: function(sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback){
 
-                var diagView = this;
+                var diagView = defaultView;
 
                 var line = this.d3svg.append("line")
                     .attr("x1", startPoint.x())
@@ -729,6 +948,8 @@ var Diagrams = (function (diagrams) {
     views.ConnectionView = ConnectionView;
     views.ConnectionPointView = ConnectionPointView;
     views.DiagramView = DiagramView;
+    views.TabListView = TabListView;
+    views.TabView = TabView;
 
     diagrams.Views = views;
     return diagrams;

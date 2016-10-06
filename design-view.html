@@ -8,6 +8,7 @@
 
     <title>Design View</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css" />
     <link rel="stylesheet" type="text/css" href="css/diagram/diagram-tool-bar.css" />
     <link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
@@ -24,14 +25,30 @@
             <div id="toolpalatte"></div>
         </div>
         <div class="editor-container" id="editorBottom">
-            <div class="editor-scroller">
-                <div id="udcontroldiv" >
-                    <img id="edit-image" alt="edit" src="images/edit.svg" class="udcontrol-image"/>
-                    <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
-                    <div id="udcModal" style="display:none;"></div>
-                </div>
-                <div class="editor gradient-pattern">
+            <div id="sample">
+                <ul class="nav nav-tabs tabList" id="tabList"  role="tablist">
+                    <li><a href="#" class="add-resource">+</a></li>
+                </ul>
+            </div>
 
+            <script type="text/template" id="resourceTabsTemplate">
+
+                    <a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
+                    <span class="remove-resource fw-stack">
+                        <i class="icon fw fw-circle fw-stack-2x"></i>
+                        <i class="fw fw-cancel fw-stack-1x fw-inverse"></i>
+                    </span>
+
+                </script>
+            <script type="text/template" id="resourceContentTemplate">
+                <div  role="tabpanel" class="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
+                </script>
+
+            <div class="editor-scroller">
+                <div class="editor">
+                    <div class="tab-content resource-content ">
+
+                    </div>
                 </div>
             </div>
         </div>

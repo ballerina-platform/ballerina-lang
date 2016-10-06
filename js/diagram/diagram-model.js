@@ -109,7 +109,7 @@ var Diagrams = (function (diagrams) {
                 if (connectionPoint === undefined) {
                     return this.get('source');
                 }
-                diagram.sourceLifeLineY = y;
+                defaultView.model.sourceLifeLineY = y;
                 var connection = connectionPoint.connectLink(this, {type: 'outgoing', x: x, y: y});
                 if (this.makeParallel()) {
                     connection.point().y(this.destination().point().y());
@@ -261,7 +261,54 @@ var Diagrams = (function (diagrams) {
 
         });
 
+// Model for Tab based resources
+    var Tab = Backbone.Model.extend({
+        modelName: "Tab",
+        nameSpace: diagrams,
 
+
+        initialize: function (attrs, options) {
+            //store diagram object of a given tab
+            var diagramSet = new DiagramsList([]);
+            this.diagramForTab(diagramSet);
+            this.viewObj = {};
+
+        },
+        // mark already visited tabs
+        setSelectedTab: function () {
+            this.attributes.createdTab = true;
+        },
+        getSelectedTab: function () {
+            return this.createdTab;
+        },
+        setDiagramViewForTab: function (view) {
+            this.viewObj = view;
+        },
+
+        // diagram collection getters/setters
+        diagramForTab: function (element) {
+            if (_.isUndefined(element)) {
+                return this.get('diagramForTab');
+            } else {
+                this.set('diagramForTab', element);
+            }
+        },
+        // on new tab creation add the diagram object to list
+        addDiagramForTab: function (element) {
+
+            this.diagramForTab().add(element);
+        },
+        //get the diagram object from the collection
+        getDiagramOfTab: function (id) {
+            return this.diagramForTab().get(id);
+        },
+        defaults: {
+            resourceId: "id-not-set",
+            resourceTitle: "",
+            hrefId: "id-not-set",
+            createdTab: false,
+        }
+    });
     var Diagram = Backbone.Model.extend(
         /** @lends Diagram.prototype */
         {
@@ -279,26 +326,65 @@ var Diagrams = (function (diagrams) {
                 this.diagramResourceElements(resources);
                 this.diagramEndpointElements(endPoints);
                 this.selectedNode = null;
-                this.selectedNodeId = null;
                 this.destinationLifeLine = null;
                 // TODO: won't be using this until the layout finalized
                 this.deepestPointY = 100;
                 this.sourceLifeLineY = 0;
                 this.X = 0;
                 this.highestLifeline = null;
+                var resourceCounter = 0;
+                var endpointCounter = 0;
+                this.resourceLifeLineCounter(resourceCounter);
+                this.endpointLifeLineCounter(endpointCounter);
+                this.CurrentDiagram();
             },
 
             modelName: "Diagram",
 
             selectedNode: null,
-
-            selectedNodeId: null,
-
+            
             nameSpace: diagrams,
 
             lifeLineMap: {},
 
             destinationLifeLine: null,
+            //getter/setter for currentDiagram object of tab
+            CurrentDiagram: function (diagram) {
+                if (_.isUndefined(diagram)) {
+                    return this.get('CurrentDiagram');
+                } else {
+                    this.set('CurrentDiagram', diagram);
+                }
+            },
+            //create a diagram view  for new tab
+            createDiagramView: function (diagram, opts) {
+                var view = new Diagrams.Views.DiagramView({model: diagram, options: opts});
+                view.render();
+                return view;
+
+            },
+            //set current view as diagram view
+            setCurrentView: function (view1) {
+                view1.currentDiagramView(view1);
+            },
+            // setter/getter of resource element count
+            resourceLifeLineCounter: function (rCounter) {
+                if (_.isUndefined(rCounter)) {
+                    return this.get('resourceLifeLineCounter');
+                } else {
+                    this.set('resourceLifeLineCounter', rCounter);
+                }
+
+            },
+            // setter/getter of endpoint element count
+            endpointLifeLineCounter: function (eCounter) {
+                if (_.isUndefined(eCounter)) {
+                    return this.get('endpointLifeLineCounter');
+                } else {
+                    this.set('endpointLifeLineCounter', eCounter);
+                }
+
+            },
 
             addElement: function (element, opts) {
                 //this.trigger("addElement", element, opts);
@@ -313,27 +399,6 @@ var Diagrams = (function (diagrams) {
                 } else{
                     this.trigger("addElement", element, opts);
                 }
-            },
-
-            removeElement: function (element, opts) {
-                // if(selectedModel.type === "LogMediator"){//change to not lifeline
-                //    var models = diagramView.model.destinationLifeLine.attributes.children.models; // insted of this diagramView.model
-                //     for(var i=0; i< models.length; i++) {
-                //         var cid = diagram.selectedNodeId;
-                //         if( cid === diagram.destinationLifeLine.attributes.children.models[i].cid) {
-                //             models.splice(i, 1);
-                //         }
-                //     }
-                // }
-                // diagramView.render();
-                // if (propertyPane) {
-                //     propertyPane.destroy();
-                // }
-               // var index = this.diagramElements().indexOf(element);
-                //TODO need to implement this 
-                //var elements = this.diagramElements();
-                //delete elements[index];
-              //  this.trigger("removeElement", element, opts);
             },
 
             getElement: function (id) {
@@ -435,10 +500,10 @@ var Diagrams = (function (diagrams) {
                     // After the properties view implementation those can be dynamically changed
 
                     finalSource += "\n" +
-                        ((diagram.get('get')==true) ? '@GET\n' : '') +
-                        ((diagram.get('put')==true) ? '@PUT\n' : '') +
-                        ((diagram.get('post')==true) ? '@POST\n' : '') +
-                        '@Path ("' + diagram.get('path') +'")\n'
+                        ((defaultView.model.get('get')==true) ? '@GET\n' : '') +
+                        ((defaultView.model.get('put')==true) ? '@PUT\n' : '') +
+                        ((defaultView.model.get('post')==true) ? '@POST\n' : '') +
+                        '@Path ("' + defaultView.model.get('path') +'")\n'
                 };
 
                 var traverse = function (tree, finalSource) {
@@ -456,7 +521,7 @@ var Diagrams = (function (diagrams) {
 
                     return finalSource;
                 };
-                TreeRoot = buildTree(diagram.get('diagramResourceElements').models[0]);
+                TreeRoot = buildTree(defaultView.model.get('diagramResourceElements').models[0]);
                 includeConstants();
                 return traverse((TreeRoot), finalSource);
             },
@@ -470,10 +535,10 @@ var Diagrams = (function (diagrams) {
                         diagramViewElements[element].remove();
                     }
                 }
-                diagram.attributes.diagramResourceElements.models = [];
-                diagram.attributes.diagramResourceElements.length = 0;
-                diagram.attributes.diagramEndpointElements.models = [];
-                diagram.attributes.diagramEndpointElements.length = 0;
+                defaultView.model.attributes.diagramResourceElements.models = [];
+                defaultView.model.attributes.diagramResourceElements.length = 0;
+                defaultView.model.attributes.diagramEndpointElements.models = [];
+                defaultView.model.attributes.diagramEndpointElements.length = 0;
             },
 
             getDefinitionSchema: function () {
@@ -506,7 +571,24 @@ var Diagrams = (function (diagrams) {
             }
 
         });
+    var DiagramsList = Backbone.Collection.extend(
+        /** @lends DiagramElements.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class DiagramElements represents the collection of diagrams
+             */
+            initialize: function (models, options) {
+            },
 
+            modelName: "DiagramsList",
+
+            nameSpace: diagrams,
+
+            model: Diagram
+
+        });
     models.DiagramElement = DiagramElement;
     models.DiagramElements = DiagramElements;
     models.Diagram = Diagram;
@@ -514,7 +596,10 @@ var Diagrams = (function (diagrams) {
     models.Link = Link;
     models.Connection = Connection;
     models.ConnectionPoint = ConnectionPoint;
+    models.Tab = Tab;
+    models.DiagramsList = DiagramsList;
     diagrams.Models = models;
+
 
     return diagrams;
 }(Diagrams || {}));
