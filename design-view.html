@@ -22,10 +22,7 @@
             <script type="text/template" id="resourceTabsTemplate">
 
                     <a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
-                    <span class="remove-resource fw-stack">
-                        <i class="icon fw fw-circle fw-stack-2x"></i>
-                        <i class="fw fw-cancel fw-stack-1x fw-inverse"></i>
-                    </span>
+                    <i class="remove-resource fw fw-cancel"></i>
 
                 </script>
             <script type="text/template" id="resourceContentTemplate">
@@ -54,7 +51,7 @@
         <div id="tree-container" style="float: left; height: 100%">
             <div id="tree-action-bar">
                 <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
-                <i id="tree-add" class="icon fw fw-add fw-lg tree-action"></i>
+                <i id="tree-add" class="add-resource icon fw fw-add fw-lg tree-action"></i>
             </div>
             <ul id="tree1" class="tree-view tree-view-lines">
                 <li aria-expanded="true"><span>HolidayBooking</span>

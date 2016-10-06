@@ -221,6 +221,12 @@
     display: inline-block;
 }
 
+.remove-resource {
+    position: absolute;
+    top: 14px;
+    right: 9px;
+}
+
 #tree-container {
     background-color: #272727;
     border: solid #373737;
