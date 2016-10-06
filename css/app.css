@@ -267,7 +267,7 @@ iframe {
 
 .tab-divs{
     position: absolute;
-    height: calc(100vh);
+    height: calc(100vw - 116px);
     width: calc(100vw - 274px);
     background-color: #fff;
     overflow: hidden;

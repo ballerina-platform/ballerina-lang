@@ -1,11 +1,118 @@
 .preview-container{
-
-}
-
-.diagram-preview
-{
-    padding: 15px;
+    width: 100%;
+    height: 220px;
+    padding: 10px;
     background: white;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
     border: 5px solid #232323;
+    border-bottom: none;
 }
+.diagram-preview
+{
+    height: 160px;
+}
+
+.controls-container{
+    height: 25px;
+    margin-top: 5px;
+    color: #232323;
+}
+
+.controls-container > span{
+    width: 10%;
+    height: 20px;
+    margin-left: 5px;
+}
+
+input[type=range].zoom-slider{
+    width: 80%;
+    display:inline;
+}
+
+/** Slider CSS is generated from http://danielstern.ca/range.css **/
+/* Start Generated Slider CSS */
+input[type=range].zoom-slider {
+    -webkit-appearance: none;
+    margin: 7.5px 0;
+}
+input[type=range].zoom-slider:focus {
+    outline: none;
+}
+input[type=range].zoom-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+    background: #8d8d8d;
+    border-radius: 0px;
+    border: 0px solid #010101;
+}
+input[type=range].zoom-slider::-webkit-slider-thumb {
+    box-shadow: 0px 0px 0px #9b0000, 0px 0px 0px #b40000;
+    border: 0px solid rgba(0, 0, 0, 0);
+    height: 20px;
+    width: 10px;
+    border-radius: 0px;
+    background: #232323;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7.5px;
+}
+input[type=range].zoom-slider:focus::-webkit-slider-runnable-track {
+    background: #9a9a9a;
+}
+input[type=range].zoom-slider::-moz-range-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+    background: #8d8d8d;
+    border-radius: 0px;
+    border: 0px solid #010101;
+}
+input[type=range].zoom-slider::-moz-range-thumb {
+    box-shadow: 0px 0px 0px #9b0000, 0px 0px 0px #b40000;
+    border: 0px solid rgba(0, 0, 0, 0);
+    height: 20px;
+    width: 10px;
+    border-radius: 0px;
+    background: #232323;
+    cursor: pointer;
+}
+input[type=range].zoom-slider::-ms-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+input[type=range].zoom-slider::-ms-fill-lower {
+    background: #808080;
+    border: 0px solid #010101;
+    border-radius: 0px;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+}
+input[type=range].zoom-slider::-ms-fill-upper {
+    background: #8d8d8d;
+    border: 0px solid #010101;
+    border-radius: 0px;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+}
+input[type=range].zoom-slider::-ms-thumb {
+    box-shadow: 0px 0px 0px #9b0000, 0px 0px 0px #b40000;
+    border: 0px solid rgba(0, 0, 0, 0);
+    height: 20px;
+    width: 10px;
+    border-radius: 0px;
+    background: #232323;
+    cursor: pointer;
+    height: 5px;
+}
+input[type=range].zoom-slider:focus::-ms-fill-lower {
+    background: #8d8d8d;
+}
+input[type=range].zoom-slider:focus::-ms-fill-upper {
+    background: #9a9a9a;
+}
+/* End Generated Slider CSS */
