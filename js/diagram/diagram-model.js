@@ -349,7 +349,7 @@ var Diagrams = (function (diagrams) {
             modelName: "Diagram",
 
             selectedNode: null,
-            
+
             nameSpace: diagrams,
 
             lifeLineMap: {},

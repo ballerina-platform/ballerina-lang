@@ -47,7 +47,7 @@ var Editor = (function (editor) {
         },
 
         saveProperties: function() {
-            if(propertyPane && propertyPane.schema) {
+            if (propertyPane && propertyPane.schema) {
                 if (propertyPane.schema.title === "Lifeline") {
                     ppView.dataObject.set('title', propertyPane.getValue().Title);
 

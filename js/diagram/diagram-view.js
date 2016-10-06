@@ -306,8 +306,9 @@ var Diagrams = (function (diagrams) {
                 resourceTitle: "New Resource" ,
                 createdTab: false
             });
-           
-            if(diagram.previousDeleteIconGroup) {
+
+            //remove propety pane when adding a new tab
+            if (diagram.previousDeleteIconGroup) {
                 diagram.previousDeleteIconGroup.classed("circle-hide", true);
                 diagram.previousDeleteIconGroup.classed("circle-show", false);
             }
@@ -365,7 +366,8 @@ var Diagrams = (function (diagrams) {
             var currentTab = this.model;
             //Unique Id created for the svg element where elements can be drawn
             var svgUId = this.model.get("resourceId") + "4";
-            if(diagram.previousDeleteIconGroup) {
+            //empty property pane when clicked on a tab
+            if (diagram.previousDeleteIconGroup) {
                 diagram.previousDeleteIconGroup.classed("circle-hide", true);
                 diagram.previousDeleteIconGroup.classed("circle-show", false);
             }
@@ -911,7 +913,7 @@ var Diagrams = (function (diagrams) {
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
                     }
-                    if(diagram.previousDeleteIconGroup) {
+                    if (diagram.previousDeleteIconGroup) {
                         diagram.previousDeleteIconGroup.classed("circle-hide", true);
                         diagram.previousDeleteIconGroup.classed("circle-show", false);
                     }
