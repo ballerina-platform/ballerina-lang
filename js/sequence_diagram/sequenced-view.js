@@ -185,19 +185,23 @@ var SequenceD = (function (sequenced) {
 
                     console.log("Processor added");
 
+                    var containableProcessorElementViewArray = [];
+
 
                     var centerPoint = center;
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
 
                     var totalHeight=0;
+                    var maximumWidth = 150;
 
                     for (var id in this.modelAttr("containableProcessorElements").models) {
 
                         var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                         var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
+                        var elemView = containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
+                        containableProcessorElementViewArray.push(elemView);
                         yValue = yValue+containableProcessorElement.getHeight();
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
@@ -206,8 +210,36 @@ var SequenceD = (function (sequenced) {
                         // var processorCenterPoint = createPoint(xValue, yValue);
                         //processorView.render("#diagramWrapper", processorCenterPoint);
                         //processor.setY(yValue);
+
+                        if(maximumWidth < containableProcessorElement.getWidth()){
+                            maximumWidth = containableProcessorElement.getWidth();
+                        }
                     }
-                       this.model.setHeight(totalHeight);
+
+
+                    var arrayLength = containableProcessorElementViewArray.length;
+                    for (var i = 0; i < arrayLength; i++) {
+
+                        var middleRect = containableProcessorElementViewArray[i].middleRect;
+                        var rect = containableProcessorElementViewArray[i].rect;
+                        var titleRect = containableProcessorElementViewArray[i].titleRect;
+                        var text = containableProcessorElementViewArray[i].text;
+
+                        var initWidth = middleRect.attr("width");
+                        middleRect.attr("width", maximumWidth);
+                        rect.attr("width", maximumWidth);
+
+                        var deviation = (maximumWidth - initWidth)/2;
+
+                        middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
+                        rect.attr("x", parseInt(rect.attr("x")) - deviation);
+                        titleRect.attr("x", parseInt(titleRect.attr("x")) - deviation);
+                        text.attr("x", parseInt(text.attr("x")) - deviation);
+
+                    }
+
+                    this.model.setHeight(totalHeight);
+                    this.model.setWidth(maximumWidth);
                 } else if(this.model.model.type === "Custom") {
                     if(!_.isUndefined(this.model.model.initMethod)){
                         this.viewRoot = group;
@@ -877,9 +909,11 @@ var SequenceD = (function (sequenced) {
                         d3.select(this).style("fill-opacity", 0.0);
                     });
 
-                Object.getPrototypeOf(group).middleRect = middleRect;
-                Object.getPrototypeOf(group).drawMessageRect = drawMessageRect;
-                Object.getPrototypeOf(group).rect = rectBottomXXX;
+                group.middleRect = middleRect;
+                group.drawMessageRect = drawMessageRect;
+                group.rect = rectBottomXXX.containerRect;
+                group.titleRect = rectBottomXXX.titleRect;
+                group.text = rectBottomXXX.text;
 
                 var centerPoint = center;
                 var xValue = centerPoint.x();
@@ -887,7 +921,10 @@ var SequenceD = (function (sequenced) {
                 //lifeLine.call(drag);
 
                 var totalHeight = 60;
+                var totalWidth = 150;
                 this.model.setHeight(30);
+
+                var initWidth =rectBottomXXX.containerRect.attr("width");
 
                 yValue += 60;
                 for (var id in this.modelAttr("children").models) {
@@ -898,11 +935,28 @@ var SequenceD = (function (sequenced) {
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
                     yValue += processor.getHeight()+ 30;
+
+                    if (this.model.widestChild == null || this.model.widestChild.getWidth() < processor.getWidth()) {
+                        this.model.widestChild = processor;
+                    }
                 }
 
-                rectBottomXXX.attr("height", totalHeight);
+                if (this.model.widestChild != null) {
+                    totalWidth = this.model.widestChild.getWidth() + 30;
+                }
+
+                var deviation = (totalWidth - initWidth)/2;
+
+                rectBottomXXX.containerRect.attr("height", totalHeight);
+                rectBottomXXX.containerRect.attr("width", totalWidth);
+                rectBottomXXX.containerRect.attr("x", parseInt(rectBottomXXX.containerRect.attr("x")) - deviation);
+                rectBottomXXX.titleRect.attr("x", parseInt(rectBottomXXX.titleRect.attr("x")) - deviation);
+                rectBottomXXX.text.attr("x", parseInt(rectBottomXXX.text.attr("x")) - deviation);
                 this.model.setHeight(totalHeight);
+                this.model.setWidth(totalWidth);
                 middleRect.attr("height", totalHeight-30);
+                middleRect.attr("width", totalWidth);
+                middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
                 drawMessageRect.attr("height", totalHeight-30);
 
                 if (viewObj.model.get("title") === "Try") {
@@ -921,7 +975,7 @@ var SequenceD = (function (sequenced) {
                         .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
 
                     // On click of the mediator show/hide the delete icon
-                    rectBottomXXX.on("click", function () {
+                    rectBottomXXX.containerRect.on("click", function () {
                         if (deleteIconGroup.classed("circle-hide")) {
                             deleteIconGroup.classed("circle-hide", false);
                             deleteIconGroup.classed("circle-show", true);

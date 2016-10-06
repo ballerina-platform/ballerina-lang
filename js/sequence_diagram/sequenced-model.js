@@ -36,6 +36,8 @@ var SequenceD = (function (sequenced) {
                 this.viewAttributes = attrs.viewAttributes;
                 this.parameters = attrs.parameters;
 
+                this.widestChild = null;
+
                 var children = new Children([], {diagram: this});
                 this.children(children);
 
@@ -645,6 +647,7 @@ var SequenceD = (function (sequenced) {
                 Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
                 var children = new Children([], {diagram: this});
                 this.children(children);
+                this.widestChild = null;
             },
 
             modelName: "ContainableProcessorElement",
