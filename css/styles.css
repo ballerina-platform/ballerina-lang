@@ -181,12 +181,6 @@
     filter: alpha(opacity=60);
 }
 
-.nav-tabs > li {
-    position:relative;
-}
-.nav-tabs > li > a {
-    display:inline-block;
-}
 .nav-tabs > li > span {
     cursor:pointer;
     position:absolute;
@@ -195,19 +189,75 @@
     color: #c0392b;
     font-size: 0.60em;
 }
-.nav-tabs > li:hover > span {
-    display: inline-block;
-}
 
 .nav-tabs > li > a {
     padding-right: 32px;
-    border: 0;
+    border: 0 !important;
     color: black;
     margin: 0;
     font-size: 1.2em;
+    border-radius: 0;
 }
 
 .nav-tabs > li  {
     background-color: #919294;
-    margin-left: 2px;
+}
+
+.nav-tabs{
+    border: 0;
+}
+
+.breadcrumb{
+    text-transform: none;
+    padding-left: 25px;
+    font-size: 1.3em;
+}
+
+#toolpalatte{
+    padding: 0;
+}
+
+#tab-container > ul{
+    display: inline-block;
+}
+
+.remove-resource {
+    position: absolute;
+    top: 14px;
+    right: 9px;
+}
+
+#tree-container {
+    background-color: #272727;
+    border: solid #373737;
+    border-width: 0 3px 0 0;
+}
+
+#right-container{
+    background-color: #232323;
+}
+
+#tree-action-bar{
+    background-color: #373737;
+    color: #ededed;
+    height: 40px;
+}
+
+.tree-view {
+    color: #7e7e7e;
+    font-size: 1.2em;
+}
+
+.tree-view li > .icon:before {
+    color: #272727;
+}
+
+.tree-view li > .icon {
+    background: #fdfdfd;
+
+}
+
+.tree-action{
+    float: right;
+    padding: 15px;
 }

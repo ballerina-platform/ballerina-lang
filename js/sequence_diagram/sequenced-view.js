@@ -155,11 +155,10 @@ var SequenceD = (function (sequenced) {
                     var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup];
 
                     var newGroup = d3Ref.draw.regroup(orderedElements);
-                    //group.remove();
+                    group.remove();
 
                     // On click of the mediator show/hide the delete icon
                     rectBottomXXX.on("click", function () {
-                       // $('#propertyPane').find("h3").click();
                         if (deleteIconGroup.classed("circle-hide")) {
                             deleteIconGroup.classed("circle-hide", false);
                             deleteIconGroup.classed("circle-show", true);
@@ -240,28 +239,61 @@ var SequenceD = (function (sequenced) {
 
                     console.log("Processor added");
 
+                    var containableProcessorElementViewArray = [];
+
 
                     var centerPoint = center;
                     var xValue = centerPoint.x();
                     var yValue = centerPoint.y();
 
                     var totalHeight=0;
+                    var maximumWidth = 150;
 
                     for (var id in this.modelAttr("containableProcessorElements").models) {
 
                         var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                         var containableProcessorElementView = new SequenceD.Views.ContainableProcessorElement({model: containableProcessorElement, options: lifeLineOptions});
                         var processorCenterPoint = createPoint(xValue, yValue);
-                        containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
+                        var elemView = containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
+                        containableProcessorElementViewArray.push(elemView);
                         yValue = yValue+containableProcessorElement.getHeight();
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
                         //var processor = this.modelAttr("children").models[id];
-                        //var processorView = new SequenceD.Views.Processor({model: processor, options:
-                        // lifeLineOptions}); var processorCenterPoint = createPoint(xValue, yValue);
-                        // processorView.render("#diagramWrapper", processorCenterPoint); processor.setY(yValue);
+                        //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                        // var processorCenterPoint = createPoint(xValue, yValue);
+                        //processorView.render("#diagramWrapper", processorCenterPoint);
+                        //processor.setY(yValue);
+
+                        if(maximumWidth < containableProcessorElement.getWidth()){
+                            maximumWidth = containableProcessorElement.getWidth();
+                        }
                     }
-                       this.model.setHeight(totalHeight);
+
+
+                    var arrayLength = containableProcessorElementViewArray.length;
+                    for (var i = 0; i < arrayLength; i++) {
+
+                        var middleRect = containableProcessorElementViewArray[i].middleRect;
+                        var rect = containableProcessorElementViewArray[i].rect;
+                        var titleRect = containableProcessorElementViewArray[i].titleRect;
+                        var text = containableProcessorElementViewArray[i].text;
+
+                        var initWidth = middleRect.attr("width");
+                        middleRect.attr("width", maximumWidth);
+                        rect.attr("width", maximumWidth);
+
+                        var deviation = (maximumWidth - initWidth)/2;
+
+                        middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
+                        rect.attr("x", parseInt(rect.attr("x")) - deviation);
+                        titleRect.attr("x", parseInt(titleRect.attr("x")) - deviation);
+                        text.attr("x", parseInt(text.attr("x")) - deviation);
+
+                    }
+
+                    this.model.setHeight(totalHeight);
+                    this.model.setWidth(maximumWidth);
                 } else if(this.model.model.type === "Custom") {
                     if(!_.isUndefined(this.model.model.initMethod)){
                         this.viewRoot = group;
@@ -780,10 +812,10 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.class, true);
                 var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
-                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') +
-                // prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group) .classed(prefs.rect.class,
-                // true); var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+
-                // prefs.rect.height/2), prefs.line.height-prefs.rect.height, group) .classed(prefs.line.class, true);
+                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
+                //.classed(prefs.rect.class, true);
+                //var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+ prefs.rect.height/2), prefs.line.height-prefs.rect.height, group)
+                //.classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
                     .classed(prefs.text.class, true);
                 //var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') +
@@ -837,11 +869,15 @@ var SequenceD = (function (sequenced) {
 
             drawUnitProcessor: function (center, title, prefs) {
 
-
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
                 var viewObj = this;
+                var deleteIconGroup = undefined;
+                var path = undefined;
+                var height = prefs.rect.height;
+                var width = prefs.rect.width;
+
 
                 var rectBottomXXX = d3Ref.draw.rectWithTitle(
                     center,
@@ -855,7 +891,7 @@ var SequenceD = (function (sequenced) {
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                rectBottomXXX.on('click', this.saveProperties);
+                rectBottomXXX.on('click', this.updateProcessorProperties);
                 console.log("started");
                 var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
@@ -894,7 +930,9 @@ var SequenceD = (function (sequenced) {
 
                 group.middleRect = middleRect;
                 group.drawMessageRect = drawMessageRect;
-                group.rect = rectBottomXXX;
+                group.rect = rectBottomXXX.containerRect;
+                group.titleRect = rectBottomXXX.titleRect;
+                group.text = rectBottomXXX.text;
 
                 var centerPoint = center;
                 var xValue = centerPoint.x();
@@ -902,7 +940,10 @@ var SequenceD = (function (sequenced) {
                 //lifeLine.call(drag);
 
                 var totalHeight = 60;
+                var totalWidth = 150;
                 this.model.setHeight(30);
+
+                var initWidth =rectBottomXXX.containerRect.attr("width");
 
                 yValue += 60;
                 for (var id in this.modelAttr("children").models) {
@@ -913,12 +954,72 @@ var SequenceD = (function (sequenced) {
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
                     yValue += processor.getHeight()+ 30;
+
+                    if (this.model.widestChild == null || this.model.widestChild.getWidth() < processor.getWidth()) {
+                        this.model.widestChild = processor;
+                    }
                 }
 
-                rectBottomXXX.attr("height", totalHeight);
+                if (this.model.widestChild != null) {
+                    totalWidth = this.model.widestChild.getWidth() + 30;
+                }
+
+                var deviation = (totalWidth - initWidth)/2;
+
+                rectBottomXXX.containerRect.attr("height", totalHeight);
+                rectBottomXXX.containerRect.attr("width", totalWidth);
+                rectBottomXXX.containerRect.attr("x", parseInt(rectBottomXXX.containerRect.attr("x")) - deviation);
+                rectBottomXXX.titleRect.attr("x", parseInt(rectBottomXXX.titleRect.attr("x")) - deviation);
+                rectBottomXXX.text.attr("x", parseInt(rectBottomXXX.text.attr("x")) - deviation);
                 this.model.setHeight(totalHeight);
+                this.model.setWidth(totalWidth);
                 middleRect.attr("height", totalHeight-30);
+                middleRect.attr("width", totalWidth);
+                middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
                 drawMessageRect.attr("height", totalHeight-30);
+
+                if (viewObj.model.get("title") === "Try") {
+                    var circleCenterX = center.x() + 75;
+                    var circleCenterY = center.y() - prefs.rect.height/2;
+                    deleteIconGroup = group.append("g")
+                        .attr("class", "close-icon circle-hide");
+                    path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
+                        (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
+                        (circleCenterX - 3) + "," + (circleCenterY + 3);
+                    var closeCircle = d3Ref.draw.circle(circleCenterX, circleCenterY, 7, deleteIconGroup).
+                        attr("fill", "#95a5a6").
+                        attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                    deleteIconGroup.append("path")
+                        .attr("d", path)
+                        .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+
+                    // On click of the mediator show/hide the delete icon
+                    rectBottomXXX.containerRect.on("click", function () {
+                        if (deleteIconGroup.classed("circle-hide")) {
+                            deleteIconGroup.classed("circle-hide", false);
+                            deleteIconGroup.classed("circle-show", true);
+                        } else {
+                            deleteIconGroup.classed("circle-hide", true);
+                            deleteIconGroup.classed("circle-show", false);
+                        }
+                    });
+
+                    deleteIconGroup.on("click", function () {
+                         //Get the parent of the model and delete it from the parent
+                        var parentModelChildren = viewObj.model.get("parent").get("parent").get("children").models;
+                        for (var itr = 0; itr < parentModelChildren.length; itr ++) {
+                            if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
+                                parentModelChildren.splice(itr, 1);
+                                defaultView.render();
+                                break;
+                            }
+                        }
+                    });
+
+                    //group.remove();
+                    //
+                    //return newGroup;
+                }
 
                 return group;
             }

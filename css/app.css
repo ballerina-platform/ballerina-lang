@@ -19,13 +19,10 @@
 
 .property-container{
     position: absolute;
-    top: 0;
-    width: 240px;
-    bottom: 0%;
-    right: 0%;
-    height: calc(100vh);
     background-color: #232323;
     color: white;
+    right: 0px;
+    top: 80px;
 }
 
 #propertyPane input{
@@ -69,15 +66,8 @@
    background-color: #292929;
 }
 
-.editor-container{
-   position: absolute;
-   top: 0;
-   left: 274px;
-   bottom: 0%;
-   right: 0%;
-   margin-left: 0px;
-   height: calc(100vh);
-   width: calc(100vw - 274px);
+#editor-container{
+   height: 100%;
    background-color: #fff;
    overflow: hidden;
 }
@@ -225,7 +215,7 @@ body{
 }
 
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
-  background-color: #ddd;
+  /*background-color: #ddd;*/
 }
 
 iframe {
@@ -233,17 +223,21 @@ iframe {
   width: 100%;
 }
 
-.nav-tabs {
- border:"#8d8d8d";
-  background-color:"#232323";
-}
 
-.nav-tabs > li > a {
--webkit-border-radius: 0;
--moz-border-radius: 0;
-border-radius: 1px;
- background:"#232323";
+.nav-tabs > li {
+    /*height:35px;*/
+
 }
+.additionbtn {
+    width:40px;
+}
+/*.nav-tabs > li > a {*/
+/*-webkit-border-radius: 0;*/
+/*-moz-border-radius: 0;*/
+/*border-radius: 1px;*/
+    /*!*background-color:"#232323";  *!*/
+    /*padding-bottom:3px;*/
+/*}*/
 
 .monaco-editor {
   margin-top: 10px;

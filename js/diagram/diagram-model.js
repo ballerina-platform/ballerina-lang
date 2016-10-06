@@ -302,6 +302,14 @@ var Diagrams = (function (diagrams) {
         getDiagramOfTab: function (id) {
             return this.diagramForTab().get(id);
         },
+
+        preview: function(preview){
+            if(_.isUndefined(preview)){
+                return this.get("preview");
+            }
+            this.set("preview", preview);
+        },
+
         defaults: {
             resourceId: "id-not-set",
             resourceTitle: "",

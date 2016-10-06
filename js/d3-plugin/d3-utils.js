@@ -36,12 +36,14 @@ var D3Utils = (function (d3_utils) {
     var rectWithTitle = function (center, width, height, containerWidth, containerHeight, rx, ry, parent, colour, title) {
         parent = parent || d3Ref;
 
+        var composite = {};
+
         x = center.x() - containerWidth / 2;
         y = center.y() - height / 2;
 
         rx = rx || 0;
         ry = ry || 0;
-        parent.append("rect")
+        var titleRect = parent.append("rect")
             .attr("id", "titleRect")
             .attr("x", x)
             .attr("y", y)
@@ -65,12 +67,15 @@ var D3Utils = (function (d3_utils) {
             .attr("rx", rx)
             .attr("fill-opacity", 0.2)
             .attr("ry", ry);
-        parent.append("text")
+        var text = parent.append("text")
             .attr("x", x + 20)
             .attr("y", y + 19)
             .attr("fill", "black")
             .text(title);
-        return containerRect;
+        composite.containerRect = containerRect;
+        composite.titleRect = titleRect;
+        composite.text = text;
+        return composite;
     };
 
     var basicRect = function (x, y, width, height, rx, ry, parent) {

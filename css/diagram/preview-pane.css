@@ -1,0 +1,11 @@
+.preview-container{
+
+}
+
+.diagram-preview
+{
+    padding: 15px;
+    background: white;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
+    border: 5px solid #232323;
+}

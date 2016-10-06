@@ -285,7 +285,9 @@ var Diagrams = (function (diagrams) {
         render: function (model) {
             var tabView = new TabView({model: model});
             tabView.render();
-            $(this.el).append(tabView.el);
+            var t = $(this.el)[0].childNodes[1].childNodes[0];
+            $(t).closest("li").before(tabView.el);
+           // $(this.el).append(tabView.el);
 
         },
         //function to fire when a new resource tab button is clicked
@@ -293,15 +295,15 @@ var Diagrams = (function (diagrams) {
             // required to clean previous views
             this.undelegateEvents();
             e.preventDefault();
-            var id = $(".nav-tabs").children().length;
+            //create Unique id for each tab
+            var id =  Math.random().toString(36).substr(2, 9);
             var hrefId = '#seq_' + id;
             var resourceId = 'seq_' + id;
-            var titlePrefix = resourceId.substring(resourceId.length, 4);
-            //create new Tab based resource model
+            //create new Tab based resource model:todo: change resource title
             var resourceModel = new Diagrams.Models.Tab({
                 resourceId: resourceId,
                 hrefId: hrefId,
-                resourceTitle: "Resource" + titlePrefix,
+                resourceTitle: "New Resource" ,
                 createdTab: false
             });
            
@@ -316,10 +318,29 @@ var Diagrams = (function (diagrams) {
             }
 
             var nextTabListView = new Diagrams.Views.TabListView({model: resourceModel});
+
             nextTabListView.render(resourceModel);
             //create new diagram object for the tab
             var diagramObj = new Diagrams.Models.Diagram({});
             resourceModel.addDiagramForTab(diagramObj);
+            //Activating tab on creation itself
+                $('.tabList a[href="#' + resourceId + '"]').tab('show');
+            var dgModel = resourceModel.getDiagramOfTab(resourceModel.attributes.diagramForTab.models[0].cid);
+            dgModel.CurrentDiagram(dgModel);
+            var svgUId = resourceId + "4";
+            var options = {selector: hrefId, wrapperId: svgUId};
+            // get the current diagram view for the tab
+            var currentView = dgModel.createDiagramView(dgModel, options);
+            // add diagramModel
+            var preview = new DiagramOutlineView({mainView: currentView});
+            preview.render();
+            resourceModel.preview(preview);
+            // set current tab's diagram view as default view
+            currentView.currentDiagramView(currentView);
+            resourceModel.setDiagramViewForTab(currentView);
+            // mark tab as visited
+            resourceModel.setSelectedTab();
+
         }
 
     });
@@ -355,29 +376,26 @@ var Diagrams = (function (diagrams) {
             }
             //first time click on the tab
             if (this.model.attributes.createdTab === false) {
-                //get the diagram model for this tab
-                var dgModel = this.model.getDiagramOfTab(currentTab.attributes.diagramForTab.models[0].cid);
-                dgModel.CurrentDiagram(dgModel);
-                var options = {selector: currentTabId, wrapperId: svgUId};
-                // get the current diagram view for the tab
-                var currentView = dgModel.createDiagramView(dgModel, options);
-                // set current tab's diagram view as default view
-                currentView.currentDiagramView(currentView);
-                this.model.setDiagramViewForTab(currentView);
-                // mark tab as visited
-                this.model.setSelectedTab();
-
+                // get the diagram model for this tab
+                // var dgModel = this.model.getDiagramOfTab(currentTab.attributes.diagramForTab.models[0].cid);
+                // dgModel.CurrentDiagram(dgModel);
+                // var options = {selector: currentTabId, wrapperId: svgUId};
+                // // get the current diagram view for the tab
+                // var currentView = dgModel.createDiagramView(dgModel, options);
+                // // set current tab's diagram view as default view
+                // currentView.currentDiagramView(currentView);
+                // this.model.setDiagramViewForTab(currentView);
+                // // mark tab as visited
+                // this.model.setSelectedTab();
             }
             else {
                 // not the first time click on the given tab
                 var dgViewToRender = this.model.viewObj;
                 dgViewToRender.currentDiagramView(dgViewToRender);
-                //SETTING TO TEST
+                //Setting diagram model for lifeline message drawing context
                 lifeLineOptions.diagram = defaultView.model;
-
-
+                currentTab.preview().render(null, true);
             }
-
 
         },
         //Remove tab and tab content on 'remove' button
@@ -408,6 +426,63 @@ var Diagrams = (function (diagrams) {
         render: function () {
             var html = this.template(this.model.attributes);
             $(this.el).append(html);
+        }
+
+    });
+
+    // View to represent Diagram Preview.
+    var DiagramOutlineView = Backbone.View.extend(
+    /** @lends DiagramOutlineView.prototype */
+    {
+        /**
+         * @augments Backbone.View
+         * @constructs
+         * @class DiagramOutlineView Represents an outline view (a small preview) of the diagram
+         * @param {Object} options Rendering options for the view - Selector for container and Main DiagramView
+         */
+        initialize: function (options) {
+            if(_.isUndefined(options.mainView)){
+                throw "mainView is not set."
+            }
+            options.containerSelector = options.containerSelector || ".diagram-preview";
+            this.$el = $(options.containerSelector);
+            this.mainView = options.mainView;
+            this.mainView.on("renderCompleted", this.render, this);
+            this.width = options.width || this.$el.width() || "200px";
+            this.height = options.height || this.$el.height() || "100px";
+        },
+
+        render: function (mainSVG, forceLastViewBox) {
+            if(!mainSVG){
+                var mainSVG = this.mainView.d3svg.node();
+            }
+
+            if (!forceLastViewBox) {
+                // get view port of main diagram
+                var mainGroup = $(mainSVG).find("g").first()[0];
+                var bBox = mainGroup.getBBox()
+                this.viewBox = {
+                    x: bBox.x,
+                    y: bBox.y,
+                    width: bBox.width,
+                    height: bBox.height
+                } ;
+            }
+
+            // clone SVG for preview
+            var previewSVG = $(mainSVG).clone();
+
+            // set viewbox to fit in all content
+            d3.select(previewSVG.get((0)))
+                .attr("width", this.width)
+                .attr("height", this.height)
+                .attr("viewBox", this.viewBox.x + " " + this.viewBox.y + " "
+                                + this.viewBox.width + " " + this.viewBox.height)
+                .attr("preserveAspectRatio", "xMinYMin meet");
+
+            this.$el.empty();
+            this.$el.append(previewSVG);
+
         }
 
     });
@@ -448,9 +523,44 @@ var Diagrams = (function (diagrams) {
                 container = D3Utils.decorate(container);
 
                 var svg = container.draw.svg(this.options.diagram);
+
+                var definitions = svg.append("defs");
+                // add marker definitions
+                definitions.append("marker")
+                    .attr("id", "markerArrow")
+                    .attr("markerWidth", "13")
+                    .attr("markerHeight", "13")
+                    .attr("refX", "10")
+                    .attr("refY", "6")
+                    .attr("orient", "auto")
+                    .append("path")
+                    .attr("d", "M2,2 L2,11 L10,6 L2,2")
+                    .attr("class", "marker");
+
+                var filter = definitions.append("filter")
+                    .attr("id", "drop-shadow")
+                    .attr("height", "130%");
+
+                filter.append("feGaussianBlur")
+                    .attr("in", "SourceAlpha")
+                    .attr("stdDeviation", 1)
+                    .attr("result", "blur");
+
+                filter.append("feOffset")
+                    .attr("in", "blur")
+                    .attr("dx", 5)
+                    .attr("dy", 5)
+                    .attr("result", "offsetBlur");
+
+                var feMerge = filter.append("feMerge");
+
+                feMerge.append("feMergeNode")
+                    .attr("in", "offsetBlur");
+                feMerge.append("feMergeNode")
+                    .attr("in", "SourceGraphic");
+
                 this.d3svg = svg;
                 svg.on("click", this.onClickDiagram);
-
 
                 var svgPanNZoom = $(svg.node()).svgPanZoom({
                     events: {
@@ -507,7 +617,7 @@ var Diagrams = (function (diagrams) {
                         y2: 3000
                     }
                 });
-                $(svg.node()).dblclick(function(){
+                $(svg.node()).dblclick(function () {
                     svgPanNZoom.reset();
                 });
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
@@ -520,26 +630,27 @@ var Diagrams = (function (diagrams) {
              *
              * @returns {{}} Viewport for Diagram SVG.
              */
-            getViewPort: function(){
+            getViewPort: function () {
                 var viewPortHeight = $(this.d3svg.node()).height(),
-                    viewPortWidth  = $(this.d3svg.node()).width();
+                    viewPortWidth = $(this.d3svg.node()).width();
                 return {w: viewPortWidth, h: viewPortHeight};
             },
 
             /**
              * Gets the SVG Viewbox attribute.
              *
-             * @returns {{}} View Box for Diagram SVG.
+             * @returns {} View Box for Diagram SVG.
              */
-            getViewBox: function(){
+            getViewBox: function () {
                 var viewBoxAttr = this.d3svg.attr("viewBox"),
                     viewBoxValues = _.split(viewBoxAttr, ' ', 4),
                     viewBox = {};
 
                 viewBox.x = _.toNumber(viewBoxValues[0]);
                 viewBox.y = _.toNumber(viewBoxValues[1]);
-                viewBox.w = _.toNumber(viewBoxValues[2]);;
-                viewBox.h = _.toNumber(viewBoxValues[3]);;
+                viewBox.w = _.toNumber(viewBoxValues[2]);
+                viewBox.h = _.toNumber(viewBoxValues[3]);
+                
 
                 return viewBox;
             },
@@ -552,7 +663,7 @@ var Diagrams = (function (diagrams) {
              * @param {number} w width of the viewbox.
              * @param {number} h height of the viewbox
              */
-            setViewBox: function(x, y, w, h){
+            setViewBox: function (x, y, w, h) {
                 this.d3svg.attr("viewBox", x + " " + y + " " + w + " " + h);
             },
 
@@ -560,18 +671,18 @@ var Diagrams = (function (diagrams) {
              * Covert a point in client viewport Coordinates to svg user space Coordinates.
              * @param {Point} point a point in client viewport Coordinates
              */
-            toViewBoxCoordinates: function(point){
+            toViewBoxCoordinates: function (point) {
                 var pt = this.d3svg.node().createSVGPoint();
                 pt.x = point.x();
                 pt.y = point.y();
                 pt = pt.matrixTransform(this.d3svg.node().getScreenCTM().inverse());
 
-                return new GeoCore.Models.Point({x:pt.x, y:pt.y});
+                return new GeoCore.Models.Point({x: pt.x, y: pt.y});
             },
 
 
             addContainableProcessorElement: function (processor, center) {
-                var containableProcessorElem =  new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
             currentDiagramView: function (view1) {
@@ -586,7 +697,7 @@ var Diagrams = (function (diagrams) {
                 var newDraggedElem = $(ui.draggable).clone();
                 var txt = defaultView.model;
                 var id = ui.draggable.context.lastChild.id;
-                var position =  new GeoCore.Models.Point({x:ui.offset.left.x, y:ui.offset.top});
+                var position = new GeoCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
                 //convert drop position to relative svg coordinates
                 position = defaultView.toViewBoxCoordinates(position);
                 if (propertyPane) {
@@ -608,7 +719,6 @@ var Diagrams = (function (diagrams) {
                         {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     txt.selectedNode.addChild(processor);
-                    //TEST CHANGE
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
                     var processor = txt.selectedNode.createProcessor(
@@ -625,10 +735,12 @@ var Diagrams = (function (diagrams) {
                     if (processor.type == "TryBlockMediator") {
                         var containableProcessorElem1 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                         containableProcessorElem1.set('title', "Try");
+                        containableProcessorElem1.parent(processor);
                         processor.containableProcessorElements().add(containableProcessorElem1);
 
                         var containableProcessorElem2 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
                         containableProcessorElem2.set('title', "Catch");
+                        containableProcessorElem2.parent(processor);
                         processor.containableProcessorElements().add(containableProcessorElem2);
                     }
 
@@ -670,49 +782,9 @@ var Diagrams = (function (diagrams) {
                 }
                 diagramViewElements = [];
 
-
-                var definitions = this.d3svg.append("defs");
-
                 var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapperId)
                     .attr("width", "100%")
                     .attr("height", "100%");
-
-                // add marker definitions
-                definitions.append("marker")
-                    .attr("id", "markerArrow")
-                    .attr("markerWidth", "13")
-                    .attr("markerHeight", "13")
-                    .attr("refX", "10")
-                    .attr("refY", "6")
-                    .attr("orient", "auto")
-                    .append("path")
-                    .attr("d", "M2,2 L2,11 L10,6 L2,2")
-                    .attr("class", "marker");
-
-                var filter = definitions.append("filter")
-                    .attr("id", "drop-shadow")
-                    .attr("height", "130%");
-
-                filter.append("feGaussianBlur")
-                    .attr("in", "SourceAlpha")
-                    .attr("stdDeviation", 1)
-                    .attr("result", "blur");
-
-                filter.append("feOffset")
-                    .attr("in", "blur")
-                    .attr("dx", 5)
-                    .attr("dy", 5)
-                    .attr("result", "offsetBlur");
-
-                var feMerge = filter.append("feMerge");
-
-                feMerge.append("feMergeNode")
-                    .attr("in", "offsetBlur");
-                feMerge.append("feMergeNode")
-                    .attr("in", "SourceGraphic");
-
-
-
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.htmlDiv = $(this.options.selector);
@@ -773,6 +845,7 @@ var Diagrams = (function (diagrams) {
                     }
                 }
 
+                this.trigger("renderCompleted", this.d3svg.node());
                 return mainGroup;
             },
 
@@ -867,19 +940,19 @@ var Diagrams = (function (diagrams) {
                 return this.options.diagram.grid.height;
             },
 
-            onMessageDrawEnd: function(sourceModel, sourcePoint, destinationPoint) {
+            onMessageDrawEnd: function (sourceModel, sourcePoint, destinationPoint) {
 
                 var destinationModel = null;
                 if (this.model.destinationLifeLine) {
                     destinationModel = this.model.destinationLifeLine;
                     this.model.destinationLifeLine = null;
-                } else if(this.model.destinationProcessor){
+                } else if (this.model.destinationProcessor) {
                     destinationModel = this.model.destinationProcessor;
                     this.model.destinationProcessor = null;
                 }
 
-                if(destinationModel){
-                    if(!_.isEqual(sourceModel.cid, destinationModel.cid )){
+                if (destinationModel) {
+                    if (!_.isEqual(sourceModel.cid, destinationModel.cid)) {
                         var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                         var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
                         sourceModel.addChild(sourcePoint, messageOptionsOutbound);
@@ -889,7 +962,7 @@ var Diagrams = (function (diagrams) {
                 this.render();
             },
 
-            onMessageDrawStart: function(sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback){
+            onMessageDrawStart: function (sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback) {
 
                 var diagView = defaultView;
 
@@ -905,7 +978,7 @@ var Diagrams = (function (diagrams) {
                     var m = d3.mouse(this);
                     line.attr("x2", m[0]);
                     line.attr("y2", m[1]).attr("marker-end", "url(#markerArrow)");
-                    if(!_.isUndefined(calcNewStartPoint)){
+                    if (!_.isUndefined(calcNewStartPoint)) {
                         var newSP = calcNewStartPoint(m[0], m[1]);
                         line.attr("x1", newSP.x);
                         line.attr("y1", newSP.y);
@@ -916,18 +989,18 @@ var Diagrams = (function (diagrams) {
                     // unbind current listeners
                     diagView.d3svg.on("mousemove", null);
                     diagView.d3svg.on("mouseup", null);
-                    var startPoint = new GeoCore.Models.Point({x:line.attr("x1"), y:line.attr("y1")}),
-                        endpoint = new GeoCore.Models.Point({x:line.attr("x2"), y:line.attr("y2")});
+                    var startPoint = new GeoCore.Models.Point({x: line.attr("x1"), y: line.attr("y1")}),
+                        endpoint = new GeoCore.Models.Point({x: line.attr("x2"), y: line.attr("y2")});
                     line.remove();
 
                     var sourcePoint = new SequenceD.Models.MessagePoint({
-                        model : {type: "messagePoint"},
+                        model: {type: "messagePoint"},
                         x: startPoint.x(),
                         y: startPoint.y(),
                         direction: "outbound"
                     });
                     var destinationPoint = new SequenceD.Models.MessagePoint({
-                        model : {type: "messagePoint"},
+                        model: {type: "messagePoint"},
                         x: endpoint.x(),
                         y: endpoint.y(),
                         direction: "inbound"
@@ -950,6 +1023,7 @@ var Diagrams = (function (diagrams) {
     views.DiagramView = DiagramView;
     views.TabListView = TabListView;
     views.TabView = TabView;
+    views.DiagramOutlineView = DiagramOutlineView;
 
     diagrams.Views = views;
     return diagrams;
