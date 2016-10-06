@@ -140,11 +140,11 @@ $(function () {
         minWidth: scrWidth / 16,
         maxWidth: scrWidth / 2,
         resize: function (event, el) {
-            editorContainer.css("padding-left", el.size.width);
+            // editorContainer.css("padding-left", el.size.width);
         }
     });
     //TODO: remove + 1
-    editorContainer.css("padding-left", toolContainer.width() + 1);
+    // editorContainer.css("padding-left", toolContainer.width() + 1);
 
     initTree($("#tree1"));
 
