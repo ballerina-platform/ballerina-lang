@@ -564,6 +564,20 @@ var SequenceD = (function (sequenced) {
                     })
                 };
 
+                var circleCenterX = center.x() + (prefs.rect.width + 30)/2;
+                var circleCenterY = center.y() - prefs.rect.height/2;
+                deleteIconGroup = group.append("g")
+                    .attr("class", "close-icon circle-hide");
+                path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
+                    (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
+                    (circleCenterX - 3) + "," + (circleCenterY + 3);
+                var closeCircle = d3Ref.draw.circle(circleCenterX, circleCenterY, 7, deleteIconGroup).
+                    attr("fill", "#95a5a6").
+                    attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                deleteIconGroup.append("path")
+                    .attr("d", path)
+                    .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
@@ -604,6 +618,14 @@ var SequenceD = (function (sequenced) {
                 }
 
                 rect.on("click", (function () {
+                    if (deleteIconGroup.classed("circle-hide")) {
+                        deleteIconGroup.classed("circle-hide", false);
+                        deleteIconGroup.classed("circle-show", true);
+                    } else {
+                        deleteIconGroup.classed("circle-hide", true);
+                        deleteIconGroup.classed("circle-show", false);
+                    }
+
                     defaultView.model.selectedNode = viewObj.model;
                     if (selected) {
                         if (this == selected) {
@@ -626,6 +648,36 @@ var SequenceD = (function (sequenced) {
                         selected = this;
                     }
                 }));
+
+                deleteIconGroup.on("click", function () {
+                    //Get the parent of the model and delete it from the parent
+                    if (~viewObj.model.get("title").indexOf("Resource")) {
+                        var resourceElements = defaultView.model.get("diagramResourceElements").models;
+                        for (var itr = 0; itr < resourceElements.length; itr ++) {
+                            if (resourceElements[itr].cid === viewObj.model.cid) {
+                                resourceElements.splice(itr, 1);
+                                var currentResources = defaultView.model.resourceLifeLineCounter();
+                                defaultView.model.resourceLifeLineCounter(currentResources - 1);
+                                defaultView.model.get("diagramResourceElements").length -= 1;
+                                defaultView.render();
+                                break;
+                            }
+                        }
+                    } else {
+                        var endpointElements = defaultView.model.get("diagramEndpointElements").models;
+                        for (var itr = 0; itr < endpointElements.length; itr ++) {
+                            if (endpointElements[itr].cid === viewObj.model.cid) {
+                                endpointElements.splice(itr, 1);
+                                var currentEndpoints = defaultView.model.endpointLifeLineCounter();
+                                defaultView.model.endpointLifeLineCounter(currentEndpoints - 1);
+                                defaultView.model.get("diagramEndpointElements").length -= 1;
+                                defaultView.render();
+                                break;
+                            }
+                        }
+                    }
+
+                });
 
                 return group;
             }
