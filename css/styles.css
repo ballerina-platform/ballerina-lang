@@ -215,6 +215,7 @@
 .breadcrumb{
     text-transform: none;
     padding-left: 25px;
+    font-size: 1.3em;
 }
 
 #toolpalatte{
@@ -223,4 +224,39 @@
 
 #tab-container > ul{
     display: inline-block;
+}
+
+#tree-container {
+    background-color: #272727;
+    border: solid #373737;
+    border-width: 0 3px 0 0;
+}
+
+#right-container{
+    background-color: #232323;
+}
+
+#tree-action-bar{
+    background-color: #373737;
+    color: #ededed;
+    height: 40px;
+}
+
+.tree-view {
+    color: #7e7e7e;
+    font-size: 1.2em;
+}
+
+.tree-view li > .icon:before {
+    color: #272727;
+}
+
+.tree-view li > .icon {
+    background: #fdfdfd;
+
+}
+
+.tree-action{
+    float: right;
+    padding: 15px;
 }
