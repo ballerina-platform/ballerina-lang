@@ -907,8 +907,10 @@ var Diagrams = (function (diagrams) {
                 if (txt.model.selected === true) {
                     diagram.previousDeleteIconGroup = null;
                     txt.model.selected = false;
-                    $('#propertyPane').empty();
-
+                    if(propertyPane) {
+                        propertyPane.destroy();
+                    }
+                    
                 } else if (!txt.model.selectedNode) {
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
@@ -922,7 +924,9 @@ var Diagrams = (function (diagrams) {
                     diagram.currentDeleteIconGroup = null;
                     selected = '';
                     txt.model.selected = true;
-                    $('#propertyPane').empty();
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
                     propertyPane = ppView.createPropertyPane(txt.model.getDefinitionSchema(),
                         txt.model.getDefinitionEditableProperties(), txt.model);
                 }

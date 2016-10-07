@@ -94,7 +94,9 @@ var SequenceD = (function (sequenced) {
                 //render property view
                 if (selected) {
                     if (selected == this) {
-                        $('#propertyPane').empty();
+                        if (propertyPane) {
+                            propertyPane.destroy();
+                        }
                         selected = null;
                     } else {
                         selected = diagram.selectedNode;
@@ -102,7 +104,9 @@ var SequenceD = (function (sequenced) {
                             diagram.previousDeleteIconGroup.classed("circle-hide", true);
                             diagram.previousDeleteIconGroup.classed("circle-show", false);
                         }
-                        $('#propertyPane').empty();
+                        if (propertyPane) {
+                            propertyPane.destroy();
+                        }
                         propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
                                                                  processorDefinition.getEditableProperties(parameters),
                                                                  this.model);
@@ -110,7 +114,9 @@ var SequenceD = (function (sequenced) {
                 } else {
                     diagram.selectedNode = this;
                     selected = this;
-                    $('#propertyPane').empty();
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
                     propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
                                                              processorDefinition.getEditableProperties(parameters),
                                                              this.model);
@@ -398,6 +404,11 @@ var SequenceD = (function (sequenced) {
                             propertyPane.setValue(lifeLineDefinition.getEditableProperties());
                         }
                     }
+                }
+                if (!propertyPane.getValue().Title) {
+                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(),
+                              lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
+                              defaultView.model.selectedNode);
                 }
             },
 
@@ -858,10 +869,10 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.class, true);
                 var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
-                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
-                //.classed(prefs.rect.class, true);
-                //var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+ prefs.rect.height/2), prefs.line.height-prefs.rect.height, group)
-                //.classed(prefs.line.class, true);
+                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') +
+                // prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group) .classed(prefs.rect.class,
+                // true); var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+
+                // prefs.rect.height/2), prefs.line.height-prefs.rect.height, group) .classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
                     .classed(prefs.text.class, true);
                 //var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') +
