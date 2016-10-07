@@ -90,7 +90,7 @@ var Editor = (function (editor) {
                     ];
 
                 } else if(propertyPane.schema.title === "Try Block") {
-                    ppView.dataObject.parameters.parameters = [
+                    ppView.dataObject.attributes.parent.parameters.parameters = [
                         {
                             key: "exception",
                             value: propertyPane.getValue().Exception
@@ -123,6 +123,41 @@ var Editor = (function (editor) {
                     
                 }
             }
+        },
+
+        loadPropertyPane: function (currentNode, processorDefinition, parameters) {
+            if (selected) {
+                if (selected == currentNode) {
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
+                    selected = null;
+                } else {
+                    selected = diagram.selectedNode;
+                    if (diagram.previousDeleteIconGroup) {
+                        diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                        diagram.previousDeleteIconGroup.classed("circle-show", false);
+                    }
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
+                    propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
+                                                             processorDefinition.getEditableProperties(parameters),
+                                                             currentNode.model);
+                }
+            } else {
+                diagram.selectedNode = currentNode;
+                selected = currentNode;
+                if (propertyPane) {
+                    propertyPane.destroy();
+                }
+                propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
+                                                         processorDefinition.getEditableProperties(parameters),
+                                                         currentNode.model);
+                diagram.selected = false;
+            }
+            diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
+            diagram.currentDeleteIconGroup = null;
         },
 
         createPropertyPane: function (schema, editableProperties, dataModel) {

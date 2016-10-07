@@ -66,7 +66,6 @@ var SequenceD = (function (sequenced) {
             },
 
             updateProcessorProperties: function () {
-
                 diagram.selectedNode = this.model;
 
                 //get processor parameters
@@ -85,45 +84,9 @@ var SequenceD = (function (sequenced) {
                     processorDefinition = Processors.manipulators.PayLoadFactoryMediator;
                 } else if (type === "InvokeMediator") {
                     processorDefinition = Processors.flowControllers.InvokeMediator;
-                } else if (type === "TryBlockMediator") {
-                    processorDefinition = Processors.flowControllers.TryBlockMediator;
-                } else if (type === "SwitchMediator") {
-                    processorDefinition = Processors.flowControllers.SwitchMediator;
                 }
 
-                //render property view
-                if (selected) {
-                    if (selected == this) {
-                        if (propertyPane) {
-                            propertyPane.destroy();
-                        }
-                        selected = null;
-                    } else {
-                        selected = diagram.selectedNode;
-                        if (diagram.previousDeleteIconGroup) {
-                            diagram.previousDeleteIconGroup.classed("circle-hide", true);
-                            diagram.previousDeleteIconGroup.classed("circle-show", false);
-                        }
-                        if (propertyPane) {
-                            propertyPane.destroy();
-                        }
-                        propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
-                                                                 processorDefinition.getEditableProperties(parameters),
-                                                                 this.model);
-                    }
-                } else {
-                    diagram.selectedNode = this;
-                    selected = this;
-                    if (propertyPane) {
-                        propertyPane.destroy();
-                    }
-                    propertyPane = ppView.createPropertyPane(processorDefinition.getSchema(),
-                                                             processorDefinition.getEditableProperties(parameters),
-                                                             this.model);
-                    diagram.selected = false;
-                }
-                diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
-                diagram.currentDeleteIconGroup = null;
+                ppView.loadPropertyPane(this, processorDefinition, parameters);
             },
 
             drawProcessor: function (paperID, center, title, prefs) {
@@ -924,6 +887,30 @@ var SequenceD = (function (sequenced) {
                 return unitProcessorElement;
             },
 
+            updateProcessorProperties: function () {
+
+                diagram.selectedNode = this.model;
+
+                //get processor parameters
+                var parameters = [];
+
+                var processorParameters = diagram.selectedNode.attributes.parent.parameters.parameters;
+                processorParameters.forEach(function (parameter, index) {
+                    parameters[index] = parameter.value;
+                });
+
+                //get processor definition
+                var processorDefinition;
+                var type = diagram.selectedNode.attributes.parent.type;
+                if (type === "TryBlockMediator") {
+                    processorDefinition = Processors.flowControllers.TryBlockMediator;
+                } else if (type === "SwitchMediator") {
+                    processorDefinition = Processors.flowControllers.SwitchMediator;
+                }
+
+                ppView.loadPropertyPane(this, processorDefinition, parameters);
+            },
+
             drawUnitProcessor: function (center, title, prefs) {
 
                 var d3Ref = this.getD3Ref();
@@ -948,7 +935,6 @@ var SequenceD = (function (sequenced) {
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                rectBottomXXX.on('click', this.updateProcessorProperties);
                 console.log("started");
                 var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
@@ -1059,6 +1045,9 @@ var SequenceD = (function (sequenced) {
                             deleteIconGroup.classed("circle-hide", true);
                             deleteIconGroup.classed("circle-show", false);
                         }
+                        diagram.currentDeleteIconGroup = deleteIconGroup;
+                        diagram.selectedNode = viewObj.model;
+                        viewObj.updateProcessorProperties();
                     });
 
                     deleteIconGroup.on("click", function () {
