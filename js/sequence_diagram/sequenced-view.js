@@ -583,22 +583,6 @@ var SequenceD = (function (sequenced) {
                 var viewObj = this;
                 var group = d3Ref.draw.group()
                     .classed(this.model.viewAttributes.class, true);
-
-                var deleteIconGroup = group.append("g").attr("class", "close-icon circle-hide");
-
-                var height = this.model.getHeight();
-                var width = this.model.getWidth();
-                var path = "M " + (center.x() + width/2 - 3) + "," + (center.y() - height/2 - 3) + " L " + (center.x() + width/2 + 3) + "," +
-                           (center.y() - height/2 + 3) + " M " + (center.x() + width/2 + 3) + "," + (center.y() - height/2 - 3) + " L " +
-                           (center.x() + width/2 - 3) + "," + (center.y() - height/2 + 3);
-
-                var closeCircle = d3Ref.draw.circle((center.x() + width/2), (center.y() - height/2), 7, deleteIconGroup).attr("fill", "#95a5a6").attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
-                deleteIconGroup.append("path").attr("d", path).attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
-
-                deleteIconGroup.on("click", function () {
-                   console.log('delete lifeline');
-                });
-
                 this.group = group;
                 this.prefs = prefs;
                 this.center = center;
@@ -647,7 +631,7 @@ var SequenceD = (function (sequenced) {
 
                 var circleCenterX = center.x() + (prefs.rect.width + 30)/2;
                 var circleCenterY = center.y() - prefs.rect.height/2;
-                deleteIconGroup = group.append("g")
+                var deleteIconGroup = group.append("g")
                     .attr("class", "close-icon circle-hide");
                 path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
                     (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
@@ -704,15 +688,7 @@ var SequenceD = (function (sequenced) {
                         deleteIconGroup.classed("circle-hide", true);
                         deleteIconGroup.classed("circle-show", false);
                     }
-
                     defaultView.model.selectedNode = viewObj.model;
-                    if (deleteIconGroup.classed("circle-hide")) {
-                        deleteIconGroup.classed("circle-hide", false);
-                        deleteIconGroup.classed("circle-show", true);
-                    } else {
-                        deleteIconGroup.classed("circle-hide", true);
-                        deleteIconGroup.classed("circle-show", false);
-                    }
                     diagram.currentDeleteIconGroup = deleteIconGroup;
                     if (selected) {
                         if (this == selected) {
