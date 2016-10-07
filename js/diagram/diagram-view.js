@@ -460,13 +460,15 @@ var Diagrams = (function (diagrams) {
 
             // clone SVG for preview
             var previewSVG = $(mainSVG).clone();
-
+            // get
+            var limits = this.mainView.panAndZoom.limits;
             // set viewbox to fit in all content
             d3.select(previewSVG.get((0)))
                 .attr("width", this.width)
                 .attr("height", this.height)
-                .attr("viewBox", this.viewBox.x + " " + this.viewBox.y + " "
-                                + this.viewBox.width + " " + this.viewBox.height)
+                // get current limits and add a little offset to make red box visible at zoom out upper boundary
+                .attr("viewBox", limits.x + " " + limits.y + " "
+                    + limits.x2 + " " + limits.y2)
                 .attr("preserveAspectRatio", "xMinYMin meet");
 
             // unset current preview rendered on div
@@ -477,6 +479,14 @@ var Diagrams = (function (diagrams) {
             previewContainer.attr("class", "diagram-preview");
             this.$el.append(previewContainer);
             previewContainer.append(previewSVG);
+
+            // update preview boundaries when main SVG pan zoom limits are changed
+            this.mainView.on("viewBoxLimitsUpdated", function(newLimits){
+                d3.select(previewSVG.get((0)))
+                    .attr("viewBox", newLimits.x + " " + newLimits.y + " "
+                    + newLimits.x2 + " " + newLimits.y2);
+
+            }, this);
 
             // create controls
             var controlsContainer = $("<div></div>");
@@ -501,13 +511,79 @@ var Diagrams = (function (diagrams) {
             var previewWrapperGroup = d3.select(previewSVG.find("g").first()[0]);
             var panZoomMarkerRect = previewWrapperGroup.append('rect');
             var mainViewBox = this.mainView.panAndZoom.getViewBox();
-            panZoomMarkerRect.attr("x", mainViewBox.x )
-                .attr("y", mainViewBox.y )
+            panZoomMarkerRect
+                .attr("x", (this.viewBox.x > mainViewBox.x) ? this.viewBox.x - 50 : mainViewBox.x)
+                .attr("y", (this.viewBox.y > mainViewBox.y) ? this.viewBox.y - 50 : mainViewBox.y)
                 .attr("width", mainViewBox.width )
                 .attr("height", mainViewBox.height)
-                .attr("stroke", "red" )
-                .attr("stroke-width", "5" )
-                .attr("fill-opacity", 0);
+                .attr("class", "pan-zoom-marker");
+
+            var checkLimits = function(viewBox, limits) {
+                var limitsHeight, limitsWidth, reductionFactor, vb;
+                vb = $.extend({}, viewBox);
+                limitsWidth = Math.abs(limits.x2 - limits.x);
+                limitsHeight = Math.abs(limits.y2 - limits.y);
+                if (vb.width > limitsWidth) {
+                    if (vb.height > limitsHeight) {
+                        if (limitsWidth > limitsHeight) {
+                            reductionFactor = limitsHeight / vb.height;
+                            vb.height = limitsHeight;
+                            vb.width = vb.width * reductionFactor;
+                        } else {
+                            reductionFactor = limitsWidth / vb.width;
+                            vb.width = limitsWidth;
+                            vb.height = vb.height * reductionFactor;
+                        }
+                    } else {
+                        reductionFactor = limitsWidth / vb.width;
+                        vb.width = limitsWidth;
+                        vb.height = vb.height * reductionFactor;
+                    }
+                } else if (vb.height > limitsHeight) {
+                    reductionFactor = limitsHeight / vb.height;
+                    vb.height = limitsHeight;
+                    vb.width = vb.width * reductionFactor;
+                }
+                if (vb.x < limits.x) {
+                    vb.x = limits.x;
+                }
+                if (vb.y < limits.y) {
+                    vb.y = limits.y;
+                }
+                if (vb.x + vb.width > limits.x2) {
+                    vb.x = limits.x2 - vb.width;
+                }
+                if (vb.y + vb.height > limits.y2) {
+                    vb.y = limits.y2 - vb.height;
+                }
+                return vb;
+            };
+
+            var panZoomMarkerRectDrag = d3.drag()
+                .on("start", function () {
+
+                })
+                .on("drag", function () {
+                    var evt = d3.event;
+                    var newX = parseFloat(panZoomMarkerRect.attr("x")) + evt.dx;
+                    var newY = parseFloat(panZoomMarkerRect.attr("y")) + evt.dy;
+                    var oldW = parseFloat(panZoomMarkerRect.attr("width")) ;
+                    var oldH = parseFloat(panZoomMarkerRect.attr("height"));
+
+                    var approvedVB = checkLimits({x: newX, y: newY, width: oldW, height: oldH}, limits);
+                    panZoomMarkerRect.attr("x", approvedVB.x);
+                    panZoomMarkerRect.attr("y", approvedVB.y);
+                    
+                    preview.mainView.setViewBox(approvedVB.x, approvedVB.y, oldW, oldH);
+                })
+                .on("end", function () {
+
+                });
+            panZoomMarkerRect.call(panZoomMarkerRectDrag);
+
+            if(this.mainView.isEmpty()){
+                panZoomMarkerRect.attr("class", "pan-zoom-marker hidden");
+            }
 
             this.mainView.on("viewBoxChange", function(newViewBox, animationTime){
                 panZoomMarkerRect.attr("x", (newViewBox.x ? newViewBox.x : this.viewBox.x) )
@@ -521,6 +597,12 @@ var Diagrams = (function (diagrams) {
             controlsContainer.append(fitToCanvasControl);
             fitToCanvasControl.click(function(evt){
                 var vB = preview.viewBox;
+                var initialVB = preview.mainView.panAndZoom.initialViewBox;
+                var width = (initialVB.width > vB.width) ? initialVB.width  :  vB.width;
+                var height = (initialVB.height > vB.height) ? initialVB.height :  vB.height;
+                // Make aspect ratio same as initial viewbox
+                vB.width = (width > height ) ? width : height;
+                vB.height= vB.width;
                 preview.mainView.setViewBox(
                     vB.x - preview.mainView.options.diagram.padding,
                     vB.y - preview.mainView.options.diagram.padding,
@@ -532,7 +614,9 @@ var Diagrams = (function (diagrams) {
             var resetZoomToDefaultControl =  $("<span class='fw fw-display'></span>");
             controlsContainer.append(resetZoomToDefaultControl);
             resetZoomToDefaultControl.click(function(evt){
-                preview.mainView.panAndZoom.reset(300);
+                var defaultViewBox = preview.mainView.panAndZoom.initialViewBox;
+                preview.mainView.setViewBox(defaultViewBox.x, defaultViewBox.y,
+                    defaultViewBox.width, defaultViewBox.height);
             });
 
         }
@@ -555,6 +639,8 @@ var Diagrams = (function (diagrams) {
                 opts.diagram.height = opts.diagram.height || "100%";
                 opts.diagram.width = opts.diagram.width || "100%";
                 opts.diagram.padding =  opts.diagram.padding || 50;
+                opts.diagram.viewBoxSize =  opts.diagram.viewBoxSize || 1000;
+
                 opts.diagram.class = opts.diagram.class || "diagram";
                 opts.diagram.selector = opts.diagram.selector || ".diagram";
                 opts.diagram.wrapper = opts.diagram.wrapper || {};
@@ -655,10 +741,10 @@ var Diagrams = (function (diagrams) {
                         y: 0,
 
                         // the width of the viewBox
-                        width: 1000,
+                        width: this.options.diagram.viewBoxSize,
 
                         // the height of the viewBox
-                        height: 1000
+                        height: this.options.diagram.viewBoxSize
                     }
                 });
                 $(svg.node()).dblclick({view: this}, function (evt) {
@@ -666,29 +752,53 @@ var Diagrams = (function (diagrams) {
                 });
                 //update pan and zoom limits upon redraw
                 this.on("renderCompleted", function(){
-                    var wrapperBBx = this.d3el.node().getBBox();
-                    var maxWidth = (wrapperBBx.width ? wrapperBBx.x  + wrapperBBx.width : 1000) + this.options.diagram.padding;
-                    var maxHeight = (wrapperBBx.height ? wrapperBBx.y  + wrapperBBx.height : 1000) + this.options.diagram.padding;
-                    var newlimits = {
-                                x:  (wrapperBBx.x ? wrapperBBx.x : 0) - this.options.diagram.padding,
-                                y:  (wrapperBBx.y ? wrapperBBx.y : 0) - this.options.diagram.padding,
-                                x2: (maxWidth > maxHeight) ? maxWidth : maxHeight, // use which ever is the larger
-                                // so that the whole content will appear at lower boundary of zoom scale
-                                y2: (maxHeight > maxWidth) ? maxHeight : maxWidth
-                            };
-                    this.panAndZoom.limits = newlimits;
-                    console.log(newlimits.toString());
+                    this.calculateViewBoxLimits();
                 }, this);
 
                 // override default setViewBox to trigger notifications.
                 var view = this;
                 var setViewBox = this.panAndZoom.setViewBox.bind(this.panAndZoom);
                 this.panAndZoom.setViewBox = function(x, y, width, height, animationTime){
+
                     setViewBox.call(this.panAndZoom, x, y, width, height, animationTime);
                     view.trigger("viewBoxChange", this.getViewBox(), animationTime);
                 };
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
 
+            },
+
+            /**
+             * Checks whether the diagram view is empty. (main group has no children.)
+             *
+             * @returns {boolean}
+             */
+            isEmpty: function(){
+                if(!this.el){
+                    return true;
+                }
+               return (this.el.childNodes.length === 0 ) ? true : false;
+            },
+
+            calculateViewBoxLimits: function () {
+                if(this.d3el){
+                    var wrapperBBx = this.d3el.node().getBBox();
+                }
+                var defaultViewBoxSize = this.options.diagram.viewBoxSize;
+                var maxWidth = (wrapperBBx.width ? wrapperBBx.x  + wrapperBBx.width : defaultViewBoxSize) + this.options.diagram.padding;
+                var maxHeight = (wrapperBBx.height ? wrapperBBx.y  + wrapperBBx.height : defaultViewBoxSize) + this.options.diagram.padding;
+                // make sure viewBox always keep default size as lower boundary in zoom range when current content doesn't exceed its bbox
+                if(maxWidth < defaultViewBoxSize){
+                    maxWidth = defaultViewBoxSize;
+                }
+                var newlimits = {
+                    x:  (wrapperBBx.x ? wrapperBBx.x : 0) - this.options.diagram.padding,
+                    y:  (wrapperBBx.y ? wrapperBBx.y : 0) - this.options.diagram.padding,
+                    x2: (maxWidth >= maxHeight) ? maxWidth : maxHeight, // use which ever is the larger
+                    // so that the whole content will appear at lower boundary of zoom scale
+                    y2: (maxHeight >= maxWidth) ? maxHeight : maxWidth
+                };
+                this.panAndZoom.limits = newlimits;
+                this.trigger("viewBoxLimitsUpdated", newlimits);
             },
 
             /**
@@ -854,11 +964,13 @@ var Diagrams = (function (diagrams) {
                     .attr("height", "100%");
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
+                this.calculateViewBoxLimits();
                 this.htmlDiv = $(this.options.selector);
                 this.htmlDiv.droppable({
                     drop: this.handleDropEvent,
                     tolerance: "pointer"
                 });
+
 
                 for (var id in this.model.attributes.diagramResourceElements.models) {
                     if (this.model.attributes.diagramResourceElements.models[id] instanceof SequenceD.Models.LifeLine) {

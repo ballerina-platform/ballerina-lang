@@ -12,6 +12,21 @@
     height: 160px;
 }
 
+.pan-zoom-marker{
+    stroke: red;
+    stroke-width: 5px;
+    fill-opacity: 0.1;
+}
+
+.pan-zoom-marker{
+    cursor: pointer;
+}
+
+.pan-zoom-marker.hidden{
+    stroke-width: 0;
+    fill-opacity: 1;
+}
+
 .controls-container{
     height: 25px;
     margin-top: 5px;
