@@ -40,6 +40,20 @@ var MainElements = (function (mainElements) {
                 return div.node();
             }
             return cloneCallBack;
+        },
+        getSchema: function () {
+            return {
+                "title": 'End Point',
+                type: "object",
+                properties: {
+                    Title: { "type": "string" }
+                }
+            };
+        },
+        getEditableProperties: function (title) {
+            var editableProperties = {};
+            editableProperties.Title = title;
+            return editableProperties;
         }
     };
 

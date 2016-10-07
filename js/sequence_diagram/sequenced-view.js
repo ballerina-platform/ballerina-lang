@@ -386,9 +386,16 @@ var SequenceD = (function (sequenced) {
                 if (this.d3el) {
                     this.d3el.svgTitle.text(this.model.attributes.title);
                     this.d3el.svgTitleBottom.text(this.model.attributes.title);
-                    if (propertyPane && diagram.selectedNode) {
-                        if (propertyPane.schema.title === diagram.selectedNode.getSchema().title) {
-                            propertyPane.setValue(diagram.selectedNode.getEditableProperties());
+                    if (propertyPane && defaultView.model.selectedNode) {
+                        var lifeLineDefinition;
+                        if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
+                            lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
+                        } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
+                            lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
+                        }
+
+                        if (propertyPane.schema.title === lifeLineDefinition.getSchema().title) {
+                            propertyPane.setValue(lifeLineDefinition.getEditableProperties());
                         }
                     }
                 }
@@ -664,8 +671,15 @@ var SequenceD = (function (sequenced) {
                 });
 
                 function updatePropertyPane() {
-                    $('#propertySave').show();
-                    propertyPane = ppView.createPropertyPane( defaultView.model.selectedNode.getSchema(),  defaultView.model.selectedNode.getEditableProperties(),  defaultView.model.selectedNode);
+                    var lifeLineDefinition;
+                    if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
+                        lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
+                    } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
+                        lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
+                    }
+                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(), 
+                                lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
+                                defaultView.model.selectedNode);
                 }
 
                 rect.on("click", (function () {

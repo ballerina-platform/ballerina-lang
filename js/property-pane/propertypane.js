@@ -48,7 +48,7 @@ var Editor = (function (editor) {
 
         saveProperties: function() {
             if (propertyPane && propertyPane.schema) {
-                if (propertyPane.schema.title === "Lifeline") {
+                if (propertyPane.schema.title === "End Point" || propertyPane.schema.title === "Pipe Line") {
                     ppView.dataObject.set('title', propertyPane.getValue().Title);
 
                 } else if (propertyPane.schema.title === "Resource") {
@@ -100,6 +100,7 @@ var Editor = (function (editor) {
                             value: propertyPane.getValue().Description
                         }
                     ];
+                    
                 } else if(propertyPane.schema.title === "Invoke") {
                     ppView.dataObject.parameters.parameters = [
                         {
@@ -111,6 +112,7 @@ var Editor = (function (editor) {
                             value: propertyPane.getValue().Description
                         }
                     ];
+                    
                 } else if(propertyPane.schema.title === "Switch Mediator") {
                     ppView.dataObject.parameters.parameters = [
                         {
@@ -118,6 +120,7 @@ var Editor = (function (editor) {
                             value: propertyPane.getValue().Description
                         }
                     ];
+                    
                 }
             }
         },
