@@ -51,9 +51,21 @@
         <div id="tree-container" style="float: left; height: 100%">
             <div id="tree-action-bar">
                 <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
-                <i id="tree-add" class="add-resource icon fw fw-add fw-lg tree-action"></i>
+                <span id="tree-add-res" class="fw-stack fw-lg tree-action">
+                   <i class="fw fw-document fw-stack-1x"></i>
+                   <span class="fw-stack fw-move-right fw-move-bottom">
+                      <i class="fw fw-add fw-stack-1x fw-inverse"></i>
+                   </span>
+                </span>
+                <span id="tree-add-api" class="fw-stack fw-lg tree-action">
+                   <i class="fw fw-blank-document fw-stack-1x"></i>
+                   <span class="fw-stack fw-move-right fw-move-bottom">
+                      <i class="fw fw-add fw-stack-1x fw-inverse"></i>
+                   </span>
+                </span>
+
             </div>
-            <ul id="tree1" class="tree-view tree-view-lines">
+            <ul id="tree" class="tree-view tree-view-lines">
                 <li aria-expanded="true"><span>HolidayBooking</span>
                     <ul>
                         <li>BookingHistory</li>

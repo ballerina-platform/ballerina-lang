@@ -146,7 +146,32 @@ $(function () {
     //TODO: remove + 1
     // editorContainer.css("padding-left", toolContainer.width() + 1);
 
-    initTree($("#tree1"));
+    var $tree = $("#tree");
+    initTree($tree);
+
+    var removed = false;
+    $("#tree-add-api").on('click',function (e) {
+        $tree.find("> li > ul").append("<li><input/></li>")
+        removed = false;
+        $tree.find('input').focus();
+    });
+    var addApi = function (e) {
+        if(!removed){
+            removed = true;
+            var $input = $tree.find('input');
+            $input.parent('li').remove();
+            var name = $input.val();
+            if(name != ""){
+                $tree.find("> li > ul").append("<li>" + name + "</li>")
+            }
+        }
+    };
+    $tree.on("blur", "input", addApi);
+    $tree.on('keypress', function (e) {
+        if (e.which === 13) {
+            addApi(e)
+        }
+    });
 
 });
 

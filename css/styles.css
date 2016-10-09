@@ -192,15 +192,16 @@
 
 .nav-tabs > li > a {
     padding-right: 32px;
-    border: 0 !important;
-    color: black;
+    border: solid black !important;
+    border-width: 0 1px 0 0 !important;
     margin: 0;
     font-size: 1.2em;
     border-radius: 0;
 }
 
 .nav-tabs > li  {
-    background-color: #919294;
+    color: #7e7e7e;
+    background-color: #323335;
 }
 
 .nav-tabs{
@@ -219,6 +220,15 @@
 
 #tab-container > ul{
     display: inline-block;
+}
+
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+    /*color: #7e7e7e;*/
+    background-color: #373737;
+    color: white;
 }
 
 .remove-resource {
@@ -240,7 +250,7 @@
 #tree-action-bar{
     background-color: #373737;
     color: #ededed;
-    height: 40px;
+    height: 42px;
 }
 
 .tree-view {
@@ -259,5 +269,16 @@
 
 .tree-action{
     float: right;
-    padding: 15px;
+}
+
+i.tree-action{
+    padding: 15px 8px;
+}
+span.tree-action{
+    padding: 4px;
+}
+
+.tree-view input{
+    height: 32px;
+    color: black;
 }
