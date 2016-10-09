@@ -566,7 +566,7 @@ var SequenceD = (function (sequenced) {
 
                 var circleCenterX = center.x() + (prefs.rect.width + 30)/2;
                 var circleCenterY = center.y() - prefs.rect.height/2;
-                deleteIconGroup = group.append("g")
+                var deleteIconGroup = group.append("g")
                     .attr("class", "close-icon circle-hide");
                 path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
                     (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
