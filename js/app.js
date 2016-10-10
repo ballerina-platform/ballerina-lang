@@ -121,7 +121,9 @@ $(function () {
     var scrWidth = $(window).width();
     var treeContainer = $("#tree-container");
     var rightContainer = $("#right-container");
-    treeContainer.width(scrWidth / 8);
+    // treeContainer.width(scrWidth / 8);
+    //TODO: remove
+    treeContainer.width(0);
     treeContainer.resizable({
         ghost: false,
         minWidth: scrWidth / 16,
