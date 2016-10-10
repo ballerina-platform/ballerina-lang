@@ -790,8 +790,8 @@ var Diagrams = (function (diagrams) {
             },
 
             calculateViewBoxLimits: function () {
-                if(diagramD3el){
-                    var wrapperBBx = diagramD3el.node().getBBox();
+                if(this.d3el){
+                    var wrapperBBx = this.d3el.node().getBBox();
                 }
                 var defaultViewBoxSize = this.options.diagram.viewBoxSize;
                 var maxWidth = (wrapperBBx.width ? wrapperBBx.x  + wrapperBBx.width : defaultViewBoxSize) + this.options.diagram.padding;
@@ -854,7 +854,7 @@ var Diagrams = (function (diagrams) {
              * @param {number} sy scale to transform Y axis.
              */
             scale: function (sx, sy) {
-                diagramD3el.attr("transform", "scale( " + sx + ", " + sy + " )");
+                this.d3el.attr("transform", "scale( " + sx + ", " + sy + " )");
             },
 
             /**
@@ -956,8 +956,8 @@ var Diagrams = (function (diagrams) {
             render: function () {
 
                 //Remove previous diagram
-                if (diagramD3el) {
-                    diagramD3el.remove();
+                if (this.d3el) {
+                    this.d3el.remove();
                     for (var element in diagramViewElements) {
                         diagramViewElements[element].remove();
                     }
@@ -972,7 +972,7 @@ var Diagrams = (function (diagrams) {
                 var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapperId)
                     .attr("width", "100%")
                     .attr("height", "100%");
-                diagramD3el = mainGroup;
+                this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.calculateViewBoxLimits();
                 this.htmlDiv = $(this.options.selector);
