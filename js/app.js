@@ -25,6 +25,7 @@ lifeLineOptions.rect.height = 30;
 lifeLineOptions.rect.roundX = 20;
 lifeLineOptions.rect.roundY = 20;
 lifeLineOptions.rect.class = "lifeline-rect";
+var defaultView = undefined;
 
 // Lifeline middle-rect options
 lifeLineOptions.middleRect = {};
