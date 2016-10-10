@@ -16,3 +16,4 @@
 # under the License.
 #
 geocode=org.wso2.siddhi.extension.geo.GeocodeStreamFunctionProcessor
+reversegeocode=org.wso2.siddhi.extension.geo.ReverseGeocodeStreamFunctionProcessor
