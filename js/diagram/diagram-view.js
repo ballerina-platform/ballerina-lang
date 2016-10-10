@@ -307,6 +307,17 @@ var Diagrams = (function (diagrams) {
                 createdTab: false
             });
 
+            //remove propety pane when adding a new tab
+            if (diagram.previousDeleteIconGroup) {
+                diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                diagram.previousDeleteIconGroup.classed("circle-show", false);
+            }
+            diagram.previousDeleteIconGroup = null;
+            diagram.currentDeleteIconGroup = null;
+            if (propertyPane) {
+                propertyPane.destroy();
+            }
+
             var nextTabListView = new Diagrams.Views.TabListView({model: resourceModel});
 
             nextTabListView.render(resourceModel);
@@ -355,6 +366,16 @@ var Diagrams = (function (diagrams) {
             var currentTab = this.model;
             //Unique Id created for the svg element where elements can be drawn
             var svgUId = this.model.get("resourceId") + "4";
+            //empty property pane when clicked on a tab
+            if (diagram.previousDeleteIconGroup) {
+                diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                diagram.previousDeleteIconGroup.classed("circle-show", false);
+            }
+            diagram.previousDeleteIconGroup = null;
+            diagram.currentDeleteIconGroup = null;
+            if (propertyPane) {
+                propertyPane.destroy();
+            }
             //first time click on the tab
             if (this.model.attributes.createdTab === false) {
                 // get the diagram model for this tab
@@ -890,6 +911,9 @@ var Diagrams = (function (diagrams) {
                 var position = new GeoCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
                 //convert drop position to relative svg coordinates
                 position = defaultView.toViewBoxCoordinates(position);
+                if (propertyPane) {
+                    propertyPane.destroy();
+                }
 
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
@@ -1092,28 +1116,32 @@ var Diagrams = (function (diagrams) {
             onClickDiagram: function () {
                 var txt = defaultView;
                 if (txt.model.selected === true) {
+                    diagram.previousDeleteIconGroup = null;
                     txt.model.selected = false;
-                    $('#propertyPane').empty();
-                    $('#propertySave').hide();
+                    if(propertyPane) {
+                        propertyPane.destroy();
+                    }
+                    
                 } else if (!txt.model.selectedNode) {
-
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
                     }
+                    if (diagram.previousDeleteIconGroup) {
+                        diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                        diagram.previousDeleteIconGroup.classed("circle-show", false);
+                    }
 
-                    udcontrol.set('visible', false);
-                    udcontrol.set('lifeline', '');
+                    diagram.previousDeleteIconGroup = null;
+                    diagram.currentDeleteIconGroup = null;
                     selected = '';
                     txt.model.selected = true;
-
-                    $('#propertyPane').empty();
-                    $('#propertySave').show();
-
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
                     propertyPane = ppView.createPropertyPane(txt.model.getDefinitionSchema(),
                         txt.model.getDefinitionEditableProperties(), txt.model);
                 }
             },
-
 
             renderViewForElement: function (element, renderOpts) {
                 var view = Diagrams.Utils.createViewForModel(element, renderOpts);

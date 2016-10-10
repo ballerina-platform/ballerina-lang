@@ -408,14 +408,6 @@ var Diagrams = (function (diagrams) {
                 }
             },
 
-            removeElement: function (element, opts) {
-                var index = this.diagramElements().indexOf(element);
-                //TODO need to implement this 
-                //var elements = this.diagramElements();
-                //delete elements[index];
-                this.trigger("removeElement", element, opts);
-            },
-
             getElement: function (id) {
                 return this.diagramElements().get(id);
             },

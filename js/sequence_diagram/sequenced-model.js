@@ -278,24 +278,6 @@ var SequenceD = (function (sequenced) {
                 viewAttributes: {colour: "#998844"}
             },
 
-            getSchema: function () {
-                var schema = {
-                    "title": "Lifeline",
-                    type: "object",
-                    properties: {
-                        Title: { "type": "string" }
-                    }
-                };
-                return schema;
-            },
-
-            getEditableProperties: function (point) {
-                var editableProperties = {};
-                editableProperties.Title = this.attributes.title;
-                //editableProperties.Uid = 123;
-                //here add properties you want to see in property panel, but those need to be defined in above getSchema() method
-                return editableProperties;
-            },
             getPropertyPane: function (point) {
                 var pane = new JSONEditor(document.getElementById("propertyPane"), {
                     schema: this.getSchema(),
@@ -305,10 +287,6 @@ var SequenceD = (function (sequenced) {
                 });
                 var thisLifeline = this;
                 pane.setValue(this.getEditableProperties());
-                pane.watch('root.Title', function () {
-                    $("#save-image").css({opacity: 1});
-                    //thisLifeline.set('title', pane.getValue().Title); //commented as this results recursive call and updated to theolder value.
-                });
 
                 return pane;
             },

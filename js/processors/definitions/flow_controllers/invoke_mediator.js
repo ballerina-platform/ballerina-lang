@@ -117,8 +117,32 @@ var Processors = (function (processors) {
             }
 
         },
-        parameters: [],
-
+        parameters: [
+            {
+                key: "message",
+                value: "Message"
+            },
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
+        getSchema: function () {
+            return {
+                title: "Invoke",
+                type: "object",
+                properties: {
+                    Message: {"type": "string"},
+                    Description: {"type": "string"}
+                }
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Message = parameters[0];
+            editableProperties.Description = parameters[1];
+            return editableProperties;
+        },
         getMySubTree: function (model) {
             var messageLinks = model.get('children').models;
             var endpoint = undefined;
