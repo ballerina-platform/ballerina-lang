@@ -171,6 +171,12 @@ public class TargetHandler extends ReadTimeoutHandler {
 
         cMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.getStatus().code());
         cMsg.setHeaders(Util.getHeaders(httpResponse).getAll());
+
+        //copy required properties for service chaining from incoming carbon message to the response carbon message
+        //copy shared worker pool
+        cMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, incomingMsg.getProperty(Constants.EXECUTOR_WORKER_POOL));
+        //TODO copy mandatory properties from previous message if needed
+
         return cMsg;
 
     }
