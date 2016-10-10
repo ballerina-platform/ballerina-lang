@@ -498,12 +498,14 @@ var Diagrams = (function (diagrams) {
             controlsContainer.append(zoomRangeController);
             zoomRangeController.attr("class", "zoom-slider");
             var preview = this;
-            zoomRangeController.slider({
-                min: 0.1,
-                max: 5,
-                step: 0.1,
+            this.slider = zoomRangeController.slider({
+                min: 1,
+                max: 100,
+                step: 1,
                 slide: function( event, ui ) {
-                    preview.mainView.scale(ui.value, ui.value);
+                    var limitWidth = limits.x2 -limits.x;
+                    var newWidth =  limitWidth * ((100 - ui.value)/100);
+                    preview.mainView.setViewBox(limits.x, limits.y, newWidth, newWidth);
                 }
             });
 
@@ -573,7 +575,6 @@ var Diagrams = (function (diagrams) {
                     var approvedVB = checkLimits({x: newX, y: newY, width: oldW, height: oldH}, limits);
                     panZoomMarkerRect.attr("x", approvedVB.x);
                     panZoomMarkerRect.attr("y", approvedVB.y);
-                    
                     preview.mainView.setViewBox(approvedVB.x, approvedVB.y, oldW, oldH);
                 })
                 .on("end", function () {
@@ -586,10 +587,19 @@ var Diagrams = (function (diagrams) {
             }
 
             this.mainView.on("viewBoxChange", function(newViewBox, animationTime){
-                panZoomMarkerRect.attr("x", (newViewBox.x ? newViewBox.x : this.viewBox.x) )
-                    .attr("y", (newViewBox.y ? newViewBox.y : this.viewBox.y) )
-                    .attr("width",  (newViewBox.width ? newViewBox.width : this.viewBox.width) )
-                    .attr("height", (newViewBox.height ? newViewBox.height : this.viewBox.height))
+
+                var newX = newViewBox.x ? newViewBox.x : this.viewBox.x;
+                var newY = newViewBox.y ? newViewBox.y : this.viewBox.y;
+                var newW = newViewBox.width ? newViewBox.width : this.viewBox.width;
+                var newH = newViewBox.height ? newViewBox.height : this.viewBox.height;
+
+                panZoomMarkerRect.attr("x", newX )
+                    .attr("y", newY )
+                    .attr("width",  newW)
+                    .attr("height", newH);
+
+                var sliderVal = 100 - ((newViewBox.width/(limits.x2 - limits.x)) * 100);
+                this.slider.slider("option", "value", sliderVal);
 
             }, this);
 
@@ -722,10 +732,10 @@ var Diagrams = (function (diagrams) {
                     animationTime: 300,
 
                     // how much to zoom-in or zoom-out
-                    zoomFactor: 0.25,
+                    zoomFactor: 0.1,
 
                     // maximum zoom in, must be a number bigger than 1
-                    maxZoom: 5,
+                    maxZoom: 10,
 
                     // how much to move the viewBox when calling .panDirection() methods
                     panFactor: 100,
