@@ -282,3 +282,8 @@ span.tree-action{
     height: 32px;
     color: black;
 }
+
+.tab-pane svg {
+    padding-bottom: 80px;
+    padding-right: 105px;
+}
