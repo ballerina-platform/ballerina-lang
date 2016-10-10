@@ -126,12 +126,12 @@ var Processors = (function (processors) {
                 if (_.isEqual(child.get('direction'), "inbound")) {
                     endpoint = child.get('message').get('source').get('parent').get('title');
                     // When we define the properties, need to extract the endpoint from the property
-                    definedConstants["HTTPEP"] = {name: endpoint, value: "https://www.google.lk"};
+                    definedConstants["HTTPEP"] = {name: endpoint, value: "http://www.mocky.io/v2/57fb80930f00007c0c4fd3d9"};
                 } else {
                     endpoint = "anonymous";
                 }
             });
-            return new TreeNode("InvokeMediator", "InvokeMediator", ("invoke(" + endpoint + ")"), ";");
+            return new TreeNode("InvokeMediator", "InvokeMediator", ("reply invoke(" + endpoint + ",m)"), ";");
         }
     };
 
