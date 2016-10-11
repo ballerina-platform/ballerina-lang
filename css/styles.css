@@ -283,7 +283,6 @@ span.tree-action{
     color: black;
 }
 
-.tab-pane svg {
-    padding-bottom: 80px;
-    padding-right: 105px;
+.tab-pane  {
+    padding-bottom: 130px;
 }
