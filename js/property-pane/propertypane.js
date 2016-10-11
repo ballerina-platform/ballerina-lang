@@ -32,6 +32,7 @@ var Editor = (function (editor) {
         initialize: function () {
             JSONEditor.defaults.theme = 'bootstrap3';
             JSONEditor.defaults.iconlib = 'bootstrap3';
+            $('#property-container1').css("width", 240);
 
             $('#expand-image').click(function (){
                 if ($('#property-container1').width() == 240) {

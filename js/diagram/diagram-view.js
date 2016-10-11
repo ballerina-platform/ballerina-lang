@@ -493,11 +493,23 @@ var Diagrams = (function (diagrams) {
             controlsContainer.attr("class", "controls-container");
             this.$el.append(controlsContainer);
 
+            var preview = this;
+
+            var fitToCanvasControl =  $("<span class='glyphicon glyphicon-fullscreen fit-to-area-btn' aria-hidden=true'></span>");
+            controlsContainer.append(fitToCanvasControl);
+            fitToCanvasControl.click(function(evt){
+                preview.mainView.setViewBox(
+                    preview.mainView.panAndZoom.limits.x,
+                    preview.mainView.panAndZoom.limits.y,
+                    preview.mainView.panAndZoom.limits.x2 - preview.mainView.panAndZoom.limits.x,
+                    preview.mainView.panAndZoom.limits.y2 - preview.mainView.panAndZoom.limits.y);
+            });
+
             // create zoom range controller
             var zoomRangeController = $("<div></div>");
             controlsContainer.append(zoomRangeController);
             zoomRangeController.attr("class", "zoom-slider");
-            var preview = this;
+
             this.slider = zoomRangeController.slider({
                 min: 1,
                 max: 100,
@@ -601,17 +613,7 @@ var Diagrams = (function (diagrams) {
 
             }, this);
 
-            var fitToCanvasControl =  $("<span class='fw fw-display fw-helper fw-helper-square'></span>");
-            controlsContainer.append(fitToCanvasControl);
-            fitToCanvasControl.click(function(evt){
-                preview.mainView.setViewBox(
-                    preview.mainView.panAndZoom.limits.x,
-                    preview.mainView.panAndZoom.limits.y,
-                    preview.mainView.panAndZoom.limits.x2 - preview.mainView.panAndZoom.limits.x,
-                    preview.mainView.panAndZoom.limits.y2 - preview.mainView.panAndZoom.limits.y);
-            });
-
-            var resetZoomToDefaultControl =  $("<span class='fw fw-display'></span>");
+            var resetZoomToDefaultControl =  $("<span class='glyphicon glyphicon-screenshot reset-zoom-btn' aria-hidden=true'></span>");
             controlsContainer.append(resetZoomToDefaultControl);
             resetZoomToDefaultControl.click(function(evt){
                 var defaultViewBox = preview.mainView.panAndZoom.initialViewBox;
