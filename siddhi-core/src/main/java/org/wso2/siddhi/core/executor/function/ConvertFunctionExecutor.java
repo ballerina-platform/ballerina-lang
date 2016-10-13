@@ -68,110 +68,110 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
 
 
     protected Object execute(Object[] obj) {
-
         Object data = obj[0];
-        try {
-            switch (returnType) {
-                case STRING:
-                    return data.toString();
-                case INT:
-                    switch (inputType) {
-                        case STRING:
-                            return Integer.parseInt((String) data);
-                        case INT:
-                            return data;
-                        case LONG:
-                            return ((Long) data).intValue();
-                        case FLOAT:
-                            return ((Float) data).intValue();
-                        case DOUBLE:
-                            return ((Double) data).intValue();
-                        case BOOL:
-                            return ((Boolean) data) ? 1 : 0;
-                        case OBJECT:
-                            return null;
-                    }
-                    break;
-                case LONG:
-                    switch (inputType) {
-                        case STRING:
-                            return Long.parseLong((String) data);
-                        case INT:
-                            return ((Integer) data).longValue();
-                        case LONG:
-                            return data;
-                        case FLOAT:
-                            return ((Float) data).longValue();
-                        case DOUBLE:
-                            return ((Double) data).longValue();
-                        case BOOL:
-                            return ((Boolean) data) ? 1l : 0l;
-                        case OBJECT:
-                            return null;
-                    }
-                    break;
-                case FLOAT:
-                    switch (inputType) {
-                        case STRING:
-                            return Float.parseFloat((String) data);
-                        case INT:
-                            return ((Integer) data).floatValue();
-                        case LONG:
-                            return ((Long) data).floatValue();
-                        case FLOAT:
-                            return data;
-                        case DOUBLE:
-                            return ((Double) data).floatValue();
-                        case BOOL:
-                            return ((Boolean) data) ? 1f : 0f;
-                        case OBJECT:
-                            return null;
-                    }
-                    break;
-                case DOUBLE:
-                    switch (inputType) {
-                        case STRING:
-                            return Double.parseDouble((String) data);
-                        case INT:
-                            return ((Integer) data).doubleValue();
-                        case LONG:
-                            return ((Long) data).doubleValue();
-                        case FLOAT:
-                            return ((Float) data).doubleValue();
-                        case DOUBLE:
-                            return data;
-                        case BOOL:
-                            return ((Boolean) data) ? 1.0 : 0.0;
-                        case OBJECT:
-                            return null;
-                    }
-                    break;
-                case BOOL:
-                    switch (inputType) {
-                        case STRING:
-                            return Boolean.parseBoolean((String) data);
-                        case INT:
-                            return ((Integer) data) == 1;
-                        case LONG:
-                            return ((Long) data) == 1l;
-                        case FLOAT:
-                            return ((Float) data) == 1f;
-                        case DOUBLE:
-                            return ((Double) data) == 1.0;
-                        case BOOL:
-                            return data;
-                        case OBJECT:
-                            return null;
-                    }
-                    break;
-                case OBJECT:
-                    break;
+        if (data != null) {
+            try {
+                switch (returnType) {
+                    case STRING:
+                        return data.toString();
+                    case INT:
+                        switch (inputType) {
+                            case STRING:
+                                return Integer.parseInt((String) data);
+                            case INT:
+                                return data;
+                            case LONG:
+                                return ((Long) data).intValue();
+                            case FLOAT:
+                                return ((Float) data).intValue();
+                            case DOUBLE:
+                                return ((Double) data).intValue();
+                            case BOOL:
+                                return ((Boolean) data) ? 1 : 0;
+                            case OBJECT:
+                                return null;
+                        }
+                        break;
+                    case LONG:
+                        switch (inputType) {
+                            case STRING:
+                                return Long.parseLong((String) data);
+                            case INT:
+                                return ((Integer) data).longValue();
+                            case LONG:
+                                return data;
+                            case FLOAT:
+                                return ((Float) data).longValue();
+                            case DOUBLE:
+                                return ((Double) data).longValue();
+                            case BOOL:
+                                return ((Boolean) data) ? 1L : 0L;
+                            case OBJECT:
+                                return null;
+                        }
+                        break;
+                    case FLOAT:
+                        switch (inputType) {
+                            case STRING:
+                                return Float.parseFloat((String) data);
+                            case INT:
+                                return ((Integer) data).floatValue();
+                            case LONG:
+                                return ((Long) data).floatValue();
+                            case FLOAT:
+                                return data;
+                            case DOUBLE:
+                                return ((Double) data).floatValue();
+                            case BOOL:
+                                return ((Boolean) data) ? 1F : 0F;
+                            case OBJECT:
+                                return null;
+                        }
+                        break;
+                    case DOUBLE:
+                        switch (inputType) {
+                            case STRING:
+                                return Double.parseDouble((String) data);
+                            case INT:
+                                return ((Integer) data).doubleValue();
+                            case LONG:
+                                return ((Long) data).doubleValue();
+                            case FLOAT:
+                                return ((Float) data).doubleValue();
+                            case DOUBLE:
+                                return data;
+                            case BOOL:
+                                return ((Boolean) data) ? 1.0 : 0.0;
+                            case OBJECT:
+                                return null;
+                        }
+                        break;
+                    case BOOL:
+                        switch (inputType) {
+                            case STRING:
+                                return Boolean.parseBoolean((String) data);
+                            case INT:
+                                return ((Integer) data) == 1;
+                            case LONG:
+                                return ((Long) data) == 1L;
+                            case FLOAT:
+                                return ((Float) data) == 1F;
+                            case DOUBLE:
+                                return ((Double) data) == 1.0;
+                            case BOOL:
+                                return data;
+                            case OBJECT:
+                                return null;
+                        }
+                        break;
+                    case OBJECT:
+                        break;
+                }
+            } catch (NumberFormatException e) {
+                return null;
             }
-        } catch (NumberFormatException e) {
-            return null;
         }
         return null;
-
     }
 
     @Override

@@ -31,14 +31,12 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class ConvertFunctionTestCase {
-    static final Logger log = Logger.getLogger(ConvertFunctionTestCase.class);
+    private static final Logger log = Logger.getLogger(ConvertFunctionTestCase.class);
     private int count;
-    private boolean eventArrived;
 
     @Before
     public void init() {
         count = 0;
-        eventArrived = false;
     }
 
     @Test
@@ -49,11 +47,11 @@ public class ConvertFunctionTestCase {
 
         String cseEventStream = "" +
                 "" +
-                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool) ;";
+                "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL long, typeB bool, typeN double) ;";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from typeStream " +
-                "select convert(typeS,'string') as valueS, convert(typeF,'float') as valueF, convert(typeD,'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , convert(typeB,'bool') as valueB " +
+                "select convert(typeS,'string') as valueS, convert(typeF,'float') as valueF, convert(typeD,'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
                 "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -64,23 +62,22 @@ public class ConvertFunctionTestCase {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 for (Event inEvent : inEvents) {
                     count++;
-                    junit.framework.Assert.assertTrue(inEvent.getData(0) instanceof String);
-                    junit.framework.Assert.assertTrue(inEvent.getData(1) instanceof Float);
-                    junit.framework.Assert.assertTrue(inEvent.getData(2) instanceof Double);
-                    junit.framework.Assert.assertTrue(inEvent.getData(3) instanceof Integer);
-                    junit.framework.Assert.assertTrue(inEvent.getData(4) instanceof Long);
-                    junit.framework.Assert.assertTrue(inEvent.getData(5) instanceof Boolean);
+                    Assert.assertTrue(inEvent.getData(0) instanceof String);
+                    Assert.assertTrue(inEvent.getData(1) instanceof Float);
+                    Assert.assertTrue(inEvent.getData(2) instanceof Double);
+                    Assert.assertTrue(inEvent.getData(3) instanceof Integer);
+                    Assert.assertTrue(inEvent.getData(4) instanceof Long);
+                    Assert.assertTrue(inEvent.getData(5) instanceof Boolean);
+                    Assert.assertTrue(inEvent.getData(6) == null);
                 }
             }
-
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5l, true});
+        inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5L, true, null});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
@@ -110,59 +107,55 @@ public class ConvertFunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count++;
-                junit.framework.Assert.assertTrue(inEvents[0].getData(0) instanceof String);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(1) == null);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(2) == null);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(3) == null);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(4) == null);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && !((Boolean) inEvents[0].getData(5)));
+                Assert.assertTrue(inEvents[0].getData(0) instanceof String);
+                Assert.assertTrue(inEvents[0].getData(1) == null);
+                Assert.assertTrue(inEvents[0].getData(2) == null);
+                Assert.assertTrue(inEvents[0].getData(3) == null);
+                Assert.assertTrue(inEvents[0].getData(4) == null);
+                Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && !((Boolean) inEvents[0].getData(5)));
 
-                junit.framework.Assert.assertTrue(inEvents[0].getData(6) instanceof String);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(7) instanceof Float);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(8) instanceof Double);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(9) instanceof Integer);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(10) instanceof Long);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(11) instanceof Boolean && !((Boolean) inEvents[0].getData(11)));
+                Assert.assertTrue(inEvents[0].getData(6) instanceof String);
+                Assert.assertTrue(inEvents[0].getData(7) instanceof Float);
+                Assert.assertTrue(inEvents[0].getData(8) instanceof Double);
+                Assert.assertTrue(inEvents[0].getData(9) instanceof Integer);
+                Assert.assertTrue(inEvents[0].getData(10) instanceof Long);
+                Assert.assertTrue(inEvents[0].getData(11) instanceof Boolean && !((Boolean) inEvents[0].getData(11)));
 
-                junit.framework.Assert.assertTrue(inEvents[0].getData(12) instanceof String);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(13) instanceof Float);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(14) instanceof Double);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(15) instanceof Integer);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(16) instanceof Long);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(17) instanceof Boolean && !((Boolean) inEvents[0].getData(17)));
+                Assert.assertTrue(inEvents[0].getData(12) instanceof String);
+                Assert.assertTrue(inEvents[0].getData(13) instanceof Float);
+                Assert.assertTrue(inEvents[0].getData(14) instanceof Double);
+                Assert.assertTrue(inEvents[0].getData(15) instanceof Integer);
+                Assert.assertTrue(inEvents[0].getData(16) instanceof Long);
+                Assert.assertTrue(inEvents[0].getData(17) instanceof Boolean && !((Boolean) inEvents[0].getData(17)));
 
-                junit.framework.Assert.assertTrue(inEvents[0].getData(18) instanceof String);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(19) instanceof Float);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(20) instanceof Double);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(21) instanceof Integer);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(22) instanceof Long);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(23) instanceof Boolean && !((Boolean) inEvents[0].getData(23)));
+                Assert.assertTrue(inEvents[0].getData(18) instanceof String);
+                Assert.assertTrue(inEvents[0].getData(19) instanceof Float);
+                Assert.assertTrue(inEvents[0].getData(20) instanceof Double);
+                Assert.assertTrue(inEvents[0].getData(21) instanceof Integer);
+                Assert.assertTrue(inEvents[0].getData(22) instanceof Long);
+                Assert.assertTrue(inEvents[0].getData(23) instanceof Boolean && !((Boolean) inEvents[0].getData(23)));
 
-                junit.framework.Assert.assertTrue(inEvents[0].getData(24) instanceof String);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(25) instanceof Float);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(26) instanceof Double);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(27) instanceof Integer);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(28) instanceof Long);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(29) instanceof Boolean && !((Boolean) inEvents[0].getData(29)));
+                Assert.assertTrue(inEvents[0].getData(24) instanceof String);
+                Assert.assertTrue(inEvents[0].getData(25) instanceof Float);
+                Assert.assertTrue(inEvents[0].getData(26) instanceof Double);
+                Assert.assertTrue(inEvents[0].getData(27) instanceof Integer);
+                Assert.assertTrue(inEvents[0].getData(28) instanceof Long);
+                Assert.assertTrue(inEvents[0].getData(29) instanceof Boolean && !((Boolean) inEvents[0].getData(29)));
 
-                junit.framework.Assert.assertTrue(inEvents[0].getData(30) instanceof String);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(31) instanceof Float);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(32) instanceof Double);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(33) instanceof Integer);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(34) instanceof Long);
-                junit.framework.Assert.assertTrue(inEvents[0].getData(35) instanceof Boolean && ((Boolean) inEvents[0].getData(35)));
-
-
+                Assert.assertTrue(inEvents[0].getData(30) instanceof String);
+                Assert.assertTrue(inEvents[0].getData(31) instanceof Float);
+                Assert.assertTrue(inEvents[0].getData(32) instanceof Double);
+                Assert.assertTrue(inEvents[0].getData(33) instanceof Integer);
+                Assert.assertTrue(inEvents[0].getData(34) instanceof Long);
+                Assert.assertTrue(inEvents[0].getData(35) instanceof Boolean && ((Boolean) inEvents[0].getData(35)));
             }
-
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5l, true});
+        inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5L, true});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
-
     }
 
     @Test
@@ -187,23 +180,20 @@ public class ConvertFunctionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 count++;
-                junit.framework.Assert.assertTrue(inEvents[0].getData(0) instanceof Boolean && (Boolean) inEvents[0].getData(0));
-                junit.framework.Assert.assertTrue(inEvents[0].getData(1) instanceof Boolean && (Boolean) inEvents[0].getData(1));
-                junit.framework.Assert.assertTrue(inEvents[0].getData(2) instanceof Boolean && (Boolean) inEvents[0].getData(2));
-                junit.framework.Assert.assertTrue(inEvents[0].getData(3) instanceof Boolean && (Boolean) inEvents[0].getData(3));
-                junit.framework.Assert.assertTrue(inEvents[0].getData(4) instanceof Boolean && (Boolean) inEvents[0].getData(4));
-                junit.framework.Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && (Boolean) inEvents[0].getData(5));
-
+                Assert.assertTrue(inEvents[0].getData(0) instanceof Boolean && (Boolean) inEvents[0].getData(0));
+                Assert.assertTrue(inEvents[0].getData(1) instanceof Boolean && (Boolean) inEvents[0].getData(1));
+                Assert.assertTrue(inEvents[0].getData(2) instanceof Boolean && (Boolean) inEvents[0].getData(2));
+                Assert.assertTrue(inEvents[0].getData(3) instanceof Boolean && (Boolean) inEvents[0].getData(3));
+                Assert.assertTrue(inEvents[0].getData(4) instanceof Boolean && (Boolean) inEvents[0].getData(4));
+                Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && (Boolean) inEvents[0].getData(5));
             }
-
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1l, true});
+        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         executionPlanRuntime.shutdown();
-
     }
 
 
@@ -235,11 +225,10 @@ public class ConvertFunctionTestCase {
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1l, true});
+        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
         executionPlanRuntime.shutdown();
-
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
@@ -270,11 +259,10 @@ public class ConvertFunctionTestCase {
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1l, true});
+        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
         executionPlanRuntime.shutdown();
-
     }
 
     @Test(expected = ExecutionPlanValidationException.class)
@@ -305,12 +293,9 @@ public class ConvertFunctionTestCase {
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1l, true});
+        inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
         executionPlanRuntime.shutdown();
-
     }
-
-
 }
