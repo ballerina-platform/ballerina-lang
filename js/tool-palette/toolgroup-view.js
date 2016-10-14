@@ -20,14 +20,47 @@ var Tools = (function (tools) {
     var views = tools.Views || {};
 
     var toolGroupView = Backbone.View.extend({
+
         initialize: function () {
+            console.log("toolGroupWrapperView init");
         },
 
         render: function (parent) {
-            var self = this;
-            this.collection.each(function (tool) {
+            var groupDiv = $('<div></div>');
+            parent.append(groupDiv);
+            groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
+            groupDiv.attr('class', "tool-group");
+
+            var groupHeaderDiv = $("<div></div>");
+            groupDiv.append(groupHeaderDiv);
+            groupHeaderDiv.attr('class', "tool-group-header");
+
+            var groupTitle = $("<a></a>");
+            groupHeaderDiv.append(groupTitle)
+            groupTitle.attr('class', "tool-group-header-title")
+                      .text(this.model.attributes.toolGroupName);
+
+            var groupCollapseIcon = $("<span></span>");
+            groupHeaderDiv.append(groupCollapseIcon);
+            groupCollapseIcon.attr('class', "collapse-icon glyphicon glyphicon-chevron-down");
+
+            var groupBodyDiv = $("<div></div>");
+            groupDiv.append(groupBodyDiv);
+            groupBodyDiv.attr('class', "tool-group-body");
+
+            this.model.toolCollection.each(function (tool) {
                 var toolView = new Tools.Views.ToolView({model: tool});
-                toolView.render(parent);
+                toolView.render(groupBodyDiv);
+            });
+
+            this.el =  groupDiv[0].outerHTML;
+            this.$el = groupDiv;
+
+            groupHeaderDiv.click(function(){
+                groupBodyDiv.slideToggle(500, function () {
+                        groupCollapseIcon.toggleClass("glyphicon-chevron-up")
+                                            .toggleClass("glyphicon-chevron-down");
+                    });
             });
             return this;
         }

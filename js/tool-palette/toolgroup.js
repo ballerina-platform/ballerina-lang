@@ -19,8 +19,22 @@
 var Tools = (function (tools) {
     var models = tools.Models || {};
 
-    var toolGroup = Backbone.Collection.extend({
+    var ToolCollection = Backbone.Collection.extend({
         model: Tools.Models.Tool
+    });
+
+    var toolGroup = Backbone.Model.extend({
+        initialize: function (attrs, options) {
+            this.toolCollection = new ToolCollection();
+        },
+
+        modelName: "ToolGroup",
+
+        defaults: {
+            toolGroupID: "id-not-set",
+            toolGroupName: "",
+            toolGroup: ""
+        }
     });
 
     models.ToolGroup = toolGroup;

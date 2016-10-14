@@ -534,7 +534,7 @@ var SequenceD = (function (sequenced) {
                             this.prefs.rect.height,
                             150,
                             200,
-                            0,
+                                0,
                             0,
                             this.group, element.viewAttributes.colour,
                             element.attributes.title

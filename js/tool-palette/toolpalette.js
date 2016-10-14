@@ -20,7 +20,7 @@ var Tools = (function (tools) {
     var models = tools.Models || {};
 
     var toolPalatte = Backbone.Collection.extend({
-        model: Tools.Models.ToolGroupWrapper
+        model: Tools.Models.ToolGroup
     });
 
     models.ToolPalatte = toolPalatte;

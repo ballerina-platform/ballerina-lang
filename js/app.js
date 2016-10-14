@@ -79,44 +79,40 @@ var createMessage = function (start, end) {
 
 
 // Create main tool group
-var mainToolGroup = new Tools.Models.ToolGroup();
-//mainToolGroup.add(lifeline);
+var mainToolGroup = new Tools.Models.ToolGroup({
+    toolGroupName: "Main Elements",
+    toolGroupID: "main-tool-group"
+});
 
 for (var lifeline in MainElements.lifelines) {
     var tool = new Tools.Models.Tool(MainElements.lifelines[lifeline]);
-    mainToolGroup.add(tool);
+    mainToolGroup.toolCollection.add(tool);
 }
 
-var mainToolGroupWrapper = new Tools.Models.ToolGroupWrapper({
-    toolGroupName: "Main Elements",
-    toolGroupID: "main-tool-group",
-    toolGroup: mainToolGroup
+// Create mediators tool group
+var mediatorsToolGroup = new Tools.Models.ToolGroup({
+    toolGroupName: "Mediators",
+    toolGroupID: "mediators-tool-group"
 });
 
-// Create mediators tool group
-var mediatorsToolGroup = new Tools.Models.ToolGroup();
 for (var manipulator in Processors.manipulators) {
     var tool = new Tools.Models.Tool(Processors.manipulators[manipulator]);
-    mediatorsToolGroup.add(tool);
+    mediatorsToolGroup.toolCollection.add(tool);
 }
 for (var flowController in Processors.flowControllers) {
     var tool = new Tools.Models.Tool(Processors.flowControllers[flowController]);
-    mediatorsToolGroup.add(tool);
+    mediatorsToolGroup.toolCollection.add(tool);
 }
-var mediatorsToolGroupWrapper = new Tools.Models.ToolGroupWrapper({
-    toolGroupName: "Mediators",
-    toolGroupID: "mediators-tool-group",
-    toolGroup: mediatorsToolGroup
-});
 
 // Create tool palette
 var toolPalette = new Tools.Models.ToolPalatte();
-toolPalette.add(mainToolGroupWrapper);
-toolPalette.add(mediatorsToolGroupWrapper);
+toolPalette.add(mainToolGroup);
+toolPalette.add(mediatorsToolGroup);
+
 var paletteView = new Tools.Views.ToolPalatteView({collection: toolPalette});
 paletteView.render();
 
-
+//  TODO refactor and move to proper backbone classes
 $(function () {
     var scrWidth = $(window).width();
     var treeContainer = $("#tree-container");
