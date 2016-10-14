@@ -87,6 +87,8 @@
             <div class="pull-right auth float-remove-xs text-center-xs">
             </div>
         </div>
+
+        <!--TODO: remove-->
         <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <!-- Collect the nav links, forms, and other content for toggling -->
@@ -97,8 +99,7 @@
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
-        </nav>
-    </header>
+        </nav>    </header>
 
     <!-- #page-content-wrapper -->
     <div class="page-content-wrapper fixed" style="padding-left: 0px;">
@@ -118,26 +119,12 @@
         </div>
 
         <!-- page content -->
-        <div class="container-fluid body-wrapper">
-            <div class="page-content">
-                <ul class="nav nav-tabs" id="designer-view-mode">
-                    <li role="dashboard-view" data-view-mode="default" class="active">
-                        <a href="#designViewTab" aria-controls="defaultDashboardView" role="tab" data-toggle="tab">Design View</a>
-                    </li>
-                    <li role="dashboard-view" data-view-mode="anon" class="">
-                        <a href="#sourceViewTab" aria-controls="anonymousDashboardView" role="tab" data-toggle="tab">Source View</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div id="designViewTab" class="tab-pane fade in active">
-                        <iframe id="iframe1" src="design-view.html"></iframe>
-                    </div>
-                    <div id="sourceViewTab" class="tab-pane fade">
-                        <iframe id="iframe2" src="source-view.html"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="container-fluid">
+            <iframe id="iframe1" src="design-view.html"></iframe>
+        <div>
+        <!--<div id="sourceViewTab" class="tab-pane fade">-->
+        <!--<iframe id="iframe2" src="source-view.html"></iframe>-->
+        <!--</div>-->
 
     </div>
 

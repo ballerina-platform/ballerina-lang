@@ -41,7 +41,26 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        parameters: [],
+        parameters: [
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
+        getSchema: function () {
+            return {
+                title: "Switch Mediator",
+                type: "object",
+                properties: {
+                    Description: {"type": "string"}
+                }
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Description = parameters[0];
+            return editableProperties;
+        },
         getMySubTree: function (model) {
             return new TreeNode("SwitchMediator", "SwitchMediator");
         }

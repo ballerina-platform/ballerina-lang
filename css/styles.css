@@ -181,12 +181,6 @@
     filter: alpha(opacity=60);
 }
 
-.nav-tabs > li {
-    position:relative;
-}
-.nav-tabs > li > a {
-    display:inline-block;
-}
 .nav-tabs > li > span {
     cursor:pointer;
     position:absolute;
@@ -195,19 +189,100 @@
     color: #c0392b;
     font-size: 0.60em;
 }
-.nav-tabs > li:hover > span {
-    display: inline-block;
-}
 
 .nav-tabs > li > a {
     padding-right: 32px;
-    border: 0;
-    color: black;
+    border: solid black !important;
+    border-width: 0 1px 0 0 !important;
     margin: 0;
     font-size: 1.2em;
+    border-radius: 0;
 }
 
 .nav-tabs > li  {
-    background-color: #919294;
-    margin-left: 2px;
+    color: #7e7e7e;
+    background-color: #323335;
+}
+
+.nav-tabs{
+    border: 0;
+}
+
+.breadcrumb{
+    text-transform: none;
+    padding-left: 25px;
+    font-size: 1.3em;
+}
+
+#toolpalatte{
+    padding: 0;
+}
+
+#tab-container > ul{
+    display: inline-block;
+}
+
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+    /*color: #7e7e7e;*/
+    background-color: #373737;
+    color: white;
+}
+
+.remove-resource {
+    position: absolute;
+    top: 14px;
+    right: 9px;
+}
+
+#tree-container {
+    background-color: #272727;
+    border: solid #373737;
+    border-width: 0 3px 0 0;
+}
+
+#right-container{
+    background-color: #232323;
+}
+
+#tree-action-bar{
+    background-color: #373737;
+    color: #ededed;
+    height: 42px;
+}
+
+.tree-view {
+    color: #7e7e7e;
+    font-size: 1.2em;
+}
+
+.tree-view li > .icon:before {
+    color: #272727;
+}
+
+.tree-view li > .icon {
+    background: #fdfdfd;
+
+}
+
+.tree-action{
+    float: right;
+}
+
+i.tree-action{
+    padding: 15px 8px;
+}
+span.tree-action{
+    padding: 4px;
+}
+
+.tree-view input{
+    height: 32px;
+    color: black;
+}
+
+.tab-pane  {
+    padding-bottom: 130px;
 }

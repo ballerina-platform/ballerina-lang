@@ -65,11 +65,34 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
+            updateProcessorProperties: function () {
+                diagram.selectedNode = this.model;
+
+                //get processor parameters
+                var parameters = [];
+                var processorParameters = diagram.selectedNode.parameters.parameters;
+                processorParameters.forEach(function (parameter, index) {
+                    parameters[index] = parameter.value;
+                });
+
+                //get processor definition
+                var processorDefinition;
+                var type = this.model.type;
+                if (type === "LogMediator") {
+                    processorDefinition = Processors.manipulators.LogMediator;
+                } else if (type === "PayLoadFactoryMediator") {
+                    processorDefinition = Processors.manipulators.PayLoadFactoryMediator;
+                } else if (type === "InvokeMediator") {
+                    processorDefinition = Processors.flowControllers.InvokeMediator;
+                }
+
+                ppView.loadPropertyPane(this, processorDefinition, parameters);
+            },
+
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
-                var deleteIconGroup = group.append("g")
-                    .attr("class", "close-icon circle-hide");
+                var deleteIconGroup = group.append("g").attr("class", "close-icon circle-hide");
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
@@ -99,6 +122,8 @@ var SequenceD = (function (sequenced) {
                         title,
                         group)
                         .classed(prefs.text.class, true);
+                    group.rect = rectBottomXXX;
+                    group.title = mediatorText;
 
                     var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup];
 
@@ -114,6 +139,8 @@ var SequenceD = (function (sequenced) {
                             deleteIconGroup.classed("circle-hide", true);
                             deleteIconGroup.classed("circle-show", false);
                         }
+                        diagram.currentDeleteIconGroup = deleteIconGroup;
+                        viewObj.updateProcessorProperties();
                     });
 
                     deleteIconGroup.on("click", function () {
@@ -163,8 +190,8 @@ var SequenceD = (function (sequenced) {
                     }).on('mouseup', function (data) {
                     });
                     console.log(middleRect);
-                    Object.getPrototypeOf(group).rect = rectBottomXXX;
-                    Object.getPrototypeOf(group).middleRect = middleRect;
+                    group.rect = rectBottomXXX;
+                    group.middleRect = middleRect;
 
                     var centerPoint = center;
                     var xValue = centerPoint.x();
@@ -328,11 +355,23 @@ var SequenceD = (function (sequenced) {
                 if (this.d3el) {
                     this.d3el.svgTitle.text(this.model.attributes.title);
                     this.d3el.svgTitleBottom.text(this.model.attributes.title);
-                    if (propertyPane) {
-                        if (propertyPane.schema.title === diagram.selectedNode.getSchema().title) {
-                            propertyPane.setValue(diagram.selectedNode.getEditableProperties());
+                    if (propertyPane && defaultView.model.selectedNode) {
+                        var lifeLineDefinition;
+                        if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
+                            lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
+                        } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
+                            lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
+                        }
+
+                        if (propertyPane.schema.title === lifeLineDefinition.getSchema().title) {
+                            propertyPane.setValue(lifeLineDefinition.getEditableProperties());
                         }
                     }
+                }
+                if (!propertyPane.getValue().Title) {
+                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(),
+                              lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
+                              defaultView.model.selectedNode);
                 }
             },
 
@@ -461,6 +500,7 @@ var SequenceD = (function (sequenced) {
                             0,
                             this.group, element.viewAttributes.colour
                         );
+                        rectBottomXXX.on('click',this.updateProcessorProperties, this);
                         var mediatorText = d3Ref.draw.centeredText(
                             createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
@@ -517,7 +557,6 @@ var SequenceD = (function (sequenced) {
                 var viewObj = this;
                 var group = d3Ref.draw.group()
                     .classed(this.model.viewAttributes.class, true);
-
                 this.group = group;
                 this.prefs = prefs;
                 this.center = center;
@@ -558,7 +597,7 @@ var SequenceD = (function (sequenced) {
                 group.svgTitleBottom = textBottom;
                 //Object.getPrototypeOf(group).title = text;
                 //Object.getPrototypeOf(group).titleBottom = textBottom;
-                Object.getPrototypeOf(group).translate = function (dx, dy) {
+                group.translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
                     })
@@ -603,18 +642,16 @@ var SequenceD = (function (sequenced) {
                 }).on('mouseup', function (data) {
                 });
 
-                function updateudControlLocation(rect) {
-                    var imgRight = rect.getBoundingClientRect().left - toolPaletteWidth + rect.getBoundingClientRect().width;
-                    var imgTop = rect.getBoundingClientRect().top - imageHeight - 4;
-                    udcontrol.set('visible', true);
-                    udcontrol.set('x', imgRight);
-                    udcontrol.set('y', imgTop);
-                    udcontrol.set('lifeline', defaultView.model.selectedNode);
-                }
-
                 function updatePropertyPane() {
-                    $('#propertySave').show();
-                    propertyPane = ppView.createPropertyPane( defaultView.model.selectedNode.getSchema(),  defaultView.model.selectedNode.getEditableProperties(),  defaultView.model.selectedNode);
+                    var lifeLineDefinition;
+                    if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
+                        lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
+                    } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
+                        lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
+                    }
+                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(), 
+                                lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
+                                defaultView.model.selectedNode);
                 }
 
                 rect.on("click", (function () {
@@ -625,28 +662,29 @@ var SequenceD = (function (sequenced) {
                         deleteIconGroup.classed("circle-hide", true);
                         deleteIconGroup.classed("circle-show", false);
                     }
-
                     defaultView.model.selectedNode = viewObj.model;
+                    diagram.currentDeleteIconGroup = deleteIconGroup;
                     if (selected) {
                         if (this == selected) {
-                            selected.classList.toggle("lifeline_selected");
                             if (propertyPane) {
                                 propertyPane.destroy();
                             }
-                            $('#propertySave').hide();
                             selected = '';
                         } else {
-                            selected.classList.toggle("lifeline_selected");
-                            this.classList.toggle("lifeline_selected");
+                            if(diagram.previousDeleteIconGroup) {
+                                diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                                diagram.previousDeleteIconGroup.classed("circle-show", false);
+                            }
                             updatePropertyPane();
                             selected = this;
                         }
                     } else {
                         defaultView.model.selected = false;
-                        this.classList.toggle("lifeline_selected");
                         updatePropertyPane();
                         selected = this;
                     }
+                    diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
+                    diagram.currentDeleteIconGroup = null;
                 }));
 
                 deleteIconGroup.on("click", function () {
@@ -794,20 +832,20 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.class, true);
                 var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 0, 0, group)
                     .classed(prefs.rect.class, true);
-                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group)
-                //.classed(prefs.rect.class, true);
-                //var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+ prefs.rect.height/2), prefs.line.height-prefs.rect.height, group)
-                //.classed(prefs.line.class, true);
+                //var rectBottom = d3Ref.draw.centeredRect(createPoint(center.get('x'), center.get('y') +
+                // prefs.line.height), prefs.rect.width, prefs.rect.height, 3, 3, group) .classed(prefs.rect.class,
+                // true); var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y')+
+                // prefs.rect.height/2), prefs.line.height-prefs.rect.height, group) .classed(prefs.line.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
                     .classed(prefs.text.class, true);
-                //var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group)
-                // .classed(prefs.text.class, true);
-                Object.getPrototypeOf(group).rect = rect;
+                //var textBottom = d3Ref.draw.centeredText(createPoint(center.get('x'), center.get('y') +
+                // prefs.line.height), title, group) .classed(prefs.text.class, true);
+                group.rect = rect;
                 //Object.getPrototypeOf(group).rectBottom = rectBottom;
                 //Object.getPrototypeOf(group).line = line;
-                Object.getPrototypeOf(group).title = text;
+                group.title = text;
                 //Object.getPrototypeOf(group).titleBottom = textBottom;
-                Object.getPrototypeOf(group).translate = function (dx, dy) {
+                group.translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
                     })
@@ -847,6 +885,30 @@ var SequenceD = (function (sequenced) {
                 this.d3el = unitProcessorElement;
                 this.el = unitProcessorElement.node();
                 return unitProcessorElement;
+            },
+
+            updateProcessorProperties: function () {
+
+                diagram.selectedNode = this.model;
+
+                //get processor parameters
+                var parameters = [];
+
+                var processorParameters = diagram.selectedNode.attributes.parent.parameters.parameters;
+                processorParameters.forEach(function (parameter, index) {
+                    parameters[index] = parameter.value;
+                });
+
+                //get processor definition
+                var processorDefinition;
+                var type = diagram.selectedNode.attributes.parent.type;
+                if (type === "TryBlockMediator") {
+                    processorDefinition = Processors.flowControllers.TryBlockMediator;
+                } else if (type === "SwitchMediator") {
+                    processorDefinition = Processors.flowControllers.SwitchMediator;
+                }
+
+                ppView.loadPropertyPane(this, processorDefinition, parameters);
             },
 
             drawUnitProcessor: function (center, title, prefs) {
@@ -983,6 +1045,9 @@ var SequenceD = (function (sequenced) {
                             deleteIconGroup.classed("circle-hide", true);
                             deleteIconGroup.classed("circle-show", false);
                         }
+                        diagram.currentDeleteIconGroup = deleteIconGroup;
+                        diagram.selectedNode = viewObj.model;
+                        viewObj.updateProcessorProperties();
                     });
 
                     deleteIconGroup.on("click", function () {

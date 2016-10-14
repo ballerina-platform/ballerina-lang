@@ -14,43 +14,85 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css" />
     <link rel="stylesheet" type="text/css" href="lib/bootstrap_v3.3.6/css/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="lib/jquery-ui_v1.12.1/jquery-ui.css" />
+    <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <link rel="stylesheet" type="text/css" href="css/app.css" />
-</head>
 
-<body>
-
-<div id="container">
-    <div id="design-editor">
-        <div class="shapes-container">
-            <div id="toolpalatte"></div>
-        </div>
-        <div class="editor-container" id="editorBottom">
-            <div id="sample">
-                <ul class="nav nav-tabs tabList" id="tabList"  role="tablist">
-                    <li class=".additionbtn"><a href="#" class="add-resource">+</a></li>
-                </ul>
-            </div>
 
             <script type="text/template" id="resourceTabsTemplate">
 
                     <a href="<%=hrefId%>"aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
-                    <span class="remove-resource fw-stack">
-                        <i class="icon fw fw-circle fw-stack-2x"></i>
-                        <i class="fw fw-cancel fw-stack-1x fw-inverse"></i>
-                    </span>
+                    <i class="remove-resource fw fw-cancel"></i>
 
                 </script>
             <script type="text/template" id="resourceContentTemplate">
                 <div  role="tabpanel" class="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
                 </script>
+</head>
 
+<body>
+
+
+<div id="container">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">HolidayBooking</a></li>
+            <li class="breadcrumb-item"><a href="#">PackageSelection</a></li>
+            <li class="breadcrumb-item active">HolidayPackage.nel</li>
+        </ol>
+
+    </div>
+    <div id="row" style="height: 100%">
+        <!--TODO: make visible-->
+        <div id="tree-container" style="float: left; height: 100%; display: none">
+            <div id="tree-action-bar">
+                <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
+                <span id="tree-add-res" class="fw-stack fw-lg tree-action">
+                   <i class="fw fw-document fw-stack-1x"></i>
+                   <span class="fw-stack fw-move-right fw-move-bottom">
+                      <i class="fw fw-add fw-stack-1x fw-inverse"></i>
+                   </span>
+                </span>
+                <span id="tree-add-api" class="fw-stack fw-lg tree-action">
+                   <i class="fw fw-blank-document fw-stack-1x"></i>
+                   <span class="fw-stack fw-move-right fw-move-bottom">
+                      <i class="fw fw-add fw-stack-1x fw-inverse"></i>
+                   </span>
+                </span>
+
+            </div>
+            <ul id="tree" class="tree-view tree-view-lines">
+                <li aria-expanded="true"><span>HolidayBooking</span>
+                    <ul>
+                        <li>BookingHistory</li>
+                        <li>PackageSelection
+                            <ul>
+                                <li>Reports
+                                    <ul>
+                                        <li>Report1</li>
+                                        <li>Report2</li>
+                                        <li>Report3</li>
+                                    </ul>
+                                </li>
+                                <li>Employee Maint.</li>
+                            </ul>
+                        </li>
+                        <li>Human Resources</li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+        <div id="right-container" style="width: 100%;height: 100%">
+            <div id="tab-container">
+                <ul class="nav nav-tabs tabList" id="tabList"  role="tablist">
+                    <li class=".additionbtn"><a href="#" class="add-resource">+</a></li>
+                </ul>
+            </div>
+
+            <div id="toolpalatte" style="float: left;"></div>
+            <div id="editor-container" style="margin-right: 240px">
             <div class="editor-scroller">
-                <div id="udcontroldiv" >
-                    <img id="edit-image" alt="edit" src="images/edit.svg" class="udcontrol-image"/>
-                    <img id="delete-image" alt="delete" src="images/delete.svg" class="udcontrol-image"/>
-                    <div id="udcModal" style="display:none;"></div>
-                </div>
                 <div class="editor">
                     <div class="tab-content resource-content ">
 
@@ -64,14 +106,11 @@
             <div id="expandcolapseDiv" style="float: left;" >
                 <img id="expand-image" alt="save" src="images/rightarrow.svg" class="udcontrol-image property-save" />
             </div>
-                <div id="propertySave" style="float: right; padding-right: 4px; padding-top: 4px; display:none" >
-                    <img id="save-image" alt="save" src="images/save.svg" class="udcontrol-image property-save" />
-                    Save
-                </div>
                 <div id="propertyPaneContainer" style="padding-top: 8px;">
                     <div id="propertyPane"></div>
                 </div>
         </div>
+    </div>
     </div>
 </div>
 
@@ -125,6 +164,7 @@ http://jqueryui.com/download/#!version=1.12.0&themeParams=none&components=101000
 <script src="js/sequence_diagram/sequenced-model.js"></script>
 <script src="js/sequence_diagram/sequenced-view.js"></script>
 <script src="js/sequence_diagram/sequenced-utils.js"></script>
+<script src="js/tree.js"></script>
 <script src="js/app.js"></script>
 
 <script>

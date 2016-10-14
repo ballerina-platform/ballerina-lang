@@ -60,8 +60,8 @@ var SequenceD = (function (sequenced) {
                     .classed(prefs.rect.class, true);
                 var text = d3Ref.draw.centeredText(center, title, group)
                     .classed(prefs.text.class, true);
-                Object.getPrototypeOf(group).rect = rect;
-                Object.getPrototypeOf(group).title = text;
+                group.rect = rect;
+                group.title = text;
                 Object.getPrototypeOf(group).translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
