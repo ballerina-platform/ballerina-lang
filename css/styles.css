@@ -6,6 +6,23 @@
     overflow: hidden;
     background-color: #1e1e1e;
 }
+#main-navbar{
+    background-color: #232323;
+    border-bottom: 2px solid #1e1e1e;
+}
+.navbar-default .navbar-nav > li a:hover {
+    background: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:active {
+    background: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:focus {
+    background: #8d8d8d;
+}
+
+.header {
+    background-color: #232323;
+}
 
 .shapes-container{
     position: absolute;
@@ -49,21 +66,6 @@
     border-radius:0;
     border: none;
     background: none;
-}
-
-.logo{
-    height: 25px;
-    margin: 15px;
-    float: right;
-}
-.header{
-    position: absolute;
-    top:0;
-    left: 0;
-    width: 100vw;
-    overflow: hidden;
-    height: 50px;
-    background-color: #292929;
 }
 
 #editor-container{
@@ -178,17 +180,17 @@ textarea {
 }
 
 body{
-    font-family: 'Roboto', sans-serif;
-    font-weight: normal;
-    font-size: 10pt;
-    background: #292929;
-    padding-top: 20px;
-    margin: 0;
-    padding: 0;
+    background: #232323;
     width: 100vw;
     height: 100vh;
 }
 
+@media only screen and (min-width: 768px){
+    body > .page-content-wrapper > .container,
+    body > .page-content-wrapper > .container-fluid {
+        padding: 0;
+    }
+}
 .glyphicon {
     top: inherit;
 }

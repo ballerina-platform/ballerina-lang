@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
-    <link href="lib/bootstrap_v3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css">
-    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css">
-    <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css">
-    <link href="css/styles.css" rel="stylesheet" type="text/css">
-    <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" type="text/css"/>
-
+    <link href="lib/bootstrap_v3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/jquery-ui_v1.12.1/jquery-ui.css"  rel="stylesheet" type="text/css"/>
+	<link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+
     <!--[if lt IE 9]>
     <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
     <script src="lib/respond_1.4.2/respond.min.js"></script>
@@ -25,6 +25,7 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css" />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
+	<!-- Templates fro backbone views -->
     <script type="text/template" id="resourceTabsTemplate">
         <a href="<%=hrefId%>" aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
         <i class="remove-resource fw fw-cancel"></i>
@@ -73,18 +74,15 @@
         <div class="pull-left brand float-remove-xs text-center-xs">
             <a href="#">
                 <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
-
                 <h1>Integration Server Tooling</h1>
             </a>
         </div>
-        <div class="pull-right auth float-remove-xs text-center-xs">
-        </div>
     </div>
 
-    <!--TODO: remove-->
+    <!--TODO: remove once the file explorer is implemented-->
+	<!-- Temporary file save and new menus -->
     <nav class="navbar navbar-default">
         <div class="container-fluid">
-            <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="main-navbar">
                 <ul class="nav navbar-nav">
                     <li><a href="#" data-toggle="modal" data-target="#newConfigModal">New<span
@@ -92,9 +90,7 @@
                     <li><a href="#" onclick="saveConfiguration()">Save</a></li>
                 </ul>
             </div>
-            <!-- /.navbar-collapse -->
         </div>
-        <!-- /.container-fluid -->
     </nav>
 </header>
 
@@ -224,8 +220,8 @@
 </footer>
 
 <!-- Jquery/Jquery UI JS -->
-<script src="lib/jquery_1.11.0/jquery-1.11.3.min.js"></script>
-<script src="lib/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+<script src="lib/jquery_v1.9.1/jquery-1.9.1.min.js"></script>
+<script src="lib/jquery-ui_v1.12.1/jquery-ui.min.js"></script>
 <script src="lib/nanoscroller_0.8.7/jquery.nanoscroller.min.js"></script>
 <script src="lib/theme-wso2_1.0/js/theme-wso2.js"></script>
 <script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
