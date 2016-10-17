@@ -101,7 +101,7 @@ $(function () {
         }
     });
 
-    var toolContainer = $("#toolpalatte");
+    var toolContainer = $("#tool-palette");
     var editorContainer = $("#editor-container");
     toolContainer.width(scrWidth / 8);
     toolContainer.resizable({

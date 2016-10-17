@@ -13,9 +13,9 @@
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="css/layout.css" rel="stylesheet" type="text/css"/>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-
     <!--[if lt IE 9]>
     <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
     <script src="lib/respond_1.4.2/respond.min.js"></script>
@@ -26,7 +26,7 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
 
-    <!-- Templates fro backbone views -->
+    <!-- Start: Templates fro backbone views -->
     <script type="text/template" id="resourceTabsTemplate">
         <a href="<%=hrefId%>" aria-controls="<%=resourceId%>" role="tab" data-toggle="tab"><%=resourceTitle%></a>
         <i class="remove-resource fw fw-cancel"></i>
@@ -34,13 +34,14 @@
     <script type="text/template" id="resourceContentTemplate">
         <div role="tabpanel" class="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
     </script>
+    <!-- End: Templates fro backbone views -->
 
     <title>Integration Server Tooling</title>
 </head>
 
 <body>
 
-<!--Modal for file dialog for saving the configuration-->
+<!-- Start: Modal for file dialog for saving the configuration-->
 <div class="modal fade" id="newConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -68,9 +69,11 @@
         </div>
     </div>
 </div>
+<!-- End: Modal for file dialog for saving the configuration-->
 
-<!-- header -->
+<!-- Start: header -->
 <header class="header header-default">
+    <!-- Start: header - logo & title -->
     <div class="container-fluid">
         <div class="pull-left brand float-remove-xs text-center-xs">
             <a href="#">
@@ -80,9 +83,10 @@
             </a>
         </div>
     </div>
+    <!-- End: header - logo & title -->
 
     <!--TODO: remove once the file explorer is implemented-->
-    <!-- Temporary file save and new menus -->
+    <!-- Start: Temporary file save and new menus -->
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="collapse navbar-collapse" id="main-navbar">
@@ -94,13 +98,17 @@
             </div>
         </div>
     </nav>
+    <!-- End: Temporary file save and new menus -->
 </header>
+<!-- End: header -->
 
-<!-- #page-content-wrapper -->
+<!-- Start: page-content-wrapper -->
 <div class="page-content-wrapper fixed">
-    <!-- page content -->
+    <!-- Start: page content -->
     <div id="page-content" class="container-fluid">
-        <div class="row">
+        <!-- Start: page content : first row -->
+        <div id="page-content-first-row" class="row">
+            <!-- Start: breadcrumb row -->
             <div class="row">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">HolidayBooking</a></li>
@@ -108,11 +116,15 @@
                     <li class="breadcrumb-item active">HolidayPackage.nel</li>
                 </ol>
             </div>
-            <div style="height: 100%">
-                <!--TODO: make visible-->
-                <div id="tree-container">
-                    <div id="tree-action-bar">
-                        <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
+            <!-- End: breadcrumb row -->
+            <!-- Start: file explorer and editor area row -->
+            <div class="row">
+                <!-- Start: left container -->
+                <div id="left-container">
+                    <!-- Start: file explorer -->
+                    <div id="tree-container">
+                        <div id="tree-action-bar">
+                            <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
                         <span id="tree-add-res" class="fw-stack fw-lg tree-action">
                            <i class="fw fw-document fw-stack-1x"></i>
                            <span class="fw-stack fw-move-right fw-move-bottom">
@@ -125,46 +137,59 @@
                               <i class="fw fw-add fw-stack-1x fw-inverse"></i>
                            </span>
                         </span>
+                        </div>
+                        <div>
+                            <ul id="tree"  class="row tree-view tree-view-lines">
+                                <li aria-expanded="true"><span>HolidayBooking</span>
+                                    <ul>
+                                        <li>BookingHistory</li>
+                                        <li>PackageSelection
+                                            <ul>
+                                                <li>Reports
+                                                    <ul>
+                                                        <li>Report1</li>
+                                                        <li>Report2</li>
+                                                        <li>Report3</li>
+                                                    </ul>
+                                                </li>
+                                                <li>Employee Maint.</li>
+                                            </ul>
+                                        </li>
+                                        <li>Human Resources</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div>
-                        <ul id="tree"  class="row tree-view tree-view-lines">
-                            <li aria-expanded="true"><span>HolidayBooking</span>
-                                <ul>
-                                    <li>BookingHistory</li>
-                                    <li>PackageSelection
-                                        <ul>
-                                            <li>Reports
-                                                <ul>
-                                                    <li>Report1</li>
-                                                    <li>Report2</li>
-                                                    <li>Report3</li>
-                                                </ul>
-                                            </li>
-                                            <li>Employee Maint.</li>
-                                        </ul>
-                                    </li>
-                                    <li>Human Resources</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
+                    <!-- End: file explorer -->
                 </div>
+                <!-- End: left container -->
+                <!-- Start: right container -->
                 <div id="right-container">
+                    <!-- Start: resource tabs -->
                     <div id="tab-container">
                         <ul class="nav nav-tabs tabList" id="tabList" role="tablist">
-                            <li class=".additionbtn"><a href="#" class="add-resource">+</a></li>
+                            <li class=".add-resource-btn"><a href="#" class="add-resource">+</a></li>
                         </ul>
                     </div>
+                    <!-- End: resource tabs -->
+                    <!-- Start: tool-palette -->
                     <div id="tool-palette"></div>
+                    <!-- End: tool-palette -->
+                    <!-- Start: Editor Container -->
                     <div id="editor-container">
                         <div class="editor-scroller">
+                            <!-- Start: Editor Tabs Area -->
                             <div class="editor">
                                 <div class="tab-content resource-content ">
 
                                 </div>
                             </div>
+                            <!-- End: Editor Tabs Area -->
                         </div>
                     </div>
+                    <!-- End: Editor Container -->
+                    <!-- Start: Property and Preview Container -->
                     <div class="property-container" id="property-container1">
                         <div class="preview-container">
                         </div>
@@ -172,14 +197,19 @@
                             <div id="propertyPane"></div>
                         </div>
                     </div>
+                    <!-- End: Property and Preview Container -->
                 </div>
+                <!-- End: right container -->
             </div>
+            <!-- End: file explorer and editor area row -->
         </div>
-        <!-- /#page-content-wrapper -->
+        <!-- Start: page content : first row -->
     </div>
+    <!-- End: page-content-->
 </div>
+<!-- End: page-content-wrapper -->
 
-<!-- footer -->
+<!-- Start: footer -->
 <footer class="footer">
     <div class="container-fluid">
         <p>WSO2 Integration Server Tooling v0.0.1 | ©
@@ -188,6 +218,7 @@
         </p>
     </div>
 </footer>
+<!-- End: footer -->
 
 <!-- Jquery/Jquery UI JS -->
 <script src="lib/jquery_v1.9.1/jquery-1.9.1.min.js"></script>
@@ -256,13 +287,6 @@
             parent.postMessage(diagram.parseTree(), "*");
         }
     }, false);
-</script>
-
-<script>
-    window.onresize = function () {
-        $("iframe").css("height", $(window).height() - 130 + "px");
-    }
-    $(window.onresize);
 </script>
 
 <script>

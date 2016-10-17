@@ -29,6 +29,9 @@ body{
     box-sizing: border-box;
 }
 
+#left-container{
+}
+
 #right-container{
     float:left;
     width: 85%;
@@ -41,9 +44,10 @@ body{
 #tree-container {
     border-width: 0 3px 0 0;
     border-right: 2px solid #1e1e1e;
-    float: left; height: 100%;
+    float: left;
+    display: block;
+    height: 100%;
     width: 15%;
-    display: block
 }
 
 #tree-action-bar {
