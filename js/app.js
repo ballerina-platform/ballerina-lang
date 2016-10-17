@@ -88,21 +88,18 @@ paletteView.render();
 
 //  TODO refactor and move to proper backbone classes
 $(function () {
-    var scrWidth = $(window).width();
+    var scrWidth = $("#page-content").width();
     var treeContainer = $("#tree-container");
     var rightContainer = $("#right-container");
-    // treeContainer.width(scrWidth / 8);
     //TODO: remove
-    treeContainer.width(0);
     treeContainer.resizable({
         ghost: false,
         minWidth: scrWidth / 16,
         maxWidth: scrWidth / 2,
         resize: function (event, el) {
-            rightContainer.css("padding-left", el.size.width);
+            rightContainer.css("width", scrWidth - el.size.width);
         }
     });
-    rightContainer.css("padding-left", treeContainer.width());
 
     var toolContainer = $("#toolpalatte");
     var editorContainer = $("#editor-container");

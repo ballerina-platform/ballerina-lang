@@ -10,8 +10,9 @@
     <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/jquery-ui_v1.12.1/jquery-ui.css"  rel="stylesheet" type="text/css"/>
-	<link href="css/styles.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/layout.css" rel="stylesheet" type="text/css"/>
+    <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
@@ -20,14 +21,14 @@
     <script src="lib/respond_1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css" />
-    <link rel="stylesheet" type="text/css" href="css/diagram/diagram-tool-bar.css" />
-    <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css" />
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/diagram/diagram-tool-bar.css"/>
+    <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
+    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
 
-	<!-- Templates fro backbone views -->
+    <!-- Templates fro backbone views -->
     <script type="text/template" id="resourceTabsTemplate">
-        <a href="<%=hrefId%>" aria-controls="<%=resourceId%>" role="tab"  data-toggle="tab"><%=resourceTitle%></a>
+        <a href="<%=hrefId%>" aria-controls="<%=resourceId%>" role="tab" data-toggle="tab"><%=resourceTitle%></a>
         <i class="remove-resource fw fw-cancel"></i>
     </script>
     <script type="text/template" id="resourceContentTemplate">
@@ -39,7 +40,7 @@
 
 <body>
 
-<!--Modal for saving the configuration-->
+<!--Modal for file dialog for saving the configuration-->
 <div class="modal fade" id="newConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -74,13 +75,14 @@
         <div class="pull-left brand float-remove-xs text-center-xs">
             <a href="#">
                 <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
+
                 <h1>Integration Server Tooling</h1>
             </a>
         </div>
     </div>
 
     <!--TODO: remove once the file explorer is implemented-->
-	<!-- Temporary file save and new menus -->
+    <!-- Temporary file save and new menus -->
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="collapse navbar-collapse" id="main-navbar">
@@ -95,85 +97,66 @@
 </header>
 
 <!-- #page-content-wrapper -->
-<div class="page-content-wrapper fixed" style="padding-left: 0px;">
-
-    <!-- .left-sidebar-sub -->
-    <div class="sidebar-wrapper sidebar-nav sidebar-nav-sub" id="left-sidebar-sub" data-side="left" data-width="250"
-         data-offset-left="305"
-         style="display: none; left: -555px;">
-        <div class="nano">
-            <div class="nano-content" tabindex="0">
-                <button class="btn btn-default close-handle" data-handle="close" data-toggle="sidebar"
-                        data-target="#left-sidebar-sub" aria-expanded="true"
-                        rel="createPage"><i class="fw fw-cancel"></i></button>
-            </div>
-            <div class="nano-pane" style="display: none;">
-                <div class="nano-slider" style="height: 278px; transform: translate(0px, 0px);"></div>
-            </div>
-        </div>
-    </div>
-
+<div class="page-content-wrapper fixed">
     <!-- page content -->
-    <div class="container-fluid">
-        <div id="container">
+    <div id="page-content" class="container-fluid">
+        <div class="row">
             <div class="row">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">HolidayBooking</a></li>
                     <li class="breadcrumb-item"><a href="#">PackageSelection</a></li>
                     <li class="breadcrumb-item active">HolidayPackage.nel</li>
                 </ol>
-
             </div>
-            <div id="row" style="height: 100%">
+            <div style="height: 100%">
                 <!--TODO: make visible-->
-                <div id="tree-container" style="float: left; height: 100%; display: none">
+                <div id="tree-container">
                     <div id="tree-action-bar">
                         <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
-                <span id="tree-add-res" class="fw-stack fw-lg tree-action">
-                   <i class="fw fw-document fw-stack-1x"></i>
-                   <span class="fw-stack fw-move-right fw-move-bottom">
-                      <i class="fw fw-add fw-stack-1x fw-inverse"></i>
-                   </span>
-                </span>
-                <span id="tree-add-api" class="fw-stack fw-lg tree-action">
-                   <i class="fw fw-blank-document fw-stack-1x"></i>
-                   <span class="fw-stack fw-move-right fw-move-bottom">
-                      <i class="fw fw-add fw-stack-1x fw-inverse"></i>
-                   </span>
-                </span>
-
+                        <span id="tree-add-res" class="fw-stack fw-lg tree-action">
+                           <i class="fw fw-document fw-stack-1x"></i>
+                           <span class="fw-stack fw-move-right fw-move-bottom">
+                              <i class="fw fw-add fw-stack-1x fw-inverse"></i>
+                           </span>
+                        </span>
+                        <span id="tree-add-api" class="fw-stack fw-lg tree-action">
+                           <i class="fw fw-blank-document fw-stack-1x"></i>
+                           <span class="fw-stack fw-move-right fw-move-bottom">
+                              <i class="fw fw-add fw-stack-1x fw-inverse"></i>
+                           </span>
+                        </span>
                     </div>
-                    <ul id="tree" class="tree-view tree-view-lines">
-                        <li aria-expanded="true"><span>HolidayBooking</span>
-                            <ul>
-                                <li>BookingHistory</li>
-                                <li>PackageSelection
-                                    <ul>
-                                        <li>Reports
-                                            <ul>
-                                                <li>Report1</li>
-                                                <li>Report2</li>
-                                                <li>Report3</li>
-                                            </ul>
-                                        </li>
-                                        <li>Employee Maint.</li>
-                                    </ul>
-                                </li>
-                                <li>Human Resources</li>
-                            </ul>
-                        </li>
-                    </ul>
-
+                    <div>
+                        <ul id="tree"  class="row tree-view tree-view-lines">
+                            <li aria-expanded="true"><span>HolidayBooking</span>
+                                <ul>
+                                    <li>BookingHistory</li>
+                                    <li>PackageSelection
+                                        <ul>
+                                            <li>Reports
+                                                <ul>
+                                                    <li>Report1</li>
+                                                    <li>Report2</li>
+                                                    <li>Report3</li>
+                                                </ul>
+                                            </li>
+                                            <li>Employee Maint.</li>
+                                        </ul>
+                                    </li>
+                                    <li>Human Resources</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div id="right-container" style="width: 100%;height: 100%">
+                <div id="right-container">
                     <div id="tab-container">
-                        <ul class="nav nav-tabs tabList" id="tabList"  role="tablist">
+                        <ul class="nav nav-tabs tabList" id="tabList" role="tablist">
                             <li class=".additionbtn"><a href="#" class="add-resource">+</a></li>
                         </ul>
                     </div>
-
-                    <div id="toolpalatte" style="float: left;"></div>
-                    <div id="editor-container" style="margin-right: 240px">
+                    <div id="tool-palette"></div>
+                    <div id="editor-container">
                         <div class="editor-scroller">
                             <div class="editor">
                                 <div class="tab-content resource-content ">
@@ -185,25 +168,12 @@
                     <div class="property-container" id="property-container1">
                         <div class="preview-container">
                         </div>
-                        <div id="expandcolapseDiv" style="float: left;" >
-                            <img id="expand-image" alt="save" src="images/rightarrow.svg" class="udcontrol-image property-save" />
-                        </div>
-                        <div id="propertyPaneContainer" style="padding-top: 8px;">
+                        <div id="propertyPaneContainer">
                             <div id="propertyPane"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="alert alert-success alert-dismissable" id="successAlert"
-             style="display: none; position: absolute; top: 50px; right: 50px; width: 400px">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Configuration Saved Successfully!!
-        </div>
-        <div class="alert alert-danger alert-dismissable" id="failAlert"
-             style="display: none; position: absolute; top: 50px; right: 50px; width: 400px">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Configuration saving Failed!!
         </div>
         <!-- /#page-content-wrapper -->
     </div>
@@ -275,17 +245,17 @@
     var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
 
     // Listen to message
-    eventer(messageEvent,function(e) {
-        console.log('Design View received message!:  ',e.data);
+    eventer(messageEvent, function (e) {
+        console.log('Design View received message!:  ', e.data);
 
         if (e.data == "save-config") {
-            parent.postMessage(diagram.parseTree(),"*");
+            parent.postMessage(diagram.parseTree(), "*");
         } else if (e.data == "new-config") {
             diagram.reloadDiagramArea();
         } else {
-            parent.postMessage(diagram.parseTree(),"*");
+            parent.postMessage(diagram.parseTree(), "*");
         }
-    },false);
+    }, false);
 </script>
 
 <script>

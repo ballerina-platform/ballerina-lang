@@ -1,0 +1,116 @@
+/** contains css for main layout **/
+body{
+    width: 100vw;
+    height: 100vh;
+}
+
+@media only screen and (min-width: 768px){
+    body > .page-content-wrapper > .container,
+    body > .page-content-wrapper > .container-fluid {
+        padding: 0;
+    }
+}
+
+#main-navbar{
+    border-width: 2px 0 2px 0;
+}
+
+#editor-container{
+    height: 100%;
+    overflow: hidden;
+    margin-right: 240px;
+}
+
+.editor-scroller{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+#right-container{
+    float:left;
+    width: 85%;
+    height: 100%;
+}
+
+
+/*//////////////////////////////////////////////////*/
+/** tree view related styles | Start -> **/
+#tree-container {
+    border-width: 0 3px 0 0;
+    border-right: 2px solid #1e1e1e;
+    float: left; height: 100%;
+    width: 15%;
+    display: block
+}
+
+#tree-action-bar {
+    height: 42px;
+    display: block;
+    border-bottom-width: 2px;
+}
+/** tree view related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Resource level tabs related styles | Start -> **/
+.tab-pane  {
+    padding-bottom: 130px;
+}
+
+#tab-container > ul{
+    display: inline-block;
+}
+
+#tab-container{
+    height: 42px;
+    border-bottom-width: 1px;
+}
+/** Resource level tabs related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Breadcrumbs related styles | Start -> **/
+.breadcrumb{
+    padding-left: 50px;
+}
+/** Breadcrumbs related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Property Pane related styles | Start -> **/
+.property-container{
+    position: absolute;
+    right: 0px;
+    top: 80px;
+}
+
+#propertyPaneContainer {
+    padding-top: 8px;
+}
+
+#propertyPane input{
+     border-width: 1px;
+}
+
+#propertyPane select{
+    border-width: 1px;
+}
+
+#propertyPane > div > div.well.well-sm{
+    border: none;
+}
+
+#propertyPane  button {
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+/** Property Pane related styles | -> End **/
+/*//////////////////////////////////////////////////*/

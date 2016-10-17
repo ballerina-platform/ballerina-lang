@@ -20,7 +20,7 @@ var Tools = (function (tools) {
     var views = tools.Views || {};
 
     var toolPalatteView = Backbone.View.extend({
-        el: '#toolpalatte',
+        el: '#tool-palette',
 
         initialize: function () {
         },
