@@ -16,6 +16,8 @@
  * under the License.
  */
 
+
+
 var lifeLineOptions = {};
 lifeLineOptions.class = "lifeline";
 // Lifeline rectangle options
@@ -97,19 +99,20 @@ $(function () {
         minWidth: scrWidth / 16,
         maxWidth: scrWidth / 2,
         resize: function (event, el) {
-            rightContainer.css("width", scrWidth - el.size.width);
+           // rightContainer.css("width", scrWidth - el.size.width);
         }
     });
 
     var toolContainer = $("#tool-palette");
     var editorContainer = $("#editor-container");
-    toolContainer.width(scrWidth / 8);
+    var propertyContainer = $(".property-container");
+    //toolContainer.width(scrWidth / 8);
     toolContainer.resizable({
         ghost: false,
-        minWidth: scrWidth / 16,
-        maxWidth: scrWidth / 2,
+        minWidth: 170,
+        maxWidth: rightContainer.width() / 3,
         resize: function (event, el) {
-            // editorContainer.css("padding-left", el.size.width);
+            editorContainer.css("width", rightContainer.width() - el.size.width - propertyContainer.width() - 10);
         }
     });
     //TODO: remove + 1

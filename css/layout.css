@@ -1,9 +1,4 @@
 /** contains css for main layout **/
-body{
-    width: 100vw;
-    height: 100vh;
-}
-
 @media only screen and (min-width: 768px){
     body > .page-content-wrapper > .container,
     body > .page-content-wrapper > .container-fluid {
@@ -11,43 +6,72 @@ body{
     }
 }
 
+.nano { background: #bba; width: 500px; height: 500px; }
+.nano .nano-content { padding: 10px; }
+.nano .nano-pane   { background: #888; }
+.nano .nano-slider { background: #111; }
+
+
+body{
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+    padding: 5px;
+}
+
+html{
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+}
 #main-navbar{
     border-width: 2px 0 2px 0;
 }
 
 #editor-container{
     height: 100%;
-    overflow: hidden;
-    margin-right: 240px;
 }
 
 .editor-scroller{
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    box-sizing: border-box;
 }
 
+/**
+* Remove padding coming from
+* bootstrap columns
+**/
+div[class*="col-sm-"] {
+    padding: 0;
+}
+
+.container{
+    width: 100vw;
+    padding: 0;
+}
+.container-fluid{
+    padding: 0;
+}
+.row{
+    margin-left: 0;
+}
 #left-container{
+    height: 100%;
+    padding: 0;
 }
 
 #right-container{
-    float:left;
-    width: 85%;
     height: 100%;
+    padding: 0;
 }
 
 
 /*//////////////////////////////////////////////////*/
 /** tree view related styles | Start -> **/
 #tree-container {
-    border-width: 0 3px 0 0;
-    border-right: 2px solid #1e1e1e;
-    float: left;
-    display: block;
     height: 100%;
-    width: 15%;
 }
 
 #tree-action-bar {
@@ -73,6 +97,11 @@ body{
     height: 42px;
     border-bottom-width: 1px;
 }
+
+.series{
+    height: 19px;
+}
+
 /** Resource level tabs related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
@@ -89,9 +118,6 @@ body{
 /*//////////////////////////////////////////////////*/
 /** Property Pane related styles | Start -> **/
 .property-container{
-    position: absolute;
-    right: 0px;
-    top: 80px;
 }
 
 #propertyPaneContainer {

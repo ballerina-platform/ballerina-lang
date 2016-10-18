@@ -8,9 +8,9 @@
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
     <link href="lib/bootstrap_v3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="css/layout.css" rel="stylesheet" type="text/css"/>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
 
@@ -103,9 +103,9 @@
 <!-- End: header -->
 
 <!-- Start: page-content-wrapper -->
-<div class="page-content-wrapper fixed">
+<div class="">
     <!-- Start: page content -->
-    <div id="page-content" class="container-fluid">
+    <div id="page-content" class="container">
         <!-- Start: page content : first row -->
         <div id="page-content-first-row" class="row">
             <!-- Start: breadcrumb row -->
@@ -120,7 +120,7 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container">
+                <div id="left-container" class="col-sm-2">
                     <!-- Start: file explorer -->
                     <div id="tree-container">
                         <div id="tree-action-bar">
@@ -165,39 +165,45 @@
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
-                <div id="right-container">
-                    <!-- Start: resource tabs -->
-                    <div id="tab-container">
-                        <ul class="nav nav-tabs tabList" id="tabList" role="tablist">
-                            <li class=".add-resource-btn"><a href="#" class="add-resource">+</a></li>
-                        </ul>
-                    </div>
-                    <!-- End: resource tabs -->
-                    <!-- Start: tool-palette -->
-                    <div id="tool-palette"></div>
-                    <!-- End: tool-palette -->
-                    <!-- Start: Editor Container -->
-                    <div id="editor-container">
-                        <div class="editor-scroller">
-                            <!-- Start: Editor Tabs Area -->
-                            <div class="editor">
-                                <div class="tab-content resource-content ">
+                <div id="right-container" class="col-sm-10">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <!-- Start: resource tabs -->
+                            <div id="tab-container" class="">
+                                <ul class="nav nav-tabs tabList" id="tabList" role="tablist">
+                                    <li class=".add-resource-btn"><a href="#" class="add-resource">+</a></li>
+                                </ul>
+                            </div>
+                            <!-- End: resource tabs -->
+                        </div>
+                        <div class="row">
+                            <!-- Start: tool-palette -->
+                            <div id="tool-palette" class="col-sm-2"></div>
+                            <!-- End: tool-palette -->
+                            <!-- Start: Editor Container -->
+                            <div id="editor-container"  class="col-sm-8">
+                                <div class="editor-scroller">
+                                    <!-- Start: Editor Tabs Area -->
+                                    <div class="editor">
+                                        <div class="tab-content resource-content ">
 
+                                        </div>
+                                    </div>
+                                    <!-- End: Editor Tabs Area -->
                                 </div>
                             </div>
-                            <!-- End: Editor Tabs Area -->
+                            <!-- End: Editor Container -->
+                            <!-- Start: Property and Preview Container -->
+                            <div class="property-container col-sm-2" id="property-container1">
+                                <div class="preview-container">
+                                </div>
+                                <div id="propertyPaneContainer">
+                                    <div id="propertyPane"></div>
+                                </div>
+                            </div>
                         </div>
+                        <!-- End: Property and Preview Container -->
                     </div>
-                    <!-- End: Editor Container -->
-                    <!-- Start: Property and Preview Container -->
-                    <div class="property-container" id="property-container1">
-                        <div class="preview-container">
-                        </div>
-                        <div id="propertyPaneContainer">
-                            <div id="propertyPane"></div>
-                        </div>
-                    </div>
-                    <!-- End: Property and Preview Container -->
                 </div>
                 <!-- End: right container -->
             </div>

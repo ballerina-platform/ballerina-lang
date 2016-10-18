@@ -67,11 +67,12 @@ svg text::selection { background: none; }
 }
 
 .nav-tabs > li, .nav-tabs > li > a {
-    height:40px;
+    height:42px;
 }
 
 .nav-tabs > li > a{
     border-right: 1px solid #1e1e1e;
+    border-bottom: 1px solid #8d8d8d;
 }
 
 .nav-tabs > li > span {
@@ -192,7 +193,6 @@ span.tree-action{
 /*//////////////////////////////////////////////////*/
 /** Property Pane related styles | Start -> **/
 .property-container{
-    position: absolute;
     background-color: #232323;
     color: white;
 }
