@@ -94,6 +94,7 @@
                     <li><a href="#" data-toggle="modal" data-target="#newConfigModal">New<span
                             class="sr-only">(current)</span></a></li>
                     <li><a href="#" onclick="saveConfiguration()">Save</a></li>
+                    <li><a href="#" id="sourceId" onclick="toggleSource()">Source</a></li>
                 </ul>
             </div>
         </div>
@@ -119,6 +120,11 @@
             <!-- End: breadcrumb row -->
             <!-- Start: file explorer and editor area row -->
             <div class="row">
+                <!-- Ace editor view start-->
+                <div id="sourceViewTab"  style="display:none" class="col-sm-2">
+                    <div id="ace-editor"></div>
+                </div>
+                <!--Ace editor view end-->
                 <!-- Start: left container -->
                 <div id="left-container" class="col-sm-2">
                     <!-- Start: file explorer -->
@@ -225,6 +231,17 @@
     </div>
 </footer>
 <!-- End: footer -->
+<!-- Ace editor config load before loading require.js due to syntax diff -->
+<script type="text/javascript">
+
+    var require = {
+        baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
+        paths: {
+            ace: "lib/ace"
+        },
+        waitSeconds: 30
+    };
+</script>
 
 <!-- Jquery/Jquery UI JS -->
 <script src="lib/jquery_v1.9.1/jquery-1.9.1.min.js"></script>
@@ -236,7 +253,8 @@
 <script src="lib/backbone_v1.3.3/backbone.js"></script>
 <script src="lib/backbone_storage_adapter_v1.1.0/backbone.localStorage.js"></script>
 <script src="lib/d3_v4.1.1/d3.js"></script>
-<script src="lib/require_js/require.js"></script>
+<script src="lib/requirejs-version/require.js"></script>
+<!--script src="lib/require_js/require.js"></script-->
 <script src="lib/jsoneditor_v0.7.28/jsoneditor.js"></script>
 <script src="lib/svg-panNZoom/jquery.svg.pan.zoom.js"></script>
 
@@ -277,6 +295,36 @@
 <script src="js/app.js"></script>
 
 <script>
+    var mainEditor;
+    define('testace', ['ace/ace','ace/ext/language_tools','ace/ext/statusbar'],
+            function(ace,langTools) {
+                console.log("source view lookup");
+                var editor = ace.edit("ace-editor");
+                mainEditor = editor;
+                //Avoiding ace warning
+                mainEditor.$blockScrolling = Infinity;
+                mainEditor.setTheme("ace/theme/twilight");
+                mainEditor.session.setMode("ace/mode/nel");
+                var langTools = ace.require("ace/ext/language_tools");
+                mainEditor.setOptions({
+                    enableBasicAutocompletion:true
+
+
+                });
+
+                //bind auto complete to key press
+                mainEditor.commands.on("afterExec", function(e){
+                    if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
+                        mainEditor.execCommand("startAutocomplete");
+                    }
+                });
+
+            }
+    );
+    require(['testace']);
+
+</script>
+<script>
     var configLocation,
         configFileName;
 
@@ -315,6 +363,52 @@
         configLocation = document.getElementById("location");
         configFileName = document.getElementById("configName");
         diagram.reloadDiagramArea();
+    }
+    function toggleSource(){
+        var editorMain = document.getElementById("sourceViewTab");
+        var leftContainer = document.getElementById("left-container");
+        var rightContainer = document.getElementById("right-container");
+
+        //Reset ace editor content
+        mainEditor.setValue("");
+        //Hard coded sourceConfig :TODO
+        var sourceConfig = '@Path ("/stock")\n' +
+                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+                'package com.sample;\n\n';
+
+
+        //Source not loaded yet
+        if(editorMain.style.display=="none"){
+            // hide tool pallette
+            leftContainer.style.display ="none";
+            // hide design view
+            rightContainer.style.display = "none";
+            // show source view
+            editorMain.style.display = "block";
+
+
+            // update link heading to Design:TODO
+            $('#sourceId').html('DESIGN');
+            var treeResult = diagram.parseTree();
+            //TODO: Need to add proper formatting
+            var formattedResult = treeResult.replace(/[{};]/g,"$&\n");
+            sourceConfig += formattedResult;
+            mainEditor.setValue( sourceConfig);
+            console.log("EDITOR"+ mainEditor.getValue());
+
+
+        }
+        //source already loaded, hence need to load the design view
+        else{
+            // Hide source view
+            editorMain.style.display = "none";
+            leftContainer.style.display ="block";
+            rightContainer.style.display = "block";
+            $('#sourceId').html('SOURCE');
+        }
+
+
     }
 </script>
 

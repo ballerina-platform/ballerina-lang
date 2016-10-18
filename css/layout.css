@@ -144,3 +144,22 @@ div[class*="col-sm-"] {
 }
 /** Property Pane related styles | -> End **/
 /*//////////////////////////////////////////////////*/
+
+/*//////////////////////////////////////////////////*/
+/** ace editor (source view) related styles | Start -> **/
+
+#sourceViewTab{
+    height: 100%;
+    width: 100%;
+    padding: 0;
+}
+#ace-editor{
+    margin: 0;
+    position:absolute;
+    top: 0;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+}
+/** ace editor (source view) related styles | -> End **/
+/*//////////////////////////////////////////////////*/
