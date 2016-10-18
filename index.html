@@ -277,96 +277,44 @@
 <script src="js/app.js"></script>
 
 <script>
-    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-    var eventer = window[eventMethod];
-    var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
-
-    // Listen to message
-    eventer(messageEvent, function (e) {
-        console.log('Design View received message!:  ', e.data);
-
-        if (e.data == "save-config") {
-            parent.postMessage(diagram.parseTree(), "*");
-        } else if (e.data == "new-config") {
-            diagram.reloadDiagramArea();
-        } else {
-            parent.postMessage(diagram.parseTree(), "*");
-        }
-    }, false);
-</script>
-
-<script>
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr("href"); // activated tab
-        // If the changed tab is the source view tab, we need to trigger the source generation in the design view
-        // Fires the event message to the design view
-        // Design view will listen to the event and generate the source from the design
-        if (target == "#sourceViewTab") {
-            var DesignIFrame = document.getElementById("iframe1").contentWindow;
-            DesignIFrame.postMessage("Hello", "*");
-        }
-    })
-</script>
-
-
-<script>
-    // Listens to the event messages fired by the two children iframes (Source-view and the diagram-view)
-    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-    var eventer = window[eventMethod];
-    var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
-    var saveConfig = false;
-    var configLocation = undefined;
-    var configFileName = undefined;
-
-    // Listen to message
-    eventer(messageEvent, function (e) {
-        if (saveConfig) {
-            var config = '@Path ("/stock")\n' +
-                    '@Source (protocol="http", host="localhost", port=8080)\n' +
-                    '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
-                    'package com.sample;\n\n';
-            config += e.data;
-            var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
-
-            $.ajax({
-                url: "http://localhost:8080/utility/saveconfig",
-                type: "POST",
-                data: payload,
-                contentType: "text/plain; charset=utf-8",
-                async: false,
-                success: function (data, textStatus, xhr) {
-                    if (xhr.status == 200) {
-                        $('#successAlert').show();
-                        $("#successAlert").fadeTo(4000, 500).slideUp(500, function () {
-                            $("#successAlert").slideUp(500);
-                        });
-                    } else {
-                        $('#failAlert').show();
-                        $("#failAlert").fadeTo(4000, 500).slideUp(500, function () {
-                            $("#failAlert").slideUp(500);
-                        });
-                    }
-
-                }
-            });
-            saveConfig = false;
-        } else {
-            var SourceIFrame = document.getElementById("iframe2").contentWindow;
-            SourceIFrame.postMessage(e.data, "*");
-        }
-    }, false);
+    var configLocation,
+        configFileName;
 
     function saveConfiguration() {
-        saveConfig = true;
-        var DesignIFrame = document.getElementById("iframe1").contentWindow;
-        DesignIFrame.postMessage("save-config", "*");
+        var config = '@Path ("/stock")\n' +
+                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+                'package com.sample;\n\n';
+        config += diagram.parseTree();
+        var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
+
+        $.ajax({
+            url: "http://localhost:8080/utility/saveconfig",
+            type: "POST",
+            data: payload,
+            contentType: "text/plain; charset=utf-8",
+            async: false,
+            success: function (data, textStatus, xhr) {
+                if (xhr.status == 200) {
+                    $('#successAlert').show();
+                    $("#successAlert").fadeTo(4000, 500).slideUp(500, function () {
+                        $("#successAlert").slideUp(500);
+                    });
+                } else {
+                    $('#failAlert').show();
+                    $("#failAlert").fadeTo(4000, 500).slideUp(500, function () {
+                        $("#failAlert").slideUp(500);
+                    });
+                }
+
+            }
+        });
     }
 
     function newConfiguration() {
-        var SourceIFrame = document.getElementById("iframe1").contentWindow;
-        SourceIFrame.postMessage("new-config", "*");
         configLocation = document.getElementById("location");
         configFileName = document.getElementById("configName");
+        diagram.reloadDiagramArea();
     }
 </script>
 
