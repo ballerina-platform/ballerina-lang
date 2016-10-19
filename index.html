@@ -237,7 +237,8 @@
     var require = {
         baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
         paths: {
-            ace: "lib/ace"
+            ace: "lib/ace",
+            beautify: "lib/beautify"
         },
         waitSeconds: 30
     };
@@ -293,10 +294,22 @@
 <script src="js/sequence_diagram/sequenced-utils.js"></script>
 <script src="js/tree.js"></script>
 <script src="js/app.js"></script>
+<script>
+    var formatter;
+    define('formatter', ['beautify/beautify'],
+            function(beautify) {
+                var beautify = beautify.js_beautify;
+                formatter = beautify;
+
+            }
+    );
+    require(['formatter']);
+
+</script>
 
 <script>
     var mainEditor;
-    define('testace', ['ace/ace','ace/ext/language_tools','ace/ext/statusbar'],
+    define('testace', ['ace/ace','ace/ext/language_tools'],
             function(ace,langTools) {
                 console.log("source view lookup");
                 var editor = ace.edit("ace-editor");
@@ -311,7 +324,7 @@
 
 
                 });
-
+                mainEditor.setBehavioursEnabled(true);
                 //bind auto complete to key press
                 mainEditor.commands.on("afterExec", function(e){
                     if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
@@ -364,7 +377,7 @@
         configFileName = document.getElementById("configName");
         diagram.reloadDiagramArea();
     }
-    function toggleSource(){
+    function toggleSource() {
         var editorMain = document.getElementById("sourceViewTab");
         var leftContainer = document.getElementById("left-container");
         var rightContainer = document.getElementById("right-container");
@@ -379,36 +392,29 @@
 
 
         //Source not loaded yet
-        if(editorMain.style.display=="none"){
+        if (editorMain.style.display == "none") {
             // hide tool pallette
-            leftContainer.style.display ="none";
+            leftContainer.style.display = "none";
             // hide design view
             rightContainer.style.display = "none";
             // show source view
             editorMain.style.display = "block";
-
-
             // update link heading to Design:TODO
             $('#sourceId').html('DESIGN');
             var treeResult = diagram.parseTree();
-            //TODO: Need to add proper formatting
-            var formattedResult = treeResult.replace(/[{};]/g,"$&\n");
-            sourceConfig += formattedResult;
-            mainEditor.setValue( sourceConfig);
-            console.log("EDITOR"+ mainEditor.getValue());
-
-
+            var formattedValue = formatter(treeResult, {indent_size: 3});
+            sourceConfig += formattedValue;
+            mainEditor.session.setValue(sourceConfig);
+            console.log("editor content" + mainEditor.getValue());
         }
         //source already loaded, hence need to load the design view
-        else{
+        else {
             // Hide source view
             editorMain.style.display = "none";
-            leftContainer.style.display ="block";
+            leftContainer.style.display = "block";
             rightContainer.style.display = "block";
             $('#sourceId').html('SOURCE');
         }
-
-
     }
 </script>
 
