@@ -81,6 +81,7 @@
                             Jama
                         </Private-Package>
                         <Export-Package>
+                            !Jama.*,
                             org.wso2.siddhi.extension.timeseries,
                             org.wso2.siddhi.extension.timeseries.*
                         </Export-Package>
