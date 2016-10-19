@@ -936,16 +936,13 @@ var Diagrams = (function (diagrams) {
                     );
                     txt.selectedNode.addChild(processor);
 
-                    if (processor.type == "TryBlockMediator") {
-                        var containableProcessorElem1 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
-                        containableProcessorElem1.set('title', "Try");
-                        containableProcessorElem1.parent(processor);
-                        processor.containableProcessorElements().add(containableProcessorElem1);
-
-                        var containableProcessorElem2 = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
-                        containableProcessorElem2.set('title', "Catch");
-                        containableProcessorElem2.parent(processor);
-                        processor.containableProcessorElements().add(containableProcessorElem2);
+                    if (Processors.flowControllers[id].type == "ComplexProcessor") {
+                        (Processors.flowControllers[id].containableElements).forEach(function(elm) {
+                            var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                            containableProcessorElem.set('title', elm);
+                            containableProcessorElem.parent(processor);
+                            processor.containableProcessorElements().add(containableProcessorElem);
+                        });
                     }
 
 
