@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * A class that starts the HTTP server bootstrap in given port.
+ * A class that starts the HTTP Server Bootstrap in given port and capable of binding interfaces to Server Bootstrap.
  */
 public class HTTPTransportListener extends TransportListener {
     private static final Logger log = LoggerFactory.getLogger(HTTPTransportListener.class);
@@ -77,7 +77,6 @@ public class HTTPTransportListener extends TransportListener {
             int port = config.getPort();
             String id = host + ":" + port;
             listenerConfigMapWithHostPort.put(id, config);
-            ;
             if (host.equals(Constants.DEFAULT_ADDRESS) || host.equals(Constants.LOCALHOST) || host
                     .equals(Constants.LOOP_BACK_ADDRESS)) {
                 id = Constants.LOCALHOST + ":" + port;
@@ -87,7 +86,6 @@ public class HTTPTransportListener extends TransportListener {
                 id = Constants.DEFAULT_ADDRESS + ":" + port;
                 listenerConfigMapWithHostPort.put(id, config);
             }
-
         });
         Iterator itr = listenerConfigurationSet.iterator();
         if (itr.hasNext()) {
@@ -97,16 +95,20 @@ public class HTTPTransportListener extends TransportListener {
         this.workerGroupSize = workerGroupSize;
     }
 
+    @Override
     public void start() {
         log.info("Starting  HTTP Transport Listener");
         startTransport();
     }
 
     private void startTransport() {
+        //Create Bootstrap Configuration from listener parameters
         ServerBootstrapConfiguration.createBootStrapConfiguration(defaultListenerConfig.getParameters());
         ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
+        //boss group is for accepting channels
         bossGroup = new NioEventLoopGroup(
                 bossGroupSize != 0 ? bossGroupSize : Runtime.getRuntime().availableProcessors());
+        //worker group is for processing IO
         workerGroup = new NioEventLoopGroup(
                 workerGroupSize != 0 ? workerGroupSize : Runtime.getRuntime().availableProcessors() * 2);
         log.debug("Netty Boss group size " + bossGroup);
@@ -118,6 +120,7 @@ public class HTTPTransportListener extends TransportListener {
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
 
         addChannelInitializer();
+
         bootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
         log.debug("Netty Server Socket TCP_NODELAY " + serverBootstrapConfiguration.isTcpNoDelay());
         bootstrap.option(ChannelOption.SO_KEEPALIVE, serverBootstrapConfiguration.isKeepAlive());
@@ -153,6 +156,7 @@ public class HTTPTransportListener extends TransportListener {
         }
     }
 
+    //Channel Initializer is responsible for create channel pipeline
     private void addChannelInitializer() {
         CarbonHTTPServerInitializer handler = new CarbonHTTPServerInitializer(defaultListenerConfig,
                 listenerConfigMapWithHostPort);
@@ -263,7 +267,7 @@ public class HTTPTransportListener extends TransportListener {
         ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(interfaceId);
         if (listenerConfiguration != null && !defaultListenerConfig.getId().equals(listenerConfiguration.getId())) {
             String id = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-
+            //Remove cached channels and close them.
             ChannelFuture future = channelFutureMap.remove(listenerConfiguration.getPort());
             if (future != null) {
                 if (sslConfigMap.get(id) != null) {

@@ -56,16 +56,13 @@ public class HTTPTransportActivator implements BundleActivator {
      * @return Netty transport instances
      */
     private HTTPTransportListener createServerBootstrapper() {
+        int bossSize = 0;
+        int workerSize = 0;
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
         listenerConfigurations.forEach(listenerConfiguration -> HTTPTransportContextHolder.getInstance()
                 .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration));
-
         Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-
-        int bossSize = 0;
-        int workerSize = 0;
-
         for (TransportProperty property : transportProperties) {
             if (property.getName().equals(Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE)) {
                 bossSize = (Integer) property.getValue();
@@ -73,10 +70,8 @@ public class HTTPTransportActivator implements BundleActivator {
                 workerSize = (Integer) property.getValue();
             }
         }
-
         HTTPTransportListener httpTransportListener = new HTTPTransportListener(bossSize, workerSize,
                 listenerConfigurations);
-
         return httpTransportListener;
     }
 
