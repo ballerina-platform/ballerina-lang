@@ -73,7 +73,7 @@ var Processors = (function (processors) {
             return editableProperties;
         },
         getMySubTree: function (model) {
-            return new TreeNode("PayloadProcessor", "PayloadProcessor", "JSON.setPayload(messageRef = response, payload = {\"error\":\"backend failed\"});");
+            return new TreeNode("PayloadProcessor", "PayloadProcessor", "JSON.setPayload(messageRef = response, payload = {\"error\":\"backend failed\"}", ");");
         }
     };
 

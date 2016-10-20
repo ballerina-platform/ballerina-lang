@@ -415,7 +415,9 @@
         else {
             // Hide source view
             editorMain.style.display = "none";
-            leftContainer.style.display = "block";
+
+            // Left container is temporarily not showing since we have disabled the file explorer at the moment
+            // leftContainer.style.display = "block";
             rightContainer.style.display = "block";
             $('#sourceId').html('SOURCE');
         }
