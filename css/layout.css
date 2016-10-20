@@ -117,8 +117,8 @@ div[class*="col-sm-"] {
 
 /*//////////////////////////////////////////////////*/
 /** Property Pane related styles | Start -> **/
-.property-container{
-    padding-left: 50px;
+div[class*="col-sm-"].property-container{
+    padding-right: 50px;
 }
 
 #propertyPaneContainer {
