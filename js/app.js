@@ -50,7 +50,43 @@ var createPoint = function (x, y) {
 var diagramD3el = undefined;
 
 var createLifeLine = function (title, center, cssClass) {
-    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass});
+    if (cssClass === "endpoint") {
+        return new SequenceD.Models.LifeLine({
+            title: title,
+            centerPoint: center,
+            cssClass: cssClass,
+            parameters: [
+                {
+                    key: "url",
+                    value: MainElements.lifelines.EndPointLifeline.parameters[0].value
+                }
+            ]
+        });
+    } else if (cssClass === "resource") {
+        return new SequenceD.Models.LifeLine({
+            title: title,
+            centerPoint: center,
+            cssClass: cssClass,
+            parameters: [
+                {
+                    key: "path",
+                    value: ""
+                },
+                {
+                    key: "get",
+                    value: MainElements.lifelines.ResourceLifeline.parameters[1].value
+                },
+                {
+                    key: "put",
+                    value: MainElements.lifelines.ResourceLifeline.parameters[2].value
+                },
+                {
+                    key: "post",
+                    value: MainElements.lifelines.ResourceLifeline.parameters[3].value
+                }
+            ]
+        });
+    }
 };
 
 var createFixedSizedMediator = function (title, center) {

@@ -311,9 +311,13 @@ var Diagrams = (function (diagrams) {
             if (diagram.previousDeleteIconGroup) {
                 diagram.previousDeleteIconGroup.classed("circle-hide", true);
                 diagram.previousDeleteIconGroup.classed("circle-show", false);
+                diagram.previousPropertyIconGroup.classed("circle-hide", true);
+                diagram.previousPropertyIconGroup.classed("circle-show", false);
             }
             diagram.previousDeleteIconGroup = null;
             diagram.currentDeleteIconGroup = null;
+            diagram.previousPropertyIconGroup = null;
+            diagram.currentPropertyIconGroup = null;
             if (propertyPane) {
                 propertyPane.destroy();
             }
@@ -370,9 +374,13 @@ var Diagrams = (function (diagrams) {
             if (diagram.previousDeleteIconGroup) {
                 diagram.previousDeleteIconGroup.classed("circle-hide", true);
                 diagram.previousDeleteIconGroup.classed("circle-show", false);
+                diagram.previousPropertyIconGroup.classed("circle-hide", true);
+                diagram.previousPropertyIconGroup.classed("circle-show", false);
             }
             diagram.previousDeleteIconGroup = null;
             diagram.currentDeleteIconGroup = null;
+            diagram.previousPropertyIconGroup = null;
+            diagram.currentPropertyIconGroup = null;
             if (propertyPane) {
                 propertyPane.destroy();
             }
@@ -766,7 +774,38 @@ var Diagrams = (function (diagrams) {
                     view.trigger("viewBoxChange", this.getViewBox(), animationTime);
                 };
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
+            },
 
+            drawPropertiesPane: function (svg, optionsX, parameters, propertyPaneSchema) {
+                //remove the property pane svg, if it already exists
+                var propertySVG = document.getElementById("property-pane-svg");
+                if (propertySVG) {
+                    propertySVG.parentNode.removeChild(propertySVG);
+                }
+
+                var options = {
+                    id: "property-pane-svg",
+                    height: "100%",
+                    width: "100%",
+                    class: "property",
+                    x: optionsX.x,
+                    y: optionsX.y
+                };
+                propertySVG = svg.draw.propertySVG(options);
+
+                var rect = propertySVG.append("rect")
+                    .attr("id", "property-pane")
+                    .attr("x", optionsX.x)
+                    .attr("y", optionsX.y)
+                    .attr("rx", "0")
+                    .attr("ry", "0")
+                    .attr("width", "300")
+                    .attr("height", "500")
+                    .attr("fill", "#696969")
+                    .attr("opacity", "0.9");
+
+                diagram.propertyWindow = true;
+                propertySVG.draw.form(optionsX.x + 10, optionsX.y + 10, propertySVG, parameters, propertyPaneSchema);
             },
 
             /**
@@ -1110,6 +1149,7 @@ var Diagrams = (function (diagrams) {
                 var txt = defaultView;
                 if (txt.model.selected === true) {
                     diagram.previousDeleteIconGroup = null;
+                    diagram.previousPropertyIconGroup = null;
                     txt.model.selected = false;
                     if(propertyPane) {
                         propertyPane.destroy();
@@ -1122,10 +1162,15 @@ var Diagrams = (function (diagrams) {
                     if (diagram.previousDeleteIconGroup) {
                         diagram.previousDeleteIconGroup.classed("circle-hide", true);
                         diagram.previousDeleteIconGroup.classed("circle-show", false);
+                        diagram.previousPropertyIconGroup.classed("circle-hide", true);
+                        diagram.previousPropertyIconGroup.classed("circle-show", false);
+                        defaultView.render();
                     }
 
                     diagram.previousDeleteIconGroup = null;
                     diagram.currentDeleteIconGroup = null;
+                    diagram.previousPropertyIconGroup = null;
+                    diagram.currentPropertyIconGroup = null;
                     selected = '';
                     txt.model.selected = true;
                     if (propertyPane) {

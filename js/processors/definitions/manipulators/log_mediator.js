@@ -41,6 +41,21 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        propertyPaneSchema: [
+            {
+                key: "message",
+                text: "Log message"
+            },
+            {
+                key: "logLevel",
+                dropdown: "Log Level",
+                values: ["debug", "info", "error"]
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         parameters: [
             {
                 key: "message",

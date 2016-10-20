@@ -170,7 +170,163 @@ var D3Utils = (function (d3_utils) {
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
     };
 
+    /**
+     * Create the properties form by appending form elements such as textbox, label, checkbox etc.
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param parent SVG parent element of the form
+     * @param parameters Model parameters of the selected element
+     * @param propertyPaneSchema Property rendering schema of the selected element
+     * @returns {*} Created form element
+     */
+    var form = function (x, y, parent, parameters, propertyPaneSchema) {
+        parent = parent || d3Ref;
 
+        var foreignObject = parent.append("foreignObject")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", "200")
+            .attr("height", "150");
+
+        var form = foreignObject.append("xhtml:form")
+            .attr("id", "property-form")
+            .attr("autocomplete", "off");
+
+        for (var i = 0; i < propertyPaneSchema.length; i++) {
+            var property = propertyPaneSchema[i];
+
+            if (property.text) {
+                //append a textbox
+                appendLabel(form, property.text);
+                appendTextBox(form, parameters[i].value, property.key);
+
+            } else if (property.dropdown) {
+                //append a dropdown
+                appendLabel(form, property.dropdown);
+                var selected = parameters[i].value;
+                var dropdownValues = [];
+                property.values.forEach(function (value, index) {
+                    if (value === selected) {
+                        dropdownValues[index] = {value: value.toLowerCase(), text: value, selected: true};
+                    } else {
+                        dropdownValues[index] = {value: value.toLowerCase(), text: value};
+                    }
+                });
+                appendDropdown(form, dropdownValues, property.key);
+
+            } else if (property.checkbox) {
+                //append a checkbox
+                appendLabel(form, property.checkbox);
+                appendCheckBox(form, property.key, parameters[i].value);
+
+            }
+        }
+
+        var button = form.append("xhtml:button")
+            .attr("id", "property-save")
+            .attr("type", "button")
+            .text("Save");
+        button.on("click", saveProperties);
+        return form;
+    };
+
+    /**
+     * Save properties in selected element's model
+     */
+    var saveProperties = function () {
+        var inputs = $('#property-form')[0].getElementsByTagName("input");
+        if (defaultView.selectedNode.type === "LogMediator") {
+            defaultView.selectedNode.parameters.parameters = [
+                {
+                    key: "message",
+                    value: inputs.message.value,
+                    text: "Log message"
+                },
+                {
+                    key: "logLevel",
+                    value: inputs.logLevel.value,
+                    dropdown: "Log Level",
+                    values: ["debug", "info", "error"]
+                },
+                {
+                    key: "description",
+                    value: inputs.description.value,
+                    text: "Description"
+                }
+            ];
+
+        } else if (defaultView.selectedNode.attributes.cssClass === "resource") {
+            defaultView.selectedNode.attributes.title = inputs.title.value;
+            defaultView.selectedNode.attributes.parameters[0].value = inputs.path.value;
+            defaultView.selectedNode.attributes.parameters[1].value = inputs.get.checked;
+            defaultView.selectedNode.attributes.parameters[2].value = inputs.put.checked;
+            defaultView.selectedNode.attributes.parameters[3].value = inputs.post.checked;
+
+        } else if (defaultView.selectedNode.attributes.cssClass === "endpoint") {
+            defaultView.selectedNode.attributes.title = inputs.title.value;
+            defaultView.selectedNode.attributes.parameters[0].value = inputs.url.value;
+
+        }
+        defaultView.render();
+        diagram.propertyWindow = false;
+    };
+
+    var appendCheckBox = function (parent, name, checked) {
+        var checkbox = parent.append("xhtml:input")
+            .attr("type", "checkbox")
+            .attr("name", name);
+        if (checked) {
+            checkbox.attr("checked", true);
+        }
+        parent.append("br");
+        parent.append("br");
+    };
+
+    var appendTextBox = function (parent, value, name) {
+        var textBox = parent.append("input")
+            .attr("type", "text")
+            .attr("name", name)
+            .attr("value", value);
+        textBox.on("click", function () {
+            var valueLength = this.value.length;
+            this.focus();
+            this.setSelectionRange(valueLength, valueLength);
+        });
+        parent.append("br");
+        parent.append("br");
+    };
+
+    var appendLabel = function (parent, value) {
+        parent.append("label")
+            .text(value);
+    };
+
+    var appendDropdown = function (parent, optionsList, name) {
+        var input = parent.append("input")
+            .attr("name", name)
+            .attr("list", "dropdown");
+
+        var datalist = input.append("datalist")
+            .attr("id", "dropdown");
+
+        for (var i = 0; i < optionsList.length; i++) {
+            var option = optionsList[i];
+            var optionUI = datalist.append("option")
+                .attr("label", option.value)
+                .attr("value", option.value);
+            if (option.selected) {
+                input._groups[0][0].value = option.value;
+            }
+        }
+        parent.append("br");
+        parent.append("br");
+
+        input.on("click", function () {
+            this.focus();
+            this.value = "";
+        });
+    };
+    
     var group = function (parent) {
         parent = parent || d3Ref;
         return parent.append("g");
@@ -184,6 +340,19 @@ var D3Utils = (function (d3_utils) {
             .attr("class", opts.class);
     };
 
+    var propertySVG = function (opts, parent) {
+        parent = parent || d3Ref;
+        return parent.append("svg")
+            .attr("id", opts.id)
+            .attr("height", opts.height)
+            .attr("width", opts.width)
+            .attr("class", opts.class)
+            .attr("x", opts.x)
+            .attr("y", opts.y)
+            .attr("fill", opts.color)
+            .attr("z-index", 1500);
+    };
+
     // FIXME: refactor to use native window methods
     var regroup = function (elements) {
         var g = d3Ref.append("g");
@@ -193,6 +362,13 @@ var D3Utils = (function (d3_utils) {
             $g.append($e.detach())
         });
         return g;
+    };
+
+    var propertyRect = function (center, width, height, rx, ry, parent, colour) {
+        parent = parent || d3Ref;
+        rx = rx || 0;
+        ry = ry || 0;
+        return parent.draw.rect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour);
     };
 
     var decorate = function (d3ref) {
@@ -214,8 +390,11 @@ var D3Utils = (function (d3_utils) {
         draw.circleOnPoint = circleOnPoint;
         draw.group = group;
         draw.svg = svg;
+        draw.propertySVG = propertySVG;
         draw.rectWithTitle = rectWithTitle;
         draw.regroup = regroup;
+        draw.propertyRect = propertyRect;
+        draw.form = form;
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;

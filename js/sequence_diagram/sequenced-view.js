@@ -92,6 +92,7 @@ var SequenceD = (function (sequenced) {
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
+                var propertiesIconGroup = group.append("g").attr("class", "properties-icon circle-hide");
                 var deleteIconGroup = group.append("g").attr("class", "close-icon circle-hide");
                 var viewObj = this;
 
@@ -106,6 +107,11 @@ var SequenceD = (function (sequenced) {
                         7, deleteIconGroup).
                         attr("fill", "#95a5a6").
                         attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+                    var propertiesCircle = d3Ref.draw.circle((center.x() + width / 2 - 14), (center.y() - height / 2),
+                                                             7, propertiesIconGroup)
+                        .attr("fill", "#95a5a6")
+                        .attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
+
                     deleteIconGroup.append("path")
                         .attr("d", path)
                         .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
@@ -125,7 +131,7 @@ var SequenceD = (function (sequenced) {
                     group.rect = rectBottomXXX;
                     group.title = mediatorText;
 
-                    var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup];
+                    var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup, propertiesIconGroup];
 
                     var newGroup = d3Ref.draw.regroup(orderedElements);
                     group.remove();
@@ -133,13 +139,25 @@ var SequenceD = (function (sequenced) {
                     // On click of the mediator show/hide the delete icon
                     rectBottomXXX.on("click", function () {
                         if (deleteIconGroup.classed("circle-hide")) {
+                            if (diagram.propertyWindow) {
+                                $('#property-pane-svg').empty();
+                                diagram.propertyWindow = false;
+                            }
                             deleteIconGroup.classed("circle-hide", false);
                             deleteIconGroup.classed("circle-show", true);
+                            propertiesIconGroup.classed("circle-hide", false);
+                            propertiesIconGroup.classed("circle-show", true);
+                            diagram.selectedNode = viewObj.model;
                         } else {
                             deleteIconGroup.classed("circle-hide", true);
                             deleteIconGroup.classed("circle-show", false);
+                            propertiesIconGroup.classed("circle-hide", true);
+                            propertiesIconGroup.classed("circle-show", false);
+                            defaultView.render();
                         }
+
                         diagram.currentDeleteIconGroup = deleteIconGroup;
+                        diagram.currentPropertyIconGroup = propertiesIconGroup;
                         viewObj.updateProcessorProperties();
                     });
 
@@ -153,6 +171,33 @@ var SequenceD = (function (sequenced) {
                                 defaultView.render();
                                 break;
                             }
+                        }
+                    });
+
+                    var getPropertyPaneSchema = function (type) {
+                        if (type === "LogMediator") {
+                            return Processors.manipulators.LogMediator.propertyPaneSchema;
+                        }
+                    };
+
+                    propertiesIconGroup.on("click", function () {
+                        if (diagram.propertyWindow) {
+                            diagram.propertyWindow = false;
+                            diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                            diagram.previousDeleteIconGroup.classed("circle-show", false);
+                            diagram.previousPropertyIconGroup.classed("circle-hide", true);
+                            diagram.previousPropertyIconGroup.classed("circle-show", false);
+                            defaultView.render();
+                        } else {
+                            diagram.propertyWindow = true;
+                            var options = {
+                                x: parseInt(jQuery(event.target).attr("cx")) - 135,
+                                y: parseInt(jQuery(event.target).attr("cy")) - 20
+                            };
+                            defaultView.selectedNode = viewObj.model;
+                            defaultView.drawPropertiesPane(d3Ref, options,
+                                                           viewObj.model.attributes.parameters.parameters,
+                                                           getPropertyPaneSchema(viewObj.model.type));
                         }
                     });
 
@@ -233,10 +278,9 @@ var SequenceD = (function (sequenced) {
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
                         //var processor = this.modelAttr("children").models[id];
-                        //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
-                        // var processorCenterPoint = createPoint(xValue, yValue);
-                        //processorView.render("#diagramWrapper", processorCenterPoint);
-                        //processor.setY(yValue);
+                        //var processorView = new SequenceD.Views.Processor({model: processor, options:
+                        // lifeLineOptions}); var processorCenterPoint = createPoint(xValue, yValue);
+                        // processorView.render("#diagramWrapper", processorCenterPoint); processor.setY(yValue);
 
                         if(maximumWidth < containableProcessorElement.getWidth()){
                             maximumWidth = containableProcessorElement.getWidth();
@@ -607,6 +651,7 @@ var SequenceD = (function (sequenced) {
                 var circleCenterY = center.y() - prefs.rect.height/2;
                 var deleteIconGroup = group.append("g")
                     .attr("class", "close-icon circle-hide");
+                var propertiesIconGroup = group.append("g").attr("class", "properties-icon circle-hide");
                 path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
                     (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
                     (circleCenterX - 3) + "," + (circleCenterY + 3);
@@ -617,6 +662,9 @@ var SequenceD = (function (sequenced) {
                     .attr("d", path)
                     .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
 
+                var propertiesCircle = d3Ref.draw.circle(circleCenterX - 14, circleCenterY, 7, propertiesIconGroup)
+                    .attr("fill", "#95a5a6")
+                    .attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
@@ -658,12 +706,22 @@ var SequenceD = (function (sequenced) {
                     if (deleteIconGroup.classed("circle-hide")) {
                         deleteIconGroup.classed("circle-hide", false);
                         deleteIconGroup.classed("circle-show", true);
+                        propertiesIconGroup.classed("circle-hide", false);
+                        propertiesIconGroup.classed("circle-show", true);
                     } else {
                         deleteIconGroup.classed("circle-hide", true);
                         deleteIconGroup.classed("circle-show", false);
+                        propertiesIconGroup.classed("circle-hide", true);
+                        propertiesIconGroup.classed("circle-show", false);
+                        if (diagram.propertyWindow) {
+                            $('#property-pane-svg').empty();
+                            diagram.propertyWindow = false;
+                        }
                     }
                     defaultView.model.selectedNode = viewObj.model;
                     diagram.currentDeleteIconGroup = deleteIconGroup;
+                    diagram.currentPropertyIconGroup = propertiesIconGroup;
+
                     if (selected) {
                         if (this == selected) {
                             if (propertyPane) {
@@ -671,9 +729,16 @@ var SequenceD = (function (sequenced) {
                             }
                             selected = '';
                         } else {
-                            if(diagram.previousDeleteIconGroup) {
+                            if (diagram.previousDeleteIconGroup) {
                                 diagram.previousDeleteIconGroup.classed("circle-hide", true);
                                 diagram.previousDeleteIconGroup.classed("circle-show", false);
+                                diagram.previousPropertyIconGroup.classed("circle-hide", true);
+                                diagram.previousPropertyIconGroup.classed("circle-show", false);
+                                console.log("state " + diagram.propertyWindow);
+                                if (diagram.propertyWindow) {
+                                    $('#property-pane-svg').empty();
+                                    diagram.propertyWindow = false;
+                                }
                             }
                             updatePropertyPane();
                             selected = this;
@@ -684,7 +749,8 @@ var SequenceD = (function (sequenced) {
                         selected = this;
                     }
                     diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
-                    diagram.currentDeleteIconGroup = null;
+                    diagram.previousPropertyIconGroup = diagram.currentPropertyIconGroup;
+                    diagram.currentPropertyIconGroup = null;
                 }));
 
                 deleteIconGroup.on("click", function () {
@@ -717,6 +783,65 @@ var SequenceD = (function (sequenced) {
 
                 });
 
+                propertiesIconGroup.on("click", function () {
+                    if (diagram.propertyWindow) {
+                        diagram.propertyWindow = false;
+                        defaultView.render();
+                    } else {
+                        var options = {
+                            x: viewObj.model.attributes.centerPoint.attributes.x - 80,
+                            y: viewObj.model.attributes.centerPoint.attributes.y - 10
+                        };
+                        defaultView.selectedNode = viewObj.model;
+                        var parameters;
+                        if (viewObj.model.attributes.cssClass === "resource") {
+                            parameters = [
+                                {
+                                    key: "title",
+                                    value: viewObj.title
+                                },
+                                {
+                                    key: "path",
+                                    value: viewObj.model.attributes.parameters[0].value
+                                },
+                                {
+                                    key: "get",
+                                    value: viewObj.model.attributes.parameters[1].value
+                                },
+                                {
+                                    key: "put",
+                                    value: viewObj.model.attributes.parameters[2].value
+                                },
+                                {
+                                    key: "post",
+                                    value: viewObj.model.attributes.parameters[3].value
+                                }
+                            ];
+                        } else if (viewObj.model.attributes.cssClass === "endpoint") {
+                            parameters = [
+                                {
+                                    key: "title",
+                                    value: viewObj.title
+                                },
+                                {
+                                    key: "url",
+                                    value: viewObj.model.attributes.parameters[0].value
+                                }
+                            ];
+                        }
+
+                        var propertySchema;
+                        if (viewObj.model.attributes.cssClass === "endpoint") {
+                            propertySchema = MainElements.lifelines.EndPointLifeline.propertyPaneSchema;
+
+                        } else if (viewObj.model.attributes.cssClass === "resource") {
+                            propertySchema = MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
+
+                        }
+
+                        defaultView.drawPropertiesPane(d3Ref, options, parameters, propertySchema);
+                    }
+                });
                 return group;
             }
 

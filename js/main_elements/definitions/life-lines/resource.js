@@ -40,6 +40,46 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
+        propertyPaneSchema: [
+            {
+                key: "title",
+                text: "Title"
+            },
+            {
+                key: "path",
+                text: "Path"
+            },
+            {
+                key: "get",
+                checkbox: "GET"
+            },
+            {
+                key: "put",
+                checkbox: "PUT"
+            },
+            {
+                key: "post",
+                checkbox: "POST"
+            }
+        ],
+        parameters: [
+            {
+                key: "path",
+                value: ""
+            },
+            {
+                key: "get",
+                value: false
+            },
+            {
+                key: "put",
+                value: false
+            },
+            {
+                key: "post",
+                value: false
+            }
+        ],
         getSchema: function () {
             return {
                 "title": 'Pipe Line',

@@ -138,6 +138,8 @@ var Editor = (function (editor) {
                     if (diagram.previousDeleteIconGroup) {
                         diagram.previousDeleteIconGroup.classed("circle-hide", true);
                         diagram.previousDeleteIconGroup.classed("circle-show", false);
+                        diagram.previousPropertyIconGroup.classed("circle-hide", true);
+                        diagram.previousPropertyIconGroup.classed("circle-show", false);
                     }
                     if (propertyPane) {
                         propertyPane.destroy();
@@ -159,6 +161,8 @@ var Editor = (function (editor) {
             }
             diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
             diagram.currentDeleteIconGroup = null;
+            diagram.previousPropertyIconGroup = diagram.currentPropertyIconGroup;
+            diagram.currentPropertyIconGroup = null;
         },
 
         createPropertyPane: function (schema, editableProperties, dataModel) {

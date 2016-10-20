@@ -41,6 +41,22 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
+        propertyPaneSchema: [
+            {
+                key: "title",
+                text: "Title"
+            },
+            {
+                key: "url",
+                text: "URL"
+            }
+        ],
+        parameters: [
+            {
+                key: "url",
+                value: "https://"
+            }
+        ],
         getSchema: function () {
             return {
                 "title": 'End Point',
