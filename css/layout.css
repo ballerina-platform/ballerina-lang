@@ -56,6 +56,7 @@ div[class*="col-sm-"] {
 }
 .row{
     margin-left: 0;
+    margin-right: 0;
 }
 #left-container{
     height: 100%;
@@ -118,7 +119,7 @@ div[class*="col-sm-"] {
 /*//////////////////////////////////////////////////*/
 /** Property Pane related styles | Start -> **/
 div[class*="col-sm-"].property-container{
-    padding-right: 50px;
+    padding-right: 6px;
 }
 
 #propertyPaneContainer {

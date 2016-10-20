@@ -112,7 +112,7 @@ $(function () {
         minWidth: 170,
         maxWidth: rightContainer.width() / 3,
         resize: function (event, el) {
-            editorContainer.css("width", rightContainer.width() - el.size.width - propertyContainer.width() - 10);
+            editorContainer.css("width", rightContainer.innerWidth() - toolContainer.outerWidth(true) - propertyContainer.outerWidth(true));
         }
     });
     //TODO: remove + 1
