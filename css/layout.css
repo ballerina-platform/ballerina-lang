@@ -1,0 +1,167 @@
+/** contains css for main layout **/
+@media only screen and (min-width: 768px){
+    body > .page-content-wrapper > .container,
+    body > .page-content-wrapper > .container-fluid {
+        padding: 0;
+    }
+}
+
+.nano { background: #bba; width: 500px; height: 500px; }
+.nano .nano-content { padding: 10px; }
+.nano .nano-pane   { background: #888; }
+.nano .nano-slider { background: #111; }
+
+
+body{
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+    padding: 5px;
+}
+
+html{
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+#main-navbar{
+    border-width: 2px 0 2px 0;
+}
+
+#editor-container{
+    height: 100%;
+}
+
+.editor-scroller{
+}
+
+/**
+* Remove padding coming from
+* bootstrap columns
+**/
+div[class*="col-sm-"] {
+    padding: 0;
+}
+
+.container{
+    width: 100vw;
+    padding: 0;
+}
+.container-fluid{
+    padding: 0;
+}
+.row{
+    margin-left: 0;
+    margin-right: 0;
+}
+#left-container{
+    height: 100%;
+    padding: 0;
+}
+
+#right-container{
+    height: 100%;
+    padding: 0;
+}
+
+
+/*//////////////////////////////////////////////////*/
+/** tree view related styles | Start -> **/
+#tree-container {
+    height: 100%;
+}
+
+#tree-action-bar {
+    height: 42px;
+    display: block;
+    border-bottom-width: 2px;
+}
+/** tree view related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Resource level tabs related styles | Start -> **/
+.tab-pane  {
+    padding-bottom: 130px;
+}
+
+#tab-container > ul{
+    display: inline-block;
+}
+
+#tab-container{
+    height: 42px;
+    border-bottom-width: 1px;
+}
+
+.series{
+    height: 19px;
+}
+
+/** Resource level tabs related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Breadcrumbs related styles | Start -> **/
+.breadcrumb{
+    padding-left: 50px;
+}
+/** Breadcrumbs related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Property Pane related styles | Start -> **/
+div[class*="col-sm-"].property-container{
+    padding-right: 6px;
+}
+
+#propertyPaneContainer {
+    padding-top: 8px;
+}
+
+#propertyPane input{
+     border-width: 1px;
+}
+
+#propertyPane select{
+    border-width: 1px;
+}
+
+#propertyPane > div > div.well.well-sm{
+    border: none;
+}
+
+#propertyPane  button {
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+/** Property Pane related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+/*//////////////////////////////////////////////////*/
+/** ace editor (source view) related styles | Start -> **/
+
+#sourceViewTab{
+    height: 100%;
+    width: 100%;
+    padding: 0;
+}
+#ace-editor{
+    margin: 0;
+    position:absolute;
+    top: 0;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+}
+/** ace editor (source view) related styles | -> End **/
+/*//////////////////////////////////////////////////*/

@@ -1,184 +1,78 @@
-* {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+body{
+    background: #232323;
 }
 
-
-.scrollable-collapse {
-    max-height: 500px;
-    overflow-y: scroll;
+#right-container{
+    background-color: #232323;
 }
 
-.draggableIcon {
-    z-index: 400;
+#main-navbar{
+    background-color: #232323;
+    border-top: solid #1e1e1e;
+    border-bottom: solid #1e1e1e;
 }
 
-.draggable {
-    position: absolute;
+.header {
+    background-color: #232323;
 }
 
-.component {
-    border: 1px solid #346789;
-    border-radius: 0.5em;
-    opacity: 0.8;
-    filter: alpha(opacity=80);
-    background-color: white;
-    color: black;
-    padding: 0.5em;
-    font-size: 0.8em;
+#editor-container{
+    background-color: #fff;
 }
 
-.component:hover {
-    border: 1px solid #123456;
-    box-shadow: 2px 2px 19px #444;
-    -o-box-shadow: 2px 2px 19px #444;
-    -webkit-box-shadow: 2px 2px 19px #444;
-    -moz-box-shadow: 2px 2px 19px #fff;
-    opacity: 0.9;
-    filter: alpha(opacity=90);
-}
-
-.window {
-    background-color: white;
-    border: 1px solid #346789;
-    box-shadow: 2px 2px 19px #e0e0e0;
-    -o-box-shadow: 2px 2px 19px #e0e0e0;
-    -webkit-box-shadow: 2px 2px 19px #e0e0e0;
-    -moz-box-shadow: 2px 2px 19px #e0e0e0;
-    -moz-border-radius: 0.5em;
-    border-radius: 0.5em;
-    width: 5em;
-    height: 5em;
-    position: absolute;
-    color: black;
-    padding: 0.5em;
-    width: 80px;
-    height: 80px;
-    line-height: 80px;
-    -webkit-transition: -webkit-box-shadow 0.15s ease-in;
-    -moz-transition: -moz-box-shadow 0.15s ease-in;
-    -o-transition: -o-box-shadow 0.15s ease-in;
-    transition: box-shadow 0.15s ease-in;
-}
-
-.window:hover {
-    border: 1px solid #123456;
-    box-shadow: 2px 2px 19px #444;
-    -o-box-shadow: 2px 2px 19px #444;
-    -webkit-box-shadow: 2px 2px 19px #444;
-    -moz-box-shadow: 2px 2px 19px #fff;
-    opacity: 0.9;
-    filter: alpha(opacity=90);
-}
-
-.list-group-item:hover {
-    background: gray;
-    color: #ffffff;
+.editor-scroller{
     cursor: move;
 }
 
-/* By awanthika to get teh switch mediator */
-.grandparent {
-    width: 250px;
-    height: 250px;
-    background-color: #CCCCCC;
-    position: relative;
+.circle-hide {
+    display: none;
 }
 
-.child1 {
-    width: 150px;
-    height: 150px;
-    background-color: #999999;
-    position: absolute;
-    bottom: 0px;
+/*//////////////////////////////////////////////////*/
+/** Editor canvas related styles | Start -> **/
+svg text::selection { background: none; }
+
+.non-user-selectable{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-.child2 {
-    width: 70px;
-    height: 70px;
-    background-color: #666666;
-    position: absolute;
-    right: 0px;
-    top: 0px;
+.gradient-pattern {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
+    background-color: white;
+    box-shadow: 0 0 2px lightgray;
+}
+/** Editor canvas related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Resource level tabs related styles | Start -> **/
+#tab-container{
+    border-bottom-style: solid;
+    border-bottom-color: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:hover {
+    background: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:active {
+    background: #8d8d8d;
+}
+.navbar-default .navbar-nav > li a:focus {
+    background: #8d8d8d;
 }
 
-.child3 {
-    width: 70px;
-    height: 70px;
-    background-color: #666666;
-    position: absolute;
-    right: 0px;
-    top: 0px;
+.nav-tabs > li, .nav-tabs > li > a {
+    height:42px;
 }
 
-.switchDivStyle {
-    height: 200px;
-    width: 200px;
-    background: #fff000;
-}
-
-.jsuplumContainerStyle {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #ffff00;
-}
-
-.switchTableStyle {
-    width: 100%;
-    height: 100%;
-}
-
-.switchTableTDStyle {
-    border: 1px solid #ccc;
-    border-width: 1px 1px 1px 1px;
-    border-radius: 25px;
-}
-
-.switchTableLeftTDStyle {
-    border: 1px solid #ccc;
-    border-width: 1px 1px 1px 1px;
-    width: 100%;
-    height: 100%;
-}
-
-.switchJsWrapperStyle {
-    height: 100%;
-    width: 100%;
-    background: #ffffff;
-}
-
-.wso2Mediator_style {
-    border: 1px solid #346789;
-    box-shadow: 2px 2px 19px #aaa;
-    -o-box-shadow: 2px 2px 19px #aaa;
-    -webkit-box-shadow: 2px 2px 19px #aaa;
-    -moz-box-shadow: 2px 2px 19px #aaa;
-    -moz-border-radius: 0.5em;
-    border-radius: 0.5em;
-    opacity: 0.8;
-    filter: alpha(opacity=80);
-
-    text-align: center;
-    z-index: 20;
-    position: absolute;
-    background-color: #eeeeef;
-    color: black;
-    font-family: helvetica;
-    padding: 0.5em;
-    font-size: 0.9em;
-    background-position: center 0%;
-    background-repeat: no-repeat;
-}
-
-.wso2Mediator_style:hover {
-    box-shadow: 2px 2px 19px #444;
-    -o-box-shadow: 2px 2px 19px #444;
-    -webkit-box-shadow: 2px 2px 19px #444;
-    -moz-box-shadow: 2px 2px 19px #444;
-    opacity: 0.6;
-    filter: alpha(opacity=60);
+.nav-tabs > li > a{
+    border-right: 1px solid #1e1e1e;
+    border-bottom: 1px solid #8d8d8d;
 }
 
 .nav-tabs > li > span {
@@ -192,8 +86,6 @@
 
 .nav-tabs > li > a {
     padding-right: 32px;
-    border: solid black !important;
-    border-width: 0 1px 0 0 !important;
     margin: 0;
     font-size: 1.2em;
     border-radius: 0;
@@ -208,25 +100,22 @@
     border: 0;
 }
 
-.breadcrumb{
-    text-transform: none;
-    padding-left: 25px;
-    font-size: 1.3em;
+.add-resource-btn {
+    width:40px;
 }
 
-#toolpalatte{
-    padding: 0;
+.tab-divs{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    overflow: hidden;
 }
-
-#tab-container > ul{
-    display: inline-block;
-}
-
 
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:hover,
 .nav-tabs > li.active > a:focus {
-    /*color: #7e7e7e;*/
+    border: 1px solid #8d8d8d;
     background-color: #373737;
     color: white;
 }
@@ -237,20 +126,24 @@
     right: 9px;
 }
 
+.close-icon {
+    cursor: pointer;
+}
+/** Resource level tabs related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** File Explorer related styles |Start -> **/
 #tree-container {
     background-color: #272727;
     border: solid #373737;
-    border-width: 0 3px 0 0;
-}
-
-#right-container{
-    background-color: #232323;
 }
 
 #tree-action-bar{
     background-color: #373737;
     color: #ededed;
-    height: 42px;
+    border-bottom:solid #1e1e1e;
 }
 
 .tree-view {
@@ -266,7 +159,6 @@
     background: #fdfdfd;
 
 }
-
 .tree-action{
     float: right;
 }
@@ -282,7 +174,67 @@ span.tree-action{
     height: 32px;
     color: black;
 }
+/** File Explorer related styles | -> End **/
+/*//////////////////////////////////////////////////*/
 
-.tab-pane  {
-    padding-bottom: 130px;
+
+/*//////////////////////////////////////////////////*/
+/** Breadcrumbs related styles | Start -> **/
+.breadcrumb{
+    text-transform: none;
+    font-size: 1.3em;
+    background-color: #232323;
+    border-bottom: 2px solid #1e1e1e;
 }
+/** Breadcrumbs related styles | -> End**/
+/*//////////////////////////////////////////////////*/
+
+
+/*//////////////////////////////////////////////////*/
+/** Property Pane related styles | Start -> **/
+.property-container{
+    background-color: #232323;
+    color: white;
+}
+
+#propertyPane > div > div.well.well-sm{
+    border-radius:0;
+    background: none;
+}
+
+#propertyPane select{
+    border: solid #8d8d8d;
+    color: #8d8d8d;
+    background-color: #232323;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+#propertyPane label{
+    font-weight: normal;
+}
+
+#propertyPane input{
+    border:solid #8d8d8d;
+    background-color: #232323;
+    color: #8d8d8d;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+#propertyPane  h3 {
+    font-size: 16px;
+    padding-left: 6px;
+}
+
+#propertyPane > div {
+    padding-left: 6px;
+    padding-right: 4px;
+}
+
+.property-save {
+    margin: 2px;
+    opacity: 0.4;
+}
+/** Property Pane related styles | -> End **/
+/*//////////////////////////////////////////////////*/

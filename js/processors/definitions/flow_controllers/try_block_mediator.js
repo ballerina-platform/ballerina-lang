@@ -27,6 +27,7 @@ var Processors = (function (processors) {
         icon: "images/tool-icons/tryblock.svg",
         colour : "#998844",
         type : "ComplexProcessor",
+        containableElements: ["Try", "Catch"],
         dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {

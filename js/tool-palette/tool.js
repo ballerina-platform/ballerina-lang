@@ -23,7 +23,7 @@ var Tools = (function (tools) {
         initialize: function (attrs, options) {
         },
 
-        modelName: "ToolElement",
+        modelName: "Tool",
 
         defaults: {
             id: "",
