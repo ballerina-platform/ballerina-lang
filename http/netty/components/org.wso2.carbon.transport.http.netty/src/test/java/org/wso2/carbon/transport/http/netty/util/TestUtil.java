@@ -27,15 +27,17 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.listener.NettyListener;
-import org.wso2.carbon.transport.http.netty.sender.NettySender;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A util class to be used for tests
@@ -54,13 +56,13 @@ public class TestUtil {
 
     public static final String TRANSPORT_URI = "http://localhost:8490/";
 
-    public static void cleanUp(NettyListener nettyListener, HTTPServer httpServer) {
+    public static void cleanUp(HTTPTransportListener httpTransportListener, HTTPServer httpServer) {
         try {
             Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
         } catch (InterruptedException e) {
 
         }
-        nettyListener.stop();
+        httpTransportListener.stop();
         httpServer.shutdown();
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
@@ -69,15 +71,20 @@ public class TestUtil {
         }
     }
 
-    public static NettyListener startCarbonTransport(ListenerConfiguration listenerConfiguration,
+    public static HTTPTransportListener startCarbonTransport(ListenerConfiguration listenerConfiguration,
             SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
-        NettyListener nettyListener = new NettyListener(listenerConfiguration);
-        TransportSender transportSender = new NettySender(senderConfiguration);
-        NettyTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+        Set<ListenerConfiguration> interfacesSet = new HashSet<>();
+        interfacesSet.add(listenerConfiguration);
+        int bossGroupSize = Runtime.getRuntime().availableProcessors();
+        int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
+        HTTPTransportListener httpTransportListener = new HTTPTransportListener(bossGroupSize, workerGroupSize,
+                interfacesSet);
+        TransportSender transportSender = new HTTPSender(senderConfiguration);
+        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
         carbonMessageProcessor.setTransportSender(transportSender);
         Thread transportRunner = new Thread(() -> {
             try {
-                nettyListener.start();
+                httpTransportListener.start();
             } catch (Exception e) {
                 LOGGER.error("Unable to start Netty Listener ", e);
             }
@@ -88,7 +95,7 @@ public class TestUtil {
         } catch (InterruptedException e) {
             LOGGER.error("Thread Interuppted while sleeping ", e);
         }
-        return nettyListener;
+        return httpTransportListener;
     }
 
     public static HTTPServer startHTTPServer(int port) {
@@ -123,8 +130,8 @@ public class TestUtil {
         return httpServer;
     }
 
-    public static void shutDownCarbonTransport(NettyListener nettyListener) {
-        nettyListener.stop();
+    public static void shutDownCarbonTransport(HTTPTransportListener httpTransportListener) {
+        httpTransportListener.stop();
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
@@ -166,9 +173,9 @@ public class TestUtil {
 
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
             SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
-        TransportSender transportSender = new NettySender(senderConfiguration);
+        TransportSender transportSender = new HTTPSender(senderConfiguration);
         carbonMessageProcessor.setTransportSender(transportSender);
-        NettyTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 
 }

@@ -104,7 +104,7 @@ public class ClientRequestWorker implements Runnable {
             } finally {
                 if (channel != null) {
                     targetChannel.setChannel(channel);
-                    targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
+                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
                 }
             }
         } else {
@@ -143,7 +143,7 @@ public class ClientRequestWorker implements Runnable {
             Object obj = genericObjectPool.borrowObject();
             if (obj != null) {
                 TargetChannel targetChannel = (TargetChannel) obj;
-                targetChannel.setTargetHandler(targetChannel.getNettyClientInitializer().getTargetHandler());
+                targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
                 return targetChannel;
             }
         } catch (Exception e) {

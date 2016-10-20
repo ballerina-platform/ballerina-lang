@@ -36,19 +36,19 @@ import org.wso2.carbon.messaging.handler.MessagingHandler;
  * OSGi services.
  */
 @Component(
-        name = "org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent",
+        name = "org.wso2.carbon.transport.http.netty.internal.HTTPTransportServiceComponent",
         immediate = true,
         property = {
                 "componentName=netty-transports-mgt"
         })
 @SuppressWarnings("unused")
-public class NettyTransportServiceComponent implements RequiredCapabilityListener {
+public class HTTPTransportServiceComponent implements RequiredCapabilityListener {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyTransportServiceComponent.class);
+    private static final Logger log = LoggerFactory.getLogger(HTTPTransportServiceComponent.class);
 
     private static final String CHANNEL_ID_KEY = "channel.id";
 
-    private NettyTransportContextHolder dataHolder = NettyTransportContextHolder.getInstance();
+    private HTTPTransportContextHolder dataHolder = HTTPTransportContextHolder.getInstance();
 
     @Activate
     protected void activate(BundleContext bundleContext) {
@@ -62,11 +62,11 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
             policy = ReferencePolicy.DYNAMIC,
             unbind = "removeMessageProcessor")
     protected void addMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        NettyTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 
     protected void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        NettyTransportContextHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
+        HTTPTransportContextHolder.getInstance().removeMessageProcessor(carbonMessageProcessor);
     }
 
     @Reference(
@@ -76,11 +76,11 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
             policy = ReferencePolicy.DYNAMIC,
             unbind = "removeManager")
     protected void addManager(TransportListenerManager manager) {
-        NettyTransportContextHolder.getInstance().setManager(manager);
+        HTTPTransportContextHolder.getInstance().setManager(manager);
     }
 
     protected void removeManager(TransportListenerManager manager) {
-        NettyTransportContextHolder.getInstance().removeManager();
+        HTTPTransportContextHolder.getInstance().removeManager();
     }
 
     @Reference(
@@ -90,17 +90,17 @@ public class NettyTransportServiceComponent implements RequiredCapabilityListene
             policy = ReferencePolicy.DYNAMIC,
             unbind = "removeNettyStatHandler")
     protected void addNettyStatHandler(MessagingHandler messagingHandler) {
-        NettyTransportContextHolder.getInstance().getHandlerExecutor().addHandler(messagingHandler);
+        HTTPTransportContextHolder.getInstance().getHandlerExecutor().addHandler(messagingHandler);
     }
 
     protected void removeNettyStatHandler(MessagingHandler messagingHandler) {
-        NettyTransportContextHolder.getInstance().getHandlerExecutor().removeHandler(messagingHandler);
+        HTTPTransportContextHolder.getInstance().getHandlerExecutor().removeHandler(messagingHandler);
     }
 
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
-        NettyTransportContextHolder.getInstance().getBundleContext().
-                registerService(NettyTransportServiceComponent.class, this, null);
+        HTTPTransportContextHolder.getInstance().getBundleContext().
+                registerService(HTTPTransportServiceComponent.class, this, null);
         log.info("All CarbonNettyServerInitializers are available");
     }
 }

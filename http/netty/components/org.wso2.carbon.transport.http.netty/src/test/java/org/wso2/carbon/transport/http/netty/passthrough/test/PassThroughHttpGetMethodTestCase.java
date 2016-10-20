@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.NettyListener;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -45,7 +45,7 @@ public class PassThroughHttpGetMethodTestCase {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughHttpGetMethodTestCase.class);
 
-    private NettyListener nettyListener;
+    private HTTPTransportListener httpTransportListener;
 
     private static final String testValue = "Test Message";
 
@@ -65,7 +65,7 @@ public class PassThroughHttpGetMethodTestCase {
         listenerConfiguration.setWorkerPoolSize(Runtime.getRuntime().availableProcessors());
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
-        nettyListener = TestUtil
+        httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
     }
@@ -87,10 +87,10 @@ public class PassThroughHttpGetMethodTestCase {
     @Test(groups = "passthroughGET",
           dependsOnMethods = "passthroughWorkerPoolEnabledGetTestCase")
     public void passthroughDisruptorEnabledGetTestCase() {
-        TestUtil.shutDownCarbonTransport(nettyListener);
+        TestUtil.shutDownCarbonTransport(httpTransportListener);
         listenerConfiguration.setEnableDisruptor(true);
         senderConfiguration.setDisruptorOn(true);
-        nettyListener = TestUtil
+        httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
@@ -106,7 +106,7 @@ public class PassThroughHttpGetMethodTestCase {
 
     @AfterClass(groups = "passthroughGET")
     public void cleanUp() {
-        TestUtil.cleanUp(nettyListener, httpServer);
+        TestUtil.cleanUp(httpTransportListener, httpServer);
     }
 
 }

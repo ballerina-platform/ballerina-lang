@@ -31,9 +31,9 @@ import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguratio
 /**
  * A class that responsible for initialize target server pipeline.
  */
-public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
+public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyClientInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
 
     private SenderConfiguration senderConfiguration;
 
@@ -41,7 +41,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
     private TargetHandler handler;
     private int soTimeOut;
 
-    public NettyClientInitializer(SenderConfiguration senderConfiguration) {
+    public HTTPClientInitializer(SenderConfiguration senderConfiguration) {
         this.senderConfiguration = senderConfiguration;
         soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
     }

@@ -40,20 +40,23 @@ import java.util.Map;
 /**
  * A class that responsible for create server side channels.
  */
-public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChannel>
+public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChannel>
         implements CarbonTransportInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(CarbonNettyServerInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(CarbonHTTPServerInitializer.class);
     private ConnectionManager connectionManager;
 
-    private ListenerConfiguration listenerConfiguration;
+    private ListenerConfiguration defaultListenerConfiguration;
+    private Map<String, ListenerConfiguration> listenerConfigurationMap;
 
     private SSLConfig sslConfig;
 
     private Map<String, org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig> sslConfigMap;
 
-    public CarbonNettyServerInitializer(ListenerConfiguration listenerConfiguration) {
-        this.listenerConfiguration = listenerConfiguration;
+    public CarbonHTTPServerInitializer(ListenerConfiguration defaultListenerConfiguration,
+            Map<String, ListenerConfiguration> integerListenerConfigurationMap) {
+        this.defaultListenerConfiguration = defaultListenerConfiguration;
+        this.listenerConfigurationMap = integerListenerConfigurationMap;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         try {
             connectionManager = ConnectionManager.getInstance(parameters);
 
-            if (listenerConfiguration.getEnableDisruptor()) {
+            if (defaultListenerConfiguration.getEnableDisruptor()) {
                 if (parameters != null && !parameters.isEmpty()) {
                     log.debug("Disruptor is enabled");
                     log.debug("Disruptor configuration creating");
@@ -95,15 +98,15 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
                     log.debug("Disruptor is disabled and using executor thread pool with size of "
                             + executorWorkerPoolSize);
                     if (executorWorkerPoolSize > 0) {
-                        listenerConfiguration.setWorkerPoolSize(executorWorkerPoolSize);
+                        defaultListenerConfiguration.setWorkerPoolSize(executorWorkerPoolSize);
                     } else {
                         log.warn("Please enable disruptor or specify executorHandlerThreadPool size greater than 0,"
                                 + " starting with default value");
-                        listenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                        defaultListenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
                     }
                 } else {
                     log.warn("ExecutorHandlerThreadPool size is not specified using the default value");
-                    listenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
+                    defaultListenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
                 }
 
             }
@@ -118,10 +121,11 @@ public class CarbonNettyServerInitializer extends ChannelInitializer<SocketChann
         if (log.isDebugEnabled()) {
             log.debug("Initializing source channel pipeline");
         }
-        String host = ch.remoteAddress().getHostName();
-        int port = ch.remoteAddress().getPort();
+        String host = ch.localAddress().getHostName();
+        int port = ch.localAddress().getPort();
 
         String id = host + ":" + port;
+        ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(id);
         if (sslConfigMap.get(id) != null) {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfigMap.get(id)).create();
             ch.pipeline().addLast("ssl", sslHandler);

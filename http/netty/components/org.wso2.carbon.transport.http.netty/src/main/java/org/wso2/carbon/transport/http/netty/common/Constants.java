@@ -89,6 +89,12 @@ public final class Constants {
 
     public static final String SERVER_BOOTSTRAP_SO_TIMEOUT = "server.bootstrap.socket.timeout";
 
+    public static final String SERVER_BOOTSTRAP_BOSS_GROUP_SIZE = "server.bootstrap.boss.group.size";
+
+    public static final String SERVER_BOOTSTRAP_WORKER_GROUP_SIZE = "server.bootstrap.worker.group.size";
+
+    public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
+
     //Server side SSL Parameters
     public static final String SERVER_SUPPORT_CIPHERS = "server.ssl.ciphers";
     public static final String SERVER_SUPPORT_HTTPS_PROTOCOLS = "server.ssl.http.protocols";
@@ -132,7 +138,6 @@ public final class Constants {
     public static final String TRUSTSTOREFILE = "trustStoreFile";
 
     public static final String TRUSTSTOREPASS = "trustStorePass";
-
 
     public static final String RESPONSE_CALLBACK = "RESPONSE_CALLBACK";
 
@@ -205,6 +210,12 @@ public final class Constants {
     public static final String DISRUPTOR_WORKER_POOL = "Disruptor-Worker-Pool";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";
+
+    public static final String LOOP_BACK_ADDRESS = "127.0.0.1";
+
+    public static final String DEFAULT_ADDRESS = "0.0.0.0";
+
+    public static final String LOCALHOST = "localhost";
 
     private Constants() {
     }

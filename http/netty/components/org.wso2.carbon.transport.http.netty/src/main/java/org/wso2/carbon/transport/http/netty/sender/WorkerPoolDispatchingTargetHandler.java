@@ -25,8 +25,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.ExecutorService;
 
@@ -44,8 +44,8 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
         if (msg instanceof HttpResponse) {
 
             cMsg = setUpCarbonMessage(ctx, msg);
-            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                NettyTransportContextHolder.getInstance().getHandlerExecutor().
+            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                         executeAtTargetResponseReceiving(cMsg);
             }
 
@@ -67,17 +67,17 @@ public class WorkerPoolDispatchingTargetHandler extends TargetHandler {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
-                    ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
                     cMsg.setEndOfMsgAdded(true);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetResponseSending(cMsg);
                     }
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
-                    ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
                 }
             }
         }

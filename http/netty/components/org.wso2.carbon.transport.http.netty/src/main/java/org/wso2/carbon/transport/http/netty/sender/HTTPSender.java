@@ -44,14 +44,14 @@ import java.util.Map;
 /**
  * A class creates connections with BE and send messages.
  */
-public class NettySender implements TransportSender {
+public class HTTPSender implements TransportSender {
 
-    private static final Logger log = LoggerFactory.getLogger(NettySender.class);
+    private static final Logger log = LoggerFactory.getLogger(HTTPSender.class);
     private String id;
     private ConnectionManager connectionManager;
     private SenderConfiguration senderConfiguration;
 
-    public NettySender(SenderConfiguration senderConfiguration) {
+    public HTTPSender(SenderConfiguration senderConfiguration) {
         this.id = senderConfiguration.getId();
         this.senderConfiguration = senderConfiguration;
         Map<String, String> paramMap = new HashMap();

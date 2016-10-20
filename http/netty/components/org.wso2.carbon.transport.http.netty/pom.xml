@@ -116,7 +116,7 @@
     </dependencies>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.transport.http.netty.internal.NettyTransportActivator</bundle.activator>
+        <bundle.activator>org.wso2.carbon.transport.http.netty.internal.HTTPTransportActivator</bundle.activator>
         <private.package>org.wso2.carbon.transport.http.netty.internal,
             org.wso2.carbon.transport.http.netty.message,
         </private.package>
@@ -153,7 +153,7 @@
             requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
             org.wso2.carbon.messaging.CarbonMessageProcessor",
             osgi.service;
-            objectClass="org.wso2.carbon.transport.http.netty.internal.NettyTransportServiceComponent";
+            objectClass="org.wso2.carbon.transport.http.netty.internal.HTTPTransportServiceComponent";
             requiredByComponentName="carbon-transport-mgt",
             osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
             capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"

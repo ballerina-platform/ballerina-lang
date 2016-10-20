@@ -19,7 +19,7 @@ package org.wso2.carbon.transport.http.netty.sender.channel;
 import io.netty.channel.Channel;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
-import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
+import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 
 /**
@@ -32,7 +32,7 @@ public class TargetChannel {
 
     private TargetHandler targetHandler;
 
-    private NettyClientInitializer nettyClientInitializer;
+    private HTTPClientInitializer httpClientInitializer;
 
     private HttpRoute httpRoute;
 
@@ -61,12 +61,12 @@ public class TargetChannel {
         this.targetHandler = targetHandler;
     }
 
-    public NettyClientInitializer getNettyClientInitializer() {
-        return nettyClientInitializer;
+    public HTTPClientInitializer getHTTPClientInitializer() {
+        return httpClientInitializer;
     }
 
-    public void setNettyClientInitializer(NettyClientInitializer nettyClientInitializer) {
-        this.nettyClientInitializer = nettyClientInitializer;
+    public void setHTTPClientInitializer(HTTPClientInitializer clientInitializer) {
+        this.httpClientInitializer = clientInitializer;
     }
 
     public HttpRoute getHttpRoute() {

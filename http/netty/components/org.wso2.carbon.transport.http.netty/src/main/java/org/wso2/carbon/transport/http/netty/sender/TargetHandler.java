@@ -33,8 +33,8 @@ import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
@@ -62,8 +62,8 @@ public class TargetHandler extends ReadTimeoutHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
 
@@ -76,8 +76,8 @@ public class TargetHandler extends ReadTimeoutHandler {
         if (msg instanceof HttpResponse) {
 
             cMsg = setUpCarbonMessage(ctx, msg);
-            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                NettyTransportContextHolder.getInstance().getHandlerExecutor().
+            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                         executeAtTargetResponseReceiving(cMsg);
             }
             ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
@@ -85,17 +85,17 @@ public class TargetHandler extends ReadTimeoutHandler {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
                     HttpContent httpContent = (LastHttpContent) msg;
-                    ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
                     cMsg.setEndOfMsgAdded(true);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetResponseSending(cMsg);
                     }
                     targetChannel.setRequestWritten(false);
                     connectionManager.returnChannel(targetChannel);
                 } else {
                     HttpContent httpContent = (DefaultHttpContent) msg;
-                    ((NettyCarbonMessage) cMsg).addHttpContent(httpContent);
+                    ((HTTPCarbonMessage) cMsg).addHttpContent(httpContent);
                 }
             }
         }
@@ -104,8 +104,8 @@ public class TargetHandler extends ReadTimeoutHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
         }
         LOG.debug("Target channel closed.");
@@ -158,9 +158,9 @@ public class TargetHandler extends ReadTimeoutHandler {
     }
 
     protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
-        cMsg = new NettyCarbonMessage();
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
+        cMsg = new HTTPCarbonMessage();
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
         }
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
