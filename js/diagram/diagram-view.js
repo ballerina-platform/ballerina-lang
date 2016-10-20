@@ -776,27 +776,27 @@ var Diagrams = (function (diagrams) {
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
             },
 
-            drawPropertiesPane: function (svg, optionsX, parameters, propertyPaneSchema) {
+            drawPropertiesPane: function (svg, options, parameters, propertyPaneSchema) {
                 //remove the property pane svg, if it already exists
                 var propertySVG = document.getElementById("property-pane-svg");
                 if (propertySVG) {
                     propertySVG.parentNode.removeChild(propertySVG);
                 }
 
-                var options = {
+                var svgOptions = {
                     id: "property-pane-svg",
                     height: "100%",
                     width: "100%",
                     class: "property",
-                    x: optionsX.x,
-                    y: optionsX.y
+                    x: options.x,
+                    y: options.y
                 };
-                propertySVG = svg.draw.propertySVG(options);
+                propertySVG = svg.draw.propertySVG(svgOptions);
 
                 var rect = propertySVG.append("rect")
                     .attr("id", "property-pane")
-                    .attr("x", optionsX.x)
-                    .attr("y", optionsX.y)
+                    .attr("x", 120)
+                    .attr("y", options.y)
                     .attr("rx", "0")
                     .attr("ry", "0")
                     .attr("width", "300")
@@ -805,7 +805,7 @@ var Diagrams = (function (diagrams) {
                     .attr("opacity", "0.9");
 
                 diagram.propertyWindow = true;
-                propertySVG.draw.form(optionsX.x + 10, optionsX.y + 10, propertySVG, parameters, propertyPaneSchema);
+                propertySVG.draw.form(130, options.y + 10, propertySVG, parameters, propertyPaneSchema);
             },
 
             /**

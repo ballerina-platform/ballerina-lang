@@ -192,7 +192,7 @@ var SequenceD = (function (sequenced) {
                             diagram.propertyWindow = true;
                             var options = {
                                 x: parseInt(jQuery(event.target).attr("cx")) - 135,
-                                y: parseInt(jQuery(event.target).attr("cy")) - 20
+                                y: parseInt(jQuery(event.target).attr("cy")) - 25
                             };
                             defaultView.selectedNode = viewObj.model;
                             defaultView.drawPropertiesPane(d3Ref, options,
@@ -734,7 +734,6 @@ var SequenceD = (function (sequenced) {
                                 diagram.previousDeleteIconGroup.classed("circle-show", false);
                                 diagram.previousPropertyIconGroup.classed("circle-hide", true);
                                 diagram.previousPropertyIconGroup.classed("circle-show", false);
-                                console.log("state " + diagram.propertyWindow);
                                 if (diagram.propertyWindow) {
                                     $('#property-pane-svg').empty();
                                     diagram.propertyWindow = false;
