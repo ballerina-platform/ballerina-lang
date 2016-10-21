@@ -81,7 +81,9 @@ var Processors = (function (processors) {
             editableProperties.Description = parameters[2];
             return editableProperties;
         },
-        getMySubTree: function (model, parameters) {
+        getMySubTree: function (model) {
+            var parameters = model.get('parameters').parameters;
+            alert(model.get('parameters').parameters[1].value);
             var log_configStart =  "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
             return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
         }
