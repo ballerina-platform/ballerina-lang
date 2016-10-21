@@ -412,7 +412,7 @@
 
     function saveConfiguration() {
         var config = '@Path ("/stock")\n' +
-                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Source (interface="default")\n' +
                 '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
                 'package com.sample;\n\n';
         config += diagram.parseTree();
@@ -451,7 +451,7 @@
             return;
         }
         var config = '@Path ("/stock")\n' +
-                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Source (interface="default")\n' +
                 '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
                 'package com.sample;\n\n';
 
@@ -494,7 +494,7 @@
         mainEditor.setValue("");
         //Hard coded sourceConfig :TODO
         var sourceConfig = '@Path ("/stock")\n' +
-                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Source (interface="default")\n' +
                 '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
                 'package com.sample;\n\n';
 
