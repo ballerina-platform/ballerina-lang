@@ -141,9 +141,9 @@ $(function () {
 
 // Create the model for the diagram
 var diagram = new Diagrams.Models.Diagram({});
-var diagramViewElements,
+var diagramViewElements = [],
     ppView,
-    definedConstants;
+    definedConstants = [];
 
 function TreeNode(value, type, cStart, cEnd) {
     this.object = undefined;
