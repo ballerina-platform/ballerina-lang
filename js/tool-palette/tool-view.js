@@ -26,16 +26,18 @@ var Tools = (function (tools) {
 
         },
         handleOnDragEvent : function(event,ui){
-            var m = ui.helper;
-            var span = m[0].childNodes;
-            document.getElementById("validator").innerText="X";
-            document.getElementById("validator").style.width="70px";
-            document.getElementById("validator").style.display="none";
+            var helperElm = ui.helper;
+            var span = helperElm[0].childNodes;
+            var validator = document.getElementById("validator");
 
             //Visual feedback on invalid drops on endpoints
             if(eventManager.invalid){
-                document.getElementById("validator").style.display="block";
-                document.getElementById("validator").style.color="darkred";
+                validator.innerText="X";
+                validator.className = "tool-validator";
+                validator.style.display="block";
+            }
+            else{
+                validator.style.display="none";
             }
         },
 

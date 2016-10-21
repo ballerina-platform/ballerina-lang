@@ -71,3 +71,8 @@
     display : block;
     margin : auto;
 }
+.tool-validator{
+    height: 40px;
+    color: darkred;
+    display:none;
+}
