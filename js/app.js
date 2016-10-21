@@ -206,7 +206,6 @@ var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
 preview.render();
 tab.preview(preview);
 
-
 defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
 defaultView.model.sourceLifeLineCounter(1);
 defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
@@ -218,6 +217,9 @@ for (var i = 0; i < sourceLifelineTextElements.length; i++) {
         sourceLifelineTextElements[i].style.color = "Green";
     }
 }
-
-
-
+$(document).ready(function(){
+    $("#empty-workspace-wrapper").show();
+    $("#resource-tabs-wrapper").hide();
+    $("#breadcrumbRow").hide();
+    $("#serviceAndSourceButtonsRow").hide();
+});

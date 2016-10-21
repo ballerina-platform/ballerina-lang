@@ -13,7 +13,7 @@ body{
 }
 
 .header {
-    background-color: #232323;
+    background-color: #272c30;
 }
 
 #editor-container{
@@ -182,8 +182,11 @@ span.tree-action{
 /** Breadcrumbs related styles | Start -> **/
 .breadcrumb{
     text-transform: none;
-    font-size: 1.3em;
+    font-size: 14px;
+    padding: 16px;
     background-color: #232323;
+}
+#breadcrumbRow{
     border-bottom: 2px solid #1e1e1e;
 }
 /** Breadcrumbs related styles | -> End**/
