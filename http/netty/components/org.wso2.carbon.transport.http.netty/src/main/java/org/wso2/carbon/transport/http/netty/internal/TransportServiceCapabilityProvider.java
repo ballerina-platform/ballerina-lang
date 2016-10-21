@@ -41,6 +41,7 @@ public class TransportServiceCapabilityProvider implements CapabilityProvider {
 
     @Override
     public int getCount() {
+        //Only one Listener configuration is needed for server startup.
         return 1;
     }
 }

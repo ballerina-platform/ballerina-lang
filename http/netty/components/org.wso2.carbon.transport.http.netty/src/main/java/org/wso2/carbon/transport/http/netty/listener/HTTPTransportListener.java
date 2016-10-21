@@ -58,7 +58,9 @@ public class HTTPTransportListener extends TransportListener {
     private ServerBootstrap bootstrap;
     private ListenerConfiguration defaultListenerConfig;
     private Map<Integer, ChannelFuture> channelFutureMap = new ConcurrentHashMap<>();
+    //Map used for cache listener configurations
     private Map<String, ListenerConfiguration> listenerConfigurationMap = new HashMap<>();
+    //Map used for  map listener configurations with host and post as key for used in channel initializer
     private Map<String, ListenerConfiguration> listenerConfigMapWithHostPort = new HashMap<>();
 
     private Map<String, SSLConfig> sslConfigMap = new ConcurrentHashMap<>();
@@ -66,7 +68,7 @@ public class HTTPTransportListener extends TransportListener {
     public HTTPTransportListener(int bossGroupSize, int workerGroupSize,
             Set<ListenerConfiguration> listenerConfigurationSet) {
         super("ServerBootStrapper");
-        if (listenerConfigurationSet.size() == 0) {
+        if (listenerConfigurationSet.isEmpty()) {
             log.error("Cannot find registered listener configurations  hence cannot start the transport listeners");
             return;
         }
@@ -101,6 +103,7 @@ public class HTTPTransportListener extends TransportListener {
         startTransport();
     }
 
+    //configure bootstrap and bind bootstrap for default configuration
     private void startTransport() {
         //Create Bootstrap Configuration from listener parameters
         ServerBootstrapConfiguration.createBootStrapConfiguration(defaultListenerConfig.getParameters());
@@ -205,7 +208,7 @@ public class HTTPTransportListener extends TransportListener {
                     " stopped successfully");
         } catch (InterruptedException e) {
             log.error("HTTP transport " + id + " on port " + defaultListenerConfig.getPort() +
-                    " could not be stopped successfully");
+                    " could not be stopped successfully " + e.getMessage());
         }
     }
 
@@ -215,7 +218,7 @@ public class HTTPTransportListener extends TransportListener {
     }
 
     @Override
-    public boolean listen(String interfaceId) {
+    public boolean bind(String interfaceId) {
         try {
             ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(interfaceId);
             if (listenerConfiguration != null) {
@@ -263,7 +266,7 @@ public class HTTPTransportListener extends TransportListener {
     }
 
     @Override
-    public boolean stopListening(String interfaceId) {
+    public boolean unBind(String interfaceId) {
         ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(interfaceId);
         if (listenerConfiguration != null && !defaultListenerConfig.getId().equals(listenerConfiguration.getId())) {
             String id = listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
