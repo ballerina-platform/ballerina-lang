@@ -472,7 +472,7 @@
                     $("#empty-workspace-wrapper").hide();
                     $("#resource-tabs-wrapper").show();
                     $("#serviceAndSourceButtonsRow").show();
-                    diagram.reloadDiagramArea();
+                    initTabs();
                 } else {
                     newWizardError.text("Something went wrong. " + textStatus);
                     newWizardError.show();

@@ -141,17 +141,9 @@ $(function () {
 
 // Create the model for the diagram
 var diagram = new Diagrams.Models.Diagram({});
-var diagramViewElements = [];
-
-
-selected = "";
-selectedModel = "";
-
-//var ppModel = new Editor.Views.PropertyPaneModel();
-var ppView = new Editor.Views.PropertyPaneView();
-propertyPane = ''; //ppView.createPropertyPane(schema, properties);
-endpointLifelineCounter = 0;
-resourceLifelineCounter = 0;
+var diagramViewElements,
+    ppView,
+    definedConstants;
 
 function TreeNode(value, type, cStart, cEnd) {
     this.object = undefined;
@@ -170,53 +162,53 @@ function TreeNode(value, type, cStart, cEnd) {
     };
 }
 
-// defining the constants such as the endpoints, this variable need to be positioned properly when restructuring
-// This is a map of constants as --> constantType: constantValue
-// Ex: HttpEP: "http://localhost/test/test2"
-var definedConstants = {};
+function initTabs(){
+    diagramViewElements = [];
+    selected = "";
+    selectedModel = "";
 
-// Configuring dynamic  tab support
-var tab = new Diagrams.Models.Tab({
-    resourceId: "seq_1",
-    hrefId: "#seq_1",
-    resourceTitle: "Resource",
-    createdTab: false
-});
+    ppView = new Editor.Views.PropertyPaneView();
+    propertyPane = ''; //ppView.createPropertyPane(schema, properties);
+    endpointLifelineCounter = 0;
+    resourceLifelineCounter = 0;
 
-var tabListView = new Diagrams.Views.TabListView({model: tab});
-tabListView.render(tab);
-var diagramObj1 = new Diagrams.Models.Diagram({});
-tab.addDiagramForTab(diagramObj1);
-var tabId1 = tab.get("resourceId");
-var linkId1 = tab.get("hrefId");
-//Enabling tab activation at page load
-$('.tabList a[href="#' + tabId1 + '"]').tab('show');
-var dgModel1 = tab.getDiagramOfTab(tab.attributes.diagramForTab.models[0].cid);
-dgModel1.CurrentDiagram(dgModel1);
-var svgUId1 = tabId1 + "4";
-var options = {selector: linkId1, wrapperId: svgUId1};
-// get the current diagram view for the tab
-var currentView1 = dgModel1.createDiagramView(dgModel1, options);
-// set current tab's diagram view as default view
-currentView1.currentDiagramView(currentView1);
-tab.setDiagramViewForTab(currentView1);
-// mark tab as visited
-tab.setSelectedTab();
-var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
-preview.render();
-tab.preview(preview);
+    // Configuring dynamic  tab support
+    var tab = new Diagrams.Models.Tab({
+        resourceId: "seq_1",
+        hrefId: "#seq_1",
+        resourceTitle: "Resource",
+        createdTab: false
+    });
 
-defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
-defaultView.model.sourceLifeLineCounter(1);
-defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
-defaultView.model.resourceLifeLineCounter(1);
+    var tabListView = new Diagrams.Views.TabListView({model: tab});
+    tabListView.render(tab);
+    var diagramObj1 = new Diagrams.Models.Diagram({});
+    tab.addDiagramForTab(diagramObj1);
+    var tabId1 = tab.get("resourceId");
+    var linkId1 = tab.get("hrefId");
+    //Enabling tab activation at page load
+    $('.tabList a[href="#' + tabId1 + '"]').tab('show');
+    var dgModel1 = tab.getDiagramOfTab(tab.attributes.diagramForTab.models[0].cid);
+    dgModel1.CurrentDiagram(dgModel1);
+    var svgUId1 = tabId1 + "4";
+    var options = {selector: linkId1, wrapperId: svgUId1};
+    // get the current diagram view for the tab
+    var currentView1 = dgModel1.createDiagramView(dgModel1, options);
+    // set current tab's diagram view as default view
+    currentView1.currentDiagramView(currentView1);
+    tab.setDiagramViewForTab(currentView1);
+    // mark tab as visited
+    tab.setSelectedTab();
+    var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
+    preview.render();
+    tab.preview(preview);
 
-var sourceLifelineTextElements = document.getElementsByClassName("lifeline-title");
-for (var i = 0; i < sourceLifelineTextElements.length; i++) {
-    if (sourceLifelineTextElements[i].innerHTML == "Source") {
-        sourceLifelineTextElements[i].style.color = "Green";
-    }
+    defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
+    defaultView.model.sourceLifeLineCounter(1);
+    defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
+    defaultView.model.resourceLifeLineCounter(1);
 }
+
 $(document).ready(function(){
     $("#empty-workspace-wrapper").show();
     $("#resource-tabs-wrapper").hide();
