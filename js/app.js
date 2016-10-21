@@ -51,8 +51,8 @@ var createPoint = function (x, y) {
 
 var diagramD3el = undefined;
 
-var createLifeLine = function (title, center, cssClass) {
-    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass});
+var createLifeLine = function (title, center, cssClass, parameters) {
+    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass, parameters: parameters});
 };
 
 // Create main tool group

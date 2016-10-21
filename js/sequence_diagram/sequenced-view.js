@@ -666,7 +666,7 @@ var SequenceD = (function (sequenced) {
                         lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
                     }
                     propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(), 
-                                lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
+                                lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('parameters')),
                                 defaultView.model.selectedNode);
                 }
 
