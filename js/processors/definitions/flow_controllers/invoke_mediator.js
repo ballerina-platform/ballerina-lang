@@ -157,7 +157,7 @@ var Processors = (function (processors) {
                     endpoint = "anonymous";
                 }
             });
-            return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(" + endpoint + ")"), ";");
+            return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
         }
     };
 
