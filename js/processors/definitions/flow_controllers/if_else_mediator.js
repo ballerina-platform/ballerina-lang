@@ -44,8 +44,8 @@ var Processors = (function (processors) {
         },
         parameters: [
             {
-                key: "exception",
-                value: "Exception"
+                key: "condition",
+                value: ""
             },
             {
                 key: "description",
@@ -57,14 +57,14 @@ var Processors = (function (processors) {
                 title: "If Else",
                 type: "object",
                 properties: {
-                    Exception: {"type": "string"},
+                    Condition: {"type": "string"},
                     Description: {"type": "string"}
                 }
             };
         },
         getEditableProperties: function (parameters) {
             var editableProperties = {};
-            editableProperties.Exception = parameters[0];
+            editableProperties.Condition = parameters[0];
             editableProperties.Description = parameters[1];
             return editableProperties;
         },
