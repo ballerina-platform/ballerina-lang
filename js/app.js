@@ -145,35 +145,26 @@ $(function () {
             // editorContainer.css("padding-left", el.size.width);
         }
     });
-    //TODO: remove + 1
-    // editorContainer.css("padding-left", toolContainer.width() + 1);
 
-    var $tree = $("#tree");
-    initTree($tree);
+    var tree = new Tree({
+        root: new TreeItem({
+            name: "MyProj",
+            isDir: true,
+            children: new TreeItemList([
+                new TreeItem({
+                    name: "Dir",
+                    isDir: true,
+                    children: new TreeItemList([new TreeItem({name: "MyAP2"})])
+                }),
+                new TreeItem({name: "MyAP3"})])
+        })
+    });
+    new TreeView({model: tree}).render();
+    tree.on("select",function (e) {
+        console.log(e.path);
+        console.log(e.name);
+    });
 
-    var removed = false;
-    $("#tree-add-api").on('click',function (e) {
-        $tree.find("> li > ul").append("<li><input/></li>")
-        removed = false;
-        $tree.find('input').focus();
-    });
-    var addApi = function (e) {
-        if(!removed){
-            removed = true;
-            var $input = $tree.find('input');
-            $input.parent('li').remove();
-            var name = $input.val();
-            if(name != ""){
-                $tree.find("> li > ul").append("<li>" + name + "</li>")
-            }
-        }
-    };
-    $tree.on("blur", "input", addApi);
-    $tree.on('keypress', function (e) {
-        if (e.which === 13) {
-            addApi(e)
-        }
-    });
 
 });
 
