@@ -105,6 +105,7 @@ var D3Utils = (function (d3_utils) {
             .attr("width", width)
             .attr("height", height)
             .attr("fill", colour || "steelblue")
+            .attr("stroke", "black")
             .attr("stroke-width", 2)
             .attr("rx", rx)
             .attr("ry", ry);

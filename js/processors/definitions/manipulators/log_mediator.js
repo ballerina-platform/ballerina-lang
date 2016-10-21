@@ -48,11 +48,11 @@ var Processors = (function (processors) {
             },
             {
                 key: "logLevel",
-                value: "SIMPLE"
+                value: "simple"
             },
             {
                 key: "logCategory",
-                value: "INFO"
+                value: "info"
             },
             {
                 key: "description",
@@ -68,24 +68,24 @@ var Processors = (function (processors) {
                     LogLevel: {
                         "type": "string",
                         "enum": [
-                            "SIMPLE",
-                            "CUSTOM",
-                            "HEADERS",
-                            "FULL"
+                            "simple",
+                            "custom",
+                            "headers",
+                            "full"
                         ],
                         "default": "SIMPLE"
                     },
                     LogCategory: {
                         "type": "string",
                         "enum": [
-                            "INFO",
-                            "ERROR",
-                            "WARN",
-                            "FATAL",
-                            "DEBUG",
-                            "TRACE"
+                            "info",
+                            "error",
+                            "warn",
+                            "fatal",
+                            "debug",
+                            "trace"
                         ],
-                        "default": "INFO"
+                        "default": "info"
                     },
                     Description: {"type": "string"}
                 }
