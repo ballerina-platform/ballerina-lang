@@ -506,10 +506,22 @@ var Diagrams = (function (diagrams) {
                 var TreeRoot;
 
                 var buildTree = function (resourceModel) {
-                    var rootNode = new TreeNode("Resource", "Resource", "resource passthrough (message m) {", "}");
+                    // Until the message variabe concept introduce to the tooling we will be creating a message called response on behalf of the user
+                    var rootNode = new TreeNode("Resource", "Resource", "resource passthrough (message m) {\nmessage response;", "}");
                     for (var itr = 0; itr < (resourceModel.get('children').models).length; itr++) {
                         var mediator = (resourceModel.get('children').models)[itr];
-                        rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
+
+                        // Check whether the mediator is a message point from the resource to the source.
+                        // If so handle it differently
+                        if (mediator instanceof SequenceD.Models.MessagePoint) {
+                            // Check the message point is from resource to the source
+                            if (mediator.get('message').get('destination').get('parent').get('title') === "Source") {
+                                var node = new TreeNode("ResponseMsg", "ResponseMsg", "reply response", ";");
+                                rootNode.getChildren().push(node);
+                            }
+                        } else {
+                            rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
+                        }
                     }
                     console.log(rootNode);
                     return rootNode;
