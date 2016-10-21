@@ -71,7 +71,10 @@ var Processors = (function (processors) {
         getMySubTree: function (model) {
             // Generate Subtree for the try block
             var tryBlock = model.get('containableProcessorElements').models[0];
-            var tryBlockNode = new TreeNode("TryBlock", "TryBlock", "try{", "}");
+            var lftExp = "eval(\"$header.exchange\", m)";
+            var rgtExp = "\"NYSE\"";
+            var expression = lftExp + " == " + rgtExp;
+            var tryBlockNode = new TreeNode("IfBlock", "IfBlock", "if (" + expression + ") {", "}");
             for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
                 var child = tryBlock.get('children').models[itr];
                 tryBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
@@ -79,12 +82,12 @@ var Processors = (function (processors) {
 
             // Generate the Subtree for the catch block
             var catchBlock = model.get('containableProcessorElements').models[1];
-            var catchBlockNode = new TreeNode("CatchBlock", "CatchBlock", "catch(exception e){", "}");
+            var catchBlockNode = new TreeNode("ElseBlock", "ElseBlock", "else{", "}");
             for (var itr = 0; itr < catchBlock.get('children').models.length; itr++) {
                 var child = catchBlock.get('children').models[itr];
                 catchBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
             }
-            var tryCatchNode = new TreeNode("TryCatchMediator", "TryCatchMediator", "", "");
+            var tryCatchNode = new TreeNode("IfElseMediator", "IfElseMediator", "", "");
             tryCatchNode.getChildren().push(tryBlockNode);
             tryCatchNode.getChildren().push(catchBlockNode);
 
