@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.NettyListener;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -44,7 +44,7 @@ import static org.testng.AssertJUnit.assertTrue;
 public class ContentAwareMessageProcessorTestCase {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ContentAwareMessageProcessorTestCase.class);
 
-    private NettyListener nettyListener;
+    private HTTPTransportListener httpTransportListener;
 
     private ListenerConfiguration listenerConfiguration;
 
@@ -63,7 +63,7 @@ public class ContentAwareMessageProcessorTestCase {
         listenerConfiguration.setEnableDisruptor(true);
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
-        nettyListener = TestUtil
+        httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new MessageEchoingMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
@@ -89,9 +89,9 @@ public class ContentAwareMessageProcessorTestCase {
     @Test(groups = "contentaware",
           dependsOnMethods = "disruptorEnabledMessageEchoingFromProcessorTestCase")
     public void workerPoolEnabledMessageEchoingFromProcessorTestCase() {
-        TestUtil.shutDownCarbonTransport(nettyListener);
+        TestUtil.shutDownCarbonTransport(httpTransportListener);
         listenerConfiguration.setEnableDisruptor(false);
-        nettyListener = TestUtil
+        httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new MessageEchoingMessageProcessor());
         String testValue = "Test Message";
         try {
@@ -241,7 +241,7 @@ public class ContentAwareMessageProcessorTestCase {
     @AfterClass(groups = "contentaware",
                 alwaysRun = true)
     public void cleanUp() {
-        TestUtil.cleanUp(nettyListener, httpServer);
+        TestUtil.cleanUp(httpTransportListener, httpServer);
     }
 
 }

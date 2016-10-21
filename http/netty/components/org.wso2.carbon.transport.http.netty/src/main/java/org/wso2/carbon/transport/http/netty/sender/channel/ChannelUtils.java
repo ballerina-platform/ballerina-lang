@@ -32,9 +32,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
-import org.wso2.carbon.transport.http.netty.sender.NettyClientInitializer;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -72,9 +72,9 @@ public class ChannelUtils {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, bootstrapConfiguration.getConnectTimeOut());
 
         // set the pipeline factory, which creates the pipeline for each newly created channels
-        NettyClientInitializer nettyClientInitializer = new NettyClientInitializer(senderConfiguration);
-        targetChannel.setNettyClientInitializer(nettyClientInitializer);
-        clientBootstrap.handler(nettyClientInitializer);
+        HTTPClientInitializer httpClientInitializer = new HTTPClientInitializer(senderConfiguration);
+        targetChannel.setHTTPClientInitializer(httpClientInitializer);
+        clientBootstrap.handler(httpClientInitializer);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);
@@ -148,15 +148,15 @@ public class ChannelUtils {
      * @return
      */
     public static boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                     executeAtTargetRequestReceiving(carbonMessage);
         }
         channel.write(httpRequest);
 
-        if (carbonMessage instanceof NettyCarbonMessage) {
+        if (carbonMessage instanceof HTTPCarbonMessage) {
             while (true) {
-                NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) carbonMessage;
+                HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) carbonMessage;
                 if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;
@@ -164,8 +164,8 @@ public class ChannelUtils {
                 HttpContent httpContent = nettyCMsg.getHttpContent();
                 if (httpContent instanceof LastHttpContent) {
                     channel.writeAndFlush(httpContent);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetRequestSending(carbonMessage);
                     }
                     break;
@@ -184,8 +184,8 @@ public class ChannelUtils {
                 channel.write(httpContent);
                 if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                        NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                    if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                        HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                 executeAtTargetRequestSending(carbonMessage);
                     }
                     break;

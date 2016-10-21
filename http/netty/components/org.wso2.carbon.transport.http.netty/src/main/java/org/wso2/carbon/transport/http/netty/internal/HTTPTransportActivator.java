@@ -23,12 +23,14 @@ import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.listener.NettyListener;
-import org.wso2.carbon.transport.http.netty.sender.NettySender;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,17 +38,16 @@ import java.util.stream.Collectors;
 /**
  * OSGi BundleActivator of the Netty transport component.
  */
-public class NettyTransportActivator implements BundleActivator {
+public class HTTPTransportActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        createNettyListeners().
-                forEach(listener -> bundleContext.registerService(CarbonTransport.class, listener, null));
-        createNettySenders().
+        bundleContext.registerService(CarbonTransport.class, createServerBootstrapper(), null);
+        createClientBootstrapper().
                 forEach(sender -> bundleContext.registerService(TransportSender.class, sender, null));
-        NettyTransportContextHolder.getInstance().setBundleContext(bundleContext);
+        HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
-        NettyTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
+        HTTPTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
     }
 
     /**
@@ -54,14 +55,24 @@ public class NettyTransportActivator implements BundleActivator {
      *
      * @return Netty transport instances
      */
-    private Set<NettyListener> createNettyListeners() {
+    private HTTPTransportListener createServerBootstrapper() {
+        int bossSize = 0;
+        int workerSize = 0;
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
-        listenerConfigurations.forEach(listenerConfiguration -> NettyTransportContextHolder.getInstance()
+        listenerConfigurations.forEach(listenerConfiguration -> HTTPTransportContextHolder.getInstance()
                 .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration));
-        Set<NettyListener> listeners = listenerConfigurations.stream()
-                .map((listenerConfiguration) -> new NettyListener(listenerConfiguration)).collect(Collectors.toSet());
-        return listeners;
+        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
+        for (TransportProperty property : transportProperties) {
+            if (property.getName().equals(Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE)) {
+                bossSize = (Integer) property.getValue();
+            } else if (property.getName().equals(Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE)) {
+                workerSize = (Integer) property.getValue();
+            }
+        }
+        HTTPTransportListener httpTransportListener = new HTTPTransportListener(bossSize, workerSize,
+                listenerConfigurations);
+        return httpTransportListener;
     }
 
     /**
@@ -69,11 +80,11 @@ public class NettyTransportActivator implements BundleActivator {
      *
      * @return Netty transport instances
      */
-    private Set<NettySender> createNettySenders() {
+    private Set<HTTPSender> createClientBootstrapper() {
         Set<SenderConfiguration> senderConfigurations = YAMLTransportConfigurationBuilder.build()
                 .getSenderConfigurations();
-        Set<NettySender> senders = senderConfigurations.stream()
-                .map((senderConfiguration) -> new NettySender(senderConfiguration)).collect(Collectors.toSet());
+        Set<HTTPSender> senders = senderConfigurations.stream()
+                .map((senderConfiguration) -> new HTTPSender(senderConfiguration)).collect(Collectors.toSet());
         return senders;
     }
 

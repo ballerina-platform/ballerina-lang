@@ -34,11 +34,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Netty based implementation for Carbon Message.
+ * HTTP based representation for CarbonMessage.
  */
-public class NettyCarbonMessage extends CarbonMessage {
+public class HTTPCarbonMessage extends CarbonMessage {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NettyCarbonMessage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HTTPCarbonMessage.class);
 
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();

@@ -17,13 +17,26 @@ transportProperties:
  -
   name: "latency.metrics.enabled"
   value: true
+ -
+  name: "server.bootstrap.boss.group.size"
+  value: 4
+ -
+  name: "server.bootstrap.worker.group.size"
+  value: 8
 listenerConfigurations:
  -
-  id: "netty-gw"
+  id: "default"
   host: "0.0.0.0"
   port: 9090
-  bossThreadPoolSize: 4
-  workerThreadPoolSize: 8
+  enableDisruptor: false
+  parameters:
+    -
+     name: "executor.workerpool.size"
+     value: 20
+ -
+  id: "docker0"
+  host: "0.0.0.0"
+  port: 8280
   enableDisruptor: false
   parameters:
     -

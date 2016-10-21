@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.concurrent.ExecutorService;
@@ -55,8 +55,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
@@ -69,8 +69,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
             publishToWorkerPool(msg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
-            if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
+            if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
             }
 
         } else if (msg instanceof HttpRequest) {
@@ -84,8 +84,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
                     cMsg.addHttpContent(httpContent);
                     if (msg instanceof LastHttpContent) {
                         cMsg.setEndOfMsgAdded(true);
-                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                                     .executeAtSourceRequestSending(cMsg);
                         }
 
@@ -97,9 +97,9 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
     private void publishToWorkerPool(Object msg) {
         ExecutorService executorService = listenerConfiguration.getExecutorService();
-        cMsg = (NettyCarbonMessage) setupCarbonMessage(msg);
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+        cMsg = (HTTPCarbonMessage) setupCarbonMessage(msg);
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
         cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE,
                 listenerConfiguration.getEnableDisruptor());
@@ -112,8 +112,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
 
         boolean continueRequest = true;
 
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            continueRequest = NettyTransportContextHolder.getInstance().getHandlerExecutor()
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            continueRequest = HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeRequestContinuationValidator(cMsg, carbonMessage -> {
                         CarbonCallback responseCallback = (CarbonCallback) cMsg.getProperty(Constants.CALL_BACK);
                         responseCallback.done(carbonMessage);
@@ -122,7 +122,7 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
         if (continueRequest) {
             executorService.execute(() -> {
                 try {
-                    NettyTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
+                    HTTPTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, carbonCallback);
                 } catch (Exception e) {
                     log.error("Error occurred inside the messaging engine", e);
                 }
@@ -133,8 +133,8 @@ public class WorkerPoolDispatchingSourceHandler extends SourceHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor()
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
         connectionManager.notifyChannelInactive();

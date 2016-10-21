@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.NettyListener;
+import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -44,7 +44,7 @@ public class PassThroughHttpPOSTMethodTestCase {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughHttpPOSTMethodTestCase.class);
 
-    private NettyListener nettyListener;
+    private HTTPTransportListener httpTransportListener;
 
     private HTTPServer httpServer;
 
@@ -63,7 +63,7 @@ public class PassThroughHttpPOSTMethodTestCase {
         listenerConfiguration.setWorkerPoolSize(Runtime.getRuntime().availableProcessors());
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
-        nettyListener = TestUtil
+        httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
@@ -88,10 +88,10 @@ public class PassThroughHttpPOSTMethodTestCase {
     @Test(groups = "passthroughPost",
           dependsOnMethods = "passthroughWorkerPoolEnabledPOSTTestCase")
     public void passthroughDisruptorEnabledPOSTTestCase() {
-        TestUtil.shutDownCarbonTransport(nettyListener);
+        TestUtil.shutDownCarbonTransport(httpTransportListener);
         listenerConfiguration.setEnableDisruptor(true);
         senderConfiguration.setDisruptorOn(true);
-        nettyListener = TestUtil
+        httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         String testValue = "Test Message";
         try {
@@ -111,7 +111,7 @@ public class PassThroughHttpPOSTMethodTestCase {
     @AfterClass(groups = "passthroughPost",
                 dependsOnGroups = "passthroughGET")
     public void cleanUp() {
-        TestUtil.cleanUp(nettyListener, httpServer);
+        TestUtil.cleanUp(httpTransportListener, httpServer);
     }
 
 }

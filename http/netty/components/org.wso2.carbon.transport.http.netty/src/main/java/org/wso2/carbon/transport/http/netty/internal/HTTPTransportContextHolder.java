@@ -30,12 +30,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * DataHolder for the Netty transport.
+ * DataHolder for the HTTP transport.
  */
-public class NettyTransportContextHolder {
-    private static final Logger log = LoggerFactory.getLogger(NettyTransportContextHolder.class);
+public class HTTPTransportContextHolder {
+    private static final Logger log = LoggerFactory.getLogger(HTTPTransportContextHolder.class);
 
-    private static NettyTransportContextHolder instance = new NettyTransportContextHolder();
+    private static HTTPTransportContextHolder instance = new HTTPTransportContextHolder();
     private BundleContext bundleContext;
     private CarbonMessageProcessor messageProcessor;
     private HandlerExecutor handlerExecutor;
@@ -50,11 +50,11 @@ public class NettyTransportContextHolder {
         listenerConfigurations.put(id, config);
     }
 
-    private NettyTransportContextHolder() {
+    private HTTPTransportContextHolder() {
 
     }
 
-    public static NettyTransportContextHolder getInstance() {
+    public static HTTPTransportContextHolder getInstance() {
         return instance;
     }
 

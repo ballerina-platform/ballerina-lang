@@ -31,8 +31,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.internal.NettyTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.message.NettyCarbonMessage;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.nio.ByteBuffer;
 
@@ -52,8 +52,8 @@ public class ResponseCallback implements CarbonCallback {
 
     public void done(CarbonMessage cMsg) {
         handleResponsesWithoutContentLength(cMsg);
-        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            NettyTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
         }
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);
@@ -62,8 +62,8 @@ public class ResponseCallback implements CarbonCallback {
             cMsg.setWriter(new ResponseContentWriter(ctx));
         } else {
 
-            if (cMsg instanceof NettyCarbonMessage) {
-                NettyCarbonMessage nettyCMsg = (NettyCarbonMessage) cMsg;
+            if (cMsg instanceof HTTPCarbonMessage) {
+                HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) cMsg;
                 while (true) {
                     if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
                         ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
@@ -72,8 +72,8 @@ public class ResponseCallback implements CarbonCallback {
                     HttpContent httpContent = nettyCMsg.getHttpContent();
                     if (httpContent instanceof LastHttpContent) {
                         ctx.writeAndFlush(httpContent);
-                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtSourceResponseSending(cMsg);
                         }
                         break;
@@ -89,8 +89,8 @@ public class ResponseCallback implements CarbonCallback {
                     ctx.write(httpContent);
                     if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
                         ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                        if (NettyTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-                            NettyTransportContextHolder.getInstance().getHandlerExecutor().
+                        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+                            HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtSourceResponseSending(cMsg);
                         }
                         String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);

@@ -62,11 +62,6 @@ public class ListenerConfiguration {
     @XmlAttribute(required = true)
     private int port;
 
-    @XmlAttribute
-    private int bossThreadPoolSize = Runtime.getRuntime().availableProcessors();
-
-    @XmlAttribute
-    private int workerThreadPoolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     @XmlAttribute
     private Boolean enableDisruptor = false;
@@ -102,13 +97,6 @@ public class ListenerConfiguration {
         this.port = port;
     }
 
-    public int getBossThreadPoolSize() {
-        return bossThreadPoolSize;
-    }
-
-    public void setBossThreadPoolSize(int bossThreadPoolSize) {
-        this.bossThreadPoolSize = bossThreadPoolSize;
-    }
 
     public String getCertPass() {
         return certPass;
@@ -176,13 +164,7 @@ public class ListenerConfiguration {
         this.scheme = scheme;
     }
 
-    public int getWorkerThreadPoolSize() {
-        return workerThreadPoolSize;
-    }
 
-    public void setWorkerThreadPoolSize(int workerThreadPoolSize) {
-        this.workerThreadPoolSize = workerThreadPoolSize;
-    }
 
     public List<Parameter> getParameters() {
         return parameters;
