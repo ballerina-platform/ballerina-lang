@@ -1,4 +1,3 @@
-
 var Editor = (function (editor) {
     var views = editor.Views || {};
 
@@ -48,9 +47,27 @@ var Editor = (function (editor) {
 
         saveProperties: function() {
             if (propertyPane && propertyPane.schema) {
-                if (propertyPane.schema.title === "End Point" || propertyPane.schema.title === "Pipe Line") {
+                if (propertyPane.schema.title === "End Point") {
                     ppView.dataObject.set('title', propertyPane.getValue().Title);
+                    ppView.dataObject.attributes.parameters = [
+                        {
+                            key: "title",
+                            value: propertyPane.getValue().Title
+                        },
+                        {
+                            key: "uri",
+                            value: propertyPane.getValue().Uri
+                        }
+                    ];
 
+                } else if (propertyPane.schema.title === "Pipe Line") {
+                    ppView.dataObject.set('title', propertyPane.getValue().Title);
+                    ppView.dataObject.attributes.parameters = [
+                        {
+                            key: "title",
+                            value: propertyPane.getValue().Title
+                        }
+                    ];
                 } else if (propertyPane.schema.title === "Resource") {
                     diagram.attributes.path = propertyPane.getValue().Path;
                     diagram.attributes.get = propertyPane.getValue().Get;

@@ -958,7 +958,8 @@ var Diagrams = (function (diagrams) {
                 } else if (id == "EndPoint") {
                     var countOfEndpoints = txt.endpointLifeLineCounter();
                     ++countOfEndpoints;
-                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline);
+                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
+                        MainElements.lifelines.EndPointLifeline.parameters);
                     txt.endpointLifeLineCounter(countOfEndpoints);
 
                 } else if (id == "Resource") {
@@ -966,7 +967,8 @@ var Diagrams = (function (diagrams) {
                     //if no resource elements added to this tab view, as only one resource element is allowed in a tab
                     if (countOfResources === 0) {
                         ++countOfResources;
-                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline);
+                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline,
+                            MainElements.lifelines.ResourceLifeline.parameters);
                         txt.resourceLifeLineCounter(countOfResources);
                     }
 
@@ -1092,7 +1094,7 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, lifeLineDef) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
@@ -1102,9 +1104,7 @@ var Diagrams = (function (diagrams) {
                     centerPoint = createPoint(200, 50);
                 } else if (lifelineName == "Resource") {
                     centerPoint = createPoint(380, 50);
-                }
-
-               else if (numberOfEndpointElements > 0) {
+                } else if (numberOfEndpointElements > 0) {
                         var lastLifeLine = txt.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
                         centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
                 } else {
@@ -1120,7 +1120,7 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class);
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters);
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,

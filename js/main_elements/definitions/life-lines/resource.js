@@ -26,6 +26,12 @@ var MainElements = (function (mainElements) {
         colour : "#998844",
         class : "resource",
         dragCursorOffset : { left: 50, top: 50 },
+        parameters: [
+            {
+                key: "title",
+                value: "Resource"
+            }
+        ],
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
@@ -49,9 +55,9 @@ var MainElements = (function (mainElements) {
                 }
             };
         },
-        getEditableProperties: function (title) {
+        getEditableProperties: function (parameters) {
             var editableProperties = {};
-            editableProperties.Title = title;
+            editableProperties.Title = parameters[0].value;
             return editableProperties;
         }
     };
