@@ -68,6 +68,10 @@ var Editor = (function (editor) {
                             value: propertyPane.getValue().LogLevel
                         },
                         {
+                            key: "logCatagory",
+                            value: propertyPane.getValue().LogCategory
+                        },
+                        {
                             key: "description",
                             value: propertyPane.getValue().Description
                         }
