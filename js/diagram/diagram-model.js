@@ -328,9 +328,11 @@ var Diagrams = (function (diagrams) {
 
                 var elements = new DiagramElements([], {diagram: this});
                 var resources = new DiagramElements([], {diagram: this});
+                var sources = new DiagramElements([], {diagram: this});
                 var endPoints = new DiagramElements([], {diagram: this});
                 this.diagramElements(elements);
                 this.diagramResourceElements(resources);
+                this.diagramSourceElements(sources);
                 this.diagramEndpointElements(endPoints);
                 this.selectedNode = null;
                 this.destinationLifeLine = null;
@@ -340,8 +342,10 @@ var Diagrams = (function (diagrams) {
                 this.X = 0;
                 this.highestLifeline = null;
                 var resourceCounter = 0;
+                var sourceCounter = 0;
                 var endpointCounter = 0;
                 this.resourceLifeLineCounter(resourceCounter);
+                this.sourceLifeLineCounter(sourceCounter);
                 this.endpointLifeLineCounter(endpointCounter);
                 this.CurrentDiagram();
             },
@@ -393,12 +397,24 @@ var Diagrams = (function (diagrams) {
 
             },
 
+            // setter/getter of endpoint element count
+            sourceLifeLineCounter: function (sCounter) {
+                if (_.isUndefined(sCounter)) {
+                    return this.get('sourceLifelineCounter');
+                } else {
+                    this.set('sourceLifelineCounter', sCounter);
+                }
+
+            },
+
             addElement: function (element, opts) {
                 //this.trigger("addElement", element, opts);
 
                 if (element instanceof SequenceD.Models.LifeLine) {
                     if(element.attributes.title.startsWith("Resource")) {
                         this.diagramResourceElements().add(element, opts);
+                    } else if (element.attributes.title.startsWith("Source")) {
+                        this.diagramSourceElements().add(element, opts);
                     } else {
                         this.diagramEndpointElements().add(element, opts);
                     }
@@ -426,6 +442,14 @@ var Diagrams = (function (diagrams) {
                     return this.get('diagramResourceElements');
                 } else {
                     this.set('diagramResourceElements', diaElements);
+                }
+            },
+
+            diagramSourceElements: function (diaElements) {
+                if (_.isUndefined(diaElements)) {
+                    return this.get('diagramSourceElements');
+                } else {
+                    this.set('diagramSourceElements', diaElements);
                 }
             },
 

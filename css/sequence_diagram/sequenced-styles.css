@@ -36,6 +36,10 @@
     fill: #8e44ad;
 }
 
+.source > rect {
+    fill: #F8F8FF;
+}
+
 .endpoint > line {
     stroke: #666666;
 }
