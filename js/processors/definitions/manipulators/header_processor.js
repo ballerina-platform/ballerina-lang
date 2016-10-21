@@ -73,7 +73,10 @@ var Processors = (function (processors) {
             return editableProperties;
         },
         getMySubTree: function (model) {
-            return new TreeNode("HeaderProcessor", "HeaderProcessor", "setHeader(messageRef = response, headerName = \"HTTP.StatusCode\", headerValue = 500", ");");
+            var parameters = model.get('parameters').parameters;
+            var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +
+                parameters[1].value + "\", headerValue = " + parameters[2].value;
+            return new TreeNode("HeaderProcessor", "HeaderProcessor", headerConfigStart, ");");
         }
     };
 

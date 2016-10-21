@@ -509,7 +509,7 @@ var Diagrams = (function (diagrams) {
                     var rootNode = new TreeNode("Resource", "Resource", "resource passthrough (message m) {", "}");
                     for (var itr = 0; itr < (resourceModel.get('children').models).length; itr++) {
                         var mediator = (resourceModel.get('children').models)[itr];
-                        rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator, mediator.get('parameters').parameters));
+                        rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
                     }
                     console.log(rootNode);
                     return rootNode;

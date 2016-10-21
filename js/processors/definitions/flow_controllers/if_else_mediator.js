@@ -71,10 +71,9 @@ var Processors = (function (processors) {
         getMySubTree: function (model) {
             // Generate Subtree for the try block
             var tryBlock = model.get('containableProcessorElements').models[0];
-            var lftExp = "eval(\"$header.exchange\", m)";
-            var rgtExp = "\"NYSE\"";
-            var expression = lftExp + " == " + rgtExp;
-            var tryBlockNode = new TreeNode("IfBlock", "IfBlock", "if (" + expression + ") {", "}");
+            var parameters = model.get('parameters').parameters;
+            var ifConfigStart = "if ( " + parameters[0].value + ") {";
+            var tryBlockNode = new TreeNode("IfBlock", "IfBlock", ifConfigStart, "}");
             for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
                 var child = tryBlock.get('children').models[itr];
                 tryBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
