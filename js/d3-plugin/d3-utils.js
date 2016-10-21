@@ -179,18 +179,19 @@ var D3Utils = (function (d3_utils) {
      * @param propertyPaneSchema Property rendering schema of the selected element
      * @returns {*} Created form element
      */
-    var form = function (x, y, parent, parameters, propertyPaneSchema) {
+    var form = function (parent, parameters, propertyPaneSchema, rect, rectY) {
         parent = parent || d3Ref;
 
         var foreignObject = parent.append("foreignObject")
-            .attr("x", x)
-            .attr("y", y)
+            .attr("x", 23)
+            .attr("y", 20)
             .attr("width", "200")
             .attr("height", "150");
 
         var form = foreignObject.append("xhtml:form")
             .attr("id", "property-form")
             .attr("autocomplete", "off");
+        var lastElementY;
 
         for (var i = 0; i < propertyPaneSchema.length; i++) {
             var property = propertyPaneSchema[i];
@@ -216,8 +217,7 @@ var D3Utils = (function (d3_utils) {
 
             } else if (property.checkbox) {
                 //append a checkbox
-                appendLabel(form, property.checkbox);
-                appendCheckBox(form, property.key, parameters[i].value);
+                appendCheckBox(form, property, parameters[i].value);
 
             }
         }
@@ -225,8 +225,13 @@ var D3Utils = (function (d3_utils) {
         var button = form.append("xhtml:button")
             .attr("id", "property-save")
             .attr("type", "button")
+            .attr("class", "btn btn-primary")
             .text("Save");
         button.on("click", saveProperties);
+
+        var buttonBottom = $('#property-save')[0].getBoundingClientRect().bottom;
+        var he = buttonBottom - rectY - 131;
+        rect.attr("height", he);
         return form;
     };
 
@@ -236,6 +241,13 @@ var D3Utils = (function (d3_utils) {
     var saveProperties = function () {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
         if (defaultView.selectedNode.type === "LogMediator") {
+            var selectedLogLevel;
+            if (inputs.logLevel.value !== "") {
+                selectedLogLevel = inputs.logLevel.value;
+            } else {
+                selectedLogLevel = defaultView.selectedNode.parameters.parameters[1].value;
+            }
+            
             defaultView.selectedNode.parameters.parameters = [
                 {
                     key: "message",
@@ -244,7 +256,7 @@ var D3Utils = (function (d3_utils) {
                 },
                 {
                     key: "logLevel",
-                    value: inputs.logLevel.value,
+                    value: selectedLogLevel,
                     dropdown: "Log Level",
                     values: ["debug", "info", "error"]
                 },
@@ -254,8 +266,10 @@ var D3Utils = (function (d3_utils) {
                     text: "Description"
                 }
             ];
-
+            defaultView.render();
+            diagram.propertyWindow = false;
         } else if (defaultView.selectedNode.attributes.cssClass === "resource") {
+            resetMainElementTitle(inputs.title.value);
             defaultView.selectedNode.attributes.title = inputs.title.value;
             defaultView.selectedNode.attributes.parameters[0].value = inputs.path.value;
             defaultView.selectedNode.attributes.parameters[1].value = inputs.get.checked;
@@ -263,27 +277,35 @@ var D3Utils = (function (d3_utils) {
             defaultView.selectedNode.attributes.parameters[3].value = inputs.post.checked;
 
         } else if (defaultView.selectedNode.attributes.cssClass === "endpoint") {
+            resetMainElementTitle(inputs.title.value);
             defaultView.selectedNode.attributes.title = inputs.title.value;
             defaultView.selectedNode.attributes.parameters[0].value = inputs.url.value;
 
         }
-        defaultView.render();
-        diagram.propertyWindow = false;
+
     };
 
-    var appendCheckBox = function (parent, name, checked) {
+    var resetMainElementTitle = function (title) {
+        diagram.selectedMainElementText.top.text(title);
+        diagram.selectedMainElementText.bottom.text(title);
+    };
+
+    var appendCheckBox = function (parent, property, checked) {
         var checkbox = parent.append("xhtml:input")
+            .attr("class", "property-checkbox")
             .attr("type", "checkbox")
-            .attr("name", name);
+            .attr("name", property.key);
         if (checked) {
             checkbox.attr("checked", true);
         }
+        appendLabel(parent, property.checkbox);
         parent.append("br");
         parent.append("br");
     };
 
     var appendTextBox = function (parent, value, name) {
         var textBox = parent.append("input")
+            .attr("class", "property-textbox")
             .attr("type", "text")
             .attr("name", name)
             .attr("value", value);
@@ -291,19 +313,22 @@ var D3Utils = (function (d3_utils) {
             var valueLength = this.value.length;
             this.focus();
             this.setSelectionRange(valueLength, valueLength);
-        });
+        }).on("keyup", saveProperties);
+
         parent.append("br");
         parent.append("br");
     };
 
     var appendLabel = function (parent, value) {
         parent.append("label")
+            .attr("class", "property-label")
             .text(value);
     };
 
     var appendDropdown = function (parent, optionsList, name) {
         var input = parent.append("input")
             .attr("name", name)
+            .attr("class", "property-dropdown")
             .attr("list", "dropdown");
 
         var datalist = input.append("datalist")
@@ -313,6 +338,7 @@ var D3Utils = (function (d3_utils) {
             var option = optionsList[i];
             var optionUI = datalist.append("option")
                 .attr("label", option.value)
+                .attr("class", "property-option")
                 .attr("value", option.value);
             if (option.selected) {
                 input._groups[0][0].value = option.value;

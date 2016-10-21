@@ -795,17 +795,18 @@ var Diagrams = (function (diagrams) {
 
                 var rect = propertySVG.append("rect")
                     .attr("id", "property-pane")
-                    .attr("x", 120)
-                    .attr("y", options.y)
+                    .attr("x", 7)
+                    .attr("y", 5)
                     .attr("rx", "0")
                     .attr("ry", "0")
-                    .attr("width", "300")
-                    .attr("height", "500")
-                    .attr("fill", "#696969")
+                    .attr("width", "245")
+                    .attr("fill", "#ffffff")
+                    .attr("stroke", "#000000")
+                    .attr("stroke", "#000000")
                     .attr("opacity", "0.9");
 
                 diagram.propertyWindow = true;
-                propertySVG.draw.form(130, options.y + 10, propertySVG, parameters, propertyPaneSchema);
+                propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect, options.y);
             },
 
             /**

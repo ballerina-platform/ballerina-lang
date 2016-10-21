@@ -191,8 +191,8 @@ var SequenceD = (function (sequenced) {
                         } else {
                             diagram.propertyWindow = true;
                             var options = {
-                                x: parseInt(jQuery(event.target).attr("cx")) - 135,
-                                y: parseInt(jQuery(event.target).attr("cy")) - 25
+                                x: parseInt(jQuery(event.target).attr("cx")) - 5,
+                                y: parseInt(jQuery(event.target).attr("cy")) + 3
                             };
                             defaultView.selectedNode = viewObj.model;
                             defaultView.drawPropertiesPane(d3Ref, options,
@@ -783,13 +783,17 @@ var SequenceD = (function (sequenced) {
                 });
 
                 propertiesIconGroup.on("click", function () {
+                    diagram.selectedMainElementText = {
+                        top: viewObj.d3el.svgTitle,
+                        bottom: viewObj.d3el.svgTitleBottom
+                    };
                     if (diagram.propertyWindow) {
                         diagram.propertyWindow = false;
                         defaultView.render();
                     } else {
                         var options = {
-                            x: viewObj.model.attributes.centerPoint.attributes.x - 80,
-                            y: viewObj.model.attributes.centerPoint.attributes.y - 10
+                            x: viewObj.model.attributes.centerPoint.attributes.x + 47,
+                            y: viewObj.model.attributes.centerPoint.attributes.y - 12
                         };
                         defaultView.selectedNode = viewObj.model;
                         var parameters;
