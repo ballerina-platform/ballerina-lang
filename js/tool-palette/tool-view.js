@@ -23,6 +23,27 @@ var Tools = (function (tools) {
 
         toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-container\"> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
         handleDragStopEvent: function (event, ui) {
+
+        },
+        handleOnDragEvent : function(event,ui){
+            var m = ui.helper;
+            var span = m[0].childNodes;
+            document.getElementById("validator").innerText="X";
+            document.getElementById("validator").style.width="70px";
+            document.getElementById("validator").style.display="none";
+
+            //Visual feedback on invalid drops on endpoints
+            if(eventManager.invalid){
+                document.getElementById("validator").style.display="block";
+                document.getElementById("validator").style.color="darkred";
+            }
+        },
+
+        handleDragStartEvent : function(event,ui){
+            var elm = $(ui.draggable).clone();
+            eventManager.currentType(event.currentTarget.lastChild.id);
+            eventManager.draggedElement(elm);
+
         },
 
         initialize: function () {
@@ -42,7 +63,9 @@ var Tools = (function (tools) {
                 cursor: 'move',
                 cursorAt: _.isUndefined(dragCursorOffset) ?  { left: -2, top: -2 } : dragCursorOffset,
                 zIndex: 10001,
-                stop: this.handleDragStopEvent
+                stop: this.handleDragStopEvent,
+                start : this.handleDragStartEvent,
+                drag:this.handleOnDragEvent
             });
 
             return this;
@@ -51,6 +74,8 @@ var Tools = (function (tools) {
         createContainerForDraggable: function(){
             var body = d3.select("body");
             var div = body.append("div").attr("id", "draggingToolClone");
+            //For validation feedback
+            div.append('span').attr("id","validator");
             div =  D3Utils.decorate(div);
             return div;
         }

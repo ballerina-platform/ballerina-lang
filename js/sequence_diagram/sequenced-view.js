@@ -624,11 +624,16 @@ var SequenceD = (function (sequenced) {
                      diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+                    // Update event manager with current active element type for validation
+                    eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     diagram.destinationLifeLine = diagram.selectedNode;
                     diagram.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
+                    // Update event manager with out of focus on active element
+                    eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
+
                 });
 
                 drawMessageRect.on('mouseover', function () {
@@ -637,8 +642,12 @@ var SequenceD = (function (sequenced) {
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                    // Update event manager with current active element type for validation
+                    eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     d3.select(this).style("fill-opacity", 0.0);
+                    // Update event manager with out of focus on active element
+                    eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
                 });
 

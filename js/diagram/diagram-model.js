@@ -596,6 +596,54 @@ var Diagrams = (function (diagrams) {
             model: Diagram
 
         });
+    var EventManager = Backbone.Model.extend(
+        /** @lends Eventmanager.prototype */
+        {
+            idAttribute: this.cid,
+            modelName: "EventManager",
+            /**
+             * @augments Backbone.Model
+             * @constructs
+             * @class Handles validations of the diagram
+             */
+            initialize: function (attrs, options) {
+                this.draggedElement();
+                this.isActivated();
+                this.currentType();
+                this.invalid = false;
+            },
+            //keep the current dragged element type
+            currentType: function (type) {
+                if (_.isUndefined(type)) {
+                    return this.get('currentType');
+                } else {
+                    this.set('currentType', type);
+                }
+            },
+            draggedElement: function (element) {
+                if (_.isUndefined(element)) {
+                    return this.get('draggedElement');
+                } else {
+                    this.set('draggedElement', element);
+                }
+            },
+            // check the current activated element's valid drops
+            isActivated: function (activatedType) {
+                if (activatedType != null) {
+                    if (this.currentType() != "Resource" && this.currentType() != "EndPoint") {
+                        // validation for active endpoints
+                        if (activatedType.includes("EndPoint")) {
+                            this.invalid = true;
+                        }
+                        else {
+                            this.invalid = false;
+                        }
+                    }
+                }
+            }
+
+        });
+    models.EventManager = EventManager;
     models.DiagramElement = DiagramElement;
     models.DiagramElements = DiagramElements;
     models.Diagram = Diagram;
