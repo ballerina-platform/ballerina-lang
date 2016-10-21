@@ -84,6 +84,10 @@ var SequenceD = (function (sequenced) {
                     processorDefinition = Processors.manipulators.PayLoadFactoryMediator;
                 } else if (type === "InvokeMediator") {
                     processorDefinition = Processors.flowControllers.InvokeMediator;
+                } else if (type === "HeaderProcessor") {
+                    processorDefinition = Processors.manipulators.HeaderProcessor;
+                } else if (type === "PayloadProcessor") {
+                    processorDefinition = Processors.manipulators.PayloadProcessor;
                 }
 
                 ppView.loadPropertyPane(this, processorDefinition, parameters);
@@ -153,6 +157,10 @@ var SequenceD = (function (sequenced) {
                                 defaultView.render();
                                 break;
                             }
+                        }
+
+                        if (propertyPane) {
+                            propertyPane.destroy();
                         }
                     });
 
@@ -233,10 +241,9 @@ var SequenceD = (function (sequenced) {
                         totalHeight+=containableProcessorElement.getHeight();
                         //yValue += 60;
                         //var processor = this.modelAttr("children").models[id];
-                        //var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
-                        // var processorCenterPoint = createPoint(xValue, yValue);
-                        //processorView.render("#diagramWrapper", processorCenterPoint);
-                        //processor.setY(yValue);
+                        //var processorView = new SequenceD.Views.Processor({model: processor, options:
+                        // lifeLineOptions}); var processorCenterPoint = createPoint(xValue, yValue);
+                        // processorView.render("#diagramWrapper", processorCenterPoint); processor.setY(yValue);
 
                         if(maximumWidth < containableProcessorElement.getWidth()){
                             maximumWidth = containableProcessorElement.getWidth();
@@ -624,11 +631,16 @@ var SequenceD = (function (sequenced) {
                      diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+                    // Update event manager with current active element type for validation
+                    eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     diagram.destinationLifeLine = diagram.selectedNode;
                     diagram.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
+                    // Update event manager with out of focus on active element
+                    eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
+
                 });
 
                 drawMessageRect.on('mouseover', function () {
@@ -637,8 +649,12 @@ var SequenceD = (function (sequenced) {
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                    // Update event manager with current active element type for validation
+                    eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     d3.select(this).style("fill-opacity", 0.0);
+                    // Update event manager with out of focus on active element
+                    eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
                 });
 
@@ -714,7 +730,9 @@ var SequenceD = (function (sequenced) {
                             }
                         }
                     }
-
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
                 });
 
                 return group;
@@ -906,6 +924,8 @@ var SequenceD = (function (sequenced) {
                     processorDefinition = Processors.flowControllers.TryBlockMediator;
                 } else if (type === "SwitchMediator") {
                     processorDefinition = Processors.flowControllers.SwitchMediator;
+                } else if (type === "IfElseMediator") {
+                    processorDefinition = Processors.flowControllers.IfElseMediator;
                 }
 
                 ppView.loadPropertyPane(this, processorDefinition, parameters);
@@ -1021,7 +1041,7 @@ var SequenceD = (function (sequenced) {
                 middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
                 drawMessageRect.attr("height", totalHeight-30);
 
-                if (viewObj.model.get("title") === "Try") {
+                if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
                     var circleCenterX = center.x() + 75;
                     var circleCenterY = center.y() - prefs.rect.height/2;
                     deleteIconGroup = group.append("g")
@@ -1059,6 +1079,9 @@ var SequenceD = (function (sequenced) {
                                 defaultView.render();
                                 break;
                             }
+                        }
+                        if (propertyPane) {
+                            propertyPane.destroy();
                         }
                     });
 

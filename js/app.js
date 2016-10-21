@@ -18,6 +18,7 @@
 
 
 
+var eventManager = new Diagrams.Models.EventManager({});
 var lifeLineOptions = {};
 lifeLineOptions.class = "lifeline";
 // Lifeline rectangle options
@@ -115,35 +116,26 @@ $(function () {
             editorContainer.css("width", rightContainer.innerWidth() - toolContainer.outerWidth(true) - propertyContainer.outerWidth(true));
         }
     });
-    //TODO: remove + 1
-    // editorContainer.css("padding-left", toolContainer.width() + 1);
 
-    var $tree = $("#tree");
-    initTree($tree);
+    var tree = new Tree({
+        root: new TreeItem({
+            name: "MyProj",
+            isDir: true,
+            children: new TreeItemList([
+                new TreeItem({
+                    name: "Dir",
+                    isDir: true,
+                    children: new TreeItemList([new TreeItem({name: "MyAP2"})])
+                }),
+                new TreeItem({name: "MyAP3"})])
+        })
+    });
+    new TreeView({model: tree}).render();
+    tree.on("select",function (e) {
+        console.log(e.path);
+        console.log(e.name);
+    });
 
-    var removed = false;
-    $("#tree-add-api").on('click',function (e) {
-        $tree.find("> li > ul").append("<li><input/></li>")
-        removed = false;
-        $tree.find('input').focus();
-    });
-    var addApi = function (e) {
-        if(!removed){
-            removed = true;
-            var $input = $tree.find('input');
-            $input.parent('li').remove();
-            var name = $input.val();
-            if(name != ""){
-                $tree.find("> li > ul").append("<li>" + name + "</li>")
-            }
-        }
-    };
-    $tree.on("blur", "input", addApi);
-    $tree.on('keypress', function (e) {
-        if (e.which === 13) {
-            addApi(e)
-        }
-    });
 
 });
 
@@ -214,6 +206,7 @@ var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
 preview.render();
 tab.preview(preview);
 
+
 defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
 defaultView.model.sourceLifeLineCounter(1);
 defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
@@ -225,3 +218,6 @@ for (var i = 0; i < sourceLifelineTextElements.length; i++) {
         sourceLifelineTextElements[i].style.color = "Green";
     }
 }
+
+
+

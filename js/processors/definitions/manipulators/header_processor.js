@@ -42,11 +42,11 @@ var Processors = (function (processors) {
         },
         parameters: [
             {
-                key: "message",
+                key: "reference",
                 value: "Message Reference"
             },
             {
-                key: "header",
+                key: "name",
                 value: "Header Name"
             },
             {
@@ -59,16 +59,16 @@ var Processors = (function (processors) {
                 title: "Header Processor",
                 type: "object",
                 properties: {
-                    Message: {"type": "string"},
-                    Key: {"type": "string"},
+                    Reference: {"type": "string"},
+                    Name: {"type": "string"},
                     Value: {"type": "string"}
                 }
             };
         },
         getEditableProperties: function (parameters) {
             var editableProperties = {};
-            editableProperties.Message = parameters[0];
-            editableProperties.Key = parameters[1];
+            editableProperties.Reference = parameters[0];
+            editableProperties.Name = parameters[1];
             editableProperties.Value = parameters[2];
             return editableProperties;
         },

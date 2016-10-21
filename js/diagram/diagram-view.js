@@ -898,6 +898,8 @@ var Diagrams = (function (diagrams) {
                 }
             },
             handleDropEvent: function (event, ui) {
+                // Check for invalid drops on endpoints
+                if(eventManager.invalid==false){
                 var newDraggedElem = $(ui.draggable).clone();
                 var txt = defaultView.model;
                 var id = ui.draggable.context.lastChild.id;
@@ -937,11 +939,14 @@ var Diagrams = (function (diagrams) {
                     txt.selectedNode.addChild(processor);
 
                     if (Processors.flowControllers[id].type == "ComplexProcessor") {
-                        (Processors.flowControllers[id].containableElements).forEach(function(elm) {
-                            var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
-                            containableProcessorElem.set('title', elm);
-                            containableProcessorElem.parent(processor);
-                            processor.containableProcessorElements().add(containableProcessorElem);
+                        (Processors.flowControllers[id].containableElements).forEach(function (elm) {
+                            (elm.children).forEach(function (child) {
+                                var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                                containableProcessorElem.set('title', child.title);
+                                containableProcessorElem.parent(processor);
+                                processor.containableProcessorElements().add(containableProcessorElem);
+
+                            });
                         });
                     }
 
@@ -970,6 +975,7 @@ var Diagrams = (function (diagrams) {
                         txt.sourceLifeLineCounter(countOfSources);
                     }
                 }
+            } //for invalid check
             },
 
             render: function () {
@@ -997,7 +1003,7 @@ var Diagrams = (function (diagrams) {
                 this.htmlDiv = $(this.options.selector);
                 this.htmlDiv.droppable({
                     drop: this.handleDropEvent,
-                    tolerance: "pointer"
+                    tolerance: "pointer",
                 });
 
 
@@ -1143,7 +1149,7 @@ var Diagrams = (function (diagrams) {
                     if(propertyPane) {
                         propertyPane.destroy();
                     }
-                    
+
                 } else if (!txt.model.selectedNode) {
                     if (selected.classList && selected.classList.contains("lifeline_selected")) {
                         selected.classList.toggle("lifeline_selected");
