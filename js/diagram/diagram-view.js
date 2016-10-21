@@ -940,10 +940,13 @@ var Diagrams = (function (diagrams) {
 
                     if (Processors.flowControllers[id].type == "ComplexProcessor") {
                         (Processors.flowControllers[id].containableElements).forEach(function (elm) {
-                            var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
-                            containableProcessorElem.set('title', elm);
-                            containableProcessorElem.parent(processor);
-                            processor.containableProcessorElements().add(containableProcessorElem);
+                            (elm.children).forEach(function (child) {
+                                var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                                containableProcessorElem.set('title', child.title);
+                                containableProcessorElem.parent(processor);
+                                processor.containableProcessorElements().add(containableProcessorElem);
+
+                            });
                         });
                     }
 

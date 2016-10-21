@@ -21,13 +21,13 @@ var Processors = (function (processors) {
     var flowControllers = processors.flowControllers || {};
 
     //Define manipulator mediators
-    var tryBlockMediator = {
-        id: "TryBlockMediator",
-        title: "Try Block",
+    var ifElseMediator = {
+        id: "IfElseMediator",
+        title: "If Else",
         icon: "images/tool-icons/tryblock.svg",
         colour : "#998844",
         type : "ComplexProcessor",
-        containableElements: [{container:"tryContainer",children:[{title:"Try"}]},{container:"catchContainer",children:[{title:"Catch"}]}],
+        containableElements: [{container:"ifContainer",children:[{title:"If"}]},{container:"elseContainer",children:[{title:"Else"}]}],
         dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -54,7 +54,7 @@ var Processors = (function (processors) {
         ],
         getSchema: function () {
             return {
-                title: "Try Block",
+                title: "If Else",
                 type: "object",
                 properties: {
                     Exception: {"type": "string"},
@@ -95,7 +95,7 @@ var Processors = (function (processors) {
 
     // Add defined mediators to manipulators
     // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    flowControllers.TryBlockMediator = tryBlockMediator;
+    flowControllers.IfElseMediator = ifElseMediator;
 
     processors.flowControllers = flowControllers;
 
