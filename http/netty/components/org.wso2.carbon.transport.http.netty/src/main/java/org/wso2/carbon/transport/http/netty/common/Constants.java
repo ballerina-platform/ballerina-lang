@@ -89,8 +89,10 @@ public final class Constants {
 
     public static final String SERVER_BOOTSTRAP_SO_TIMEOUT = "server.bootstrap.socket.timeout";
 
+    // Boss group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_BOSS_GROUP_SIZE = "server.bootstrap.boss.group.size";
 
+   //Worker group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_WORKER_GROUP_SIZE = "server.bootstrap.worker.group.size";
 
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
