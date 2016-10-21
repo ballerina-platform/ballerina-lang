@@ -18,6 +18,7 @@
 
 
 
+var eventManager = new Diagrams.Models.EventManager({});
 var lifeLineOptions = {};
 lifeLineOptions.class = "lifeline";
 // Lifeline rectangle options
@@ -213,6 +214,5 @@ tab.setSelectedTab();
 var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
 preview.render();
 tab.preview(preview);
-
 
 
