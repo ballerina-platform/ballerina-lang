@@ -666,9 +666,9 @@ var Diagrams = (function (diagrams) {
             // check the current activated element's valid drops
             isActivated: function (activatedType) {
                 if (activatedType != null) {
-                    if (this.currentType() != "Resource" && this.currentType() != "EndPoint") {
+                    if (this.currentType() != "Resource" && this.currentType() != "EndPoint" && this.currentType() != "Source") {
                         // validation for active endpoints
-                        if (activatedType.includes("EndPoint")) {
+                        if (activatedType.includes("EndPoint") || activatedType.includes("Source")) {
                             this.invalid = true;
                         }
                         else {
