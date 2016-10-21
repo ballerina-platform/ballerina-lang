@@ -354,7 +354,7 @@
         var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
 
         $.ajax({
-            url: "http://localhost:8080/utility/saveconfig",
+            url: "http://localhost:8285/utility/saveconfig",
             type: "POST",
             data: payload,
             contentType: "text/plain; charset=utf-8",
