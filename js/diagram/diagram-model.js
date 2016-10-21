@@ -564,9 +564,6 @@ var Diagrams = (function (diagrams) {
 
                     return finalSource;
                 };
-                console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-                console.log(defaultView.model);
-                console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
                 TreeRoot = buildTree(defaultView.model.get('diagramResourceElements').models[0]);
                 includeConstants();
                 return traverse((TreeRoot), finalSource);
