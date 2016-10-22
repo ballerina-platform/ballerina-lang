@@ -30,6 +30,22 @@ var MainElements = (function (mainElements) {
             {
                 key: "title",
                 value: "Resource"
+            },
+            {
+                key: "path",
+                value: "Path"
+            },
+            {
+                key: "get",
+                value: "Get"
+            },
+            {
+                put: "put",
+                value: "Put"
+            },
+            {
+                post: "post",
+                value: "Post"
             }
         ],
         createCloneCallback : function(view){
@@ -51,13 +67,21 @@ var MainElements = (function (mainElements) {
                 "title": 'Pipe Line',
                 type: "object",
                 properties: {
-                    Title: { "type": "string" }
+                    Title: { "type": "string" },
+                    Path: {"type": "string"},
+                    Get: {"type": "boolean"},
+                    Put: {"type": "boolean"},
+                    Post: {"type": "boolean"}
                 }
             };
         },
         getEditableProperties: function (parameters) {
             var editableProperties = {};
             editableProperties.Title = parameters[0].value;
+            editableProperties.Path = parameters[1].value;
+            editableProperties.Get = parameters[2].value;
+            editableProperties.Put = parameters[3].value;
+            editableProperties.Post = parameters[4].value;
             return editableProperties;
         }
     };

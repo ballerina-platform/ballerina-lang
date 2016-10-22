@@ -66,6 +66,22 @@ var Editor = (function (editor) {
                         {
                             key: "title",
                             value: propertyPane.getValue().Title
+                        },
+                        {
+                            key: "path",
+                            value: propertyPane.getValue().Path
+                        },
+                        {
+                            key: "get",
+                            value: propertyPane.getValue().Get
+                        },
+                        {
+                            key: "put",
+                            value: propertyPane.getValue().Put
+                        },
+                        {
+                            key: "post",
+                            value: propertyPane.getValue().Post
                         }
                     ];
                 } else if (propertyPane.schema.title === "Resource") {
@@ -199,10 +215,10 @@ var Editor = (function (editor) {
                     selected = null;
                 } else {
                     selected = diagram.selectedNode;
-                    if (diagram.previousDeleteIconGroup) {
-                        diagram.previousDeleteIconGroup.classed("circle-hide", true);
-                        diagram.previousDeleteIconGroup.classed("circle-show", false);
-                    }
+                    //if (diagram.previousDeleteIconGroup) {
+                    //    diagram.previousDeleteIconGroup.classed("circle-hide", true);
+                    //    diagram.previousDeleteIconGroup.classed("circle-show", false);
+                    //}
                     if (propertyPane) {
                         propertyPane.destroy();
                     }
@@ -221,8 +237,8 @@ var Editor = (function (editor) {
                                                          currentNode.model);
                 diagram.selected = false;
             }
-            diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
-            diagram.currentDeleteIconGroup = null;
+            //diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
+            //diagram.currentDeleteIconGroup = null;
         },
 
         createPropertyPane: function (schema, editableProperties, dataModel) {

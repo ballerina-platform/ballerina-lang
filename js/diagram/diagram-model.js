@@ -529,7 +529,7 @@ var Diagrams = (function (diagrams) {
 
                 var finalSource = "";
 
-                var includeConstants = function () {
+                var includeConstants = function (resourceModel) {
                     // TODO: Need to handle this properly
                     // Defining the global constants
                     for (var key in definedConstants) {
@@ -541,12 +541,11 @@ var Diagrams = (function (diagrams) {
 
                     // For the moment we are injecting the API methods directly hardcoded here at the moment.
                     // After the properties view implementation those can be dynamically changed
-
                     finalSource += "\n" +
-                        ((defaultView.model.get('get')==true) ? '@GET\n' : '') +
-                        ((defaultView.model.get('put')==true) ? '@PUT\n' : '') +
-                        ((defaultView.model.get('post')==true) ? '@POST\n' : '') +
-                        '@Path ("' + defaultView.model.get('path') +'")\n'
+                        ((resourceModel.get('parameters')[2].value==true) ? '@GET\n' : '') +
+                        ((resourceModel.get('parameters')[3].value==true) ? '@PUT\n' : '') +
+                        ((resourceModel.get('parameters')[4].value==true) ? '@POST\n' : '') +
+                        '@Path ("' + resourceModel.get('parameters')[1].value +'")\n'
                 };
 
                 var traverse = function (tree, finalSource) {
@@ -565,7 +564,7 @@ var Diagrams = (function (diagrams) {
                     return finalSource;
                 };
                 TreeRoot = buildTree(defaultView.model.get('diagramResourceElements').models[0]);
-                includeConstants();
+                includeConstants(defaultView.model.get('diagramResourceElements').models[0]);
                 return traverse((TreeRoot), finalSource);
             },
 
@@ -582,28 +581,6 @@ var Diagrams = (function (diagrams) {
                 defaultView.model.attributes.diagramResourceElements.length = 0;
                 defaultView.model.attributes.diagramEndpointElements.models = [];
                 defaultView.model.attributes.diagramEndpointElements.length = 0;
-            },
-
-            getDefinitionSchema: function () {
-                return {
-                    title: "Resource",
-                    type: "object",
-                    properties: {
-                        Path: {"type": "string"},
-                        Get: {"type": "boolean"},
-                        Put: {"type": "boolean"},
-                        Post: {"type": "boolean"}
-                    }
-                };
-            },
-
-            getDefinitionEditableProperties: function (point) {
-                var editableProperties = {};
-                editableProperties.Path = this.attributes.path;
-                editableProperties.Get = this.attributes.get;
-                editableProperties.Put = this.attributes.put;
-                editableProperties.Post = this.attributes.post;
-                return editableProperties;
             },
 
             defaults: {

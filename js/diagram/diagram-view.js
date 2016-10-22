@@ -307,13 +307,6 @@ var Diagrams = (function (diagrams) {
                 createdTab: false
             });
 
-            //remove propety pane when adding a new tab
-            if (diagram.previousDeleteIconGroup) {
-                diagram.previousDeleteIconGroup.classed("circle-hide", true);
-                diagram.previousDeleteIconGroup.classed("circle-show", false);
-            }
-            diagram.previousDeleteIconGroup = null;
-            diagram.currentDeleteIconGroup = null;
             if (propertyPane) {
                 propertyPane.destroy();
             }
@@ -343,7 +336,8 @@ var Diagrams = (function (diagrams) {
             resourceModel.setSelectedTab();
             currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
             currentView.model.sourceLifeLineCounter(1);
-            currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
+            currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
+                MainElements.lifelines.ResourceLifeline.parameters);
             currentView.model.resourceLifeLineCounter(1);
         }
 
@@ -369,13 +363,7 @@ var Diagrams = (function (diagrams) {
             var currentTab = this.model;
             //Unique Id created for the svg element where elements can be drawn
             var svgUId = this.model.get("resourceId") + "4";
-            //empty property pane when clicked on a tab
-            if (diagram.previousDeleteIconGroup) {
-                diagram.previousDeleteIconGroup.classed("circle-hide", true);
-                diagram.previousDeleteIconGroup.classed("circle-show", false);
-            }
-            diagram.previousDeleteIconGroup = null;
-            diagram.currentDeleteIconGroup = null;
+
             if (propertyPane) {
                 propertyPane.destroy();
             }
@@ -682,6 +670,36 @@ var Diagrams = (function (diagrams) {
                     .attr("d", "M2,2 L2,11 L10,6 L2,2")
                     .attr("class", "marker");
 
+                // add the delete icon pattern
+                definitions.append("pattern")
+                    .attr("id", "delIcon")
+                    .attr("x", "0").
+                    attr("y", "0").
+                    attr("patternUnits", "objectBoundingBox").
+                    attr("height", "12").
+                    attr("width", "12").
+                    append("svg:image").
+                    attr("x", "6").
+                    attr("y", "6").
+                    attr("height", "12").
+                    attr("width", "12").
+                    attr("xlink:href", "images/delete.svg");
+
+                // add the delete icon pattern
+                definitions.append("pattern")
+                    .attr("id", "editIcon")
+                    .attr("x", "0").
+                    attr("y", "0").
+                    attr("patternUnits", "objectBoundingBox").
+                    attr("height", "12").
+                    attr("width", "12").
+                    append("svg:image").
+                    attr("x", "6").
+                    attr("y", "6").
+                    attr("height", "12").
+                    attr("width", "12").
+                    attr("xlink:href", "images/edit.svg");
+
                 var filter = definitions.append("filter")
                     .attr("id", "drop-shadow")
                     .attr("height", "130%");
@@ -705,7 +723,6 @@ var Diagrams = (function (diagrams) {
                     .attr("in", "SourceGraphic");
 
                 this.d3svg = svg;
-                svg.on("click", this.onClickDiagram);
 
                 this.panAndZoom = $(svg.node()).svgPanZoom({
                     events: {
@@ -1142,36 +1159,6 @@ var Diagrams = (function (diagrams) {
 
             onAddElement: function (element, opts) {
                 this.renderViewForElement(element, opts);
-            },
-
-            onClickDiagram: function () {
-                var txt = defaultView;
-                if (txt.model.selected === true) {
-                    diagram.previousDeleteIconGroup = null;
-                    txt.model.selected = false;
-                    if(propertyPane) {
-                        propertyPane.destroy();
-                    }
-
-                } else if (!txt.model.selectedNode) {
-                    if (selected.classList && selected.classList.contains("lifeline_selected")) {
-                        selected.classList.toggle("lifeline_selected");
-                    }
-                    if (diagram.previousDeleteIconGroup) {
-                        diagram.previousDeleteIconGroup.classed("circle-hide", true);
-                        diagram.previousDeleteIconGroup.classed("circle-show", false);
-                    }
-
-                    diagram.previousDeleteIconGroup = null;
-                    diagram.currentDeleteIconGroup = null;
-                    selected = '';
-                    txt.model.selected = true;
-                    if (propertyPane) {
-                        propertyPane.destroy();
-                    }
-                    propertyPane = ppView.createPropertyPane(txt.model.getDefinitionSchema(),
-                        txt.model.getDefinitionEditableProperties(), txt.model);
-                }
             },
 
             renderViewForElement: function (element, renderOpts) {

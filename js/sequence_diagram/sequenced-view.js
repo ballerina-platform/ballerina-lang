@@ -96,23 +96,61 @@ var SequenceD = (function (sequenced) {
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
-                var deleteIconGroup = group.append("g").attr("class", "close-icon circle-hide");
+                var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
                     var height = this.model.getHeight();
                     var width = this.model.getWidth();
-                    var path = "M " + (center.x() + width/2 - 3) + "," + (center.y() - height/2 - 3) + " L " + (center.x() + width/2 + 3) + "," +
-                        (center.y() - height/2 + 3) + " M " + (center.x() + width/2 + 3) + "," + (center.y() - height/2 - 3) + " L " +
-                        (center.x() + width/2 - 3) + "," + (center.y() - height/2 + 3);
 
-                    var closeCircle = d3Ref.draw.circle((center.x() + width/2), (center.y() - height/2),
-                        7, deleteIconGroup).
-                        attr("fill", "#95a5a6").
-                        attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
-                    deleteIconGroup.append("path")
-                        .attr("d", path)
-                        .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+                    var optionMenuWrapper = d3Ref.draw.rect((center.x() + 10 + width/2),
+                        (center.y() - height/2),
+                        30,
+                        58,
+                        0,
+                        0,
+                        optionsMenuGroup, "#f8f8f3").
+                        attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
+
+                    var deleteOption = d3Ref.draw.rect((center.x() + 13 + width/2),
+                        (center.y() + 3 - height/2),
+                        24,
+                        24,
+                        0,
+                        0,
+                        optionsMenuGroup, "url(#delIcon)").
+                        attr("style", "opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
+
+                    var editOption = d3Ref.draw.rect((center.x() + 13 + width/2),
+                        (center.y() + 31 - height/2),
+                        24,
+                        24,
+                        0,
+                        0,
+                        optionsMenuGroup, "url(#editIcon)").
+                        attr("style", "opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
@@ -129,25 +167,29 @@ var SequenceD = (function (sequenced) {
                     group.rect = rectBottomXXX;
                     group.title = mediatorText;
 
-                    var orderedElements = [rectBottomXXX, mediatorText, deleteIconGroup];
+                    var orderedElements = [rectBottomXXX, mediatorText, optionsMenuGroup];
 
                     var newGroup = d3Ref.draw.regroup(orderedElements);
                     group.remove();
 
-                    // On click of the mediator show/hide the delete icon
+                    // On click of the mediator show/hide the options menu
                     rectBottomXXX.on("click", function () {
-                        if (deleteIconGroup.classed("circle-hide")) {
-                            deleteIconGroup.classed("circle-hide", false);
-                            deleteIconGroup.classed("circle-show", true);
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
                         } else {
-                            deleteIconGroup.classed("circle-hide", true);
-                            deleteIconGroup.classed("circle-show", false);
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
                         }
-                        diagram.currentDeleteIconGroup = deleteIconGroup;
+                    });
+
+                    // On click of the edit icon will show the properties to to edit
+                    editOption.on("click", function () {
                         viewObj.updateProcessorProperties();
                     });
 
-                    deleteIconGroup.on("click", function () {
+                    // On click of the delete icon will delete the processor
+                    deleteOption.on("click", function () {
                         // Get the parent of the model and delete it from the parent
                         var parentModelChildren = viewObj.model.get("parent").get("children").models;
                         for (var itr = 0; itr < parentModelChildren.length; itr ++) {
@@ -368,10 +410,6 @@ var SequenceD = (function (sequenced) {
                             lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
                         } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
                             lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
-                        }
-
-                        if (propertyPane.schema.title === lifeLineDefinition.getSchema().title) {
-                            propertyPane.setValue(lifeLineDefinition.getEditableProperties());
                         }
                     }
                 }
@@ -610,20 +648,58 @@ var SequenceD = (function (sequenced) {
                     })
                 };
 
-                var circleCenterX = center.x() + (prefs.rect.width + 30)/2;
-                var circleCenterY = center.y() - prefs.rect.height/2;
-                var deleteIconGroup = group.append("g")
-                    .attr("class", "close-icon circle-hide");
-                path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
-                    (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
-                    (circleCenterX - 3) + "," + (circleCenterY + 3);
-                var closeCircle = d3Ref.draw.circle(circleCenterX, circleCenterY, 7, deleteIconGroup).
-                    attr("fill", "#95a5a6").
-                    attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
-                deleteIconGroup.append("path")
-                    .attr("d", path)
-                    .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+                var optionMenuStartX = center.x() + 2 + (prefs.rect.width + 30)/2;
+                var optionMenuStartY = center.y() - prefs.rect.height/2;
+                var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
 
+                var optionMenuWrapper = d3Ref.draw.rect(optionMenuStartX + 8,
+                    optionMenuStartY,
+                    30,
+                    58,
+                    0,
+                    0,
+                    optionsMenuGroup, "#f8f8f3").
+                    attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
+                    on("mouseover", function () {
+                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                    }).
+                    on("mouseout", function () {
+                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                    });
+
+                var deleteOption = d3Ref.draw.rect(optionMenuStartX + 11,
+                    optionMenuStartY + 3,
+                    24,
+                    24,
+                    0,
+                    0,
+                    optionsMenuGroup, "url(#delIcon)").
+                    attr("style", "opacity:0.5; cursor: pointer").
+                    on("mouseover", function () {
+                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
+                    }).
+                    on("mouseout", function () {
+                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                    });
+
+                var editOption = d3Ref.draw.rect(optionMenuStartX + 11,
+                    optionMenuStartY + 32,
+                    24,
+                    24,
+                    0,
+                    0,
+                    optionsMenuGroup, "url(#editIcon)").
+                    attr("style", "opacity:0.5; cursor: pointer").
+                    on("mouseover", function () {
+                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                    }).
+                    on("mouseout", function () {
+                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                    });
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
@@ -665,21 +741,23 @@ var SequenceD = (function (sequenced) {
                     } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
                         lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
                     }
-                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(), 
+                        propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(),
                                 lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('parameters')),
                                 defaultView.model.selectedNode);
                 }
 
                 rect.on("click", (function () {
-                    if (deleteIconGroup.classed("circle-hide")) {
-                        deleteIconGroup.classed("circle-hide", false);
-                        deleteIconGroup.classed("circle-show", true);
-                    } else {
-                        deleteIconGroup.classed("circle-hide", true);
-                        deleteIconGroup.classed("circle-show", false);
-                    }
                     defaultView.model.selectedNode = viewObj.model;
-                    diagram.currentDeleteIconGroup = deleteIconGroup;
+                    if (optionsMenuGroup.classed("option-menu-hide")) {
+                        optionsMenuGroup.classed("option-menu-hide", false);
+                        optionsMenuGroup.classed("option-menu-show", true);
+                    } else {
+                        optionsMenuGroup.classed("option-menu-hide", true);
+                        optionsMenuGroup.classed("option-menu-show", false);
+                    }
+                }));
+
+                editOption.on("click", function () {
                     if (selected) {
                         if (this == selected) {
                             if (propertyPane) {
@@ -687,10 +765,6 @@ var SequenceD = (function (sequenced) {
                             }
                             selected = '';
                         } else {
-                            if(diagram.previousDeleteIconGroup) {
-                                diagram.previousDeleteIconGroup.classed("circle-hide", true);
-                                diagram.previousDeleteIconGroup.classed("circle-show", false);
-                            }
                             updatePropertyPane();
                             selected = this;
                         }
@@ -699,11 +773,9 @@ var SequenceD = (function (sequenced) {
                         updatePropertyPane();
                         selected = this;
                     }
-                    diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
-                    diagram.currentDeleteIconGroup = null;
-                }));
+                });
 
-                deleteIconGroup.on("click", function () {
+                deleteOption.on("click", function () {
                     //Get the parent of the model and delete it from the parent
                     if (~viewObj.model.get("title").indexOf("Resource")) {
                         var resourceElements = defaultView.model.get("diagramResourceElements").models;
@@ -937,7 +1009,7 @@ var SequenceD = (function (sequenced) {
                 var group = d3Ref.draw.group()
                     .classed(prefs.class, true);
                 var viewObj = this;
-                var deleteIconGroup = undefined;
+                //var deleteIconGroup = undefined;
                 var path = undefined;
                 var height = prefs.rect.height;
                 var width = prefs.rect.width;
@@ -1042,35 +1114,76 @@ var SequenceD = (function (sequenced) {
                 drawMessageRect.attr("height", totalHeight-30);
 
                 if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
-                    var circleCenterX = center.x() + 75;
-                    var circleCenterY = center.y() - prefs.rect.height/2;
-                    deleteIconGroup = group.append("g")
-                        .attr("class", "close-icon circle-hide");
-                    path = "M " + (circleCenterX - 3) + "," + (circleCenterY - 3) + " L " + (circleCenterX + 3) + "," +
-                        (circleCenterY + 3) + " M " + (circleCenterX + 3) + "," + (circleCenterY - 3) + " L " +
-                        (circleCenterX - 3) + "," + (circleCenterY + 3);
-                    var closeCircle = d3Ref.draw.circle(circleCenterX, circleCenterY, 7, deleteIconGroup).
-                        attr("fill", "#95a5a6").
-                        attr("style", "stroke: black; stroke-width: 2; opacity:0.8");
-                    deleteIconGroup.append("path")
-                        .attr("d", path)
-                        .attr("style", "stroke: black;fill: transparent; stroke-linecap:round; stroke-width: 1.5;");
+                    var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
+                    var optionMenuStartX = center.x() + 80;
+                    var optionMenuStartY = center.y() - prefs.rect.height/2;
+
+                    var optionMenuWrapper = d3Ref.draw.rect(optionMenuStartX + 8,
+                        optionMenuStartY,
+                        30,
+                        58,
+                        0,
+                        0,
+                        optionsMenuGroup, "#f8f8f3").
+                        attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
+
+                    var deleteOption = d3Ref.draw.rect(optionMenuStartX + 11,
+                        optionMenuStartY + 3,
+                        24,
+                        24,
+                        0,
+                        0,
+                        optionsMenuGroup, "url(#delIcon)").
+                        attr("style", "opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
+
+                    var editOption = d3Ref.draw.rect(optionMenuStartX + 11,
+                        optionMenuStartY + 32,
+                        24,
+                        24,
+                        0,
+                        0,
+                        optionsMenuGroup, "url(#editIcon)").
+                        attr("style", "opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
 
                     // On click of the mediator show/hide the delete icon
                     rectBottomXXX.containerRect.on("click", function () {
-                        if (deleteIconGroup.classed("circle-hide")) {
-                            deleteIconGroup.classed("circle-hide", false);
-                            deleteIconGroup.classed("circle-show", true);
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
                         } else {
-                            deleteIconGroup.classed("circle-hide", true);
-                            deleteIconGroup.classed("circle-show", false);
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
                         }
-                        diagram.currentDeleteIconGroup = deleteIconGroup;
                         diagram.selectedNode = viewObj.model;
+                    });
+
+                    editOption.on("click", function () {
                         viewObj.updateProcessorProperties();
                     });
 
-                    deleteIconGroup.on("click", function () {
+                    deleteOption.on("click", function () {
                          //Get the parent of the model and delete it from the parent
                         var parentModelChildren = viewObj.model.get("parent").get("parent").get("children").models;
                         for (var itr = 0; itr < parentModelChildren.length; itr ++) {
