@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>2.1.9-SNAPSHOT</version>
+    <version>2.1.10-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -247,6 +247,7 @@
         <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
         <guava.version>18.0</guava.version>
         <guava.version.range>[18.0,19.0)</guava.version.range>
+
 
 
         <carbon.messaging.version>1.0.10-SNAPSHOT</carbon.messaging.version>
