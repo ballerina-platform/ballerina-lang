@@ -36,7 +36,7 @@ source
     ;
 
 api
-    :   '@' 'Api'  ( '(' ( apiElementValuePairs ) ')' )
+    :   '@' 'Service'  ( '(' ( apiElementValuePairs ) ')' )
     ;
 
 resourcePath
