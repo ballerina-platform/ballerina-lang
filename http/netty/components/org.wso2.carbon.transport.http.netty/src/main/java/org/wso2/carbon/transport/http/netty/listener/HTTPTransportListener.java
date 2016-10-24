@@ -149,13 +149,17 @@ public class HTTPTransportListener extends TransportListener {
                 if (artifactDeployer != null) {
                     artifactDeployer.registerTransportListener(this);
                 }
-                log.info("HTTP Listener starting on port " + defaultListenerConfig.getPort());
+                if (defaultListenerConfig.getSslConfig() == null) {
+                    log.info("HTTP Listener starting on port " + defaultListenerConfig.getPort());
+                } else {
+                    log.info("HTTPS Listener starting on port " + defaultListenerConfig.getPort());
+                }
             } else {
-                log.error("HTTP Listener cannot start on port " + defaultListenerConfig.getPort());
+                log.error("HTTP/S Listener cannot start on port " + defaultListenerConfig.getPort());
             }
 
         } catch (InterruptedException e) {
-            log.error("HTTP Listener cannot start on port " + defaultListenerConfig.getPort(), e);
+            log.error("HTTP/S Listener cannot start on port " + defaultListenerConfig.getPort(), e);
         }
     }
 
@@ -245,8 +249,13 @@ public class HTTPTransportListener extends TransportListener {
                             listenerConfiguration.getPort())).sync();
                     if (future.isSuccess()) {
                         channelFutureMap.put(listenerConfiguration.getPort(), future);
-                        log.info("HTTP Interface " + interfaceId + " starting on host  " + listenerConfiguration
-                                .getHost() + " and port " + listenerConfiguration.getPort());
+                        if (listenerConfiguration.getSslConfig() == null) {
+                            log.info("HTTP Interface " + interfaceId + " starting on host  " + listenerConfiguration
+                                    .getHost() + " and port " + listenerConfiguration.getPort());
+                        } else {
+                            log.info("HTTPS Interface " + interfaceId + " starting on host  " + listenerConfiguration
+                                    .getHost() + " and port " + listenerConfiguration.getPort());
+                        }
                         return true;
                     } else {
                         log.error("Cannot bind port for host " + listenerConfiguration.getHost() + " port "
@@ -277,8 +286,13 @@ public class HTTPTransportListener extends TransportListener {
                     sslConfigMap.remove(id);
                 }
                 future.channel().close();
-                log.info("HTTP Listener stopped on listening interface " + interfaceId + " attached to   host  "
-                        + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                if (listenerConfiguration.getSslConfig() == null) {
+                    log.info("HTTP Listener stopped on listening interface " + interfaceId + " attached to   host  "
+                            + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                } else {
+                    log.info("HTTPS Listener stopped on listening interface " + interfaceId + " attached to   host  "
+                            + listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
+                }
                 return true;
             }
         }

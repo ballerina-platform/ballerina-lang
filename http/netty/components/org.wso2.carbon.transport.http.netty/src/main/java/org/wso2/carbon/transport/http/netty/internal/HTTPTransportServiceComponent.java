@@ -101,6 +101,6 @@ public class HTTPTransportServiceComponent implements RequiredCapabilityListener
     public void onAllRequiredCapabilitiesAvailable() {
         HTTPTransportContextHolder.getInstance().getBundleContext().
                 registerService(HTTPTransportServiceComponent.class, this, null);
-        log.info("All CarbonNettyServerInitializers are available");
+        log.info("All CarbonHTTPServerInitializers are available");
     }
 }
