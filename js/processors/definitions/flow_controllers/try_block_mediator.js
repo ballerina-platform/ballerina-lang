@@ -79,7 +79,7 @@ var Processors = (function (processors) {
 
             // Generate the Subtree for the catch block
             var catchBlock = model.get('containableProcessorElements').models[1];
-            var catchBlockNode = new TreeNode("CatchBlock", "CatchBlock", "catch(exception e){", "}");
+            var catchBlockNode = new TreeNode("CatchBlock", "CatchBlock", "catch(Exception e){", "}");
             for (var itr = 0; itr < catchBlock.get('children').models.length; itr++) {
                 var child = catchBlock.get('children').models[itr];
                 catchBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));

@@ -364,8 +364,10 @@ var SequenceD = (function (sequenced) {
                     var group = d3ref.draw.group();
                     var viewObj = this;
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
+                    var delXPosition = ((Math.round(this.model.source().centerPoint().get('x'))) +
+                        Math.round(this.model.destination().centerPoint().get('x')))/2;
 
-                    var optionMenuWrapper = d3ref.draw.rect(Math.round(this.model.source().centerPoint().get('x')) + 10,
+                    var optionMenuWrapper = d3ref.draw.rect(Math.round(delXPosition) - 15,
                         Math.round(this.model.source().centerPoint().get('y')) + 10,
                         30,
                         30,
@@ -380,7 +382,7 @@ var SequenceD = (function (sequenced) {
                             d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
                         });
 
-                    var deleteOption = d3ref.draw.rect(Math.round(this.model.source().centerPoint().get('x')) + 13,
+                    var deleteOption = d3ref.draw.rect(Math.round(delXPosition) - 12,
                         Math.round(this.model.source().centerPoint().get('y')) + 13,
                         24,
                         24,

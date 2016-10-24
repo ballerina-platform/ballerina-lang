@@ -31,11 +31,21 @@
 		// Listen to message from child window
 		eventer(messageEvent,function(e) {
 
-			// Need to get this content from the api resource properties
-			var source = '@Path ("/stock")\n' +
+			var tags = serviceTags.split(",");
+			var tagString = "{";
+			tags.forEach(function (tag) {
+				tagString += ('"' + tag + '",');
+			});
+			tagString += '}';
+			var source = '@Path ("' + serviceBasePath + '")\n' +
 					'@Source (interface="default")\n' +
-					'@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
-					'package com.sample;\n\n';
+					'@Service (tags =' + tagString + ', description = "' + serviceDescription + '", produces = ' + serviceProduces + ')\n' +
+					'package ' + servicePackageName + ';\n\n';
+			// Need to get this content from the api resource properties
+//			var source = '@Path ("/stock")\n' +
+//					'@Source (interface="default")\n' +
+//					'@Service (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+//					'package com.sample;\n\n';
 			source += e.data;
 			console.log('Source View received message!:  ',e.data);
 			editor.setValue(source);

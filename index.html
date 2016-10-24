@@ -82,7 +82,64 @@
         </div>
     </div>
 </div>
-<!-- End: Modal for file dialog for saving the configuration-->
+
+<!-- Set Service Parameters Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="servicePropertiesModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Set Service Parameters</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" style="margin-top: 25px">
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="basePath">Base Path</label>
+                        <div class="col-md-8">
+                            <input id="basePath" name="basePath" type="text" placeholder="/basepath" class="form-control input-md">
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="produces">Produces</label>
+                        <div class="col-md-8">
+                            <input id="produces" name="produces" type="text" placeholder="MediaType.APPLICATION_JSON" class="form-control input-md">
+                        </div>
+                    </div>
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="packageName">Package Name</label>
+                        <div class="col-md-8">
+                            <input id="packageName" name="packageName" type="text" placeholder="com.sample" class="form-control input-md">
+                        </div>
+                    </div>
+
+                    <!-- Textarea -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="description">Description</label>
+                        <div class="col-md-8">
+                            <input id="description" name="description" type="text" placeholder="Your Description Here" class="form-control input-md">
+                        </div>
+                    </div>
+
+                    <!-- Textarea -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="tags">Tags</label>
+                        <div class="col-md-8">
+                            <input id="tags" name="tags" type="text" placeholder="tag1,tag2" class="form-control input-md">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveServiceProperties()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Start: header -->
 <header class="header header-default">
@@ -135,7 +192,7 @@
             </div>
             <div class="row" id="serviceAndSourceButtonsRow" >
                 <ul class="" id="serviceAndSourceButtons">
-                    <li><a href="#" onclick="onSourceClick();" >Service</a></li>
+                    <li><a href="#" onclick="loadServiceProperties();">Service</a></li>
                     <li><a href="#" onclick="toggleSource();">Source</a></li>
                 </ul>
             </div>
@@ -411,10 +468,16 @@
     }
 
     function saveConfiguration() {
-        var config = '@Path ("/stock")\n' +
+        var tags = serviceTags.split(",");
+        var tagString = "{";
+        tags.forEach(function (tag) {
+            tagString += ('"' + tag + '",');
+        });
+        tagString += '}';
+        var config = '@Path ("' + serviceBasePath + '")\n' +
                 '@Source (interface="default")\n' +
-                '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
-                'package com.sample;\n\n';
+                '@Service (tags =' + tagString + ', description = "' + serviceDescription + '", produces = ' + serviceProduces + ')\n' +
+                'package ' + servicePackageName + ';\n\n';
         config += diagram.parseTree();
         var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
 
@@ -450,9 +513,11 @@
             newWizardError.show();
             return;
         }
+
+
         var config = '@Path ("/stock")\n' +
                 '@Source (interface="default")\n' +
-                '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+                '@Service (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
                 'package com.sample;\n\n';
 
         var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
@@ -493,10 +558,17 @@
         //Reset ace editor content
         mainEditor.setValue("");
         //Hard coded sourceConfig :TODO
-        var sourceConfig = '@Path ("/stock")\n' +
+        var tags = serviceTags.split(",");
+        var tagString = "{";
+        tags.forEach(function (tag) {
+            tagString += ('"' + tag + '",');
+        });
+        tagString = tagString.substring(0, tagString.length - 1);
+        tagString += '}';
+        var sourceConfig = '@Path ("' + serviceBasePath + '")\n' +
                 '@Source (interface="default")\n' +
-                '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
-                'package com.sample;\n\n';
+                '@Service (tags =' + tagString + ', description = "' + serviceDescription + '", produces = ' + serviceProduces + ')\n' +
+                'package ' + servicePackageName + ';\n\n';
 
         //Source not loaded yet
         if (editorMain.style.display == "none") {
@@ -528,6 +600,19 @@
 
     function onSourceClick(){
         toggleSource();
+    }
+
+    function loadServiceProperties() {
+        $('#servicePropertiesModal').modal('show');
+    }
+
+    function saveServiceProperties() {
+        serviceProduces = $("#produces").val();
+        serviceBasePath = $("#basePath").val();
+        servicePackageName = $("#packageName").val();
+        serviceTags = $("#tags").val();
+        serviceDescription = $("#description").val();
+        $('#servicePropertiesModal').modal('hide');
     }
 </script>
 
