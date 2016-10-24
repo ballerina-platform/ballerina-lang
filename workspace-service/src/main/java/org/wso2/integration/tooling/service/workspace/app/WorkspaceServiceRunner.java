@@ -57,7 +57,7 @@ public class WorkspaceServiceRunner {
         }
 
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
-        new MicroservicesRunner()
+        new MicroservicesRunner(Integer.getInteger("http.port", 8289))
                 .deploy(injector.getInstance(WorkspaceService.class))
                 .start();
     }

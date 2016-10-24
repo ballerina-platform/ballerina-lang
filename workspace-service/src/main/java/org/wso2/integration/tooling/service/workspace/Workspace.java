@@ -17,7 +17,6 @@ package org.wso2.integration.tooling.service.workspace;
 
 import com.google.gson.JsonArray;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -25,10 +24,7 @@ import java.io.IOException;
  */
 public interface Workspace {
 
-      JsonArray getRoots() throws IOException;
+      JsonArray listRoots() throws IOException;
 
-    //    File getPath(String path);
-//
-//    String getContent(File file);
-
+      JsonArray listDirectoriesInPath(String path) throws IOException;
 }

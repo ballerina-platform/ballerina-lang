@@ -16,15 +16,12 @@
 
 package org.wso2.integration.tooling.service.workspace.rest;
 
-import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import org.wso2.integration.tooling.service.workspace.Workspace;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Micro-service for exposing the workspace.
@@ -38,12 +35,27 @@ public class WorkspaceService {
     private Workspace workspace;
 
     @GET
-    @Path("/")
+    @Path("/root")
     @Produces("application/json")
-    public Response get() {
+    public Response root() {
         try {
             return Response.status(Response.Status.OK)
-                    .entity(workspace.getRoots())
+                    .entity(workspace.listRoots())
+                    .header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception e) {
+            return getErrorResponse(e);
+        }
+    }
+
+    @GET
+    @Path("/list")
+    @Produces("application/json")
+    public Response directoriesInPath(@QueryParam("path") String path) {
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity(workspace.listDirectoriesInPath(path))
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON)
                     .build();

@@ -18,12 +18,19 @@ package org.wso2.integration.tooling.service.workspace.cloud;
 import com.google.gson.JsonArray;
 import org.wso2.integration.tooling.service.workspace.Workspace;
 
+import java.io.IOException;
+
 /**
  * Workspace implementation for cloud file system.
  */
 public class CloudWorkspace  implements Workspace {
     @Override
-    public JsonArray getRoots() {
+    public JsonArray listRoots() throws IOException {
+        return null;
+    }
+
+    @Override
+    public JsonArray listDirectoriesInPath(String path) {
         return null;
     }
     // TODO: This is just for future use.

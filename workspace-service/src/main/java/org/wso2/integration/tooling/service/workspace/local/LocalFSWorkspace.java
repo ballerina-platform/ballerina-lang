@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 /**
@@ -35,7 +36,7 @@ public class LocalFSWorkspace implements Workspace {
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
 
     @Override
-    public JsonArray getRoots() {
+    public JsonArray listRoots() throws IOException  {
         final Iterable<Path> rootDirs = FileSystems.getDefault().getRootDirectories();
         JsonArray rootArray = new JsonArray();
         for (Path root: rootDirs){
@@ -54,6 +55,7 @@ public class LocalFSWorkspace implements Workspace {
                     rootObj.add("children", children);
                 }
             } catch (IOException e) {
+                logger.error("Error while traversing children of " +  e.toString(), e);
                 rootObj.addProperty("error", e.toString());
             }
             if(Files.isDirectory(root)){
@@ -63,6 +65,21 @@ public class LocalFSWorkspace implements Workspace {
         return rootArray;
     }
 
+    @Override
+    public JsonArray listDirectoriesInPath(String path) throws IOException {
+        Path ioPath = Paths.get(path);
+        JsonArray dirs = new JsonArray();
+        Iterator<Path> iterator = Files.list(ioPath).iterator();
+        while (iterator.hasNext()){
+            Path next = iterator.next();
+            if(Files.isDirectory(next)){
+                JsonObject jsnObj = getJsonObjForFile(next, true);
+                dirs.add(jsnObj);
+            }
+        }
+        return dirs;
+    }
+
     private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
         JsonObject rootObj = new JsonObject();
         rootObj.addProperty("text", root.getFileName() != null ? root.getFileName().toString() : root.toString());
@@ -70,11 +87,12 @@ public class LocalFSWorkspace implements Workspace {
         if(Files.isDirectory(root) && checkChildren){
             try {
                 if(Files.list(root).count() > 0){
-                    rootObj.addProperty("children", Boolean.TRUE.toString());
+                    rootObj.addProperty("children", Boolean.TRUE);
                 }else{
-                    rootObj.addProperty("children", Boolean.FALSE.toString());
+                    rootObj.addProperty("children", Boolean.FALSE);
                 }
             } catch (IOException e) {
+                logger.error("Error while fetching children of " + root.toString(), e);
                 rootObj.addProperty("error", e.toString());
             }
         }
