@@ -1177,7 +1177,6 @@ var Diagrams = (function (diagrams) {
 
             onMessageDrawEnd: function (sourceModel, sourcePoint, destinationPoint) {
 
-                console.log("2222222222222222222222222");
                 var destinationModel = null;
                 if (this.model.destinationLifeLine) {
                     destinationModel = this.model.destinationLifeLine;
@@ -1201,7 +1200,6 @@ var Diagrams = (function (diagrams) {
             onMessageDrawStart: function (sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback) {
 
                 var diagView = defaultView;
-                console.log("111111111111111");
 
                 var line = this.d3svg.append("line")
                     .attr("x1", startPoint.x())

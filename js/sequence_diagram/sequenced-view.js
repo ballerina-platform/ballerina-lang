@@ -365,7 +365,7 @@ var SequenceD = (function (sequenced) {
                     var viewObj = this;
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
 
-                    var optionMenuWrapper = d3ref.draw.rect(this.model.source().centerPoint().get('x') + 10,
+                    var optionMenuWrapper = d3ref.draw.rect(Math.round(this.model.source().centerPoint().get('x')) + 10,
                         Math.round(this.model.source().centerPoint().get('y')) + 10,
                         30,
                         30,
@@ -380,7 +380,7 @@ var SequenceD = (function (sequenced) {
                             d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
                         });
 
-                    var deleteOption = d3ref.draw.rect(this.model.source().centerPoint().get('x') + 13,
+                    var deleteOption = d3ref.draw.rect(Math.round(this.model.source().centerPoint().get('x')) + 13,
                         Math.round(this.model.source().centerPoint().get('y')) + 13,
                         24,
                         24,
@@ -574,8 +574,7 @@ var SequenceD = (function (sequenced) {
                 } else if (status == "messages") {
                     for (var id in this.modelAttr("children").models) {
                         var messagePoint = this.modelAttr("children").models[id];
-                        if ((messagePoint instanceof SequenceD.Models.MessagePoint) && messagePoint.get('direction') == 'outbound') {
-                            console.log("4444444444444444444444");
+                        if ((messagePoint instanceof SequenceD.Models.MessagePoint)) {
                             var linkView = new SequenceD.Views.MessageLink({
                                 model: messagePoint.message(),
                                 options: {class: "message"}
