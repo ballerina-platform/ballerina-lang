@@ -28,6 +28,10 @@ body{
     display: none;
 }
 
+.option-menu-hide {
+    display: none;
+}
+
 /*//////////////////////////////////////////////////*/
 /** Editor canvas related styles | Start -> **/
 svg text::selection { background: none; }

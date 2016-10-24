@@ -209,7 +209,8 @@ function initTabs(){
                                       value: MainElements.lifelines.SourceLifeline.title
                                   }]);
     defaultView.model.sourceLifeLineCounter(1);
-    defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline, MainElements.lifelines.ResourceLifeline.parameters);
+    defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
+        MainElements.lifelines.ResourceLifeline.parameters);
     defaultView.model.resourceLifeLineCounter(1);
 }
 
