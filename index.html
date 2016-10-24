@@ -234,6 +234,23 @@
                             <!-- End: tool-palette -->
                             <!-- Start: Editor Container -->
                             <div id="editor-container"  class="col-sm-8">
+                                <!-- warning validation for number of endpoints on canvas"-->
+                                <div id="endpointModal" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
+                                        <!-- Modal content-->
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <h4 class="modal-title" style="color:lightgoldenrodyellow">Warning!</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Only one endpoint per resource is supported in this version.</p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
                                 <div class="editor-scroller">
                                     <!-- Start: Editor Tabs Area -->
                                     <div class="editor">
