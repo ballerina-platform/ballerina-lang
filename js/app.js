@@ -208,6 +208,11 @@ function initTabs(){
     defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
         MainElements.lifelines.ResourceLifeline.parameters);
     defaultView.model.resourceLifeLineCounter(1);
+    //create initial arrow between source and resource
+    var currentSource = defaultView.model.diagramSourceElements().models[0];
+    var currentResource = defaultView.model.diagramResourceElements().models[0];
+    tabListView.drawInitArrow(currentSource,currentResource,defaultView);
+
 }
 
 $(document).ready(function(){
