@@ -402,6 +402,16 @@ var SequenceD = (function (sequenced) {
                     var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint(), group)
                         .classed(this.options.class, true);
 
+                    // TODO : If we are drawing an arrow from pipeline to an endpoint, we need a reverse arrow as well.
+                    // But this needs to be fixed as we need to support OUT_ONLY messages.
+                    if (this.model.destination().get('parent').get('cssClass') === "endpoint") {
+                        var lineDestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) + 20);
+                        var lineSourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) + 20);
+
+                        var line2 = d3ref.draw.lineFromPoints(lineDestinationCenterPoint, lineSourceCenterPoint, group)
+                            .classed(this.options.class, true);
+                    }
+
                     //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
                     //this.model.destination().on("connectingPointChanged", this.destinationMoved, this);
 
@@ -536,6 +546,7 @@ var SequenceD = (function (sequenced) {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
                                     yValue = messagePoint.y();
                                 }
+                                messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             } else {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
