@@ -19,12 +19,12 @@
 var MainElements = (function (mainElements) {
     var lifelines = mainElements.lifelines || {};
 
-    var resourceLifeline = {
-        id: "Resource",
-        title: "Pipe Line",
+    var sourceLifeline = {
+        id: "Source",
+        title: "Source",
         icon: "images/tool-icons/lifeline.svg",
         colour : "#998844",
-        class : "resource",
+        class : "source",
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -40,70 +40,29 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
-            },
-            {
-                key: "path",
-                text: "Path"
-            },
-            {
-                key: "get",
-                checkbox: "GET"
-            },
-            {
-                key: "put",
-                checkbox: "PUT"
-            },
-            {
-                key: "post",
-                checkbox: "POST"
-            }
-        ],
-        parameters: [
-            {
-                key: "path",
-                value: ""
-            },
-            {
-                key: "get",
-                value: false
-            },
-            {
-                key: "put",
-                value: false
-            },
-            {
-                key: "post",
-                value: false
-            }
-        ]
         // getSchema: function () {
         //     return {
-        //         "title": 'Pipe Line',
+        //         "title": 'Source',
         //         type: "object",
         //         properties: {
-        //             Title: { "type": "string" },
-        //             Path: {"type": "boolean"},
-        //             Get: {"type": "boolean"},
-        //             Post: {"type": "boolean"}
+        //             Title: { "type": "string" }
         //         }
         //     };
         // },
         // getEditableProperties: function (parameters) {
         //     var editableProperties = {};
-        //     editableProperties.Title = title;
-        //     editableProperties.Path = parameters[0].value;
-        //     editableProperties.Get = parameters[1].value;
-        //     editableProperties.Put = parameters[2].value;
-        //     editableProperties.Post = parameters[3].value;
+        //     editableProperties.Title = title
         //     return editableProperties;
-        // }
+        // },
+        propertyPaneSchema: [
+            {
+                key: "title",
+                text: "Title"
+            }
+        ]
     };
 
-    lifelines.ResourceLifeline = resourceLifeline;
+    lifelines.SourceLifeline = sourceLifeline;
     mainElements.lifelines = lifelines;
 
     return mainElements;

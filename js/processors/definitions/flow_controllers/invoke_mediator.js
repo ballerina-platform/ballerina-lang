@@ -146,16 +146,18 @@ var Processors = (function (processors) {
         getMySubTree: function (model) {
             var messageLinks = model.get('children').models;
             var endpoint = undefined;
+            var uri = undefined;
             messageLinks.forEach(function (child) {
                 if (_.isEqual(child.get('direction'), "inbound")) {
-                    endpoint = child.get('message').get('source').get('parent').get('title');
+                    endpoint = child.get('message').get('source').get('parent').get('parameters')[0].value;
+                    uri = child.get('message').get('source').get('parent').get('parameters')[1].value;
                     // When we define the properties, need to extract the endpoint from the property
-                    definedConstants["HTTPEP"] = {name: endpoint, value: "http://www.mocky.io/v2/57fb80930f00007c0c4fd3d9"};
+                    definedConstants["HTTPEP"] = {name: endpoint, value: uri};
                 } else {
                     endpoint = "anonymous";
                 }
             });
-            return new TreeNode("InvokeMediator", "InvokeMediator", ("reply invoke(" + endpoint + ",m)"), ";");
+            return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
         }
     };
 

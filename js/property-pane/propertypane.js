@@ -1,4 +1,3 @@
-
 var Editor = (function (editor) {
     var views = editor.Views || {};
 
@@ -48,9 +47,27 @@ var Editor = (function (editor) {
 
         saveProperties: function() {
             if (propertyPane && propertyPane.schema) {
-                if (propertyPane.schema.title === "End Point" || propertyPane.schema.title === "Pipe Line") {
+                if (propertyPane.schema.title === "End Point") {
                     ppView.dataObject.set('title', propertyPane.getValue().Title);
+                    ppView.dataObject.attributes.parameters = [
+                        {
+                            key: "title",
+                            value: propertyPane.getValue().Title
+                        },
+                        {
+                            key: "uri",
+                            value: propertyPane.getValue().Uri
+                        }
+                    ];
 
+                } else if (propertyPane.schema.title === "Pipe Line") {
+                    ppView.dataObject.set('title', propertyPane.getValue().Title);
+                    ppView.dataObject.attributes.parameters = [
+                        {
+                            key: "title",
+                            value: propertyPane.getValue().Title
+                        }
+                    ];
                 } else if (propertyPane.schema.title === "Resource") {
                     diagram.attributes.path = propertyPane.getValue().Path;
                     diagram.attributes.get = propertyPane.getValue().Get;
@@ -66,6 +83,10 @@ var Editor = (function (editor) {
                         {
                             key: "logLevel",
                             value: propertyPane.getValue().LogLevel
+                        },
+                        {
+                            key: "logCatagory",
+                            value: propertyPane.getValue().LogCategory
                         },
                         {
                             key: "description",
@@ -120,7 +141,51 @@ var Editor = (function (editor) {
                             value: propertyPane.getValue().Description
                         }
                     ];
-                    
+
+                } else if (propertyPane.schema.title === "If Else") {
+                    ppView.dataObject.attributes.parent.parameters.parameters = [
+                        {
+                            key: "condition",
+                            value: propertyPane.getValue().Condition
+                        },
+                        {
+                            key: "description",
+                            value: propertyPane.getValue().Description
+                        }
+                    ];
+
+                } else if (propertyPane.schema.title === "Header Processor") {
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "reference",
+                            value: propertyPane.getValue().Reference
+                        },
+                        {
+                            key: "name",
+                            value: propertyPane.getValue().Name
+                        },
+                        {
+                            key: "value",
+                            value: propertyPane.getValue().Value
+                        }
+                    ];
+
+                } else if (propertyPane.schema.title === "Payload Processor") {
+                    ppView.dataObject.parameters.parameters = [
+                        {
+                            key: "contentType",
+                            value: propertyPane.getValue().ContentType
+                        },
+                        {
+                            key: "messageReference",
+                            value: propertyPane.getValue().MessageRef
+                        },
+                        {
+                            key: "payload",
+                            value: propertyPane.getValue().Payload
+                        }
+                    ];
+
                 }
             }
         },

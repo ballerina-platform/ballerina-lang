@@ -21,13 +21,13 @@ var Processors = (function (processors) {
     var flowControllers = processors.flowControllers || {};
 
     //Define manipulator mediators
-    var tryBlockMediator = {
-        id: "TryBlockMediator",
-        title: "Try Block",
+    var ifElseMediator = {
+        id: "IfElseMediator",
+        title: "If Else",
         icon: "images/tool-icons/tryblock.svg",
         colour : "#998844",
         type : "ComplexProcessor",
-        containableElements: [{container:"tryContainer",children:[{title:"Try"}]},{container:"catchContainer",children:[{title:"Catch"}]}],
+        containableElements: [{container:"ifContainer",children:[{title:"If"}]},{container:"elseContainer",children:[{title:"Else"}]}],
         dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -44,8 +44,8 @@ var Processors = (function (processors) {
         },
         parameters: [
             {
-                key: "exception",
-                value: "Exception"
+                key: "condition",
+                value: ""
             },
             {
                 key: "description",
@@ -54,24 +54,26 @@ var Processors = (function (processors) {
         ],
         getSchema: function () {
             return {
-                title: "Try Block",
+                title: "If Else",
                 type: "object",
                 properties: {
-                    Exception: {"type": "string"},
+                    Condition: {"type": "string"},
                     Description: {"type": "string"}
                 }
             };
         },
         getEditableProperties: function (parameters) {
             var editableProperties = {};
-            editableProperties.Exception = parameters[0];
+            editableProperties.Condition = parameters[0];
             editableProperties.Description = parameters[1];
             return editableProperties;
         },
         getMySubTree: function (model) {
             // Generate Subtree for the try block
             var tryBlock = model.get('containableProcessorElements').models[0];
-            var tryBlockNode = new TreeNode("TryBlock", "TryBlock", "try{", "}");
+            var parameters = model.get('parameters').parameters;
+            var ifConfigStart = "if ( " + parameters[0].value + ") {";
+            var tryBlockNode = new TreeNode("IfBlock", "IfBlock", ifConfigStart, "}");
             for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
                 var child = tryBlock.get('children').models[itr];
                 tryBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
@@ -79,12 +81,12 @@ var Processors = (function (processors) {
 
             // Generate the Subtree for the catch block
             var catchBlock = model.get('containableProcessorElements').models[1];
-            var catchBlockNode = new TreeNode("CatchBlock", "CatchBlock", "catch(exception e){", "}");
+            var catchBlockNode = new TreeNode("ElseBlock", "ElseBlock", "else{", "}");
             for (var itr = 0; itr < catchBlock.get('children').models.length; itr++) {
                 var child = catchBlock.get('children').models[itr];
                 catchBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
             }
-            var tryCatchNode = new TreeNode("TryCatchMediator", "TryCatchMediator", "", "");
+            var tryCatchNode = new TreeNode("IfElseMediator", "IfElseMediator", "", "");
             tryCatchNode.getChildren().push(tryBlockNode);
             tryCatchNode.getChildren().push(catchBlockNode);
 
@@ -95,7 +97,7 @@ var Processors = (function (processors) {
 
     // Add defined mediators to manipulators
     // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    flowControllers.TryBlockMediator = tryBlockMediator;
+    flowControllers.IfElseMediator = ifElseMediator;
 
     processors.flowControllers = flowControllers;
 

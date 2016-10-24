@@ -345,7 +345,10 @@ var Diagrams = (function (diagrams) {
             resourceModel.setDiagramViewForTab(currentView);
             // mark tab as visited
             resourceModel.setSelectedTab();
-
+            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
+            currentView.model.sourceLifeLineCounter(1);
+            currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
+            currentView.model.resourceLifeLineCounter(1);
         }
 
     });
@@ -938,6 +941,8 @@ var Diagrams = (function (diagrams) {
                 }
             },
             handleDropEvent: function (event, ui) {
+                // Check for invalid drops on endpoints
+                if(eventManager.invalid==false){
                 var newDraggedElem = $(ui.draggable).clone();
                 var txt = defaultView.model;
                 var id = ui.draggable.context.lastChild.id;
@@ -977,11 +982,14 @@ var Diagrams = (function (diagrams) {
                     txt.selectedNode.addChild(processor);
 
                     if (Processors.flowControllers[id].type == "ComplexProcessor") {
-                        (Processors.flowControllers[id].containableElements).forEach(function(elm) {
-                            var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
-                            containableProcessorElem.set('title', elm);
-                            containableProcessorElem.parent(processor);
-                            processor.containableProcessorElements().add(containableProcessorElem);
+                        (Processors.flowControllers[id].containableElements).forEach(function (elm) {
+                            (elm.children).forEach(function (child) {
+                                var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                                containableProcessorElem.set('title', child.title);
+                                containableProcessorElem.parent(processor);
+                                processor.containableProcessorElements().add(containableProcessorElem);
+
+                            });
                         });
                     }
 
@@ -990,7 +998,8 @@ var Diagrams = (function (diagrams) {
                 } else if (id == "EndPoint") {
                     var countOfEndpoints = txt.endpointLifeLineCounter();
                     ++countOfEndpoints;
-                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline);
+                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
+                        MainElements.lifelines.EndPointLifeline.parameters);
                     txt.endpointLifeLineCounter(countOfEndpoints);
 
                 } else if (id == "Resource") {
@@ -998,13 +1007,20 @@ var Diagrams = (function (diagrams) {
                     //if no resource elements added to this tab view, as only one resource element is allowed in a tab
                     if (countOfResources === 0) {
                         ++countOfResources;
-                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline);
+                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline,
+                            MainElements.lifelines.ResourceLifeline.parameters);
                         txt.resourceLifeLineCounter(countOfResources);
                     }
 
-                } else {
-
+                } else if (id == "Source") {
+                    var countOfSources = txt.sourceLifeLineCounter();
+                    if (countOfSources === 0) {
+                        ++countOfSources;
+                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline);
+                        txt.sourceLifeLineCounter(countOfSources);
+                    }
                 }
+            } //for invalid check
             },
 
             render: function () {
@@ -1032,9 +1048,22 @@ var Diagrams = (function (diagrams) {
                 this.htmlDiv = $(this.options.selector);
                 this.htmlDiv.droppable({
                     drop: this.handleDropEvent,
-                    tolerance: "pointer"
+                    tolerance: "pointer",
                 });
 
+
+                for (var id in this.model.attributes.diagramSourceElements.models) {
+                    if (this.model.attributes.diagramSourceElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramSourceElements.models[id];
+                        var lifeLineView = new SequenceD.Views.LifeLineView({
+                            model: lifeLine,
+                            options: lifeLineOptions
+                        });
+                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                        var rectColour = this.model.attributes.diagramSourceElements.models[id].attributes.colour;
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
+                    }
+                }
 
                 for (var id in this.model.attributes.diagramResourceElements.models) {
                     if (this.model.attributes.diagramResourceElements.models[id] instanceof SequenceD.Models.LifeLine) {
@@ -1059,6 +1088,19 @@ var Diagrams = (function (diagrams) {
                         diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
+                    }
+                }
+
+                for (var id in this.model.attributes.diagramSourceElements.models) {
+                    if (this.model.attributes.diagramSourceElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                        var lifeLine = this.model.attributes.diagramSourceElements.models[id];
+                        var lifeLineView = new SequenceD.Views.LifeLineView({
+                            model: lifeLine,
+                            options: lifeLineOptions
+                        });
+                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                        var rectColour = this.model.attributes.diagramSourceElements.models[id].attributes.colour;
+                        lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
                 }
 
@@ -1092,24 +1134,19 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, lifeLineDef) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
                 var centerPoint;
-                if (numberOfEndpointElements > 0) {
-                    if (lifelineName == "Resource") {
-                        centerPoint = createPoint(200, 50);
-                        txt.attributes.diagramEndpointElements.each(function (model) {
-                            var xVal = model.get('centerPoint').attributes.x;
-                            model.get('centerPoint').move(180, 0);
-                            model.setX(xVal + 180);
-                            model.rightLowerConer({x: xVal + 245, y: 0});
-                        });
-                    } else {
+
+                if(lifelineName == "Source") {
+                    centerPoint = createPoint(200, 50);
+                } else if (lifelineName == "Resource") {
+                    centerPoint = createPoint(380, 50);
+                } else if (numberOfEndpointElements > 0) {
                         var lastLifeLine = txt.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
                         centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
-                    }
                 } else {
                     if (numberOfResourceElements > 0) {
                         var lastLifeLine = txt.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
@@ -1119,7 +1156,11 @@ var Diagrams = (function (diagrams) {
                         centerPoint = createPoint(200, 50);
                     }
                 }
-                var lifeline = createLifeLine(lifelineName + counter, centerPoint, lifeLineDef.class);
+                var title = lifelineName;
+                if(lifelineName == "EndPoint") {
+                    title += counter;
+                }
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters);
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,

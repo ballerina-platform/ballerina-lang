@@ -49,7 +49,12 @@ var Processors = (function (processors) {
             {
                 key: "logLevel",
                 dropdown: "Log Level",
-                values: ["debug", "info", "error"]
+                values: ["simple", "custom", "headers", "full"]
+            },
+            {
+                key: "logCategory",
+                dropdown: "Log Category",
+                values: ["info", "error", "warn", "fatal", "debug", "trace"]
             },
             {
                 key: "description",
@@ -63,6 +68,10 @@ var Processors = (function (processors) {
             },
             {
                 key: "logLevel",
+                value: "simple"
+            },
+            {
+                key: "logCategory",
                 value: "info"
             },
             {
@@ -79,9 +88,22 @@ var Processors = (function (processors) {
                     LogLevel: {
                         "type": "string",
                         "enum": [
-                            "debug",
+                            "simple",
+                            "custom",
+                            "headers",
+                            "full"
+                        ],
+                        "default": "SIMPLE"
+                    },
+                    LogCategory: {
+                        "type": "string",
+                        "enum": [
                             "info",
-                            "error"
+                            "error",
+                            "warn",
+                            "fatal",
+                            "debug",
+                            "trace"
                         ],
                         "default": "info"
                     },
@@ -93,11 +115,14 @@ var Processors = (function (processors) {
             var editableProperties = {};
             editableProperties.Message = parameters[0];
             editableProperties.LogLevel = parameters[1];
-            editableProperties.Description = parameters[2];
+            editableProperties.LogCategory = parameters[2];
+            editableProperties.Description = parameters[3];
             return editableProperties;
         },
         getMySubTree: function (model) {
-            return new TreeNode("LogMediator", "LogMediator", "log(\"Test\"", ");");
+            var parameters = model.get('parameters').parameters;
+            var log_configStart =  "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
+            return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
         }
     };
 

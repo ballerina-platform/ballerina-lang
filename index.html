@@ -49,22 +49,35 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="newConfigModalLabel">Save Integration Flow Configuration</h4>
+                <h4 class="modal-title" id="newConfigModalLabel">New Ballerina Configuration Wizard</h4>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="location" class="form-control-label">Location</label>
-                    <input type="text" class="form-control" id="location">
+                <div class="container-fluid">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="location" class="control-label col-sm-2">Location</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="location" placeholder="eg: /home/user/wso2-integration-server/ballerina-configs">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="configName" class="control-label col-sm-2">File Name</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="configName" placeholder="eg: hotel-check-in.xyz">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2     col-sm-10">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="newConfiguration();">create
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="newWizardError" class="alert alert-danger">
+                        <strong>Error!</strong> Something went wrong.
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="configName" class="form-control-label">Config Name</label>
-                    <input class="form-control" id="configName">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="newConfiguration()" data-dismiss="modal">Save
-                </button>
             </div>
         </div>
     </div>
@@ -82,19 +95,20 @@
                 <h1>Integration Server Tooling</h1>
             </a>
         </div>
+
     </div>
     <!-- End: header - logo & title -->
 
     <!--TODO: remove once the file explorer is implemented-->
     <!-- Start: Temporary file save and new menus -->
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default" id="navbar-wrapper">
         <div class="container-fluid">
             <div class="collapse navbar-collapse" id="main-navbar">
                 <ul class="nav navbar-nav">
                     <li><a href="#" data-toggle="modal" data-target="#newConfigModal">New<span
                             class="sr-only">(current)</span></a></li>
-                    <li><a href="#" onclick="saveConfiguration()">Save</a></li>
-                    <li><a href="#" id="sourceId" onclick="toggleSource()">Source</a></li>
+                    <li><a href="#" onclick="saveConfiguration();">Save</a></li>
+                    <li><a href="#" id="sourceId-" onclick="toggleSource();">Source</a></li>
                 </ul>
             </div>
         </div>
@@ -109,13 +123,21 @@
     <div id="page-content" class="container">
         <!-- Start: page content : first row -->
         <div id="page-content-first-row" class="row">
-            <!-- Start: breadcrumb row -->
-            <div class="row" style="display: none"><!-- TODO make this visible -->
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">HolidayBooking</a></li>
-                    <li class="breadcrumb-item"><a href="#">PackageSelection</a></li>
-                    <li class="breadcrumb-item active">HolidayPackage.nel</li>
+            <div id="alertArea" class="alert">
+            </div>
+            <div class="row" id="breadcrumbRow" ><!-- TODO make this visible -->
+                <ol class="breadcrumb" id="breadcrumbList">
                 </ol>
+                <ul class="" id="saveAndNewButtons">
+                    <li><a href="#" onclick="onNewClick();" >New</a></li>
+                    <li><a href="#" onclick="saveConfiguration();">Save</a></li>
+                </ul>
+            </div>
+            <div class="row" id="serviceAndSourceButtonsRow" >
+                <ul class="" id="serviceAndSourceButtons">
+                    <li><a href="#" onclick="onSourceClick();" >Service</a></li>
+                    <li><a href="#" onclick="toggleSource();">Source</a></li>
+                </ul>
             </div>
             <!-- End: breadcrumb row -->
             <!-- Start: file explorer and editor area row -->
@@ -145,26 +167,7 @@
                         </span>
                         </div>
                         <div>
-                            <ul id="tree"  class="row tree-view tree-view-lines">
-                                <li aria-expanded="true"><span>HolidayBooking</span>
-                                    <ul>
-                                        <li>BookingHistory</li>
-                                        <li>PackageSelection
-                                            <ul>
-                                                <li>Reports
-                                                    <ul>
-                                                        <li>Report1</li>
-                                                        <li>Report2</li>
-                                                        <li>Report3</li>
-                                                    </ul>
-                                                </li>
-                                                <li>Employee Maint.</li>
-                                            </ul>
-                                        </li>
-                                        <li>Human Resources</li>
-                                    </ul>
-                                </li>
-                            </ul>
+                            <ul id="tree"  class="tree-view tree-view-lines"> </ul>
                         </div>
                     </div>
                     <!-- End: file explorer -->
@@ -172,7 +175,20 @@
                 <!-- End: left container -->
                 <!-- Start: right container -->
                 <div id="right-container" class="col-sm-12"><!-- TODO resize to col-sm-10 once left container made visible -->
-                    <div class="container-fluid">
+                    <div class="container-fluid" id="empty-workspace-wrapper">
+                        <div class="col-sm-5"></div>
+                        <div class="col-sm-2" id="start-actions-container">
+                            <h3>Create new or open existing</h3>
+                            <hr>
+                            <ul>
+                                <li>Create a <a onclick="onNewClick()">new</a> Ballerina Config</li>
+                                <li class="disabled"><a>Open</a>  an existing Ballerina Config</li>
+                                <li class="disabled">import from CVS</li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-5"></div>
+                    </div>
+                    <div class="container-fluid" id="resource-tabs-wrapper">
                         <div class="row">
                             <!-- Start: resource tabs -->
                             <div id="tab-container" class="">
@@ -192,7 +208,6 @@
                                     <!-- Start: Editor Tabs Area -->
                                     <div class="editor">
                                         <div class="tab-content resource-content ">
-
                                         </div>
                                     </div>
                                     <!-- End: Editor Tabs Area -->
@@ -279,14 +294,20 @@
 <script src="js/main_elements/definitions/life-line.js"></script>
 <script src="js/main_elements/definitions/life-lines/end_point.js"></script>
 <script src="js/main_elements/definitions/life-lines/resource.js"></script>
+<script src="js/main_elements/definitions/life-lines/source.js"></script>
 
 <script src="js/processors/definitions/manipulators.js"></script>
 <script src="js/processors/definitions/manipulators/log_mediator.js"></script>
-<script src="js/processors/definitions/manipulators/payload_factory_mediator.js"></script>
+<script src="js/processors/definitions/manipulators/header_processor.js"></script>
+<!--<script src="js/processors/definitions/manipulators/payload_processor.js"></script>-->
+<!--This is the datamapper processor-->
+<!--TODO: Need to rename this to datamapper-->
+<!--<script src="js/processors/definitions/manipulators/payload_factory_mediator.js"></script>-->
 
 <script src="js/processors/definitions/flow_controllers.js"></script>
+<script src="js/processors/definitions/flow_controllers/if_else_mediator.js"></script>
 <script src="js/processors/definitions/flow_controllers/try_block_mediator.js"></script>
-<script src="js/processors/definitions/flow_controllers/switch_mediator.js"></script>
+<!--<script src="js/processors/definitions/flow_controllers/switch_mediator.js"></script>-->
 <script src="js/processors/definitions/flow_controllers/invoke_mediator.js"></script>
 
 <script src="js/sequence_diagram/sequenced-model.js"></script>
@@ -339,35 +360,79 @@
 </script>
 <script>
     var configLocation,
-        configFileName;
+        configFileName,
+        saveServiceURL = "http://localhost:8285/utility/saveconfig",
+        newWizardError = $('#newWizardError'),
+        alertArea = $('#alertArea');
+
+    newWizardError.hide();
+    alertArea.hide();
+
+    function alertSuccess(msg){
+        alertArea.text(msg);
+        alertArea.removeClass("alert-danger");
+        alertArea.addClass("alert-success");
+        alertArea.fadeTo(4000, 500).slideUp(500, function () {
+            alertArea.slideUp(500);
+        });
+    }
+
+    function alertError(msg){
+        alertArea.text(msg);
+        alertArea.addClass("alert-danger");
+        alertArea.removeClass("alert-success");
+        alertArea.fadeTo(4000, 500).slideUp(500, function () {
+            alertArea.slideUp(500);
+        });
+    }
+
+    function setBreadcrumb(path, file){
+        path = _.replace(path, /\\/gi, "/")
+        var pathArr = _.split(path, "/");
+
+        var breadCumbList = $("#breadcrumbList");
+        breadCumbList.empty();
+        pathArr.forEach(function(segment){
+            if(!_.isEmpty(segment)){
+                var li = $("<li>"+segment+"</li>");
+                li.addClass("breadcrumb-item");
+                breadCumbList.append(li);
+            }
+        });
+        var fileLi = $("<li>"+file+"</li>");
+        fileLi.addClass("breadcrumb-item");
+        fileLi.addClass("active");
+        breadCumbList.append(fileLi);
+    }
+
+    function onNewClick(){
+        newWizardError.hide();
+        $('#newConfigModal').modal('show');
+    }
 
     function saveConfiguration() {
         var config = '@Path ("/stock")\n' +
-                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Source (interface="default")\n' +
                 '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
                 'package com.sample;\n\n';
         config += diagram.parseTree();
         var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
 
         $.ajax({
-            url: "http://localhost:8080/utility/saveconfig",
+            url: saveServiceURL,
             type: "POST",
             data: payload,
             contentType: "text/plain; charset=utf-8",
             async: false,
             success: function (data, textStatus, xhr) {
                 if (xhr.status == 200) {
-                    $('#successAlert').show();
-                    $("#successAlert").fadeTo(4000, 500).slideUp(500, function () {
-                        $("#successAlert").slideUp(500);
-                    });
+                   alertSuccess("Configuration was saved successfully.");
                 } else {
-                    $('#failAlert').show();
-                    $("#failAlert").fadeTo(4000, 500).slideUp(500, function () {
-                        $("#failAlert").slideUp(500);
-                    });
+                    alertError("Something went wrong. " + textStatus);
                 }
-
+            },
+            error: function(res, errorCode, error){
+                alertError("Something went wrong. " + errorCode + " " + error + " " + res.responseText);
             }
         });
     }
@@ -375,7 +440,50 @@
     function newConfiguration() {
         configLocation = document.getElementById("location");
         configFileName = document.getElementById("configName");
-        diagram.reloadDiagramArea();
+        if(_.isEmpty(configLocation.value)){
+            newWizardError.text("Invalid Value for Location." );
+            newWizardError.show();
+            return;
+        }
+        if(_.isEmpty(configFileName.value)){
+            newWizardError.text("Invalid Value for File Name." );
+            newWizardError.show();
+            return;
+        }
+        var config = '@Path ("/stock")\n' +
+                '@Source (interface="default")\n' +
+                '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
+                'package com.sample;\n\n';
+
+        var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
+
+        $.ajax({
+            url: saveServiceURL,
+            type: "POST",
+            data: payload,
+            contentType: "text/plain; charset=utf-8",
+            async: false,
+            success: function (data, textStatus, xhr) {
+                if (xhr.status == 200) {
+                    alertSuccess("File " + configLocation.value + "/" + configFileName.value  + " created successfully.");
+                    $('#newConfigModal').modal('hide');
+                    $("#breadcrumbRow").show();
+                    setBreadcrumb(configLocation.value, configFileName.value);
+                    $("#empty-workspace-wrapper").hide();
+                    $("#resource-tabs-wrapper").show();
+                    $("#serviceAndSourceButtonsRow").show();
+                    initTabs();
+                } else {
+                    newWizardError.text("Something went wrong. " + textStatus);
+                    newWizardError.show();
+                }
+            },
+            error: function(res, errorCode, error){
+                newWizardError.text("Something went wrong. " + errorCode + " " + error + " " + res.responseText);
+                newWizardError.show();
+            }
+        });
+
     }
     function toggleSource() {
         var editorMain = document.getElementById("sourceViewTab");
@@ -386,10 +494,9 @@
         mainEditor.setValue("");
         //Hard coded sourceConfig :TODO
         var sourceConfig = '@Path ("/stock")\n' +
-                '@Source (protocol="http", host="localhost", port=8080)\n' +
+                '@Source (interface="default")\n' +
                 '@Api (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
                 'package com.sample;\n\n';
-
 
         //Source not loaded yet
         if (editorMain.style.display == "none") {
@@ -411,10 +518,16 @@
         else {
             // Hide source view
             editorMain.style.display = "none";
-            leftContainer.style.display = "block";
+
+            // Left container is temporarily not showing since we have disabled the file explorer at the moment
+            // leftContainer.style.display = "block";
             rightContainer.style.display = "block";
             $('#sourceId').html('SOURCE');
         }
+    }
+
+    function onSourceClick(){
+        toggleSource();
     }
 </script>
 

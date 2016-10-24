@@ -105,6 +105,7 @@ var D3Utils = (function (d3_utils) {
             .attr("width", width)
             .attr("height", height)
             .attr("fill", colour || "steelblue")
+            .attr("stroke", "black")
             .attr("stroke-width", 2)
             .attr("rx", rx)
             .attr("ry", ry);
@@ -222,7 +223,7 @@ var D3Utils = (function (d3_utils) {
             }
         }
 
-        var rectangleHeight = lastElementY - rectY - 118;
+        var rectangleHeight = lastElementY - rectY - 100;
         rect.attr("height", rectangleHeight);
         return form;
     };
@@ -234,34 +235,40 @@ var D3Utils = (function (d3_utils) {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
         if (defaultView.selectedNode.type === "LogMediator") {
             var selectedLogLevel;
+            var selectedLogCategory;
             if (inputs.logLevel.value !== "") {
                 selectedLogLevel = inputs.logLevel.value;
             } else {
                 selectedLogLevel = defaultView.selectedNode.parameters.parameters[1].value;
             }
-            
+            if (inputs.logCategory.value !== "") {
+                selectedLogCategory = inputs.logCategory.value;
+            } else {
+                selectedLogCategory = defaultView.selectedNode.parameters.parameters[2].value;
+            }
             defaultView.selectedNode.parameters.parameters = [
                 {
                     key: "message",
                     value: inputs.message.value,
-                    text: "Log message"
                 },
                 {
                     key: "logLevel",
                     value: selectedLogLevel,
-                    dropdown: "Log Level",
-                    values: ["debug", "info", "error"]
+                },
+                {
+                    key: "logCategory",
+                    value: selectedLogCategory
                 },
                 {
                     key: "description",
                     value: inputs.description.value,
-                    text: "Description"
                 }
             ];
             //defaultView.render();
             //diagram.propertyWindow = false;
         } else if (defaultView.selectedNode.attributes.cssClass === "resource") {
             resetMainElementTitle(inputs.title.value);
+            
             defaultView.selectedNode.attributes.title = inputs.title.value;
             defaultView.selectedNode.attributes.parameters[0].value = inputs.path.value;
             defaultView.selectedNode.attributes.parameters[1].value = inputs.get.checked;
@@ -273,6 +280,10 @@ var D3Utils = (function (d3_utils) {
             defaultView.selectedNode.attributes.title = inputs.title.value;
             defaultView.selectedNode.attributes.parameters[0].value = inputs.url.value;
 
+        } else if (defaultView.selectedNode.attributes.cssClass === "source") {
+            defaultView.selectedNode.attributes.title = inputs.title.value;
+            resetMainElementTitle(inputs.title.value);
+            
         }
 
     };

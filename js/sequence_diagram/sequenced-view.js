@@ -84,6 +84,10 @@ var SequenceD = (function (sequenced) {
                     processorDefinition = Processors.manipulators.PayLoadFactoryMediator;
                 } else if (type === "InvokeMediator") {
                     processorDefinition = Processors.flowControllers.InvokeMediator;
+                } else if (type === "HeaderProcessor") {
+                    processorDefinition = Processors.manipulators.HeaderProcessor;
+                } else if (type === "PayloadProcessor") {
+                    processorDefinition = Processors.manipulators.PayloadProcessor;
                 }
 
                 ppView.loadPropertyPane(this, processorDefinition, parameters);
@@ -171,6 +175,10 @@ var SequenceD = (function (sequenced) {
                                 defaultView.render();
                                 break;
                             }
+                        }
+
+                        if (propertyPane) {
+                            propertyPane.destroy();
                         }
                     });
 
@@ -672,11 +680,16 @@ var SequenceD = (function (sequenced) {
                      diagram = defaultView.model;
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+                    // Update event manager with current active element type for validation
+                    eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     diagram.destinationLifeLine = diagram.selectedNode;
                     diagram.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
+                    // Update event manager with out of focus on active element
+                    eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
+
                 });
 
                 drawMessageRect.on('mouseover', function () {
@@ -685,22 +698,28 @@ var SequenceD = (function (sequenced) {
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                    // Update event manager with current active element type for validation
+                    eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     d3.select(this).style("fill-opacity", 0.0);
+                    // Update event manager with out of focus on active element
+                    eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
                 });
 
-                function updatePropertyPane() {
-                    var lifeLineDefinition;
-                    if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
-                        lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
-                    } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
-                        lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
-                    }
-                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(), 
-                                lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
-                                defaultView.model.selectedNode);
-                }
+                // function updatePropertyPane() {
+                //     var lifeLineDefinition;
+                //     if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
+                //         lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
+                //     } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
+                //         lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
+                //     } else if (defaultView.model.selectedNode.attributes.cssClass === "source") {
+                //         lifeLineDefinition = MainElements.lifelines.SourceLifeline;
+                //     }
+                //     propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(),
+                //                 lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('parameters')),
+                //                 defaultView.model.selectedNode);
+                // }
 
                 rect.on("click", (function () {
                     if (deleteIconGroup.classed("circle-hide")) {
@@ -739,12 +758,12 @@ var SequenceD = (function (sequenced) {
                                     diagram.propertyWindow = false;
                                 }
                             }
-                            updatePropertyPane();
+                            //updatePropertyPane();
                             selected = this;
                         }
                     } else {
                         defaultView.model.selected = false;
-                        updatePropertyPane();
+                        //updatePropertyPane();
                         selected = this;
                     }
                     diagram.previousDeleteIconGroup = diagram.currentDeleteIconGroup;
@@ -779,7 +798,9 @@ var SequenceD = (function (sequenced) {
                             }
                         }
                     }
-
+                    if (propertyPane) {
+                        propertyPane.destroy();
+                    }
                 });
 
                 propertiesIconGroup.on("click", function () {
@@ -831,6 +852,13 @@ var SequenceD = (function (sequenced) {
                                     value: viewObj.model.attributes.parameters[0].value
                                 }
                             ];
+                        } else if (viewObj.model.attributes.cssClass === "source") {
+                            parameters = [
+                                {
+                                    key: "title",
+                                    value: viewObj.title
+                                }
+                            ]
                         }
 
                         var propertySchema;
@@ -840,6 +868,8 @@ var SequenceD = (function (sequenced) {
                         } else if (viewObj.model.attributes.cssClass === "resource") {
                             propertySchema = MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
 
+                        } else if (viewObj.model.attributes.cssClass === "source") {
+                            propertySchema = MainElements.lifelines.SourceLifeline.propertyPaneSchema;
                         }
 
                         defaultView.drawPropertiesPane(d3Ref, options, parameters, propertySchema);
@@ -1034,6 +1064,8 @@ var SequenceD = (function (sequenced) {
                     processorDefinition = Processors.flowControllers.TryBlockMediator;
                 } else if (type === "SwitchMediator") {
                     processorDefinition = Processors.flowControllers.SwitchMediator;
+                } else if (type === "IfElseMediator") {
+                    processorDefinition = Processors.flowControllers.IfElseMediator;
                 }
 
                 ppView.loadPropertyPane(this, processorDefinition, parameters);
@@ -1149,7 +1181,7 @@ var SequenceD = (function (sequenced) {
                 middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
                 drawMessageRect.attr("height", totalHeight-30);
 
-                if (viewObj.model.get("title") === "Try") {
+                if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
                     var circleCenterX = center.x() + 75;
                     var circleCenterY = center.y() - prefs.rect.height/2;
                     deleteIconGroup = group.append("g")
@@ -1187,6 +1219,9 @@ var SequenceD = (function (sequenced) {
                                 defaultView.render();
                                 break;
                             }
+                        }
+                        if (propertyPane) {
+                            propertyPane.destroy();
                         }
                     });
 

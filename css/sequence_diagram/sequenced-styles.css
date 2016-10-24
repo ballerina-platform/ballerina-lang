@@ -36,6 +36,14 @@
     fill: #8e44ad;
 }
 
+.source > rect {
+    fill: #F8F8FF;
+}
+
+.source .lifeline-title{
+    fill: #000000;
+}
+
 .endpoint > line {
     stroke: #666666;
 }
