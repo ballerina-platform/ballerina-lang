@@ -1178,7 +1178,12 @@ var SequenceD = (function (sequenced) {
                 for (var id in this.modelAttr("children").models) {
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                    //TODO : Please remove this if else with a proper implementation
+                    if(processor.type == "messagePoint"){
+                        yValue = yValue-20;
+                    }
                     var processorCenterPoint = createPoint(xValue, yValue);
+
                     processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
