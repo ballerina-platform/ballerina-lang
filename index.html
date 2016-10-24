@@ -61,7 +61,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default"  onclick="onFileBrowserClose();">Cancel</button>
-                <button type="button" class="btn btn-primary">Select</button>
+                <button type="button" class="btn btn-primary"  onclick="onFileSelected();">Select</button>
             </div>
         </div>
     </div>
@@ -400,15 +400,26 @@
     newWizardError.hide();
     alertArea.hide();
 
+    var fileBrowser;
+
     function openFileBrowser(){
         $('#fileBrowserModel').modal('show');
         $('#newConfigModal').modal('hide');
-        var fileBrowser = new Tools.Views.FileBrowser({container:"#fileTree"});
+        fileBrowser = new Tools.Views.FileBrowser({container:"#fileTree"});
     }
 
     function onFileBrowserClose(){
         $('#fileBrowserModel').modal('hide');
         $('#newConfigModal').modal('show');
+    }
+
+    function onFileSelected(){
+        var selected = fileBrowser.selected;
+        if(selected){
+            $('#fileBrowserModel').modal('hide');
+            $('#newConfigModal').modal('show');
+            $('#location').val(selected);
+        }
     }
 
     function alertSuccess(msg){

@@ -37,10 +37,10 @@ var Tools = (function (tools) {
                         'data' : {
                             'url': function (node) {
                                 if(node.id === '#') {
-                                    return "http://localhost:8080/service/workspace/root";
+                                    return "http://localhost:8289/service/workspace/root";
                                 }
                                 else {
-                                    return "http://localhost:8080/service/workspace/list?path=" + node.id;
+                                    return "http://localhost:8289/service/workspace/list?path=" + node.id;
                                 }
                             },
                             'dataType': "json",
@@ -48,6 +48,7 @@ var Tools = (function (tools) {
                                 return { 'id' : node.id };
                             }
                         },
+                        'multiple' : false,
                         'check_callback' : false,
                         'force_text' : true,
                         'themes' : {
@@ -59,8 +60,7 @@ var Tools = (function (tools) {
                 })
                 .on('changed.jstree', function (e, data) {
                     if(data && data.selected && data.selected.length) {
-                        self.selected = data.selected;
-                        console.log("selected  ", data.selected);
+                        self.selected = data.selected[0];
                     }
                     else {
                         self.selected = false;
