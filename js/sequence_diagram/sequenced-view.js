@@ -827,12 +827,27 @@ var SequenceD = (function (sequenced) {
 
                 rect.on("click", (function () {
                     defaultView.model.selectedNode = viewObj.model;
-                    if (optionsMenuGroup.classed("option-menu-hide")) {
-                        optionsMenuGroup.classed("option-menu-hide", false);
-                        optionsMenuGroup.classed("option-menu-show", true);
-                    } else {
-                        optionsMenuGroup.classed("option-menu-hide", true);
-                        optionsMenuGroup.classed("option-menu-show", false);
+                    if (defaultView.model.selectedNode.get("title") != "Source") {
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
+                        } else {
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
+                        }
+                    }
+                }));
+
+                text.on("click", (function () {
+                    defaultView.model.selectedNode = viewObj.model;
+                    if (defaultView.model.selectedNode.get("title") != "Source") {
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
+                        } else {
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
+                        }
                     }
                 }));
 
