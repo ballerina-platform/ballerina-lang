@@ -518,6 +518,15 @@ var Diagrams = (function (diagrams) {
                             if (mediator.get('message').get('destination').get('parent').get('title') === "Source") {
                                 var node = new TreeNode("ResponseMsg", "ResponseMsg", "reply response", ";");
                                 rootNode.getChildren().push(node);
+                            }else if(mediator.get('message').get('destination').get('parent').get('cssClass') === "endpoint"){
+                                //This section will handle "invoke" mediator transformation.
+                                endpoint = mediator.get('message').get('destination').get('parent').get('parameters')[0].value;
+                                uri = mediator.get('message').get('destination').get('parent').get('parameters')[1].value;
+                                // When we define the properties, need to extract the endpoint from the property
+                                definedConstants["HTTPEP"] = {name: endpoint, value: uri};
+
+                                var invokeNode = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
+                                rootNode.getChildren().push(invokeNode);
                             }
                         } else {
                             rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
