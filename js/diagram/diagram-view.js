@@ -1006,10 +1006,17 @@ var Diagrams = (function (diagrams) {
                     defaultView.render();
                 } else if (id == "EndPoint") {
                     var countOfEndpoints = txt.endpointLifeLineCounter();
-                    ++countOfEndpoints;
-                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
-                        MainElements.lifelines.EndPointLifeline.parameters);
-                    txt.endpointLifeLineCounter(countOfEndpoints);
+                    //only one endpoint is allowed in this version TODO:
+                    if(countOfEndpoints === 0){
+                        ++countOfEndpoints;
+                        defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
+                            MainElements.lifelines.EndPointLifeline.parameters);
+                        txt.endpointLifeLineCounter(countOfEndpoints);
+                    }//validation check for number of endpoints in a tab
+                    else{
+                        $('#endpointModal').modal('show');
+                    }
+
 
                 } else if (id == "Resource") {
                     var countOfResources = txt.resourceLifeLineCounter();
