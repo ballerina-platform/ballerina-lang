@@ -31,41 +31,44 @@ var Tools = (function (tools) {
         render: function () {
             var self = this;
             self.selected = false;
-            $(this.options.container)
-                .jstree({
-                    'core' : {
-                        'data' : {
-                            'url': function (node) {
-                                if(node.id === '#') {
-                                    return "http://localhost:8289/service/workspace/root";
-                                }
-                                else {
-                                    return "http://localhost:8289/service/workspace/list?path=" + node.id;
+            jQuery(function($) {
+                $(self.options.container)
+                    .jstree({
+                        'core' : {
+                            'data' : {
+                                'url': function (node) {
+                                    if(node.id === '#') {
+                                        return "http://localhost:8289/service/workspace/root";
+                                    }
+                                    else {
+                                        return "http://localhost:8289/service/workspace/list?path=" + node.id;
+                                    }
+                                },
+                                'dataType': "json",
+                                'data' : function (node) {
+                                    return { 'id' : node.id };
                                 }
                             },
-                            'dataType': "json",
-                            'data' : function (node) {
-                                return { 'id' : node.id };
+                            'multiple' : false,
+                            'check_callback' : false,
+                            'force_text' : true,
+                            'themes' : {
+                                'responsive' : false,
+                                'variant' : 'small',
+                                'stripes' : true
                             }
-                        },
-                        'multiple' : false,
-                        'check_callback' : false,
-                        'force_text' : true,
-                        'themes' : {
-                            'responsive' : false,
-                            'variant' : 'small',
-                            'stripes' : true
                         }
-                    }
-                })
-                .on('changed.jstree', function (e, data) {
-                    if(data && data.selected && data.selected.length) {
-                        self.selected = data.selected[0];
-                    }
-                    else {
-                        self.selected = false;
-                    }
-                });
+                    })
+                    .on('changed.jstree', function (e, data) {
+                        if(data && data.selected && data.selected.length) {
+                            self.selected = data.selected[0];
+                        }
+                        else {
+                            self.selected = false;
+                        }
+                    });
+            });
+
             return this;
         }
     });
