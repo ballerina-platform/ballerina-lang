@@ -675,6 +675,11 @@
     }
 
     function loadServiceProperties() {
+        $("#produces").val(serviceProduces);
+        $("#basePath").val(serviceBasePath);
+        $("#packageName").val(servicePackageName);
+        $("#tags").val(serviceTags);
+        $("#description").val(serviceDescription);
         $('#servicePropertiesModal').modal('show');
     }
 

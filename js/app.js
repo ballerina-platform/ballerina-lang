@@ -29,6 +29,13 @@ lifeLineOptions.rect.roundX = 20;
 lifeLineOptions.rect.roundY = 20;
 lifeLineOptions.rect.class = "lifeline-rect";
 
+// Setting the default service parameters
+serviceProduces = "MediaType.APPLICATION_JSON"
+serviceBasePath = "/stock";
+servicePackageName = "com.sample";
+serviceTags = "stock_info,stock_update";
+serviceDescription = "Rest api for get stocks details";
+
 // Lifeline middle-rect options
 lifeLineOptions.middleRect = {};
 lifeLineOptions.middleRect.width = 100;
