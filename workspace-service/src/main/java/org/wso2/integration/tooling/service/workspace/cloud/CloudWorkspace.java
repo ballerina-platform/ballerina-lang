@@ -33,5 +33,10 @@ public class CloudWorkspace  implements Workspace {
     public JsonArray listDirectoriesInPath(String path) {
         return null;
     }
+
+    @Override
+    public void write(String path, String content) throws IOException {
+
+    }
     // TODO: This is just for future use.
 }

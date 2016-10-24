@@ -16,12 +16,18 @@
 
 package org.wso2.integration.tooling.service.workspace.rest;
 
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import org.wso2.integration.tooling.service.workspace.Workspace;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Micro-service for exposing the workspace.
@@ -64,13 +70,42 @@ public class WorkspaceService {
         }
     }
 
+    @POST
+    @Path("/write")
+    @Produces("application/json")
+    public Response write(String payload) {
+        try {
+            String location="" ;
+            String config;
+            Matcher locationMatcher = Pattern.compile("location=(.*?)&").matcher(payload);
+            while (locationMatcher.find()) {
+                location = locationMatcher.group(1);
+            }
+            config = payload.split("config=")[1];
+            byte[] base64Config = Base64.getDecoder().decode(config);
+            byte[] base64Location = Base64.getDecoder().decode(location);
+            Files.write(Paths.get((new String(base64Location))), base64Config);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("status", "success");
+            return Response.status(Response.Status.OK)
+                    .entity(entity)
+                    .header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception e) {
+            return getErrorResponse(e);
+        }
+    }
+
     public Workspace getWorkspace(){
         return this.workspace;
     }
 
     private Response getErrorResponse(Exception ex){
+        JsonObject entity = new JsonObject();
+        entity.addProperty("Error", ex.getLocalizedMessage());
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("{Error: '" + ex.toString() + "'}")
+                .entity(entity)
                 .header("Access-Control-Allow-Origin", '*')
                 .type(MediaType.APPLICATION_JSON)
                 .build();

@@ -27,4 +27,6 @@ public interface Workspace {
       JsonArray listRoots() throws IOException;
 
       JsonArray listDirectoriesInPath(String path) throws IOException;
+
+      void write(String path, String content) throws IOException;
 }
