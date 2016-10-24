@@ -24,7 +24,6 @@ var Tools = (function (tools) {
         initialize: function (options) {
             var opts = options || {};
             opts.container = opts.container || "#file-browser";
-            opts.serviceURL = opts.serviceURL || "http://localhost:8080/service/workspace/";
             this.options = opts;
             this.render();
         },
@@ -36,7 +35,15 @@ var Tools = (function (tools) {
                 .jstree({
                     'core' : {
                         'data' : {
-                            'url' : this.options.serviceURL,
+                            'url': function (node) {
+                                if(node.id === '#') {
+                                    return "http://localhost:8080/service/workspace/root";
+                                }
+                                else {
+                                    return "http://localhost:8080/service/workspace/list?path=" + node.id;
+                                }
+                            },
+                            'dataType': "json",
                             'data' : function (node) {
                                 return { 'id' : node.id };
                             }
