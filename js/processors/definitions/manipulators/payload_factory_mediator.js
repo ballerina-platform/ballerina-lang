@@ -55,24 +55,20 @@ var Processors = (function (processors) {
                 value: "Description"
             }
         ],
-        getSchema: function () {
-            return {
-                title: "Data Mapper",
-                type: "object",
-                properties: {
-                    ConfigurationFile: {"type": "string"},
-                    Message: {"type": "string"},
-                    Description: {"type": "string"}
-                }
-            };
-        },
-        getEditableProperties: function (parameters) {
-            var editableProperties = {};
-            editableProperties.ConfigurationFile = parameters[0];
-            editableProperties.Message = parameters[1];
-            editableProperties.Description = parameters[2];
-            return editableProperties;
-        },
+        propertyPaneSchema: [
+            {
+                key: "configurationFile",
+                text: "Configuration File"
+            },
+            {
+                key: "message",
+                text: "Message"
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         getMySubTree: function (model) {
             return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator", "payloadFactory {", "}");
         }

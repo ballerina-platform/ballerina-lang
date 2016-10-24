@@ -307,9 +307,11 @@ var Diagrams = (function (diagrams) {
                 createdTab: false
             });
 
-            if (propertyPane) {
-                propertyPane.destroy();
+            if (diagram.selectedOptionsGroup) {
+                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
+                diagram.selectedOptionsGroup.classed("option-menu-show", false);
             }
+            diagram.selectedOptionsGroup = null;
 
             var nextTabListView = new Diagrams.Views.TabListView({model: resourceModel});
 
@@ -364,9 +366,12 @@ var Diagrams = (function (diagrams) {
             //Unique Id created for the svg element where elements can be drawn
             var svgUId = this.model.get("resourceId") + "4";
 
-            if (propertyPane) {
-                propertyPane.destroy();
+            if (diagram.selectedOptionsGroup) {
+                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
+                diagram.selectedOptionsGroup.classed("option-menu-show", false);
             }
+            diagram.selectedOptionsGroup = null;
+            
             //first time click on the tab
             if (this.model.attributes.createdTab === false) {
                 // get the diagram model for this tab

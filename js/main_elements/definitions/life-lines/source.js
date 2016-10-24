@@ -40,20 +40,6 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        // getSchema: function () {
-        //     return {
-        //         "title": 'Source',
-        //         type: "object",
-        //         properties: {
-        //             Title: { "type": "string" }
-        //         }
-        //     };
-        // },
-        // getEditableProperties: function (parameters) {
-        //     var editableProperties = {};
-        //     editableProperties.Title = title
-        //     return editableProperties;
-        // },
         propertyPaneSchema: [
             {
                 key: "title",

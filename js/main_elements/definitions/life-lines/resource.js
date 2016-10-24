@@ -80,27 +80,6 @@ var MainElements = (function (mainElements) {
                 value: false
             }
         ]
-        // getSchema: function () {
-        //     return {
-        //         "title": 'Pipe Line',
-        //         type: "object",
-        //         properties: {
-        //             Title: { "type": "string" },
-        //             Path: {"type": "boolean"},
-        //             Get: {"type": "boolean"},
-        //             Post: {"type": "boolean"}
-        //         }
-        //     };
-        // },
-        // getEditableProperties: function (parameters) {
-        //     var editableProperties = {};
-        //     editableProperties.Title = title;
-        //     editableProperties.Path = parameters[0].value;
-        //     editableProperties.Get = parameters[1].value;
-        //     editableProperties.Put = parameters[2].value;
-        //     editableProperties.Post = parameters[3].value;
-        //     return editableProperties;
-        // }
     };
 
     lifelines.ResourceLifeline = resourceLifeline;

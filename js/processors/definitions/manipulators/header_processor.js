@@ -54,24 +54,20 @@ var Processors = (function (processors) {
                 value: "Header Value"
             }
         ],
-        getSchema: function () {
-            return {
-                title: "Header Processor",
-                type: "object",
-                properties: {
-                    Reference: {"type": "string"},
-                    Name: {"type": "string"},
-                    Value: {"type": "string"}
-                }
-            };
-        },
-        getEditableProperties: function (parameters) {
-            var editableProperties = {};
-            editableProperties.Reference = parameters[0];
-            editableProperties.Name = parameters[1];
-            editableProperties.Value = parameters[2];
-            return editableProperties;
-        },
+        propertyPaneSchema: [
+            {
+                key: "reference",
+                text: "Message Reference"
+            },
+            {
+                key: "name",
+                text: "Header Name"
+            },
+            {
+                key: "value",
+                text: "Header Value"
+            }
+        ],
         getMySubTree: function (model) {
             var parameters = model.get('parameters').parameters;
             var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +

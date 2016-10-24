@@ -173,11 +173,11 @@ var D3Utils = (function (d3_utils) {
 
     /**
      * Create the properties form by appending form elements such as textbox, label, checkbox etc.
-     * @param x X coordinate
-     * @param y Y coordinate
      * @param parent SVG parent element of the form
      * @param parameters Model parameters of the selected element
      * @param propertyPaneSchema Property rendering schema of the selected element
+     * @param rect Property window rectangle
+     * @param rectY Rectangle top y coordinate
      * @returns {*} Created form element
      */
     var form = function (parent, parameters, propertyPaneSchema, rect, rectY) {
@@ -187,11 +187,11 @@ var D3Utils = (function (d3_utils) {
             .attr("x", 23)
             .attr("y", 20)
             .attr("width", "200")
-            .attr("height", "150");
+            .attr("height", "100%");
 
         var form = foreignObject.append("xhtml:form")
             .attr("id", "property-form")
-            .attr("autocomplete", "off");
+            .attr("autocomplete", "on");
         var lastElementY;
 
         for (var i = 0; i < propertyPaneSchema.length; i++) {
@@ -214,7 +214,7 @@ var D3Utils = (function (d3_utils) {
                         dropdownValues[index] = {value: value.toLowerCase(), text: value};
                     }
                 });
-                lastElementY = appendDropdown(form, dropdownValues, property.key);
+                lastElementY = appendDropdown(form, dropdownValues, property.key, i);
 
             } else if (property.checkbox) {
                 //append a checkbox
@@ -223,7 +223,7 @@ var D3Utils = (function (d3_utils) {
             }
         }
 
-        var rectangleHeight = lastElementY - rectY - 100;
+        var rectangleHeight = lastElementY - rectY - 170;
         rect.attr("height", rectangleHeight);
         return form;
     };
@@ -249,11 +249,11 @@ var D3Utils = (function (d3_utils) {
             defaultView.selectedNode.parameters.parameters = [
                 {
                     key: "message",
-                    value: inputs.message.value,
+                    value: inputs.message.value
                 },
                 {
                     key: "logLevel",
-                    value: selectedLogLevel,
+                    value: selectedLogLevel
                 },
                 {
                     key: "logCategory",
@@ -261,14 +261,85 @@ var D3Utils = (function (d3_utils) {
                 },
                 {
                     key: "description",
-                    value: inputs.description.value,
+                    value: inputs.description.value
                 }
             ];
-            //defaultView.render();
-            //diagram.propertyWindow = false;
+
+        } else if (defaultView.selectedNode.type === "PayLoadFactoryMediator") {
+            defaultView.selectedNode.parameters.parameters = [
+                {
+                    key: "configurationFile",
+                    value: inputs.configurationFile.value
+                },
+                {
+                    key: "message",
+                    value: inputs.message.value
+                },
+                {
+                    key: "description",
+                    value: inputs.description.value
+                }
+            ];
+
+        } else if (defaultView.selectedNode.type === "HeaderProcessor") {
+            defaultView.selectedNode.parameters.parameters = [
+                {
+                    key: "reference",
+                    value: inputs.reference.value
+                },
+                {
+                    key: "name",
+                    value: inputs.name.value
+                },
+                {
+                    key: "value",
+                    value: inputs.value.value
+                }
+            ];
+
+        } else if (defaultView.selectedNode.type === "PayloadProcessor") {
+            defaultView.selectedNode.parameters.parameters = [
+                {
+                    key: "contentType",
+                    value: inputs.contentType.value
+                },
+                {
+                    key: "messageReference",
+                    value: inputs.messageReference.value
+                },
+                {
+                    key: "payload",
+                    value: inputs.payload.value
+                }
+            ];
+
+        } else if (defaultView.selectedNode.type === "IfElseMediator") {
+            defaultView.selectedNode.parameters.parameters = [
+                {
+                    key: "condition",
+                    value: inputs.condition.value
+                },
+                {
+                    key: "description",
+                    value: inputs.description.value
+                }
+            ];
+
+        } else if (defaultView.selectedNode.type === "TryBlockMediator") {
+            defaultView.selectedNode.parameters.parameters = [
+                {
+                    key: "exception",
+                    value: inputs.exception.value
+                },
+                {
+                    key: "description",
+                    value: inputs.description.value
+                }
+            ];
+
         } else if (defaultView.selectedNode.attributes.cssClass === "resource") {
             resetMainElementTitle(inputs.title.value);
-            
+
             defaultView.selectedNode.attributes.title = inputs.title.value;
             defaultView.selectedNode.attributes.parameters[0].value = inputs.path.value;
             defaultView.selectedNode.attributes.parameters[1].value = inputs.get.checked;
@@ -278,12 +349,17 @@ var D3Utils = (function (d3_utils) {
         } else if (defaultView.selectedNode.attributes.cssClass === "endpoint") {
             resetMainElementTitle(inputs.title.value);
             defaultView.selectedNode.attributes.title = inputs.title.value;
-            defaultView.selectedNode.attributes.parameters[0].value = inputs.url.value;
+            defaultView.selectedNode.attributes.parameters = [
+                {
+                    key: "url",
+                    value: inputs.url.value
+                }
+            ];
 
         } else if (defaultView.selectedNode.attributes.cssClass === "source") {
             defaultView.selectedNode.attributes.title = inputs.title.value;
             resetMainElementTitle(inputs.title.value);
-            
+
         }
 
     };
@@ -334,18 +410,19 @@ var D3Utils = (function (d3_utils) {
             .text(value);
     };
 
-    var appendDropdown = function (parent, optionsList, name) {
+    var appendDropdown = function (parent, optionsList, name, count) {
         var input = parent.append("input")
             .attr("name", name)
+            .attr("id", name)
             .attr("class", "property-dropdown")
-            .attr("list", "dropdown");
+            .attr("list", "dropdown-" + count);
 
         var datalist = input.append("datalist")
-            .attr("id", "dropdown");
+            .attr("id", "dropdown-" + count);
 
         for (var i = 0; i < optionsList.length; i++) {
             var option = optionsList[i];
-            var optionUI = datalist.append("option")
+            datalist.append("option")
                 .attr("label", option.value)
                 .attr("class", "property-option")
                 .attr("value", option.value);
@@ -365,7 +442,7 @@ var D3Utils = (function (d3_utils) {
 
         return input._groups[0][0].getBoundingClientRect().bottom;
     };
-    
+
     var group = function (parent) {
         parent = parent || d3Ref;
         return parent.append("g");

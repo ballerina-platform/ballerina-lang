@@ -52,22 +52,16 @@ var Processors = (function (processors) {
                 value: "Description"
             }
         ],
-        getSchema: function () {
-            return {
-                title: "If Else",
-                type: "object",
-                properties: {
-                    Condition: {"type": "string"},
-                    Description: {"type": "string"}
-                }
-            };
-        },
-        getEditableProperties: function (parameters) {
-            var editableProperties = {};
-            editableProperties.Condition = parameters[0];
-            editableProperties.Description = parameters[1];
-            return editableProperties;
-        },
+        propertyPaneSchema: [
+            {
+                key: "condition",
+                text: "Condition"
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         getMySubTree: function (model) {
             // Generate Subtree for the try block
             var tryBlock = model.get('containableProcessorElements').models[0];

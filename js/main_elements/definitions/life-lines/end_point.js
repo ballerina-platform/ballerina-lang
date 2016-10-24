@@ -27,16 +27,6 @@ var MainElements = (function (mainElements) {
         colour : "purple",
         class : "endpoint",
         dragCursorOffset : { left: 50, top: 50 },
-        // parameters: [
-        //     {
-        //         key: "title",
-        //         value: "Sample EP"
-        //     },
-        //     {
-        //         key: "uri",
-        //         value: "http://localhost:8080/stockquote/all"
-        //     }
-        // ],
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
@@ -66,23 +56,7 @@ var MainElements = (function (mainElements) {
                 key: "url",
                 value: "https://"
             }
-        ],
-        // getSchema: function () {
-        //     return {
-        //         "title": 'End Point',
-        //         type: "object",
-        //         properties: {
-        //             Title: { "type": "string" },
-        //             Uri: { "type": "string" }
-        //         }
-        //     };
-        // },
-        // getEditableProperties: function (parameters) {
-        //     var editableProperties = {};
-        //     editableProperties.Title = title;
-        //     editableProperties.Uri = parameters[0].value;
-        //     return editableProperties;
-        // }
+        ]
     };
 
     lifelines.EndPointLifeline = endPointLifeline;
