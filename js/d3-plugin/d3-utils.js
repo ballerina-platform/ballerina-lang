@@ -199,7 +199,7 @@ var D3Utils = (function (d3_utils) {
             if (property.text) {
                 //append a textbox
                 appendLabel(form, property.text);
-                appendTextBox(form, parameters[i].value, property.key);
+                lastElementY = appendTextBox(form, parameters[i].value, property.key);
 
             } else if (property.dropdown) {
                 //append a dropdown
@@ -213,25 +213,17 @@ var D3Utils = (function (d3_utils) {
                         dropdownValues[index] = {value: value.toLowerCase(), text: value};
                     }
                 });
-                appendDropdown(form, dropdownValues, property.key);
+                lastElementY = appendDropdown(form, dropdownValues, property.key);
 
             } else if (property.checkbox) {
                 //append a checkbox
-                appendCheckBox(form, property, parameters[i].value);
+                lastElementY = appendCheckBox(form, property, parameters[i].value);
 
             }
         }
 
-        var button = form.append("xhtml:button")
-            .attr("id", "property-save")
-            .attr("type", "button")
-            .attr("class", "btn btn-primary")
-            .text("Save");
-        button.on("click", saveProperties);
-
-        var buttonBottom = $('#property-save')[0].getBoundingClientRect().bottom;
-        var he = buttonBottom - rectY - 131;
-        rect.attr("height", he);
+        var rectangleHeight = lastElementY - rectY - 118;
+        rect.attr("height", rectangleHeight);
         return form;
     };
 
@@ -266,8 +258,8 @@ var D3Utils = (function (d3_utils) {
                     text: "Description"
                 }
             ];
-            defaultView.render();
-            diagram.propertyWindow = false;
+            //defaultView.render();
+            //diagram.propertyWindow = false;
         } else if (defaultView.selectedNode.attributes.cssClass === "resource") {
             resetMainElementTitle(inputs.title.value);
             defaultView.selectedNode.attributes.title = inputs.title.value;
@@ -298,9 +290,13 @@ var D3Utils = (function (d3_utils) {
         if (checked) {
             checkbox.attr("checked", true);
         }
+
+        checkbox.on("change", saveProperties)
         appendLabel(parent, property.checkbox);
         parent.append("br");
         parent.append("br");
+
+        return checkbox._groups[0][0].getBoundingClientRect().bottom
     };
 
     var appendTextBox = function (parent, value, name) {
@@ -317,6 +313,8 @@ var D3Utils = (function (d3_utils) {
 
         parent.append("br");
         parent.append("br");
+
+        return textBox._groups[0][0].getBoundingClientRect().bottom;
     };
 
     var appendLabel = function (parent, value) {
@@ -344,6 +342,8 @@ var D3Utils = (function (d3_utils) {
                 input._groups[0][0].value = option.value;
             }
         }
+
+        input.on("change", saveProperties);
         parent.append("br");
         parent.append("br");
 
@@ -351,6 +351,8 @@ var D3Utils = (function (d3_utils) {
             this.focus();
             this.value = "";
         });
+
+        return input._groups[0][0].getBoundingClientRect().bottom;
     };
     
     var group = function (parent) {
