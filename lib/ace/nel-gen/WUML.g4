@@ -36,7 +36,7 @@ source
     ;
 
 api
-    :   '@' 'Api'  ( '(' ( apiElementValuePairs ) ')' )
+    :   '@' 'Service'  ( '(' ( apiElementValuePairs ) ')' )
     ;
 
 resourcePath
@@ -93,7 +93,12 @@ elementValuePairs
     ;
 
 sourceElementValuePairs
-    :   protocol (',' host)?  (','  port)?
+    :   interfaceDeclaration
+    |   protocol (',' host)?  (','  port)?
+    ;
+
+interfaceDeclaration
+    :   'interface' '=' StringLiteral
     ;
 
 apiElementValuePairs
@@ -182,11 +187,11 @@ block
 //Anything that contains inside a block
 blockStatement
     :   localVariableDeclarationStatement   //  eg: int i;
-    |   localVaribaleInitializationStatement    // eg: string endpoint = "my_endpoint";
-    |   localVaribaleAssignmentStatement    //  eg: i =45; msgModification mediators also falls under this
+    |   localVariableInitializationStatement    // eg: string endpoint = "my_endpoint";
+    |   localVariableAssignmentStatement    //  eg: i =45; msgModification mediators also falls under this
     |   messageModificationStatement    //  eg: response.setHeader(HTTP.StatusCode, 500);
     |   returnStatement //  eg: reply response;
-    |   logMediatorStatement // read only mediator : log("my_message");
+    |   mediatorCallStatement // eg: log(level="custom", log_value="log message");
     |   tryCatchBlock   // flowControl Mediator
     |   ifElseBlock // flowControl Mediator
     ;
@@ -233,61 +238,40 @@ localVariableDeclarationStatement
     :   (type|classType)    Identifier  ';'
     ;
 
-localVaribaleInitializationStatement
+localVariableInitializationStatement
     :   type    Identifier  '='   literal ';'
-    |   newTypeObjectCreation
-    |   classType mediatorCall ';' // calling a mediator that will return a message
+    |   classType newTypeObjectCreation ';'
+    |   classType Identifier '=' mediatorCall ';' // calling a mediator that will return a message
     ;
 
-localVaribaleAssignmentStatement
+localVariableAssignmentStatement
     :   Identifier  '='   literal ';'
     |   newTypeObjectCreation ';'
-    |   mediatorCall ';'
+    |   Identifier '=' mediatorCall ';'
     ;
 
-logMediatorStatement
-    :   logMediatorCall ';'
+mediatorCallStatement
+    :   mediatorCall ';'
     ;
 
- // this is only used when "message m = new message ();" called
+ // this is only used when "m = new message ()" called
 newTypeObjectCreation
-    : classType? Identifier '=' 'new' classType '('   ')'   ';'
+    : Identifier '=' 'new' classType '('   ')'
     ;
 
 //mediator calls
 mediatorCall
-    :  Identifier '='
-    (   invokeMediatorCall
-    |   sendToMediatorCall
-    |   dataMapMediatorCall
-    |   receiveFromMediatorCall
-    |   customMediatorCall
-    )
+    :   Identifier '(' ( keyValuePairs )? ')'
     ;
 
-invokeMediatorCall
-    :   'invoke' '(' Identifier ',' Identifier ')'
+keyValuePairs
+    : keyValuePair ( ',' keyValuePair )*
     ;
 
-sendToMediatorCall
-    :   'sendTo' '(' Identifier ',' Identifier ')'
-    ;
-
-dataMapMediatorCall
-    :   'datamap' '(' literal ',' Identifier ')'
-    ;
-
-receiveFromMediatorCall
-    :   'receiveFrom' '(' Identifier ',' Identifier ')'
-    ;
-
-customMediatorCall
-    :   Identifier '.mediator' '(' Identifier ( ',' StringLiteral )? ')'
-    ;
-
-logMediatorCall
-    :   'log' '(' Identifier ')'
-    |   'log' '(' literal ')'
+// classType is also used as a parameter identifier because, 'endpoint' and 'message' is also commenly used as
+// method argument identifiers
+keyValuePair
+    :   (Identifier | classType) '='  ( literal | Identifier )
     ;
 
 // Message Modification statements
@@ -297,7 +281,7 @@ messageModificationStatement
 
 //return (reply) Statement specification
 returnStatement
-    :   'reply' (Identifier | invokeMediatorCall)? ';'
+    :   'reply' (Identifier | mediatorCall)? ';'
     ;
 
 // expression, which will be used to build the parExpression used inside if condition
@@ -337,6 +321,7 @@ type
       |   'long'
       |   'float'
       |   'double'
+      |   'string'
       ;
 
 classType
@@ -617,6 +602,7 @@ SingleCharacter
     :   ~['\\]
     ;
 // §3.10.5 String Literals
+
 StringLiteral
     :   '"' StringCharacters? '"'
     |   VaribaleLiteral

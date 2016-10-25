@@ -29,6 +29,13 @@ lifeLineOptions.rect.roundX = 20;
 lifeLineOptions.rect.roundY = 20;
 lifeLineOptions.rect.class = "lifeline-rect";
 
+// Setting the default service parameters
+serviceProduces = "MediaType.APPLICATION_JSON"
+serviceBasePath = "/stock";
+servicePackageName = "com.sample";
+serviceTags = "stock_info,stock_update";
+serviceDescription = "Rest api for get stocks details";
+
 // Lifeline middle-rect options
 lifeLineOptions.middleRect = {};
 lifeLineOptions.middleRect.width = 100;
@@ -212,6 +219,11 @@ function initTabs(){
     defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
         MainElements.lifelines.ResourceLifeline.parameters);
     defaultView.model.resourceLifeLineCounter(1);
+    //create initial arrow between source and resource
+    var currentSource = defaultView.model.diagramSourceElements().models[0];
+    var currentResource = defaultView.model.diagramResourceElements().models[0];
+    tabListView.drawInitArrow(currentSource,currentResource,defaultView);
+
 }
 
 $(document).ready(function(){
@@ -220,3 +232,5 @@ $(document).ready(function(){
     $("#breadcrumbRow").hide();
     $("#serviceAndSourceButtonsRow").hide();
 });
+
+

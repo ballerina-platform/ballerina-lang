@@ -341,6 +341,38 @@ var Diagrams = (function (diagrams) {
             currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
                 MainElements.lifelines.ResourceLifeline.parameters);
             currentView.model.resourceLifeLineCounter(1);
+          // first arrow creation between source and resource
+            var currentSource = currentView.model.diagramSourceElements().models[0];
+            var currentResource = currentView.model.diagramResourceElements().models[0];
+           this.drawInitArrow(currentSource,currentResource,currentView);
+
+
+        },
+        //Draw initial arrow between the source and resource element
+        drawInitArrow:function(source,destination,diagramView){
+            centerS = createPoint(200, 50);
+            centerR = createPoint(380, 50);
+            var sourcePoint = new SequenceD.Models.MessagePoint({
+                model: {type: "messagePoint"},
+                x: centerS.x(),
+                y: centerS.y(),
+                direction: "outbound"
+            });
+            var destinationPoint = new SequenceD.Models.MessagePoint({
+                model: {type: "messagePoint"},
+                x: centerR.x(),
+                y: centerR.y(),
+                direction: "inbound"
+            });
+            var messageLink = new SequenceD.Models.MessageLink({
+                source: sourcePoint,
+                destination: destinationPoint
+            });
+            var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+            var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+            source.addChild(sourcePoint, messageOptionsOutbound);
+            destination.addChild(destinationPoint, messageOptionsInbound);
+            diagramView.render();
         }
 
     });
@@ -1011,10 +1043,17 @@ var Diagrams = (function (diagrams) {
                     defaultView.render();
                 } else if (id == "EndPoint") {
                     var countOfEndpoints = txt.endpointLifeLineCounter();
-                    ++countOfEndpoints;
-                    defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
-                        MainElements.lifelines.EndPointLifeline.parameters);
-                    txt.endpointLifeLineCounter(countOfEndpoints);
+                    //only one endpoint is allowed in this version TODO:
+                    if(countOfEndpoints === 0){
+                        ++countOfEndpoints;
+                        defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
+                            MainElements.lifelines.EndPointLifeline.parameters);
+                        txt.endpointLifeLineCounter(countOfEndpoints);
+                    }//validation check for number of endpoints in a tab
+                    else{
+                        $('#endpointModal').modal('show');
+                    }
+
 
                 } else if (id == "Resource") {
                     var countOfResources = txt.resourceLifeLineCounter();

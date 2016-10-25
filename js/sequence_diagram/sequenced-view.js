@@ -371,15 +371,93 @@ var SequenceD = (function (sequenced) {
                 if (status == "messages") {
                     Diagrams.Views.DiagramElementView.prototype.render.call(this, paperID);
                     var d3ref = this.getD3Ref();
+                    var group = d3ref.draw.group();
+                    var viewObj = this;
+                    var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
+                    var delXPosition = ((Math.round(this.model.source().centerPoint().get('x'))) +
+                        Math.round(this.model.destination().centerPoint().get('x')))/2;
 
-                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint())
+                    var optionMenuWrapper = d3ref.draw.rect(Math.round(delXPosition) - 15,
+                        Math.round(this.model.source().centerPoint().get('y')) + 10,
+                        30,
+                        30,
+                        0,
+                        0,
+                        optionsMenuGroup, "#f8f8f3").
+                        attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
+
+                    var deleteOption = d3ref.draw.rect(Math.round(delXPosition) - 12,
+                        Math.round(this.model.source().centerPoint().get('y')) + 13,
+                        24,
+                        24,
+                        0,
+                        0,
+                        optionsMenuGroup, "url(#delIcon)").
+                        attr("style", "opacity:0.5; cursor: pointer").
+                        on("mouseover", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
+                        }).
+                        on("mouseout", function () {
+                            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                            optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                        });
+
+                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint(), group)
                         .classed(this.options.class, true);
+
+                    // TODO : If we are drawing an arrow from pipeline to an endpoint, we need a reverse arrow as well.
+                    // But this needs to be fixed as we need to support OUT_ONLY messages.
+                    if (this.model.destination().get('parent').get('cssClass') === "endpoint") {
+                        var lineDestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) + 20);
+                        var lineSourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) + 20);
+
+                        var line2 = d3ref.draw.lineFromPoints(lineDestinationCenterPoint, lineSourceCenterPoint, group)
+                            .classed(this.options.class, true);
+                    }
 
                     //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
                     //this.model.destination().on("connectingPointChanged", this.destinationMoved, this);
 
-                    this.d3el = line;
-                    this.el = line.node();
+                    line.on("click", function () {
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
+                        } else {
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
+                        }
+                    });
+
+                    deleteOption.on("click", function () {
+                        var model = viewObj.model;
+
+                        var sourceLifeLineChildren = model.get('source').get('parent').get('children').models;
+                        var destLifeLineChildren = model.get('destination').get('parent').get('children').models;
+
+                        sourceLifeLineChildren.forEach(function (child) {
+                            if (child.cid == model.get('sourcePoint').cid) {
+                                sourceLifeLineChildren.splice(sourceLifeLineChildren.indexOf(child), 1);
+                            }
+                        });
+
+                        destLifeLineChildren.forEach(function (child) {
+                            if (child.cid == model.get('destinationPoint').cid) {
+                                destLifeLineChildren.splice(destLifeLineChildren.indexOf(child), 1);
+                            }
+                        });
+
+                        defaultView.render();
+                    });
+
+                    this.d3el = group;
+                    this.el = group.node();
                     return this.d3el;
                 }
             }
@@ -478,6 +556,7 @@ var SequenceD = (function (sequenced) {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
                                     yValue = messagePoint.y();
                                 }
+                                messagePoint.y(yValue);
                                 messagePoint.x(xValue);
                             } else {
                                 if(!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)){
@@ -518,7 +597,7 @@ var SequenceD = (function (sequenced) {
                 } else if (status == "messages") {
                     for (var id in this.modelAttr("children").models) {
                         var messagePoint = this.modelAttr("children").models[id];
-                        if (messagePoint instanceof SequenceD.Models.MessagePoint) {
+                        if ((messagePoint instanceof SequenceD.Models.MessagePoint)) {
                             var linkView = new SequenceD.Views.MessageLink({
                                 model: messagePoint.message(),
                                 options: {class: "message"}
@@ -1129,7 +1208,12 @@ var SequenceD = (function (sequenced) {
                 for (var id in this.modelAttr("children").models) {
                     var processor = this.modelAttr("children").models[id];
                     var processorView = new SequenceD.Views.Processor({model: processor, options: lifeLineOptions});
+                    //TODO : Please remove this if else with a proper implementation
+                    if(processor.type == "messagePoint"){
+                        yValue = yValue-20;
+                    }
                     var processorCenterPoint = createPoint(xValue, yValue);
+
                     processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
