@@ -41,7 +41,7 @@ var Tools = (function (tools) {
                                         return "http://localhost:8289/service/workspace/root";
                                     }
                                     else {
-                                        return "http://localhost:8289/service/workspace/list?path=" + node.id;
+                                        return "http://localhost:8289/service/workspace/list?path=" + btoa(node.id);
                                     }
                                 },
                                 'dataType': "json",
