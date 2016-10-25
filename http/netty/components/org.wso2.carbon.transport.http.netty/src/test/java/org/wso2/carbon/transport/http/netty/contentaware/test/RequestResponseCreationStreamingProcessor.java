@@ -19,9 +19,12 @@
 package org.wso2.carbon.transport.http.netty.contentaware.test;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -30,27 +33,50 @@ import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A class which read and write content through streams
  */
 public class RequestResponseCreationStreamingProcessor implements CarbonMessageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseCreationStreamingProcessor.class);
 
     private TransportSender transportSender;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        InputStream inputStream = carbonMessage.getInputStream();
-        CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(carbonMessage);
-        OutputStream outputStream = newMsg.getOutputStream();
-        byte[] bytes = IOUtils.toByteArray(inputStream);
-        outputStream.write(bytes);
-        outputStream.flush();
-        newMsg.setEndOfMsgAdded(true);
-        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
-        EngineCallBack engineCallBack = new EngineCallBack(carbonCallback);
-        transportSender.send(newMsg, engineCallBack);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null
+                            && carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                            .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
+
+                        carbonCallback.done(carbonMessage);
+                    } else {
+                        InputStream inputStream = carbonMessage.getInputStream();
+                        CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(carbonMessage);
+                        OutputStream outputStream = newMsg.getOutputStream();
+                        byte[] bytes = IOUtils.toByteArray(inputStream);
+                        outputStream.write(bytes);
+                        outputStream.flush();
+                        newMsg.setEndOfMsgAdded(true);
+                        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                        EngineCallBack engineCallBack = new EngineCallBack(carbonCallback);
+                        transportSender.send(newMsg, engineCallBack);
+                    }
+                } catch (IOException e) {
+                    logger.error("Error while reading stream", e);
+                } catch (MessageProcessorException e) {
+                    logger.error("MessageProcessor is not supported ", e);
+                }
+            }
+        });
+
         return false;
     }
 

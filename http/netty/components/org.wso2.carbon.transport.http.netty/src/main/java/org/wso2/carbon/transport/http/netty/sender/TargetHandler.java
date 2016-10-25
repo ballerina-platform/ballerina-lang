@@ -14,7 +14,6 @@
  */
 package org.wso2.carbon.transport.http.netty.sender;
 
-import com.lmax.disruptor.RingBuffer;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,12 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.FaultHandler;
 import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -50,7 +49,6 @@ public class TargetHandler extends ReadTimeoutHandler {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
     protected CarbonCallback callback;
-    private RingBuffer ringBuffer;
     protected CarbonMessage cMsg;
     protected ConnectionManager connectionManager;
     protected TargetChannel targetChannel;
@@ -80,7 +78,18 @@ public class TargetHandler extends ReadTimeoutHandler {
                 HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                         executeAtTargetResponseReceiving(cMsg);
             }
-            ringBuffer.publishEvent(new CarbonEventPublisher(cMsg));
+            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                    .getMessageProcessor();
+            if (carbonMessageProcessor != null) {
+                try {
+                    HTTPTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, callback);
+                } catch (Exception e) {
+                    LOG.error("Error while handover response to MessageProcessor ", e);
+                }
+            } else {
+                LOG.error("Cannot correlate callback with request callback is null ");
+            }
+
         } else {
             if (cMsg != null) {
                 if (msg instanceof LastHttpContent) {
@@ -115,10 +124,6 @@ public class TargetHandler extends ReadTimeoutHandler {
         this.callback = callback;
     }
 
-    public void setRingBuffer(RingBuffer ringBuffer) {
-        this.ringBuffer = ringBuffer;
-    }
-
     public void setConnectionManager(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
@@ -151,8 +156,19 @@ public class TargetHandler extends ReadTimeoutHandler {
                 faultHandler.handleFault("504", new EndPointTimeOut(payload), incomingMsg, callback);
                 incomingMsg.getFaultHandlerStack().push(faultHandler);
             } else {
+                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                        .getMessageProcessor();
 
-                ringBuffer.publishEvent(new CarbonEventPublisher(createErrorMessage(payload)));
+                if (carbonMessageProcessor != null) {
+                    try {
+                        HTTPTransportContextHolder.getInstance().getMessageProcessor()
+                                .receive(createErrorMessage(payload), callback);
+                    } catch (Exception e) {
+                        LOG.error("Error while handover response to MessageProcessor ", e);
+                    }
+                } else {
+                    LOG.error("Cannot correlate callback with request callback is null ");
+                }
             }
         }
     }

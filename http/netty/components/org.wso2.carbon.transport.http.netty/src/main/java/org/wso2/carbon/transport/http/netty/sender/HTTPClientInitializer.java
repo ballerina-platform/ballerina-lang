@@ -61,17 +61,8 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
 
-
-        if (senderConfiguration.isDisruptorOn()) {
-            log.debug("Register target handler in pipeline which will dispatch events to Disruptor threads");
-            handler = new TargetHandler(soTimeOut);
-            ch.pipeline().addLast(HANDLER, handler);
-        } else {
-            log.debug("Register  engine dispatching handler in pipeline ");
-            handler = new WorkerPoolDispatchingTargetHandler(soTimeOut);
-            ch.pipeline().addLast(HANDLER, handler);
-        }
-
+        handler = new TargetHandler(soTimeOut);
+        ch.pipeline().addLast(HANDLER, handler);
 
     }
 

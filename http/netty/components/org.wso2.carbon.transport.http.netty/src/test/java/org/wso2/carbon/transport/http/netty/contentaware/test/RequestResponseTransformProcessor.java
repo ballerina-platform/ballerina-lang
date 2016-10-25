@@ -18,21 +18,29 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Transform message in request and response path
  */
 public class RequestResponseTransformProcessor implements CarbonMessageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformProcessor.class);
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String responseValue;
 
@@ -44,27 +52,45 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        int length = carbonMessage.getFullMessageLength();
-        List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null
+                            && carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                            .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
 
-        ByteBuffer byteBuff = ByteBuffer.allocate(length);
-        byteBufferList.forEach(buf -> byteBuff.put(buf));
-        String requestValue = new String(byteBuff.array());
+                        carbonCallback.done(carbonMessage);
+                    } else {
+                        int length = carbonMessage.getFullMessageLength();
+                        List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
 
-        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                        ByteBuffer byteBuff = ByteBuffer.allocate(length);
+                        byteBufferList.forEach(buf -> byteBuff.put(buf));
+                        String requestValue = new String(byteBuff.array());
 
-        if (responseValue != null) {
-            byte[] array = responseValue.getBytes("UTF-8");
-            ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
-            byteBuffer.put(array);
-            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-            byteBuffer.flip();
-            carbonMessage.addMessageBody(byteBuffer);
-            carbonMessage.setEndOfMsgAdded(true);
-            EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
-            transportSender.send(carbonMessage, engineCallBack);
-        }
+                        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+
+                        if (responseValue != null) {
+                            byte[] array = responseValue.getBytes("UTF-8");
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
+                            byteBuffer.put(array);
+                            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                            byteBuffer.flip();
+                            carbonMessage.addMessageBody(byteBuffer);
+                            carbonMessage.setEndOfMsgAdded(true);
+                            EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
+                            transportSender.send(carbonMessage, engineCallBack);
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.error("Error while reading stream", e);
+                } catch (MessageProcessorException e) {
+                    logger.error("MessageProcessor is not supported ", e);
+                }
+            }
+        });
 
         return false;
     }

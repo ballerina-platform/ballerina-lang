@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
-import com.lmax.disruptor.RingBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -32,12 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
-import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
-import org.wso2.carbon.transport.http.netty.common.disruptor.publisher.CarbonEventPublisher;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -54,12 +51,10 @@ import java.util.Map;
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
-    private RingBuffer disruptor;
     protected ChannelHandlerContext ctx;
     protected HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
-    private DisruptorConfig disruptorConfig;
     protected Map<String, GenericObjectPool> targetChannelPool;
     protected ListenerConfiguration listenerConfiguration;
 
@@ -83,8 +78,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
 
-        disruptorConfig = DisruptorFactory.getDisruptorConfig(DisruptorFactory.DisruptorType.INBOUND);
-        disruptor = disruptorConfig.getDisruptor();
         this.ctx = ctx;
         this.targetChannelPool = connectionManager.getTargetChannelPool();
 
@@ -96,7 +89,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof FullHttpMessage) {
 
-            publishToDisruptor(msg);
+            publishToMessageProcessor(msg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
             cMsg.setEndOfMsgAdded(true);
@@ -107,7 +100,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         } else if (msg instanceof HttpRequest) {
 
-            publishToDisruptor(msg);
+            publishToMessageProcessor(msg);
 
         } else {
             if (cMsg != null) {
@@ -129,14 +122,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    private void publishToDisruptor(Object msg) {
+    //Carbon Message is published to registered message processor and Message Processor should return transport thread
+    //immediately
+    private void publishToMessageProcessor(Object msg) {
         cMsg = (HTTPCarbonMessage) setupCarbonMessage(msg);
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
-        }
-        cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.IS_DISRUPTOR_ENABLE, true);
-        if (disruptorConfig.isShared()) {
-            cMsg.setProperty(Constants.DISRUPTOR, disruptor);
         }
 
         boolean continueRequest = true;
@@ -152,7 +143,17 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         }
         if (continueRequest) {
-            disruptor.publishEvent(new CarbonEventPublisher(cMsg));
+            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                    .getMessageProcessor();
+            if (carbonMessageProcessor != null) {
+                try {
+                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
+                } catch (Exception e) {
+                    log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
+                }
+            } else {
+                log.error("Cannot find registered MessageProcessor for forward the message");
+            }
         }
 
     }
@@ -165,7 +166,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-        disruptorConfig.notifyChannelInactive();
         connectionManager.notifyChannelInactive();
     }
 
@@ -204,8 +204,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-        ResponseCallback responseCallback = new ResponseCallback(this.ctx);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, responseCallback);
+
         HttpRequest httpRequest = (HttpRequest) msg;
 
         cMsg.setProperty(Constants.TO, httpRequest.getUri());
@@ -229,15 +228,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
         ChannelHandler handler = ctx.handler();
-        if (handler instanceof WorkerPoolDispatchingSourceHandler) {
-            cMsg.setProperty(Constants.CHANNEL_ID,
-                    ((WorkerPoolDispatchingSourceHandler) handler).getListenerConfiguration().getId());
-        } else if (handler instanceof SourceHandler) {
-            cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
-        } else {
-            //Shouldn't come to here
-            throw new RuntimeException("Error while getting the channel ID");
-        }
+        
+        cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
+
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         return cMsg;
     }

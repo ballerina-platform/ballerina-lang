@@ -18,24 +18,34 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Message processor for transform request message
  */
 public class RequestMessageTransformProcessor implements CarbonMessageProcessor {
 
+    private Logger logger = LoggerFactory.getLogger(RequestMessageTransformProcessor.class);
+
     private String transformedValue;
 
     private TransportSender transportSender;
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public RequestMessageTransformProcessor(String transformedValue) {
         this.transformedValue = transformedValue;
@@ -43,20 +53,39 @@ public class RequestMessageTransformProcessor implements CarbonMessageProcessor 
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
-        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null && carbonMessage
+                        .getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                        .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
 
-        if (transformedValue != null) {
-            byte[] array = transformedValue.getBytes("UTF-8");
-            ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
-            byteBuffer.put(array);
-            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-            byteBuffer.flip();
-            carbonMessage.addMessageBody(byteBuffer);
-            carbonMessage.setEndOfMsgAdded(true);
-            transportSender.send(carbonMessage, carbonCallback);
-        }
+                    carbonCallback.done(carbonMessage);
+                } else {
+                    List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
+                    carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                    carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+
+                    try {
+                        if (transformedValue != null) {
+                            byte[] array = transformedValue.getBytes("UTF-8");
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
+                            byteBuffer.put(array);
+                            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                            byteBuffer.flip();
+                            carbonMessage.addMessageBody(byteBuffer);
+                            carbonMessage.setEndOfMsgAdded(true);
+                            transportSender.send(carbonMessage, carbonCallback);
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                        logger.error("Unsupported Exception", e);
+                    } catch (MessageProcessorException e) {
+                        logger.error("MessageProcessor Exception", e);
+                    }
+                }
+            }
+        });
+
         return false;
     }
 

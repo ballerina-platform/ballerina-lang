@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BufferFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
-import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -46,16 +44,13 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
     private static final Logger log = LoggerFactory.getLogger(CarbonHTTPServerInitializer.class);
     private ConnectionManager connectionManager;
 
-    private ListenerConfiguration defaultListenerConfiguration;
     private Map<String, ListenerConfiguration> listenerConfigurationMap;
 
     private SSLConfig sslConfig;
 
     private Map<String, org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig> sslConfigMap;
 
-    public CarbonHTTPServerInitializer(ListenerConfiguration defaultListenerConfiguration,
-            Map<String, ListenerConfiguration> integerListenerConfigurationMap) {
-        this.defaultListenerConfiguration = defaultListenerConfiguration;
+    public CarbonHTTPServerInitializer(Map<String, ListenerConfiguration> integerListenerConfigurationMap) {
         this.listenerConfigurationMap = integerListenerConfigurationMap;
     }
 
@@ -68,48 +63,6 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         try {
             connectionManager = ConnectionManager.getInstance(parameters);
 
-            if (defaultListenerConfiguration.getEnableDisruptor()) {
-                if (parameters != null && !parameters.isEmpty()) {
-                    log.debug("Disruptor is enabled");
-                    log.debug("Disruptor configuration creating");
-                    DisruptorConfig disruptorConfig = new DisruptorConfig(parameters
-                            .getOrDefault(Constants.DISRUPTOR_BUFFER_SIZE, Constants.DEFAULT_DISRUPTOR_BUFFER_SIZE),
-                            parameters.getOrDefault(Constants.DISRUPTOR_COUNT, Constants.DEFAULT_DISRUPTOR_COUNT),
-                            parameters.getOrDefault(Constants.DISRUPTOR_EVENT_HANDLER_COUNT,
-                                    Constants.DEFAULT_DISRUPTOR_EVENT_HANDLER_COUNT),
-                            parameters.getOrDefault(Constants.WAIT_STRATEGY, Constants.DEFAULT_WAIT_STRATEGY),
-                            Boolean.parseBoolean(parameters.getOrDefault(Constants.SHARE_DISRUPTOR_WITH_OUTBOUND,
-                                    Constants.DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND)), parameters
-                            .getOrDefault(Constants.DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL,
-                                    Constants.DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
-                    // TODO: Need to have a proper service
-                    DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
-                } else {
-                    log.warn("Disruptor specific parameters are not specified in "
-                            + "configuration hence using default configs");
-                    DisruptorConfig disruptorConfig = new DisruptorConfig();
-                    DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.INBOUND, disruptorConfig);
-                }
-            } else {
-                if (parameters != null && !parameters.isEmpty()) {
-                    int executorWorkerPoolSize = Integer.parseInt(parameters
-                            .getOrDefault(Constants.EXECUTOR_WORKER_POOL_SIZE,
-                                    String.valueOf(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE)));
-                    log.debug("Disruptor is disabled and using executor thread pool with size of "
-                            + executorWorkerPoolSize);
-                    if (executorWorkerPoolSize > 0) {
-                        defaultListenerConfiguration.setWorkerPoolSize(executorWorkerPoolSize);
-                    } else {
-                        log.warn("Please enable disruptor or specify executorHandlerThreadPool size greater than 0,"
-                                + " starting with default value");
-                        defaultListenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
-                    }
-                } else {
-                    log.warn("ExecutorHandlerThreadPool size is not specified using the default value");
-                    defaultListenerConfiguration.setWorkerPoolSize(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE);
-                }
-
-            }
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);
             throw new RuntimeException(e);
@@ -146,13 +99,9 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            if (listenerConfiguration.getEnableDisruptor()) {
-                log.debug("Selecting SourceHandler");
-                p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
-            } else {
-                log.debug("Selecting WorkerPoolDispatchingSourceHandler");
-                p.addLast("handler", new WorkerPoolDispatchingSourceHandler(connectionManager, listenerConfiguration));
-            }
+
+            p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
+
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }

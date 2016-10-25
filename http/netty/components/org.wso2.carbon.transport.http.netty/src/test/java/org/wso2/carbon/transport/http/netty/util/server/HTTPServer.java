@@ -122,8 +122,7 @@ public class HTTPServer {
     }
 
     public void setResponseCode(int responseCode) {
-     httpServerInitializer.setResponseCode(responseCode);
+        httpServerInitializer.setResponseCode(responseCode);
     }
-
 
 }

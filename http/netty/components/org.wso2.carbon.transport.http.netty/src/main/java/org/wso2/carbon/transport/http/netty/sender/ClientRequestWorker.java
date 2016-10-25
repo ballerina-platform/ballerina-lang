@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -53,14 +52,13 @@ public class ClientRequestWorker implements Runnable {
     private CarbonCallback carbonCallback;
     private GenericObjectPool genericObjectPool;
     private ConnectionManager connectionManager;
-    private RingBuffer ringBuffer;
     private EventLoopGroup eventLoopGroup;
     private Class aClass;
 
     public ClientRequestWorker(HttpRoute httpRoute, SourceHandler sourceHandler, SenderConfiguration senderConfig,
             HttpRequest httpRequest, CarbonMessage carbonMessage, CarbonCallback carbonCallback,
             ConnectionManager.PoolManagementPolicy poolManagementPolicy, GenericObjectPool genericObjectPool,
-            ConnectionManager connectionManager, RingBuffer ringBuffer, EventLoopGroup eventLoopGroup, Class aClass) {
+            ConnectionManager connectionManager, EventLoopGroup eventLoopGroup, Class aClass) {
         this.poolManagementPolicy = poolManagementPolicy;
         this.httpRequest = httpRequest;
         this.sourceHandler = sourceHandler;
@@ -70,7 +68,6 @@ public class ClientRequestWorker implements Runnable {
         this.httpRoute = httpRoute;
         this.genericObjectPool = genericObjectPool;
         this.connectionManager = connectionManager;
-        this.ringBuffer = ringBuffer;
         this.eventLoopGroup = eventLoopGroup;
         this.aClass = aClass;
     }
@@ -116,7 +113,6 @@ public class ClientRequestWorker implements Runnable {
             if (targetChannel.getTargetHandler() != null) {
                 targetChannel.getTargetHandler().setCallback(carbonCallback);
                 targetChannel.getTargetHandler().setIncomingMsg(carbonMessage);
-                targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
             } else {

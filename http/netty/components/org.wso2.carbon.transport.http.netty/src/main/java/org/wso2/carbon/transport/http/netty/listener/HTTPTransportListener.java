@@ -165,8 +165,7 @@ public class HTTPTransportListener extends TransportListener {
 
     //Channel Initializer is responsible for create channel pipeline
     private void addChannelInitializer() {
-        CarbonHTTPServerInitializer handler = new CarbonHTTPServerInitializer(defaultListenerConfig,
-                listenerConfigMapWithHostPort);
+        CarbonHTTPServerInitializer handler = new CarbonHTTPServerInitializer(listenerConfigMapWithHostPort);
         handler.setSslConfig(defaultListenerConfig.getSslConfig());
         handler.setSslConfigMap(sslConfigMap);
         List<Parameter> parameters = defaultListenerConfig.getParameters();

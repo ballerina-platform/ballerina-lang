@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -27,8 +26,6 @@ import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorConfig;
-import org.wso2.carbon.transport.http.netty.common.disruptor.config.DisruptorFactory;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
@@ -61,16 +58,7 @@ public class HTTPSender implements TransportSender {
             }
 
         }
-        DisruptorConfig disruptorConfig = new DisruptorConfig(
-                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_BUFFER_SIZE),
-                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_COUNT),
-                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.DISRUPTOR_EVENT_HANDLER_COUNT),
-                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.WAIT_STRATEGY), Boolean.parseBoolean(
-                org.wso2.carbon.transport.http.netty.common.Constants.SHARE_DISRUPTOR_WITH_OUTBOUND),
-                paramMap.get(org.wso2.carbon.transport.http.netty.common.Constants.
-                        DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL));
-        // TODO: Need to have a proper service
-        DisruptorFactory.createDisruptors(DisruptorFactory.DisruptorType.OUTBOUND, disruptorConfig);
+
         BootstrapConfiguration.createBootStrapConfiguration(paramMap);
         this.connectionManager = ConnectionManager.getInstance(paramMap);
     }
@@ -105,37 +93,14 @@ public class HTTPSender implements TransportSender {
                     + "listener side please copy property SRC_HNDLR from incoming message");
         }
 
-        RingBuffer ringBuffer = (RingBuffer) msg.getProperty(Constants.DISRUPTOR);
-
-        Boolean enableDisruptor = false;
-
-        if (msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
-                IS_DISRUPTOR_ENABLE) != null) {
-            enableDisruptor = (Boolean) msg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
-                    IS_DISRUPTOR_ENABLE);
-        } else {
-            log.debug("Cannot find property 'enable.disruptor   hence using worker pool as thread model "
-                    + "for client side if you neeed to sender side compatible with Listener side please copy values"
-                    + "SRC_HANDLER property , enable.disruptor properties from ");
-        }
-
-        if (ringBuffer == null && enableDisruptor) {
-            DisruptorConfig disruptorConfig = DisruptorFactory.
-                    getDisruptorConfig(DisruptorFactory.DisruptorType.OUTBOUND);
-            ringBuffer = disruptorConfig.getDisruptor();
-        } else if (!enableDisruptor) {
-            senderConfiguration.setDisruptorOn(false);
-        }
-
         Channel outboundChannel = null;
         try {
             TargetChannel targetChannel = connectionManager
-                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback, ringBuffer);
+                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);
                 targetChannel.getTargetHandler().setIncomingMsg(msg);
-                targetChannel.getTargetHandler().setRingBuffer(ringBuffer);
                 targetChannel.getTargetHandler().setTargetChannel(targetChannel);
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
                 boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
