@@ -61,7 +61,7 @@ public class WorkspaceService {
     public Response directoriesInPath(@QueryParam("path") String path) {
         try {
             return Response.status(Response.Status.OK)
-                    .entity(workspace.listDirectoriesInPath(path))
+                    .entity(workspace.listDirectoriesInPath(new String(Base64.getDecoder().decode(path))))
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON)
                     .build();
