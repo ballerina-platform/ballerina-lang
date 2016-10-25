@@ -45,7 +45,10 @@ var MainElements = (function (mainElements) {
                 key: "title",
                 text: "Title"
             }
-        ]
+        ],
+        saveMyProperties: function (model, inputs) {
+            model.attributes.title = inputs.title.value;
+        }
     };
 
     lifelines.SourceLifeline = sourceLifeline;

@@ -68,6 +68,22 @@ var Processors = (function (processors) {
                 text: "Payload"
             }
         ],
+        saveMyProperties: function (model, inputs) {
+            model.get("parameters").parameters = [
+                {
+                    key: "contentType",
+                    value: inputs.contentType.value
+                },
+                {
+                    key: "messageReference",
+                    value: inputs.messageReference.value
+                },
+                {
+                    key: "payload",
+                    value: inputs.payload.value
+                }
+            ];
+        },
         getMySubTree: function (model) {
             var parameters = model.get('parameters').parameters;
             var payloadConfigStart = parameters[0].value + ".setPayload(messageRef = " + parameters[1].value + ", payload = " + parameters[2].value;

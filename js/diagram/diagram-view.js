@@ -336,10 +336,16 @@ var Diagrams = (function (diagrams) {
             resourceModel.setDiagramViewForTab(currentView);
             // mark tab as visited
             resourceModel.setSelectedTab();
-            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
+            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline,
+                                          [{
+                                              key: "title",
+                                              value: MainElements.lifelines.SourceLifeline.title
+                                          }],
+                                          {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
             currentView.model.sourceLifeLineCounter(1);
             currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
-                MainElements.lifelines.ResourceLifeline.parameters);
+                                          MainElements.lifelines.ResourceLifeline.parameters,
+                                          {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
             currentView.model.resourceLifeLineCounter(1);
           // first arrow creation between source and resource
             var currentSource = currentView.model.diagramSourceElements().models[0];
@@ -995,9 +1001,6 @@ var Diagrams = (function (diagrams) {
                 var position = new GeoCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
                 //convert drop position to relative svg coordinates
                 position = defaultView.toViewBoxCoordinates(position);
-                if (propertyPane) {
-                    propertyPane.destroy();
-                }
 
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
@@ -1011,7 +1014,8 @@ var Diagrams = (function (diagrams) {
                         },
                         {colour: Processors.manipulators[id].colour},
                         {parameters: Processors.manipulators[id].parameters},
-                        {getMySubTree: Processors.manipulators[id].getMySubTree}
+                        {getMySubTree: Processors.manipulators[id].getMySubTree},
+                        {saveMyProperties: Processors.manipulators[id].saveMyProperties}
                     );
                     txt.selectedNode.addChild(processor);
                     defaultView.render();
@@ -1023,7 +1027,8 @@ var Diagrams = (function (diagrams) {
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
                         {parameters: Processors.flowControllers[id].parameters},
-                        {getMySubTree: Processors.flowControllers[id].getMySubTree}
+                        {getMySubTree: Processors.flowControllers[id].getMySubTree},
+                        {saveMyProperties: Processors.flowControllers[id].saveMyProperties}
                     );
                     txt.selectedNode.addChild(processor);
 
@@ -1047,7 +1052,8 @@ var Diagrams = (function (diagrams) {
                     if(countOfEndpoints === 0){
                         ++countOfEndpoints;
                         defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
-                            MainElements.lifelines.EndPointLifeline.parameters);
+                                                      MainElements.lifelines.EndPointLifeline.parameters,
+                                                      {saveMyProperties: MainElements.lifelines.EndPointLifeline.saveMyProperties});
                         txt.endpointLifeLineCounter(countOfEndpoints);
                     }//validation check for number of endpoints in a tab
                     else{
@@ -1061,7 +1067,8 @@ var Diagrams = (function (diagrams) {
                     if (countOfResources === 0) {
                         ++countOfResources;
                         defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline,
-                            MainElements.lifelines.ResourceLifeline.parameters);
+                                                      MainElements.lifelines.ResourceLifeline.parameters,
+                                                      {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
                         txt.resourceLifeLineCounter(countOfResources);
                     }
 
@@ -1069,7 +1076,10 @@ var Diagrams = (function (diagrams) {
                     var countOfSources = txt.sourceLifeLineCounter();
                     if (countOfSources === 0) {
                         ++countOfSources;
-                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline);
+                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline, [{
+                            key: "title",
+                            value: MainElements.lifelines.SourceLifeline.title
+                        }], {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
                         txt.sourceLifeLineCounter(countOfSources);
                     }
                 }
@@ -1187,7 +1197,7 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters, saveMyProperties) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
@@ -1213,7 +1223,7 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters);
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters, saveMyProperties);
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,

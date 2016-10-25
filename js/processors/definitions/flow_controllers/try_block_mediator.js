@@ -62,6 +62,18 @@ var Processors = (function (processors) {
                 text: "Description"
             }
         ],
+        saveMyProperties: function (model, inputs) {
+            model.get("parameters").parameters = [
+                {
+                    key: "exception",
+                    value: inputs.exception.value
+                },
+                {
+                    key: "description",
+                    value: inputs.description.value
+                }
+            ];
+        },
         getMySubTree: function (model) {
             // Generate Subtree for the try block
             var tryBlock = model.get('containableProcessorElements').models[0];

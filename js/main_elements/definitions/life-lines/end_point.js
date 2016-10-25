@@ -56,7 +56,16 @@ var MainElements = (function (mainElements) {
                 key: "url",
                 value: "https://"
             }
-        ]
+        ],
+        saveMyProperties: function (model, inputs) {
+            model.attributes.title = inputs.title.value;
+            model.attributes.parameters = [
+                {
+                    key: "url",
+                    value: inputs.url.value
+                }
+            ];
+        }
     };
 
     lifelines.EndPointLifeline = endPointLifeline;

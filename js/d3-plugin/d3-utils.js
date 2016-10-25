@@ -229,139 +229,16 @@ var D3Utils = (function (d3_utils) {
     };
 
     /**
-     * Save properties in selected element's model
+     * Save properties in selected element's model by calling saveMyProperties method in respective elements
      */
     var saveProperties = function () {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
-        if (defaultView.selectedNode.type === "LogMediator") {
-            var selectedLogLevel;
-            var selectedLogCategory;
-            if (inputs.logLevel.value !== "") {
-                selectedLogLevel = inputs.logLevel.value;
-            } else {
-                selectedLogLevel = defaultView.selectedNode.parameters.parameters[1].value;
-            }
-            if (inputs.logCategory.value !== "") {
-                selectedLogCategory = inputs.logCategory.value;
-            } else {
-                selectedLogCategory = defaultView.selectedNode.parameters.parameters[2].value;
-            }
-            defaultView.selectedNode.parameters.parameters = [
-                {
-                    key: "message",
-                    value: inputs.message.value
-                },
-                {
-                    key: "logLevel",
-                    value: selectedLogLevel
-                },
-                {
-                    key: "logCategory",
-                    value: selectedLogCategory
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
-                }
-            ];
+        defaultView.selectedNode.get("saveMyProperties").saveMyProperties(defaultView.selectedNode, inputs);
 
-        } else if (defaultView.selectedNode.type === "PayLoadFactoryMediator") {
-            defaultView.selectedNode.parameters.parameters = [
-                {
-                    key: "configurationFile",
-                    value: inputs.configurationFile.value
-                },
-                {
-                    key: "message",
-                    value: inputs.message.value
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
-                }
-            ];
-
-        } else if (defaultView.selectedNode.type === "HeaderProcessor") {
-            defaultView.selectedNode.parameters.parameters = [
-                {
-                    key: "reference",
-                    value: inputs.reference.value
-                },
-                {
-                    key: "name",
-                    value: inputs.name.value
-                },
-                {
-                    key: "value",
-                    value: inputs.value.value
-                }
-            ];
-
-        } else if (defaultView.selectedNode.type === "PayloadProcessor") {
-            defaultView.selectedNode.parameters.parameters = [
-                {
-                    key: "contentType",
-                    value: inputs.contentType.value
-                },
-                {
-                    key: "messageReference",
-                    value: inputs.messageReference.value
-                },
-                {
-                    key: "payload",
-                    value: inputs.payload.value
-                }
-            ];
-
-        } else if (defaultView.selectedNode.type === "IfElseMediator") {
-            defaultView.selectedNode.parameters.parameters = [
-                {
-                    key: "condition",
-                    value: inputs.condition.value
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
-                }
-            ];
-
-        } else if (defaultView.selectedNode.type === "TryBlockMediator") {
-            defaultView.selectedNode.parameters.parameters = [
-                {
-                    key: "exception",
-                    value: inputs.exception.value
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
-                }
-            ];
-
-        } else if (defaultView.selectedNode.attributes.cssClass === "resource") {
+        //render title in selected lifeline
+        if (inputs.title) {
             resetMainElementTitle(inputs.title.value);
-
-            defaultView.selectedNode.attributes.title = inputs.title.value;
-            defaultView.selectedNode.attributes.parameters[0].value = inputs.path.value;
-            defaultView.selectedNode.attributes.parameters[1].value = inputs.get.checked;
-            defaultView.selectedNode.attributes.parameters[2].value = inputs.put.checked;
-            defaultView.selectedNode.attributes.parameters[3].value = inputs.post.checked;
-
-        } else if (defaultView.selectedNode.attributes.cssClass === "endpoint") {
-            resetMainElementTitle(inputs.title.value);
-            defaultView.selectedNode.attributes.title = inputs.title.value;
-            defaultView.selectedNode.attributes.parameters = [
-                {
-                    key: "url",
-                    value: inputs.url.value
-                }
-            ];
-
-        } else if (defaultView.selectedNode.attributes.cssClass === "source") {
-            defaultView.selectedNode.attributes.title = inputs.title.value;
-            resetMainElementTitle(inputs.title.value);
-
         }
-
     };
 
     var resetMainElementTitle = function (title) {

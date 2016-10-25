@@ -68,6 +68,22 @@ var Processors = (function (processors) {
                 text: "Header Value"
             }
         ],
+        saveMyProperties: function (model, inputs) {
+            model.get("parameters").parameters = [
+                {
+                    key: "reference",
+                    value: inputs.reference.value
+                },
+                {
+                    key: "name",
+                    value: inputs.name.value
+                },
+                {
+                    key: "value",
+                    value: inputs.value.value
+                }
+            ];
+        },
         getMySubTree: function (model) {
             var parameters = model.get('parameters').parameters;
             var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +

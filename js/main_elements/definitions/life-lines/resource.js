@@ -79,7 +79,14 @@ var MainElements = (function (mainElements) {
                 key: "post",
                 value: false
             }
-        ]
+        ],
+        saveMyProperties: function (model, inputs) {
+            model.attributes.title = inputs.title.value;
+            model.attributes.parameters[0].value = inputs.path.value;
+            model.attributes.parameters[1].value = inputs.get.checked;
+            model.attributes.parameters[2].value = inputs.put.checked;
+            model.attributes.parameters[3].value = inputs.post.checked;
+        }
     };
 
     lifelines.ResourceLifeline = resourceLifeline;
