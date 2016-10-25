@@ -60,12 +60,15 @@ public class PassThroughHttpPOSTMethodTestCase {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
         listenerConfiguration.setId("test-listener");
-        listenerConfiguration.setWorkerPoolSize(Runtime.getRuntime().availableProcessors());
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
         httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
+    }
+
+    public PassThroughHttpPOSTMethodTestCase() {
+        super();
     }
 
     @Test(groups = "passthroughPost",
@@ -89,7 +92,6 @@ public class PassThroughHttpPOSTMethodTestCase {
           dependsOnMethods = "passthroughWorkerPoolEnabledPOSTTestCase")
     public void passthroughDisruptorEnabledPOSTTestCase() {
         TestUtil.shutDownCarbonTransport(httpTransportListener);
-        listenerConfiguration.setEnableDisruptor(true);
         senderConfiguration.setDisruptorOn(true);
         httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
