@@ -378,12 +378,12 @@ var D3Utils = (function (d3_utils) {
             checkbox.attr("checked", true);
         }
 
-        checkbox.on("change", saveProperties)
+        checkbox.on("change", saveProperties);
         appendLabel(parent, property.checkbox);
         parent.append("br");
         parent.append("br");
 
-        return checkbox._groups[0][0].getBoundingClientRect().bottom
+        return checkbox._groups[0][0].getBoundingClientRect().bottom;
     };
 
     var appendTextBox = function (parent, value, name) {
