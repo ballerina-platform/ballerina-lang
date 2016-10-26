@@ -310,10 +310,14 @@ var D3Utils = (function (d3_utils) {
             .attr("name", name)
             .attr("value", value);
         textBox.on("click", function () {
-            var valueLength = this.value.length;
-            this.focus();
-            this.setSelectionRange(valueLength, valueLength);
-        }).on("keyup", saveProperties);
+                var valueLength = this.value.length;
+                this.focus();
+                this.setSelectionRange(valueLength, valueLength);
+            })
+            .on("keyup", saveProperties)
+            .on("dblclick", function () {
+                this.select();
+            });
 
         parent.append("br");
         parent.append("br");
