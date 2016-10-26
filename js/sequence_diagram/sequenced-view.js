@@ -876,23 +876,23 @@ var SequenceD = (function (sequenced) {
                             parameters = [
                                 {
                                     key: "title",
-                                    value: viewObj.title
-                                },
-                                {
-                                    key: "path",
                                     value: viewObj.model.attributes.parameters[0].value
                                 },
                                 {
-                                    key: "get",
+                                    key: "path",
                                     value: viewObj.model.attributes.parameters[1].value
                                 },
                                 {
-                                    key: "put",
+                                    key: "get",
                                     value: viewObj.model.attributes.parameters[2].value
                                 },
                                 {
-                                    key: "post",
+                                    key: "put",
                                     value: viewObj.model.attributes.parameters[3].value
+                                },
+                                {
+                                    key: "post",
+                                    value: viewObj.model.attributes.parameters[4].value
                                 }
                             ];
                             
@@ -900,11 +900,11 @@ var SequenceD = (function (sequenced) {
                             parameters = [
                                 {
                                     key: "title",
-                                    value: viewObj.title
+                                    value: viewObj.model.attributes.parameters[0].value
                                 },
                                 {
                                     key: "url",
-                                    value: viewObj.model.attributes.parameters[0].value
+                                    value: viewObj.model.attributes.parameters[1].value
                                 }
                             ];
                             

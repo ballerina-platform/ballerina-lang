@@ -64,6 +64,10 @@ var MainElements = (function (mainElements) {
         ],
         parameters: [
             {
+                key: "title",
+                value: "Resource"
+            },
+            {
                 key: "path",
                 value: ""
             },
@@ -83,6 +87,10 @@ var MainElements = (function (mainElements) {
         saveMyProperties: function (model, inputs) {
             model.attributes.title = inputs.title.value;
             model.attributes.parameters = [
+                {
+                    key: "title",
+                    value: inputs.title.value
+                },
                 {
                     key: "path",
                     value: inputs.path.value

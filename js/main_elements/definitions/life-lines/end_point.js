@@ -53,6 +53,10 @@ var MainElements = (function (mainElements) {
         ],
         parameters: [
             {
+                key: "title",
+                value: "End Point"
+            },
+            {
                 key: "url",
                 value: "https://"
             }
@@ -60,6 +64,10 @@ var MainElements = (function (mainElements) {
         saveMyProperties: function (model, inputs) {
             model.attributes.title = inputs.title.value;
             model.attributes.parameters = [
+                {
+                    key: "title",
+                    text: inputs.title.value
+                },
                 {
                     key: "url",
                     value: inputs.url.value
