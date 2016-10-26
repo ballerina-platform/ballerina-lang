@@ -156,6 +156,7 @@ var SequenceD = (function (sequenced) {
                             }
                             if (diagram.propertyWindow) {
                                 diagram.propertyWindow = false;
+                                defaultView.enableDragOption();
                                 $('#property-pane-svg').empty();
                             }
                             diagram.selectedOptionsGroup = optionsMenuGroup;
@@ -164,6 +165,7 @@ var SequenceD = (function (sequenced) {
                             optionsMenuGroup.classed("option-menu-hide", true);
                             optionsMenuGroup.classed("option-menu-show", false);
                             diagram.propertyWindow = false;
+                            defaultView.enableDragOption();
                             defaultView.render();
                         }
                     });
@@ -172,9 +174,10 @@ var SequenceD = (function (sequenced) {
                     editOption.on("click", function () {
                         if (diagram.propertyWindow) {
                             diagram.propertyWindow = false;
+                            defaultView.enableDragOption();
                             defaultView.render();
+                            
                         } else {
-
                             var options = {
                                 x: viewObj.model.attributes.centerPoint.attributes.x + 759,
                                 y: viewObj.model.attributes.centerPoint.attributes.y + 38
@@ -834,6 +837,7 @@ var SequenceD = (function (sequenced) {
                         }
                         if (diagram.propertyWindow) {
                             diagram.propertyWindow = false;
+                            defaultView.enableDragOption();
                             $('#property-pane-svg').empty();
                         }
                         diagram.selectedOptionsGroup = optionsMenuGroup;
@@ -842,6 +846,7 @@ var SequenceD = (function (sequenced) {
                         optionsMenuGroup.classed("option-menu-hide", true);
                         optionsMenuGroup.classed("option-menu-show", false);
                         diagram.propertyWindow = false;
+                        defaultView.enableDragOption();
                         diagram.selectedOptionsGroup = null;
                         defaultView.render();
                     }
@@ -851,6 +856,7 @@ var SequenceD = (function (sequenced) {
 
                     if (diagram.propertyWindow) {
                         diagram.propertyWindow = false;
+                        defaultView.enableDragOption();
                         defaultView.render();
                         
                     } else {
@@ -1310,6 +1316,7 @@ var SequenceD = (function (sequenced) {
                             }
                             if (diagram.propertyWindow) {
                                 diagram.propertyWindow = false;
+                                defaultView.enableDragOption();
                                 $('#property-pane-svg').empty();
                             }
                             diagram.selectedOptionsGroup = optionsMenuGroup;
@@ -1319,6 +1326,7 @@ var SequenceD = (function (sequenced) {
                             optionsMenuGroup.classed("option-menu-show", false);
                             if (diagram.propertyWindow) {
                                 diagram.propertyWindow = false;
+                                defaultView.enableDragOption();
                                 defaultView.render();
                             }
                             diagram.selectedOptionsGroup = null;
@@ -1336,6 +1344,7 @@ var SequenceD = (function (sequenced) {
                     editOption.on("click", function () {
                         if (diagram.propertyWindow) {
                             diagram.propertyWindow = false;
+                            defaultView.enableDragOption();
                             defaultView.render();
                             
                         } else {

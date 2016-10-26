@@ -314,6 +314,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
+                diagram.enableDragOption();
                 $('#property-pane-svg').empty();
             }
 
@@ -415,6 +416,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
+                diagram.enableDragOption();
                 $('#property-pane-svg').empty();
             }
             //first time click on the tab
@@ -451,6 +453,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
+                diagram.enableDragOption();
                 $('#property-pane-svg').empty();
             }
             var anchor = $(e.currentTarget).siblings('a');
@@ -846,6 +849,16 @@ var Diagrams = (function (diagrams) {
                 };
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
             },
+            
+            disableDragOption: function () {
+                console.log("diabl drag");
+                this.panAndZoom.events.drag = false;
+            },
+
+            enableDragOption: function () {
+                console.log("enable drag");
+                this.panAndZoom.events.drag = true;
+            },
 
             drawPropertiesPane: function (svg, options, parameters, propertyPaneSchema) {
                 //remove the property pane svg, if it already exists
@@ -875,8 +888,10 @@ var Diagrams = (function (diagrams) {
                     .attr("stroke", "#000000")
                     .attr("stroke", "#000000")
                     .attr("opacity", "0.9");
-
+                
+                this.disableDragOption();
                 diagram.propertyWindow = true;
+                console.log("make window true");
                 propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect, options.y);
             },
 
