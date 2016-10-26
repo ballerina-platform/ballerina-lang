@@ -1,19 +1,19 @@
 .lifeline-title{
-    fill: #ffffff;
+    fill: #000000;
     text-anchor:middle;
     cursor:text;
 }
 
 .lifeline-line{
-    stroke: #666666;
-    stroke-dasharray: 4,1;
-    stroke-width: 2.5px;
+    stroke: #000000;
+    stroke-dasharray: 4,3;
+    stroke-width: 2px;
 }
 
 .lifeline-tool-line{
-    stroke: #666666;
-    stroke-dasharray: 4,1;
-    stroke-width: 2.5px;
+    stroke: #000000;
+    stroke-dasharray: 4,3;
+    stroke-width: 2px;
 }
 
 .lifeline-tool-rect{
@@ -22,22 +22,22 @@
 }
 
 .tool > line {
-    stroke-dasharray: 4,1;
-    stroke-width: 2.5px;
+    stroke-dasharray: 4,3;
+    stroke-width: 2px;
 }
 .tool > rect {
     fill-opacity: 1;
 }
 
 .resource > line {
-    stroke: #666666;
+    stroke: #000000;
 }
 .resource > rect {
-    fill: #8e44ad;
+    fill: #ffffff;
 }
 
 .source > rect {
-    fill: #F8F8FF;
+    fill: #ffffff;
 }
 
 .source .lifeline-title{
@@ -45,10 +45,10 @@
 }
 
 .endpoint > line {
-    stroke: #666666;
+    stroke: #000000;
 }
 .endpoint > rect {
-    fill: #2c3e50;
+    fill: #ffffff;
 }
 
 .lifeline-rect{
@@ -57,7 +57,7 @@
 
 .try-block-mediator-tool > rect{
     fill-opacity: 1;
-    fill: #2c3e50;
+    fill: #ffffff;
 }
 
 .try-block-mediator-tool > text{
@@ -67,7 +67,7 @@
 
 .switch-mediator-tool > rect{
     fill-opacity: 1;
-    fill: #2c3e50;
+    fill: #ffffff;
 }
 
 .switch-mediator-tool > text{
@@ -95,8 +95,8 @@
     fill: #ffffff;
 }
 .message{
-    stroke: #666666;
-    stroke-width: 2.5px;
+    stroke: #000000;
+    stroke-width: 2px;
     marker-end: url('#markerArrow');
 }
 
@@ -112,5 +112,5 @@
 }
 
 .marker{
-    fill: #666666;
+    fill: #000000;
 }

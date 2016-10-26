@@ -25,7 +25,7 @@ var Processors = (function (processors) {
         id: "IfElseMediator",
         title: "If Else",
         icon: "images/tool-icons/tryblock.svg",
-        colour : "#998844",
+        colour : "#ffffff",
         type : "ComplexProcessor",
         containableElements: [{container:"ifContainer",children:[{title:"If"}]},{container:"elseContainer",children:[{title:"Else"}]}],
         dragCursorOffset : { left: 50, top: -5 },

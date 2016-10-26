@@ -275,7 +275,7 @@ var SequenceD = (function (sequenced) {
                 title: "Lifeline",
                 width : 0,
                 height : 300,
-                viewAttributes: {colour: "#998844"}
+                viewAttributes: {colour: "#ffffff"}
             },
 
             getPropertyPane: function (point) {
@@ -639,7 +639,7 @@ var SequenceD = (function (sequenced) {
                 title: "ContainableProcessorElement",
                 width : 130,
                 height : 30,
-                viewAttributes: {colour: "#998844"}
+                viewAttributes: {colour: "#ffffff"}
             },
 
             children: function (children) {

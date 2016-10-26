@@ -24,7 +24,7 @@ var Processors = (function (processors) {
         id: "HeaderProcessor",
         title: "Header",
         icon: "images/tool-icons/header.svg",
-        colour : "#2980b9",
+        colour : "#ffffff",
         type : "UnitProcessor",
         dragCursorOffset : { left: 24, top: -5 },
         createCloneCallback : function(view){

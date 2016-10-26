@@ -25,7 +25,7 @@ var Processors = (function (processors) {
         id: "TryBlockMediator",
         title: "Try Block",
         icon: "images/tool-icons/tryblock.svg",
-        colour : "#998844",
+        colour : "#ffffff",
         type : "ComplexProcessor",
         containableElements: [{container:"tryContainer",children:[{title:"Try"}]},{container:"catchContainer",children:[{title:"Catch"}]}],
         dragCursorOffset : { left: 50, top: -5 },

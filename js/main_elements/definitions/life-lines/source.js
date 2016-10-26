@@ -23,7 +23,7 @@ var MainElements = (function (mainElements) {
         id: "Source",
         title: "Source",
         icon: "images/tool-icons/lifeline.svg",
-        colour : "#998844",
+        colour : "#ffffff",
         class : "source",
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
