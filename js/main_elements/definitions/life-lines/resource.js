@@ -23,7 +23,7 @@ var MainElements = (function (mainElements) {
         id: "Resource",
         title: "Pipe Line",
         icon: "images/tool-icons/lifeline.svg",
-        colour : "#998844",
+        colour : "#ffffff",
         class : "resource",
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){

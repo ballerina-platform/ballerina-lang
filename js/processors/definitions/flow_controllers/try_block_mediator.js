@@ -25,7 +25,7 @@ var Processors = (function (processors) {
         id: "TryBlockMediator",
         title: "Try Block",
         icon: "images/tool-icons/tryblock.svg",
-        colour : "#998844",
+        colour : "#ffffff",
         type : "ComplexProcessor",
         containableElements: [{container:"tryContainer",children:[{title:"Try"}]},{container:"catchContainer",children:[{title:"Catch"}]}],
         dragCursorOffset : { left: 50, top: -5 },
@@ -52,27 +52,21 @@ var Processors = (function (processors) {
                 value: "Description"
             }
         ],
-        propertyPaneSchema: [
-            {
-                key: "exception",
-                text: "Exception"
-            },
-            {
-                key: "description",
-                text: "Description"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
-                {
-                    key: "exception",
-                    value: inputs.exception.value
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
+        getSchema: function () {
+            return {
+                title: "Try Block",
+                type: "object",
+                properties: {
+                    Exception: {"type": "string"},
+                    Description: {"type": "string"}
                 }
-            ];
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Exception = parameters[0];
+            editableProperties.Description = parameters[1];
+            return editableProperties;
         },
         getMySubTree: function (model) {
             // Generate Subtree for the try block

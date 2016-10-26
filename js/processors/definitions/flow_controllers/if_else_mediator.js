@@ -25,7 +25,7 @@ var Processors = (function (processors) {
         id: "IfElseMediator",
         title: "If Else",
         icon: "images/tool-icons/tryblock.svg",
-        colour : "#998844",
+        colour : "#ffffff",
         type : "ComplexProcessor",
         containableElements: [{container:"ifContainer",children:[{title:"If"}]},{container:"elseContainer",children:[{title:"Else"}]}],
         dragCursorOffset : { left: 50, top: -5 },
@@ -52,27 +52,21 @@ var Processors = (function (processors) {
                 value: "Description"
             }
         ],
-        propertyPaneSchema: [
-            {
-                key: "condition",
-                text: "Condition"
-            },
-            {
-                key: "description",
-                text: "Description"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
-                {
-                    key: "condition",
-                    value: inputs.condition.value
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
+        getSchema: function () {
+            return {
+                title: "If Else",
+                type: "object",
+                properties: {
+                    Condition: {"type": "string"},
+                    Description: {"type": "string"}
                 }
-            ];
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Condition = parameters[0];
+            editableProperties.Description = parameters[1];
+            return editableProperties;
         },
         getMySubTree: function (model) {
             // Generate Subtree for the try block

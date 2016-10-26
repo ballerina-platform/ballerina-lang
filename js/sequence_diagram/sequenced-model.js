@@ -275,7 +275,7 @@ var SequenceD = (function (sequenced) {
                 title: "Lifeline",
                 width : 0,
                 height : 300,
-                viewAttributes: {colour: "#998844"}
+                viewAttributes: {colour: "#ffffff"}
             },
 
             getPropertyPane: function (point) {
@@ -324,8 +324,7 @@ var SequenceD = (function (sequenced) {
                 return new SequenceD.Models.FixedSizedMediator({title: title, centerPoint: center});
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree,
-                                       saveMyProperties) {
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree) {
                 return new SequenceD.Models.Processor({
                     title: title,
                     centerPoint: center,
@@ -333,8 +332,7 @@ var SequenceD = (function (sequenced) {
                     model: model,
                     viewAttributes: viewAttributes,
                     parameters: parameters,
-                    getMySubTree: getMySubTree,
-                    saveMyProperties: saveMyProperties
+                    getMySubTree: getMySubTree
                 });
             },
 
@@ -621,8 +619,7 @@ var SequenceD = (function (sequenced) {
             /**
              * @augments DiagramElement
              * @constructs
-             * @class ContainableProcessorElement represents the model for processor element which can contain
-             *     processors.
+             * @class ContainableProcessorElement represents the model for processor element which can contain processors.
              */
             initialize: function (attrs, options) {
                 Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
@@ -642,7 +639,7 @@ var SequenceD = (function (sequenced) {
                 title: "ContainableProcessorElement",
                 width : 130,
                 height : 30,
-                viewAttributes: {colour: "#998844"}
+                viewAttributes: {colour: "#ffffff"}
             },
 
             children: function (children) {
@@ -685,8 +682,7 @@ var SequenceD = (function (sequenced) {
                 return position;
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree,
-                                       saveMyProperties) {
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree) {
                 return new SequenceD.Models.Processor({
                     title: title,
                     centerPoint: center,
@@ -694,8 +690,7 @@ var SequenceD = (function (sequenced) {
                     model: model,
                     viewAttributes: viewAttributes,
                     parameters: parameters,
-                    getMySubTree: getMySubTree,
-                    saveMyProperties: saveMyProperties
+                    getMySubTree: getMySubTree
                 });
             },
 

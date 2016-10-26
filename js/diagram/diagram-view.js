@@ -307,11 +307,9 @@ var Diagrams = (function (diagrams) {
                 createdTab: false
             });
 
-            if (diagram.selectedOptionsGroup) {
-                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                diagram.selectedOptionsGroup.classed("option-menu-show", false);
+            if (propertyPane) {
+                propertyPane.destroy();
             }
-            diagram.selectedOptionsGroup = null;
 
             var nextTabListView = new Diagrams.Views.TabListView({model: resourceModel});
 
@@ -336,16 +334,10 @@ var Diagrams = (function (diagrams) {
             resourceModel.setDiagramViewForTab(currentView);
             // mark tab as visited
             resourceModel.setSelectedTab();
-            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline,
-                                          [{
-                                              key: "title",
-                                              value: MainElements.lifelines.SourceLifeline.title
-                                          }],
-                                          {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
+            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
             currentView.model.sourceLifeLineCounter(1);
             currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
-                                          MainElements.lifelines.ResourceLifeline.parameters,
-                                          {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
+                MainElements.lifelines.ResourceLifeline.parameters);
             currentView.model.resourceLifeLineCounter(1);
           // first arrow creation between source and resource
             var currentSource = currentView.model.diagramSourceElements().models[0];
@@ -404,12 +396,9 @@ var Diagrams = (function (diagrams) {
             //Unique Id created for the svg element where elements can be drawn
             var svgUId = this.model.get("resourceId") + "4";
 
-            if (diagram.selectedOptionsGroup) {
-                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                diagram.selectedOptionsGroup.classed("option-menu-show", false);
+            if (propertyPane) {
+                propertyPane.destroy();
             }
-            diagram.selectedOptionsGroup = null;
-            
             //first time click on the tab
             if (this.model.attributes.createdTab === false) {
                 // get the diagram model for this tab
@@ -829,39 +818,7 @@ var Diagrams = (function (diagrams) {
                     view.trigger("viewBoxChange", this.getViewBox(), animationTime);
                 };
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
-            },
 
-            drawPropertiesPane: function (svg, options, parameters, propertyPaneSchema) {
-                //remove the property pane svg, if it already exists
-                var propertySVG = document.getElementById("property-pane-svg");
-                if (propertySVG) {
-                    propertySVG.parentNode.removeChild(propertySVG);
-                }
-
-                var svgOptions = {
-                    id: "property-pane-svg",
-                    height: "100%",
-                    width: "100%",
-                    class: "property",
-                    x: options.x,
-                    y: options.y
-                };
-                propertySVG = svg.draw.propertySVG(svgOptions);
-
-                var rect = propertySVG.append("rect")
-                    .attr("id", "property-pane")
-                    .attr("x", 7)
-                    .attr("y", 5)
-                    .attr("rx", "0")
-                    .attr("ry", "0")
-                    .attr("width", "245")
-                    .attr("fill", "#ffffff")
-                    .attr("stroke", "#000000")
-                    .attr("stroke", "#000000")
-                    .attr("opacity", "0.9");
-
-                diagram.propertyWindow = true;
-                propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect, options.y);
             },
 
             /**
@@ -1001,6 +958,9 @@ var Diagrams = (function (diagrams) {
                 var position = new GeoCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
                 //convert drop position to relative svg coordinates
                 position = defaultView.toViewBoxCoordinates(position);
+                if (propertyPane) {
+                    propertyPane.destroy();
+                }
 
                 if (Processors.manipulators[id] && txt.selectedNode) {
                     //manipulators are unit processors
@@ -1014,8 +974,7 @@ var Diagrams = (function (diagrams) {
                         },
                         {colour: Processors.manipulators[id].colour},
                         {parameters: Processors.manipulators[id].parameters},
-                        {getMySubTree: Processors.manipulators[id].getMySubTree},
-                        {saveMyProperties: Processors.manipulators[id].saveMyProperties}
+                        {getMySubTree: Processors.manipulators[id].getMySubTree}
                     );
                     txt.selectedNode.addChild(processor);
                     defaultView.render();
@@ -1027,8 +986,7 @@ var Diagrams = (function (diagrams) {
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
                         {parameters: Processors.flowControllers[id].parameters},
-                        {getMySubTree: Processors.flowControllers[id].getMySubTree},
-                        {saveMyProperties: Processors.flowControllers[id].saveMyProperties}
+                        {getMySubTree: Processors.flowControllers[id].getMySubTree}
                     );
                     txt.selectedNode.addChild(processor);
 
@@ -1052,8 +1010,7 @@ var Diagrams = (function (diagrams) {
                     if(countOfEndpoints === 0){
                         ++countOfEndpoints;
                         defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
-                                                      MainElements.lifelines.EndPointLifeline.parameters,
-                                                      {saveMyProperties: MainElements.lifelines.EndPointLifeline.saveMyProperties});
+                            MainElements.lifelines.EndPointLifeline.parameters);
                         txt.endpointLifeLineCounter(countOfEndpoints);
                     }//validation check for number of endpoints in a tab
                     else{
@@ -1067,8 +1024,7 @@ var Diagrams = (function (diagrams) {
                     if (countOfResources === 0) {
                         ++countOfResources;
                         defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline,
-                                                      MainElements.lifelines.ResourceLifeline.parameters,
-                                                      {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
+                            MainElements.lifelines.ResourceLifeline.parameters);
                         txt.resourceLifeLineCounter(countOfResources);
                     }
 
@@ -1076,10 +1032,7 @@ var Diagrams = (function (diagrams) {
                     var countOfSources = txt.sourceLifeLineCounter();
                     if (countOfSources === 0) {
                         ++countOfSources;
-                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline, [{
-                            key: "title",
-                            value: MainElements.lifelines.SourceLifeline.title
-                        }], {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
+                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline);
                         txt.sourceLifeLineCounter(countOfSources);
                     }
                 }
@@ -1197,7 +1150,7 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters, saveMyProperties) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
@@ -1223,7 +1176,7 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters, saveMyProperties);
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters);
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,

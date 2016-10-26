@@ -27,6 +27,16 @@ var MainElements = (function (mainElements) {
         colour : "purple",
         class : "endpoint",
         dragCursorOffset : { left: 50, top: 50 },
+        parameters: [
+            {
+                key: "title",
+                value: "Sample EP"
+            },
+            {
+                key: "uri",
+                value: "http://localhost:8080/stockquote/all"
+            }
+        ],
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
@@ -41,30 +51,21 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
-            },
-            {
-                key: "url",
-                text: "URL"
-            }
-        ],
-        parameters: [
-            {
-                key: "url",
-                value: "https://"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.attributes.title = inputs.title.value;
-            model.attributes.parameters = [
-                {
-                    key: "url",
-                    value: inputs.url.value
+        getSchema: function () {
+            return {
+                "title": 'End Point',
+                type: "object",
+                properties: {
+                    Title: { "type": "string" },
+                    Uri: { "type": "string" }
                 }
-            ];
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Title = parameters[0].value;
+            editableProperties.Uri = parameters[1].value;
+            return editableProperties;
         }
     };
 

@@ -24,7 +24,7 @@ var Processors = (function (processors) {
         id: "HeaderProcessor",
         title: "Header",
         icon: "images/tool-icons/header.svg",
-        colour : "#2980b9",
+        colour : "#ffffff",
         type : "UnitProcessor",
         dragCursorOffset : { left: 24, top: -5 },
         createCloneCallback : function(view){
@@ -54,35 +54,23 @@ var Processors = (function (processors) {
                 value: "Header Value"
             }
         ],
-        propertyPaneSchema: [
-            {
-                key: "reference",
-                text: "Message Reference"
-            },
-            {
-                key: "name",
-                text: "Header Name"
-            },
-            {
-                key: "value",
-                text: "Header Value"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
-                {
-                    key: "reference",
-                    value: inputs.reference.value
-                },
-                {
-                    key: "name",
-                    value: inputs.name.value
-                },
-                {
-                    key: "value",
-                    value: inputs.value.value
+        getSchema: function () {
+            return {
+                title: "Header Processor",
+                type: "object",
+                properties: {
+                    Reference: {"type": "string"},
+                    Name: {"type": "string"},
+                    Value: {"type": "string"}
                 }
-            ];
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Reference = parameters[0];
+            editableProperties.Name = parameters[1];
+            editableProperties.Value = parameters[2];
+            return editableProperties;
         },
         getMySubTree: function (model) {
             var parameters = model.get('parameters').parameters;
