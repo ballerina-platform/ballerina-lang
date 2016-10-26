@@ -182,6 +182,7 @@ var SequenceD = (function (sequenced) {
                                 x: viewObj.model.attributes.centerPoint.attributes.x + 759,
                                 y: viewObj.model.attributes.centerPoint.attributes.y + 38
                             };
+                            
                             defaultView.selectedNode = viewObj.model;
                             defaultView.drawPropertiesPane(d3Ref, options,
                                                            viewObj.model.attributes.parameters.parameters,
@@ -1352,6 +1353,7 @@ var SequenceD = (function (sequenced) {
                                 x: viewObj.model.attributes.parent.attributes.centerPoint.attributes.x + 773,
                                 y: viewObj.model.attributes.parent.attributes.centerPoint.attributes.y + 38
                             };
+                            
                             defaultView.selectedNode = viewObj.model.attributes.parent;
                             defaultView.drawPropertiesPane(d3Ref, options,
                                                            viewObj.model.attributes.parent.parameters.parameters,

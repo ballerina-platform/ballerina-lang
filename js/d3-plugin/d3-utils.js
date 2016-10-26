@@ -21,12 +21,12 @@ var D3Utils = (function (d3_utils) {
     var d3Ref = undefined;
 
     var heights = {
-        textBox:30,
-        before:20,
-        after:36,
-        label:12,
+        textBox: 30,
+        before: 20,
+        after: 36,
+        label: 12,
         label_textBox: 10,
-        textBox_label:24,
+        textBox_label: 24,
         textBox_checkbox: 24,
         checkbox: 13,
         checkbox_checkbox: 35
@@ -258,15 +258,20 @@ var D3Utils = (function (d3_utils) {
         if (previous === "textbox" || previous === "dropdown") {
             if (next === "label") {
                 return currentHeight + heights.textBox_label;
+
             } else if (next === "checkbox") {
                 return currentHeight + heights.textBox_checkbox;
+
             }
+
         } else if (previous === "checkbox") {
             if (next === "checkbox") {
                 return currentHeight + heights.checkbox_checkbox
             }
+
         } else if (!previous) {
             return currentHeight;
+
         }
     };
 
