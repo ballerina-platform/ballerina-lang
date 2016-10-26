@@ -82,10 +82,24 @@ var MainElements = (function (mainElements) {
         ],
         saveMyProperties: function (model, inputs) {
             model.attributes.title = inputs.title.value;
-            model.attributes.parameters[0].value = inputs.path.value;
-            model.attributes.parameters[1].value = inputs.get.checked;
-            model.attributes.parameters[2].value = inputs.put.checked;
-            model.attributes.parameters[3].value = inputs.post.checked;
+            model.attributes.parameters = [
+                {
+                    key: "path",
+                    value: inputs.path.value
+                },
+                {
+                    key: "get",
+                    value: inputs.get.checked
+                },
+                {
+                    key: "put",
+                    value: inputs.put.checked
+                },
+                {
+                    key: "post",
+                    value: inputs.post.checked
+                }
+            ];
         }
     };
 

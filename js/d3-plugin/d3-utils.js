@@ -20,6 +20,18 @@ var D3Utils = (function (d3_utils) {
 
     var d3Ref = undefined;
 
+    var heights = {
+        textBox:30,
+        before:20,
+        after:36,
+        label:12,
+        label_textBox: 10,
+        textBox_label:24,
+        textBox_checkbox: 24,
+        checkbox: 13,
+        checkbox_checkbox: 35
+    };
+
     var circle = function (cx, cy, r, parent) {
         parent = parent || d3Ref;
         return parent.append("circle")
@@ -192,18 +204,27 @@ var D3Utils = (function (d3_utils) {
         var form = foreignObject.append("xhtml:form")
             .attr("id", "property-form")
             .attr("autocomplete", "on");
-        var lastElementY;
+
+        var previous = null;
+        var next = null;
+        var rectangleHeight = heights.before;
 
         for (var i = 0; i < propertyPaneSchema.length; i++) {
             var property = propertyPaneSchema[i];
 
             if (property.text) {
                 //append a textbox
+                next = "label";
+                rectangleHeight = getCurrentRectHeight(rectangleHeight, previous, next);
                 appendLabel(form, property.text);
-                lastElementY = appendTextBox(form, parameters[i].value, property.key);
+                appendTextBox(form, parameters[i].value, property.key);
+                rectangleHeight += (heights.label + heights.label_textBox + heights.textBox);
+                previous = "textbox";
 
             } else if (property.dropdown) {
                 //append a dropdown
+                next = "label";
+                rectangleHeight = getCurrentRectHeight(rectangleHeight, previous, next);
                 appendLabel(form, property.dropdown);
                 var selected = parameters[i].value;
                 var dropdownValues = [];
@@ -214,18 +235,39 @@ var D3Utils = (function (d3_utils) {
                         dropdownValues[index] = {value: value.toLowerCase(), text: value};
                     }
                 });
-                lastElementY = appendDropdown(form, dropdownValues, property.key, i);
+                appendDropdown(form, dropdownValues, property.key, i);
+                rectangleHeight += (heights.label + heights.label_textBox + heights.textBox);
+                previous = "dropdown";
 
             } else if (property.checkbox) {
                 //append a checkbox
-                lastElementY = appendCheckBox(form, property, parameters[i].value);
+                next = "checkbox";
+                rectangleHeight = getCurrentRectHeight(rectangleHeight, previous, next);
+                appendCheckBox(form, property, parameters[i].value);
+                rectangleHeight += heights.checkbox;
+                previous = "checkbox";
 
             }
         }
-
-        var rectangleHeight = lastElementY - rectY - 170;
+        rectangleHeight += heights.after;
         rect.attr("height", rectangleHeight);
         return form;
+    };
+
+    var getCurrentRectHeight = function (currentHeight, previous, next) {
+        if (previous === "textbox" || previous === "dropdown") {
+            if (next === "label") {
+                return currentHeight + heights.textBox_label;
+            } else if (next === "checkbox") {
+                return currentHeight + heights.textBox_checkbox;
+            }
+        } else if (previous === "checkbox") {
+            if (next === "checkbox") {
+                return currentHeight + heights.checkbox_checkbox
+            }
+        } else if (!previous) {
+            return currentHeight;
+        }
     };
 
     /**
@@ -259,8 +301,6 @@ var D3Utils = (function (d3_utils) {
         appendLabel(parent, property.checkbox);
         parent.append("br");
         parent.append("br");
-
-        return checkbox._groups[0][0].getBoundingClientRect().bottom;
     };
 
     var appendTextBox = function (parent, value, name) {
@@ -277,8 +317,6 @@ var D3Utils = (function (d3_utils) {
 
         parent.append("br");
         parent.append("br");
-
-        return textBox._groups[0][0].getBoundingClientRect().bottom;
     };
 
     var appendLabel = function (parent, value) {
@@ -316,8 +354,6 @@ var D3Utils = (function (d3_utils) {
             this.focus();
             this.value = "";
         });
-
-        return input._groups[0][0].getBoundingClientRect().bottom;
     };
 
     var group = function (parent) {
