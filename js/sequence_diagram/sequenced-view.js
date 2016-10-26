@@ -65,6 +65,34 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
+            updateProcessorProperties: function () {
+                diagram.selectedNode = this.model;
+
+                //get processor parameters
+                var parameters = [];
+                var processorParameters = diagram.selectedNode.parameters.parameters;
+                processorParameters.forEach(function (parameter, index) {
+                    parameters[index] = parameter.value;
+                });
+
+                //get processor definition
+                var processorDefinition;
+                var type = this.model.type;
+                if (type === "LogMediator") {
+                    processorDefinition = Processors.manipulators.LogMediator;
+                } else if (type === "PayLoadFactoryMediator") {
+                    processorDefinition = Processors.manipulators.PayLoadFactoryMediator;
+                } else if (type === "InvokeMediator") {
+                    processorDefinition = Processors.flowControllers.InvokeMediator;
+                } else if (type === "HeaderProcessor") {
+                    processorDefinition = Processors.manipulators.HeaderProcessor;
+                } else if (type === "PayloadProcessor") {
+                    processorDefinition = Processors.manipulators.PayloadProcessor;
+                }
+
+                ppView.loadPropertyPane(this, processorDefinition, parameters);
+            },
+
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
@@ -149,41 +177,15 @@ var SequenceD = (function (sequenced) {
                         if (optionsMenuGroup.classed("option-menu-hide")) {
                             optionsMenuGroup.classed("option-menu-hide", false);
                             optionsMenuGroup.classed("option-menu-show", true);
-
-                            if (diagram.selectedOptionsGroup) {
-                                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                                diagram.selectedOptionsGroup.classed("option-menu-show", false);
-                            }
-                            if (diagram.propertyWindow) {
-                                diagram.propertyWindow = false;
-                                $('#property-pane-svg').empty();
-                            }
-                            diagram.selectedOptionsGroup = optionsMenuGroup;
-                            
                         } else {
                             optionsMenuGroup.classed("option-menu-hide", true);
                             optionsMenuGroup.classed("option-menu-show", false);
-                            diagram.propertyWindow = false;
-                            defaultView.render();
                         }
                     });
 
                     // On click of the edit icon will show the properties to to edit
                     editOption.on("click", function () {
-                        if (diagram.propertyWindow) {
-                            diagram.propertyWindow = false;
-                            defaultView.render();
-                        } else {
-
-                            var options = {
-                                x: viewObj.model.attributes.centerPoint.attributes.x + 759,
-                                y: viewObj.model.attributes.centerPoint.attributes.y + 38
-                            };
-                            defaultView.selectedNode = viewObj.model;
-                            defaultView.drawPropertiesPane(d3Ref, options,
-                                                           viewObj.model.attributes.parameters.parameters,
-                                                           getPropertyPaneSchema(viewObj.model.type));
-                        }
+                        viewObj.updateProcessorProperties();
                     });
 
                     // On click of the delete icon will delete the processor
@@ -203,18 +205,6 @@ var SequenceD = (function (sequenced) {
                             propertyPane.destroy();
                         }
                     });
-
-                    var getPropertyPaneSchema = function (type) {
-                        if (type === "LogMediator") {
-                            return Processors.manipulators.LogMediator.propertyPaneSchema;
-                        } else if (type === "PayLoadFactoryMediator") {
-                            return Processors.manipulators.PayLoadFactoryMediator.propertyPaneSchema;
-                        } else if (type === "HeaderProcessor") {
-                            return Processors.manipulators.HeaderProcessor.propertyPaneSchema;
-                        } else if (type === "PayloadProcessor") {
-                            return Processors.manipulators.PayloadProcessor.propertyPaneSchema;
-                        }
-                    };
 
                     group.rect = rectBottomXXX;
                     group.title = mediatorText;
@@ -634,6 +624,7 @@ var SequenceD = (function (sequenced) {
                             0,
                             this.group, element.viewAttributes.colour
                         );
+                        rectBottomXXX.on('click',this.updateProcessorProperties, this);
                         var mediatorText = d3Ref.draw.centeredText(
                             createPoint(defaultView.model.selectedNode.get('centerPoint').get('x'),
                                 element.get('centerPoint').get('y')),
@@ -822,106 +813,59 @@ var SequenceD = (function (sequenced) {
                 }).on('mouseup', function (data) {
                 });
 
+                function updatePropertyPane() {
+                    var lifeLineDefinition;
+                    if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
+                        lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
+                    } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
+                        lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
+                    }
+                        propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(),
+                                lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('parameters')),
+                                defaultView.model.selectedNode);
+                }
+
                 rect.on("click", (function () {
                     defaultView.model.selectedNode = viewObj.model;
-                    if (optionsMenuGroup.classed("option-menu-hide")) {
-                        optionsMenuGroup.classed("option-menu-hide", false);
-                        optionsMenuGroup.classed("option-menu-show", true);
-                        
-                        if (diagram.selectedOptionsGroup) {
-                            diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                            diagram.selectedOptionsGroup.classed("option-menu-show", false);
+                    if (defaultView.model.selectedNode.get("title") != "Source") {
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
+                        } else {
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
                         }
-                        if (diagram.propertyWindow) {
-                            diagram.propertyWindow = false;
-                            $('#property-pane-svg').empty();
+                    }
+                }));
+
+                text.on("click", (function () {
+                    defaultView.model.selectedNode = viewObj.model;
+                    if (defaultView.model.selectedNode.get("title") != "Source") {
+                        if (optionsMenuGroup.classed("option-menu-hide")) {
+                            optionsMenuGroup.classed("option-menu-hide", false);
+                            optionsMenuGroup.classed("option-menu-show", true);
+                        } else {
+                            optionsMenuGroup.classed("option-menu-hide", true);
+                            optionsMenuGroup.classed("option-menu-show", false);
                         }
-                        diagram.selectedOptionsGroup = optionsMenuGroup;
-                        
-                    } else {
-                        optionsMenuGroup.classed("option-menu-hide", true);
-                        optionsMenuGroup.classed("option-menu-show", false);
-                        diagram.propertyWindow = false;
-                        diagram.selectedOptionsGroup = null;
-                        defaultView.render();
                     }
                 }));
 
                 editOption.on("click", function () {
-
-                    if (diagram.propertyWindow) {
-                        diagram.propertyWindow = false;
-                        defaultView.render();
-                        
+                    if (selected) {
+                        if (this == selected) {
+                            if (propertyPane) {
+                                propertyPane.destroy();
+                            }
+                            selected = '';
+                        } else {
+                            updatePropertyPane();
+                            selected = this;
+                        }
                     } else {
-                        diagram.selectedMainElementText = {
-                            top: viewObj.d3el.svgTitle,
-                            bottom: viewObj.d3el.svgTitleBottom
-                        };
-                        var options = {
-                            x: viewObj.model.attributes.centerPoint.attributes.x + 83,
-                            y: viewObj.model.attributes.centerPoint.attributes.y + 38
-                        };
-                        defaultView.selectedNode = viewObj.model;
-                        var parameters;
-                        
-                        if (viewObj.model.attributes.cssClass === "resource") {
-                            parameters = [
-                                {
-                                    key: "title",
-                                    value: viewObj.title
-                                },
-                                {
-                                    key: "path",
-                                    value: viewObj.model.attributes.parameters[0].value
-                                },
-                                {
-                                    key: "get",
-                                    value: viewObj.model.attributes.parameters[1].value
-                                },
-                                {
-                                    key: "put",
-                                    value: viewObj.model.attributes.parameters[2].value
-                                },
-                                {
-                                    key: "post",
-                                    value: viewObj.model.attributes.parameters[3].value
-                                }
-                            ];
-                            
-                        } else if (viewObj.model.attributes.cssClass === "endpoint") {
-                            parameters = [
-                                {
-                                    key: "title",
-                                    value: viewObj.title
-                                },
-                                {
-                                    key: "url",
-                                    value: viewObj.model.attributes.parameters[0].value
-                                }
-                            ];
-                            
-                        } else if (viewObj.model.attributes.cssClass === "source") {
-                            parameters = [
-                                {
-                                    key: "title",
-                                    value: viewObj.title
-                                }
-                            ]
-                        }
-
-                        var propertySchema;
-                        if (viewObj.model.attributes.cssClass === "endpoint") {
-                            propertySchema = MainElements.lifelines.EndPointLifeline.propertyPaneSchema;
-
-                        } else if (viewObj.model.attributes.cssClass === "resource") {
-                            propertySchema = MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
-
-                        } else if (viewObj.model.attributes.cssClass === "source") {
-                            propertySchema = MainElements.lifelines.SourceLifeline.propertyPaneSchema;
-                        }
-
-                        defaultView.drawPropertiesPane(d3Ref, options, parameters, propertySchema);
+                        defaultView.model.selected = false;
+                        updatePropertyPane();
+                        selected = this;
                     }
                 });
 
@@ -1127,6 +1071,32 @@ var SequenceD = (function (sequenced) {
                 return unitProcessorElement;
             },
 
+            updateProcessorProperties: function () {
+
+                diagram.selectedNode = this.model;
+
+                //get processor parameters
+                var parameters = [];
+
+                var processorParameters = diagram.selectedNode.attributes.parent.parameters.parameters;
+                processorParameters.forEach(function (parameter, index) {
+                    parameters[index] = parameter.value;
+                });
+
+                //get processor definition
+                var processorDefinition;
+                var type = diagram.selectedNode.attributes.parent.type;
+                if (type === "TryBlockMediator") {
+                    processorDefinition = Processors.flowControllers.TryBlockMediator;
+                } else if (type === "SwitchMediator") {
+                    processorDefinition = Processors.flowControllers.SwitchMediator;
+                } else if (type === "IfElseMediator") {
+                    processorDefinition = Processors.flowControllers.IfElseMediator;
+                }
+
+                ppView.loadPropertyPane(this, processorDefinition, parameters);
+            },
+
             drawUnitProcessor: function (center, title, prefs) {
 
                 var d3Ref = this.getD3Ref();
@@ -1298,56 +1268,18 @@ var SequenceD = (function (sequenced) {
 
                     // On click of the mediator show/hide the delete icon
                     rectBottomXXX.containerRect.on("click", function () {
-                        defaultView.model.selectedNode = viewObj.model;
-                        
                         if (optionsMenuGroup.classed("option-menu-hide")) {
                             optionsMenuGroup.classed("option-menu-hide", false);
                             optionsMenuGroup.classed("option-menu-show", true);
-                            
-                            if (diagram.selectedOptionsGroup) {
-                                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                                diagram.selectedOptionsGroup.classed("option-menu-show", false);
-                            }
-                            if (diagram.propertyWindow) {
-                                diagram.propertyWindow = false;
-                                $('#property-pane-svg').empty();
-                            }
-                            diagram.selectedOptionsGroup = optionsMenuGroup;
-                            
                         } else {
                             optionsMenuGroup.classed("option-menu-hide", true);
                             optionsMenuGroup.classed("option-menu-show", false);
-                            if (diagram.propertyWindow) {
-                                diagram.propertyWindow = false;
-                                defaultView.render();
-                            }
-                            diagram.selectedOptionsGroup = null;
                         }
+                        diagram.selectedNode = viewObj.model;
                     });
 
-                    var getPropertyPaneSchema = function (type) {
-                        if (type === "TryBlockMediator") {
-                            return Processors.flowControllers.TryBlockMediator.propertyPaneSchema;
-                        } else if (type === "IfElseMediator") {
-                            return Processors.flowControllers.IfElseMediator.propertyPaneSchema;
-                        }
-                    };
-
                     editOption.on("click", function () {
-                        if (diagram.propertyWindow) {
-                            diagram.propertyWindow = false;
-                            defaultView.render();
-                            
-                        } else {
-                            var options = {
-                                x: viewObj.model.attributes.parent.attributes.centerPoint.attributes.x + 773,
-                                y: viewObj.model.attributes.parent.attributes.centerPoint.attributes.y + 38
-                            };
-                            defaultView.selectedNode = viewObj.model.attributes.parent;
-                            defaultView.drawPropertiesPane(d3Ref, options,
-                                                           viewObj.model.attributes.parent.parameters.parameters,
-                                                           getPropertyPaneSchema(viewObj.model.attributes.parent.type));
-                        }
+                        viewObj.updateProcessorProperties();
                     });
 
                     deleteOption.on("click", function () {

@@ -41,26 +41,6 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "message",
-                text: "Log message"
-            },
-            {
-                key: "logLevel",
-                dropdown: "Log Level",
-                values: ["simple", "custom", "headers", "full"]
-            },
-            {
-                key: "logCategory",
-                dropdown: "Log Category",
-                values: ["info", "error", "warn", "fatal", "debug", "trace"]
-            },
-            {
-                key: "description",
-                text: "Description"
-            }
-        ],
         parameters: [
             {
                 key: "message",
@@ -79,37 +59,45 @@ var Processors = (function (processors) {
                 value: "Description"
             }
         ],
-        saveMyProperties: function (model, inputs) {
-            var selectedLogLevel;
-            var selectedLogCategory;
-            if (inputs.logLevel.value !== "") {
-                selectedLogLevel = inputs.logLevel.value;
-            } else {
-                selectedLogLevel = model.get("parameters").parameters[1].value;
-            }
-            if (inputs.logCategory.value !== "") {
-                selectedLogCategory = inputs.logCategory.value;
-            } else {
-                selectedLogCategory = model.get("parameters").parameters[2].value;
-            }
-            model.get("parameters").parameters = [
-                {
-                    key: "message",
-                    value: inputs.message.value
-                },
-                {
-                    key: "logLevel",
-                    value: selectedLogLevel
-                },
-                {
-                    key: "logCategory",
-                    value: selectedLogCategory
-                },
-                {
-                    key: "description",
-                    value: inputs.description.value
+        getSchema: function () {
+            return {
+                title: "Log Mediator",
+                type: "object",
+                properties: {
+                    Message: {"type": "string"},
+                    LogLevel: {
+                        "type": "string",
+                        "enum": [
+                            "simple",
+                            "custom",
+                            "headers",
+                            "full"
+                        ],
+                        "default": "SIMPLE"
+                    },
+                    LogCategory: {
+                        "type": "string",
+                        "enum": [
+                            "info",
+                            "error",
+                            "warn",
+                            "fatal",
+                            "debug",
+                            "trace"
+                        ],
+                        "default": "info"
+                    },
+                    Description: {"type": "string"}
                 }
-            ];
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.Message = parameters[0];
+            editableProperties.LogLevel = parameters[1];
+            editableProperties.LogCategory = parameters[2];
+            editableProperties.Description = parameters[3];
+            return editableProperties;
         },
         getMySubTree: function (model) {
             var parameters = model.get('parameters').parameters;

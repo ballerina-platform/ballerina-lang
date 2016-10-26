@@ -58,14 +58,8 @@ var createPoint = function (x, y) {
 
 var diagramD3el = undefined;
 
-var createLifeLine = function (title, center, cssClass, parameters, saveMyProperties) {
-    return new SequenceD.Models.LifeLine({
-        title: title,
-        centerPoint: center,
-        cssClass: cssClass,
-        parameters: parameters,
-        saveMyProperties: saveMyProperties
-    });
+var createLifeLine = function (title, center, cssClass, parameters) {
+    return new SequenceD.Models.LifeLine({title: title, centerPoint: center, cssClass: cssClass, parameters: parameters});
 };
 
 // Create main tool group
@@ -216,15 +210,10 @@ function initTabs(){
     preview.render();
     tab.preview(preview);
 
-    defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline,
-                                  [{
-                                      key: "title",
-                                      value: MainElements.lifelines.SourceLifeline.title
-                                  }], {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
+    defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
     defaultView.model.sourceLifeLineCounter(1);
     defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
-                                  MainElements.lifelines.ResourceLifeline.parameters,
-                                  {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
+        MainElements.lifelines.ResourceLifeline.parameters);
     defaultView.model.resourceLifeLineCounter(1);
     //create initial arrow between source and resource
     var currentSource = defaultView.model.diagramSourceElements().models[0];

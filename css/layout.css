@@ -272,54 +272,6 @@ div[class*="col-sm-"].property-container{
 /*//////////////////////////////////////////////////*/
 
 /*//////////////////////////////////////////////////*/
-/** Popup Property Pane related styles | Start -> **/
-
-#property-pane-svg input.property-textbox {
-    border: 1px solid #29BB96;
-    border-radius: 2px;
-    height: 30px;
-    width: 210px;
-    padding-left: 10px;
-    color: #939b99;
-}
-
-#property-pane-svg input.property-dropdown {
-    border: 1px solid #29BB96;
-    border-radius: 2px;
-    height: 30px;
-    width: 210px;
-    padding-left: 10px;
-    color: #939b99;
-}
-
-#property-pane-svg input.property-dropdown:hover {
-    background-color: #29BB96;
-    color: #515c6a;
-}
-
-#property-pane-svg input.property-checkbox {
-    margin-left: 10px;
-    margin-right: 10px;
-    width: 12px;
-    height: 12px;
-}
-
-#property-pane-svg label.property-label {
-    color: #515c6a;
-    padding-top: 2px;
-}
-
-#property-save {
-    background-color: #29BB96;
-    color: #FFFFFF;
-    border: 1px solid #29BB96;
-    border-radius: 3px;
-}
-
-/** Popup Property Pane related styles | -> End **/
-/*//////////////////////////////////////////////////*/
-
-/*//////////////////////////////////////////////////*/
 /** ace editor (source view) related styles | Start -> **/
 
 #sourceViewTab{

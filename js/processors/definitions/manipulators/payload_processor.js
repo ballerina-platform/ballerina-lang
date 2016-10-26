@@ -54,35 +54,23 @@ var Processors = (function (processors) {
                 value: "Payload"
             }
         ],
-        propertyPaneSchema: [
-            {
-                key: "contentType",
-                text: "Content Type"
-            },
-            {
-                key: "messageReference",
-                text: "Message Reference"
-            },
-            {
-                key: "payload",
-                text: "Payload"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
-                {
-                    key: "contentType",
-                    value: inputs.contentType.value
-                },
-                {
-                    key: "messageReference",
-                    value: inputs.messageReference.value
-                },
-                {
-                    key: "payload",
-                    value: inputs.payload.value
+        getSchema: function () {
+            return {
+                title: "Payload Processor",
+                type: "object",
+                properties: {
+                    ContentType: {"type": "string"},
+                    MessageRef: {"type": "string"},
+                    Payload: {"type": "string"}
                 }
-            ];
+            };
+        },
+        getEditableProperties: function (parameters) {
+            var editableProperties = {};
+            editableProperties.ContentType = parameters[0];
+            editableProperties.MessageRef = parameters[1];
+            editableProperties.Payload = parameters[2];
+            return editableProperties;
         },
         getMySubTree: function (model) {
             var parameters = model.get('parameters').parameters;
