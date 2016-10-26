@@ -314,7 +314,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
-                diagram.enableDragOption();
+                defaultView.enableDragOption();
                 $('#property-pane-svg').empty();
             }
 
@@ -416,7 +416,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
-                diagram.enableDragOption();
+                defaultView.enableDragOption();
                 $('#property-pane-svg').empty();
             }
             //first time click on the tab
@@ -453,7 +453,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
-                diagram.enableDragOption();
+                defaultView.enableDragOption();
                 $('#property-pane-svg').empty();
             }
             var anchor = $(e.currentTarget).siblings('a');
@@ -851,12 +851,10 @@ var Diagrams = (function (diagrams) {
             },
             
             disableDragOption: function () {
-                console.log("diabl drag");
                 this.panAndZoom.events.drag = false;
             },
 
             enableDragOption: function () {
-                console.log("enable drag");
                 this.panAndZoom.events.drag = true;
             },
 
@@ -891,7 +889,6 @@ var Diagrams = (function (diagrams) {
                 
                 this.disableDragOption();
                 diagram.propertyWindow = true;
-                console.log("make window true");
                 propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect, options.y);
             },
 
