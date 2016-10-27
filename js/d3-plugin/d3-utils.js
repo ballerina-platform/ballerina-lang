@@ -198,7 +198,7 @@ var D3Utils = (function (d3_utils) {
         var foreignObject = parent.append("foreignObject")
             .attr("x", 23)
             .attr("y", 20)
-            .attr("width", "200")
+            .attr("width", "240")
             .attr("height", "100%");
 
         var form = foreignObject.append("xhtml:form")
@@ -213,19 +213,23 @@ var D3Utils = (function (d3_utils) {
             var property = propertyPaneSchema[i];
 
             if (property.text) {
-                //append a textbox
+                //append a label for the textbox
                 next = "label";
                 rectangleHeight = getCurrentRectHeight(rectangleHeight, previous, next);
-                appendLabel(form, property.text);
+                var label = appendLabel(form, property.text);
+                label.attr("style", "display: block;");
+                //append a textbox
                 appendTextBox(form, parameters[i].value, property.key);
                 rectangleHeight += (heights.label + heights.label_textBox + heights.textBox);
                 previous = "textbox";
 
             } else if (property.dropdown) {
-                //append a dropdown
+                //append a label before dropdown
                 next = "label";
                 rectangleHeight = getCurrentRectHeight(rectangleHeight, previous, next);
-                appendLabel(form, property.dropdown);
+                var label = appendLabel(form, property.dropdown);
+                label.attr("style", "display: block;");
+                //append the dropdown
                 var selected = parameters[i].value;
                 var dropdownValues = [];
                 property.values.forEach(function (value, index) {
@@ -235,7 +239,7 @@ var D3Utils = (function (d3_utils) {
                         dropdownValues[index] = {value: value.toLowerCase(), text: value};
                     }
                 });
-                appendDropdown(form, dropdownValues, property.key, i);
+                appendDropdown(form, dropdownValues, property.key, i, selected);
                 rectangleHeight += (heights.label + heights.label_textBox + heights.textBox);
                 previous = "dropdown";
 
@@ -325,17 +329,18 @@ var D3Utils = (function (d3_utils) {
     };
 
     var appendLabel = function (parent, value) {
-        parent.append("label")
+        return parent.append("label")
             .attr("class", "property-label")
             .text(value);
     };
 
-    var appendDropdown = function (parent, optionsList, name, count) {
+    var appendDropdown = function (parent, optionsList, name, count, selectedValue) {
         var input = parent.append("input")
             .attr("name", name)
             .attr("id", name)
             .attr("class", "property-dropdown")
-            .attr("list", "dropdown-" + count);
+            .attr("list", "dropdown-" + count)
+            .attr("value", selectedValue);
 
         var datalist = input.append("datalist")
             .attr("id", "dropdown-" + count);
@@ -351,14 +356,21 @@ var D3Utils = (function (d3_utils) {
             }
         }
 
-        input.on("change", saveProperties);
         parent.append("br");
         parent.append("br");
-
+        var currentValue = "";
         input.on("click", function () {
-            this.focus();
-            this.value = "";
-        });
+                if (this.value !== "") {
+                    currentValue = this.value;
+                }
+                this.value = "";
+            })
+            .on("change", saveProperties)
+            .on("blur", function () {
+                if (this.value === "") {
+                    this.value = currentValue;
+                }
+            })
     };
 
     var group = function (parent) {
