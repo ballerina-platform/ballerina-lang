@@ -91,6 +91,7 @@ var Processors = (function (processors) {
                     parameters[1].value + "\", headerValue = " + parameters[2].value;
                 return new TreeNode("HeaderProcessor", "HeaderProcessor", headerConfigStart, ");");
             },
+
             outputs: false,
             getInputParams: function () {
                 var inputParams = [];

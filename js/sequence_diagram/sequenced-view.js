@@ -64,6 +64,20 @@ var SequenceD = (function (sequenced) {
                     return processor;
                 }
             },
+            generateInputOutputString: function (params) {
+                var line = "";
+                for (var x = 0; x < params.length; x++) {
+                    line += params[x].value;
+                    if (x < params.length - 1) {
+                        line += ", ";
+                    }
+                }
+
+                if (line.length > 20) {
+                    line = line.substring(0, 15) + " ...";
+                }
+                return line;
+            },
 
             generateInputOutputString: function (params) {
                 var line = "";
