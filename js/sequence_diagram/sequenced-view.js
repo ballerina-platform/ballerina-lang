@@ -156,7 +156,7 @@ var SequenceD = (function (sequenced) {
                             }
                             if (diagram.propertyWindow) {
                                 diagram.propertyWindow = false;
-                                defaultView.enableDragOption();
+                                defaultView.enableDragZoomOptions();
                                 $('#property-pane-svg').empty();
                             }
                             diagram.selectedOptionsGroup = optionsMenuGroup;
@@ -165,7 +165,7 @@ var SequenceD = (function (sequenced) {
                             optionsMenuGroup.classed("option-menu-hide", true);
                             optionsMenuGroup.classed("option-menu-show", false);
                             diagram.propertyWindow = false;
-                            defaultView.enableDragOption();
+                            defaultView.enableDragZoomOptions();
                             defaultView.render();
                         }
                     });
@@ -174,13 +174,13 @@ var SequenceD = (function (sequenced) {
                     editOption.on("click", function () {
                         if (diagram.propertyWindow) {
                             diagram.propertyWindow = false;
-                            defaultView.enableDragOption();
+                            defaultView.enableDragZoomOptions();
                             defaultView.render();
                             
                         } else {
                             var options = {
-                                x: viewObj.model.attributes.centerPoint.attributes.x + 759,
-                                y: viewObj.model.attributes.centerPoint.attributes.y + 38
+                                x: parseFloat(this.getAttribute("x")) + 6,
+                                y: parseFloat(this.getAttribute("y")) + 21
                             };
                             
                             defaultView.selectedNode = viewObj.model;
@@ -838,7 +838,7 @@ var SequenceD = (function (sequenced) {
                         }
                         if (diagram.propertyWindow) {
                             diagram.propertyWindow = false;
-                            defaultView.enableDragOption();
+                            defaultView.enableDragZoomOptions();
                             $('#property-pane-svg').empty();
                         }
                         diagram.selectedOptionsGroup = optionsMenuGroup;
@@ -847,7 +847,7 @@ var SequenceD = (function (sequenced) {
                         optionsMenuGroup.classed("option-menu-hide", true);
                         optionsMenuGroup.classed("option-menu-show", false);
                         diagram.propertyWindow = false;
-                        defaultView.enableDragOption();
+                        defaultView.enableDragZoomOptions();
                         diagram.selectedOptionsGroup = null;
                         defaultView.render();
                     }
@@ -857,7 +857,7 @@ var SequenceD = (function (sequenced) {
 
                     if (diagram.propertyWindow) {
                         diagram.propertyWindow = false;
-                        defaultView.enableDragOption();
+                        defaultView.enableDragZoomOptions();
                         defaultView.render();
                         
                     } else {
@@ -865,10 +865,12 @@ var SequenceD = (function (sequenced) {
                             top: viewObj.d3el.svgTitle,
                             bottom: viewObj.d3el.svgTitleBottom
                         };
+                        
                         var options = {
-                            x: viewObj.model.attributes.centerPoint.attributes.x + 83,
-                            y: viewObj.model.attributes.centerPoint.attributes.y + 38
+                            x: parseFloat(this.getAttribute("x")) + 6,
+                            y: parseFloat(this.getAttribute("y")) + 21
                         };
+                        
                         defaultView.selectedNode = viewObj.model;
                         var parameters;
                         
@@ -1317,7 +1319,7 @@ var SequenceD = (function (sequenced) {
                             }
                             if (diagram.propertyWindow) {
                                 diagram.propertyWindow = false;
-                                defaultView.enableDragOption();
+                                defaultView.enableDragZoomOptions();
                                 $('#property-pane-svg').empty();
                             }
                             diagram.selectedOptionsGroup = optionsMenuGroup;
@@ -1327,7 +1329,7 @@ var SequenceD = (function (sequenced) {
                             optionsMenuGroup.classed("option-menu-show", false);
                             if (diagram.propertyWindow) {
                                 diagram.propertyWindow = false;
-                                defaultView.enableDragOption();
+                                defaultView.enableDragZoomOptions();
                                 defaultView.render();
                             }
                             diagram.selectedOptionsGroup = null;
@@ -1345,13 +1347,13 @@ var SequenceD = (function (sequenced) {
                     editOption.on("click", function () {
                         if (diagram.propertyWindow) {
                             diagram.propertyWindow = false;
-                            defaultView.enableDragOption();
+                            defaultView.enableDragZoomOptions();
                             defaultView.render();
                             
                         } else {
                             var options = {
-                                x: viewObj.model.attributes.parent.attributes.centerPoint.attributes.x + 773,
-                                y: viewObj.model.attributes.parent.attributes.centerPoint.attributes.y + 38
+                                x: parseFloat(this.getAttribute("x")) + 6,
+                                y: parseFloat(this.getAttribute("y")) + 21
                             };
                             
                             defaultView.selectedNode = viewObj.model.attributes.parent;

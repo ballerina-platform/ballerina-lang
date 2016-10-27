@@ -314,7 +314,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
-                defaultView.enableDragOption();
+                defaultView.enableDragZoomOptions();
                 $('#property-pane-svg').empty();
             }
 
@@ -416,7 +416,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
-                defaultView.enableDragOption();
+                defaultView.enableDragZoomOptions();
                 $('#property-pane-svg').empty();
             }
             //first time click on the tab
@@ -453,7 +453,7 @@ var Diagrams = (function (diagrams) {
             diagram.selectedOptionsGroup = null;
             if (diagram.propertyWindow) {
                 diagram.propertyWindow = false;
-                defaultView.enableDragOption();
+                defaultView.enableDragZoomOptions();
                 $('#property-pane-svg').empty();
             }
             var anchor = $(e.currentTarget).siblings('a');
@@ -849,13 +849,39 @@ var Diagrams = (function (diagrams) {
                 };
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
             },
-            
-            disableDragOption: function () {
+
+            disableDragZoomOptions: function () {
                 this.panAndZoom.events.drag = false;
+                this.panAndZoom.events.mouseWheel = false;
+
+                //Blocking the mousewheel event
+                document.onmousewheel = function (e) {
+                    defaultView.stopWheel();
+                };
+                if (document.addEventListener) {
+                    document.addEventListener('DOMMouseScroll', this.stopWheel, false);
+                }
             },
 
-            enableDragOption: function () {
+            stopWheel: function () {
+                if (!e) {
+                    e = window.event;
+                }
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                e.returnValue = false;
+            },
+
+            enableDragZoomOptions: function () {
                 this.panAndZoom.events.drag = true;
+                this.panAndZoom.events.mouseWheel = true;
+
+                //Re-enabling the mousewheel event
+                document.onmousewheel = null;
+                if (document.addEventListener) {
+                    document.removeEventListener('DOMMouseScroll', this.stopWheel, false);
+                }
             },
 
             drawPropertiesPane: function (svg, options, parameters, propertyPaneSchema) {
@@ -887,7 +913,7 @@ var Diagrams = (function (diagrams) {
                     .attr("stroke", "#000000")
                     .attr("opacity", "0.9");
                 
-                this.disableDragOption();
+                this.disableDragZoomOptions();
                 diagram.propertyWindow = true;
                 propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect, options.y);
             },

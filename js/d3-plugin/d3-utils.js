@@ -314,12 +314,8 @@ var D3Utils = (function (d3_utils) {
             .attr("type", "text")
             .attr("name", name)
             .attr("value", value);
-        textBox.on("click", function () {
-                var valueLength = this.value.length;
-                this.focus();
-                this.setSelectionRange(valueLength, valueLength);
-            })
-            .on("keyup", saveProperties)
+
+        textBox.on("keyup", saveProperties)
             .on("dblclick", function () {
                 this.select();
             });
