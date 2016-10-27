@@ -1056,8 +1056,6 @@ var Diagrams = (function (diagrams) {
                 position = defaultView.toViewBoxCoordinates(position);
 
                 if (Processors.manipulators[id] && txt.selectedNode) {
-                    //TEXT MODEL TODO
-                    var textModel = new Diagrams.Models.TextController({});
                     //manipulators are unit processors
                     var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
@@ -1069,14 +1067,10 @@ var Diagrams = (function (diagrams) {
                         },
                         {colour: Processors.manipulators[id].colour},
 
-                        {utils: Processors.manipulators[id].utils},
-                        textModel
+                        {utils: Processors.manipulators[id].utils}
                     );
                     txt.selectedNode.addChild(processor);
-                    //For text model notifications
-                    processor.attributes.textModel.hasParent = true;
-                    processor.attributes.textModel.parentObject(txt.selectedNode);
-                    //
+
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
                     var processor = txt.selectedNode.createProcessor(
