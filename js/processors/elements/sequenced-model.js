@@ -42,7 +42,7 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 width: 130,
-                height: 60,
+                height: 65,
                 title: "UnitProcessor"
             }
         });
