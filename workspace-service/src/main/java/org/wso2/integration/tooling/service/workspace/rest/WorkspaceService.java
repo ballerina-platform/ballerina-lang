@@ -18,6 +18,8 @@ package org.wso2.integration.tooling.service.workspace.rest;
 
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.integration.tooling.service.workspace.Workspace;
 
 import javax.ws.rs.*;
@@ -37,6 +39,8 @@ import java.util.regex.Pattern;
 @Path("/service/workspace")
 public class WorkspaceService {
 
+    private static final Logger logger = LoggerFactory.getLogger(WorkspaceService.class);
+
     @Inject
     private Workspace workspace;
 
@@ -51,6 +55,7 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Exception e) {
+            logger.error("/root service error", e);
             return getErrorResponse(e);
         }
     }
@@ -66,6 +71,7 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Exception e) {
+            logger.error("/list service error", e);
             return getErrorResponse(e);
         }
     }
@@ -93,6 +99,31 @@ public class WorkspaceService {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (Exception e) {
+            logger.error("/write service error", e);
+            return getErrorResponse(e);
+        }
+    }
+
+    @POST
+    @Path("/log")
+    @Produces("application/json")
+    public Response log(@FormParam("logger") String loggerID,
+                        @FormParam("timestamp") String timestamp,
+                        @FormParam("level") String level,
+                        @FormParam("url") String URL,
+                        @FormParam("message") String message,
+                        @FormParam("layout") String layout) {
+        try {
+            workspace.log(loggerID, timestamp, level, URL, message, layout);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("status", "success");
+            return Response.status(Response.Status.OK)
+                    .entity(entity)
+                    .header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception e) {
+            logger.error("/log service error", e);
             return getErrorResponse(e);
         }
     }

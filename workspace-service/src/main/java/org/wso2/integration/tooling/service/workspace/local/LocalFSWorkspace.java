@@ -55,7 +55,7 @@ public class LocalFSWorkspace implements Workspace {
                     rootObj.add("children", children);
                 }
             } catch (IOException e) {
-                logger.debug("Error while traversing children of " + e.toString(), e);
+                logger.error("Error while traversing children of " + e.toString(), e);
                 rootObj.addProperty("error", e.toString());
             }
             if(Files.isDirectory(root)){
@@ -86,6 +86,23 @@ public class LocalFSWorkspace implements Workspace {
         Files.write(ioPath, content.getBytes());
     }
 
+    @Override
+    public void log(String loggerID, String timestamp, String level,
+                    String URL, String message, String layout) throws IOException {
+        Logger frontEndLog = LoggerFactory.getLogger(loggerID);
+        String logMessage = "client-timestamp: " + timestamp + ", page: " + URL + ", message: " + message;
+        switch (level){
+            case "TRACE"    : frontEndLog.trace(logMessage); break;
+            case "DEBUG"    : frontEndLog.debug(logMessage); break;
+            case "INFO"     : frontEndLog.info(logMessage); break;
+            case "WARN"     : frontEndLog.warn(logMessage); break;
+            case "ERROR"    : frontEndLog.error(logMessage); break;
+            case "FATAL"    : frontEndLog.error(logMessage); break;
+                default     : frontEndLog.debug(logMessage);
+        }
+
+    }
+
     private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
         JsonObject rootObj = new JsonObject();
         rootObj.addProperty("text", root.getFileName() != null ? root.getFileName().toString() : root.toString());
@@ -98,7 +115,7 @@ public class LocalFSWorkspace implements Workspace {
                     rootObj.addProperty("children", Boolean.FALSE);
                 }
             } catch (IOException e) {
-                logger.debug("Error while fetching children of " + root.toString(), e);
+                logger.error("Error while fetching children of " + root.toString(), e);
                 rootObj.addProperty("error", e.toString());
             }
         }

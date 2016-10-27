@@ -38,5 +38,10 @@ public class CloudWorkspace  implements Workspace {
     public void write(String path, String content) throws IOException {
 
     }
+
+    @Override
+    public void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException {
+
+    }
     // TODO: This is just for future use.
 }
