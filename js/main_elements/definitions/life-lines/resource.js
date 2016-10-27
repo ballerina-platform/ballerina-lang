@@ -26,28 +26,6 @@ var MainElements = (function (mainElements) {
         colour : "#ffffff",
         class : "resource",
         dragCursorOffset : { left: 50, top: 50 },
-        parameters: [
-            {
-                key: "title",
-                value: "Resource"
-            },
-            {
-                key: "path",
-                value: "Path"
-            },
-            {
-                key: "get",
-                value: "Get"
-            },
-            {
-                put: "put",
-                value: "Put"
-            },
-            {
-                post: "post",
-                value: "Post"
-            }
-        ],
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
@@ -62,27 +40,74 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        getSchema: function () {
-            return {
-                "title": 'Pipe Line',
-                type: "object",
-                properties: {
-                    Title: { "type": "string" },
-                    Path: {"type": "string"},
-                    Get: {"type": "boolean"},
-                    Put: {"type": "boolean"},
-                    Post: {"type": "boolean"}
+        propertyPaneSchema: [
+            {
+                key: "title",
+                text: "Title"
+            },
+            {
+                key: "path",
+                text: "Path"
+            },
+            {
+                key: "get",
+                checkbox: "GET"
+            },
+            {
+                key: "put",
+                checkbox: "PUT"
+            },
+            {
+                key: "post",
+                checkbox: "POST"
+            }
+        ],
+        parameters: [
+            {
+                key: "title",
+                value: "Resource"
+            },
+            {
+                key: "path",
+                value: ""
+            },
+            {
+                key: "get",
+                value: false
+            },
+            {
+                key: "put",
+                value: false
+            },
+            {
+                key: "post",
+                value: false
+            }
+        ],
+        saveMyProperties: function (model, inputs) {
+            model.attributes.title = inputs.title.value;
+            model.attributes.parameters = [
+                {
+                    key: "title",
+                    value: inputs.title.value
+                },
+                {
+                    key: "path",
+                    value: inputs.path.value
+                },
+                {
+                    key: "get",
+                    value: inputs.get.checked
+                },
+                {
+                    key: "put",
+                    value: inputs.put.checked
+                },
+                {
+                    key: "post",
+                    value: inputs.post.checked
                 }
-            };
-        },
-        getEditableProperties: function (parameters) {
-            var editableProperties = {};
-            editableProperties.Title = parameters[0].value;
-            editableProperties.Path = parameters[1].value;
-            editableProperties.Get = parameters[2].value;
-            editableProperties.Put = parameters[3].value;
-            editableProperties.Post = parameters[4].value;
-            return editableProperties;
+            ];
         }
     };
 

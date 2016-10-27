@@ -578,8 +578,8 @@ var Diagrams = (function (diagrams) {
             },
 
             reloadDiagramArea: function () {
-                endpointLifelineCounter = 0;
-                resourceLifelineCounter = 0;
+                defaultView.model.resourceLifeLineCounter(0);
+                defaultView.model.endpointLifeLineCounter(0);
                 if (diagramD3el) {
                     diagramD3el.remove();
                     for (var element in diagramViewElements) {
