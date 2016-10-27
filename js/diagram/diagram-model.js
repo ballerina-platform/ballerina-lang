@@ -666,7 +666,7 @@ var Diagrams = (function (diagrams) {
             // Called when text controller changes occurs and if there is a parent element
             notifyParent: function(parentModel, currentTextModel){
                // parent model initialize needs to register function "onChildUpdate"
-                console.log("Well parent received it");
+                console.log("parent received it");
               // parentModel.trigger("onChildUpdates",currentTextModel);
             }
 
@@ -684,6 +684,7 @@ var Diagrams = (function (diagrams) {
             initialize: function (attrs, options) {
                 this.dynamicRectWidth();
                 this.dynamicTextPosition();
+                //set this to true when adding parent elements
                 this.hasParent = false;
                 this.parentObject();
             },
@@ -697,9 +698,12 @@ var Diagrams = (function (diagrams) {
 
                 var minimumValue = 130;
                 var dynamic  = length;
-
-
                 var rectX = rects.attr('x');
+
+
+                // TODO: add methods to store these in TextController for future use
+                var rectHeight = rects.attr('height');
+                var textYPosition = texts.attr('y');
 
               // storing rect width and text 'x' position in textmodel
                 if(dynamic<minimumValue){
@@ -713,13 +717,13 @@ var Diagrams = (function (diagrams) {
                     finalTextWidth = parseFloat(rectX)+ parseFloat(computedWidth);
                     this.dynamicTextPosition(finalTextWidth);
 
-                    // updating any parent elements if exists
-                    if(this.hasParent===true){
-                        var parentModel = this.parentObject();
-                        eventManager.notifyParent(parentModel,this);
-                    }
                 }
-
+                // updating any parent elements if exists:TODO: can be updated to be fired onBlur
+                if(this.hasParent===true){
+                    // This could be made into a objectList if there are multiple
+                    var parentModel = this.parentObject();
+                    eventManager.notifyParent(parentModel,this);
+                }
                 //setting rectangle width on change
                 rects.attr('width', function() { return dynamic < minimumValue ? minimumValue : dynamic;});
                  // setting text element position on change
@@ -742,6 +746,7 @@ var Diagrams = (function (diagrams) {
                     this.set('dynamicTextPosition',xPos);
                 }
             },
+            // When a parent object needs notification add here : TODO: store list of parents
             parentObject : function(parent){
                 if (_.isUndefined(parent)) {
                     return this.get('parentObject');

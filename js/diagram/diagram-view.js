@@ -1275,6 +1275,10 @@ var Diagrams = (function (diagrams) {
                 }
 
                 var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils,textModel);
+                // TODO: For sample usage of events firing: adding lifeLine itself as parent
+                textModel.hasParent = true;
+                textModel.parentObject(lifeline);
+                //
 
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({

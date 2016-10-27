@@ -105,7 +105,7 @@ var D3Utils = (function (d3_utils) {
             .attr("rx", rx)
             .attr("ry", ry);
     };
-    var rect1 = function (x, y, width, height, rx, ry, parent, colour,textModel) {
+    var genericRect = function (x, y, width, height, rx, ry, parent, colour,textModel) {
         parent = parent || d3Ref;
         // get TextModel and if dynamicRectWidth is not 130 add that as width
         var modelId = textModel.cid;
@@ -128,18 +128,18 @@ var D3Utils = (function (d3_utils) {
             .attr("id",modelId);
     };
 
-    var centeredRect1 = function (center, width, height, rx, ry, parent, colour,textModel) {
+    var genericCenteredRect = function (center, width, height, rx, ry, parent, colour,textModel) {
         parent = parent || d3Ref;
         rx = rx || 0;
         ry = ry || 0;
-        return parent.draw.rect1(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour,textModel);
+        return parent.draw.genericRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour,textModel);
     };
 //GENERIC TEXT BOX CREATION
     var genericTextRect = function (center,width,height,rx,ry,textContent,x,y,parent,colour,textModel){
         parent = parent || d3Ref;
 
-        var rect =parent.draw.rect1(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour,textModel);
-        var text = rect.draw.textElement1(center.x(), center.y(), textContent, rect,txtModel)
+        var rect =parent.draw.genericRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour,textModel);
+        var text = rect.draw.genericTextElement(center.x(), center.y(), textContent, rect,txtModel)
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
         return parent;
     };
@@ -205,7 +205,7 @@ var D3Utils = (function (d3_utils) {
 
     };
     //TODO:
-    var textElement1 = function (x, y, textContent, parent,txtModel) {
+    var genericTextElement = function (x, y, textContent, parent,txtModel) {
         parent = parent || d3Ref;
         var modelId = txtModel.cid;
         var dynamicPosition = txtModel.dynamicTextPosition();
@@ -222,9 +222,9 @@ var D3Utils = (function (d3_utils) {
             });
     };
 //TODO:TEST
-    var centeredText1 = function (center, textContent, parent,txtModel) {
+    var genericCenteredText = function (center, textContent, parent,txtModel) {
         parent = parent || d3Ref;
-        return parent.draw.textElement1(center.x(), center.y(), textContent, parent,txtModel)
+        return parent.draw.genericTextElement(center.x(), center.y(), textContent, parent,txtModel)
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
     };
     var textElement = function (x, y, textContent, parent) {
@@ -369,10 +369,10 @@ var D3Utils = (function (d3_utils) {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
         defaultView.selectedNode.get('utils').utils.saveMyProperties(defaultView.selectedNode, inputs);
 
-        var int = Number(7) || 7.7;
-        var dlength =  ((inputs.title.value.length+1) * 8);
         //TODO FOR TEXT GENERIC
         if(defaultView.selectedNode.attributes.textModel != null){
+            var int = Number(7) || 7.7;
+            var dlength =  ((inputs.title.value.length+1) * 8);
             var txtm = defaultView.selectedNode.attributes.textModel;
             txtm.TextChanged(dlength);
         }
@@ -507,8 +507,8 @@ var D3Utils = (function (d3_utils) {
         var draw = {};
         draw.centeredRect = centeredRect;
         draw.rect = rect;
-        draw.centeredRect1 = centeredRect1;
-        draw.rect1 = rect1;
+        draw.genericCenteredRect = genericCenteredRect;
+        draw.genericRect = genericRect;
         draw.basicRect = basicRect;
         draw.centeredBasicRect = centeredBasicRect;
         draw.line = line;
@@ -517,8 +517,8 @@ var D3Utils = (function (d3_utils) {
         draw.editableText = editableText;
         draw.centeredText = centeredText;
         draw.textElement = textElement;
-        draw.centeredText1 = centeredText1;
-        draw.textElement1 = textElement1;
+        draw.genericCenteredText = genericCenteredText;
+        draw.genericTextElement = genericTextElement;
         draw.circle = circle;
         draw.circleOnPoint = circleOnPoint;
         draw.group = group;

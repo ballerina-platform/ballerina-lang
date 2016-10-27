@@ -795,7 +795,7 @@ var SequenceD = (function (sequenced) {
                     this.model.attributes.textModel.dynamicRectWidth(130);
                 }
 
-                var rect = d3Ref.draw.centeredRect1(center, prefs.rect.width + 30, prefs.rect.height, 0, 0, group,'',this.model.attributes.textModel)
+                var rect = d3Ref.draw.genericCenteredRect(center, prefs.rect.width + 30, prefs.rect.height, 0, 0, group,'',this.model.attributes.textModel)
                     .classed(prefs.rect.class, true).classed("genericR",true);
 
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
@@ -811,14 +811,14 @@ var SequenceD = (function (sequenced) {
 
                     });
 
-                var rectBottom = d3Ref.draw.centeredRect1(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group,'',this.model.attributes.textModel)
+                var rectBottom = d3Ref.draw.genericCenteredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group,'',this.model.attributes.textModel)
                     .classed(prefs.rect.class, true).classed("genericR",true);
 
                 var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
                     .classed(prefs.line.class, true);
-                var text = d3Ref.draw.centeredText1(center, title, group,this.model.attributes.textModel)
+                var text = d3Ref.draw.genericCenteredText(center, title, group,this.model.attributes.textModel)
                     .classed(prefs.text.class, true).classed("genericT",true);
-                var textBottom = d3Ref.draw.centeredText1(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group,this.model.attributes.textModel)
+                var textBottom = d3Ref.draw.genericCenteredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group,this.model.attributes.textModel)
                     .classed(prefs.text.class, true).classed("genericT",true);
 
 
