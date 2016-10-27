@@ -1056,6 +1056,8 @@ var Diagrams = (function (diagrams) {
                 position = defaultView.toViewBoxCoordinates(position);
 
                 if (Processors.manipulators[id] && txt.selectedNode) {
+                    //TEXT MODEL TODO
+                    var textModel = new Diagrams.Models.TextController({});
                     //manipulators are unit processors
                     var processor = txt.selectedNode.createProcessor(
                         Processors.manipulators[id].title,
@@ -1066,9 +1068,15 @@ var Diagrams = (function (diagrams) {
                             initMethod: Processors.manipulators[id].init
                         },
                         {colour: Processors.manipulators[id].colour},
-                        {utils: Processors.manipulators[id].utils}
+
+                        {utils: Processors.manipulators[id].utils},
+                        textModel
                     );
                     txt.selectedNode.addChild(processor);
+                    //For text model notifications
+                    processor.attributes.textModel.hasParent = true;
+                    processor.attributes.textModel.parentObject(txt.selectedNode);
+                    //
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
                     var processor = txt.selectedNode.createProcessor(
@@ -1249,7 +1257,8 @@ var Diagrams = (function (diagrams) {
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
                 var centerPoint;
-
+               //TEXT MODEL TODO
+                var textModel = new Diagrams.Models.TextController({});
                 if(lifelineName == "Source") {
                     centerPoint = createPoint(200, 50);
                 } else if (lifelineName == "Resource") {
@@ -1270,11 +1279,13 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils);
+
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils,textModel);
+
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,
-                    y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
+                    y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.height
                 });
                 lifeLineOptions.class = lifeLineDef.class;
                 //SETTING TOP SVG ELEMENT IN OPTIONS To Draw messages

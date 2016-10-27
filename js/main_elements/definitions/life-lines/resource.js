@@ -109,6 +109,13 @@ var MainElements = (function (mainElements) {
                         value: inputs.post.checked
                     }
                 ];
+            },
+            textModel: function(txtModel){
+                if (_.isUndefined(txtModel)) {
+                    return this.get('textModel');
+                } else {
+                    this.set('textModel',txtModel);
+                }
             }
         }
     };

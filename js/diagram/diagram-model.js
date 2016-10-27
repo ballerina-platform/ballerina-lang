@@ -662,9 +662,97 @@ var Diagrams = (function (diagrams) {
                         }
                     }
                 }
+            },
+            // Called when text controller changes occurs and if there is a parent element
+            notifyParent: function(parentModel, currentTextModel){
+               // parent model initialize needs to register function "onChildUpdate"
+                console.log("Well parent received it");
+              // parentModel.trigger("onChildUpdates",currentTextModel);
             }
 
         });
+    var TextController = Backbone.Model.extend(
+        /** @lends Text controller.prototype */
+        {
+            idAttribute: this.cid,
+            modelName: "TextController",
+            /**
+             * @augments Backbone.Model
+             * @constructs
+             * @class Handles text expand/change of elements
+             */
+            initialize: function (attrs, options) {
+                this.dynamicRectWidth();
+                this.dynamicTextPosition();
+                this.hasParent = false;
+                this.parentObject();
+            },
+            TextChanged: function(length){
+                id = this.cid;
+                var rects = d3.selectAll("[id=" +id + "]").filter(".genericR");
+                var texts = d3.selectAll("[id=" +id + "]").filter(".genericT");
+
+                var computedWidth ;
+                var finalTextWidth;
+
+                var minimumValue = 130;
+                var dynamic  = length;
+
+
+                var rectX = rects.attr('x');
+
+              // storing rect width and text 'x' position in textmodel
+                if(dynamic<minimumValue){
+                    this.dynamicRectWidth(minimumValue);
+                     computedWidth = (minimumValue/2);
+                    finalTextWidth = parseFloat(rectX)+ parseFloat(computedWidth);
+                    this.dynamicTextPosition(finalTextWidth);
+                }else {
+                    this.dynamicRectWidth(dynamic);
+                    computedWidth = (dynamic/2);
+                    finalTextWidth = parseFloat(rectX)+ parseFloat(computedWidth);
+                    this.dynamicTextPosition(finalTextWidth);
+
+                    // updating any parent elements if exists
+                    if(this.hasParent===true){
+                        var parentModel = this.parentObject();
+                        eventManager.notifyParent(parentModel,this);
+                    }
+                }
+
+                //setting rectangle width on change
+                rects.attr('width', function() { return dynamic < minimumValue ? minimumValue : dynamic;});
+                 // setting text element position on change
+                 texts.attr('x',function(){return finalTextWidth});
+
+            },
+            //keep the current width of the rectangle
+            dynamicRectWidth: function (length) {
+                if (_.isUndefined(length)) {
+                    return this.get('dynamicRectWidth');
+                } else {
+                    this.set('dynamicRectWidth',length);
+                }
+            },
+            //keep the current x position of the text element
+            dynamicTextPosition: function (xPos) {
+                if (_.isUndefined(xPos)) {
+                    return this.get('dynamicTextPosition');
+                } else {
+                    this.set('dynamicTextPosition',xPos);
+                }
+            },
+            parentObject : function(parent){
+                if (_.isUndefined(parent)) {
+                    return this.get('parentObject');
+                } else {
+                    this.set('parentObject',parent);
+                }
+            }
+
+
+        });
+    models.TextController = TextController;
     models.EventManager = EventManager;
     models.DiagramElement = DiagramElement;
     models.DiagramElements = DiagramElements;

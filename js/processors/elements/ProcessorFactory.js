@@ -19,7 +19,7 @@
 var SequenceD = (function (sequenced) {
     var models = sequenced.Models || {};
 
-    var ProcessorFactory = function (title, center, type, model, viewAttributes, utils) {
+    var ProcessorFactory = function (title, center, type, model, viewAttributes, utils,textModel) {
         var processor;
 
         if (type === "UnitProcessor") {
@@ -29,7 +29,8 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
-                utils: utils
+                utils: utils,
+                textModel : textModel
             });
         } else if (type === "ComplexProcessor") {
             processor = new SequenceD.Models.ComplexProcessor({

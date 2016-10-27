@@ -105,6 +105,44 @@ var D3Utils = (function (d3_utils) {
             .attr("rx", rx)
             .attr("ry", ry);
     };
+    var rect1 = function (x, y, width, height, rx, ry, parent, colour,textModel) {
+        parent = parent || d3Ref;
+        // get TextModel and if dynamicRectWidth is not 130 add that as width
+        var modelId = textModel.cid;
+        var dynamicWidth = textModel.dynamicRectWidth();
+        if(dynamicWidth != 130){
+            width = dynamicWidth;
+        }
+        rx = rx || 0;
+        ry = ry || 0;
+        return parent.append("rect")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", width)
+            .attr("height", height)
+            .attr("fill", colour || "steelblue")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2)
+            .attr("rx", rx)
+            .attr("ry", ry)
+            .attr("id",modelId);
+    };
+
+    var centeredRect1 = function (center, width, height, rx, ry, parent, colour,textModel) {
+        parent = parent || d3Ref;
+        rx = rx || 0;
+        ry = ry || 0;
+        return parent.draw.rect1(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour,textModel);
+    };
+//GENERIC TEXT BOX CREATION
+    var genericTextRect = function (center,width,height,rx,ry,textContent,x,y,parent,colour,textModel){
+        parent = parent || d3Ref;
+
+        var rect =parent.draw.rect1(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour,textModel);
+        var text = rect.draw.textElement1(center.x(), center.y(), textContent, rect,txtModel)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
+        return parent;
+    };
 
     var rect = function (x, y, width, height, rx, ry, parent, colour) {
         parent = parent || d3Ref;
@@ -166,7 +204,29 @@ var D3Utils = (function (d3_utils) {
     var editableText = function (x, y, text) {
 
     };
+    //TODO:
+    var textElement1 = function (x, y, textContent, parent,txtModel) {
+        parent = parent || d3Ref;
+        var modelId = txtModel.cid;
+        var dynamicPosition = txtModel.dynamicTextPosition();
+        if(dynamicPosition != undefined){
+            x = dynamicPosition;
+        }
 
+        return parent.append("text")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("id",modelId)
+            .text(function () {
+                return textContent;
+            });
+    };
+//TODO:TEST
+    var centeredText1 = function (center, textContent, parent,txtModel) {
+        parent = parent || d3Ref;
+        return parent.draw.textElement1(center.x(), center.y(), textContent, parent,txtModel)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
+    };
     var textElement = function (x, y, textContent, parent) {
         parent = parent || d3Ref;
         return parent.append("text")
@@ -309,6 +369,14 @@ var D3Utils = (function (d3_utils) {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
         defaultView.selectedNode.get('utils').utils.saveMyProperties(defaultView.selectedNode, inputs);
 
+        var int = Number(7) || 7.7;
+        var dlength =  ((inputs.title.value.length+1) * 8);
+        //TODO FOR TEXT GENERIC
+        if(defaultView.selectedNode.attributes.textModel != null){
+            var txtm = defaultView.selectedNode.attributes.textModel;
+            txtm.TextChanged(dlength);
+        }
+
         //render title in selected lifeline
         if (inputs.title) {
             resetMainElementTitle(inputs.title.value);
@@ -439,6 +507,8 @@ var D3Utils = (function (d3_utils) {
         var draw = {};
         draw.centeredRect = centeredRect;
         draw.rect = rect;
+        draw.centeredRect1 = centeredRect1;
+        draw.rect1 = rect1;
         draw.basicRect = basicRect;
         draw.centeredBasicRect = centeredBasicRect;
         draw.line = line;
@@ -447,6 +517,8 @@ var D3Utils = (function (d3_utils) {
         draw.editableText = editableText;
         draw.centeredText = centeredText;
         draw.textElement = textElement;
+        draw.centeredText1 = centeredText1;
+        draw.textElement1 = textElement1;
         draw.circle = circle;
         draw.circleOnPoint = circleOnPoint;
         draw.group = group;
