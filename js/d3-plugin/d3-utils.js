@@ -200,7 +200,7 @@ var D3Utils = (function (d3_utils) {
             .attr("y2", y2)
             .attr("stroke", color)
             .attr("stroke-width",.5)
-            .attr("stroke-dasharray", "8, 8");
+            .attr("stroke-dasharray", "4, 3");
     };
 
 

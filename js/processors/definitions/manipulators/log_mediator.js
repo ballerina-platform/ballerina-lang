@@ -44,6 +44,10 @@ var Processors = (function (processors) {
         utils : {
             propertyPaneSchema: [
                 {
+                    key: "messageRef",
+                    text: "Message Reference"
+                },
+                {
                     key: "message",
                     text: "Log message"
                 },
@@ -63,6 +67,10 @@ var Processors = (function (processors) {
                 }
             ],
             parameters: [
+                {
+                    key: "messageRef",
+                    value: "m"
+                },
                 {
                     key: "message",
                     value: "Log message"
@@ -95,6 +103,10 @@ var Processors = (function (processors) {
                 }
                 model.get("utils").utils.parameters = [
                     {
+                        key: "messageRef",
+                        value: inputs.messageRef.value
+                    },
+                    {
                         key: "message",
                         value: inputs.message.value
                     },
@@ -116,6 +128,14 @@ var Processors = (function (processors) {
                 var parameters = model.get('utils').utils.parameters;
                 var log_configStart = "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
                 return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
+            },
+            outputs: false,
+            getInputParams: function () {
+                var inputParams = [];
+                inputParams[0] = this.parameters[0];
+                inputParams[1] = this.parameters[1];
+
+                return inputParams;
             }
         }
     };

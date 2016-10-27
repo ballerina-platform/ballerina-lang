@@ -90,6 +90,14 @@ var Processors = (function (processors) {
                 var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +
                     parameters[1].value + "\", headerValue = " + parameters[2].value;
                 return new TreeNode("HeaderProcessor", "HeaderProcessor", headerConfigStart, ");");
+            },
+            outputs: false,
+            getInputParams: function () {
+                var inputParams = [];
+                inputParams[0] = this.parameters[0];
+                inputParams[1] = this.parameters[1];
+
+                return inputParams;
             }
         }
     };

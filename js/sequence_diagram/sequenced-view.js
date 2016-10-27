@@ -65,6 +65,21 @@ var SequenceD = (function (sequenced) {
                 }
             },
 
+            generateInputOutputString: function (params) {
+                var line = "";
+                for (var x = 0; x < params.length; x++) {
+                    line += params[x].value;
+                    if (x < params.length - 1) {
+                        line += ", ";
+                    }
+                }
+
+                if (line.length > 20) {
+                    line = line.substring(0, 15) + " ...";
+                }
+                return line;
+            },
+
             drawProcessor: function (paperID, center, title, prefs) {
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group();
@@ -72,8 +87,16 @@ var SequenceD = (function (sequenced) {
                 var viewObj = this;
 
                 if (this.model.model.type === "UnitProcessor") {
-                    var height = this.model.getHeight();
+
+                    var height = 0;
+                    if (this.model.get('utils').utils.outputs) {
+                        height = this.model.getHeight();
+                    } else {
+                        height = this.model.getHeight() - 20;
+                    }
                     var width = this.model.getWidth();
+
+                    var orderedElements = [];
 
                     var optionMenuWrapper = d3Ref.draw.rect((center.x() + 10 + width/2),
                         (center.y() - height/2),
@@ -125,7 +148,7 @@ var SequenceD = (function (sequenced) {
                         });
 
                     var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
-                        (center.y() - this.model.getHeight()/2),
+                        (center.y() - height/2),
                         this.model.getWidth(),
                         20,
                         0,
@@ -136,56 +159,69 @@ var SequenceD = (function (sequenced) {
 
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
-                        this.model.getHeight(),//prefs.rect.height,
+                        height,//prefs.rect.height,
                         0,
                         0,
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
                     var mediatorText = d3Ref.draw.textElement(center.x(),
-                        (center.y() + 15 - this.model.getHeight()/2),
+                        (center.y() + 15 - height/2),
                         title,
                         group)
                         .classed("mediator-title", true);
                     var inputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
-                        (center.y() + 35 - this.model.getHeight()/2),
-                        "m,\"Sample Text ...\"",
-                        group)
-                        .classed("input-output-text", true);
-                    var outputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
-                        (center.y() + 55 - this.model.getHeight()/2),
-                        "\"Sample Output ...\"",
+                        (center.y() + 35 - height/2),
+                        this.generateInputOutputString(this.model.get('utils').utils.getInputParams()),
                         group)
                         .classed("input-output-text", true);
                     var inputTri = d3Ref.draw.inputTriangle(center.x() + 5 - this.model.getWidth()/2,
-                        (center.y() + 30 - this.model.getHeight()/2),
+                        (center.y() + 30 - height/2),
                         group);
-                    var outputTri = d3Ref.draw.outputTriangle(center.x() + 5 - this.model.getWidth()/2,
-                        (center.y() + 50 - this.model.getHeight()/2),
-                        group);
-                    var dashedSeperator =d3Ref.draw.dashedLine(
-                        center.x() - this.model.getWidth()/2,
-                        center.y() + 10,
-                        center.x() + this.model.getWidth()/2,
-                        center.y() + 10,
-                        "black",
-                        group
-                    );
+
+                    //this.generateInputOutputString(this.model.get('utils').utils.getInputParams());
+
+                    if (this.model.get('utils').utils.outputs) {
+                        var outputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
+                            (center.y() + 58 - this.model.getHeight()/2),
+                            this.generateInputOutputString(this.model.get('utils').utils.getOutputParams()),
+                            group)
+                            .classed("input-output-text", true);
+                        var outputTri = d3Ref.draw.outputTriangle(center.x() + 5 - this.model.getWidth()/2,
+                            (center.y() + 53 - this.model.getHeight()/2),
+                            group);
+                        var dashedSeparator =d3Ref.draw.dashedLine(
+                            center.x() - this.model.getWidth()/2,
+                            center.y() + 10,
+                            center.x() + this.model.getWidth()/2,
+                            center.y() + 10,
+                            "black",
+                            group
+                        );
+
+                        orderedElements = [rectBottomXXX,
+                            processorTitleRect,
+                            mediatorText,
+                            inputText,
+                            outputText,
+                            inputTri,
+                            outputTri,
+                            dashedSeparator,
+                            optionsMenuGroup
+                        ];
+                    } else {
+                        orderedElements = [rectBottomXXX,
+                            processorTitleRect,
+                            mediatorText,
+                            inputText,
+                            inputTri,
+                            optionsMenuGroup
+                        ];
+                    }
+
+
                     group.rect = rectBottomXXX;
                     group.title = mediatorText;
-
-                    var orderedElements = [rectBottomXXX,
-                        processorTitleRect,
-                        mediatorText,
-                        inputText,
-                        outputText,
-                        inputTri,
-                        outputTri,
-                        dashedSeperator,
-                        optionsMenuGroup
-                    ];
-
-
 
                     var newGroup = d3Ref.draw.regroup(orderedElements);
                     group.remove();
