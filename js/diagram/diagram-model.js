@@ -520,8 +520,8 @@ var Diagrams = (function (diagrams) {
                                 rootNode.getChildren().push(node);
                             }else if(mediator.get('message').get('destination').get('parent').get('cssClass') === "endpoint"){
                                 //This section will handle "invoke" mediator transformation.
-                                endpoint = mediator.get('message').get('destination').get('parent').get('parameters')[0].value;
-                                uri = mediator.get('message').get('destination').get('parent').get('parameters')[1].value;
+                                endpoint = mediator.get('message').get('destination').get('parent').get('utils').utils.parameters[0].value;
+                                uri = mediator.get('message').get('destination').get('parent').get('utils').utils.parameters[1].value;
                                 // When we define the properties, need to extract the endpoint from the property
                                 definedConstants["HTTPEP"] = {name: endpoint, value: uri};
 
@@ -529,7 +529,7 @@ var Diagrams = (function (diagrams) {
                                 rootNode.getChildren().push(invokeNode);
                             }
                         } else {
-                            rootNode.getChildren().push((mediator.get('getMySubTree')).getMySubTree(mediator));
+                            rootNode.getChildren().push((mediator.get('utils')).utils.getMySubTree(mediator));
                         }
                     }
                     console.log(rootNode);
@@ -551,10 +551,10 @@ var Diagrams = (function (diagrams) {
                     // For the moment we are injecting the API methods directly hardcoded here at the moment.
                     // After the properties view implementation those can be dynamically changed
                     finalSource += "\n" +
-                        ((resourceModel.get('parameters')[2].value==true) ? '@GET\n' : '') +
-                        ((resourceModel.get('parameters')[3].value==true) ? '@PUT\n' : '') +
-                        ((resourceModel.get('parameters')[4].value==true) ? '@POST\n' : '') +
-                        '@Path ("' + resourceModel.get('parameters')[1].value +'")\n'
+                        ((resourceModel.get('utils').utils.parameters[2].value==true) ? '@GET\n' : '') +
+                        ((resourceModel.get('utils').utils.parameters[3].value==true) ? '@PUT\n' : '') +
+                        ((resourceModel.get('utils').utils.parameters[4].value==true) ? '@POST\n' : '') +
+                        '@Path ("' + resourceModel.get('utils').utils.parameters[1].value +'")\n'
                 };
 
                 var traverse = function (tree, finalSource) {

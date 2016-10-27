@@ -114,3 +114,12 @@
 .marker{
     fill: #000000;
 }
+
+.mediator-title {
+    font-size: 10px;
+    text-anchor:middle;
+}
+
+.input-output-text {
+    font-size: 10px;
+}

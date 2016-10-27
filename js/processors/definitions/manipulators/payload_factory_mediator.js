@@ -41,52 +41,54 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        parameters: [
-            {
-                key: "configurationFile",
-                value: "Configuration file"
-            },
-            {
-                key: "message",
-                value: "Message"
-            },
-            {
-                key: "description",
-                value: "Description"
-            }
-        ],
-        propertyPaneSchema: [
-            {
-                key: "configurationFile",
-                text: "Configuration File"
-            },
-            {
-                key: "message",
-                text: "Message"
-            },
-            {
-                key: "description",
-                text: "Description"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
+        utils: {
+            parameters: [
                 {
                     key: "configurationFile",
-                    value: inputs.configurationFile.value
+                    value: "Configuration file"
                 },
                 {
                     key: "message",
-                    value: inputs.message.value
+                    value: "Message"
                 },
                 {
                     key: "description",
-                    value: inputs.description.value
+                    value: "Description"
                 }
-            ];
-        },
-        getMySubTree: function (model) {
-            return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator", "payloadFactory {", "}");
+            ],
+            propertyPaneSchema: [
+                {
+                    key: "configurationFile",
+                    text: "Configuration File"
+                },
+                {
+                    key: "message",
+                    text: "Message"
+                },
+                {
+                    key: "description",
+                    text: "Description"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "configurationFile",
+                        value: inputs.configurationFile.value
+                    },
+                    {
+                        key: "message",
+                        value: inputs.message.value
+                    },
+                    {
+                        key: "description",
+                        value: inputs.description.value
+                    }
+                ];
+            },
+            getMySubTree: function (model) {
+                return new TreeNode("payloadFactoryMediator", "payloadFactoryMediator", "payloadFactory {", "}");
+            }
         }
     };
 

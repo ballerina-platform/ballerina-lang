@@ -41,80 +41,82 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "message",
-                text: "Log message"
-            },
-            {
-                key: "logLevel",
-                dropdown: "Log Level",
-                values: ["simple", "custom", "headers", "full"]
-            },
-            {
-                key: "logCategory",
-                dropdown: "Log Category",
-                values: ["info", "error", "warn", "fatal", "debug", "trace"]
-            },
-            {
-                key: "description",
-                text: "Description"
-            }
-        ],
-        parameters: [
-            {
-                key: "message",
-                value: "Log message"
-            },
-            {
-                key: "logLevel",
-                value: "simple"
-            },
-            {
-                key: "logCategory",
-                value: "info"
-            },
-            {
-                key: "description",
-                value: "Description"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            var selectedLogLevel;
-            var selectedLogCategory;
-            if (inputs.logLevel.value !== "") {
-                selectedLogLevel = inputs.logLevel.value;
-            } else {
-                selectedLogLevel = model.get("parameters").parameters[1].value;
-            }
-            if (inputs.logCategory.value !== "") {
-                selectedLogCategory = inputs.logCategory.value;
-            } else {
-                selectedLogCategory = model.get("parameters").parameters[2].value;
-            }
-            model.get("parameters").parameters = [
+        utils : {
+            propertyPaneSchema: [
                 {
                     key: "message",
-                    value: inputs.message.value
+                    text: "Log message"
                 },
                 {
                     key: "logLevel",
-                    value: selectedLogLevel
+                    dropdown: "Log Level",
+                    values: ["simple", "custom", "headers", "full"]
                 },
                 {
                     key: "logCategory",
-                    value: selectedLogCategory
+                    dropdown: "Log Category",
+                    values: ["info", "error", "warn", "fatal", "debug", "trace"]
                 },
                 {
                     key: "description",
-                    value: inputs.description.value
+                    text: "Description"
                 }
-            ];
-        },
-        getMySubTree: function (model) {
-            var parameters = model.get('parameters').parameters;
-            var log_configStart =  "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
-            return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
+            ],
+            parameters: [
+                {
+                    key: "message",
+                    value: "Log message"
+                },
+                {
+                    key: "logLevel",
+                    value: "simple"
+                },
+                {
+                    key: "logCategory",
+                    value: "info"
+                },
+                {
+                    key: "description",
+                    value: "Description"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                var selectedLogLevel;
+                var selectedLogCategory;
+                if (inputs.logLevel.value !== "") {
+                    selectedLogLevel = inputs.logLevel.value;
+                } else {
+                    selectedLogLevel = model.get("parameters").parameters[1].value;
+                }
+                if (inputs.logCategory.value !== "") {
+                    selectedLogCategory = inputs.logCategory.value;
+                } else {
+                    selectedLogCategory = model.get("parameters").parameters[2].value;
+                }
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "message",
+                        value: inputs.message.value
+                    },
+                    {
+                        key: "logLevel",
+                        value: selectedLogLevel
+                    },
+                    {
+                        key: "logCategory",
+                        value: selectedLogCategory
+                    },
+                    {
+                        key: "description",
+                        value: inputs.description.value
+                    }
+                ];
+            },
+            getMySubTree: function (model) {
+                var parameters = model.get('utils').utils.parameters;
+                var log_configStart = "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
+                return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
+            }
         }
     };
 

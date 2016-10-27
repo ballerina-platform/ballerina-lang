@@ -24,17 +24,17 @@
 var SequenceD = (function (sequenced) {
     var views = sequenced.Views = sequenced.Views || {};
 
-    var UnitProcessorElement = Diagrams.Views.ShapeView.extend(
-        /** @lends UnitProcessorElement.prototype */
+    var UnitProcessorView = Diagrams.Views.Processor.extend(
+        /** @lends UnitProcessorView.prototype */
         {
             /**
-             * @augments ShapeView
+             * @augments ProcessorView
              * @constructs
-             * @class LifeLineView Represents the view for lifeline components in Sequence Diagrams.
+             * @class UnitProcessorView Represents the view for UnitProcessor(Eg: logger, header etc.) components in Sequence Diagrams.
              * @param {Object} options Rendering options for the view
              */
             initialize: function (options) {
-                Diagrams.Views.ShapeView.prototype.initialize.call(this, options);
+                Diagrams.Views.Processor.prototype.initialize.call(this, options);
             },
 
             verticalDrag: function () {
@@ -42,38 +42,87 @@ var SequenceD = (function (sequenced) {
             },
 
             render: function (paperID) {
-                Diagrams.Views.ShapeView.prototype.render.call(this, paperID);
 
-                var unitProcessorElement = this.drawUnitProcessor(this.modelAttr('centerPoint'), this.modelAttr('title'), this.options);
-                var viewObj = this;
-
-                this.d3el = unitProcessorElement;
-                this.el = unitProcessorElement.node();
-                return unitProcessorElement;
-            },
-
-            drawUnitProcessor: function (center, title, prefs) {
-                var d3Ref = this.getD3Ref();
-                var group = d3Ref.draw.group()
-                    .classed(prefs.class, true);
-                var rect = d3Ref.draw.centeredRect(center, prefs.rect.width, prefs.rect.height, 3, 3, group)
-                    .classed(prefs.rect.class, true);
-                var text = d3Ref.draw.centeredText(center, title, group)
-                    .classed(prefs.text.class, true);
-                group.rect = rect;
-                group.title = text;
-                Object.getPrototypeOf(group).translate = function (dx, dy) {
-                    this.attr("transform", function () {
-                        return "translate(" + [dx, dy] + ")"
-                    })
-                };
-
-                return group;
             }
 
         });
 
-    views.UnitProcessorElement = UnitProcessorElement;
+
+    var ComplexProcessorView = Diagrams.Views.Processor.extend(
+        /** @lends ComplexProcessorView.prototype */
+        {
+            /**
+             * @augments ProcessorView
+             * @constructs
+             * @class UnitProcessorView Represents the view for UnitProcessor(Eg: logger, header etc.) components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.Processor.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID) {
+
+            }
+
+        });
+
+
+    var DynamicContainableProcessorView = Diagrams.Views.Processor.extend(
+        /** @lends DynamicContainableProcessorView.prototype */
+        {
+            /**
+             * @augments ProcessorView
+             * @constructs
+             * @class UnitProcessorView Represents the view for UnitProcessor(Eg: logger, header etc.) components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.Processor.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID) {
+
+            }
+
+        });
+
+    var CustomProcessorView = Diagrams.Views.Processor.extend(
+        /** @lends CustomProcessorView.prototype */
+        {
+            /**
+             * @augments ProcessorView
+             * @constructs
+             * @class UnitProcessorView Represents the view for UnitProcessor(Eg: logger, header etc.) components in Sequence Diagrams.
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                Diagrams.Views.Processor.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID) {
+
+            }
+
+        });
+
+    views.UnitProcessorView = UnitProcessorView;
+    views.ComplexProcessorView = ComplexProcessorView;
+    views.DynamicContainableProcessorView = DynamicContainableProcessorView;
+    views.CustomProcessorView = CustomProcessorView;
+
     return sequenced;
 
 }(SequenceD || {}));

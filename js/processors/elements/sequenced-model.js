@@ -19,21 +19,21 @@
 var SequenceD = (function (sequenced) {
     var models = sequenced.Models || {};
 
-    var UnitProcessorElement = Diagrams.Models.Shape.extend(
-        /** @lends UnitProcessorElement.prototype */
+    var UnitProcessor = SequenceD.Models.Processor.extend(
+        /** @lends DiagramElement.prototype */
         {
 
             selectedNode: null,
             /**
              * @augments DiagramElement
              * @constructs
-             * @class UnitProcessorElement represents the model for simple processor unit.
+             * @class Element represents the model for elements in a diagram.
              */
             initialize: function (attrs, options) {
-                Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
+                SequenceD.Models.Processor.prototype.initialize.call(this, attrs, options);
             },
 
-            modelName: "UnitProcessorElement",
+            modelName: "UnitProcessor",
 
             nameSpace: sequenced,
 
@@ -41,9 +41,148 @@ var SequenceD = (function (sequenced) {
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
-                title: "UnitProcessorElement"
+                width: 130,
+                height: 60,
+                title: "UnitProcessor"
             }
         });
+
+    var ComplexProcessor = SequenceD.Models.Processor.extend(
+        /** @lends DiagramElement.prototype */
+        {
+
+            selectedNode: null,
+            /**
+             * @augments DiagramElement
+             * @constructs
+             * @class Element represents the model for elements in a diagram.
+             */
+            initialize: function (attrs, options) {
+                SequenceD.Models.Processor.prototype.initialize.call(this, attrs, options);
+                var containableProcessorElements = new ContainableProcessorElements([], {diagram: this});
+                this.containableProcessorElements(containableProcessorElements);
+            },
+
+            modelName: "ComplexProcessor",
+
+            nameSpace: sequenced,
+
+            idAttribute: this.cid,
+
+            defaults: {
+                centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
+                title: "ComplexProcessor"
+            },
+
+            containableProcessorElements: function (containableProcessorElements) {
+                if (_.isUndefined(containableProcessorElements)) {
+                    return this.get('containableProcessorElements');
+                } else {
+                    this.set('containableProcessorElements', containableProcessorElements);
+                }
+            },
+
+        });
+
+
+    var DynamicContainableProcessor = SequenceD.Models.Processor.extend(
+        /** @lends DiagramElement.prototype */
+        {
+
+            selectedNode: null,
+            /**
+             * @augments DiagramElement
+             * @constructs
+             * @class Element represents the model for elements in a diagram.
+             */
+            initialize: function (attrs, options) {
+                SequenceD.Models.Processor.prototype.initialize.call(this, attrs, options);
+            },
+
+            modelName: "DynamicContainableProcessor",
+
+            nameSpace: sequenced,
+
+            idAttribute: this.cid,
+
+            defaults: {
+                centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
+                title: "DynamicContainableProcessor"
+            }
+        });
+
+    var CustomProcessor = SequenceD.Models.Processor.extend(
+        /** @lends DiagramElement.prototype */
+        {
+
+            selectedNode: null,
+            /**
+             * @augments DiagramElement
+             * @constructs
+             * @class Element represents the model for elements in a diagram.
+             */
+            initialize: function (attrs, options) {
+                SequenceD.Models.Processor.prototype.initialize.call(this, attrs, options);
+            },
+
+            modelName: "CustomProcessor",
+
+            nameSpace: sequenced,
+
+            idAttribute: this.cid,
+
+            defaults: {
+                centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
+                title: "CustomProcessor"
+            }
+        });
+
+
+    var Child = Diagrams.Models.DiagramElement.extend(
+        /** @lends DiagramElement.prototype */
+        {
+
+            selectedNode: null,
+            /**
+             * @augments DiagramElement
+             * @constructs
+             * @class Element represents the model for elements in a diagram.
+             */
+            initialize: function (attrs, options) {
+                Diagrams.Models.DiagramElement.prototype.initialize.call(this, attrs, options);
+            },
+
+            modelName: "Child",
+
+            nameSpace: sequenced,
+
+            idAttribute: this.cid,
+
+            defaults: {
+                centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
+                title: "Child"
+            }
+        });
+
+    var Children = Backbone.Collection.extend(
+        /** @lends DiagramElements.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class DiagramElements represents the collection for elements in a diagram.
+             */
+            initialize: function (models, options) {
+            },
+
+            modelName: "Children",
+
+            nameSpace: sequenced,
+
+            model: Child
+
+        });
+
 
     var ContainableProcessorElement = Diagrams.Models.Shape.extend(
         /** @lends ContainableProcessorElement.prototype */
@@ -57,6 +196,9 @@ var SequenceD = (function (sequenced) {
              */
             initialize: function (attrs, options) {
                 Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
+                var children = new Children([], {diagram: this});
+                this.children(children);
+                this.widestChild = null;
             },
 
             modelName: "ContainableProcessorElement",
@@ -67,14 +209,110 @@ var SequenceD = (function (sequenced) {
 
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
-                title: "ContainableProcessorElement"
-            }
+                title: "ContainableProcessorElement",
+                width: 130,
+                height: 30,
+                viewAttributes: {colour: "#998844"}
+            },
+
+            children: function (children) {
+                if (_.isUndefined(children)) {
+                    return this.get('children');
+                } else {
+                    this.set('children', children);
+                }
+            },
+
+            addChild: function (element, opts) {
+                element.parent(this);
+                var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
+                var index = position.index;
+                this.children().add(element, {at: index});
+            },
+
+            calculateIndex: function (element, y) {
+                var previousChild;
+                var count = 1;
+                var position = {};
+                this.children().each(function (child) {
+                    if (!_.isEqual(element, child)) {
+                        if (child.get('centerPoint').get('y') > y) {
+                            previousChild = child;
+                            return false;
+                        }
+                        count = count + 1;
+                    }
+                });
+                if (_.isUndefined(previousChild)) {
+                    if (this.children().size() == 0) {
+                        position.index = 0;
+                    } else {
+                        position.index = this.children().indexOf(element);
+                    }
+                } else {
+                    position.index = this.children().indexOf(previousChild);
+                }
+                return position;
+            },
+
+            createProcessor: function (title, center, type, model, viewAttributes, utils) {
+                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, utils);
+            },
+
+            setY: function (y) {
+                this.get('centerPoint').set('y', y);
+            },
+
+            setX: function (x) {
+                this.get('centerPoint').set('x', x);
+            },
+
+            getWidth: function () {
+                return this.get('width');
+            },
+
+            getHeight: function () {
+                return this.get('height');
+            },
+
+            setWidth: function (width) {
+                this.set('width', width);
+            },
+
+            setHeight: function (height) {
+                this.set('height', height);
+            },
+
+
         });
 
 
+    var ContainableProcessorElements = Backbone.Collection.extend(
+        /** @lends ContainableProcessorElements.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class ContainableProcessorElements represents the collection for elements in a diagram.
+             */
+            initialize: function (models, options) {
+            },
+
+            modelName: "ContainableProcessorElements",
+
+            nameSpace: sequenced,
+
+            model: ContainableProcessorElement
+
+        });
+
     // set models
-    models.UnitProcessorElement = UnitProcessorElement;
+    models.UnitProcessor = UnitProcessor;
+    models.ComplexProcessor = ComplexProcessor;
+    models.DynamicContainableProcessor = DynamicContainableProcessor;
+    models.CustomProcessor = CustomProcessor;
     models.ContainableProcessorElement = ContainableProcessorElement;
+    models.ContainableProcessorElements = ContainableProcessorElements;
 
     sequenced.Models = models;
 

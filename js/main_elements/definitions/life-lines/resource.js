@@ -40,74 +40,76 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
-            },
-            {
-                key: "path",
-                text: "Path"
-            },
-            {
-                key: "get",
-                checkbox: "GET"
-            },
-            {
-                key: "put",
-                checkbox: "PUT"
-            },
-            {
-                key: "post",
-                checkbox: "POST"
-            }
-        ],
-        parameters: [
-            {
-                key: "title",
-                value: "Resource"
-            },
-            {
-                key: "path",
-                value: ""
-            },
-            {
-                key: "get",
-                value: false
-            },
-            {
-                key: "put",
-                value: false
-            },
-            {
-                key: "post",
-                value: false
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.attributes.title = inputs.title.value;
-            model.attributes.parameters = [
+        utils: {
+            propertyPaneSchema: [
                 {
                     key: "title",
-                    value: inputs.title.value
+                    text: "Title"
                 },
                 {
                     key: "path",
-                    value: inputs.path.value
+                    text: "Path"
                 },
                 {
                     key: "get",
-                    value: inputs.get.checked
+                    checkbox: "GET"
                 },
                 {
                     key: "put",
-                    value: inputs.put.checked
+                    checkbox: "PUT"
                 },
                 {
                     key: "post",
-                    value: inputs.post.checked
+                    checkbox: "POST"
                 }
-            ];
+            ],
+            parameters: [
+                {
+                    key: "title",
+                    value: "Resource"
+                },
+                {
+                    key: "path",
+                    value: ""
+                },
+                {
+                    key: "get",
+                    value: false
+                },
+                {
+                    key: "put",
+                    value: false
+                },
+                {
+                    key: "post",
+                    value: false
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.attributes.title = inputs.title.value;
+                model.attributes.utils.utils.parameters = [
+                    {
+                        key: "title",
+                        value: inputs.title.value
+                    },
+                    {
+                        key: "path",
+                        value: inputs.path.value
+                    },
+                    {
+                        key: "get",
+                        value: inputs.get.checked
+                    },
+                    {
+                        key: "put",
+                        value: inputs.put.checked
+                    },
+                    {
+                        key: "post",
+                        value: inputs.post.checked
+                    }
+                ];
+            }
         }
     };
 

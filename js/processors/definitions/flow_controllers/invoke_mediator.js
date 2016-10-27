@@ -117,47 +117,49 @@ var Processors = (function (processors) {
             }
 
         },
-        parameters: [
-            {
-                key: "message",
-                value: "Message"
+        utils: {
+            parameters: [
+                {
+                    key: "message",
+                    value: "Message"
+                },
+                {
+                    key: "description",
+                    value: "Description"
+                }
+            ],
+            getSchema: function () {
+                return {
+                    title: "Invoke",
+                    type: "object",
+                    properties: {
+                        Message: {"type": "string"},
+                        Description: {"type": "string"}
+                    }
+                };
             },
-            {
-                key: "description",
-                value: "Description"
+            getEditableProperties: function (parameters) {
+                var editableProperties = {};
+                editableProperties.Message = parameters[0];
+                editableProperties.Description = parameters[1];
+                return editableProperties;
+            },
+            getMySubTree: function (model) {
+                var messageLinks = model.get('children').models;
+                var endpoint = undefined;
+                var uri = undefined;
+                messageLinks.forEach(function (child) {
+                    if (_.isEqual(child.get('direction'), "inbound")) {
+                        endpoint = child.get('message').get('source').get('parent').get('utils').utils.parameters[0].value;
+                        uri = child.get('message').get('source').get('parent').get('utils').utils.parameters[1].value;
+                        // When we define the properties, need to extract the endpoint from the property
+                        definedConstants["HTTPEP"] = {name: endpoint, value: uri};
+                    } else {
+                        endpoint = "anonymous";
+                    }
+                });
+                return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
             }
-        ],
-        getSchema: function () {
-            return {
-                title: "Invoke",
-                type: "object",
-                properties: {
-                    Message: {"type": "string"},
-                    Description: {"type": "string"}
-                }
-            };
-        },
-        getEditableProperties: function (parameters) {
-            var editableProperties = {};
-            editableProperties.Message = parameters[0];
-            editableProperties.Description = parameters[1];
-            return editableProperties;
-        },
-        getMySubTree: function (model) {
-            var messageLinks = model.get('children').models;
-            var endpoint = undefined;
-            var uri = undefined;
-            messageLinks.forEach(function (child) {
-                if (_.isEqual(child.get('direction'), "inbound")) {
-                    endpoint = child.get('message').get('source').get('parent').get('parameters')[0].value;
-                    uri = child.get('message').get('source').get('parent').get('parameters')[1].value;
-                    // When we define the properties, need to extract the endpoint from the property
-                    definedConstants["HTTPEP"] = {name: endpoint, value: uri};
-                } else {
-                    endpoint = "anonymous";
-                }
-            });
-            return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
         }
     };
 

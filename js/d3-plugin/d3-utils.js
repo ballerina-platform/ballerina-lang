@@ -116,7 +116,7 @@ var D3Utils = (function (d3_utils) {
             .attr("y", y)
             .attr("width", width)
             .attr("height", height)
-            .attr("fill", colour || "steelblue")
+            .attr("fill", colour || "#000000")
             .attr("stroke", "black")
             .attr("stroke-width", 2)
             .attr("rx", rx)
@@ -176,6 +176,33 @@ var D3Utils = (function (d3_utils) {
                 return textContent;
             });
     };
+
+    var inputTriangle = function (x, y, parent) {
+        parent = parent || d3Ref;
+        var points = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
+        return parent.append("polyline")
+            .attr("points", points);
+    };
+
+    var outputTriangle = function (x, y, parent) {
+        parent = parent || d3Ref;
+        var points = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
+        return parent.append("polyline")
+            .attr("points", points);
+    };
+
+    var dashedLine = function (x1,y1, x2, y2, color, parent) {
+        parent = parent || d3Ref;
+        return parent.append("line")
+            .attr("x1", x1)
+            .attr("y1", y1)
+            .attr("x2", x2)
+            .attr("y2", y2)
+            .attr("stroke", color)
+            .attr("stroke-width",.5)
+            .attr("stroke-dasharray", "8, 8");
+    };
+
 
     var centeredText = function (center, textContent, parent) {
         parent = parent || d3Ref;
@@ -280,7 +307,7 @@ var D3Utils = (function (d3_utils) {
      */
     var saveProperties = function () {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
-        defaultView.selectedNode.get("saveMyProperties").saveMyProperties(defaultView.selectedNode, inputs);
+        defaultView.selectedNode.get('utils').utils.saveMyProperties(defaultView.selectedNode, inputs);
 
         //render title in selected lifeline
         if (inputs.title) {
@@ -429,6 +456,9 @@ var D3Utils = (function (d3_utils) {
         draw.regroup = regroup;
         draw.propertyRect = propertyRect;
         draw.form = form;
+        draw.inputTriangle = inputTriangle;
+        draw.outputTriangle = outputTriangle;
+        draw.dashedLine = dashedLine;
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;
