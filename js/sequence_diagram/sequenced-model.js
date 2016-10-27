@@ -205,9 +205,8 @@ var SequenceD = (function (sequenced) {
                 return new SequenceD.Models.FixedSizedMediator({title: title, centerPoint: center});
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, getMySubTree,
-                                       saveMyProperties) {
-                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, getMySubTree);
+            createProcessor: function (title, center, type, model, viewAttributes, utils) {
+                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, utils);
             },
 
             addChild: function (element, opts) {

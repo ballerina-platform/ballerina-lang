@@ -19,7 +19,7 @@
 var SequenceD = (function (sequenced) {
     var models = sequenced.Models || {};
 
-    var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, getMySubTree) {
+    var ProcessorFactory = function (title, center, type, model, viewAttributes, utils) {
         var processor;
 
         if (type === "UnitProcessor") {
@@ -29,8 +29,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
-                parameters: parameters,
-                getMySubTree: getMySubTree
+                utils: utils
             });
         } else if (type === "ComplexProcessor") {
             processor = new SequenceD.Models.ComplexProcessor({
@@ -39,8 +38,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
-                parameters: parameters,
-                getMySubTree: getMySubTree
+                utils: utils
             });
         } else if (type === "DynamicContainableProcessor") {
             processor = new SequenceD.Models.DynamicContainableProcessor({
@@ -49,8 +47,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
-                parameters: parameters,
-                getMySubTree: getMySubTree
+                utils: utils
             });
         } else if (type === "CustomProcessor") {
             processor = new SequenceD.Models.CustomProcessor({
@@ -59,15 +56,14 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
-                parameters: parameters,
-                getMySubTree: getMySubTree
+                utils: utils
             });
         }
 
         processor.type = type;
 
         return processor;
-    }
+    };
 
     models.ProcessorFactory = ProcessorFactory;
     sequenced.Models = models;

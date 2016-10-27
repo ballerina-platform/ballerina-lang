@@ -40,14 +40,16 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
+        utils: {
+            propertyPaneSchema: [
+                {
+                    key: "title",
+                    text: "Title"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.attributes.title = inputs.title.value;
             }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.attributes.title = inputs.title.value;
         }
     };
 

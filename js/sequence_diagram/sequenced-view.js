@@ -185,8 +185,8 @@ var SequenceD = (function (sequenced) {
                             
                             defaultView.selectedNode = viewObj.model;
                             defaultView.drawPropertiesPane(d3Ref, options,
-                                                           viewObj.model.attributes.parameters.parameters,
-                                                           getPropertyPaneSchema(viewObj.model.type));
+                                                           viewObj.model.get('utils').utils.parameters,
+                                                           getPropertyPaneSchema(viewObj.model));
                         }
                     });
 
@@ -208,16 +208,8 @@ var SequenceD = (function (sequenced) {
                         }
                     });
 
-                    var getPropertyPaneSchema = function (type) {
-                        if (type === "LogMediator") {
-                            return Processors.manipulators.LogMediator.propertyPaneSchema;
-                        } else if (type === "PayLoadFactoryMediator") {
-                            return Processors.manipulators.PayLoadFactoryMediator.propertyPaneSchema;
-                        } else if (type === "HeaderProcessor") {
-                            return Processors.manipulators.HeaderProcessor.propertyPaneSchema;
-                        } else if (type === "PayloadProcessor") {
-                            return Processors.manipulators.PayloadProcessor.propertyPaneSchema;
-                        }
+                    var getPropertyPaneSchema = function (model) {
+                        return model.get('utils').utils.propertyPaneSchema;
                     };
 
                     group.rect = rectBottomXXX;
@@ -876,23 +868,23 @@ var SequenceD = (function (sequenced) {
                             parameters = [
                                 {
                                     key: "title",
-                                    value: viewObj.model.attributes.parameters[0].value
+                                    value: viewObj.model.get('utils').utils.parameters[0].value
                                 },
                                 {
                                     key: "path",
-                                    value: viewObj.model.attributes.parameters[1].value
+                                    value: viewObj.model.get('utils').utils.parameters[1].value
                                 },
                                 {
                                     key: "get",
-                                    value: viewObj.model.attributes.parameters[2].value
+                                    value: viewObj.model.get('utils').utils.parameters[2].value
                                 },
                                 {
                                     key: "put",
-                                    value: viewObj.model.attributes.parameters[3].value
+                                    value: viewObj.model.get('utils').utils.parameters[3].value
                                 },
                                 {
                                     key: "post",
-                                    value: viewObj.model.attributes.parameters[4].value
+                                    value: viewObj.model.get('utils').utils.parameters[4].value
                                 }
                             ];
                             
@@ -900,11 +892,11 @@ var SequenceD = (function (sequenced) {
                             parameters = [
                                 {
                                     key: "title",
-                                    value: viewObj.model.attributes.parameters[0].value
+                                    value: viewObj.model.get('utils').utils.parameters[0].value
                                 },
                                 {
                                     key: "url",
-                                    value: viewObj.model.attributes.parameters[1].value
+                                    value: viewObj.model.get('utils').utils.parameters[1].value
                                 }
                             ];
                             
@@ -919,13 +911,13 @@ var SequenceD = (function (sequenced) {
 
                         var propertySchema;
                         if (viewObj.model.attributes.cssClass === "endpoint") {
-                            propertySchema = MainElements.lifelines.EndPointLifeline.propertyPaneSchema;
+                            propertySchema = MainElements.lifelines.EndPointLifeline.utils.propertyPaneSchema;
 
                         } else if (viewObj.model.attributes.cssClass === "resource") {
-                            propertySchema = MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
+                            propertySchema = MainElements.lifelines.ResourceLifeline.utils.propertyPaneSchema;
 
                         } else if (viewObj.model.attributes.cssClass === "source") {
-                            propertySchema = MainElements.lifelines.SourceLifeline.propertyPaneSchema;
+                            propertySchema = MainElements.lifelines.SourceLifeline.utils.propertyPaneSchema;
                         }
 
                         defaultView.drawPropertiesPane(d3Ref, options, parameters, propertySchema);
@@ -1334,12 +1326,8 @@ var SequenceD = (function (sequenced) {
                         }
                     });
 
-                    var getPropertyPaneSchema = function (type) {
-                        if (type === "TryBlockMediator") {
-                            return Processors.flowControllers.TryBlockMediator.propertyPaneSchema;
-                        } else if (type === "IfElseMediator") {
-                            return Processors.flowControllers.IfElseMediator.propertyPaneSchema;
-                        }
+                    var getPropertyPaneSchema = function (model) {
+                        return model.get('utils').utils.propertyPaneSchema;
                     };
 
                     editOption.on("click", function () {
@@ -1356,8 +1344,8 @@ var SequenceD = (function (sequenced) {
                             
                             defaultView.selectedNode = viewObj.model.attributes.parent;
                             defaultView.drawPropertiesPane(d3Ref, options,
-                                                           viewObj.model.attributes.parent.parameters.parameters,
-                                                           getPropertyPaneSchema(viewObj.model.attributes.parent.type));
+                                                           viewObj.model.get('parent').get('utils').utils.parameters,
+                                                           getPropertyPaneSchema(viewObj.model.attributes.parent));
                         }
                     });
 

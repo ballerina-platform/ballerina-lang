@@ -41,38 +41,40 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
-            },
-            {
-                key: "url",
-                text: "URL"
-            }
-        ],
-        parameters: [
-            {
-                key: "title",
-                value: "End Point"
-            },
-            {
-                key: "url",
-                value: "https://"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.attributes.title = inputs.title.value;
-            model.attributes.parameters = [
+        utils: {
+            propertyPaneSchema: [
                 {
                     key: "title",
-                    text: inputs.title.value
+                    text: "Title"
                 },
                 {
                     key: "url",
-                    value: inputs.url.value
+                    text: "URL"
                 }
-            ];
+            ],
+            parameters: [
+                {
+                    key: "title",
+                    value: "End Point"
+                },
+                {
+                    key: "url",
+                    value: "https://"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.attributes.title = inputs.title.value;
+                model.attributes.utils.utils.parameters = [
+                    {
+                        key: "title",
+                        text: inputs.title.value
+                    },
+                    {
+                        key: "url",
+                        value: inputs.url.value
+                    }
+                ];
+            }
         }
     };
 

@@ -280,7 +280,7 @@ var D3Utils = (function (d3_utils) {
      */
     var saveProperties = function () {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
-        defaultView.selectedNode.get("saveMyProperties").saveMyProperties(defaultView.selectedNode, inputs);
+        defaultView.selectedNode.get('utils').utils.saveMyProperties(defaultView.selectedNode, inputs);
 
         //render title in selected lifeline
         if (inputs.title) {

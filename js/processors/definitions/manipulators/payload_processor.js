@@ -40,54 +40,56 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        parameters: [
-            {
-                key: "contentType",
-                value: "Content Type"
-            },
-            {
-                key: "messageReference",
-                value: "Message Reference"
-            },
-            {
-                key: "payload",
-                value: "Payload"
-            }
-        ],
-        propertyPaneSchema: [
-            {
-                key: "contentType",
-                text: "Content Type"
-            },
-            {
-                key: "messageReference",
-                text: "Message Reference"
-            },
-            {
-                key: "payload",
-                text: "Payload"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
+        utils: {
+            parameters: [
                 {
                     key: "contentType",
-                    value: inputs.contentType.value
+                    value: "Content Type"
                 },
                 {
                     key: "messageReference",
-                    value: inputs.messageReference.value
+                    value: "Message Reference"
                 },
                 {
                     key: "payload",
-                    value: inputs.payload.value
+                    value: "Payload"
                 }
-            ];
-        },
-        getMySubTree: function (model) {
-            var parameters = model.get('parameters').parameters;
-            var payloadConfigStart = parameters[0].value + ".setPayload(messageRef = " + parameters[1].value + ", payload = " + parameters[2].value;
-            return new TreeNode("PayloadProcessor", "PayloadProcessor", payloadConfigStart, ");");
+            ],
+            propertyPaneSchema: [
+                {
+                    key: "contentType",
+                    text: "Content Type"
+                },
+                {
+                    key: "messageReference",
+                    text: "Message Reference"
+                },
+                {
+                    key: "payload",
+                    text: "Payload"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "contentType",
+                        value: inputs.contentType.value
+                    },
+                    {
+                        key: "messageReference",
+                        value: inputs.messageReference.value
+                    },
+                    {
+                        key: "payload",
+                        value: inputs.payload.value
+                    }
+                ];
+            },
+            getMySubTree: function (model) {
+                var parameters = model.get('utils').utils.parameters;
+                var payloadConfigStart = parameters[0].value + ".setPayload(messageRef = " + parameters[1].value + ", payload = " + parameters[2].value;
+                return new TreeNode("PayloadProcessor", "PayloadProcessor", payloadConfigStart, ");");
+            }
         }
     };
 

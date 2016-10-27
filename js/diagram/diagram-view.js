@@ -346,11 +346,10 @@ var Diagrams = (function (diagrams) {
                                               key: "title",
                                               value: MainElements.lifelines.SourceLifeline.title
                                           }],
-                                          {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
+                                          {utils: MainElements.lifelines.SourceLifeline.utils});
             currentView.model.sourceLifeLineCounter(1);
             currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
-                                          MainElements.lifelines.ResourceLifeline.parameters,
-                                          {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
+                                          {utils: MainElements.lifelines.ResourceLifeline.utils});
             currentView.model.resourceLifeLineCounter(1);
           // first arrow creation between source and resource
             var currentSource = currentView.model.diagramSourceElements().models[0];
@@ -1041,9 +1040,7 @@ var Diagrams = (function (diagrams) {
                             initMethod: Processors.manipulators[id].init
                         },
                         {colour: Processors.manipulators[id].colour},
-                        {parameters: Processors.manipulators[id].parameters},
-                        {getMySubTree: Processors.manipulators[id].getMySubTree},
-                        {saveMyProperties: Processors.manipulators[id].saveMyProperties}
+                        {utils: Processors.manipulators[id].utils}
                     );
                     txt.selectedNode.addChild(processor);
                     defaultView.render();
@@ -1054,9 +1051,7 @@ var Diagrams = (function (diagrams) {
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
-                        {parameters: Processors.flowControllers[id].parameters},
-                        {getMySubTree: Processors.flowControllers[id].getMySubTree},
-                        {saveMyProperties: Processors.flowControllers[id].saveMyProperties}
+                        {utils: Processors.flowControllers[id].utils}
                     );
                     txt.selectedNode.addChild(processor);
 
@@ -1080,8 +1075,7 @@ var Diagrams = (function (diagrams) {
                     if(countOfEndpoints === 0){
                         ++countOfEndpoints;
                         defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
-                                                      MainElements.lifelines.EndPointLifeline.parameters,
-                                                      {saveMyProperties: MainElements.lifelines.EndPointLifeline.saveMyProperties});
+                                                      {utils: MainElements.lifelines.EndPointLifeline.utils});
                         txt.endpointLifeLineCounter(countOfEndpoints);
                     }//validation check for number of endpoints in a tab
                     else{
@@ -1095,8 +1089,7 @@ var Diagrams = (function (diagrams) {
                     if (countOfResources === 0) {
                         ++countOfResources;
                         defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline,
-                                                      MainElements.lifelines.ResourceLifeline.parameters,
-                                                      {saveMyProperties: MainElements.lifelines.ResourceLifeline.saveMyProperties});
+                                                      {utils: MainElements.lifelines.ResourceLifeline.utils});
                         txt.resourceLifeLineCounter(countOfResources);
                     }
 
@@ -1107,7 +1100,7 @@ var Diagrams = (function (diagrams) {
                         defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline, [{
                             key: "title",
                             value: MainElements.lifelines.SourceLifeline.title
-                        }], {saveMyProperties: MainElements.lifelines.SourceLifeline.saveMyProperties});
+                        }], {utils: MainElements.lifelines.SourceLifeline.utils});
                         txt.sourceLifeLineCounter(countOfSources);
                     }
                 }
@@ -1225,7 +1218,7 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, lifeLineDef, parameters, saveMyProperties) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef, utils) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
@@ -1251,7 +1244,7 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, parameters, saveMyProperties);
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils);
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,
