@@ -36,6 +36,9 @@
         <div role="tabpanel" class="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
     </script>
     <!-- End: Templates fro backbone views -->
+    <script type="text/javascript">
+        var workspaceServiceURL = "http://localhost:8289/service/workspace";
+    </script>
 
     <title>Integration Server Tooling</title>
 </head>
@@ -364,6 +367,8 @@
     };
 </script>
 
+
+<script type="text/javascript" src="lib/log4javascript-1.4.13/log4javascript.js"></script>
 <!-- Jquery/Jquery UI JS -->
 <script src="lib/jquery_v1.9.1/jquery-1.9.1.min.js"></script>
 <script src="lib/js-tree-v3.3.2/jstree.js"></script>
@@ -380,6 +385,7 @@
 <script src="lib/jsoneditor_v0.7.28/jsoneditor.js"></script>
 <script src="lib/svg-panNZoom/jquery.svg.pan.zoom.js"></script>
 
+<script src="js/logger/logger.js"></script>
 <!-- custom js libs -->
 <script src="js/geometry/geometry-core.js"></script>
 <script src="js/d3-plugin/d3-utils.js"></script>
@@ -424,6 +430,10 @@
 <script src="js/processors/elements/ProcessorFactory.js"></script>
 <script src="js/tree.js"></script>
 <script src="js/app.js"></script>
+
+<script type="text/javascript">
+    logger.error('testdfdf');
+</script>
 <script>
     var formatter;
     define('formatter', ['beautify/beautify'],
@@ -470,7 +480,7 @@
 <script>
     var configLocation,
         configFileName,
-        saveServiceURL = "http://localhost:8289/service/workspace/write",
+        saveServiceURL = workspaceServiceURL + "/write",
         newWizardError = $('#newWizardError'),
         alertArea = $('#alertArea');
 
