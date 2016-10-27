@@ -124,6 +124,16 @@ var SequenceD = (function (sequenced) {
                             optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
                         });
 
+                    var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
+                        (center.y() - this.model.getHeight()/2),
+                        this.model.getWidth(),
+                        20,
+                        0,
+                        0,
+                        group,
+                        this.modelAttr('viewAttributes').colour
+                    );
+
                     var rectBottomXXX = d3Ref.draw.centeredRect(center,
                         this.model.getWidth(),
                         this.model.getHeight(),//prefs.rect.height,
@@ -132,20 +142,56 @@ var SequenceD = (function (sequenced) {
                         group, //element.viewAttributes.colour
                         this.modelAttr('viewAttributes').colour
                     );
-                    var mediatorText = d3Ref.draw.centeredText(center,
+                    var mediatorText = d3Ref.draw.textElement(center.x(),
+                        (center.y() + 15 - this.model.getHeight()/2),
                         title,
                         group)
-                        .classed(prefs.text.class, true);
+                        .classed("mediator-title", true);
+                    var inputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
+                        (center.y() + 35 - this.model.getHeight()/2),
+                        "m,\"Sample Text ...\"",
+                        group)
+                        .classed("input-output-text", true);
+                    var outputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
+                        (center.y() + 55 - this.model.getHeight()/2),
+                        "\"Sample Output ...\"",
+                        group)
+                        .classed("input-output-text", true);
+                    var inputTri = d3Ref.draw.inputTriangle(center.x() + 5 - this.model.getWidth()/2,
+                        (center.y() + 30 - this.model.getHeight()/2),
+                        group);
+                    var outputTri = d3Ref.draw.outputTriangle(center.x() + 5 - this.model.getWidth()/2,
+                        (center.y() + 50 - this.model.getHeight()/2),
+                        group);
+                    var dashedSeperator =d3Ref.draw.dashedLine(
+                        center.x() - this.model.getWidth()/2,
+                        center.y() + 10,
+                        center.x() + this.model.getWidth()/2,
+                        center.y() + 10,
+                        "black",
+                        group
+                    );
                     group.rect = rectBottomXXX;
                     group.title = mediatorText;
 
-                    var orderedElements = [rectBottomXXX, mediatorText, optionsMenuGroup];
+                    var orderedElements = [rectBottomXXX,
+                        processorTitleRect,
+                        mediatorText,
+                        inputText,
+                        outputText,
+                        inputTri,
+                        outputTri,
+                        dashedSeperator,
+                        optionsMenuGroup
+                    ];
+
+
 
                     var newGroup = d3Ref.draw.regroup(orderedElements);
                     group.remove();
 
                     // On click of the mediator show/hide the options menu
-                    rectBottomXXX.on("click", function () {
+                    processorTitleRect.on("click", function () {
                         if (optionsMenuGroup.classed("option-menu-hide")) {
                             optionsMenuGroup.classed("option-menu-hide", false);
                             optionsMenuGroup.classed("option-menu-show", true);

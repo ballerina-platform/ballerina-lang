@@ -520,8 +520,8 @@ var Diagrams = (function (diagrams) {
                                 rootNode.getChildren().push(node);
                             }else if(mediator.get('message').get('destination').get('parent').get('cssClass') === "endpoint"){
                                 //This section will handle "invoke" mediator transformation.
-                                endpoint = mediator.get('message').get('destination').get('parent').get('parameters')[0].value;
-                                uri = mediator.get('message').get('destination').get('parent').get('parameters')[1].value;
+                                endpoint = mediator.get('message').get('destination').get('parent').get('utils').utils.parameters[0].value;
+                                uri = mediator.get('message').get('destination').get('parent').get('utils').utils.parameters[1].value;
                                 // When we define the properties, need to extract the endpoint from the property
                                 definedConstants["HTTPEP"] = {name: endpoint, value: uri};
 
