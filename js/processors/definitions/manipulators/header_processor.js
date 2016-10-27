@@ -40,55 +40,65 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        parameters: [
-            {
-                key: "reference",
-                value: "Message Reference"
-            },
-            {
-                key: "name",
-                value: "Header Name"
-            },
-            {
-                key: "value",
-                value: "Header Value"
-            }
-        ],
-        propertyPaneSchema: [
-            {
-                key: "reference",
-                text: "Message Reference"
-            },
-            {
-                key: "name",
-                text: "Header Name"
-            },
-            {
-                key: "value",
-                text: "Header Value"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
+        utils: {
+            parameters: [
                 {
                     key: "reference",
-                    value: inputs.reference.value
+                    value: "Message Reference"
                 },
                 {
                     key: "name",
-                    value: inputs.name.value
+                    value: "Header Name"
                 },
                 {
                     key: "value",
-                    value: inputs.value.value
+                    value: "Header Value"
                 }
-            ];
-        },
-        getMySubTree: function (model) {
-            var parameters = model.get('parameters').parameters;
-            var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +
-                parameters[1].value + "\", headerValue = " + parameters[2].value;
-            return new TreeNode("HeaderProcessor", "HeaderProcessor", headerConfigStart, ");");
+            ],
+            propertyPaneSchema: [
+                {
+                    key: "reference",
+                    text: "Message Reference"
+                },
+                {
+                    key: "name",
+                    text: "Header Name"
+                },
+                {
+                    key: "value",
+                    text: "Header Value"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "reference",
+                        value: inputs.reference.value
+                    },
+                    {
+                        key: "name",
+                        value: inputs.name.value
+                    },
+                    {
+                        key: "value",
+                        value: inputs.value.value
+                    }
+                ];
+            },
+            getMySubTree: function (model) {
+                var parameters = model.get('utils').utils.parameters;
+                var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +
+                    parameters[1].value + "\", headerValue = " + parameters[2].value;
+                return new TreeNode("HeaderProcessor", "HeaderProcessor", headerConfigStart, ");");
+            },
+            outputs: false,
+            getInputParams: function () {
+                var inputParams = [];
+                inputParams[0] = this.parameters[0];
+                inputParams[1] = this.parameters[1];
+
+                return inputParams;
+            }
         }
     };
 

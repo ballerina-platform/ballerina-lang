@@ -38,10 +38,10 @@ var Tools = (function (tools) {
                             'data' : {
                                 'url': function (node) {
                                     if(node.id === '#') {
-                                        return "http://localhost:8289/service/workspace/root";
+                                        return workspaceServiceURL + "/root";
                                     }
                                     else {
-                                        return "http://localhost:8289/service/workspace/list?path=" + btoa(node.id);
+                                        return workspaceServiceURL + "/list?path=" + btoa(node.id);
                                     }
                                 },
                                 'dataType': "json",

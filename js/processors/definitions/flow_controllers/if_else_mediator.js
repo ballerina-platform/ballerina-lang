@@ -42,82 +42,84 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
-        parameters: [
-            {
-                key: "condition",
-                value: ""
-            },
-            {
-                key: "description",
-                value: "Description"
-            }
-        ],
-        propertyPaneSchema: [
-            {
-                key: "condition",
-                text: "Condition"
-            },
-            {
-                key: "description",
-                text: "Description"
-            }
-        ],
-        saveMyProperties: function (model, inputs) {
-            model.get("parameters").parameters = [
+        utils: {
+            parameters: [
                 {
                     key: "condition",
-                    value: inputs.condition.value
+                    value: ""
                 },
                 {
                     key: "description",
-                    value: inputs.description.value
+                    value: "Description"
                 }
-            ];
-        },
-        getMySubTree: function (model) {
-            // Generate Subtree for the try block
-            var tryBlock = model.get('containableProcessorElements').models[0];
-            var parameters = model.get('parameters').parameters;
-            var ifConfigStart = "if ( " + parameters[0].value + ") {";
-            var tryBlockNode = new TreeNode("IfBlock", "IfBlock", ifConfigStart, "}");
-            for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
-                var child = tryBlock.get('children').models[itr];
-                if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
-                    var endpoint = child.get('message').get('destination').get('parent').get('parameters')[0].value;
-                    var uri = child.get('message').get('destination').get('parent').get('parameters')[1].value;
-                    // When we define the properties, need to extract the endpoint from the property
-                    definedConstants["HTTPEP"] = {name: endpoint, value: uri};
-                    var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
-                    endpoint + ", messageKey=m)"), ";");
-                    tryBlockNode.getChildren().push(l);
-                } else {
-                    tryBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
+            ],
+            propertyPaneSchema: [
+                {
+                    key: "condition",
+                    text: "Condition"
+                },
+                {
+                    key: "description",
+                    text: "Description"
                 }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "condition",
+                        value: inputs.condition.value
+                    },
+                    {
+                        key: "description",
+                        value: inputs.description.value
+                    }
+                ];
+            },
+            getMySubTree: function (model) {
+                // Generate Subtree for the if block
+                var tryBlock = model.get('containableProcessorElements').models[0];
+                var parameters = model.get('utils').utils.parameters;
+                var ifConfigStart = "if ( " + parameters[0].value + ") {";
+                var ifBlockNode = new TreeNode("IfBlock", "IfBlock", ifConfigStart, "}");
+                for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
+                    var child = tryBlock.get('children').models[itr];
+                    if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
+                        var endpoint = child.get('message').get('destination').get('parent').get('utils').utils.parameters[0].value;
+                        var uri = child.get('message').get('destination').get('parent').get('utils').utils.parameters[1].value;
+                        // When we define the properties, need to extract the endpoint from the property
+                        definedConstants["HTTPEP"] = {name: endpoint, value: uri};
+                        var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
+                        endpoint + ", messageKey=m)"), ";");
+                        ifBlockNode.getChildren().push(l);
+                    } else {
+                        ifBlockNode.getChildren().push(child.get('utils').utils.getMySubTree(child));
+                    }
+                }
+
+                // Generate the Subtree for the else block
+                var elseBlock = model.get('containableProcessorElements').models[1];
+                var elseBlockNode = new TreeNode("ElseBlock", "ElseBlock", "else{", "}");
+                for (var itr = 0; itr < elseBlock.get('children').models.length; itr++) {
+                    var child = elseBlock.get('children').models[itr];
+                    if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
+                        var endpoint = child.get('message').get('destination').get('parent').get('utils').utils.parameters[0].value;
+                        var uri = child.get('message').get('destination').get('parent').get('utils').utils.parameters[1].value;
+                        // When we define the properties, need to extract the endpoint from the property
+                        definedConstants["HTTPEP"] = {name: endpoint, value: uri};
+                        var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
+                        endpoint + ", messageKey=m)"), ";");
+                        elseBlockNode.getChildren().push(l);
+                    } else {
+                        elseBlockNode.getChildren().push(child.get('utils').utils.getMySubTree(child));
+                    }
+                }
+                var ifElseNode = new TreeNode("IfElseMediator", "IfElseMediator", "", "");
+                ifElseNode.getChildren().push(ifBlockNode);
+                ifElseNode.getChildren().push(elseBlockNode);
+
+                return ifElseNode;
+
             }
-
-            // Generate the Subtree for the catch block
-            var catchBlock = model.get('containableProcessorElements').models[1];
-            var catchBlockNode = new TreeNode("ElseBlock", "ElseBlock", "else{", "}");
-            for (var itr = 0; itr < catchBlock.get('children').models.length; itr++) {
-                var child = catchBlock.get('children').models[itr];
-                if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
-                    var endpoint = child.get('message').get('destination').get('parent').get('parameters')[0].value;
-                    var uri = child.get('message').get('destination').get('parent').get('parameters')[1].value;
-                    // When we define the properties, need to extract the endpoint from the property
-                    definedConstants["HTTPEP"] = {name: endpoint, value: uri};
-                    var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
-                    endpoint + ", messageKey=m)"), ";");
-                    catchBlockNode.getChildren().push(l);
-                } else {
-                    catchBlockNode.getChildren().push(child.get('getMySubTree').getMySubTree(child));
-                }
-            }
-            var tryCatchNode = new TreeNode("IfElseMediator", "IfElseMediator", "", "");
-            tryCatchNode.getChildren().push(tryBlockNode);
-            tryCatchNode.getChildren().push(catchBlockNode);
-
-            return tryCatchNode;
-
         }
     };
 
