@@ -48,19 +48,19 @@ var Processors = (function (processors) {
                     value: "Description"
                 }
             ],
-            getSchema: function () {
-                return {
-                    title: "Switch Mediator",
-                    type: "object",
-                    properties: {
-                        Description: {"type": "string"}
+            propertyPaneSchema: [
+                {
+                    key: "description",
+                    text: "Description"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "description",
+                        value: inputs.description.value
                     }
-                };
-            },
-            getEditableProperties: function (parameters) {
-                var editableProperties = {};
-                editableProperties.Description = parameters[0];
-                return editableProperties;
+                ];
             },
             getMySubTree: function (model) {
                 return new TreeNode("SwitchMediator", "SwitchMediator");

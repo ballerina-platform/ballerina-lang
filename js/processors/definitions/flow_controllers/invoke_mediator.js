@@ -128,21 +128,27 @@ var Processors = (function (processors) {
                     value: "Description"
                 }
             ],
-            getSchema: function () {
-                return {
-                    title: "Invoke",
-                    type: "object",
-                    properties: {
-                        Message: {"type": "string"},
-                        Description: {"type": "string"}
+            propertyPaneSchema: [
+                {
+                    key: "message",
+                    text: "Message"
+                },
+                {
+                    key: "description",
+                    text: "Description"
+                }
+            ],
+            saveMyProperties: function (model, inputs) {
+                model.get("utils").utils.parameters = [
+                    {
+                        key: "condition",
+                        value: inputs.message.value
+                    },
+                    {
+                        key: "description",
+                        value: inputs.description.value
                     }
-                };
-            },
-            getEditableProperties: function (parameters) {
-                var editableProperties = {};
-                editableProperties.Message = parameters[0];
-                editableProperties.Description = parameters[1];
-                return editableProperties;
+                ];
             },
             getMySubTree: function (model) {
                 var messageLinks = model.get('children').models;

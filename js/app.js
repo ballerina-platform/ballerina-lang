@@ -154,7 +154,6 @@ $(function () {
 // Create the model for the diagram
 var diagram = new Diagrams.Models.Diagram({});
 var diagramViewElements = [],
-    ppView,
     definedConstants = [];
 
 function TreeNode(value, type, cStart, cEnd) {
@@ -178,9 +177,7 @@ function initTabs(){
     diagramViewElements = [];
     selected = "";
     selectedModel = "";
-
-    ppView = new Editor.Views.PropertyPaneView();
-    propertyPane = ''; //ppView.createPropertyPane(schema, properties);
+    
     endpointLifelineCounter = 0;
     resourceLifelineCounter = 0;
 

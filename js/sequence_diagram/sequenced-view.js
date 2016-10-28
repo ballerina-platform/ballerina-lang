@@ -284,10 +284,6 @@ var SequenceD = (function (sequenced) {
                                 break;
                             }
                         }
-
-                        if (propertyPane) {
-                            propertyPane.destroy();
-                        }
                     });
 
                     var getPropertyPaneSchema = function (model) {
@@ -570,19 +566,6 @@ var SequenceD = (function (sequenced) {
                 if (this.d3el) {
                     this.d3el.svgTitle.text(this.model.attributes.title);
                     this.d3el.svgTitleBottom.text(this.model.attributes.title);
-                    if (propertyPane && defaultView.model.selectedNode) {
-                        var lifeLineDefinition;
-                        if (defaultView.model.selectedNode.attributes.cssClass === "resource") {
-                            lifeLineDefinition = MainElements.lifelines.ResourceLifeline;
-                        } else if (defaultView.model.selectedNode.attributes.cssClass === "endpoint") {
-                            lifeLineDefinition = MainElements.lifelines.EndPointLifeline;
-                        }
-                    }
-                }
-                if (!propertyPane.getValue().Title) {
-                    propertyPane = ppView.createPropertyPane(lifeLineDefinition.getSchema(),
-                              lifeLineDefinition.getEditableProperties(defaultView.model.selectedNode.get('title')),
-                              defaultView.model.selectedNode);
                 }
             },
 
@@ -1035,9 +1018,6 @@ var SequenceD = (function (sequenced) {
                             }
                         }
                     }
-                    if (propertyPane) {
-                        propertyPane.destroy();
-                    }
                 });
 
                 return group;
@@ -1442,9 +1422,6 @@ var SequenceD = (function (sequenced) {
                                 defaultView.render();
                                 break;
                             }
-                        }
-                        if (propertyPane) {
-                            propertyPane.destroy();
                         }
                     });
 

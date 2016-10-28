@@ -239,36 +239,6 @@ div[class*="col-sm-"] {
 /** Breadcrumbs related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
-
-/*//////////////////////////////////////////////////*/
-/** Property Pane related styles | Start -> **/
-div[class*="col-sm-"].property-container{
-    padding-right: 6px;
-}
-
-#propertyPaneContainer {
-    padding-top: 8px;
-}
-
-#propertyPane input{
-     border-width: 1px;
-}
-
-#propertyPane select{
-    border-width: 1px;
-}
-
-#propertyPane > div > div.well.well-sm{
-    border: none;
-}
-
-#propertyPane  button {
-    padding-left: 6px;
-    padding-right: 6px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-}
-/** Property Pane related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
 /*//////////////////////////////////////////////////*/

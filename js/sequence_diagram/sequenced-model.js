@@ -158,19 +158,7 @@ var SequenceD = (function (sequenced) {
                 height : 300,
                 viewAttributes: {colour: "#ffffff"}
             },
-
-            getPropertyPane: function (point) {
-                var pane = new JSONEditor(document.getElementById("propertyPane"), {
-                    schema: this.getSchema(),
-                    no_additional_properties: true,
-                    disable_properties: true,
-                    disable_edit_json: true
-                });
-                var thisLifeline = this;
-                pane.setValue(this.getEditableProperties());
-
-                return pane;
-            },
+            
             leftUpperConer: function (point) {
                 if (_.isUndefined(point)) {
                     return this.viewAttributes.leftUpperConer;
