@@ -361,7 +361,17 @@ var D3Utils = (function (d3_utils) {
 
         }
     };
-
+    var updateParentOnLayoutChange = function () {
+        if (defaultView.selectedNode.get('utils').utils.textModel != null) {
+            model = defaultView.selectedNode.get('utils').utils.textModel;
+            // updating any parent elements if exists:TODO: can be updated to be fired onBlur
+            if (model.hasParent === true) {
+                // This could be made into a objectList if there are multiple
+                var parentModel = model.parentObject();
+                eventManager.notifyParent(parentModel, model);
+            }
+        }
+    }
     /**
      * Save properties in selected element's model by calling saveMyProperties method in respective elements
      */
@@ -374,7 +384,7 @@ var D3Utils = (function (d3_utils) {
             var int = Number(7) || 7.7;
             var dlength =  ((inputs.title.value.length+1) * 8);
             var txtm = defaultView.selectedNode.get('utils').utils.textModel;
-            txtm.TextChanged(dlength);
+            txtm.textChanged(dlength);
         }
 
         //render title in selected lifeline
@@ -414,7 +424,7 @@ var D3Utils = (function (d3_utils) {
             .on("dblclick", function () {
                 this.select();
             });
-
+        textBox.on("blur", updateParentOnLayoutChange);
         parent.append("br");
         parent.append("br");
     };

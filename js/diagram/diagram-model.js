@@ -686,16 +686,16 @@ var Diagrams = (function (diagrams) {
                 this.hasParent = false;
                 this.parentObject();
             },
-            TextChanged: function(length){
+            textChanged: function (length) {
                 id = this.cid;
-                var rects = d3.selectAll("[id=" +id + "]").filter(".genericR");
-                var texts = d3.selectAll("[id=" +id + "]").filter(".genericT");
+                var rects = d3.selectAll("[id=" + id + "]").filter(".genericR");
+                var texts = d3.selectAll("[id=" + id + "]").filter(".genericT");
 
-                var computedWidth ;
+                var computedWidth;
                 var finalTextWidth;
 
                 var minimumValue = 130;
-                var dynamic  = length;
+                var dynamic = length;
                 var rectX = rects.attr('x');
 
 
@@ -703,29 +703,25 @@ var Diagrams = (function (diagrams) {
                 var rectHeight = rects.attr('height');
                 var textYPosition = texts.attr('y');
 
-              // storing rect width and text 'x' position in textmodel
-                if(dynamic<minimumValue){
+                // storing rect width and text 'x' position in textmodel
+                if (dynamic < minimumValue) {
                     this.dynamicRectWidth(minimumValue);
-                     computedWidth = (minimumValue/2);
-                    finalTextWidth = parseFloat(rectX)+ parseFloat(computedWidth);
+                    computedWidth = (minimumValue / 2);
+                    finalTextWidth = parseFloat(rectX) + parseFloat(computedWidth);
                     this.dynamicTextPosition(finalTextWidth);
-                }else {
-                    this.dynamicRectWidth(dynamic);
-                    computedWidth = (dynamic/2);
-                    finalTextWidth = parseFloat(rectX)+ parseFloat(computedWidth);
-                    this.dynamicTextPosition(finalTextWidth);
+                    rects.attr('width', function () { return minimumValue});
+                } else {
+                        this.dynamicRectWidth(dynamic);
+                        computedWidth = (dynamic / 2);
+                        finalTextWidth = parseFloat(rectX) + parseFloat(computedWidth);
+                        this.dynamicTextPosition(finalTextWidth);
+                        rects.attr('width', function () {return dynamic;});
+                    }
 
-                }
-                // updating any parent elements if exists:TODO: can be updated to be fired onBlur
-                if(this.hasParent===true){
-                    // This could be made into a objectList if there are multiple
-                    var parentModel = this.parentObject();
-                    eventManager.notifyParent(parentModel,this);
-                }
-                //setting rectangle width on change
-                rects.attr('width', function() { return dynamic < minimumValue ? minimumValue : dynamic;});
-                 // setting text element position on change
-                 texts.attr('x',function(){return finalTextWidth});
+                // setting text element position on change
+                texts.attr('x', function () {
+                    return finalTextWidth;
+                });
 
             },
             //keep the current width of the rectangle
@@ -733,7 +729,7 @@ var Diagrams = (function (diagrams) {
                 if (_.isUndefined(length)) {
                     return this.get('dynamicRectWidth');
                 } else {
-                    this.set('dynamicRectWidth',length);
+                    this.set('dynamicRectWidth', length);
                 }
             },
             //keep the current x position of the text element
@@ -741,15 +737,15 @@ var Diagrams = (function (diagrams) {
                 if (_.isUndefined(xPos)) {
                     return this.get('dynamicTextPosition');
                 } else {
-                    this.set('dynamicTextPosition',xPos);
+                    this.set('dynamicTextPosition', xPos);
                 }
             },
             // When a parent object needs notification add here : TODO: store list of parents
-            parentObject : function(parent){
+            parentObject: function (parent) {
                 if (_.isUndefined(parent)) {
                     return this.get('parentObject');
                 } else {
-                    this.set('parentObject',parent);
+                    this.set('parentObject', parent);
                 }
             }
 
