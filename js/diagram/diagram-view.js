@@ -1251,8 +1251,8 @@ var Diagrams = (function (diagrams) {
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
                 var centerPoint;
-               //TEXT MODEL TODO
-                var textModel = new Diagrams.Models.TextController({});
+
+
                 if(lifelineName == "Source") {
                     centerPoint = createPoint(200, 50);
                 } else if (lifelineName == "Resource") {
@@ -1274,12 +1274,16 @@ var Diagrams = (function (diagrams) {
                     title += counter;
                 }
 
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils,textModel);
-                // TODO: For sample usage of events firing: adding lifeLine itself as parent
-                textModel.hasParent = true;
-                textModel.parentObject(lifeline);
-                //
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils);
 
+                //TODO : Adding text model
+                var textModel = new Diagrams.Models.TextController({});
+               // utils.utils.textModel(textModel);
+                utils.utils.textModel = textModel;
+                // TODO: For sample usage of events firing: adding lifeLine itself as parent
+                  textModel.hasParent = true;
+                  textModel.parentObject(lifeline);
+                //
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,

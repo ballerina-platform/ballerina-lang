@@ -74,7 +74,8 @@ var MainElements = (function (mainElements) {
                         value: inputs.url.value
                     }
                 ];
-            }
+            },
+            textModel : "undefined"
         }
     };
 

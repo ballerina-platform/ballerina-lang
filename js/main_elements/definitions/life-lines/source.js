@@ -49,7 +49,8 @@ var MainElements = (function (mainElements) {
             ],
             saveMyProperties: function (model, inputs) {
                 model.attributes.title = inputs.title.value;
-            }
+            },
+            textModel :"undefined"
         }
     };
 

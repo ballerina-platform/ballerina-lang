@@ -370,10 +370,10 @@ var D3Utils = (function (d3_utils) {
         defaultView.selectedNode.get('utils').utils.saveMyProperties(defaultView.selectedNode, inputs);
 
         //TODO FOR TEXT GENERIC
-        if(defaultView.selectedNode.attributes.textModel != null){
+        if(defaultView.selectedNode.get('utils').utils.textModel != null){
             var int = Number(7) || 7.7;
             var dlength =  ((inputs.title.value.length+1) * 8);
-            var txtm = defaultView.selectedNode.attributes.textModel;
+            var txtm = defaultView.selectedNode.get('utils').utils.textModel;
             txtm.TextChanged(dlength);
         }
 

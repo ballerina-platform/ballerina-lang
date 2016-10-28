@@ -110,13 +110,7 @@ var MainElements = (function (mainElements) {
                     }
                 ];
             },
-            textModel: function(txtModel){
-                if (_.isUndefined(txtModel)) {
-                    return this.get('textModel');
-                } else {
-                    this.set('textModel',txtModel);
-                }
-            }
+            textModel : "undefined"
         }
     };
 

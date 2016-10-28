@@ -665,9 +665,7 @@ var Diagrams = (function (diagrams) {
             },
             // Called when text controller changes occurs and if there is a parent element
             notifyParent: function(parentModel, currentTextModel){
-               // parent model initialize needs to register function "onChildUpdate"
                 console.log("parent received it");
-              // parentModel.trigger("onChildUpdates",currentTextModel);
             }
 
         });
