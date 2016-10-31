@@ -36,6 +36,13 @@
     fill: #ffffff;
 }
 
+.worker > line {
+    stroke: #000000;
+}
+.worker > rect {
+    fill: #ffffff;
+}
+
 .source > rect {
     fill: #ffffff;
 }

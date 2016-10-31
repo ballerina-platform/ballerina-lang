@@ -31,7 +31,6 @@ var SequenceD = (function (sequenced) {
              */
             initialize: function (attrs, options) {
                 Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
-                this.type = attrs.type;
                 this.model = attrs.model;
                 this.viewAttributes = attrs.viewAttributes;
                 this.parameters = attrs.parameters;
@@ -68,6 +67,32 @@ var SequenceD = (function (sequenced) {
 
             setHeight: function (height) {
                 this.set('height', height);
+            },
+
+            // Processors can override this method on order to define the behavior of drawing the messages from
+            // the particular processor to the destination model (lifeline or any other processor)
+            canConnect: function (destinationModel) {
+                var availableConnects =  this.get('utils').canConnectTo();
+
+                // Check whether the destination model is one of the parent of the source model
+                var parent = this.get('parent');
+                while (!_.isUndefined(parent)) {
+                    if (parent.cid === destinationModel.cid) {
+                        return false;
+                    } else {
+                        parent = parent.get('parent');
+                    }
+                }
+
+                if (!_.isUndefined(availableConnects)) {
+                    for (var itr = 0; itr < availableConnects.length; itr ++) {
+                        if (availableConnects[itr] === destinationModel.type) {
+                            return true;
+                        }
+                    }
+                } else {
+                    return false;
+                }
             },
 
             defaults: {
@@ -138,6 +163,7 @@ var SequenceD = (function (sequenced) {
 
                 var children = new Children([], {diagram: this});
                 this.children(children);
+                this.type = attrs.type;
 
                 this.viewAttributes = {
                     class: attrs.cssClass,
@@ -158,7 +184,33 @@ var SequenceD = (function (sequenced) {
                 height : 300,
                 viewAttributes: {colour: "#ffffff"}
             },
-            
+
+            // Processors can override this method on order to define the behavior of drawing the messages from
+            // the particular processor to the destination model (lifeline or any other processor)
+            canConnect: function (destinationModel) {
+                var availableConnects =  this.get('utils').canConnectTo();
+
+                // Check whether the destination model is one of the parent of the source model
+                var parent = this.get('parent');
+                while (!_.isUndefined(parent)) {
+                    if (parent.cid === destinationModel.cid) {
+                        return false;
+                    } else {
+                        parent = parent.get('parent');
+                    }
+                }
+
+                if (!_.isUndefined(availableConnects)) {
+                    for (var itr = 0; itr < availableConnects.length; itr ++) {
+                        if (availableConnects[itr] === destinationModel.type) {
+                            return true;
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            },
+
             leftUpperConer: function (point) {
                 if (_.isUndefined(point)) {
                     return this.viewAttributes.leftUpperConer;
@@ -185,8 +237,8 @@ var SequenceD = (function (sequenced) {
                 return new GeoCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center, colour) {
-                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
+            createLifeLine: function (title, center, colour, type) {
+                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour, type: type});
             },
 
             createFixedSizedMediator: function (title, center) {

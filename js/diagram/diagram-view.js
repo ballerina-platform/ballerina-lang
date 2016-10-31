@@ -1029,6 +1029,7 @@ var Diagrams = (function (diagrams) {
 
             addContainableProcessorElement: function (processor, center) {
                 var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                containableProcessorElem.type = 'ContainableProcessorElement';
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
             currentDiagramView: function (view1) {
@@ -1082,7 +1083,9 @@ var Diagrams = (function (diagrams) {
                         (Processors.flowControllers[id].containableElements).forEach(function (elm) {
                             (elm.children).forEach(function (child) {
                                 var containableProcessorElem = new SequenceD.Models.ContainableProcessorElement(lifeLineOptions);
+                                containableProcessorElem.type = 'ContainableProcessorElement';
                                 containableProcessorElem.set('title', child.title);
+                                containableProcessorElem.set('utils', processor.get('utils'));
                                 containableProcessorElem.parent(processor);
                                 processor.containableProcessorElements().add(containableProcessorElem);
 
@@ -1121,6 +1124,12 @@ var Diagrams = (function (diagrams) {
                         defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline);
                         txt.sourceLifeLineCounter(countOfSources);
                     }
+                } else if (id == "Worker") {
+                    var countOfWorkers = txt.workerLifeLineCounter();
+                    countOfWorkers += 1;
+                    defaultView.renderMainElement(id, countOfWorkers, MainElements.lifelines.WorkerLifeline,
+                        {utils: MainElements.lifelines.WorkerLifeline.utils});
+                    txt.workerLifeLineCounter(countOfWorkers);
                 }
             } //for invalid check
             },
@@ -1193,6 +1202,21 @@ var Diagrams = (function (diagrams) {
                     }
                 }
 
+                if (!_.isUndefined(this.model.attributes.diagramWorkerElements)) {
+                    for (var id in this.model.attributes.diagramWorkerElements.models) {
+                        if (this.model.attributes.diagramWorkerElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                            var lifeLine = this.model.attributes.diagramWorkerElements.models[id];
+                            var lifeLineView = new SequenceD.Views.LifeLineView({
+                                model: lifeLine,
+                                options: lifeLineOptions
+                            });
+                            diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                            var rectColour = this.model.attributes.diagramWorkerElements.models[id].attributes.colour;
+                            lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
+                        }
+                    }
+                }
+
                 for (var id in this.model.attributes.diagramSourceElements.models) {
                     if (this.model.attributes.diagramSourceElements.models[id] instanceof SequenceD.Models.LifeLine) {
                         var lifeLine = this.model.attributes.diagramSourceElements.models[id];
@@ -1232,39 +1256,92 @@ var Diagrams = (function (diagrams) {
                     }
                 }
 
+                if (!_.isUndefined(this.model.attributes.diagramWorkerElements)) {
+                    for (var id in this.model.attributes.diagramWorkerElements.models) {
+                        if (this.model.attributes.diagramWorkerElements.models[id] instanceof SequenceD.Models.LifeLine) {
+                            var lifeLine = this.model.attributes.diagramWorkerElements.models[id];
+                            var lifeLineView = new SequenceD.Views.LifeLineView({
+                                model: lifeLine,
+                                options: lifeLineOptions
+                            });
+                            diagramViewElements[diagramViewElements.length] = (lifeLineView);
+                            var rectColour = this.model.attributes.diagramWorkerElements.models[id].attributes.colour;
+                            lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
+                        }
+                    }
+                }
+
                 this.trigger("renderCompleted", this.d3svg.node());
                 return mainGroup;
+            },
+
+            shiftEndpointsRight: function () {
+                var txt = this.model;
+                var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
+
+                var halfWidth = 0;
+                txt.attributes.diagramEndpointElements.models.forEach(function (endpoint) {
+                    halfWidth = endpoint.rightLowerConer().x - endpoint.get('centerPoint').x();
+                    endpoint.setX(endpoint.get('centerPoint').x() + halfWidth + 115);
+                    endpoint.rightLowerConer().x = endpoint.rightLowerConer().x + halfWidth + 115;
+                });
             },
 
             renderMainElement: function (lifelineName, counter, lifeLineDef) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
+                var numberOfWorkerElements = txt.attributes.diagramWorkerElements.length;
                 var centerPoint;
+                var type;
 
+                // All the lifelines are drawn based on the assumption of, first appear the source, then Resource,
+                // Then Workers in order they are adding and at last endpoints in the order they are adding
 
+                // In order to make the logic clear both ENDPOINT and the WORKER checks are enclosed seperately without
+                // Merging both together in to one, for future reference
                 if(lifelineName == "Source") {
                     centerPoint = createPoint(200, 50);
+                    type = "Source";
                 } else if (lifelineName == "Resource") {
                     centerPoint = createPoint(380, 50);
-                } else if (numberOfEndpointElements > 0) {
-                        var lastLifeLine = txt.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
-                        centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
-                } else {
-                    if (numberOfResourceElements > 0) {
-                        var lastLifeLine = txt.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
-                        centerPoint = createPoint(lastLifeLine.rightLowerConer().x + 115, 50);
+                    type = "Resource";
+                } else if (lifelineName == "EndPoint") {
+                    type = "EndPoint";
+                    if (numberOfEndpointElements > 0) {
+                        var lastEpLifeLine = txt.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
+                        centerPoint = createPoint(lastEpLifeLine.rightLowerConer().x + 115, 50);
+                    } else if (numberOfWorkerElements > 0) {
+                        var lastWorkerLifeLine = txt.attributes.diagramWorkerElements.models[numberOfWorkerElements - 1];
+                        centerPoint = createPoint(lastWorkerLifeLine.rightLowerConer().x + 115, 50);
                     } else {
-                        //initial life line position
-                        centerPoint = createPoint(200, 50);
+                        var resourceLifeLine = txt.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
+                        centerPoint = createPoint(resourceLifeLine.rightLowerConer().x + 115, 50);
+                    }
+                } else if (lifelineName == "Worker") {
+                    type = "Worker";
+                    if (numberOfEndpointElements > 0) {
+                        var firstEpLifeLine = txt.attributes.diagramEndpointElements.models[0];
+                        centerPoint = createPoint(firstEpLifeLine.get('centerPoint').x(), 50);
+                        // Shift the existing Endpoints
+                        this.shiftEndpointsRight();
+                    } else if (numberOfWorkerElements > 0) {
+                        var lastWorkerLifeLine = txt.attributes.diagramWorkerElements.models[numberOfWorkerElements - 1];
+                        centerPoint = createPoint(lastWorkerLifeLine.rightLowerConer().x + 115, 50);
+                        // Shift existing endpoints
+                        this.shiftEndpointsRight();
+                    } else {
+                        var resourceLifeLine = txt.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
+                        centerPoint = createPoint(resourceLifeLine.rightLowerConer().x + 115, 50);
                     }
                 }
+
                 var title = lifelineName;
-                if(lifelineName == "EndPoint") {
+                if(lifelineName == "EndPoint" || lifelineName == "Worker") {
                     title += counter;
                 }
                 var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils,
-                                              lifeLineDef.parameters, lifeLineDef.textModel);
+                                              lifeLineDef.parameters, lifeLineDef.textModel, type);
                 //TODO : Adding text model
                 var textModel = new Diagrams.Models.TextController({});
                 lifeline.attributes.textModel = textModel;
@@ -1321,7 +1398,7 @@ var Diagrams = (function (diagrams) {
                 }
 
                 if (destinationModel) {
-                    if (!_.isEqual(sourceModel.cid, destinationModel.cid)) {
+                    if (sourceModel.canConnect(destinationModel)) {
                         var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                         var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
                         sourceModel.addChild(sourcePoint, messageOptionsOutbound);

@@ -330,10 +330,12 @@ var Diagrams = (function (diagrams) {
                 var resources = new DiagramElements([], {diagram: this});
                 var sources = new DiagramElements([], {diagram: this});
                 var endPoints = new DiagramElements([], {diagram: this});
+                var workers = new DiagramElements([], {diagram: this});
                 this.diagramElements(elements);
                 this.diagramResourceElements(resources);
                 this.diagramSourceElements(sources);
                 this.diagramEndpointElements(endPoints);
+                this.diagramWorkerElements(workers);
                 this.selectedNode = null;
                 this.destinationLifeLine = null;
                 // TODO: won't be using this until the layout finalized
@@ -344,9 +346,11 @@ var Diagrams = (function (diagrams) {
                 var resourceCounter = 0;
                 var sourceCounter = 0;
                 var endpointCounter = 0;
+                var workerCounter = 0;
                 this.resourceLifeLineCounter(resourceCounter);
                 this.sourceLifeLineCounter(sourceCounter);
                 this.endpointLifeLineCounter(endpointCounter);
+                this.workerLifeLineCounter(workerCounter);
                 this.CurrentDiagram();
             },
 
@@ -407,6 +411,16 @@ var Diagrams = (function (diagrams) {
 
             },
 
+            // setter/getter of worker element count
+            workerLifeLineCounter: function (wCounter) {
+                if (_.isUndefined(wCounter)) {
+                    return this.get('workerLifeLineCounter');
+                } else {
+                    this.set('workerLifeLineCounter', wCounter);
+                }
+
+            },
+
             addElement: function (element, opts) {
                 //this.trigger("addElement", element, opts);
 
@@ -415,6 +429,8 @@ var Diagrams = (function (diagrams) {
                         this.diagramResourceElements().add(element, opts);
                     } else if (element.attributes.title.startsWith("Source")) {
                         this.diagramSourceElements().add(element, opts);
+                    } else if (element.attributes.title.startsWith("Worker")) {
+                        this.diagramWorkerElements().add(element, opts);
                     } else {
                         this.diagramEndpointElements().add(element, opts);
                     }
@@ -453,6 +469,14 @@ var Diagrams = (function (diagrams) {
                 }
             },
 
+            diagramWorkerElements: function (diaElements) {
+                if (_.isUndefined(diaElements)) {
+                    return this.get('diagramWorkerElements');
+                } else {
+                    this.set('diagramWorkerElements', diaElements);
+                }
+            },
+
             diagramEndpointElements: function (diaElements) {
                 if (_.isUndefined(diaElements)) {
                     return this.get('diagramEndpointElements');
@@ -479,8 +503,8 @@ var Diagrams = (function (diagrams) {
                 return new GeoCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center, colour) {
-                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour});
+            createLifeLine: function (title, center, colour, type) {
+                return new SequenceD.Models.LifeLine({title: title, centerPoint: center, colour: colour, type: type});
             },
 
             getNearestLifeLine: function (xPosition) {
@@ -580,6 +604,7 @@ var Diagrams = (function (diagrams) {
             reloadDiagramArea: function () {
                 defaultView.model.resourceLifeLineCounter(0);
                 defaultView.model.endpointLifeLineCounter(0);
+                defaultView.model.workerLifeLineCounter(0);
                 if (diagramD3el) {
                     diagramD3el.remove();
                     for (var element in diagramViewElements) {

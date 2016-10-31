@@ -116,6 +116,9 @@ var MainElements = (function (mainElements) {
                         value: inputs.post.checked
                     }
                 ];
+            },
+            canConnectTo: function () {
+                return ['Worker', 'Source', 'ContainableProcessorElement', 'EndPoint'];
             }
         }
     };

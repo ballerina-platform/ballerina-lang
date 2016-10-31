@@ -90,7 +90,11 @@ var MainElements = (function (mainElements) {
                         value: inputs.url.value
                     }
                 ];
-            }
+            },
+            canConnectTo: function () {
+                return ['Worker', 'Resource', 'ContainableProcessorElement'];
+            },
+            textModel : "undefined"
         }
     };
 

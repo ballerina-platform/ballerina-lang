@@ -125,6 +125,9 @@ var Processors = (function (processors) {
 
                 return ifElseNode;
 
+            },
+            canConnectTo: function () {
+                return ['Worker'];
             }
         }
     };

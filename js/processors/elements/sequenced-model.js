@@ -123,6 +123,8 @@ var SequenceD = (function (sequenced) {
              */
             initialize: function (attrs, options) {
                 SequenceD.Models.Processor.prototype.initialize.call(this, attrs, options);
+                var children = new Children([], {diagram: this});
+                this.children(children);
             },
 
             modelName: "CustomProcessor",
@@ -134,6 +136,46 @@ var SequenceD = (function (sequenced) {
             defaults: {
                 centerPoint: new GeoCore.Models.Point({x: 0, y: 0}),
                 title: "CustomProcessor"
+            },
+
+            children: function (children) {
+                if (_.isUndefined(children)) {
+                    return this.get('children');
+                } else {
+                    this.set('children', children);
+                }
+            },
+
+            addChild: function (element, opts) {
+                element.parent(this);
+                var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
+                var index = position.index;
+                this.children().add(element, {at: index});
+            },
+
+            calculateIndex: function (element, y) {
+                var previousChild;
+                var count = 1;
+                var position = {};
+                this.children().each(function (child) {
+                    if (!_.isEqual(element, child)) {
+                        if (child.get('centerPoint').get('y') > y) {
+                            previousChild = child;
+                            return false;
+                        }
+                        count = count + 1;
+                    }
+                });
+                if (_.isUndefined(previousChild)) {
+                    if (this.children().size() == 0) {
+                        position.index = 0;
+                    } else {
+                        position.index = this.children().indexOf(element);
+                    }
+                } else {
+                    position.index = this.children().indexOf(previousChild);
+                }
+                return position;
             }
         });
 
@@ -197,6 +239,7 @@ var SequenceD = (function (sequenced) {
             initialize: function (attrs, options) {
                 Diagrams.Models.Shape.prototype.initialize.call(this, attrs, options);
                 var children = new Children([], {diagram: this});
+                this.type = attrs.type;
                 this.children(children);
                 this.widestChild = null;
             },
@@ -213,6 +256,32 @@ var SequenceD = (function (sequenced) {
                 width: 130,
                 height: 30,
                 viewAttributes: {colour: "#998844"}
+            },
+
+            // Processors can override this method on order to define the behavior of drawing the messages from
+            // the particular processor to the destination model (lifeline or any other processor)
+            canConnect: function (destinationModel) {
+                var availableConnects =  this.get('utils').canConnectTo();
+
+                // Check whether the destination model is one of the parent of the source model
+                var parent = this.get('parent');
+                while (!_.isUndefined(parent)) {
+                    if (parent.cid === destinationModel.cid) {
+                        return false;
+                    } else {
+                        parent = parent.get('parent');
+                    }
+                }
+
+                if (!_.isUndefined(availableConnects)) {
+                    for (var itr = 0; itr < availableConnects.length; itr ++) {
+                        if (availableConnects[itr] === destinationModel.type) {
+                            return true;
+                        }
+                    }
+                } else {
+                    return false;
+                }
             },
 
             children: function (children) {

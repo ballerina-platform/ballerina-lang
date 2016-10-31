@@ -415,11 +415,11 @@ var SequenceD = (function (sequenced) {
 
                     this.model.setHeight(totalHeight);
                     this.model.setWidth(maximumWidth);
-                } else if(this.model.model.type === "Custom") {
-                    if(!_.isUndefined(this.model.model.initMethod)){
+                } else if(this.model.model.type === "CustomProcessor") {
+                    if(!_.isUndefined(this.model.get('utils').init)){
                         this.viewRoot = group;
-                        this.model.set('center', center);
-                        this.model.model.initMethod(this);
+                        this.model.set('centerPoint', center);
+                        this.model.get('utils').init(this, d3Ref);
                     }
                 }
 
