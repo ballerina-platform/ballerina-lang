@@ -1263,7 +1263,8 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils, lifeLineDef.parameters, lifeLineDef.textModel);//if not work add as an object
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils,
+                                              lifeLineDef.parameters, lifeLineDef.textModel);
                 //TODO : Adding text model
                 var textModel = new Diagrams.Models.TextController({});
                 lifeline.attributes.textModel = textModel;

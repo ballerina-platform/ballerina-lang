@@ -619,7 +619,8 @@ var SequenceD = (function (sequenced) {
                                 options: lifeLineOptions
                             });
                              //TODO: for event synchronize
-                            //get text model of processor. Add this (lifeline?) as the parent in it and make hasParent:true
+                            //get text model of processor. Add this (lifeline?) as the parent in it and make
+                            // hasParent:true
 
                             var processorCenterPoint = createPoint(xValue, yValue);
                             processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
@@ -953,11 +954,11 @@ var SequenceD = (function (sequenced) {
                         };
                         
                         defaultView.selectedNode = viewObj.model;
-                        var parameters = viewObj.model.get("utils").getMyParameters(viewObj.model);
 
-                        var propertySchema = viewObj.model.get('utils').getMyPropertyPaneSchema(viewObj.model);
-
-                        defaultView.drawPropertiesPane(d3Ref, options, parameters, propertySchema);
+                        defaultView.drawPropertiesPane(d3Ref, options,
+                                                       viewObj.model.get("utils").getMyParameters(viewObj.model),
+                                                       viewObj.model.get('utils').getMyPropertyPaneSchema(
+                                                           viewObj.model));
                     }
                 });
 
