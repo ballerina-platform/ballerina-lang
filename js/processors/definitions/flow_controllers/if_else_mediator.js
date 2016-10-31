@@ -42,29 +42,35 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        parameters: [
+            {
+                key: "condition",
+                value: ""
+            },
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
+        propertyPaneSchema: [
+            {
+                key: "condition",
+                text: "Condition"
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         utils: {
-            parameters: [
-                {
-                    key: "condition",
-                    value: ""
-                },
-                {
-                    key: "description",
-                    value: "Description"
-                }
-            ],
-            propertyPaneSchema: [
-                {
-                    key: "condition",
-                    text: "Condition"
-                },
-                {
-                    key: "description",
-                    text: "Description"
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return Processors.flowControllers.IfElseMediator.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "condition",
                         value: inputs.condition.value
@@ -78,7 +84,7 @@ var Processors = (function (processors) {
             getMySubTree: function (model) {
                 // Generate Subtree for the if block
                 var tryBlock = model.get('containableProcessorElements').models[0];
-                var parameters = model.get('utils').utils.parameters;
+                var parameters = model.attributes.parameters;
                 var ifConfigStart = "if ( " + parameters[0].value + ") {";
                 var ifBlockNode = new TreeNode("IfBlock", "IfBlock", ifConfigStart, "}");
                 for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {

@@ -41,37 +41,43 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        parameters: [
+            {
+                key: "configurationFile",
+                value: "Configuration file"
+            },
+            {
+                key: "message",
+                value: "Message"
+            },
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
+        propertyPaneSchema: [
+            {
+                key: "configurationFile",
+                text: "Configuration File"
+            },
+            {
+                key: "message",
+                text: "Message"
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         utils: {
-            parameters: [
-                {
-                    key: "configurationFile",
-                    value: "Configuration file"
-                },
-                {
-                    key: "message",
-                    value: "Message"
-                },
-                {
-                    key: "description",
-                    value: "Description"
-                }
-            ],
-            propertyPaneSchema: [
-                {
-                    key: "configurationFile",
-                    text: "Configuration File"
-                },
-                {
-                    key: "message",
-                    text: "Message"
-                },
-                {
-                    key: "description",
-                    text: "Description"
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return Processors.manipulators.PayLoadFactoryMediator.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "configurationFile",
                         value: inputs.configurationFile.value

@@ -40,37 +40,43 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        parameters: [
+            {
+                key: "reference",
+                value: "Message Reference"
+            },
+            {
+                key: "name",
+                value: "Header Name"
+            },
+            {
+                key: "value",
+                value: "Header Value"
+            }
+        ],
+        propertyPaneSchema: [
+            {
+                key: "reference",
+                text: "Message Reference"
+            },
+            {
+                key: "name",
+                text: "Header Name"
+            },
+            {
+                key: "value",
+                text: "Header Value"
+            }
+        ],
         utils: {
-            parameters: [
-                {
-                    key: "reference",
-                    value: "Message Reference"
-                },
-                {
-                    key: "name",
-                    value: "Header Name"
-                },
-                {
-                    key: "value",
-                    value: "Header Value"
-                }
-            ],
-            propertyPaneSchema: [
-                {
-                    key: "reference",
-                    text: "Message Reference"
-                },
-                {
-                    key: "name",
-                    text: "Header Name"
-                },
-                {
-                    key: "value",
-                    text: "Header Value"
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return Processors.manipulators.HeaderProcessor.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "reference",
                         value: inputs.reference.value
@@ -86,16 +92,16 @@ var Processors = (function (processors) {
                 ];
             },
             getMySubTree: function (model) {
-                var parameters = model.get('utils').utils.parameters;
+                var parameters = model.attributes.parameters;
                 var headerConfigStart = "setHeader(messageRef = " + parameters[0].value + ", headerName = \"" +
                     parameters[1].value + "\", headerValue = " + parameters[2].value;
                 return new TreeNode("HeaderProcessor", "HeaderProcessor", headerConfigStart, ");");
             },
             outputs: false,
-            getInputParams: function () {
+            getInputParams: function (model) {
                 var inputParams = [];
-                inputParams[0] = this.parameters[0];
-                inputParams[1] = this.parameters[1];
+                inputParams[0] = model.attributes.parameters[0];
+                inputParams[1] = model.attributes.parameters[1];
 
                 return inputParams;
             }

@@ -42,29 +42,35 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        parameters: [
+            {
+                key: "exception",
+                value: "Exception"
+            },
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
+        propertyPaneSchema: [
+            {
+                key: "exception",
+                text: "Exception"
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         utils: {
-            parameters: [
-                {
-                    key: "exception",
-                    value: "Exception"
-                },
-                {
-                    key: "description",
-                    value: "Description"
-                }
-            ],
-            propertyPaneSchema: [
-                {
-                    key: "exception",
-                    text: "Exception"
-                },
-                {
-                    key: "description",
-                    text: "Description"
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return Processors.flowControllers.TryBlockMediator.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "exception",
                         value: inputs.exception.value

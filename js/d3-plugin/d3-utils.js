@@ -216,10 +216,9 @@ var D3Utils = (function (d3_utils) {
      * @param parameters Model parameters of the selected element
      * @param propertyPaneSchema Property rendering schema of the selected element
      * @param rect Property window rectangle
-     * @param rectY Rectangle top y coordinate
      * @returns {*} Created form element
      */
-    var form = function (parent, parameters, propertyPaneSchema, rect, rectY) {
+    var form = function (parent, parameters, propertyPaneSchema, rect) {
         parent = parent || d3Ref;
 
         var foreignObject = parent.append("foreignObject")
@@ -311,8 +310,9 @@ var D3Utils = (function (d3_utils) {
      */
     var saveProperties = function () {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
-        defaultView.selectedNode.get("saveMyProperties").saveMyProperties(defaultView.selectedNode, inputs);
 
+        defaultView.selectedNode.get("utils").saveMyProperties(defaultView.selectedNode, inputs);
+        
         //render title in selected lifeline
         if (inputs.title) {
             resetMainElementTitle(inputs.title.value);

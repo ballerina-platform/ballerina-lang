@@ -19,7 +19,7 @@
 var SequenceD = (function (sequenced) {
     var models = sequenced.Models || {};
 
-    var ProcessorFactory = function (title, center, type, model, viewAttributes, utils) {
+    var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, utils) {
         var processor;
 
         if (type === "UnitProcessor") {
@@ -29,6 +29,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
+                parameters: parameters,
                 utils: utils
             });
         } else if (type === "ComplexProcessor") {
@@ -38,6 +39,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
+                parameters: parameters,
                 utils: utils
             });
         } else if (type === "DynamicContainableProcessor") {
@@ -47,6 +49,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
+                parameters: parameters,
                 utils: utils
             });
         } else if (type === "CustomProcessor") {
@@ -56,6 +59,7 @@ var SequenceD = (function (sequenced) {
                 type: type,
                 model: model,
                 viewAttributes: viewAttributes,
+                parameters: parameters,
                 utils: utils
             });
         }

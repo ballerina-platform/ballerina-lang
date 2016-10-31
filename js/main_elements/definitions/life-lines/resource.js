@@ -40,54 +40,60 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
+        parameters: [
+            {
+                key: "title",
+                value: "Resource"
+            },
+            {
+                key: "path",
+                value: ""
+            },
+            {
+                key: "get",
+                value: false
+            },
+            {
+                key: "put",
+                value: false
+            },
+            {
+                key: "post",
+                value: false
+            }
+        ],
+        propertyPaneSchema: [
+            {
+                key: "title",
+                text: "Title"
+            },
+            {
+                key: "path",
+                text: "Path"
+            },
+            {
+                key: "get",
+                checkbox: "GET"
+            },
+            {
+                key: "put",
+                checkbox: "PUT"
+            },
+            {
+                key: "post",
+                checkbox: "POST"
+            }
+        ],
         utils: {
-            propertyPaneSchema: [
-                {
-                    key: "title",
-                    text: "Title"
-                },
-                {
-                    key: "path",
-                    text: "Path"
-                },
-                {
-                    key: "get",
-                    checkbox: "GET"
-                },
-                {
-                    key: "put",
-                    checkbox: "PUT"
-                },
-                {
-                    key: "post",
-                    checkbox: "POST"
-                }
-            ],
-            parameters: [
-                {
-                    key: "title",
-                    value: "Resource"
-                },
-                {
-                    key: "path",
-                    value: ""
-                },
-                {
-                    key: "get",
-                    value: false
-                },
-                {
-                    key: "put",
-                    value: false
-                },
-                {
-                    key: "post",
-                    value: false
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
                 model.attributes.title = inputs.title.value;
-                model.attributes.utils.utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "title",
                         value: inputs.title.value

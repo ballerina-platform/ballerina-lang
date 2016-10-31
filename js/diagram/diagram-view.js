@@ -341,15 +341,9 @@ var Diagrams = (function (diagrams) {
             resourceModel.setDiagramViewForTab(currentView);
             // mark tab as visited
             resourceModel.setSelectedTab();
-            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline,
-                                          [{
-                                              key: "title",
-                                              value: MainElements.lifelines.SourceLifeline.title
-                                          }],
-                                          {utils: MainElements.lifelines.SourceLifeline.utils});
+            currentView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
             currentView.model.sourceLifeLineCounter(1);
-            currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline,
-                                          {utils: MainElements.lifelines.ResourceLifeline.utils});
+            currentView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
             currentView.model.resourceLifeLineCounter(1);
           // first arrow creation between source and resource
             var currentSource = currentView.model.diagramSourceElements().models[0];
@@ -914,7 +908,7 @@ var Diagrams = (function (diagrams) {
                 
                 this.disableDragZoomOptions();
                 diagram.propertyWindow = true;
-                propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect, options.y);
+                propertySVG.draw.form(propertySVG, parameters, propertyPaneSchema, rect);
             },
 
             /**
@@ -1066,7 +1060,8 @@ var Diagrams = (function (diagrams) {
                             initMethod: Processors.manipulators[id].init
                         },
                         {colour: Processors.manipulators[id].colour},
-                        {utils: Processors.manipulators[id].utils}
+                        Processors.manipulators[id].parameters,
+                        Processors.manipulators[id].utils
                     );
                     txt.selectedNode.addChild(processor);
                     defaultView.render();
@@ -1077,7 +1072,8 @@ var Diagrams = (function (diagrams) {
                         Processors.flowControllers[id].id,
                         {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
                         {colour: Processors.flowControllers[id].colour},
-                        {utils: Processors.flowControllers[id].utils}
+                        Processors.flowControllers[id].parameters,
+                        Processors.flowControllers[id].utils
                     );
                     txt.selectedNode.addChild(processor);
 
@@ -1100,8 +1096,7 @@ var Diagrams = (function (diagrams) {
                     //only one endpoint is allowed in this version TODO:
                     if(countOfEndpoints === 0){
                         ++countOfEndpoints;
-                        defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline,
-                                                      {utils: MainElements.lifelines.EndPointLifeline.utils});
+                        defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.EndPointLifeline);
                         txt.endpointLifeLineCounter(countOfEndpoints);
                     }//validation check for number of endpoints in a tab
                     else{
@@ -1114,8 +1109,7 @@ var Diagrams = (function (diagrams) {
                     //if no resource elements added to this tab view, as only one resource element is allowed in a tab
                     if (countOfResources === 0) {
                         ++countOfResources;
-                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline,
-                                                      {utils: MainElements.lifelines.ResourceLifeline.utils});
+                        defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.ResourceLifeline);
                         txt.resourceLifeLineCounter(countOfResources);
                     }
 
@@ -1123,10 +1117,7 @@ var Diagrams = (function (diagrams) {
                     var countOfSources = txt.sourceLifeLineCounter();
                     if (countOfSources === 0) {
                         ++countOfSources;
-                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline, [{
-                            key: "title",
-                            value: MainElements.lifelines.SourceLifeline.title
-                        }], {utils: MainElements.lifelines.SourceLifeline.utils});
+                        defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.SourceLifeline);
                         txt.sourceLifeLineCounter(countOfSources);
                     }
                 }
@@ -1244,7 +1235,7 @@ var Diagrams = (function (diagrams) {
                 return mainGroup;
             },
 
-            renderMainElement: function (lifelineName, counter, lifeLineDef, utils) {
+            renderMainElement: function (lifelineName, counter, lifeLineDef) {
                 var txt = this.model;
                 var numberOfResourceElements = txt.attributes.diagramResourceElements.length;
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
@@ -1270,7 +1261,7 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, utils);
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils, lifeLineDef.parameters);//if not work add as an object
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,

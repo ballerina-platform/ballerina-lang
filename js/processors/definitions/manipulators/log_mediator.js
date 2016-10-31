@@ -41,67 +41,73 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        propertyPaneSchema: [
+            {
+                key: "messageRef",
+                text: "Message Reference"
+            },
+            {
+                key: "message",
+                text: "Log message"
+            },
+            {
+                key: "logLevel",
+                dropdown: "Log Level",
+                values: ["simple", "custom", "headers", "full"]
+            },
+            {
+                key: "logCategory",
+                dropdown: "Log Category",
+                values: ["info", "error", "warn", "fatal", "debug", "trace"]
+            },
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
+        parameters: [
+            {
+                key: "messageRef",
+                value: "m"
+            },
+            {
+                key: "message",
+                value: "Log message"
+            },
+            {
+                key: "logLevel",
+                value: "simple"
+            },
+            {
+                key: "logCategory",
+                value: "info"
+            },
+            {
+                key: "description",
+                value: "Description"
+            }
+        ],
         utils : {
-            propertyPaneSchema: [
-                {
-                    key: "messageRef",
-                    text: "Message Reference"
-                },
-                {
-                    key: "message",
-                    text: "Log message"
-                },
-                {
-                    key: "logLevel",
-                    dropdown: "Log Level",
-                    values: ["simple", "custom", "headers", "full"]
-                },
-                {
-                    key: "logCategory",
-                    dropdown: "Log Category",
-                    values: ["info", "error", "warn", "fatal", "debug", "trace"]
-                },
-                {
-                    key: "description",
-                    text: "Description"
-                }
-            ],
-            parameters: [
-                {
-                    key: "messageRef",
-                    value: "m"
-                },
-                {
-                    key: "message",
-                    value: "Log message"
-                },
-                {
-                    key: "logLevel",
-                    value: "simple"
-                },
-                {
-                    key: "logCategory",
-                    value: "info"
-                },
-                {
-                    key: "description",
-                    value: "Description"
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return Processors.manipulators.LogMediator.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
                 var selectedLogLevel;
                 var selectedLogCategory;
                 if (inputs.logLevel.value !== "") {
                     selectedLogLevel = inputs.logLevel.value;
                 } else {
-                    selectedLogLevel = model.get("parameters").parameters[1].value;
+                    selectedLogLevel = model.attributes.parameters[1].value;
                 }
                 if (inputs.logCategory.value !== "") {
                     selectedLogCategory = inputs.logCategory.value;
                 } else {
-                    selectedLogCategory = model.get("parameters").parameters[2].value;
+                    selectedLogCategory = model.attributes.parameters[2].value;
                 }
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "messageRef",
                         value: inputs.messageRef.value
@@ -125,15 +131,15 @@ var Processors = (function (processors) {
                 ];
             },
             getMySubTree: function (model) {
-                var parameters = model.get('utils').utils.parameters;
+                var parameters = model.attributes.parameters;
                 var log_configStart = "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
                 return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
             },
             outputs: false,
-            getInputParams: function () {
+            getInputParams: function (model) {
                 var inputParams = [];
-                inputParams[0] = this.parameters[0];
-                inputParams[1] = this.parameters[1];
+                inputParams[0] = model.attributes.parameters[0];
+                inputParams[1] = model.attributes.parameters[1];
 
                 return inputParams;
             }

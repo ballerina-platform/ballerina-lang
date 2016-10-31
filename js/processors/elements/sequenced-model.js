@@ -255,8 +255,8 @@ var SequenceD = (function (sequenced) {
                 return position;
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, utils) {
-                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, utils);
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils) {
+                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils);
             },
 
             setY: function (y) {

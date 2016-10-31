@@ -40,37 +40,43 @@ var Processors = (function (processors) {
             }
             return cloneCallBack;
         },
+        parameters: [
+            {
+                key: "contentType",
+                value: "Content Type"
+            },
+            {
+                key: "messageReference",
+                value: "Message Reference"
+            },
+            {
+                key: "payload",
+                value: "Payload"
+            }
+        ],
+        propertyPaneSchema: [
+            {
+                key: "contentType",
+                text: "Content Type"
+            },
+            {
+                key: "messageReference",
+                text: "Message Reference"
+            },
+            {
+                key: "payload",
+                text: "Payload"
+            }
+        ],
         utils: {
-            parameters: [
-                {
-                    key: "contentType",
-                    value: "Content Type"
-                },
-                {
-                    key: "messageReference",
-                    value: "Message Reference"
-                },
-                {
-                    key: "payload",
-                    value: "Payload"
-                }
-            ],
-            propertyPaneSchema: [
-                {
-                    key: "contentType",
-                    text: "Content Type"
-                },
-                {
-                    key: "messageReference",
-                    text: "Message Reference"
-                },
-                {
-                    key: "payload",
-                    text: "Payload"
-                }
-            ],
+            getMyPropertyPaneSchema : function () {
+                return Processors.manipulators.PayloadProcessor.propertyPaneSchema;
+            },
+            getMyParameters: function (model) {
+                return model.attributes.parameters;
+            },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "contentType",
                         value: inputs.contentType.value
@@ -86,7 +92,7 @@ var Processors = (function (processors) {
                 ];
             },
             getMySubTree: function (model) {
-                var parameters = model.get('utils').utils.parameters;
+                var parameters = model.attributes.parameters;
                 var payloadConfigStart = parameters[0].value + ".setPayload(messageRef = " + parameters[1].value + ", payload = " + parameters[2].value;
                 return new TreeNode("PayloadProcessor", "PayloadProcessor", payloadConfigStart, ");");
             }
