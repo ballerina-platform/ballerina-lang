@@ -841,6 +841,62 @@ var Diagrams = (function (diagrams) {
                     view.trigger("viewBoxChange", this.getViewBox(), animationTime);
                 };
                 svg.attr("preserveAspectRatio", "xMinYMin meet");
+                // disable zoom in/out handler from plugin to override default behaviour
+                $(svg.node()).unbind("mousewheel DOMMouseScroll MozMousePixelScroll");
+                $(svg.node()).on("wheel", null, this, this.toggleZoom);
+            },
+
+            toggleZoom: function(ev){
+                var diagView = ev.data, delta, minHeight, minWidth, newMousePosition, newViewBox, newcenter,
+                    oldDistanceFromCenter, oldMousePosition, oldViewBox, oldcenter, reductionFactor;
+                delta = parseInt(ev.originalEvent.wheelDelta);
+                if (delta === 0) {
+                    return;
+                }
+                ev.preventDefault();
+                ev.stopPropagation();
+                oldViewBox = diagView.panAndZoom.getViewBox();
+
+                oldMousePosition = diagView.toViewBoxCoordinates(new GeoCore.Models.Point({x: ev.originalEvent.clientX,
+                    y: ev.originalEvent.clientY}));
+                oldcenter = {
+                    x: oldViewBox.x + oldViewBox.width / 2,
+                    y: oldViewBox.y + oldViewBox.height / 2
+                };
+                oldDistanceFromCenter = {
+                    x: oldcenter.x - oldMousePosition.x(),
+                    y: oldcenter.y - oldMousePosition.y()
+                };
+                if (delta > 0) {
+                    diagView.panAndZoom.zoomIn(void 0, 0);
+                    var viewBox = diagView.panAndZoom.getViewBox();
+                    minWidth = diagView.panAndZoom.initialViewBox.width / diagView.panAndZoom.maxZoom;
+                    minHeight = diagView.panAndZoom.initialViewBox.height / diagView.panAndZoom.maxZoom;
+                    if (viewBox.width < minWidth) {
+                        reductionFactor = minWidth / viewBox.width;
+                        viewBox.width = minWidth;
+                        viewBox.height = viewBox.height * reductionFactor;
+                    }
+                    if (viewBox.height < minHeight) {
+                        reductionFactor = minHeight / viewBox.height;
+                        viewBox.height = minHeight;
+                        viewBox.width = viewBox.width * reductionFactor;
+                    }
+                    diagView.panAndZoom.setViewBox(viewBox.x, viewBox.y, viewBox.width, viewBox.height, 0);
+                } else {
+                    diagView.panAndZoom.zoomOut(void 0, 0);
+                }
+                newMousePosition = diagView.toViewBoxCoordinates(new GeoCore.Models.Point({x: ev.originalEvent.clientX,
+                    y: ev.originalEvent.clientY}));
+                newcenter = {
+                    x: oldcenter.x + (oldMousePosition.x() - newMousePosition.x()),
+                    y: oldcenter.y + (oldMousePosition.y() - newMousePosition.y())
+                };
+                diagView.panAndZoom.setCenter(newcenter.x, newcenter.y, 0);
+                newViewBox = diagView.panAndZoom.getViewBox();
+                diagView.panAndZoom.setViewBox(oldViewBox.x, oldViewBox.y, oldViewBox.width, oldViewBox.height, 0);
+                diagView.panAndZoom.setViewBox(newViewBox.x - newMousePosition.x(),
+                    newViewBox.y - newMousePosition.y(), newViewBox.width, newViewBox.height);
             },
 
             disableDragZoomOptions: function () {
