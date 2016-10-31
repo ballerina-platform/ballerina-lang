@@ -605,12 +605,6 @@ var Diagrams = (function (diagrams) {
                 defaultView.model.resourceLifeLineCounter(0);
                 defaultView.model.endpointLifeLineCounter(0);
                 defaultView.model.workerLifeLineCounter(0);
-                if (diagramD3el) {
-                    diagramD3el.remove();
-                    for (var element in diagramViewElements) {
-                        diagramViewElements[element].remove();
-                    }
-                }
                 defaultView.model.attributes.diagramResourceElements.models = [];
                 defaultView.model.attributes.diagramResourceElements.length = 0;
                 defaultView.model.attributes.diagramEndpointElements.models = [];

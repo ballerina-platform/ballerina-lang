@@ -155,8 +155,7 @@ $(function () {
 
 // Create the model for the diagram
 var diagram = new Diagrams.Models.Diagram({});
-var diagramViewElements = [],
-    definedConstants = [];
+var definedConstants = [];
 
 function TreeNode(value, type, cStart, cEnd) {
     this.object = undefined;
@@ -176,12 +175,6 @@ function TreeNode(value, type, cStart, cEnd) {
 }
 
 function initTabs(){
-    diagramViewElements = [];
-    selected = "";
-    selectedModel = "";
-    
-    endpointLifelineCounter = 0;
-    resourceLifelineCounter = 0;
 
     // Configuring dynamic  tab support
     var tab = new Diagrams.Models.Tab({

@@ -1195,16 +1195,12 @@ var Diagrams = (function (diagrams) {
                 //Remove previous diagram
                 if (this.d3el) {
                     this.d3el.remove();
-                    for (var element in diagramViewElements) {
-                        diagramViewElements[element].remove();
-                    }
                 } else {
                     // When re-rendering the same event handler do not need to re-register.
                     // Otherwise same function will call for multiple times.
                     this.model.on("addElement", this.onAddElement, this);
                     this.model.on("renderDiagram", this.renderDiagram);
                 }
-                diagramViewElements = [];
 
                 var mainGroup = this.d3svg.draw.group(this.d3svg).attr("id", this.options.diagram.wrapperId)
                     .attr("width", "100%")
@@ -1226,7 +1222,6 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramSourceElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
@@ -1239,7 +1234,6 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
@@ -1252,7 +1246,6 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                     }
@@ -1266,7 +1259,6 @@ var Diagrams = (function (diagrams) {
                                 model: lifeLine,
                                 options: lifeLineOptions
                             });
-                            diagramViewElements[diagramViewElements.length] = (lifeLineView);
                             var rectColour = this.model.attributes.diagramWorkerElements.models[id].attributes.colour;
                             lifeLineView.render("#" + this.options.diagram.wrapperId, "processors", rectColour);
                         }
@@ -1280,7 +1272,6 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramSourceElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
@@ -1293,7 +1284,6 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramResourceElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
@@ -1306,7 +1296,6 @@ var Diagrams = (function (diagrams) {
                             model: lifeLine,
                             options: lifeLineOptions
                         });
-                        diagramViewElements[diagramViewElements.length] = (lifeLineView);
                         var rectColour = this.model.attributes.diagramEndpointElements.models[id].attributes.colour;
                         lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                     }
@@ -1320,7 +1309,6 @@ var Diagrams = (function (diagrams) {
                                 model: lifeLine,
                                 options: lifeLineOptions
                             });
-                            diagramViewElements[diagramViewElements.length] = (lifeLineView);
                             var rectColour = this.model.attributes.diagramWorkerElements.models[id].attributes.colour;
                             lifeLineView.render("#" + this.options.diagram.wrapperId, "messages", rectColour);
                         }
