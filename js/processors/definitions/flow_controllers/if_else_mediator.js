@@ -90,15 +90,15 @@ var Processors = (function (processors) {
                 for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
                     var child = tryBlock.get('children').models[itr];
                     if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
-                        var endpoint = child.get('message').get('destination').get('parent').get('utils').utils.parameters[0].value;
-                        var uri = child.get('message').get('destination').get('parent').get('utils').utils.parameters[1].value;
+                        var endpoint = child.get('message').get('destination').get('parent').attributes.parameters[0].value;
+                        var uri = child.get('message').get('destination').get('parent').attributes.parameters[1].value;
                         // When we define the properties, need to extract the endpoint from the property
                         definedConstants["HTTPEP"] = {name: endpoint, value: uri};
                         var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
                         endpoint + ", messageKey=m)"), ";");
                         ifBlockNode.getChildren().push(l);
                     } else {
-                        ifBlockNode.getChildren().push(child.get('utils').utils.getMySubTree(child));
+                        ifBlockNode.getChildren().push(child.get('utils').getMySubTree(child));
                     }
                 }
 
@@ -108,15 +108,15 @@ var Processors = (function (processors) {
                 for (var itr = 0; itr < elseBlock.get('children').models.length; itr++) {
                     var child = elseBlock.get('children').models[itr];
                     if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
-                        var endpoint = child.get('message').get('destination').get('parent').get('utils').utils.parameters[0].value;
-                        var uri = child.get('message').get('destination').get('parent').get('utils').utils.parameters[1].value;
+                        var endpoint = child.get('message').get('destination').get('parent').attributes.parameters[0].value;
+                        var uri = child.get('message').get('destination').get('parent').attributes.parameters[1].value;
                         // When we define the properties, need to extract the endpoint from the property
                         definedConstants["HTTPEP"] = {name: endpoint, value: uri};
                         var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
                         endpoint + ", messageKey=m)"), ";");
                         elseBlockNode.getChildren().push(l);
                     } else {
-                        elseBlockNode.getChildren().push(child.get('utils').utils.getMySubTree(child));
+                        elseBlockNode.getChildren().push(child.get('utils').getMySubTree(child));
                     }
                 }
                 var ifElseNode = new TreeNode("IfElseMediator", "IfElseMediator", "", "");

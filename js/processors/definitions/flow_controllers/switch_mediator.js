@@ -61,7 +61,7 @@ var Processors = (function (processors) {
                 return model.attributes.parameters;
             },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "description",
                         value: inputs.description.value

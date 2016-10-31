@@ -105,6 +105,44 @@ var D3Utils = (function (d3_utils) {
             .attr("rx", rx)
             .attr("ry", ry);
     };
+    var genericRect = function (x, y, width, height, rx, ry, parent, colour, textModel) {
+        parent = parent || d3Ref;
+        // get TextModel and if dynamicRectWidth is not 130 add that as width
+        var modelId = textModel.cid;
+        var dynamicWidth = textModel.dynamicRectWidth();
+        if(dynamicWidth != 130){
+            width = dynamicWidth;
+        }
+        rx = rx || 0;
+        ry = ry || 0;
+        return parent.append("rect")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("width", width)
+            .attr("height", height)
+            .attr("fill", colour || "steelblue")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2)
+            .attr("rx", rx)
+            .attr("ry", ry)
+            .attr("id",modelId);
+    };
+
+    var genericCenteredRect = function (center, width, height, rx, ry, parent, colour, textModel) {
+        parent = parent || d3Ref;
+        rx = rx || 0;
+        ry = ry || 0;
+        return parent.draw.genericRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour, textModel);
+    };
+//GENERIC TEXT BOX CREATION
+    var genericTextRect = function (center,width,height,rx,ry,textContent,x,y,parent,colour, textModel){
+        parent = parent || d3Ref;
+
+        var rect =parent.draw.genericRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour, textModel);
+        var text = rect.draw.genericTextElement(center.x(), center.y(), textContent, rect,txtModel)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
+        return parent;
+    };
 
     var rect = function (x, y, width, height, rx, ry, parent, colour) {
         parent = parent || d3Ref;
@@ -166,7 +204,29 @@ var D3Utils = (function (d3_utils) {
     var editableText = function (x, y, text) {
 
     };
+    //TODO:
+    var genericTextElement = function (x, y, textContent, parent,txtModel) {
+        parent = parent || d3Ref;
+        var modelId = txtModel.cid;
+        var dynamicPosition = txtModel.dynamicTextPosition();
+        if(dynamicPosition != undefined){
+            x = dynamicPosition;
+        }
 
+        return parent.append("text")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("id",modelId)
+            .text(function () {
+                return textContent;
+            });
+    };
+//TODO:TEST
+    var genericCenteredText = function (center, textContent, parent,txtModel) {
+        parent = parent || d3Ref;
+        return parent.draw.genericTextElement(center.x(), center.y(), textContent, parent,txtModel)
+            .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
+    };
     var textElement = function (x, y, textContent, parent) {
         parent = parent || d3Ref;
         return parent.append("text")
@@ -304,15 +364,30 @@ var D3Utils = (function (d3_utils) {
 
         }
     };
-
+    var updateParentOnLayoutChange = function () {
+        if (defaultView.selectedNode.attributes.textModel != null) {
+            model = defaultView.selectedNode.attributes.textModel;
+            // updating any parent elements if exists:TODO: can be updated to be fired onBlur
+            if (model.hasParent === true) {
+                // This could be made into a objectList if there are multiple
+                var parentModel = model.parentObject();
+                eventManager.notifyParent(parentModel, model);
+            }
+        }
+    }
     /**
      * Save properties in selected element's model by calling saveMyProperties method in respective elements
      */
     var saveProperties = function () {
         var inputs = $('#property-form')[0].getElementsByTagName("input");
-
         defaultView.selectedNode.get("utils").saveMyProperties(defaultView.selectedNode, inputs);
-        
+        //TODO FOR TEXT GENERIC
+        if(defaultView.selectedNode.attributes.textModel != null){
+            var int = Number(7) || 7.7;
+            var dlength =  ((inputs.title.value.length+1) * 8);
+            var txtm = defaultView.selectedNode.attributes.textModel;
+            txtm.textChanged(dlength);
+        }
         //render title in selected lifeline
         if (inputs.title) {
             resetMainElementTitle(inputs.title.value);
@@ -350,7 +425,7 @@ var D3Utils = (function (d3_utils) {
             .on("dblclick", function () {
                 this.select();
             });
-
+        textBox.on("blur", updateParentOnLayoutChange);
         parent.append("br");
         parent.append("br");
     };
@@ -451,6 +526,8 @@ var D3Utils = (function (d3_utils) {
         var draw = {};
         draw.centeredRect = centeredRect;
         draw.rect = rect;
+        draw.genericCenteredRect = genericCenteredRect;
+        draw.genericRect = genericRect;
         draw.basicRect = basicRect;
         draw.centeredBasicRect = centeredBasicRect;
         draw.line = line;
@@ -459,6 +536,8 @@ var D3Utils = (function (d3_utils) {
         draw.editableText = editableText;
         draw.centeredText = centeredText;
         draw.textElement = textElement;
+        draw.genericCenteredText = genericCenteredText;
+        draw.genericTextElement = genericTextElement;
         draw.circle = circle;
         draw.circleOnPoint = circleOnPoint;
         draw.group = group;

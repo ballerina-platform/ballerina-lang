@@ -145,7 +145,7 @@ var Processors = (function (processors) {
                 return model.attributes.parameters;
             },
             saveMyProperties: function (model, inputs) {
-                model.get("utils").utils.parameters = [
+                model.attributes.parameters = [
                     {
                         key: "condition",
                         value: inputs.message.value
@@ -162,8 +162,8 @@ var Processors = (function (processors) {
                 var uri = undefined;
                 messageLinks.forEach(function (child) {
                     if (_.isEqual(child.get('direction'), "inbound")) {
-                        endpoint = child.get('message').get('source').get('parent').get('utils').utils.parameters[0].value;
-                        uri = child.get('message').get('source').get('parent').get('utils').utils.parameters[1].value;
+                        endpoint = child.get('message').get('source').get('parent').attributes.parameters[0].value;
+                        uri = child.get('message').get('source').get('parent').attributes.parameters[1].value;
                         // When we define the properties, need to extract the endpoint from the property
                         definedConstants["HTTPEP"] = {name: endpoint, value: uri};
                     } else {

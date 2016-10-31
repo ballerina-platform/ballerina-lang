@@ -1064,6 +1064,7 @@ var Diagrams = (function (diagrams) {
                         Processors.manipulators[id].utils
                     );
                     txt.selectedNode.addChild(processor);
+
                     defaultView.render();
                 } else if (Processors.flowControllers[id] && txt.selectedNode) {
                     var processor = txt.selectedNode.createProcessor(
@@ -1241,6 +1242,7 @@ var Diagrams = (function (diagrams) {
                 var numberOfEndpointElements = txt.attributes.diagramEndpointElements.length;
                 var centerPoint;
 
+
                 if(lifelineName == "Source") {
                     centerPoint = createPoint(200, 50);
                 } else if (lifelineName == "Resource") {
@@ -1261,11 +1263,18 @@ var Diagrams = (function (diagrams) {
                 if(lifelineName == "EndPoint") {
                     title += counter;
                 }
-                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils, lifeLineDef.parameters);//if not work add as an object
+                var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils, lifeLineDef.parameters, lifeLineDef.textModel);//if not work add as an object
+                //TODO : Adding text model
+                var textModel = new Diagrams.Models.TextController({});
+                lifeline.attributes.textModel = textModel;
+                // TODO: For sample usage of events firing: adding lifeLine itself as parent
+                textModel.hasParent = true;
+                textModel.parentObject(lifeline);
+                //
                 lifeline.leftUpperConer({x: centerPoint.attributes.x - 65, y: centerPoint.attributes.y - 15});
                 lifeline.rightLowerConer({
                     x: centerPoint.attributes.x + 65,
-                    y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.heigh
+                    y: centerPoint.attributes.y + 15 + lifeLineOptions.middleRect.height + lifeLineOptions.rect.height
                 });
                 lifeLineOptions.class = lifeLineDef.class;
                 //SETTING TOP SVG ELEMENT IN OPTIONS To Draw messages

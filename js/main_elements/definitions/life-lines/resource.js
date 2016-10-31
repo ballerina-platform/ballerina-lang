@@ -84,6 +84,7 @@ var MainElements = (function (mainElements) {
                 checkbox: "POST"
             }
         ],
+        textModel : "undefined",
         utils: {
             getMyPropertyPaneSchema : function () {
                 return MainElements.lifelines.ResourceLifeline.propertyPaneSchema;

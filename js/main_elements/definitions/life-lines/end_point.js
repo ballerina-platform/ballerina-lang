@@ -61,6 +61,7 @@ var MainElements = (function (mainElements) {
                 value: "https://"
             }
         ],
+        textModel : "undefined",
         utils: {
             getMyPropertyPaneSchema : function () {
                 return MainElements.lifelines.EndPointLifeline.propertyPaneSchema;

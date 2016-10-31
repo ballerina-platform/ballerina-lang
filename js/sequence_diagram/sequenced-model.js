@@ -193,8 +193,8 @@ var SequenceD = (function (sequenced) {
                 return new SequenceD.Models.FixedSizedMediator({title: title, centerPoint: center});
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils) {
-                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils);
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel) {
+                return new SequenceD.Models.ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel);
             },
 
             addChild: function (element, opts) {

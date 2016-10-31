@@ -52,6 +52,7 @@ var MainElements = (function (mainElements) {
                 value: "Title"
             }
         ],
+        textModel : "undefined",
         utils: {
             getMyPropertyPaneSchema : function () {
                 return MainElements.lifelines.SourceLifeline.propertyPaneSchema;

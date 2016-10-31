@@ -58,16 +58,16 @@ var createPoint = function (x, y) {
 
 var diagramD3el = undefined;
 
-var createLifeLine = function (title, center, cssClass, utils, parameters) {
+var createLifeLine = function (title, center, cssClass, utils, parameters, textModel) {
     return new SequenceD.Models.LifeLine({
         title: title,
         centerPoint: center,
         cssClass: cssClass,
         utils: utils,
-        parameters: parameters
+        parameters: parameters,
+        textModel: textModel
     });
 };
-
 // Create main tool group
 var mainToolGroup = new Tools.Models.ToolGroup({
     toolGroupName: "Main Elements",
