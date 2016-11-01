@@ -111,7 +111,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         while (!isEndOfMessageProcessed) {
             try {
                 HttpContent httpContent = httpContentQueue.take();
-                if (httpContent instanceof LastHttpContent) {
+                if ((httpContent instanceof LastHttpContent) || (isEndOfMsgAdded() && httpContentQueue.isEmpty())) {
                     isEndOfMessageProcessed = true;
                 }
                 contentList.add(httpContent);
