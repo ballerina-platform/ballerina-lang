@@ -16,9 +16,9 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.Parameter;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * A class represents Server Bootstrap configurations.
@@ -43,26 +43,26 @@ public class ServerBootstrapConfiguration {
 
     private int socketTimeOut = 15;
 
-    private ServerBootstrapConfiguration(List<Parameter> parameters) {
+    private ServerBootstrapConfiguration(Set<TransportProperty> properties) {
 
-        if (parameters != null) {
-            parameters.forEach(parameter -> {
+        if (properties != null) {
+            properties.forEach(parameter -> {
                 if (Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT.equals(parameter.getName())) {
-                    connectTimeOut = Integer.parseInt(parameter.getValue());
+                    connectTimeOut = (Integer) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_KEEPALIVE.equals(parameter.getName())) {
-                    keepAlive = Boolean.parseBoolean(parameter.getValue());
+                    keepAlive = (Boolean) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE.equals(parameter.getName())) {
-                    reciveBufferSize = Integer.parseInt(parameter.getValue());
+                    reciveBufferSize = (Integer) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE.equals(parameter.getName())) {
-                    sendBufferSize = Integer.parseInt(parameter.getValue());
+                    sendBufferSize = (Integer) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_TCP_NO_DELY.equals(parameter.getName())) {
-                    tcpNoDelay = Boolean.parseBoolean(parameter.getValue());
+                    tcpNoDelay = (Boolean) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_SO_REUSE.equals(parameter.getName())) {
-                    socketReuse = Boolean.parseBoolean(parameter.getValue());
+                    socketReuse = (Boolean) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_SO_BACKLOG.equals(parameter.getName())) {
-                    soBackLog = Integer.parseInt(parameter.getValue());
+                    soBackLog = (Integer) (parameter.getValue());
                 } else if (Constants.SERVER_BOOTSTRAP_SO_TIMEOUT.equals(parameter.getName())) {
-                    socketTimeOut = Integer.parseInt(parameter.getValue());
+                    socketTimeOut = (Integer) (parameter.getValue());
                 }
             });
         }
@@ -104,8 +104,13 @@ public class ServerBootstrapConfiguration {
         return socketTimeOut;
     }
 
-    public static void createBootStrapConfiguration(List<Parameter> parameters) {
-        bootstrapConfig = new ServerBootstrapConfiguration(parameters);
+    /**
+     * configure transport level properties such as socket timeouts, tcp no delay
+     *
+     * @param properties
+     */
+    public static void createBootStrapConfiguration(Set<TransportProperty> properties) {
+        bootstrapConfig = new ServerBootstrapConfiguration(properties);
 
     }
 

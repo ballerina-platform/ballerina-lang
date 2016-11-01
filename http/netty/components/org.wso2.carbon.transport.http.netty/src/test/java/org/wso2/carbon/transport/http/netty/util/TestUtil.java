@@ -25,8 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
@@ -74,11 +76,20 @@ public class TestUtil {
     public static HTTPTransportListener startCarbonTransport(ListenerConfiguration listenerConfiguration,
             SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
         Set<ListenerConfiguration> interfacesSet = new HashSet<>();
+        Set<TransportProperty> transportProperties = new HashSet<>();
         interfacesSet.add(listenerConfiguration);
         int bossGroupSize = Runtime.getRuntime().availableProcessors();
         int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
-        HTTPTransportListener httpTransportListener = new HTTPTransportListener(bossGroupSize, workerGroupSize,
-                interfacesSet);
+        TransportProperty transportProperty = new TransportProperty();
+        transportProperty.setName(Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE);
+        transportProperty.setValue(bossGroupSize);
+        TransportProperty workerGroup = new TransportProperty();
+        workerGroup.setName(Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE);
+        workerGroup.setValue(workerGroupSize);
+        transportProperties.add(transportProperty);
+        transportProperties.add(workerGroup);
+        transportProperties.add(workerGroup);
+        HTTPTransportListener httpTransportListener = new HTTPTransportListener(transportProperties, interfacesSet);
         TransportSender transportSender = new HTTPSender(senderConfiguration);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
         carbonMessageProcessor.setTransportSender(transportSender);
@@ -179,3 +190,4 @@ public class TestUtil {
     }
 
 }
+

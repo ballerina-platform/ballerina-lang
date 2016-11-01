@@ -32,6 +32,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.Parameter;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
 import java.net.InetSocketAddress;
@@ -65,12 +66,22 @@ public class HTTPTransportListener extends TransportListener {
 
     private Map<String, SSLConfig> sslConfigMap = new ConcurrentHashMap<>();
 
-    public HTTPTransportListener(int bossGroupSize, int workerGroupSize,
+    private Set<TransportProperty> transportProperties;
+
+    public HTTPTransportListener(Set<TransportProperty> transportProperties,
             Set<ListenerConfiguration> listenerConfigurationSet) {
         super("ServerBootStrapper");
         if (listenerConfigurationSet.isEmpty()) {
             log.error("Cannot find registered listener configurations  hence cannot start the transport listeners");
             return;
+        }
+        this.transportProperties = transportProperties;
+        for (TransportProperty property : transportProperties) {
+            if (property.getName().equals(Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE)) {
+                bossGroupSize = (Integer) property.getValue();
+            } else if (property.getName().equals(Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE)) {
+                workerGroupSize = (Integer) property.getValue();
+            }
         }
         listenerConfigurationMap = listenerConfigurationSet.stream()
                 .collect(Collectors.toMap(ListenerConfiguration::getId, config -> config));
@@ -93,8 +104,7 @@ public class HTTPTransportListener extends TransportListener {
         if (itr.hasNext()) {
             defaultListenerConfig = (ListenerConfiguration) itr.next();
         }
-        this.bossGroupSize = bossGroupSize;
-        this.workerGroupSize = workerGroupSize;
+
     }
 
     @Override
@@ -106,7 +116,7 @@ public class HTTPTransportListener extends TransportListener {
     //configure bootstrap and bind bootstrap for default configuration
     private void startTransport() {
         //Create Bootstrap Configuration from listener parameters
-        ServerBootstrapConfiguration.createBootStrapConfiguration(defaultListenerConfig.getParameters());
+        ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
         ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
         //boss group is for accepting channels
         bossGroup = new NioEventLoopGroup(
