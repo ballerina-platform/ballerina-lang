@@ -755,6 +755,21 @@ var Diagrams = (function (diagrams) {
                     attr("width", "12").
                     attr("xlink:href", "images/edit.svg");
 
+                // add the delete icon pattern
+                definitions.append("pattern")
+                    .attr("id", "addIcon")
+                    .attr("x", "0").
+                    attr("y", "0").
+                    attr("patternUnits", "objectBoundingBox").
+                    attr("height", "12").
+                    attr("width", "12").
+                    append("svg:image").
+                    attr("x", "6").
+                    attr("y", "6").
+                    attr("height", "12").
+                    attr("width", "12").
+                    attr("xlink:href", "images/add.svg");
+
                 var filter = definitions.append("filter")
                     .attr("id", "drop-shadow")
                     .attr("height", "130%");
