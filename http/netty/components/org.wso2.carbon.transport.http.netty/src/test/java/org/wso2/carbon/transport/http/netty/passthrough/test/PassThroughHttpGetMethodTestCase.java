@@ -70,7 +70,7 @@ public class PassThroughHttpGetMethodTestCase {
     }
 
     @Test(groups = "passthroughGET")
-    public void passthroughWorkerPoolEnabledGetTestCase() {
+    public void passthrougGetTestCase() {
         Object lock = new Object();
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
@@ -85,25 +85,6 @@ public class PassThroughHttpGetMethodTestCase {
 
     public PassThroughHttpGetMethodTestCase() {
         super();
-    }
-
-    @Test(groups = "passthroughGET",
-          dependsOnMethods = "passthroughWorkerPoolEnabledGetTestCase")
-    public void passthroughDisruptorEnabledGetTestCase() {
-        TestUtil.shutDownCarbonTransport(httpTransportListener);
-        senderConfiguration.setDisruptorOn(true);
-        httpTransportListener = TestUtil
-                .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
-        try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            LOGGER.error("IO Exception occurred", e);
-            assertTrue(false);
-        }
-
     }
 
     @AfterClass(groups = "passthroughGET")
