@@ -62,7 +62,6 @@ public class PassThroughHttpGetMethodTestCase {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
         listenerConfiguration.setId("test-listener");
-        listenerConfiguration.setWorkerPoolSize(Runtime.getRuntime().availableProcessors());
         listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
         senderConfiguration = new SenderConfiguration("passthrough-sender");
         httpTransportListener = TestUtil
@@ -84,11 +83,14 @@ public class PassThroughHttpGetMethodTestCase {
         }
     }
 
+    public PassThroughHttpGetMethodTestCase() {
+        super();
+    }
+
     @Test(groups = "passthroughGET",
           dependsOnMethods = "passthroughWorkerPoolEnabledGetTestCase")
     public void passthroughDisruptorEnabledGetTestCase() {
         TestUtil.shutDownCarbonTransport(httpTransportListener);
-        listenerConfiguration.setEnableDisruptor(true);
         senderConfiguration.setDisruptorOn(true);
         httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());

@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
-import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
@@ -127,13 +126,12 @@ public class ConnectionManager {
      * @param httpRequest         http request
      * @param carbonMessage       carbon message
      * @param carbonCallback      carbon call back
-     * @param ringBuffer          ring buffer
      * @return TargetChannel
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
     public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
             SenderConfiguration senderConfiguration, HttpRequest httpRequest, CarbonMessage carbonMessage,
-            CarbonCallback carbonCallback, RingBuffer ringBuffer) throws Exception {
+            CarbonCallback carbonCallback) throws Exception {
         TargetChannel targetChannel = null;
 
         Class cl = null;
@@ -161,7 +159,7 @@ public class ConnectionManager {
                 executorService.execute(
                         new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
                                 carbonMessage, carbonCallback, PoolManagementPolicy.
-                                GLOBAL_ENDPOINT_CONNECTION_CACHING, pool, this, ringBuffer, group, cl));
+                                GLOBAL_ENDPOINT_CONNECTION_CACHING, pool, this, group, cl));
             } catch (Exception e) {
                 String msg = "Cannot borrow free channel from pool ";
                 log.error(msg, e);
@@ -173,7 +171,7 @@ public class ConnectionManager {
                 executorService.
                         execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
                                 carbonMessage, carbonCallback, PoolManagementPolicy.
-                                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING, null, this, ringBuffer, group, cl));
+                                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING, null, this, group, cl));
             } else {
                 targetChannel = sourceHandler.getChannel(httpRoute);
                 Channel tempc = targetChannel.getChannel();
@@ -184,7 +182,7 @@ public class ConnectionManager {
                                     httpRequest, carbonMessage,
 
                                     carbonCallback, PoolManagementPolicy.
-                                    PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING, null, this, ringBuffer, group, cl));
+                                    PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING, null, this, group, cl));
                     targetChannel = null;
                     sourceHandler.removeChannelFuture(httpRoute);
                 }
@@ -198,7 +196,7 @@ public class ConnectionManager {
             executorService.
                     execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
                             carbonMessage, carbonCallback, PoolManagementPolicy.
-                            DEFAULT_POOLING, pool, this, ringBuffer, group, cl));
+                            DEFAULT_POOLING, pool, this, group, cl));
         }
         if (targetChannel != null) {
             targetChannel.setHttpRoute(httpRoute);

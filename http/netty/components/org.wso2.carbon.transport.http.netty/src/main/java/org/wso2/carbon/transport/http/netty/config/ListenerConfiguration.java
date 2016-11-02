@@ -19,14 +19,11 @@
 package org.wso2.carbon.transport.http.netty.config;
 
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.TransportThreadFactory;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -42,10 +39,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
-    private int workerPoolSize = Constants.DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE;
-
-    private ExecutorService executorService = Executors.newFixedThreadPool(workerPoolSize,
-            new TransportThreadFactory(new ThreadGroup(Constants.WORKER_POOL_NAME)));
 
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
@@ -61,10 +54,6 @@ public class ListenerConfiguration {
 
     @XmlAttribute(required = true)
     private int port;
-
-
-    @XmlAttribute
-    private Boolean enableDisruptor = false;
 
     @XmlAttribute
     private String scheme = "http";
@@ -97,23 +86,12 @@ public class ListenerConfiguration {
         this.port = port;
     }
 
-
     public String getCertPass() {
         return certPass;
     }
 
     public void setCertPass(String certPass) {
         this.certPass = certPass;
-    }
-
-    public int getWorkerPoolSize() {
-        return workerPoolSize;
-    }
-
-    public void setWorkerPoolSize(int workerPoolSize) {
-        this.workerPoolSize = workerPoolSize;
-        this.executorService = Executors.newFixedThreadPool(workerPoolSize,
-                new TransportThreadFactory(new ThreadGroup(Constants.WORKER_POOL_NAME)));
     }
 
     public String getHost() {
@@ -164,8 +142,6 @@ public class ListenerConfiguration {
         this.scheme = scheme;
     }
 
-
-
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -181,18 +157,6 @@ public class ListenerConfiguration {
 
         return Util.getSSLConfigForListener(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
                 parameters);
-    }
-
-    public Boolean getEnableDisruptor() {
-        return enableDisruptor;
-    }
-
-    public void setEnableDisruptor(Boolean enableDisruptor) {
-        this.enableDisruptor = enableDisruptor;
-    }
-
-    public ExecutorService getExecutorService() {
-        return executorService;
     }
 
     private List<Parameter> getDefaultParameters() {

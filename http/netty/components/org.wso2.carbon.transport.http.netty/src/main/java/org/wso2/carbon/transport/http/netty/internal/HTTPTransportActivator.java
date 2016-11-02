@@ -23,7 +23,6 @@ import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -63,14 +62,8 @@ public class HTTPTransportActivator implements BundleActivator {
         listenerConfigurations.forEach(listenerConfiguration -> HTTPTransportContextHolder.getInstance()
                 .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration));
         Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-        for (TransportProperty property : transportProperties) {
-            if (property.getName().equals(Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE)) {
-                bossSize = (Integer) property.getValue();
-            } else if (property.getName().equals(Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE)) {
-                workerSize = (Integer) property.getValue();
-            }
-        }
-        HTTPTransportListener httpTransportListener = new HTTPTransportListener(bossSize, workerSize,
+
+        HTTPTransportListener httpTransportListener = new HTTPTransportListener(transportProperties,
                 listenerConfigurations);
         return httpTransportListener;
     }

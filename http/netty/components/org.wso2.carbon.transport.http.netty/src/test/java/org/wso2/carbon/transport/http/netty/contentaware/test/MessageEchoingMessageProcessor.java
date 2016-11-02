@@ -30,6 +30,8 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A Message processor which echos the incoming message
@@ -39,21 +41,36 @@ public class MessageEchoingMessageProcessor implements CarbonMessageProcessor {
 
     private TransportSender transportSender;
 
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        int length = carbonMessage.getFullMessageLength();
-        List<ByteBuffer> fullMessage = carbonMessage.getFullMessageBody();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-        fullMessage.forEach(buffer -> byteBuffer.put(buffer));
-        CarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        cMsg.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(length));
-        cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        byteBuffer.flip();
-        cMsg.addMessageBody(byteBuffer);
-        cMsg.setEndOfMsgAdded(true);
-        carbonCallback.done(cMsg);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null && carbonMessage
+                        .getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                        .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
+
+                    carbonCallback.done(carbonMessage);
+                } else {
+                    int length = carbonMessage.getFullMessageLength();
+                    List<ByteBuffer> fullMessage = carbonMessage.getFullMessageBody();
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                    fullMessage.forEach(buffer -> byteBuffer.put(buffer));
+                    CarbonMessage cMsg = new DefaultCarbonMessage();
+                    cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                    cMsg.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(length));
+                    cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
+                    cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+                    byteBuffer.flip();
+                    cMsg.addMessageBody(byteBuffer);
+                    cMsg.setEndOfMsgAdded(true);
+                    carbonCallback.done(cMsg);
+                }
+
+            }
+        });
         return false;
     }
 

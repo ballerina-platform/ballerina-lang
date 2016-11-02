@@ -19,6 +19,8 @@
 package org.wso2.carbon.transport.http.netty.contentaware.test;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -26,23 +28,41 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * A Message Processor which respond in streaming manner without buffering.
  */
 public class ResponseStreamingWithoutBufferingProcessor implements CarbonMessageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingProcessor.class);
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback callback) throws Exception {
-        CarbonMessage cMsg = new DefaultCarbonMessage(false);
-        cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
-        cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
-        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-        callback.done(cMsg);
-        while (!(carbonMessage.isEmpty() && carbonMessage.isEndOfMsgAdded())) {
-            cMsg.addMessageBody(carbonMessage.getMessageBody());
-        }
-        cMsg.setEndOfMsgAdded(true);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null && carbonMessage
+                        .getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                        .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
+
+                    callback.done(carbonMessage);
+                } else {
+                    CarbonMessage cMsg = new DefaultCarbonMessage(false);
+                    cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                    cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+                    cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
+                    cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+                    callback.done(cMsg);
+                    while (!(carbonMessage.isEmpty() && carbonMessage.isEndOfMsgAdded())) {
+                        cMsg.addMessageBody(carbonMessage.getMessageBody());
+                    }
+                    cMsg.setEndOfMsgAdded(true);
+                }
+            }
+        });
+
         return false;
     }
 

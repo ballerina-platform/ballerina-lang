@@ -18,9 +18,12 @@
 
 package org.wso2.carbon.transport.http.netty.contentaware.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -29,15 +32,21 @@ import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A Message Processor which creates Request and Response
  */
 public class RequestResponseCreationProcessor implements CarbonMessageProcessor {
 
+    private Logger logger = LoggerFactory.getLogger(RequestMessageTransformProcessor.class);
+
     private String responseValue;
 
     private TransportSender transportSender;
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public RequestResponseCreationProcessor(String responseValue) {
         this.responseValue = responseValue;
@@ -45,25 +54,46 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        int length = carbonMessage.getFullMessageLength();
-        List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-        byteBufferList.forEach(buf -> byteBuffer.put(buf));
-        String requestValue = new String(byteBuffer.array());
-        byte[] arry = responseValue.getBytes("UTF-8");
-        CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(carbonMessage);
-        if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-            newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
-        }
-        ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
-        byteBuffer1.put(arry);
-        byteBuffer1.flip();
-        newMsg.addMessageBody(byteBuffer1);
-        newMsg.setEndOfMsgAdded(true);
-        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
-        EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
-        transportSender.send(newMsg, engineCallBack);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null
+                            && carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                            .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
+
+                        carbonCallback.done(carbonMessage);
+                    } else {
+                        int length = carbonMessage.getFullMessageLength();
+                        List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
+                        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                        byteBufferList.forEach(buf -> byteBuffer.put(buf));
+                        String requestValue = new String(byteBuffer.array());
+                        byte[] arry = responseValue.getBytes("UTF-8");
+                        CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(carbonMessage);
+                        if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
+                            newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
+                        }
+                        ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
+                        byteBuffer1.put(arry);
+                        byteBuffer1.flip();
+                        newMsg.addMessageBody(byteBuffer1);
+                        newMsg.setEndOfMsgAdded(true);
+                        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+                        EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
+                        transportSender.send(newMsg, engineCallBack);
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    logger.error("Encoding is not supported", e);
+                } catch (MessageProcessorException e) {
+                    logger.error("MessageProcessor is not supported ", e);
+                } finally {
+                }
+            }
+
+        });
+
         return false;
     }
 

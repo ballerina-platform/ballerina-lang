@@ -28,20 +28,11 @@ listenerConfigurations:
   id: "default"
   host: "0.0.0.0"
   port: 9090
-  enableDisruptor: false
-  parameters:
-    -
-     name: "executor.workerpool.size"
-     value: 20
  -
   id: "docker0"
   host: "0.0.0.0"
   port: 8280
-  enableDisruptor: false
-  parameters:
-    -
-     name: "executor.workerpool.size"
-     value: 20
+
 senderConfigurations:
  -
   id: "netty-gw"
