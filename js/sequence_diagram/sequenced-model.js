@@ -16,8 +16,8 @@
  * under the License.
  */
 
-var SequenceD = (function (sequenced) {
-    var models = sequenced.Models || {};
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram'], function (require, $, d3, Backbone, _, Diagrams) {
+    var models = {};
 
     var Processor = Diagrams.Models.Shape.extend(
         /** @lends Processor.prototype */
@@ -495,10 +495,8 @@ var SequenceD = (function (sequenced) {
     models.LifeLine = LifeLine;
     models.Processor = Processor;
     models.MessagePoint = MessagePoint;
-    models.MessageLink = MessageLink;
+    models.MessageLink = MessageLink
 
-    sequenced.Models = models;
+    return models;
 
-    return sequenced;
-
-}(SequenceD || {}));
+});

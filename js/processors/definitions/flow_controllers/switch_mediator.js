@@ -15,10 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-var Processors = (function (processors) {
-
-    var flowControllers = processors.flowControllers || {};
+define(['d3'], function (d3) {
 
     //Define manipulator mediators
     var switchMediator = {
@@ -74,12 +71,6 @@ var Processors = (function (processors) {
         }
     };
 
-    // Add defined mediators to manipulators
-    // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    flowControllers.SwitchMediator = switchMediator;
+    return switchMediator;
 
-    processors.flowControllers = flowControllers;
-
-    return processors;
-
-}(Processors || {}));
+});

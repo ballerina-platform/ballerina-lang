@@ -21,10 +21,9 @@
  *
  * Definition of Backbone Views required for Sequence Diagrams.
  */
-var SequenceD = (function (sequenced) {
-    var views = sequenced.Views = sequenced.Views || {};
-    var toolPaletteWidth = 240;
-    var imageHeight = 20;
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram'], function (require, $, d3, Backbone, _, Diagrams) {
+
+    var views = {};
 
     var Processor = Diagrams.Views.ShapeView.extend(
         /** @lends Processor.prototype */
@@ -1409,6 +1408,6 @@ var SequenceD = (function (sequenced) {
     views.MessageLink = MessageLink;
     views.ContainableProcessorElement = ContainableProcessorElement;
 
-    return sequenced;
+    return views;
 
-}(SequenceD || {}));
+});

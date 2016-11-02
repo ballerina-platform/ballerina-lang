@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-var Tools = (function (tools) {
-    var views = tools.Views || {};
+define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
 
     var toolGroupView = Backbone.View.extend({
 
@@ -66,8 +64,6 @@ var Tools = (function (tools) {
         }
     });
 
-    views.ToolGroupView = toolGroupView;
-    tools.Views = views;
-    return tools;
+    return toolGroupView;
 
-}(Tools || {}));
+});

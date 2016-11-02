@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-var GeoCore = (function (geo) {
-    var models = geo.Models || {};
-
+define(['require', 'jquery', 'lodash', 'backbone'], function (require, $, _, Backbone) {
+    var geo = {};
+    var models = {};
     var Point = Backbone.Model.extend(
         /** @lends Point.prototype */
         {
@@ -172,10 +171,7 @@ var GeoCore = (function (geo) {
     // set models
     models.Point = Point;
     models.Line = Line;
-
-
     geo.Models = models;
 
     return geo;
-
-}(GeoCore || {}));
+});

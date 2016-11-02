@@ -1,4 +1,4 @@
-/**
+   /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,8 +16,8 @@
  * under the License.
  */
 
-var Diagrams = (function (diagrams) {
-    var utils = diagrams.Utils || {};
+define(['require'], function (require) {
+    var utils = {};
 
     /**
      * Create the view for a particular model.
@@ -31,7 +31,6 @@ var Diagrams = (function (diagrams) {
     };
 
     utils.createViewForModel = createViewForModel;
-    diagrams.Utils = utils;
-    return diagrams;
+    return utils;
 
-}(Diagrams || {}));
+});

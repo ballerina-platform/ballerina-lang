@@ -15,11 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['lifeline_defs/end_point',
+        'lifeline_defs/resource',
+        'lifeline_defs/source',
+        'lifeline_defs/worker'], function (endPoint, resource, source, worker) {
+    var lifeLines = {};
 
-var Dialogs = (function (dialogs) {
-    var views = dialogs.Views || {};
+    lifeLines[endPoint.id] = endPoint;
+    lifeLines[resource.id] = resource;
+    lifeLines[source.id] = source;
+    lifeLines[worker.id] = worker;
 
-    dialogs.Views = views;
-    return dialogs;
+    return {
+        lifelines: lifeLines
+    };
+});
 
-}(Dialogs || {}));

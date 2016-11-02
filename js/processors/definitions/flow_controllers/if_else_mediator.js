@@ -16,9 +16,7 @@
  * under the License.
  */
 
-var Processors = (function (processors) {
-
-    var flowControllers = processors.flowControllers || {};
+define(['d3'], function (d3) {
 
     //Define manipulator mediators
     var ifElseMediator = {
@@ -132,12 +130,6 @@ var Processors = (function (processors) {
         }
     };
 
-    // Add defined mediators to manipulators
-    // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    flowControllers.IfElseMediator = ifElseMediator;
+   return ifElseMediator;
 
-    processors.flowControllers = flowControllers;
-
-    return processors;
-
-}(Processors || {}));
+});

@@ -15,18 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['require', 'app/tabs/resource/resource-tab-list', 'app/tabs/resource/resource-tab-list'], function (require, resourceTabList, resourceTab) {
+    return  {
+        ResourceTabList: resourceTabList,
+        ResourceTab: resourceTab
+    }
+});
 
-var MainElements = (function (mainElements) {
-
-    var lifelines = mainElements.lifelines || {};
-
-    // Methods
-    var get = function (lifelineId) {
-        return lifelines[lifelineId];
-    };
-
-    mainElements.getLifeline = get;
-
-    return mainElements;
-
-}(MainElements || {}));

@@ -16,8 +16,7 @@
  * under the License.
  */
 
-var Tools = (function (tools) {
-    var views = tools.Views || {};
+define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
 
     var toolView = Backbone.View.extend({
 
@@ -84,8 +83,6 @@ var Tools = (function (tools) {
 
     });
 
-    views.ToolView = toolView;
-    tools.Views = views;
-    return tools;
+    return toolView;
 
-}(Tools || {}));
+});

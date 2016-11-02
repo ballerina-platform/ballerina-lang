@@ -354,38 +354,74 @@
     </div>
 </footer>
 <!-- End: footer -->
+
+<script src="lib/requirejs-2.3.2/require.js"></script>
 <!-- Ace editor config load before loading require.js due to syntax diff -->
 <script type="text/javascript">
-
-    var require = {
+    requirejs.config({
         baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
         paths: {
+            lib: "lib",
+            app: "js",
+            log4javascript: "lib/log4javascript-1.4.13/log4javascript",
+            logger: "js/logger/logger",
+            jquery: "lib/jquery_v1.9.1/jquery-1.9.1.min",
+            jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
+            js_tree: "lib/js-tree-v3.3.2/jstree.js",
+            nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
+            theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
+            bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
+            lodash: "lib/lodash_v4.13.1/lodash",
+            backbone: "lib/backbone_v1.3.3/backbone",
+            d3: "lib/d3_v4.1.1/d3",
             ace: "lib/ace",
-            beautify: "lib/beautify"
+            beautify: "lib/beautify",
+            resource_tabs: "js/tabs/resource/module",
+            geometry: "js/geometry/geometry-core",
+            d3utils: "js/d3-plugin/d3-utils",
+            diagram_model: "js/diagram/diagram-model",
+            diagram_view: "js/diagram/diagram-view",
+            diagram_util: "js/diagram/diagram-utils",
+            diagram: "js/diagram/diagrams",
+            seq_diagram: "js/sequence_diagram/sequence_diagram",
+            main_elements: "js/main-elements/main-elements",
+            lifeline_defs: "js/main-elements/definitions/life-lines",
+            processors: "js/processors/processors" ,
+            processor_defs: "js/processors/definitions" ,
+            tool_palette: "js/tool-palette/tool-palette",
+            file_browser: "js/file-browser/file-browser"
         },
-        waitSeconds: 30
-    };
+        map: {
+            "*": {
+                underscore: "lodash"
+            }
+        }
+    });
+
+    require(['app/main'], function(app) {
+        app.createToolPalette();
+    });
+
 </script>
 
+<!--<script type="text/javascript" src="lib/log4javascript-1.4.13/log4javascript.js"></script>-->
+<!--&lt;!&ndash; Jquery/Jquery UI JS &ndash;&gt;-->
+<!--<script src="lib/jquery_v1.9.1/jquery-1.9.1.min.js"></script>-->
+<!--<script src="lib/js-tree-v3.3.2/jstree.js"></script>-->
+<!--<script src="lib/jquery-ui_v1.12.1/jquery-ui.min.js"></script>-->
+<!--<script src="lib/nanoscroller_0.8.7/jquery.nanoscroller.min.js"></script>-->
+<!--<script src="lib/theme-wso2_1.0/js/theme-wso2.js"></script>-->
+<!--<script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>-->
+<!--<script src="lib/lodash_v4.13.1/lodash.js"></script>-->
+<!--<script src="lib/backbone_v1.3.3/backbone.js"></script>-->
+<!--<script src="lib/backbone_storage_adapter_v1.1.0/backbone.localStorage.js"></script>-->
+<!--<script src="lib/d3_v4.1.1/d3.js"></script>-->
+<!--&lt;!&ndash;script src="lib/require_js/require.js"></script&ndash;&gt;-->
+<!--<script src="lib/svg-panNZoom/jquery.svg.pan.zoom.js"></script>-->
 
-<script type="text/javascript" src="lib/log4javascript-1.4.13/log4javascript.js"></script>
-<!-- Jquery/Jquery UI JS -->
-<script src="lib/jquery_v1.9.1/jquery-1.9.1.min.js"></script>
-<script src="lib/js-tree-v3.3.2/jstree.js"></script>
-<script src="lib/jquery-ui_v1.12.1/jquery-ui.min.js"></script>
-<script src="lib/nanoscroller_0.8.7/jquery.nanoscroller.min.js"></script>
-<script src="lib/theme-wso2_1.0/js/theme-wso2.js"></script>
-<script src="lib/bootstrap_v3.3.6/js/bootstrap.js"></script>
-<script src="lib/lodash_v4.13.1/lodash.js"></script>
-<script src="lib/backbone_v1.3.3/backbone.js"></script>
-<script src="lib/backbone_storage_adapter_v1.1.0/backbone.localStorage.js"></script>
-<script src="lib/d3_v4.1.1/d3.js"></script>
-<script src="lib/requirejs-2.1.11/require.js"></script>
-<!--script src="lib/require_js/require.js"></script-->
-<script src="lib/svg-panNZoom/jquery.svg.pan.zoom.js"></script>
-
+<!--
 <script src="js/logger/logger.js"></script>
-<!-- custom js libs -->
+&lt;!&ndash; custom js libs &ndash;&gt;
 <script src="js/geometry/geometry-core.js"></script>
 <script src="js/d3-plugin/d3-utils.js"></script>
 <script src="js/diagram/diagram-model.js"></script>
@@ -413,16 +449,16 @@
 <script src="js/processors/definitions/manipulators/log_mediator.js"></script>
 <script src="js/processors/definitions/manipulators/fork_processor.js"></script>
 <script src="js/processors/definitions/manipulators/header_processor.js"></script>
-<!--<script src="js/processors/definitions/manipulators/payload_processor.js"></script>-->
-<!--This is the datamapper processor-->
-<!--TODO: Need to rename this to datamapper-->
-<!--<script src="js/processors/definitions/manipulators/payload_factory_mediator.js"></script>-->
+&lt;!&ndash;<script src="js/processors/definitions/manipulators/payload_processor.js"></script>&ndash;&gt;
+&lt;!&ndash;This is the datamapper processor&ndash;&gt;
+&lt;!&ndash;TODO: Need to rename this to datamapper&ndash;&gt;
+&lt;!&ndash;<script src="js/processors/definitions/manipulators/payload_factory_mediator.js"></script>&ndash;&gt;
 
 <script src="js/processors/definitions/flow_controllers.js"></script>
 <script src="js/processors/definitions/flow_controllers/if_else_mediator.js"></script>
 <script src="js/processors/definitions/flow_controllers/try_block_mediator.js"></script>
-<!--<script src="js/processors/definitions/flow_controllers/switch_mediator.js"></script>-->
-<!--script src="js/processors/definitions/flow_controllers/invoke_mediator.js"></script-->
+&lt;!&ndash;<script src="js/processors/definitions/flow_controllers/switch_mediator.js"></script>&ndash;&gt;
+&lt;!&ndash;script src="js/processors/definitions/flow_controllers/invoke_mediator.js"></script&ndash;&gt;
 
 <script src="js/sequence_diagram/sequenced-model.js"></script>
 <script src="js/sequence_diagram/sequenced-view.js"></script>
@@ -431,278 +467,7 @@
 <script src="js/processors/elements/ProcessorFactory.js"></script>
 <script src="js/tree.js"></script>
 <script src="js/app.js"></script>
-
-<script>
-    var formatter;
-    define('formatter', ['beautify/beautify'],
-            function(beautify) {
-                var beautify = beautify.js_beautify;
-                formatter = beautify;
-
-            }
-    );
-    require(['formatter']);
-
-</script>
-
-<script>
-    var mainEditor;
-    define('testace', ['ace/ace','ace/ext/language_tools'],
-            function(ace,langTools) {
-                console.log("source view lookup");
-                var editor = ace.edit("ace-editor");
-                mainEditor = editor;
-                //Avoiding ace warning
-                mainEditor.$blockScrolling = Infinity;
-                mainEditor.setTheme("ace/theme/twilight");
-                mainEditor.session.setMode("ace/mode/nel");
-                var langTools = ace.require("ace/ext/language_tools");
-                mainEditor.setOptions({
-                    enableBasicAutocompletion:true
-
-
-                });
-                mainEditor.setBehavioursEnabled(true);
-                //bind auto complete to key press
-                mainEditor.commands.on("afterExec", function(e){
-                    if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
-                        mainEditor.execCommand("startAutocomplete");
-                    }
-                });
-
-            }
-    );
-    require(['testace']);
-
-</script>
-<script>
-    var configLocation,
-        configFileName,
-        saveServiceURL = workspaceServiceURL + "/write",
-        newWizardError = $('#newWizardError'),
-        alertArea = $('#alertArea');
-
-    newWizardError.hide();
-    alertArea.hide();
-
-    var fileBrowser;
-
-    function openFileBrowser(){
-        $('#fileBrowserModel').modal('show');
-        $('#newConfigModal').modal('hide');
-        fileBrowser = new Tools.Views.FileBrowser({container:"#fileTree"});
-    }
-
-    function onFileBrowserClose(){
-        $('#fileBrowserModel').modal('hide');
-        $('#newConfigModal').modal('show');
-    }
-
-    function onFileSelected(){
-        var selected = fileBrowser.selected;
-        if(selected){
-            $('#fileBrowserModel').modal('hide');
-            $('#newConfigModal').modal('show');
-            $('#location').val(selected);
-        }
-    }
-
-    function alertSuccess(msg){
-        alertArea.text(msg);
-        alertArea.removeClass("alert-danger");
-        alertArea.addClass("alert-success");
-        alertArea.fadeTo(4000, 500).slideUp(500, function () {
-            alertArea.slideUp(500);
-        });
-    }
-
-    function alertError(msg){
-        alertArea.text(msg);
-        alertArea.addClass("alert-danger");
-        alertArea.removeClass("alert-success");
-        alertArea.fadeTo(4000, 500).slideUp(500, function () {
-            alertArea.slideUp(500);
-        });
-    }
-
-    function setBreadcrumb(path, file){
-        path = _.replace(path, /\\/gi, "/")
-        var pathArr = _.split(path, "/");
-
-        var breadCumbList = $("#breadcrumbList");
-        breadCumbList.empty();
-        pathArr.forEach(function(segment){
-            if(!_.isEmpty(segment)){
-                var li = $("<li>"+segment+"</li>");
-                li.addClass("breadcrumb-item");
-                breadCumbList.append(li);
-            }
-        });
-        var fileLi = $("<li>"+file+"</li>");
-        fileLi.addClass("breadcrumb-item");
-        fileLi.addClass("active");
-        breadCumbList.append(fileLi);
-    }
-
-    function onNewClick(){
-        newWizardError.hide();
-        $('#newConfigModal').modal('show');
-    }
-
-    function saveConfiguration() {
-        var tags = serviceTags.split(",");
-        var tagString = "{";
-        tags.forEach(function (tag) {
-            tagString += ('"' + tag + '",');
-        });
-        tagString += '}';
-        var config = '@Path ("' + serviceBasePath + '")\n' +
-                '@Source (interface="default")\n' +
-                '@Service (tags =' + tagString + ', description = "' + serviceDescription + '", produces = ' + serviceProduces + ')\n' +
-                'package ' + servicePackageName + ';\n\n';
-        config += diagram.parseTree();
-        var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
-
-        $.ajax({
-            url: saveServiceURL,
-            type: "POST",
-            data: payload,
-            contentType: "text/plain; charset=utf-8",
-            async: false,
-            success: function (data, textStatus, xhr) {
-                if (xhr.status == 200) {
-                   alertSuccess("Configuration was saved successfully.");
-                } else {
-                    alertError("Something went wrong. " + textStatus);
-                }
-            },
-            error: function(res, errorCode, error){
-                alertError("Something went wrong. " + errorCode + " " + error + " " + res.responseText);
-            }
-        });
-    }
-
-    function newConfiguration() {
-        configLocation = document.getElementById("location");
-        configFileName = document.getElementById("configName");
-        if(_.isEmpty(configLocation.value)){
-            newWizardError.text("Invalid Value for Location." );
-            newWizardError.show();
-            return;
-        }
-        if(_.isEmpty(configFileName.value)){
-            newWizardError.text("Invalid Value for File Name." );
-            newWizardError.show();
-            return;
-        }
-
-
-        var config = '@Path ("/stock")\n' +
-                '@Source (interface="default")\n' +
-                '@Service (tags = {"stock_info","stock_update"}, description = "Rest api for do operations on admin", produces = MediaType.APPLICATION_JSON)\n' +
-                'package com.sample;\n\n';
-
-        var payload = "location=" + (btoa(configLocation.value + "/" + configFileName.value)) + "&config=" + (btoa(config));
-
-        $.ajax({
-            url: saveServiceURL,
-            type: "POST",
-            data: payload,
-            contentType: "text/plain; charset=utf-8",
-            async: false,
-            success: function (data, textStatus, xhr) {
-                if (xhr.status == 200) {
-                    alertSuccess("File " + configLocation.value + "/" + configFileName.value  + " created successfully.");
-                    $('#newConfigModal').modal('hide');
-                    $("#breadcrumbRow").show();
-                    setBreadcrumb(configLocation.value, configFileName.value);
-                    $("#empty-workspace-wrapper").hide();
-                    $("#resource-tabs-wrapper").show();
-                    $("#serviceAndSourceButtonsRow").show();
-                    initTabs();
-                } else {
-                    newWizardError.text("Something went wrong. " + textStatus);
-                    newWizardError.show();
-                }
-            },
-            error: function(res, errorCode, error){
-                newWizardError.text("Something went wrong. " + errorCode + " " + error + " " + res.responseText);
-                newWizardError.show();
-            }
-        });
-
-    }
-    function toggleSource() {
-        var editorMain = document.getElementById("sourceViewTab");
-        var leftContainer = document.getElementById("left-container");
-        var rightContainer = document.getElementById("right-container");
-
-        //Reset ace editor content
-        mainEditor.setValue("");
-        //Hard coded sourceConfig :TODO
-        var tags = serviceTags.split(",");
-        var tagString = "{";
-        tags.forEach(function (tag) {
-            tagString += ('"' + tag + '",');
-        });
-        tagString = tagString.substring(0, tagString.length - 1);
-        tagString += '}';
-        var sourceConfig = '@Path ("' + serviceBasePath + '")\n' +
-                '@Source (interface="default")\n' +
-                '@Service (tags =' + tagString + ', description = "' + serviceDescription + '", produces = ' + serviceProduces + ')\n' +
-                'package ' + servicePackageName + ';\n\n';
-
-        //Source not loaded yet
-        if (editorMain.style.display == "none") {
-            // hide tool pallette
-            leftContainer.style.display = "none";
-            // hide design view
-            rightContainer.style.display = "none";
-            // show source view
-            editorMain.style.display = "block";
-            // update link heading to Design:TODO
-            $('#sourceId').html('DESIGN');
-            var treeResult = diagram.parseTree();
-            var formattedValue = formatter(treeResult, {indent_size: 3});
-            sourceConfig += formattedValue;
-            mainEditor.session.setValue(sourceConfig);
-            console.log("editor content" + mainEditor.getValue());
-        }
-        //source already loaded, hence need to load the design view
-        else {
-            // Hide source view
-            editorMain.style.display = "none";
-
-            // Left container is temporarily not showing since we have disabled the file explorer at the moment
-            // leftContainer.style.display = "block";
-            rightContainer.style.display = "block";
-            $('#sourceId').html('SOURCE');
-        }
-    }
-
-    function onSourceClick(){
-        toggleSource();
-    }
-
-    function loadServiceProperties() {
-        $("#produces").val(serviceProduces);
-        $("#basePath").val(serviceBasePath);
-        $("#packageName").val(servicePackageName);
-        $("#tags").val(serviceTags);
-        $("#description").val(serviceDescription);
-        $('#servicePropertiesModal').modal('show');
-    }
-
-    function saveServiceProperties() {
-        serviceProduces = $("#produces").val();
-        serviceBasePath = $("#basePath").val();
-        servicePackageName = $("#packageName").val();
-        serviceTags = $("#tags").val();
-        serviceDescription = $("#description").val();
-        $('#servicePropertiesModal').modal('hide');
-    }
-</script>
-
+-->
 </body>
 
 </html>

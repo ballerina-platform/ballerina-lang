@@ -15,16 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['d3'], function (d3) {
 
-var MainElements = (function (mainElements) {
-    var lifelines = mainElements.lifelines || {};
-
-    var resourceLifeline = {
-        id: "Resource",
-        title: "Pipe Line",
+    var sourceLifeline = {
+        id: "Source",
+        title: "Source",
         icon: "images/tool-icons/lifeline.svg",
         colour : "#ffffff",
-        class : "resource",
+        class : "source",
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -40,57 +38,28 @@ var MainElements = (function (mainElements) {
             }
             return cloneCallBack;
         },
-        parameters: [
-            {
-                key: "title",
-                value: "Resource"
-            },
-            {
-                key: "path",
-                value: ""
-            },
-            {
-                key: "get",
-                value: false
-            },
-            {
-                key: "put",
-                value: false
-            },
-            {
-                key: "post",
-                value: false
-            }
-        ],
         propertyPaneSchema: [
             {
                 key: "title",
                 text: "Title"
-            },
+            }
+        ],
+        parameters: [
             {
-                key: "path",
-                text: "Path"
-            },
-            {
-                key: "get",
-                checkbox: "GET"
-            },
-            {
-                key: "put",
-                checkbox: "PUT"
-            },
-            {
-                key: "post",
-                checkbox: "POST"
+                key: "title",
+                value: "Title"
             }
         ],
         textModel : "undefined",
         utils: {
             getMyPropertyPaneSchema : function () {
-                return MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
+                return MainElements.lifelines.SourceLifeline.propertyPaneSchema;
             },
             getMyParameters: function (model) {
-                return model.attributes.parameters;
+                return [{
+                        key: "title",
+                        value: model.attributes.title
+                    }];
             },
             saveMyProperties: function (model, inputs) {
                 model.attributes.title = inputs.title.value;
@@ -98,33 +67,14 @@ var MainElements = (function (mainElements) {
                     {
                         key: "title",
                         value: inputs.title.value
-                    },
-                    {
-                        key: "path",
-                        value: inputs.path.value
-                    },
-                    {
-                        key: "get",
-                        value: inputs.get.checked
-                    },
-                    {
-                        key: "put",
-                        value: inputs.put.checked
-                    },
-                    {
-                        key: "post",
-                        value: inputs.post.checked
                     }
                 ];
             },
             canConnectTo: function () {
-                return ['Worker', 'Source', 'ContainableProcessorElement', 'EndPoint'];
+                return ['Resource'];
             }
         }
     };
 
-    lifelines.ResourceLifeline = resourceLifeline;
-    mainElements.lifelines = lifelines;
-
-    return mainElements;
-})(MainElements || {});
+    return sourceLifeline;
+});

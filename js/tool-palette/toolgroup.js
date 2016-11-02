@@ -15,12 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-var Tools = (function (tools) {
-    var models = tools.Models || {};
+define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbone, Tool) {
 
     var ToolCollection = Backbone.Collection.extend({
-        model: Tools.Models.Tool
+        model: Tool
     });
 
     var toolGroup = Backbone.Model.extend({
@@ -37,8 +35,6 @@ var Tools = (function (tools) {
         }
     });
 
-    models.ToolGroup = toolGroup;
-    tools.Models = models;
-    return tools;
-}(Tools || {}));
+    return toolGroup;
+});
 

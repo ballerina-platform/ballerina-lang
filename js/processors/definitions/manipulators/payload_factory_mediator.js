@@ -15,10 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-var Processors = (function (processors) {
-
-    var manipulators = processors.manipulators || {};
+define(['d3'], function (d3) {
 
     //Payload Factory mediator definition
     var payloadFactoryMediator = {
@@ -98,12 +95,6 @@ var Processors = (function (processors) {
         }
     };
 
-    // Add defined mediators to manipulators
-    // Mediator id should be exactly match to name defining here.(Eg : "LogMediator")
-    manipulators.PayLoadFactoryMediator = payloadFactoryMediator;
+   return payloadFactoryMediator;
 
-    processors.manipulators = manipulators;
-
-    return processors;
-
-}(Processors || {}));
+});

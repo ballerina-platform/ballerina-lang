@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-var Diagrams = (function (diagrams) {
-    var models = diagrams.models || {};
+define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
+    var models = {};
 
     var DiagramElement = Backbone.Model.extend(
         /** @lends DiagramElement.prototype */
@@ -42,8 +41,6 @@ var Diagrams = (function (diagrams) {
 
             modelName: "DiagramElement",
 
-            nameSpace: diagrams,
-
             idAttribute: this.cid,
 
             defaults: {}
@@ -64,8 +61,6 @@ var Diagrams = (function (diagrams) {
             },
 
             modelName: "Shape",
-
-            nameSpace: diagrams,
 
             addConnectionPoint: function (cntPoints) {
                 if (_.isArray(cntPoints)) {
@@ -95,8 +90,6 @@ var Diagrams = (function (diagrams) {
             },
 
             modelName: "Link",
-
-            nameSpace: diagrams,
 
             defaults: {},
 
@@ -148,8 +141,6 @@ var Diagrams = (function (diagrams) {
             },
 
             modelName: "Connection",
-
-            nameSpace: diagrams,
 
             onConnectionPointMoved: function (event) {
                 this.point().move(event.dx, event.dy);
@@ -214,8 +205,6 @@ var Diagrams = (function (diagrams) {
 
             modelName: "ConnectionPoint",
 
-            nameSpace: diagrams,
-
             connectLink: function (link, options) {
                 var connection = new Connection({type: options.type, link: link, connectionPoint: this});
                 this.connections.add(connection);
@@ -254,8 +243,6 @@ var Diagrams = (function (diagrams) {
 
             modelName: "DiagramElements",
 
-            nameSpace: diagrams,
-
             model: DiagramElement
 
         });
@@ -263,8 +250,6 @@ var Diagrams = (function (diagrams) {
 // Model for Tab based resources
     var Tab = Backbone.Model.extend({
         modelName: "Tab",
-        nameSpace: diagrams,
-
 
         initialize: function (attrs, options) {
             //store diagram object of a given tab
@@ -357,8 +342,6 @@ var Diagrams = (function (diagrams) {
             modelName: "Diagram",
 
             selectedNode: null,
-
-            nameSpace: diagrams,
 
             lifeLineMap: {},
 
@@ -632,8 +615,6 @@ var Diagrams = (function (diagrams) {
 
             modelName: "DiagramsList",
 
-            nameSpace: diagrams,
-
             model: Diagram
 
         });
@@ -781,8 +762,6 @@ var Diagrams = (function (diagrams) {
     models.ConnectionPoint = ConnectionPoint;
     models.Tab = Tab;
     models.DiagramsList = DiagramsList;
-    diagrams.Models = models;
 
-
-    return diagrams;
-}(Diagrams || {}));
+    return models;
+});

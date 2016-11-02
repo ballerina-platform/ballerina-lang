@@ -15,24 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
-
-    var toolPalatteView = Backbone.View.extend({
-        el: '#tool-palette',
-
-        initialize: function () {
-        },
-
-        render: function () {
-            var self = this;
-            this.collection.each(function (group) {
-                var groupView = new Tools.Views.ToolGroupView({model: group});
-                groupView.render(self.$el);
-                self.$el.addClass('non-user-selectable');
-            });
-            return this;
+define(['require', 'app/tool-palette/tool', 'app/tool-palette/tool-view', 'app/tool-palette/toolgroup',
+        'app/tool-palette/toolgroup-view', 'app/tool-palette/toolpalette', 'app/tool-palette/toolpalette-view'],
+    function (require, tool, toolView, toolGroup, toolGroupView, toolPaletteModel, toolPaletteView) {
+        return  {
+            Models: {
+                Tool: tool,
+                ToolGroup: toolGroup,
+                ToolPalette: toolPaletteModel
+            },
+            Views: {
+                ToolView: toolView,
+                ToolGroupView: toolGroupView,
+                ToolPaletteView: toolPaletteView
+            }
         }
     });
 
-    return toolPalatteView;
-});

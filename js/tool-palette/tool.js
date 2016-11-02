@@ -16,8 +16,7 @@
  * under the License.
  */
 
-var Tools = (function (tools) {
-    var models = tools.Models || {};
+define(['require', 'backbone'], function (require, Backbone) {
 
     var tool = Backbone.Model.extend({
         initialize: function (attrs, options) {
@@ -32,8 +31,6 @@ var Tools = (function (tools) {
         }
     });
 
-    models.Tool = tool;
-    tools.Models = models;
-    return tools;
-}(Tools || {}));
+    return tool;
+});
 

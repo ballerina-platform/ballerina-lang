@@ -15,9 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['require', 'jquery', 'lodash', 'app/tabs/generic/tab'], function (require, jquery, _, TabList) {
 
-var SequenceD = (function (sequenced) {
-    var utils = sequenced.Utils = sequenced.Utils || {};
-    return sequenced;
+    var resourceTabList;
 
-}(SequenceD || {}));
+    resourceTabList = TabList.extend({
+        initialize: function (options) {
+
+        },
+        render: function () {
+        }
+    });
+
+    return resourceTabList;
+});

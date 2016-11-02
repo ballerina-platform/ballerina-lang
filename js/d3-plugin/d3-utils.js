@@ -16,8 +16,9 @@
  * under the License.
  */
 
-var D3Utils = (function (d3_utils) {
+define(['require', 'jquery', 'd3'], function (require, $, d3) {
 
+    var d3_utils = {};
     var d3Ref = undefined;
 
     var heights = {
@@ -374,7 +375,7 @@ var D3Utils = (function (d3_utils) {
                 eventManager.notifyParent(parentModel, model);
             }
         }
-    }
+    };
     /**
      * Save properties in selected element's model by calling saveMyProperties method in respective elements
      */
@@ -565,4 +566,4 @@ var D3Utils = (function (d3_utils) {
 
     return d3_utils;
 
-}(D3Utils || {}));
+});

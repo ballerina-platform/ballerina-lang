@@ -16,9 +16,9 @@
  * under the License.
  */
 
-var Diagrams = (function (diagrams) {
+define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
 
-    var views = diagrams.Views || {};
+    var views = {};
 
     var DiagramElementView = Backbone.View.extend(
         /** @lends DiagramElementView.prototype */
@@ -1530,7 +1530,6 @@ var Diagrams = (function (diagrams) {
     views.TabView = TabView;
     views.DiagramOutlineView = DiagramOutlineView;
 
-    diagrams.Views = views;
-    return diagrams;
+    return views;
 
-}(Diagrams || {}));
+});

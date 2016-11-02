@@ -16,8 +16,7 @@
  * under the License.
  */
 
-var Tools = (function (tools) {
-    var views = tools.Views || {};
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'js_tree'], function (require, $, d3, Backbone, _) {
 
     var fileBrowser = Backbone.View.extend({
 
@@ -73,8 +72,6 @@ var Tools = (function (tools) {
         }
     });
 
-    views.FileBrowser = fileBrowser;
-    tools.Views = views;
-    return tools;
+    return fileBrowser;
 
-}(Tools || {}));
+});

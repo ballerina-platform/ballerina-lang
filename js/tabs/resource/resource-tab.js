@@ -15,22 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['require', 'jquery', 'lodash', 'app/tabs/generic/tab'], function (require, jquery, _, Tab) {
+    var  resourceTab;
 
-var Dialogs = (function (dialogs) {
-    var controls = dialogs.Controls || {};
+    resourceTab = Tab.extend({
+        initialize: function (options) {
 
-    var updateDeleteControler = Backbone.Model.extend({
-        initialize: function (attrs, options) {
         },
-
-        modelName: "UpdateDeleteControler",
-        lifeline: '',
-        x: 0,
-        y: 0,
-        visible: 'false'
+        render: function () {
+        }
     });
 
-    controls.UpdateDeleteControler = updateDeleteControler;
-    dialogs.Controls = controls;
-    return dialogs;
-}(Dialogs || {}));
+    return resourceTab;
+});
