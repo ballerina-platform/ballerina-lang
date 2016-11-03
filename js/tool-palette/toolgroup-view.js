@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
+define(['require', 'jquery', 'd3', 'backbone', './tool-view'], function (require, $, d3, Backbone, ToolView) {
 
     var toolGroupView = Backbone.View.extend({
 
@@ -47,7 +47,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, 
             groupBodyDiv.attr('class', "tool-group-body");
 
             this.model.toolCollection.each(function (tool) {
-                var toolView = new Tools.Views.ToolView({model: tool});
+                var toolView = new ToolView({model: tool});
                 toolView.render(groupBodyDiv);
             });
 

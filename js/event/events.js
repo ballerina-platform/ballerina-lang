@@ -15,12 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './toolgroup'], function (require, Backbone, ToolGroup) {
+define(['lodash'], function (_) {
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
-    });
-
-    return toolPalette;
 });
 
