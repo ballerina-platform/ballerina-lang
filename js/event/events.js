@@ -15,7 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash'], function (_) {
+define(['lodash', 'backbone'], function (_, Backbone) {
+    var EventManager = Backbone.Model.extend(
+    /** @lends Eventmanager.prototype */
+    {
+        idAttribute: this.cid,
+        modelName: "EventManager",
+        /**
+         * @augments Backbone.Model
+         * @constructs
+         * @class Handles validations of the diagram
+         */
+        initialize: function (attrs, options) {
+            this.draggedElement();
+            this.isActivated();
+            this.currentType();
+            this.invalid = false;
+        },
+        //keep the current dragged element type
+        currentType: function (type) {
+            if (_.isUndefined(type)) {
+                return this.get('currentType');
+            } else {
+                this.set('currentType', type);
+            }
+        },
+        draggedElement: function (element) {
+            if (_.isUndefined(element)) {
+                return this.get('draggedElement');
+            } else {
+                this.set('draggedElement', element);
+            }
+        },
+        // check the current activated element's valid drops
+        isActivated: function (activatedType) {
+            if (activatedType != null) {
+                if (this.currentType() != "Resource" && this.currentType() != "EndPoint" && this.currentType() != "Source") {
+                    // validation for active endpoints
+                    if (activatedType.includes("EndPoint") || activatedType.includes("Source")) {
+                        this.invalid = true;
+                    }
+                    else {
+                        this.invalid = false;
+                    }
+                }
+            }
+        },
+        // Called when text controller changes occurs and if there is a parent element
+        notifyParent: function(parentModel, currentTextModel){
+            console.log("parent received it");
+        }
+    });
+
+    return EventManager;
 
 });
 

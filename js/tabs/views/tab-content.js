@@ -15,11 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/sequence_diagram/models/models', 'app/sequence_diagram/views/views'],
-    function (require, models, views) {
-        return  {
-            Models: models,
-            Views: views
-        }
-    });
+define(['jquery', 'lodash', 'backbone'], function($, _, Backbone){
 
+    //View to create matching tab content div for a tab
+    var TabContentView = Backbone.View.extend({
+        //Adding created template to editor div
+        el: ".resource-content",
+        template: _.template($('#resourceContentTemplate').html()),
+        initialize: function () {
+        },
+        render: function () {
+            var html = this.template(this.model.attributes);
+            $(this.el).append(html);
+        }
+
+    });
+    return TabContentView;
+});

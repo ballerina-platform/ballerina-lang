@@ -15,11 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'main_elements', 'processors', 'command', 'workspace', 'jquery_ui'],
+define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'main_elements', 'processors', 'command', 'workspace',
+        'canvas', 'jquery_ui', 'lifeline_defs/definitions'],
 
-    function (require, log, $, _, Diagrams, Tools, MainElements, Processors, CommandManager, WorkspaceManager) {
+    function (require, log, $, _, Diagrams, Tools, MainElements, Processors, CommandManager, WorkspaceManager, Canvas) {
 
     var app = {};
+
+    var alertArea = $('#alertArea');
+
     // Setting the default service parameters
     var serviceProduces = "MediaType.APPLICATION_JSON",
         serviceBasePath = "/stock",
@@ -27,31 +31,9 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
         serviceTags = "stock_info,stock_update",
         serviceDescription = "Rest api for get stocks details";
 
-    var lifeLineOptions = {};
-        lifeLineOptions.class = "lifeline";
-        // Lifeline rectangle options
-        lifeLineOptions.rect = {};
-        lifeLineOptions.rect.width = 100;
-        lifeLineOptions.rect.height = 30;
-        lifeLineOptions.rect.roundX = 20;
-        lifeLineOptions.rect.roundY = 20;
-        lifeLineOptions.rect.class = "lifeline-rect";
-        // Lifeline middle-rect options
-        lifeLineOptions.middleRect = {};
-        lifeLineOptions.middleRect.width = 100;
-        lifeLineOptions.middleRect.height = 300;
-        lifeLineOptions.middleRect.roundX = 1;
-        lifeLineOptions.middleRect.roundY = 1;
-        lifeLineOptions.middleRect.class = "lifeline-middleRect";
-        // Lifeline options
-        lifeLineOptions.line = {};
-        lifeLineOptions.line.height = 300;
-        lifeLineOptions.line.class = "lifeline-line";
-        // Lifeline text options
-        lifeLineOptions.text = {};
-        lifeLineOptions.text.class = "lifeline-title";
 
-    app.init = function(){
+
+         app.init = function(){
 
         app.workspaceServiceURL = "http://localhost:8289/service/workspace";
         app.eventManager = new Diagrams.Models.EventManager({});
@@ -90,22 +72,6 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
         // Create the model for the diagram
         app.diagram = new Diagrams.Models.Diagram({});
         app.definedConstants = [];
-    };
-
-    app.createPoint = function (x, y) {
-        return new GeoCore.Models.Point({'x': x, 'y': y});
-    };
-
-    app.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
-        return new SequenceD.Models.LifeLine({
-            title: title,
-            centerPoint: center,
-            cssClass: cssClass,
-            utils: utils,
-            parameters: parameters,
-            textModel: textModel,
-            type: type
-        });
     };
 
     app.createToolPalette = function(){
@@ -168,7 +134,7 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
         var svgUId1 = tabId1 + "4";
         var options = {selector: linkId1, wrapperId: svgUId1};
         // get the current diagram view for the tab
-        var currentView1 = dgModel1.createDiagramView(dgModel1, options);
+        var currentView1 = new Canvas({model: dgModel1, options: options});
         // set current tab's diagram view as default view
         currentView1.currentDiagramView(currentView1);
         tab.setDiagramViewForTab(currentView1);
@@ -235,7 +201,6 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
     require(['testace']);
 
     app.alertSuccess = function alertSuccess(msg){
-        var alertArea = $('#alertArea');
         alertArea.text(msg);
         alertArea.removeClass("alert-danger");
         alertArea.addClass("alert-success");
@@ -245,7 +210,6 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
     };
 
     app.alertError = function alertError(msg){
-        var alertArea = $('#alertArea');
         alertArea.text(msg);
         alertArea.addClass("alert-danger");
         alertArea.removeClass("alert-success");

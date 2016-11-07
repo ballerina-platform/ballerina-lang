@@ -1,4 +1,4 @@
-   /**
+/**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,22 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['backbone', './diagram'], function (Backbone, Diagram) {
 
-define(['require'], function (require) {
-    var utils = {};
+    var DiagramsList = Backbone.Collection.extend(
+        /** @lends DiagramsList.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class DiagramElements represents the collection of diagrams
+             */
+            initialize: function (models, options) {
+            },
 
-    /**
-     * Create the view for a particular model.
-     *
-     * @param {Object} model instance
-     * @param {Object} [options] options for the view constructor
-     * @returns {Object} view object created for the model
-     */
-    var createViewForModel = function (model, options) {
-        return new model.nameSpace.Views[model.modelName + "View"]({model: model, options: options});
-    };
+            modelName: "DiagramsList",
 
-    utils.createViewForModel = createViewForModel;
-    return utils;
+            model: Diagram
 
+        });
+
+    return DiagramsList;
 });
+

@@ -15,11 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/sequence_diagram/models/models', 'app/sequence_diagram/views/views'],
-    function (require, models, views) {
-        return  {
-            Models: models,
-            Views: views
-        }
-    });
 
+define(['./message', './life-line', './processor', './message-point', './message-link'],
+
+    function (Message, Processor, LifeLine, MessagePoint, MessageLink) {
+
+        var models = {};
+        // set models
+        models.Message = Message;
+        models.LifeLine = LifeLine;
+        models.Processor = Processor;
+        models.MessagePoint = MessagePoint;
+        models.MessageLink = MessageLink;
+
+        return models;
+
+});

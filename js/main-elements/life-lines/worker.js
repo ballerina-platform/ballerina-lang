@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['d3'], function (d3) {
+define(['d3', 'main_elements'], function (d3, MainElements) {
 
-    var sourceLifeline = {
-        id: "Source",
-        title: "Source",
+    //Worker definition
+    var workerLifeline = {
+        id: "Worker",
+        title: "Worker",
         icon: "images/tool-icons/lifeline.svg",
-        colour : "#ffffff",
-        class : "source",
+        class : "worker",
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -38,43 +38,46 @@ define(['d3'], function (d3) {
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
-            }
-        ],
-        parameters: [
-            {
-                key: "title",
-                value: "Title"
-            }
-        ],
-        textModel : "undefined",
         utils: {
-            getMyPropertyPaneSchema : function () {
-                return MainElements.lifelines.SourceLifeline.propertyPaneSchema;
-            },
-            getMyParameters: function (model) {
-                return [{
-                        key: "title",
-                        value: model.attributes.title
-                    }];
+            propertyPaneSchema: [
+                {
+                    key: "title",
+                    text: "Title"
+                },
+                {
+                    key: "url",
+                    text: "URL"
+                }
+            ],
+            parameters: [
+                {
+                    key: "title",
+                    value: "End Point"
+                },
+                {
+                    key: "url",
+                    value: "https://"
+                }
+            ],
+            canConnectTo: function () {
+                return ['Worker', 'Resource', 'ContainableProcessorElement', 'EndPoint'];
             },
             saveMyProperties: function (model, inputs) {
                 model.attributes.title = inputs.title.value;
-                model.attributes.parameters = [
+                model.attributes.utils.utils.parameters = [
                     {
                         key: "title",
-                        value: inputs.title.value
+                        text: inputs.title.value
+                    },
+                    {
+                        key: "url",
+                        value: inputs.url.value
                     }
                 ];
             },
-            canConnectTo: function () {
-                return ['Resource'];
-            }
+            textModel : "undefined"
         }
     };
 
-    return sourceLifeline;
+    MainElements.lifelines.WorkerLifeline = workerLifeline;
 });

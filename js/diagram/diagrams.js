@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/diagram/diagram-model', 'app/diagram/diagram-view', 'app/diagram/diagram-utils'],
-    function (require, models, views, utils) {
+define(['require', 'app/diagram/models/models', 'app/diagram/views/views'],
+    function (require, models, views) {
         return  {
             Models: models,
-            Views: views,
-            Utils: utils
+            Views: views
         }
     });
 

@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['d3'], function (d3) {
 
-    var resourceLifeline = {
-        id: "Resource",
-        title: "Pipe Line",
+define(['d3', 'main_elements'], function (d3, MainElements) {
+    //End point definition
+    var endPointLifeline = {
+        id: "EndPoint",
+        title: "End Point",
         icon: "images/tool-icons/lifeline.svg",
-        colour : "#ffffff",
-        class : "resource",
+        class : "endpoint",
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -38,57 +38,42 @@ define(['d3'], function (d3) {
             }
             return cloneCallBack;
         },
-        parameters: [
-            {
-                key: "title",
-                value: "Resource"
-            },
-            {
-                key: "path",
-                value: ""
-            },
-            {
-                key: "get",
-                value: false
-            },
-            {
-                key: "put",
-                value: false
-            },
-            {
-                key: "post",
-                value: false
-            }
-        ],
         propertyPaneSchema: [
             {
                 key: "title",
                 text: "Title"
             },
             {
-                key: "path",
-                text: "Path"
+                key: "url",
+                text: "URL"
+            }
+        ],
+        parameters: [
+            {
+                key: "title",
+                value: "End Point"
             },
             {
-                key: "get",
-                checkbox: "GET"
-            },
-            {
-                key: "put",
-                checkbox: "PUT"
-            },
-            {
-                key: "post",
-                checkbox: "POST"
+                key: "url",
+                value: "https://"
             }
         ],
         textModel : "undefined",
         utils: {
             getMyPropertyPaneSchema : function () {
-                return MainElements.lifelines.ResourceLifeline.propertyPaneSchema;
+                return MainElements.lifelines.EndPointLifeline.propertyPaneSchema;
             },
             getMyParameters: function (model) {
-                return model.attributes.parameters;
+                return [
+                    {
+                        key: "title",
+                        value: model.attributes.title
+                    },
+                    {
+                        key: "url",
+                        value: model.attributes.parameters[1].value
+                    }
+                ];
             },
             saveMyProperties: function (model, inputs) {
                 model.attributes.title = inputs.title.value;
@@ -98,27 +83,18 @@ define(['d3'], function (d3) {
                         value: inputs.title.value
                     },
                     {
-                        key: "path",
-                        value: inputs.path.value
-                    },
-                    {
-                        key: "get",
-                        value: inputs.get.checked
-                    },
-                    {
-                        key: "put",
-                        value: inputs.put.checked
-                    },
-                    {
-                        key: "post",
-                        value: inputs.post.checked
+                        key: "url",
+                        value: inputs.url.value
                     }
                 ];
             },
             canConnectTo: function () {
-                return ['Worker', 'Source', 'ContainableProcessorElement', 'EndPoint'];
-            }
+                return ['Worker', 'Resource', 'ContainableProcessorElement'];
+            },
+            textModel : "undefined"
         }
     };
-    return resourceLifeline;
+
+    MainElements.lifelines.EndPointLifeline = endPointLifeline;
+
 });

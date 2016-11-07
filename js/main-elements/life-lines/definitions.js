@@ -15,11 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/sequence_diagram/models/models', 'app/sequence_diagram/views/views'],
-    function (require, models, views) {
-        return  {
-            Models: models,
-            Views: views
-        }
-    });
+define(['lifeline_defs/end_point',
+    'lifeline_defs/resource',
+    'lifeline_defs/source',
+    'lifeline_defs/worker'], function () {
+});
 

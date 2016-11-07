@@ -15,11 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/sequence_diagram/models/models', 'app/sequence_diagram/views/views'],
-    function (require, models, views) {
-        return  {
-            Models: models,
-            Views: views
-        }
+define(['backbone', './child'], function (Backbone, Child) {
+
+    var Children = Backbone.Collection.extend(
+    /** @lends Children.prototype */
+    {
+        /**
+         * @augments Backbone.Collection
+         * @constructs
+         * @class Children
+         */
+        initialize: function (models, options) {
+        },
+
+        modelName: "Children",
+
+        model: Child
+
     });
+
+    return Children;
+});
 

@@ -15,11 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/sequence_diagram/models/models', 'app/sequence_diagram/views/views'],
-    function (require, models, views) {
-        return  {
-            Models: models,
-            Views: views
+define(['lodash', './element'], function (_, DiagramElementView) {
+
+    var ConnectionView = DiagramElementView.extend(
+    /** @lends ConnectionView.prototype */
+    {
+        /**
+         * @augments DiagramElementView.View
+         * @constructs
+         * @class ConnectionView Represents the view for connections in a diagram.
+         * @param {Object} options Rendering options for the view
+         */
+        initialize: function (options) {
+            DiagramElementView.prototype.initialize.call(this, options);
+        },
+
+        render: function (paperID) {
+            DiagramElementView.prototype.render.call(this, paperID);
         }
     });
+
+    return ConnectionView;
+});
 

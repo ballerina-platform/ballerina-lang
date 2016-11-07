@@ -15,17 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lifeline_defs/end_point',
-        'lifeline_defs/resource',
-        'lifeline_defs/source',
-        'lifeline_defs/worker'], function (endPoint, resource, source, worker) {
+define([], function () {
     var lifeLines = {};
-
-    lifeLines[endPoint.id] = endPoint;
-    lifeLines[resource.id] = resource;
-    lifeLines[source.id] = source;
-    lifeLines[worker.id] = worker;
-
     return {
         lifelines: lifeLines
     };

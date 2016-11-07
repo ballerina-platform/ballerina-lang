@@ -15,11 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/sequence_diagram/models/models', 'app/sequence_diagram/views/views'],
-    function (require, models, views) {
-        return  {
-            Models: models,
-            Views: views
-        }
-    });
+define(['./element', './elements', './shape', './link', './connection', './connection-point', './text'],
 
+    function (DiagramElement, DiagramElements, Shape, Link, Connection, ConnectionPoint, TextController) {
+
+        var models = {};
+
+        models.DiagramElement = DiagramElement;
+        models.DiagramElements = DiagramElements;
+        models.Shape = Shape;
+        models.Link = Link;
+        models.Connection = Connection;
+        models.ConnectionPoint = ConnectionPoint;
+        models.TextController = TextController;
+
+        return models;
+});
