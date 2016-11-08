@@ -15,9 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
+define(['./if-else-mediator',
+    './invoke-mediator',
+    './switch-mediator',
+    './try-block-mediator'], function (IfElseMediator, InvokeMediator, SwitchMediator, TryBlockMediator) {
+
+    var flowControllers = {};
+
+    flowControllers[IfElseMediator.id] = IfElseMediator;
+    flowControllers[InvokeMediator.id] = InvokeMediator;
+    flowControllers[SwitchMediator.id] = SwitchMediator;
+    flowControllers[TryBlockMediator.id] = TryBlockMediator;
+
+    flowControllers.get = function(id){
+      return flowControllers[id];
     };
+
+    return flowControllers;
 });
 

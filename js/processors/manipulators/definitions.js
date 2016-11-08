@@ -15,9 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
+define(['./fork-processor', './header-processor', './log-mediator', './payload-factory-mediator', './payload-processor'],
+
+    function (ForkProcessor, HeaderProcessor, LogMediator, PayloadFactoryMediator, PayloadProcessor) {
+
+    var manipulators = {};
+
+    manipulators[ForkProcessor.id] = ForkProcessor;
+    manipulators[HeaderProcessor.id] = HeaderProcessor;
+    manipulators[LogMediator.id] = LogMediator;
+    manipulators[PayloadFactoryMediator.id] = PayloadFactoryMediator;
+    manipulators[PayloadProcessor.id] = PayloadProcessor;
+
+    manipulators.get = function(id){
+        return manipulators[id];
     };
+
+    return manipulators;
 });
 

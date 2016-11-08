@@ -15,33 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(
-    ['processor_defs/flow_controllers/if_else_mediator',
-    'processor_defs/flow_controllers/invoke_mediator',
-    'processor_defs/flow_controllers/switch_mediator',
-    'processor_defs/flow_controllers/try_block_mediator',
-
-    'processor_defs/manipulators/fork_processor',
-    'processor_defs/manipulators/header_processor',
-    'processor_defs/manipulators/log_mediator',
-    'processor_defs/manipulators/payload_factory_mediator',
-    'processor_defs/manipulators/payload_processor'],
-    function (ifElseMediator, invokeMediator, switchMediator, tryBlockMediator,
-            forkProcessor, headerProcessor, logMediator, payloadFactoryMediator, payloadProcessor) {
-        var flowControllers = {};
-        var manipulators = {};
-
-        flowControllers[ifElseMediator.id] = ifElseMediator;
-        flowControllers[invokeMediator.id] = invokeMediator;
-        flowControllers[switchMediator.id] = switchMediator;
-        flowControllers[tryBlockMediator.id] = tryBlockMediator;
-
-        manipulators[forkProcessor.id] = forkProcessor;
-        manipulators[headerProcessor.id] = headerProcessor;
-        manipulators[logMediator.id] = logMediator;
-        manipulators[payloadFactoryMediator.id] = payloadFactoryMediator;
-        manipulators[payloadProcessor.id] = payloadProcessor;
-
+define(['app/processors/flow-controllers/definitions', 'app/processors/manipulators/definitions'],
+    function (flowControllers, manipulators) {
         return {
             flowControllers: flowControllers,
             manipulators: manipulators

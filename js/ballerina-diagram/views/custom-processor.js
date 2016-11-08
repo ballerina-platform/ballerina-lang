@@ -15,9 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
+define(['./processor'], function (ProcessorView) {
+
+    var CustomProcessorView = ProcessorView.extend(
+        /** @lends CustomProcessorView.prototype */
+        {
+            /**
+             * @augments ProcessorView
+             * @constructs
+             * @class .
+             * @param {Object} options Rendering options for the view
+             */
+            initialize: function (options) {
+                ProcessorView.prototype.initialize.call(this, options);
+            },
+
+            verticalDrag: function () {
+                return false;
+            },
+
+            render: function (paperID) {
+
+            }
+
+        });
+
+    return CustomProcessorView;
+
 });
 

@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'main_elements', 'processors', 'command', 'workspace',
-        'canvas', 'jquery_ui', 'lifeline_defs/definitions'],
+define(['require', 'logger', 'jquery', 'lodash', 'ballerina_diagram', 'diagram_core', 'tool_palette', 'main_elements', 'processors', 'command', 'workspace', 'event', 'tab', 'jquery_ui'],
 
-    function (require, log, $, _, Diagrams, Tools, MainElements, Processors, CommandManager, WorkspaceManager, Canvas) {
+    function (require, log, $, _, BallerinaDiagrams, DiagramCore, Tools, MainElements, Processors, CommandManager, WorkspaceManager, EventManager, Tab) {
 
     var app = {};
 
@@ -31,12 +30,10 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
         serviceTags = "stock_info,stock_update",
         serviceDescription = "Rest api for get stocks details";
 
-
-
-         app.init = function(){
+        app.init = function(){
 
         app.workspaceServiceURL = "http://localhost:8289/service/workspace";
-        app.eventManager = new Diagrams.Models.EventManager({});
+        app.eventManager = new EventManager({});
         app.commandManager = new CommandManager(app);
         app.workspaceManager = new WorkspaceManager(app);
 
@@ -68,9 +65,6 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
                 }
             });
         });
-
-        // Create the model for the diagram
-        app.diagram = new Diagrams.Models.Diagram({});
         app.definedConstants = [];
     };
 
@@ -110,20 +104,19 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
         paletteView.render();
     };
 
-
     app.initTabs = function initTabs(){
 
         // Configuring dynamic  tab support
-        var tab = new Diagrams.Models.Tab({
+        var tab = new Tabs.Models.Tab({
             resourceId: "seq_1",
             hrefId: "#seq_1",
             resourceTitle: "Resource",
             createdTab: false
         });
 
-        var tabListView = new Diagrams.Views.TabListView({model: tab});
+        var tabListView = new Tabs.Views.TabListView({model: tab});
         tabListView.render(tab);
-        var diagramObj1 = new Diagrams.Models.Diagram({});
+        var diagramObj1 = new BallerinaDiagrams.Views.DiagramView({});
         tab.addDiagramForTab(diagramObj1);
         var tabId1 = tab.get("resourceId");
         var linkId1 = tab.get("hrefId");
@@ -134,19 +127,19 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
         var svgUId1 = tabId1 + "4";
         var options = {selector: linkId1, wrapperId: svgUId1};
         // get the current diagram view for the tab
-        var currentView1 = new Canvas({model: dgModel1, options: options});
+        var currentView1 =  new BallerinaDiagrams.Views.DiagramView({model: dgModel1, options: options});
         // set current tab's diagram view as default view
         currentView1.currentDiagramView(currentView1);
         tab.setDiagramViewForTab(currentView1);
         // mark tab as visited
         tab.setSelectedTab();
-        var preview = new Diagrams.Views.DiagramOutlineView({mainView: currentView1});
+        var preview = currentView1.createPreview({containerSelector:".preview-container"});
         preview.render();
         tab.preview(preview);
 
-        defaultView.renderMainElement("Source", 1, MainElements.lifelines.SourceLifeline);
+        defaultView.renderMainElement("Source", 1, MainElements.lifelines.get('Source'));
         defaultView.model.sourceLifeLineCounter(1);
-        defaultView.renderMainElement("Resource", 1, MainElements.lifelines.ResourceLifeline);
+        defaultView.renderMainElement("Resource", 1, MainElements.lifelines.get('Resource'));
         defaultView.model.resourceLifeLineCounter(1);
         //create initial arrow between source and resource
         var currentSource = defaultView.model.diagramSourceElements().models[0];
@@ -258,7 +251,7 @@ define(['require', 'logger', 'jquery', 'lodash', 'diagram', 'tool_palette', 'mai
     app.loadGlobalVariables = function(){
         window.$ = jquery;
         window._ = _;
-        window.Backbone = backbone;
+        window.Backbone = Backbone;
         window.log4javascript = log4javascript;
     };
 

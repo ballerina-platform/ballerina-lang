@@ -15,9 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
-});
 
+define(['./processor-factory', 'app/ballerina-diagram/models/life-line'],
+
+    function (ProcessorFactory, LifeLine) {
+        var utils = {};
+        utils.ProcessorFactory = ProcessorFactory;
+
+        utils.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
+            return new LifeLine({
+                title: title,
+                centerPoint: center,
+                cssClass: cssClass,
+                utils: utils,
+                parameters: parameters,
+                textModel: textModel,
+                type: type
+            });
+        };
+        return utils;
+});

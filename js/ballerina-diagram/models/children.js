@@ -15,9 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
+define(['backbone', './child'], function (Backbone, Child) {
+
+    var Children = Backbone.Collection.extend(
+        /** @lends Children.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class Children represents the collection for children.
+             */
+            initialize: function (models, options) {
+            },
+
+            modelName: "Children",
+
+            model: Child
+
+        });
+
+    return Children;
 });
 

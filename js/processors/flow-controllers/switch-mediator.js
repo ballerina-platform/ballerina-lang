@@ -15,64 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['d3'], function (d3) {
+define(['d3', 'tree_node'], function (d3, TreeNode) {
 
-    var SourceLifeline = {
-        id: "Source",
-        title: "Source",
-        icon: "images/tool-icons/lifeline.svg",
-        class : "source",
-        dragCursorOffset : { left: 50, top: 50 },
+    //Define manipulator mediators
+    var SwitchMediator = {
+        id: "SwitchMediator",
+        title: "Switch",
+        icon: "images/tool-icons/switch.svg",
+        colour : "#334455",
+        type : "DynamicContainableProcessor",
+        dragCursorOffset : { left: 40, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
-                d3.xml("images/tool-icons/lifeline.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                d3.xml("images/tool-icons/switch_drag.svg").mimeType("image/svg+xml").get(function(error, xml) {
                     if (error) throw error;
                     var svg = xml.getElementsByTagName("svg")[0];
-                    d3.select(svg).attr("width", "100px").attr("height", "100px");
-                    d3.select(svg).attr("width", "100px");
+                    d3.select(svg).attr("width", "80px").attr("height", "65px");
                     div.node().appendChild(svg);
                 });
                 return div.node();
             }
             return cloneCallBack;
         },
-        propertyPaneSchema: [
-            {
-                key: "title",
-                text: "Title"
-            }
-        ],
         parameters: [
             {
-                key: "title",
-                value: "Title"
+                key: "description",
+                value: "Description"
             }
         ],
-        textModel : "undefined",
+        propertyPaneSchema: [
+            {
+                key: "description",
+                text: "Description"
+            }
+        ],
         utils: {
             getMyPropertyPaneSchema : function () {
-                return MainElements.lifelines.SourceLifeline.propertyPaneSchema;
+                return Processors.flowControllers.SwitchMediator.propertyPaneSchema;
             },
             getMyParameters: function (model) {
-                return [{
-                        key: "title",
-                        value: model.attributes.title
-                    }];
+                return model.attributes.parameters;
             },
             saveMyProperties: function (model, inputs) {
-                model.attributes.title = inputs.title.value;
                 model.attributes.parameters = [
                     {
-                        key: "title",
-                        value: inputs.title.value
+                        key: "description",
+                        value: inputs.description.value
                     }
                 ];
             },
-            canConnectTo: function () {
-                return ['Resource'];
+            getMySubTree: function (model) {
+                return new TreeNode("SwitchMediator", "SwitchMediator");
             }
         }
     };
-    return SourceLifeline;
+
+    return SwitchMediator;
+
 });

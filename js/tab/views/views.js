@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
-});
 
+define(['./tab','./tab-content', './tab-list'],
+    function (TabView, TabContentView, TabListView) {
+        var views = {};
+        views.TabView = TabView;
+        views.TabContentView = TabContentView;
+        views.TabListView = TabListView;
+        return views;
+});

@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
-});
+define(['require', 'app/ballerina-diagram/models/models', 'app/ballerina-diagram/views/views', 'app/ballerina-diagram/utils/utils'],
+    function (require, models, views, utils) {
+        return  {
+            Models: models,
+            Views: views,
+            Utils: utils
+        }
+    });
 

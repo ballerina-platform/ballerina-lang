@@ -355,47 +355,48 @@
 <!-- End: footer -->
 
 <script src="lib/requirejs-2.3.2/require.js"></script>
-<!-- Ace editor config load before loading require.js due to syntax diff -->
 <script type="text/javascript">
     requirejs.config({
         baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
         paths: {
             lib: "lib",
             app: "js",
-            log4javascript: "lib/log4javascript-1.4.13/log4javascript",
-            logger: "js/logger/logger",
+            /////////////////////////
+            // third party modules //
+            ////////////////////////
             jquery: "lib/jquery_v1.9.1/jquery-1.9.1.min",
             jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
+            bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
+            d3: "lib/d3_v4.1.1/d3",
+            log4javascript: "lib/log4javascript-1.4.13/log4javascript",
+            lodash: "lib/lodash_v4.13.1/lodash",
+            backbone: "lib/backbone_v1.3.3/backbone",
             svg_pan_zoom: "lib/svg-panNZoom/jquery.svg.pan.zoom",
             js_tree: "lib/js-tree-v3.3.2/jstree",
             nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
-            bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
-            lodash: "lib/lodash_v4.13.1/lodash",
-            backbone: "lib/backbone_v1.3.3/backbone",
-            d3: "lib/d3_v4.1.1/d3",
             ace: "lib/ace",
             beautify: "lib/beautify",
-            resource_tabs: "js/tabs/resource/module",
-            geometry: "js/geometry/geometry-core",
-            d3utils: "js/d3-plugin/d3-utils",
-            command: "js/command/commands",
+            ///////////////////////
+            // custom modules ////
+            //////////////////////
+            logger: "js/logger/logger",
+            d3utils: "js/d3-utils/d3-utils",
+            diagram_core: "js/diagram-core/diagram-core",
+            ballerina_diagram: "js/ballerina-diagram/ballerina-diagram",
+            command: "js/command/command",
             workspace: "js/workspace/workspace",
-            diagram_model: "js/diagram/diagram-model",
-            diagram_view: "js/diagram/diagram-view",
-            diagram_util: "js/diagram/diagram-utils",
-            diagram: "js/diagram/diagrams",
-            seq_diagram: "js/sequence_diagram/sequence-diagram",
-            lifeline_defs: "js/main-elements/life-lines/",
+            event: "js/event/event",
             main_elements: "js/main-elements/main-elements",
             processors: "js/processors/processors" ,
-            processor_defs: "js/processors/definitions" ,
             tool_palette: "js/tool-palette/tool-palette",
             file_browser: "js/file-browser/file-browser",
-            canvas: "js/canvas/canvas"
+            tab: "js/tab/tab",
+            tree_node: "js/tree/tree-node"
         },
         map: {
             "*": {
+                // use lodash instead of underscore
                 underscore: "lodash"
             }
         }

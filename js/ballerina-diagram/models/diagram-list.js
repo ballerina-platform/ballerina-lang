@@ -15,9 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
+define(['backbone', './diagram'], function (Backbone, Diagram) {
+
+    var DiagramList = Backbone.Collection.extend(
+        /** @lends DiagramList.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class DiagramList represents the collection of diagrams
+             */
+            initialize: function (models, options) {
+            },
+
+            modelName: "DiagramList",
+
+            model: Diagram
+
+        });
+
+    return DiagramList;
 });
 

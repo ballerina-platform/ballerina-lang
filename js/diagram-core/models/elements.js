@@ -15,9 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
+define(['lodash', 'backbone', './element'], function (_, Backbone, DiagramElement) {
+
+    var DiagramElements = Backbone.Collection.extend(
+    /** @lends DiagramElements.prototype */
+    {
+        /**
+         * @augments Backbone.Collection
+         * @constructs
+         * @class DiagramElements represents the collection for elements in a diagram.
+         */
+        initialize: function (models, options) {
+        },
+
+        modelName: "DiagramElements",
+
+        model: DiagramElement
+
+    });
+
+    return DiagramElements;
 });
 

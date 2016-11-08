@@ -15,9 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
-});
+define([], function(){
+    function treeNode(value, type, cStart, cEnd) {
+        this.object = undefined;
+        this.children = [];
+        this.value = value;
+        this.type = type;
+        this.configStart = cStart;
+        this.configEnd = cEnd;
 
+        this.getChildren = function () {
+            return this.children;
+        };
+
+        this.getValue = function () {
+            return this.value;
+        };
+    }
+    return treeNode;
+
+});

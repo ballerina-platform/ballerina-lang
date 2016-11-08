@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['d3', 'main_elements'], function (d3, MainElements) {
+define(['d3'], function (d3) {
 
-    var resourceLifeline = {
+    var ResourceLifeline = {
         id: "Resource",
         title: "Pipe Line",
         icon: "images/tool-icons/lifeline.svg",
@@ -120,5 +120,5 @@ define(['d3', 'main_elements'], function (d3, MainElements) {
         }
     };
 
-    MainElements.lifelines.ResourceLifeline = resourceLifeline;
+    return ResourceLifeline;
 });

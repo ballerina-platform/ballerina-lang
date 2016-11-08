@@ -15,19 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./end-point', './resource', './source', './worker'], function (EndPoint, Resource, Source, Worker) {
+define(['backbone', './containable-processor-element'], function (Backbone, ContainableProcessorElement) {
 
-    var lifelines = {};
+    var ContainableProcessorElements = Backbone.Collection.extend(
+        /** @lends ContainableProcessorElements.prototype */
+        {
+            /**
+             * @augments Backbone.Collection
+             * @constructs
+             * @class ContainableProcessorElements represents the collection for ContainableProcessorElement.
+             */
+            initialize: function (models, options) {
+            },
 
-    lifelines[EndPoint.id] = EndPoint;
-    lifelines[Resource.id] = Resource;
-    lifelines[Source.id] = Source;
-    lifelines[Worker.id] = Worker;
+            modelName: "ContainableProcessorElements",
 
-    lifelines.get = function(id){
-        return lifelines[id];
-    };
+            model: ContainableProcessorElement
 
-    return lifelines;
+        });
+
+    return ContainableProcessorElements;
 });
 

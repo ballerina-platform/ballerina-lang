@@ -15,9 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/definitions'], function (lifeLines) {
-    return {
-        lifelines: lifeLines
-    };
-});
+define(['./point', './line', './element', './elements', './shape', './link', './connection', './connection-point', './text'],
 
+    function (Point, Line, DiagramElement, DiagramElements, Shape, Link, Connection, ConnectionPoint, TextController) {
+
+        var models = {};
+        models.Point = Point;
+        models.Line = Line;
+        models.DiagramElement = DiagramElement;
+        models.DiagramElements = DiagramElements;
+        models.Shape = Shape;
+        models.Link = Link;
+        models.Connection = Connection;
+        models.ConnectionPoint = ConnectionPoint;
+        models.TextController = TextController;
+
+        return models;
+});
