@@ -18,18 +18,16 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+
 
 /**
  * JAXB representation of a transport listener.
@@ -161,10 +159,6 @@ public class ListenerConfiguration {
 
     private List<Parameter> getDefaultParameters() {
         List<Parameter> defaultParams = new ArrayList<>();
-        Parameter executorWorkerPoolSize = new Parameter();
-        executorWorkerPoolSize.setName(Constants.EXECUTOR_WORKER_POOL_SIZE);
-        executorWorkerPoolSize.setValue(String.valueOf(Constants.DEFAULT_EXECUTOR_WORKER_POOL_SIZE));
-        defaultParams.add(executorWorkerPoolSize);
         return defaultParams;
 
     }

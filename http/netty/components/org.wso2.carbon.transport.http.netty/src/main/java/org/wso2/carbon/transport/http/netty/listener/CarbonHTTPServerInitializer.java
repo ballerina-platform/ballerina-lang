@@ -31,9 +31,11 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A class that responsible for create server side channels.
@@ -60,8 +62,13 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         if (parameters != null && parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE) != null) {
             BufferFactory.createInstance(Integer.parseInt(parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE)));
         }
+
+    }
+
+    public void setup(Set<TransportProperty> transportPropertySet) {
+
         try {
-            connectionManager = ConnectionManager.getInstance(parameters);
+            connectionManager = ConnectionManager.getInstance(transportPropertySet);
 
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);

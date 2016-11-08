@@ -91,7 +91,6 @@ public class PassThroughHttpGetMethodTestCase {
           dependsOnMethods = "passthroughWorkerPoolEnabledGetTestCase")
     public void passthroughDisruptorEnabledGetTestCase() {
         TestUtil.shutDownCarbonTransport(httpTransportListener);
-        senderConfiguration.setDisruptorOn(true);
         httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
         try {

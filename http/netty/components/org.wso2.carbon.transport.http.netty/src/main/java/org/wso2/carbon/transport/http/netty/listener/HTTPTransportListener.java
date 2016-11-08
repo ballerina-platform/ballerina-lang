@@ -68,6 +68,7 @@ public class HTTPTransportListener extends TransportListener {
 
     private Set<TransportProperty> transportProperties;
 
+
     public HTTPTransportListener(Set<TransportProperty> transportProperties,
             Set<ListenerConfiguration> listenerConfigurationSet) {
         super("ServerBootStrapper");
@@ -185,6 +186,7 @@ public class HTTPTransportListener extends TransportListener {
 
         }
         handler.setup(paramMap);
+        handler.setup(transportProperties);
         bootstrap.childHandler(handler);
     }
 

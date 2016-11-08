@@ -18,20 +18,15 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
-import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.TransportThreadFactory;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+
 
 /**
  * JAXB representation of the Netty transport sender configuration.
@@ -42,9 +37,6 @@ public class SenderConfiguration {
 
     public static final String DEFAULT_KEY = "netty";
 
-    private boolean disruptorOn = true;
-
-    private ExecutorService executorService;
 
     public static SenderConfiguration getDefault() {
         SenderConfiguration defaultConfig;
@@ -152,20 +144,5 @@ public class SenderConfiguration {
                 parameters);
     }
 
-    public boolean isDisruptorOn() {
-        return disruptorOn;
-    }
 
-    public void setDisruptorOn(boolean disruptorOn) {
-        this.disruptorOn = disruptorOn;
-    }
-
-    public ExecutorService getNettyHandlerExecutorService() {
-        return executorService;
-    }
-
-    public void setNettyHandlerWorkerPool(int nettyHandlerWorkerPool) {
-        executorService = Executors.newFixedThreadPool(nettyHandlerWorkerPool,
-                new TransportThreadFactory(new ThreadGroup(Constants.WORKER_POOL_SENDER_NAME)));
-    }
 }

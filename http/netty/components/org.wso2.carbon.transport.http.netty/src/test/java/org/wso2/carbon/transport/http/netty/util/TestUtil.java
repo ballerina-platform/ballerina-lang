@@ -77,6 +77,8 @@ public class TestUtil {
             SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
         Set<ListenerConfiguration> interfacesSet = new HashSet<>();
         Set<TransportProperty> transportProperties = new HashSet<>();
+        Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
+        senderConfigurationSet.add(senderConfiguration);
         interfacesSet.add(listenerConfiguration);
         int bossGroupSize = Runtime.getRuntime().availableProcessors();
         int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
@@ -90,7 +92,7 @@ public class TestUtil {
         transportProperties.add(workerGroup);
         transportProperties.add(workerGroup);
         HTTPTransportListener httpTransportListener = new HTTPTransportListener(transportProperties, interfacesSet);
-        TransportSender transportSender = new HTTPSender(senderConfiguration);
+        TransportSender transportSender = new HTTPSender(senderConfigurationSet, transportProperties);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
         carbonMessageProcessor.setTransportSender(transportSender);
         Thread transportRunner = new Thread(() -> {
@@ -184,7 +186,10 @@ public class TestUtil {
 
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
             SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
-        TransportSender transportSender = new HTTPSender(senderConfiguration);
+        Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
+        senderConfigurationSet.add(senderConfiguration);
+        Set<TransportProperty> transportProperties = new HashSet<>();
+        TransportSender transportSender = new HTTPSender(senderConfigurationSet, transportProperties);
         carbonMessageProcessor.setTransportSender(transportSender);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }

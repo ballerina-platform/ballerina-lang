@@ -27,16 +27,18 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.carbon.transport.http.netty.config.Parameter;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A class creates connections with BE and send messages.
@@ -45,22 +47,29 @@ public class HTTPSender implements TransportSender {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPSender.class);
     private String id;
+    private SenderConfiguration defaultSenderConfiguration;
     private ConnectionManager connectionManager;
-    private SenderConfiguration senderConfiguration;
+    private Set<SenderConfiguration> senderConfiguration;
+    private Map<String, SenderConfiguration> senderConfigurationMap;
+    private Set<TransportProperty> transportProperties;
 
-    public HTTPSender(SenderConfiguration senderConfiguration) {
-        this.id = senderConfiguration.getId();
+    public HTTPSender(Set<SenderConfiguration> senderConfiguration, Set<TransportProperty> transportProperties) {
+        if (senderConfiguration.isEmpty()) {
+            log.error("Please specify at least one sender configuration");
+            return;
+        }
         this.senderConfiguration = senderConfiguration;
-        Map<String, String> paramMap = new HashMap();
-        if (senderConfiguration.getParameters() != null && !senderConfiguration.getParameters().isEmpty()) {
-            for (Parameter parameter : senderConfiguration.getParameters()) {
-                paramMap.put(parameter.getName(), parameter.getValue());
-            }
-
+        this.transportProperties = transportProperties;
+        senderConfigurationMap = senderConfiguration.stream()
+                .collect(Collectors.toMap(SenderConfiguration::getId, config -> config));
+        Iterator itr = senderConfiguration.iterator();
+        if (itr.hasNext()) {
+            defaultSenderConfiguration = (SenderConfiguration) itr.next();
+            this.id = defaultSenderConfiguration.getId();
         }
 
-        BootstrapConfiguration.createBootStrapConfiguration(paramMap);
-        this.connectionManager = ConnectionManager.getInstance(paramMap);
+        BootstrapConfiguration.createBootStrapConfiguration(this.transportProperties);
+        this.connectionManager = ConnectionManager.getInstance(this.transportProperties);
     }
 
     @Override
@@ -74,7 +83,7 @@ public class HTTPSender implements TransportSender {
             msg.setProperty(Constants.HOST, "localhost");
         }
         if (msg.getProperty(Constants.PORT) == null) {
-            SSLConfig sslConfig = senderConfiguration.getSslConfig();
+            SSLConfig sslConfig = defaultSenderConfiguration.getSslConfig();
             int port = 80;
             if (sslConfig != null) {
                 port = 443;
@@ -96,7 +105,7 @@ public class HTTPSender implements TransportSender {
         Channel outboundChannel = null;
         try {
             TargetChannel targetChannel = connectionManager
-                    .getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
+                    .getTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
             if (targetChannel != null) {
                 outboundChannel = targetChannel.getChannel();
                 targetChannel.getTargetHandler().setCallback(callback);

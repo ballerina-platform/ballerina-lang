@@ -32,7 +32,6 @@ import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * OSGi BundleActivator of the Netty transport component.
@@ -42,8 +41,7 @@ public class HTTPTransportActivator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         bundleContext.registerService(CarbonTransport.class, createServerBootstrapper(), null);
-        createClientBootstrapper().
-                forEach(sender -> bundleContext.registerService(TransportSender.class, sender, null));
+        bundleContext.registerService(TransportSender.class, createClientBootstrapper(), null);
         HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
@@ -73,12 +71,12 @@ public class HTTPTransportActivator implements BundleActivator {
      *
      * @return Netty transport instances
      */
-    private Set<HTTPSender> createClientBootstrapper() {
-        Set<SenderConfiguration> senderConfigurations = YAMLTransportConfigurationBuilder.build()
-                .getSenderConfigurations();
-        Set<HTTPSender> senders = senderConfigurations.stream()
-                .map((senderConfiguration) -> new HTTPSender(senderConfiguration)).collect(Collectors.toSet());
-        return senders;
+    private HTTPSender createClientBootstrapper() {
+        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
+        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
+        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
+        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
+        return sender;
     }
 
     @Override
