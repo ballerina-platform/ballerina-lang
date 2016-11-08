@@ -87,6 +87,7 @@ public class PassThroughHttpGetMethodTestCase {
         super();
     }
 
+
     @AfterClass(groups = "passthroughGET")
     public void cleanUp() {
         TestUtil.cleanUp(httpTransportListener, httpServer);

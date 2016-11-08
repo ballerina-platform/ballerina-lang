@@ -19,8 +19,10 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A class which represents connection pool specific parameters.
@@ -28,7 +30,6 @@ import java.util.Map;
 public class PoolConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(PoolConfiguration.class);
-
 
     private static PoolConfiguration poolConfiguration;
 
@@ -52,26 +53,26 @@ public class PoolConfiguration {
 
     private int executorServiceThreads = 20;
 
+    private PoolConfiguration(Set<TransportProperty> transportPropertySet) {
 
-    private PoolConfiguration(Map<String, String> parameters) {
-
-        if (parameters != null) {
-            numberOfPools = parameters.get(Constants.NUMBER_OF_POOLS) != null ?
-                            Integer.parseInt(parameters.get(Constants.NUMBER_OF_POOLS)) : 0;
-            maxActivePerPool = parameters.get(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL) != null ?
-                               Integer.parseInt(parameters.get(Constants
-                                                                          .MAX_ACTIVE_CONNECTIONS_PER_POOL)) : -1;
-            minIdlePerPool = parameters.get(Constants.MIN_IDLE_CONNECTIONS_PER_POOL) != null ?
-                             Integer.parseInt
-                                        (parameters.get(Constants.MIN_IDLE_CONNECTIONS_PER_POOL)) : 0;
-            maxIdlePerPool = parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL) != null ?
-                             Integer.parseInt(parameters.get(Constants.MAX_IDLE_CONNECTIONS_PER_POOL)) : 100;
-            minEvictableIdleTime = parameters.get(Constants.MIN_EVICTION_IDLE_TIME) != null ?
-                                   Integer.parseInt(parameters.get(Constants.MIN_EVICTION_IDLE_TIME)) : 5 * 60 * 1000L;
-            executorServiceThreads = parameters.get(Constants.NO_THREADS_IN_EXECUTOR_SERVICE) != null ?
-                                     Integer.parseInt(parameters.get(Constants
-                                                                                .NO_THREADS_IN_EXECUTOR_SERVICE)) : 20;
-
+        if (transportPropertySet != null && !transportPropertySet.isEmpty()) {
+            Iterator iterator = transportPropertySet.iterator();
+            while (iterator.hasNext()) {
+                TransportProperty transportProperty = (TransportProperty) iterator.next();
+                if (transportProperty.getName().equals(Constants.NUMBER_OF_POOLS)) {
+                    numberOfPools = (Integer) transportProperty.getValue();
+                } else if (transportProperty.getName().equals(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL)) {
+                    maxActivePerPool = (Integer) transportProperty.getValue();
+                } else if (transportProperty.getName().equals(Constants.MIN_IDLE_CONNECTIONS_PER_POOL)) {
+                    minIdlePerPool = (Integer) transportProperty.getValue();
+                } else if (transportProperty.getName().equals(Constants.MAX_IDLE_CONNECTIONS_PER_POOL)) {
+                    maxIdlePerPool = (Integer) transportProperty.getValue();
+                } else if (transportProperty.getName().equals(Constants.MIN_EVICTION_IDLE_TIME)) {
+                    minEvictableIdleTime = (Integer) transportProperty.getValue();
+                } else if (transportProperty.getName().equals(Constants.NO_THREADS_IN_EXECUTOR_SERVICE)) {
+                    executorServiceThreads = (Integer) transportProperty.getValue();
+                }
+            }
         }
 
         logger.debug(Constants.NUMBER_OF_POOLS + ": " + numberOfPools);
@@ -84,16 +85,14 @@ public class PoolConfiguration {
         logger.debug("Pool exhausted action" + ":" + exhaustedAction);
     }
 
-
     public static PoolConfiguration getInstance() {
         return poolConfiguration;
 
     }
 
-    public static void createPoolConfiguration(Map<String, String> parameters) {
-        poolConfiguration = new PoolConfiguration(parameters);
+    public static void createPoolConfiguration(Set<TransportProperty> transportPropertySet) {
+        poolConfiguration = new PoolConfiguration(transportPropertySet);
     }
-
 
     public int getMaxActivePerPool() {
         return maxActivePerPool;

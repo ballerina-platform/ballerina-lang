@@ -27,31 +27,6 @@ public final class Constants {
 
     public static final String STATE_STOPPED = "STATE_STOPPED";
 
-    // Disruptor related constants
-    public static final String BUSY_SPIN = "BUSY_SPIN";
-
-    public static final String BLOCKING_WAIT = "BLOCKING_WAIT";
-
-    public static final String LITE_BLOCKING = "LITE_BLOCKING";
-
-    public static final String PHASED_BACKOFF = "PHASED_BACKOFF";
-
-    public static final String TIME_BLOCKING = "TIME_BLOCKING";
-
-    public static final String SLEEP_WAITING = "SLEEP_WAITING";
-
-    public static final String YIELD_WAITING = "YIELD_WAITING";
-
-    public static final String WAIT_STRATEGY = "disruptor.wait.strategy";
-
-    public static final String DISRUPTOR_BUFFER_SIZE = "disruptor.buffer.size";
-
-    public static final String DISRUPTOR_COUNT = "disruptor.count";
-
-    public static final String DISRUPTOR_EVENT_HANDLER_COUNT = "disruptor.eventhandler.count";
-
-    public static final String SHARE_DISRUPTOR_WITH_OUTBOUND = "share.disruptor.with.outbound";
-
     // Client Bootstrap related
     public static final String CLINET_BOOTSTRAP_TCP_NO_DELY = "client.bootstrap.nodelay";
 
@@ -70,7 +45,7 @@ public final class Constants {
     //Server side SSL Parameters
     public static final String CLIENT_SUPPORT_CIPHERS = "client.ssl.ciphers";
     public static final String CLIENT_SUPPORT_HTTPS_PROTOCOLS = "client.ssl.http.protocols";
-    public static final String CLIENT_ENABLE_SESSION_CREATION = "client.eanble.session.creation";
+    public static final String CLIENT_ENABLE_SESSION_CREATION = "client.enable.session.creation";
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -92,7 +67,7 @@ public final class Constants {
     // Boss group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_BOSS_GROUP_SIZE = "server.bootstrap.boss.group.size";
 
-   //Worker group size of the server bootstrap
+    //Worker group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_WORKER_GROUP_SIZE = "server.bootstrap.worker.group.size";
 
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
@@ -100,7 +75,7 @@ public final class Constants {
     //Server side SSL Parameters
     public static final String SERVER_SUPPORT_CIPHERS = "server.ssl.ciphers";
     public static final String SERVER_SUPPORT_HTTPS_PROTOCOLS = "server.ssl.http.protocols";
-    public static final String SERVER_ENABLE_SESSION_CREATION = "server.eanble.session.creation";
+    public static final String SERVER_ENABLE_SESSION_CREATION = "server.enable.session.creation";
     public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
     public static final String SSL_VERIFY_CLIENT = "ssl.verify.client";
@@ -108,24 +83,20 @@ public final class Constants {
     public static final String IS_SECURED_CONNECTION = "IS_SECURED_CONNECTION";
 
     // Connection Pool parameters
-    public static final String NUMBER_OF_POOLS = "connection.pool.count";
+    public static final String NUMBER_OF_POOLS = "client.connection.pool.count";
 
-    public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "max.active.connections.per.pool";
+    public static final String MAX_ACTIVE_CONNECTIONS_PER_POOL = "client.max.active.connections.per.pool";
 
-    public static final String MIN_IDLE_CONNECTIONS_PER_POOL = "min.idle.connections.per.pool";
+    public static final String MIN_IDLE_CONNECTIONS_PER_POOL = "client.min.idle.connections.per.pool";
 
-    public static final String MAX_IDLE_CONNECTIONS_PER_POOL = "max.idle.connections.per.pool";
+    public static final String MAX_IDLE_CONNECTIONS_PER_POOL = "cleint.max.idle.connections.per.pool";
 
-    public static final String MIN_EVICTION_IDLE_TIME = "min.eviction.idle.time";
+    public static final String MIN_EVICTION_IDLE_TIME = "client.min.eviction.idle.time";
 
     public static final String ENABLE_GLOBAL_CONNECTION_POOLING = "enable.global.client.connection.pooling";
 
     public static final String NO_THREADS_IN_EXECUTOR_SERVICE = "sender.thread.count";
 
-    public static final String DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL = "disruptor.consumer.worker.pool.size";
-
-    public static final String IS_DISRUPTOR_ENABLE = "enable.disruptor";
-    public static final String EXECUTOR_WORKER_POOL_SIZE = "executor.workerpool.size";
 
     public static final String EXECUTOR_WORKER_POOL = "executor.workerpool";
 
@@ -148,7 +119,7 @@ public final class Constants {
     public static final String PORT = "PORT";
 
     public static final String TO = "TO";
-    public static final String DISRUPTOR = "DISRUPTOR";
+
 
     public static final String PROTOCOL_NAME = "HTTP";
 
@@ -196,20 +167,6 @@ public final class Constants {
     public static final String REMOTE_HOST = "REMOTE_HOST";
     public static final String REMOTE_PORT = "REMOTE_PORT";
     public static final String REQUEST_URL = "REQUEST_URL";
-
-    //default values
-    public static final int DEFAULT_EXECUTOR_WORKER_POOL_SIZE = Runtime.getRuntime().availableProcessors();
-    public static final String DEFAULT_DISRUPTOR_BUFFER_SIZE = "512";
-    public static final String DEFAULT_DISRUPTOR_COUNT = "5";
-    public static final String DEFAULT_DISRUPTOR_EVENT_HANDLER_COUNT = "1";
-    public static final String DEFAULT_WAIT_STRATEGY = Constants.PHASED_BACKOFF;
-    public static final String DEFAULT_SHARE_DISRUPTOR_WITH_OUTBOUND = "false";
-    public static final String DEFAULT_DISRUPTOR_CONSUMER_EXTERNAL_WORKER_POOL = "0";
-    public static final int DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE = 60;
-
-    public static final String WORKER_POOL_NAME = "Transport-Worker-Pool";
-    public static final String WORKER_POOL_SENDER_NAME = "Transport-Sender-Worker-Pool";
-    public static final String DISRUPTOR_WORKER_POOL = "Disruptor-Worker-Pool";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";
 

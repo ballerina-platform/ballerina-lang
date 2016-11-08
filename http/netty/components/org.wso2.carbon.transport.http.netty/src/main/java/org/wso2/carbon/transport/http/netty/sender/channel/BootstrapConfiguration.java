@@ -15,12 +15,13 @@
 
 package org.wso2.carbon.transport.http.netty.sender.channel;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A class represents client bootstrap configurations.
@@ -45,27 +46,28 @@ public class BootstrapConfiguration {
 
     private int socketTimeout = 15;
 
+    private BootstrapConfiguration(Set<TransportProperty> transportPropertySet) {
 
-    private BootstrapConfiguration(Map<String, String> parameters) {
-
-        if (parameters != null) {
-            tcpNoDelay = parameters.get(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY) == null ||
-                         Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY));
-            connectTimeOut = parameters.get(Constants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT) != null ?
-                             Integer.parseInt(parameters.get(Constants.
-                                                                        CLINET_BOOTSTRAP_CONNECT_TIME_OUT)) : 15000;
-            reciveBufferSize = parameters.get(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE) != null ?
-                               Integer.parseInt
-                                          (parameters.get(Constants.
-                                                                     CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE)) : 1048576;
-            sendBufferSize = parameters.get(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE) != null ?
-                             Integer.parseInt(parameters.get(Constants.
-                                                                        CLINET_BOOTSTRAP_SEND_BUFFER_SIZE)) : 1048576;
-            socketTimeout = parameters.get(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT) != null ?
-                            Integer.parseInt(parameters.get(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT)) : 15;
-            keepAlive = parameters.get(Constants.CLINET_BOOTSTRAP_KEEPALIVE) == null ||
-                        Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_KEEPALIVE));
-            socketReuse = Boolean.parseBoolean(parameters.get(Constants.CLINET_BOOTSTRAP_SO_REUSE));
+        if (transportPropertySet != null && !transportPropertySet.isEmpty()) {
+            Iterator iterator = transportPropertySet.iterator();
+            while (iterator.hasNext()) {
+                TransportProperty property = (TransportProperty) iterator.next();
+                if (property.getName().equals(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY)) {
+                    tcpNoDelay = (Boolean) property.getValue();
+                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT)) {
+                    connectTimeOut = (Integer) property.getValue();
+                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE)) {
+                    reciveBufferSize = (Integer) property.getValue();
+                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE)) {
+                    sendBufferSize = (Integer) property.getValue();
+                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT)) {
+                    socketTimeout = (Integer) property.getValue();
+                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_KEEPALIVE)) {
+                    keepAlive = (Boolean) property.getValue();
+                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_SO_REUSE)) {
+                    socketReuse = (Boolean) property.getValue();
+                }
+            }
 
         }
         logger.debug(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY + ": " + tcpNoDelay);
@@ -76,7 +78,6 @@ public class BootstrapConfiguration {
         logger.debug(Constants.CLINET_BOOTSTRAP_KEEPALIVE + ":" + keepAlive);
         logger.debug(Constants.CLINET_BOOTSTRAP_SO_REUSE + ":" + socketReuse);
     }
-
 
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
@@ -110,10 +111,9 @@ public class BootstrapConfiguration {
         return bootstrapConfig;
     }
 
-    public static void createBootStrapConfiguration(Map<String, String> parameters) {
-        bootstrapConfig = new BootstrapConfiguration(parameters);
+    public static void createBootStrapConfiguration(Set<TransportProperty> transportProperties) {
+        bootstrapConfig = new BootstrapConfiguration(transportProperties);
 
     }
-
 
 }
