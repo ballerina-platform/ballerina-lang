@@ -73,7 +73,7 @@ public class PassThroughHttpPOSTMethodTestCase {
 
     @Test(groups = "passthroughPost",
           dependsOnGroups = "passthroughGET")
-    public void passthroughWorkerPoolEnabledPOSTTestCase() {
+    public void passthroughPOSTTestCase() {
         String testValue = "Test Message";
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
@@ -87,28 +87,7 @@ public class PassThroughHttpPOSTMethodTestCase {
         }
 
     }
-
-    @Test(groups = "passthroughPost",
-          dependsOnMethods = "passthroughWorkerPoolEnabledPOSTTestCase")
-    public void passthroughDisruptorEnabledPOSTTestCase() {
-        TestUtil.shutDownCarbonTransport(httpTransportListener);
-        httpTransportListener = TestUtil
-                .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
-        String testValue = "Test Message";
-        try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, testValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            LOGGER.error("IO Exception occurred", e);
-            assertTrue(false);
-        }
-
-    }
-
+    
     @AfterClass(groups = "passthroughPost",
                 dependsOnGroups = "passthroughGET")
     public void cleanUp() {

@@ -68,7 +68,7 @@ public class ContentAwareMessageProcessorTestCase {
 
     @Test(groups = "contentaware",
           dependsOnGroups = "passthroughPost")
-    public void disruptorEnabledMessageEchoingFromProcessorTestCase() {
+    public void messageEchoingFromProcessorTestCase() {
         String testValue = "Test Message";
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
@@ -85,50 +85,7 @@ public class ContentAwareMessageProcessorTestCase {
     }
 
     @Test(groups = "contentaware",
-          dependsOnMethods = "disruptorEnabledMessageEchoingFromProcessorTestCase")
-    public void workerPoolEnabledMessageEchoingFromProcessorTestCase() {
-        TestUtil.shutDownCarbonTransport(httpTransportListener);
-        httpTransportListener = TestUtil
-                .startCarbonTransport(listenerConfiguration, senderConfiguration, new MessageEchoingMessageProcessor());
-        String testValue = "Test Message";
-        try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, testValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            LOGGER.error("IO Exception occurred", e);
-            assertTrue(false);
-        }
-
-    }
-
-    @Test(groups = "contentaware",
-          dependsOnMethods = "workerPoolEnabledMessageEchoingFromProcessorTestCase")
-    public void requestTransformFromProcessorTestCase() {
-
-        String testValue = "<A><B><C>request</C></B></A>";
-        String transformValue = "<A><B><C>transformed</C></B></A>";
-        try {
-            CarbonMessageProcessor carbonMessageProcessor = new RequestMessageTransformProcessor(transformValue);
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            TestUtil.writeContent(urlConn, testValue);
-            assertEquals(200, urlConn.getResponseCode());
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(transformValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
-            LOGGER.error("IO Exception occurred", e);
-            assertTrue(false);
-        }
-
-    }
-
-    @Test(groups = "contentaware",
-          dependsOnMethods = "requestTransformFromProcessorTestCase")
+          dependsOnMethods = "messageEchoingFromProcessorTestCase")
     public void requestResponseTransformFromProcessorTestCase() {
 
         String requestValue = "XXXXXXXX";
