@@ -15,12 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
+define(['require', 'jquery', 'd3', 'backbone', './tool-group-view'], function (require, $, d3, Backbone, ToolGroupView) {
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
+    var toolPaletteView = Backbone.View.extend({
+        el: '#tool-palette',
+
+        initialize: function () {
+        },
+
+        render: function () {
+            var self = this;
+            this.collection.each(function (group) {
+                var groupView = new ToolGroupView({model: group});
+                groupView.render(self.$el);
+                self.$el.addClass('non-user-selectable');
+            });
+            return this;
+        }
     });
 
-    return toolPalette;
+    return toolPaletteView;
 });
-

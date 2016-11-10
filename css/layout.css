@@ -297,6 +297,7 @@ div[class*="col-sm-"] {
     width: 100%;
     padding: 0;
 }
+
 #ace-editor{
     margin: 0;
     position:absolute;

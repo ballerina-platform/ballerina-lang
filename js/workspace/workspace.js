@@ -27,13 +27,11 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], 
             log.error(error);
             throw error;
         }
-        var workspaceManager = {};
-
         var configLocation,
             configFileName,
             saveServiceURL = workspaceServiceURL + "/write";
 
-        workspaceManager.openNewConfigWizard = function openNewConfigWizard(){
+        this.openNewConfigWizard = function openNewConfigWizard(){
 
             var newWizardModal =  $('#newConfigModal'),
                 newWizardError = $('#newWizardError'),
@@ -117,7 +115,7 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], 
             newWizardModal.modal('show');
         };
 
-        workspaceManager.saveConfiguration = function saveConfiguration() {
+       this.saveConfiguration = function saveConfiguration() {
             var tags = serviceTags.split(",");
             var tagString = "{";
             tags.forEach(function (tag) {
@@ -150,7 +148,7 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], 
             });
         };
 
-        workspaceManager.toggleSource = function toggleSource() {
+        this.toggleSource = function toggleSource() {
             var editorMain = document.getElementById("sourceViewTab");
             var leftContainer = document.getElementById("left-container");
             var rightContainer = document.getElementById("right-container");
@@ -198,12 +196,30 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], 
             }
         };
 
+        this.setBreadcrumb = function(path, file){
+            var path = _.replace(path, /\\/gi, "/")
+            var pathArr = _.split(path, "/");
+
+            var breadCumbList = $("#breadcrumbList");
+            breadCumbList.empty();
+            pathArr.forEach(function(segment){
+                if(!_.isEmpty(segment)){
+                    var li = $("<li>"+segment+"</li>");
+                    li.addClass("breadcrumb-item");
+                    breadCumbList.append(li);
+                }
+            });
+            var fileLi = $("<li>"+file+"</li>");
+            fileLi.addClass("breadcrumb-item");
+            fileLi.addClass("active");
+            breadCumbList.append(fileLi);
+        };
+
         app.commandManager.registerCommand("open-new-config-wizard", {key:""});
         app.commandManager.registerHandler("open-new-config-wizard", workspaceManager.openNewConfigWizard);
         app.commandManager.registerCommand("toggle-source", {key:""});
         app.commandManager.registerHandler("toggle-source", workspaceManager.toggleSource);
 
-        return workspaceManager;
     }
 });
 

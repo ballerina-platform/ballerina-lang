@@ -15,12 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
+define([], function(){
+    function TreeNode(value, type, cStart, cEnd) {
+        this.object = undefined;
+        this.children = [];
+        this.value = value;
+        this.type = type;
+        this.configStart = cStart;
+        this.configEnd = cEnd;
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
-    });
+        this.getChildren = function () {
+            return this.children;
+        };
 
-    return toolPalette;
+        this.getValue = function () {
+            return this.value;
+        };
+    }
+    return TreeNode;
+
 });
-

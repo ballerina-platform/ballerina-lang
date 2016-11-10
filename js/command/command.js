@@ -26,8 +26,7 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
         // not reinventing the wheel - reusing event-bus impl provided in backbone models
         var CommandBus = Backbone.Model.extend({}),
             commandBus = new CommandBus(),
-            commands = {},
-            manager = {};
+            commands = {};
 
         /**
          * Register a command.
@@ -35,7 +34,7 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
          * @param cmd  String command ID
          * @param options key-bindings etc.
          */
-        manager.registerCommand = function (cmd, options) {
+        this.registerCommand = function (cmd, options) {
             if (!_.has(commands, cmd)) {
                 _.set(commands, cmd, options);
                 log.debug("Command: " + cmd +
@@ -53,7 +52,7 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
          * @param cmd  String command ID
          *
          */
-        manager.unRegisterCommand = function (cmd) {
+        this.unRegisterCommand = function (cmd) {
             if (_.has(commands, cmd)) {
                 _.unset(commands, cmd);
                 //remove all handlers for the command
@@ -72,7 +71,7 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
          * @param cmd  String command ID
          * @param handler
          */
-        manager.registerHandler = function (cmd, handler) {
+        this.registerHandler = function (cmd, handler) {
             if(!_.has(commands, cmd)){
                 var error = "No such registered command found. Command: " + cmd;
                 log.error(error);
@@ -87,7 +86,7 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
          * @param cmd  String command ID
          * @param handler
          */
-        manager.unRegisterHandler = function (cmd, handler) {
+        this.unRegisterHandler = function (cmd, handler) {
             commandBus.off(cmd, handler, app);
         };
 
@@ -101,7 +100,7 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
          * using implicit arguments object instead of traditional
          * function parameter defs to enable dynamic number of args
          */
-        manager.dispatch = function () {
+        this.dispatch = function () {
             var cmdID = arguments[0];
             if (!_.isUndefined(cmdID)) {
                 // get only needed args for trigger - right now all are wanted
@@ -110,8 +109,6 @@ define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
                 triggerFn.apply(commandBus, triggerArgs);
             }
         };
-
-        return manager;
     }
 });
 

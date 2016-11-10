@@ -18,7 +18,7 @@
 
 define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'js_tree'], function (require, $, d3, Backbone, _) {
 
-    var fileBrowser = Backbone.View.extend({
+    var FileBrowser = Backbone.View.extend({
 
         initialize: function (options) {
             var opts = options || {};
@@ -72,6 +72,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'js_tree'], function (r
         }
     });
 
-    return fileBrowser;
+    return FileBrowser;
 
 });

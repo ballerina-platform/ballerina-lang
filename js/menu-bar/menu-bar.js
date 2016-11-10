@@ -15,12 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
+define(['require', 'logger', 'jquery', 'lodash', 'backbone', /* void modules */ 'jquery_ui'],
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
-    });
+    function (require, log, $, _, Backbone) {
 
-    return toolPalette;
+        var MenuBar = Backbone.View.extend(
+        /** @lends ToolBar.prototype */
+        {
+            /**
+             * @augments Backbone.View
+             * @constructs
+             * @class ToolBar
+             * @param {Object} config configuration options for the ToolBar
+             */
+            initialize: function (config) {
+
+            },
+            render: function () {
+            }
+
+        });
+
+        return MenuBar;
 });
-

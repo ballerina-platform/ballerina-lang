@@ -15,12 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
-
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
-    });
-
-    return toolPalette;
+define(['app/main-elements/life-lines/module'], function (lifeLines) {
+    return {
+        lifelines: lifeLines
+    };
 });
 

@@ -15,12 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
-
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
+define(['require', 'app/tool-palette/tool', 'app/tool-palette/tool-view', 'app/tool-palette/tool-group',
+        'app/tool-palette/tool-group-view', 'app/tool-palette/tool-palette', 'app/tool-palette/tool-palette-view'],
+    function (require, tool, toolView, toolGroup, toolGroupView, toolPaletteModel, toolPaletteView) {
+        return  {
+            Models: {
+                Tool: tool,
+                ToolGroup: toolGroup,
+                ToolPalette: toolPaletteModel
+            },
+            Views: {
+                ToolView: toolView,
+                ToolGroupView: toolGroupView,
+                ToolPaletteView: toolPaletteView
+            }
+        }
     });
-
-    return toolPalette;
-});
 

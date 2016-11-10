@@ -15,12 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
+define(['logger', 'jquery', 'lodash', './tab-list', './service-tab'],
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
+    function (log, $, _, TabList, ServiceTab) {
+
+    var ServiceTabList = TabList.extend(
+    /** @lends ServiceTabList.prototype */
+    {
+        /**
+         * @augments ServiceTabList
+         * @constructs
+         * @class ServiceTabList represents service tab list.
+         */
+        initialize: function (options) {
+            _.set(options, 'tabModel', ServiceTab);
+            TabList.prototype.initialize.apply(this, options);
+        },
+        render: function() {
+            TabList.prototype.initialize.apply(this, options);
+        }
     });
 
-    return toolPalette;
+    return ServiceTabList;
 });
-

@@ -15,27 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['backbone'], function (Backbone) {
+define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
+        './preview', 'processors', './life-line',
+        'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'ballerina_models/message-point',
+        'ballerina_models/message-link', 'svg_pan_zoom'],
 
-    var Tab = Backbone.View.extend(
-    /** @lends Tab.prototype */
+function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, DiagramPreview, Processors, LifeLineView,
+          ContainableProcessorElement, LifeLine, MessagePoint, MessageLink
+
+
+) {
+
+    var ResourceView = Backbone.View.extend(
+    /** @lends ResourceView.prototype */
     {
         /**
          * @augments Backbone.View
          * @constructs
-         * @class Tab represents a tab.
+         * @class ResourceView Represents the view for a resource in a ballerina service
+         * @param {Object} options Rendering options for the view
          */
         initialize: function (options) {
-        },
-        render: function () {
-        },
-        getParentTabList: function(){
-            return this.parentTabList;
-        },
-        setParentTabList: function(parentTabList){
-            this.parentTabList = parentTabList;
         }
     });
 
-    return Tab;
+    return ResourceView;
 });
+

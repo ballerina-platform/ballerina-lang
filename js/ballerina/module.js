@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
-
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
+define(['require', 'app/ballerina/models/module', 'app/ballerina/views/module', 'app/ballerina/utils/module'],
+    function (require, models, views, utils) {
+        return  {
+            Models: models,
+            Views: views,
+            Utils: utils
+        }
     });
-
-    return toolPalette;
-});
 

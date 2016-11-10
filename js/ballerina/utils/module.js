@@ -15,12 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
-    });
+define(['./processor-factory', 'app/ballerina/models/life-line'],
 
-    return toolPalette;
+    function (ProcessorFactory, LifeLine) {
+        var utils = {};
+        utils.ProcessorFactory = ProcessorFactory;
+
+        utils.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
+            return new LifeLine({
+                title: title,
+                centerPoint: center,
+                cssClass: cssClass,
+                utils: utils,
+                parameters: parameters,
+                textModel: textModel,
+                type: type
+            });
+        };
+        return utils;
 });
-

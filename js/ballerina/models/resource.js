@@ -15,12 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
+define(['require','logger', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'tree_node', './life-line', './message-point'],
+
+    function (require, logger, $, d3, Backbone, _, DiagramCore, TreeNode, LifeLine, MessagePoint) {
+
+    var Resource = Backbone.Model.extend(
+    /** @lends Resource.prototype */
+    {
+        /**
+         * @augments Backbone.Model
+         * @constructs
+         * @class Resource represents the model for a resource in a ballerina Service.
+         */
+        initialize: function (attrs, options) {
+
+        }
     });
+    return Resource;
 
-    return toolPalette;
 });
-

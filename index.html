@@ -26,23 +26,109 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/diagram-tool-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
-
-    <!-- Start: Templates fro backbone views -->
-    <script type="text/template" id="resourceTabsTemplate">
-        <a href="<%=hrefId%>" aria-controls="<%=resourceId%>" role="tab" data-toggle="tab"><%=resourceTitle%></a>
-        <i class="remove-resource fw fw-cancel"></i>
-    </script>
-    <script type="text/template" id="resourceContentTemplate">
-        <div role="tabpanel" lass="tab-pane  gradient-pattern tab-divs" id="<%=resourceId%>"></div>
-    </script>
-    <script>
-        var workspaceServiceURL = "http://localhost:8289/service/workspace";
-    </script>
-
-    <title>Integration ServercTooling</title>
+    <title>Integration Server Tooling</title>
 </head>
 
 <body>
+
+<!-- Start: header -->
+<header class="header header-default">
+    <!-- Start: header - logo, title & menu-bar -->
+    <div id="header-container" class="container-fluid">
+        <div class="pull-left brand float-remove-xs text-center-xs">
+            <a href="#">
+                <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
+                <h1>Integration Server Tooling</h1>
+            </a>
+        </div>
+        <div id="menu-bar-container" class="menu-bar">
+        </div>
+    </div>
+    <!-- End: header - logo, title & menu-bar -->
+</header>
+<!-- End: header -->
+
+<!-- Start: page-content-wrapper -->
+<div id="page-content-wrapper" class="">
+    <!-- Start: page content -->
+    <div id="page-content" class="container">
+        <!-- Start: page content : first row -->
+        <div id="page-content-first-row" class="row">
+            <!-- Start: alerts container row -->
+            <div id="alerts-container" class="alert">
+            </div>
+            <!-- End: alerts container row -->
+            <!-- Start: breadcrumb row -->
+            <div class="row" id="breadcrumb-container" >
+                <ol class="breadcrumb" id="breadcrumbs">
+                </ol>
+            </div>
+            <!-- End: breadcrumb row -->
+            <!-- Start: file explorer and editor area row -->
+            <div class="row">
+                <!-- Start: left container -->
+                <div id="left-container" class="col-sm-2">
+                    <!-- Start: file explorer -->
+                    <div id="file-explorer">
+                    </div>
+                    <!-- End: file explorer -->
+                </div>
+                <!-- End: left container -->
+                <!-- Start: right container -->
+                <div id="right-container" class="col-sm-10">
+                    <!-- Start: service tabs wrapper container-->
+                    <div class="container-fluid" id="service-tabs-wrapper">
+                        <!-- Start: service tabs wrapper row -->
+                        <div class="row">
+                            <!-- Start: tool-palette -->
+                            <div id="tool-palette-container" class="col-sm-2"></div>
+                            <!-- End: tool-palette -->
+                            <!-- Start: service tabs -->
+                            <div id="service-tabs-container" class="">
+                            </div>
+                            <!-- End: service tabs -->
+                        </div>
+                        <!-- End: service tabs wrapper row -->
+                    </div>
+                    <!-- End: service tabs wrapper container-->
+                </div>
+                <!-- End: right container -->
+            </div>
+            <!-- End: file explorer and editor area row -->
+        </div>
+        <!-- Start: page content : first row -->
+    </div>
+    <!-- End: page-content-->
+</div>
+<!-- End: page-content-wrapper -->
+
+<!-- Start: footer -->
+<footer class="footer">
+    <div id="footer-container" class="container-fluid">
+        <p>WSO2 Integration Server Tooling v0.0.1 | ©
+            <script>document.write(new Date().getFullYear());</script>
+            <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
+        </p>
+    </div>
+</footer>
+<!-- End: footer -->
+
+<!-- Start: Template for service tab -->
+<script type="text/template" id="service-tab-template">
+    <!-- Start: Service Tab Row -->
+    <div class="row">
+        <!-- Start: Canvas Container -->
+        <div class="canvas-container">
+        </div>
+        <!-- End: Canvas Container -->
+        <!-- Start: Preview Container -->
+        <div class="preview-container">
+        </div>
+        <!-- End Preview Container -->
+    </div>
+    <!-- End: Service Tab Row -->
+</script>
+<!-- End: Template for service tab -->
 
 <!-- Start: Modal for file-browser -->
 <div class="modal fade" id="fileBrowserModel" tabindex="1000" role="dialog" aria-hidden="true">
@@ -69,6 +155,23 @@
     </div>
 </div>
 <!-- End: Modal for file-browser -->
+
+<!-- Start: Warning validation for number of endpoints on canvas-->
+<div id="endpointModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="color:lightgoldenrodyellow">Warning!</h4>
+            </div>
+            <div class="modal-body">
+                <p>Only one endpoint per resource is supported in this version.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End: Warning validation for number of endpoints on canvas-->
 
 <!-- Start: Modal for file dialog for saving the configuration-->
 <div class="modal fade" id="newConfigModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -116,7 +219,7 @@
 </div>
 <!-- End: Modal for file dialog for saving the configuration-->
 
-<!-- Set Service Parameters Modal -->
+<!-- Start: Set Service Parameters Modal -->
 <div class="modal fade" tabindex="-1" role="dialog" id="servicePropertiesModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -173,186 +276,8 @@
         </div>
     </div>
 </div>
+<!-- End: Set Service Parameters Modal -->
 
-<!-- Start: header -->
-<header class="header header-default">
-    <!-- Start: header - logo & title -->
-    <div class="container-fluid">
-        <div class="pull-left brand float-remove-xs text-center-xs">
-            <a href="#">
-                <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
-
-                <h1>Integration Server Tooling</h1>
-            </a>
-        </div>
-
-    </div>
-    <!-- End: header - logo & title -->
-
-    <!--TODO: remove once the file explorer is implemented-->
-    <!-- Start: Temporary file save and new menus -->
-    <nav class="navbar navbar-default" id="navbar-wrapper">
-        <div class="container-fluid">
-            <div class="collapse navbar-collapse" id="main-navbar">
-                <ul class="nav navbar-nav">
-                    <li><a href="#" data-toggle="modal" data-target="#newConfigModal">New<span
-                            class="sr-only">(current)</span></a></li>
-                    <li><a href="#" onclick="saveConfiguration();">Save</a></li>
-                    <li><a href="#"  onclick="toggleSource();">Source</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <!-- End: Temporary file save and new menus -->
-</header>
-<!-- End: header -->
-
-<!-- Start: page-content-wrapper -->
-<div class="">
-    <!-- Start: page content -->
-    <div id="page-content" class="container">
-        <!-- Start: page content : first row -->
-        <div id="page-content-first-row" class="row">
-            <div id="alertArea" class="alert">
-            </div>
-            <div class="row" id="breadcrumbRow" ><!-- TODO make this visible -->
-                <ol class="breadcrumb" id="breadcrumbList">
-                </ol>
-                <ul class="" id="saveAndNewButtons">
-                    <li><a href="#" onclick="onNewClick();" >New</a></li>
-                    <li><a href="#" onclick="saveConfiguration();">Save</a></li>
-                </ul>
-            </div>
-            <div class="row" id="serviceAndSourceButtonsRow" >
-                <ul class="" id="serviceAndSourceButtons">
-                    <li><a href="#" onclick="loadServiceProperties();">Service</a></li>
-                    <li><a href="#" id="sourceId" onclick="toggleSource();">Source</a></li>
-                </ul>
-            </div>
-            <!-- End: breadcrumb row -->
-            <!-- Start: file explorer and editor area row -->
-            <div class="row">
-                <!-- Ace editor view start-->
-                <div id="sourceViewTab"  style="display:none" class="col-sm-2">
-                    <div id="ace-editor"></div>
-                </div>
-                <!--Ace editor view end-->
-                <!-- Start: left container -->
-                <div id="left-container" class="col-sm-2" style="display: none" ><!-- TODO make this visible -->
-                    <!-- Start: file explorer -->
-                    <div id="tree-container">
-                        <div id="tree-action-bar">
-                            <i id="tree-delete" class="icon fw fw-delete fw-lg tree-action"></i>
-                        <span id="tree-add-res" class="fw-stack fw-lg tree-action">
-                           <i class="fw fw-document fw-stack-1x"></i>
-                           <span class="fw-stack fw-move-right fw-move-bottom">
-                              <i class="fw fw-add fw-stack-1x fw-inverse"></i>
-                           </span>
-                        </span>
-                        <span id="tree-add-api" class="fw-stack fw-lg tree-action">
-                           <i class="fw fw-blank-document fw-stack-1x"></i>
-                           <span class="fw-stack fw-move-right fw-move-bottom">
-                              <i class="fw fw-add fw-stack-1x fw-inverse"></i>
-                           </span>
-                        </span>
-                        </div>
-                        <div>
-                            <ul id="tree"  class="tree-view tree-view-lines"> </ul>
-                        </div>
-                    </div>
-                    <!-- End: file explorer -->
-                </div>
-                <!-- End: left container -->
-                <!-- Start: right container -->
-                <div id="right-container" class="col-sm-12"><!-- TODO resize to col-sm-10 once left container made visible -->
-                    <div class="container-fluid" id="empty-workspace-wrapper">
-                        <div class="col-sm-5"></div>
-                        <div class="col-sm-2" id="start-actions-container">
-                            <h3>Create new or open existing</h3>
-                            <hr>
-                            <ul>
-                                <li>Create a <a onclick="app.commandManager.dispatch('open-new-config-wizard');">new</a> Ballerina Config</li>
-                                <li class="disabled"><a>Open</a>  an existing Ballerina Config</li>
-                                <li class="disabled">import from CVS</li>
-                            </ul>
-                        </div>
-                        <div class="col-sm-5"></div>
-                    </div>
-                    <div class="container-fluid" id="resource-tabs-wrapper">
-                        <div class="row">
-                            <!-- Start: resource tabs -->
-                            <div id="tab-container" class="">
-                                <ul class="nav nav-tabs tabList" id="tabList" role="tablist">
-                                    <li class=".add-resource-btn"><a href="#" class="add-resource">+</a></li>
-                                </ul>
-                            </div>
-                            <!-- End: resource tabs -->
-                        </div>
-                        <div class="row">
-                            <!-- Start: tool-palette -->
-                            <div id="tool-palette" class="col-sm-2"></div>
-                            <!-- End: tool-palette -->
-                            <!-- Start: Editor Container -->
-                            <div id="editor-container"  class="col-sm-8">
-                                <!-- warning validation for number of endpoints on canvas"-->
-                                <div id="endpointModal" class="modal fade" role="dialog">
-                                    <div class="modal-dialog">
-                                        <!-- Modal content-->
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                <h4 class="modal-title" style="color:lightgoldenrodyellow">Warning!</h4>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Only one endpoint per resource is supported in this version.</p>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div class="editor-scroller">
-                                    <!-- Start: Editor Tabs Area -->
-                                    <div class="editor">
-                                        <div class="tab-content resource-content ">
-                                        </div>
-                                    </div>
-                                    <!-- End: Editor Tabs Area -->
-                                </div>
-                            </div>
-                            <!-- End: Editor Container -->
-                            <!-- Start: Property and Preview Container -->
-                            <div class="property-container col-sm-2" id="property-container1">
-                                <div class="preview-container">
-                                </div>
-                                <div id="propertyPaneContainer">
-                                    <div id="propertyPane"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End: Property and Preview Container -->
-                    </div>
-                </div>
-                <!-- End: right container -->
-            </div>
-            <!-- End: file explorer and editor area row -->
-        </div>
-        <!-- Start: page content : first row -->
-    </div>
-    <!-- End: page-content-->
-</div>
-<!-- End: page-content-wrapper -->
-
-<!-- Start: footer -->
-<footer class="footer">
-    <div class="container-fluid">
-        <p>WSO2 Integration Server Tooling v0.0.1 | ©
-            <script>document.write(new Date().getFullYear());</script>
-            <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
-        </p>
-    </div>
-</footer>
-<!-- End: footer -->
 
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
@@ -380,19 +305,24 @@
             ///////////////////////
             // custom modules ////
             //////////////////////
-            logger: "js/logger/logger",
-            d3utils: "js/d3-utils/d3-utils",
-            diagram_core: "js/diagram-core/diagram-core",
-            ballerina_diagram: "js/ballerina-diagram/ballerina-diagram",
+            log: "js/log/log",
+            d3utils: "js/utils/d3-utils",
+            diagram_core: "js/diagram-core/module",
+            ballerina: "js/ballerina/module",
+            ballerina_models: "js/ballerina/models/",
             command: "js/command/command",
             workspace: "js/workspace/workspace",
             event: "js/event/event",
-            main_elements: "js/main-elements/main-elements",
-            processors: "js/processors/processors" ,
-            tool_palette: "js/tool-palette/tool-palette",
+            main_elements: "js/main-elements/module",
+            processors: "js/processors/module" ,
+            tool_palette: "js/tool-palette/module",
             file_browser: "js/file-browser/file-browser",
+            menu_bar: "js/menu-bar/menu-bar",
+            tool_bar: "js/tool-bar/tool-bar",
             tab: "js/tab/tab",
-            tree_node: "js/tree/tree-node"
+            alerts: "js/utils/alerts",
+            breadcrumbs: "js/breadcrumbs/breadcrumbs",
+            tree_node: "js/ast/node"
         },
         map: {
             "*": {
@@ -402,9 +332,61 @@
         }
     });
 
-    require(['app/main'], function(app) {
+    require(['app/main'], function(Application) {
+        var app, config;
+        config = {
+            root_container: "#page-content",
+            services:   {
+                workspace:  {
+                    endpoint: "http://localhost:8289/service/workspace"
+                }
+            },
+            alerts: {
+                container: "#alerts-container",
+                cssClass: {
+
+                }
+            },
+            tool_bar: {
+                container: ""
+            },
+            menu_bar: {
+                container: "#menu-bar-container"
+            },
+            breadcrumbs:{
+                container: "#breadcrumb-container",
+                cssClass:  {
+                    active: "active",
+                    list: "breadcrumb",
+                    item: "breadcrumb-item"
+                }
+            },
+            service_tabs: {
+                container: "#service-tabs-container",
+                tool_palette: {
+                    container: "#tool-palette-container"
+                },
+                service_tab: {
+                    template: "#service-tab-template",
+                    canvas: {
+                        container: '.canvas-container'
+                    },
+                    preview: {
+                        container: '.preview-container'
+                    },
+                    source_editor: {
+                        container: '.source-editor-container'
+                    }
+                }
+            },
+            workspace_explorer: {
+                container: "#file-browser"
+            }
+        };
+
+        app = new Application(config);
+        app.render();
         window.app = app;
-        app.init();
     });
 
 </script>

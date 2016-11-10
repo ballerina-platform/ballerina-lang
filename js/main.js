@@ -15,245 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'logger', 'jquery', 'lodash', 'ballerina_diagram', 'diagram_core', 'tool_palette', 'main_elements', 'processors', 'command', 'workspace', 'event', 'tab', 'jquery_ui'],
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', /* void modules */ 'jquery_ui'],
 
-    function (require, log, $, _, BallerinaDiagrams, DiagramCore, Tools, MainElements, Processors, CommandManager, WorkspaceManager, EventManager, Tab) {
+    function (require, log, $, _, Backbone, BreadcrumbControl) {
 
-    var app = {};
+    var Application = Backbone.View.extend(
+    /** @lends Application.prototype */
+    {
+        /**
+         * @augments Backbone.View
+         * @constructs
+         * @class Application wraps all the application logic and it is the main starting point.
+         * @param {Object} config configuration options for the application
+         */
+        initialize: function (config) {
+            this.validateConfig(config);
+            this.config = config;
+            this.breadcrumbControl = new BreadcrumbControl(_.get(config, "breadcrumbs"));
+        },
 
-    var alertArea = $('#alertArea');
+        validateConfig: function(config){
+            if(!_.has(config, 'services.workspace.endpoint')){
+                throw 'config services.workspace.endpoint could not be found for remote log initialization.'
+            } else {
+                log.initAjaxAppender(_.get(config, 'services.workspace.endpoint'));
+            }
+            if(!_.has(config, 'breadcrumbs')){
+                log.error('breadcrumbs configuration is not provided.');
+            }
+        },
 
-    // Setting the default service parameters
-    var serviceProduces = "MediaType.APPLICATION_JSON",
-        serviceBasePath = "/stock",
-        servicePackageName = "com.sample",
-        serviceTags = "stock_info,stock_update",
-        serviceDescription = "Rest api for get stocks details";
-
-        app.init = function(){
-
-        app.workspaceServiceURL = "http://localhost:8289/service/workspace";
-        app.eventManager = new EventManager({});
-        app.commandManager = new CommandManager(app);
-        app.workspaceManager = new WorkspaceManager(app);
-
-        //  TODO refactor and move to proper backbone classes
-        $(document).ready(function () {
-            var scrWidth = $("#page-content").width();
-            var treeContainer = $("#tree-container");
-            var rightContainer = $("#right-container");
-            //TODO: remove
-            treeContainer.resizable({
-                ghost: false,
-                minWidth: scrWidth / 16,
-                maxWidth: scrWidth / 2,
-                resize: function (event, el) {
-                    // rightContainer.css("width", scrWidth - el.size.width);
-                }
-            });
-
-            var toolContainer = $("#tool-palette");
-            var editorContainer = $("#editor-container");
-            var propertyContainer = $(".property-container");
-            //toolContainer.width(scrWidth / 8);
-            toolContainer.resizable({
-                ghost: false,
-                minWidth: 170,
-                maxWidth: rightContainer.width() / 3,
-                resize: function (event, el) {
-                    editorContainer.css("width", rightContainer.innerWidth() - toolContainer.outerWidth(true) - propertyContainer.outerWidth(true));
-                }
-            });
-        });
-        app.definedConstants = [];
-    };
-
-    app.createToolPalette = function(){
-        // Create main tool group
-        var mainToolGroup = new Tools.Models.ToolGroup({
-            toolGroupName: "Main Elements",
-            toolGroupID: "main-tool-group"
-        });
-
-        for (var lifeline in MainElements.lifelines) {
-            var tool = new Tools.Models.Tool(MainElements.lifelines[lifeline]);
-            mainToolGroup.toolCollection.add(tool);
+        render: function () {
+            log.debug("start: rendering breadcrumbs control");
+            this.breadcrumbControl.render();
+            log.debug("end: rendering breadcrumbs control");
         }
 
-        // Create mediators tool group
-        var mediatorsToolGroup = new Tools.Models.ToolGroup({
-            toolGroupName: "Mediators",
-            toolGroupID: "mediators-tool-group"
-        });
-
-        for (var manipulator in Processors.manipulators) {
-            var tool = new Tools.Models.Tool(Processors.manipulators[manipulator]);
-            mediatorsToolGroup.toolCollection.add(tool);
-        }
-        for (var flowController in Processors.flowControllers) {
-            var tool = new Tools.Models.Tool(Processors.flowControllers[flowController]);
-            mediatorsToolGroup.toolCollection.add(tool);
-        }
-
-        // Create tool palette
-        var toolPalette = new Tools.Models.ToolPalette();
-        toolPalette.add(mainToolGroup);
-        toolPalette.add(mediatorsToolGroup);
-
-        var paletteView = new Tools.Views.ToolPaletteView({collection: toolPalette});
-        paletteView.render();
-    };
-
-    app.initTabs = function initTabs(){
-
-        // Configuring dynamic  tab support
-        var tab = new Tabs.Models.Tab({
-            resourceId: "seq_1",
-            hrefId: "#seq_1",
-            resourceTitle: "Resource",
-            createdTab: false
-        });
-
-        var tabListView = new Tabs.Views.TabListView({model: tab});
-        tabListView.render(tab);
-        var diagramObj1 = new BallerinaDiagrams.Views.DiagramView({});
-        tab.addDiagramForTab(diagramObj1);
-        var tabId1 = tab.get("resourceId");
-        var linkId1 = tab.get("hrefId");
-        //Enabling tab activation at page load
-        $('.tabList a[href="#' + tabId1 + '"]').tab('show');
-        var dgModel1 = tab.getDiagramOfTab(tab.attributes.diagramForTab.models[0].cid);
-        dgModel1.CurrentDiagram(dgModel1);
-        var svgUId1 = tabId1 + "4";
-        var options = {selector: linkId1, wrapperId: svgUId1};
-        // get the current diagram view for the tab
-        var currentView1 =  new BallerinaDiagrams.Views.DiagramView({model: dgModel1, options: options});
-        // set current tab's diagram view as default view
-        currentView1.currentDiagramView(currentView1);
-        tab.setDiagramViewForTab(currentView1);
-        // mark tab as visited
-        tab.setSelectedTab();
-        var preview = currentView1.createPreview({containerSelector:".preview-container"});
-        preview.render();
-        tab.preview(preview);
-
-        defaultView.renderMainElement("Source", 1, MainElements.lifelines.get('Source'));
-        defaultView.model.sourceLifeLineCounter(1);
-        defaultView.renderMainElement("Resource", 1, MainElements.lifelines.get('Resource'));
-        defaultView.model.resourceLifeLineCounter(1);
-        //create initial arrow between source and resource
-        var currentSource = defaultView.model.diagramSourceElements().models[0];
-        var currentResource = defaultView.model.diagramResourceElements().models[0];
-        tabListView.drawInitArrow(currentSource,currentResource,defaultView);
-
-    };
-
-    $(document).ready(function(){
-        $("#empty-workspace-wrapper").show();
-        $("#resource-tabs-wrapper").hide();
-        $("#breadcrumbRow").hide();
-        $("#serviceAndSourceButtonsRow").hide();
     });
 
-    var formatter;
-    define('formatter', ['beautify/beautify'],
-        function(beautify) {
-            var beautify = beautify.js_beautify;
-            formatter = beautify;
-
-        }
-    );
-    require(['formatter']);
-
-    var mainEditor;
-    define('testace', ['ace/ace','ace/ext/language_tools'],
-        function(ace,langTools, res) {
-            console.log("source view lookup");
-            var editor = ace.edit("ace-editor");
-            mainEditor = editor;
-            //Avoiding ace warning
-            mainEditor.$blockScrolling = Infinity;
-            mainEditor.setTheme("ace/theme/twilight");
-            mainEditor.session.setMode("ace/mode/nel");
-            var langTools = ace.require("ace/ext/language_tools");
-            mainEditor.setOptions({
-                enableBasicAutocompletion:true
-
-
-            });
-            mainEditor.setBehavioursEnabled(true);
-            //bind auto complete to key press
-            mainEditor.commands.on("afterExec", function(e){
-                if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
-                    mainEditor.execCommand("startAutocomplete");
-                }
-            });
-
-        }
-    );
-    require(['testace']);
-
-    app.alertSuccess = function alertSuccess(msg){
-        alertArea.text(msg);
-        alertArea.removeClass("alert-danger");
-        alertArea.addClass("alert-success");
-        alertArea.fadeTo(4000, 500).slideUp(500, function () {
-            alertArea.slideUp(500);
-        });
-    };
-
-    app.alertError = function alertError(msg){
-        alertArea.text(msg);
-        alertArea.addClass("alert-danger");
-        alertArea.removeClass("alert-success");
-        alertArea.fadeTo(4000, 500).slideUp(500, function () {
-            alertArea.slideUp(500);
-        });
-    };
-
-    app.setBreadcrumb = function setBreadcrumb(path, file){
-        var path = _.replace(path, /\\/gi, "/")
-        var pathArr = _.split(path, "/");
-
-        var breadCumbList = $("#breadcrumbList");
-        breadCumbList.empty();
-        pathArr.forEach(function(segment){
-            if(!_.isEmpty(segment)){
-                var li = $("<li>"+segment+"</li>");
-                li.addClass("breadcrumb-item");
-                breadCumbList.append(li);
-            }
-        });
-        var fileLi = $("<li>"+file+"</li>");
-        fileLi.addClass("breadcrumb-item");
-        fileLi.addClass("active");
-        breadCumbList.append(fileLi);
-    };
-
-    app.loadServiceProperties = function loadServiceProperties() {
-        $("#produces").val(serviceProduces);
-        $("#basePath").val(serviceBasePath);
-        $("#packageName").val(servicePackageName);
-        $("#tags").val(serviceTags);
-        $("#description").val(serviceDescription);
-        $('#servicePropertiesModal').modal('show');
-    };
-
-    app.saveServiceProperties = function saveServiceProperties() {
-        serviceProduces = $("#produces").val();
-        serviceBasePath = $("#basePath").val();
-        servicePackageName = $("#packageName").val();
-        serviceTags = $("#tags").val();
-        serviceDescription = $("#description").val();
-        $('#servicePropertiesModal').modal('hide');
-    };
-
-    app.loadGlobalVariables = function(){
-        window.$ = jquery;
-        window._ = _;
-        window.Backbone = Backbone;
-        window.log4javascript = log4javascript;
-    };
-
-    return app;
+    return Application;
 });

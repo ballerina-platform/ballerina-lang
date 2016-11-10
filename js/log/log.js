@@ -15,12 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', './tool-group'], function (require, Backbone, ToolGroup) {
+define(['require', 'log4javascript'], function (require, log4javascript) {
 
-    var toolPalette = Backbone.Collection.extend({
-        model: ToolGroup
-    });
 
-    return toolPalette;
+    var logger = log4javascript.getLogger("client-logger");
+    var consoleAppender = new log4javascript.BrowserConsoleAppender();
+    logger.addAppender(consoleAppender);
+
+    logger.initAjaxAppender = function(workspaceServiceEP){
+        var ajaxAppender = new log4javascript.AjaxAppender(workspaceServiceEP + "/log");
+        logger.addAppender(ajaxAppender);
+    };
+
+    return logger;
 });
-
