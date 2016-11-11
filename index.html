@@ -80,11 +80,15 @@
                     <div class="container-fluid" id="service-tabs-wrapper">
                         <!-- Start: service tabs wrapper row -->
                         <div class="row">
-                            <!-- Start: tool-palette -->
-                            <div id="tool-palette-container" class="col-sm-2"></div>
-                            <!-- End: tool-palette -->
                             <!-- Start: service tabs -->
-                            <div id="service-tabs-container" class="">
+                            <div id="tabs-container" class="col-sm-12">
+                                <div class="tab-headers">
+                                </div>
+                                <!-- Start: tool-palette -->
+                                <div id="tool-palette-container" class="col-sm-2"></div>
+                                <!-- End: tool-palette -->
+                                <div class="tab-content col-sm-10">
+                                </div>
                             </div>
                             <!-- End: service tabs -->
                         </div>
@@ -113,21 +117,29 @@
 </footer>
 <!-- End: footer -->
 
-<!-- Start: Template for service tab -->
-<script type="text/template" id="service-tab-template">
-    <!-- Start: Service Tab Row -->
-    <div class="row">
+<!-- Start: Template for a tab -->
+<div style="display: none" id="tab-template">
+    <!-- Start: Tab -->
+    <div>
         <!-- Start: Canvas Container -->
         <div class="canvas-container">
         </div>
         <!-- End: Canvas Container -->
         <!-- Start: Preview Container -->
+        <div class="source-container">
+        </div>
+        <!-- End Preview Container -->
+        <!-- Start: Preview Container -->
         <div class="preview-container">
         </div>
         <!-- End Preview Container -->
+        <!-- Start: Toggle Controls Container -->
+        <div class="toggle-controls-container">
+        </div>
+        <!-- End: Toggle Controls Container  -->
     </div>
-    <!-- End: Service Tab Row -->
-</script>
+    <!-- End: Tab -->
+</div>
 <!-- End: Template for service tab -->
 
 <!-- Start: Modal for file-browser -->
@@ -319,7 +331,7 @@
             file_browser: "js/file-browser/file-browser",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
-            tab: "js/tab/tab",
+            tab: "js/tab/",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             tree_node: "js/ast/node"
@@ -327,7 +339,8 @@
         map: {
             "*": {
                 // use lodash instead of underscore
-                underscore: "lodash"
+                underscore: "lodash",
+                jQuery: "jquery"
             }
         }
     });
@@ -335,7 +348,7 @@
     require(['app/main'], function(Application) {
         var app, config;
         config = {
-            root_container: "#page-content",
+            container: "#page-content",
             services:   {
                 workspace:  {
                     endpoint: "http://localhost:8289/service/workspace"
@@ -344,7 +357,6 @@
             alerts: {
                 container: "#alerts-container",
                 cssClass: {
-
                 }
             },
             tool_bar: {
@@ -361,32 +373,55 @@
                     item: "breadcrumb-item"
                 }
             },
-            service_tabs: {
-                container: "#service-tabs-container",
-                tool_palette: {
-                    container: "#tool-palette-container"
-                },
-                service_tab: {
-                    template: "#service-tab-template",
-                    canvas: {
-                        container: '.canvas-container'
-                    },
-                    preview: {
-                        container: '.preview-container'
-                    },
-                    source_editor: {
-                        container: '.source-editor-container'
+            tab_controller: {
+                container: "#tabs-container",
+                headers:    {
+                    // relative selector within container for tab controller
+                    container: ".tab-headers",
+                    cssClass: {
+                        list: 'nav nav-tabs',
+                        item: 'nav-tab-header',
+                        active: 'active'
                     }
+                },
+                tabs: {
+                    // relative selector within container for tab controller
+                    container: ".tab-content",
+                    tab: {
+                        template: "#tab-template",
+                        cssClass: {
+                            tab: 'tab-pane fade',
+                            tab_active: 'active'
+                        },
+                        canvas: {
+                            // relative selector within container for a tab
+                            container: '.canvas-container'
+                        },
+                        preview: {
+                            // relative selector within container for a tab
+                            container: '.preview-container'
+                        },
+                        source: {
+                            // relative selector within container for a tab
+                            container: '.source-container'
+                        },
+                        toggle_controls: {
+                            // relative selector within container for a tab
+                            container: '.toggle-controls-container'
+                        }
+                    }
+                },
+                tool_palette: {
+                    // relative selector within container for tab controller
+                    container: "#tool-palette-container"
                 }
             },
             file_browser: {
                 container: "#file-browser"
             }
         };
-
         app = new Application(config);
         app.render();
-        window.app = app;
     });
 
 </script>

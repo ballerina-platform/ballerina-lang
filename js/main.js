@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', /* void modules */ 'jquery_ui'],
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', /* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, BreadcrumbControl, FileBrowser) {
+    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -36,14 +36,17 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
 
         initComponents: function(){
             // init breadcrumbs controller
-            this.breadcrumbControl = new BreadcrumbControl(_.get(this.config, "breadcrumbs"));
+            this.breadcrumbController = new BreadcrumbController(_.get(this.config, "breadcrumbs"));
 
             //init file browser
             var fileBrowserOpts = _.get(this.config, "file_browser");
             _.set(fileBrowserOpts, 'application', this);
             this.fileBrowser = new FileBrowser(fileBrowserOpts);
 
-
+            //init tab controller
+            var tabControlOpts = _.get(this.config, "tab_controller");
+            _.set(tabControlOpts, 'application', this);
+            this.tabController = new TabController(tabControlOpts);
         },
 
         validateConfig: function(config){
@@ -55,16 +58,29 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             if(!_.has(config, 'breadcrumbs')){
                 log.error('breadcrumbs configuration is not provided.');
             }
+            if(!_.has(config, 'file_browser')){
+                log.error('file_browser configuration is not provided.');
+            }
+            if(!_.has(config, 'tab_controller')){
+                log.error('tab_controller configuration is not provided.');
+            }
         },
 
         render: function () {
             log.debug("start: rendering breadcrumbs control");
-            this.breadcrumbControl.render();
+            this.breadcrumbController.render();
             log.debug("end: rendering breadcrumbs control");
 
             log.debug("start: rendering file_browser control");
             this.fileBrowser.render();
             log.debug("end: rendering file_browser control");
+
+            log.debug("start: rendering tab controller");
+            this.tabController.render();
+            log.debug("end: rendering tab controller");
+
+            this.tabController.newTab();
+            this.tabController.newTab();
         }
 
     });

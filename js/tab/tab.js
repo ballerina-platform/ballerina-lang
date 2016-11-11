@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['backbone'], function (Backbone) {
+define(['log', 'backbone'], function (log, Backbone) {
 
     var Tab = Backbone.View.extend(
     /** @lends Tab.prototype */
@@ -23,17 +23,63 @@ define(['backbone'], function (Backbone) {
         /**
          * @augments Backbone.View
          * @constructs
-         * @class Tab represents a tab.
+         * @class TabView represents the view for tab.
          */
         initialize: function (options) {
+            var errMsg, template;
+            // IMPORTANT: a workaround to use Backbone Views with Backbone Collections (instead of models)
+            _.set(this, 'attributes', {id: this.cid});
+            if (!_.has(options, 'template')){
+                errMsg = 'unable to find config template ' + _.toString(options);
+                log.error(errMsg);
+                throw errMsg;
+            }
+            template = $(_.get(options, 'template'));
+            if(!template.length > 0){
+                errMsg = 'unable to find template with id ' + _.get(options, 'template');
+                log.error(errMsg);
+                throw errMsg;
+            }
+            this._template = template;
+            this.options = options;
+            this._isActive = false;
         },
-        render: function () {
+        render: function(){
+            var tab = this._template.children('div').clone();
+            this.getParent().getTabContainer().append(tab);
+
+            var tabClass = _.get(this.options, 'cssClass.tab');
+            tab.addClass(tabClass);
+            tab.attr('id', this.cid);
+            this.$el = tab;
         },
-        getParentTabList: function(){
-            return this.parentTabList;
+        setActive: function(isActive){
+            if(_.isBoolean(isActive)){
+                this._isActive = isActive;
+                if (isActive){
+                    this.$el.addClass(_.get(this.options, 'cssClass.tab_active'));
+                } else {
+                    this.$el.removeClass(_.get(this.options, 'cssClass.tab_active'));
+                }
+            }
         },
-        setParentTabList: function(parentTabList){
-            this.parentTabList = parentTabList;
+        isActive: function(){
+            return this._isActive;
+        },
+        setHeader: function(header){
+            this._tabHeader = header;
+        },
+        getHeader: function(){
+            return this._tabHeader;
+        },
+        getParent: function(){
+            return this._parentTabList;
+        },
+        setParent: function(parentTabList){
+            this._parentTabList = parentTabList;
+        },
+        getTitle: function(){
+            return "untitled";
         }
     });
 

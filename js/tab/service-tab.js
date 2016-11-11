@@ -20,9 +20,10 @@ define(['require', 'jquery', 'lodash', './tab'], function (require, jquery, _, T
 
     resourceTab = Tab.extend({
         initialize: function (options) {
-
+            Tab.prototype.initialize.call(this, options);
         },
         render: function () {
+            Tab.prototype.render.call(this);
         }
     });
 

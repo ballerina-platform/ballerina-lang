@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['logger', 'jquery', 'lodash', './tab-list', './service-tab'],
+define(['log', 'jquery', 'lodash', './tab-list', './service-tab'],
 
     function (log, $, _, TabList, ServiceTab) {
 
@@ -29,10 +29,10 @@ define(['logger', 'jquery', 'lodash', './tab-list', './service-tab'],
          */
         initialize: function (options) {
             _.set(options, 'tabModel', ServiceTab);
-            TabList.prototype.initialize.apply(this, options);
+            TabList.prototype.initialize.call(this, options);
         },
         render: function() {
-            TabList.prototype.initialize.apply(this, options);
+            TabList.prototype.render.call(this);
         }
     });
 

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _, Backbone, Tab) {
+define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (log, $, _, Backbone, Tab) {
 
     var TabList = Backbone.View.extend(
         /** @lends TabList.prototype */
@@ -32,7 +32,7 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
                     this.TabModel = _.get(options, 'tabModel');
                     // check whether the custom type is of type Tab
                     if (!this.TabModel instanceof Tab) {
-                        errMsg = 'custom tab model is not sub type of Tab: ' + TabModel;
+                        errMsg = 'custom tab model is not a sub type of Tab: ' + Tab;
                         log.error(errMsg);
                         throw errMsg;
                     }
@@ -40,22 +40,73 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
                     this.TabModel = Tab;
                 }
                 TabCollection = Backbone.Collection.extend({
-                    model: this.TabModel
+                    modelId: function(attrs){
+                        return attrs.cid;
+                    }
                 });
                 this._tabs = new TabCollection();
+
                 if (!_.has(options, 'container')) {
-                    // set default selector
-                    _.set(options, 'container', '.tabs-container');
-                }
-                // check whether container element exists in dom
-                if (!$(options.containerSelector).length > 0) {
-                    errMsg = 'unable to find container for tab list with selector: ' + options.containerSelector;
+                    errMsg = 'unable to find configuration for container';
                     log.error(errMsg);
                     throw errMsg;
                 }
+                var container = $(_.get(options, 'container'));
+                // check whether container element exists in dom
+                if (!container.length > 0) {
+                    errMsg = 'unable to find container for tab list with selector: ' + _.get(options, 'container');
+                    log.error(errMsg);
+                    throw errMsg;
+                }
+                this._$parent_el = container;
+                if (!_.has(options, 'tabs.container')) {
+                    errMsg = 'unable to find configuration for container';
+                    log.error(errMsg);
+                    throw errMsg;
+                }
+                var tabContainer = this._$parent_el.find(_.get(options, 'tabs.container'));
+                // check whether container element exists in dom
+                if (!tabContainer.length > 0) {
+                    errMsg = 'unable to find container for tab list with selector: ' + _.get(options, 'tabs.container');
+                    log.error(errMsg);
+                    throw errMsg;
+                }
+                this._$tab_container = tabContainer;
                 this.options = options;
             },
+
             render: function () {
+                var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
+                var tabList = $('<ul></ul>');
+                tabHeaderContainer.append(tabList);
+
+                var tabListClass = _.get(this.options, 'headers.cssClass.list');
+                tabList.addClass(tabListClass);
+                this._$tabList = tabList;
+                this.el = tabList.get();
+            },
+
+            createHeaderForTab: function(tab){
+                var tabHeader = $('<li></li>');
+                this._$tabList.append(tabHeader);
+
+                var tabHeaderClass = _.get(this.options, 'headers.cssClass.item');
+                tabHeader.addClass(tabHeaderClass);
+
+                var tabHeaderLink = $('<a></a>');
+                tabHeader.append(tabHeaderLink);
+                tabHeader.link = tabHeaderLink;
+                tabHeaderLink.attr('href', '#' + tab.cid);
+                tabHeaderLink.text(tab.getTitle());
+                var self = this;
+                tabHeaderLink.click(function(){
+                    self.setActiveTab(tab);
+                });
+                tab.setHeader(tabHeader);
+            },
+
+            getTabContainer: function(){
+                return this._$tab_container;
             },
             /**
              * add a tab to the tab list.
@@ -64,7 +115,8 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
              * @fires TabList#tab-added
              */
             addTab: function (tab) {
-                tab.setParentTabList(this);
+                tab.setParent(this);
+                this.createHeaderForTab(tab);
                 this._tabs.add(tab);
                 /**
                  * tab added event.
@@ -75,7 +127,7 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
             },
             /**
              * gets tab
-             * @param {string|Tab} tab id, cid or the object
+             * @param {string} tab id
              * @returns {*}
              */
             getTab: function (tab) {
@@ -93,6 +145,8 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
                     throw errMsg;
                 }
                 this._tabs.remove(tab);
+                tab.getHeader().remove();
+                tab.remove();
                 /**
                  * tab removed event.
                  * @event TabList#tab-removed
@@ -107,14 +161,23 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
              */
             setActiveTab: function (tab) {
                 if (!_.isEqual(this.activeTab, tab)) {
-                    if (!this._tabs.contains(tab)) {
-                        var errMsg = 'tab : ' + tab.id + 'is not part of this tab list.';
+                    if(false) {
+                        var errMsg = 'tab : ' + tab.cid + 'is not part of this tab list.';
                         log.error(errMsg);
                         throw errMsg;
                     }
                     var lastActiveTab = this.activeTab;
                     this.activeTab = tab;
+                    var activeTabHeaderClass = _.get(this.options, 'headers.cssClass.item');
 
+                    if(!_.isUndefined(lastActiveTab)){
+                        lastActiveTab.getHeader().removeClass(activeTabHeaderClass);
+                        lastActiveTab.setActive(false);
+                    }
+                    this.activeTab.getHeader().addClass(activeTabHeaderClass);
+                    this.activeTab.setActive(true);
+
+                    //this.activeTab.getHeader().tab('show');
                     /**
                      * Active tab changed event.
                      * @event TabList#active-tab-changed
@@ -143,13 +206,12 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
              * @fires TabList#active-tab-changed
              */
             newTab: function (opts) {
-                var newTab;
-                if (_.has(opts, 'tabOptions')) {
-                    newTab = new this.TabModel(_.get(opts, 'tabOptions'));
-                } else {
-                    newTab = new this.TabModel();
-                }
+                var tabOptions = _.get(opts, 'tabOptions') || {};
+                // merge view options from app config
+                _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
+                var newTab = new this.TabModel(tabOptions);
                 this.addTab(newTab);
+                newTab.render();
                 if (_.has(opts, 'switchToNewTab')) {
                     if (_.isBoolean(_.get(opts, 'switchToNewTab')) && _.get(opts, 'switchToNewTab')) {
                         this.setActiveTab(newTab);
@@ -158,7 +220,9 @@ define(['logger', 'jquery', 'lodash', 'backbone', './tab'], function (log, $, _,
                 return newTab;
             },
 
-            forEach: this._tabs.forEach
+            forEach: function(callback){
+                this._tabs.forEach(callback);
+            }
         });
 
     return TabList;
