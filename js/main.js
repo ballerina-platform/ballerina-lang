@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', /* void modules */ 'jquery_ui'],
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', /* void modules */ 'jquery_ui'],
 
-    function (require, log, $, _, Backbone, BreadcrumbControl) {
+    function (require, log, $, _, Backbone, BreadcrumbControl, FileBrowser) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -31,7 +31,19 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', /* void
         initialize: function (config) {
             this.validateConfig(config);
             this.config = config;
-            this.breadcrumbControl = new BreadcrumbControl(_.get(config, "breadcrumbs"));
+            this.initComponents();
+        },
+
+        initComponents: function(){
+            // init breadcrumbs controller
+            this.breadcrumbControl = new BreadcrumbControl(_.get(this.config, "breadcrumbs"));
+
+            //init file browser
+            var fileBrowserOpts = _.get(this.config, "file_browser");
+            _.set(fileBrowserOpts, 'application', this);
+            this.fileBrowser = new FileBrowser(fileBrowserOpts);
+
+
         },
 
         validateConfig: function(config){
@@ -49,6 +61,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', /* void
             log.debug("start: rendering breadcrumbs control");
             this.breadcrumbControl.render();
             log.debug("end: rendering breadcrumbs control");
+
+            log.debug("start: rendering file_browser control");
+            this.fileBrowser.render();
+            log.debug("end: rendering file_browser control");
         }
 
     });

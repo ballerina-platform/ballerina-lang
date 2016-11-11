@@ -51,12 +51,12 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jq
                 var pathArr = _.split(path, "/");
 
                 this.$el.empty();
-
+                var self = this;
                 pathArr.forEach(function(segment){
                     if(!_.isEmpty(segment)){
                         var li = $("<li>" + segment + "</li>");
-                        li.addClass("breadcrumb-item");
-                        this.$el.append(li);
+                        li.addClass(_.get(self._options, 'cssClass.item'));
+                        self.$el.append(li);
                     }
                 });
                 var fileLi = $("<li>" + file + "</li>");

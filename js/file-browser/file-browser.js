@@ -20,15 +20,19 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'js_tree'], function (r
 
     var FileBrowser = Backbone.View.extend({
 
-        initialize: function (options) {
-            var opts = options || {};
-            opts.container = opts.container || "#file-browser";
-            this.options = opts;
-            this.render();
+        initialize: function (config) {
+            if(!_.has(config, 'container')){
+                log.error('Cannot init file browser. config: container not found.')
+            }
+            if(!_.has(config, 'application')){
+                log.error('Cannot init file browser. config: application not found.')
+            }
+            this.options = config;
         },
 
         render: function () {
-            var self = this;
+            var self = this,
+                workspaceServiceURL = _.get(this.options, 'application.config.services.workspace.endpoint');
             self.selected = false;
             jQuery(function($) {
                 $(self.options.container)
