@@ -28,8 +28,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.FaultHandler;
-import org.wso2.carbon.messaging.exceptions.EndPointTimeOut;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -144,33 +143,22 @@ public class TargetHandler extends ReadTimeoutHandler {
         if (targetChannel.isRequestWritten()) {
             String payload = "<errorMessage>" + "ReadTimeoutException occurred for endpoint " + targetChannel.
                     getHttpRoute().toString() + "</errorMessage>";
-            FaultHandler faultHandler = null;
-            try {
-                faultHandler = incomingMsg.getFaultHandlerStack().pop();
-            } catch (Exception e) {
-                LOG.debug("Cannot find registered fault handler");
-                //expected no need to handle
-            }
 
-            if (faultHandler != null) {
-                faultHandler.handleFault("504", new EndPointTimeOut(payload), incomingMsg, callback);
-                incomingMsg.getFaultHandlerStack().push(faultHandler);
-            } else {
-                CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                        .getMessageProcessor();
+            CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                    .getMessageProcessor();
 
-                if (carbonMessageProcessor != null) {
-                    try {
-                        HTTPTransportContextHolder.getInstance().getMessageProcessor()
-                                .receive(createErrorMessage(payload), callback);
-                    } catch (Exception e) {
-                        LOG.error("Error while handover response to MessageProcessor ", e);
-                    }
-                } else {
-                    LOG.error("Cannot correlate callback with request callback is null ");
+            if (carbonMessageProcessor != null) {
+                try {
+                    HTTPTransportContextHolder.getInstance().getMessageProcessor()
+                            .receive(createErrorMessage(payload), callback);
+                } catch (Exception e) {
+                    LOG.error("Error while handover response to MessageProcessor ", e);
                 }
+            } else {
+                LOG.error("Cannot correlate callback with request callback is null ");
             }
         }
+
     }
 
     protected CarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
@@ -215,6 +203,8 @@ public class TargetHandler extends ReadTimeoutHandler {
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         response.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);
+        MessagingException messagingException = new MessagingException("Read Timeout", 101504);
+        response.setMessagingException(messagingException);
         return response;
 
     }

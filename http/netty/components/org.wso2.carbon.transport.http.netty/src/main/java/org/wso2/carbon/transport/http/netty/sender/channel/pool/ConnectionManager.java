@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -165,7 +166,9 @@ public class ConnectionManager {
             } catch (Exception e) {
                 String msg = "Cannot borrow free channel from pool ";
                 log.error(msg, e);
-                throw new Exception(msg, e);
+                MessagingException messagingException = new MessagingException(msg, e, 101500);
+                carbonMessage.setMessagingException(messagingException);
+                carbonCallback.done(carbonMessage);
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
             // manage connections according to per inbound channel caching method
