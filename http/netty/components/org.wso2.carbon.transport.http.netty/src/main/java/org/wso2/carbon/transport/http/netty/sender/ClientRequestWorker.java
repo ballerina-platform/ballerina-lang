@@ -25,15 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.FaultHandler;
+import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-
-import java.util.EmptyStackException;
 
 /**
  * Class Which handover incoming requests to be written to BE asynchronously.
@@ -88,16 +86,9 @@ public class ClientRequestWorker implements Runnable {
             } catch (Exception failedCause) {
                 String msg = "Error when creating channel for route " + httpRoute;
                 log.error(msg);
-                try {
-                    FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
-                    targetChannel = null;
-                    if (faultHandler != null) {
-                        faultHandler.handleFault("502", failedCause, carbonMessage, carbonCallback);
-                        carbonMessage.getFaultHandlerStack().push(faultHandler);
-                    }
-                } catch (EmptyStackException e) {
-                    log.error("Cannot find registered fault handler to process faulty message");
-                }
+                MessagingException messagingException = new MessagingException(msg, failedCause, 101503);
+                carbonMessage.setMessagingException(messagingException);
+                carbonCallback.done(carbonMessage);
             } finally {
                 if (channel != null) {
                     targetChannel.setChannel(channel);
@@ -117,7 +108,10 @@ public class ClientRequestWorker implements Runnable {
                 targetChannel.getTargetHandler().setConnectionManager(connectionManager);
             } else {
                 log.error("Cannot find registered TargetHandler probably connection creation is failed");
-                throw new RuntimeException("Connection creation failed for " + httpRoute.toString());
+                String msg = "Connection creation failed for ";
+                MessagingException messagingException = new MessagingException(msg, 101503);
+                carbonMessage.setMessagingException(messagingException);
+                carbonCallback.done(carbonMessage);
             }
 
             boolean written = false;
@@ -145,15 +139,9 @@ public class ClientRequestWorker implements Runnable {
         } catch (Exception e) {
             String msg = "Cannot borrow free channel from pool";
             log.error(msg, e);
-            try {
-                FaultHandler faultHandler = carbonMessage.getFaultHandlerStack().pop();
-                if (faultHandler != null) {
-                    faultHandler.handleFault("502", e, carbonMessage, carbonCallback);
-                    carbonMessage.getFaultHandlerStack().push(faultHandler);
-                }
-            } catch (EmptyStackException e1) {
-                log.error("Cannot find registered Fault handler to execute faulty message");
-            }
+            MessagingException messagingException = new MessagingException(msg, 101503);
+            carbonMessage.setMessagingException(messagingException);
+            carbonCallback.done(carbonMessage);
         }
         return null;
     }
