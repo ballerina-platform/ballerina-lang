@@ -27,10 +27,6 @@ define(['./fork-processor', './header-processor', './log-mediator', './payload-f
     manipulators[PayloadFactoryMediator.id] = PayloadFactoryMediator;
     manipulators[PayloadProcessor.id] = PayloadProcessor;
 
-    manipulators.get = function(id){
-        return manipulators[id];
-    };
-
     return manipulators;
 });
 

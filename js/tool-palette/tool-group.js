@@ -17,13 +17,15 @@
  */
 define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbone, Tool) {
 
-    var ToolCollection = Backbone.Collection.extend({
-        model: Tool
-    });
-
     var toolGroup = Backbone.Model.extend({
-        initialize: function (attrs, options) {
-            this.toolCollection = new ToolCollection();
+        initialize: function (attributes) {
+            this.tools = [];
+            var self = this;
+            _.forEach( attributes.toolDefinitions,  function(toolDefinition, toolId){
+                    var tool = new Tool(toolDefinition);
+                    self.tools.push(tool);
+                }
+            );
         },
 
         modelName: "ToolGroup",

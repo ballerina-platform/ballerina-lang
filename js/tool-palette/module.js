@@ -16,18 +16,17 @@
  * under the License.
  */
 define(['require', 'app/tool-palette/tool', 'app/tool-palette/tool-view', 'app/tool-palette/tool-group',
-        'app/tool-palette/tool-group-view', 'app/tool-palette/tool-palette', 'app/tool-palette/tool-palette-view'],
-    function (require, tool, toolView, toolGroup, toolGroupView, toolPaletteModel, toolPaletteView) {
+        'app/tool-palette/tool-group-view', 'app/tool-palette/tool-palette'],
+    function (require, tool, toolView, toolGroup, toolGroupView, toolPaletteModel, toolPalette) {
         return  {
             Models: {
                 Tool: tool,
-                ToolGroup: toolGroup,
-                ToolPalette: toolPaletteModel
+                ToolGroup: toolGroup
             },
             Views: {
                 ToolView: toolView,
                 ToolGroupView: toolGroupView,
-                ToolPaletteView: toolPaletteView
+                ToolPalette: toolPalette
             }
         }
     });

@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'backbone', './tool-view'], function (require, $, d3, Backbone, ToolView) {
+define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (require, log, $, d3, Backbone, ToolView) {
 
     var toolGroupView = Backbone.View.extend({
 
         initialize: function () {
-            console.log("toolGroupWrapperView init");
+            log.debug("toolGroupview init");
         },
 
         render: function (parent) {
@@ -46,7 +46,7 @@ define(['require', 'jquery', 'd3', 'backbone', './tool-view'], function (require
             groupDiv.append(groupBodyDiv);
             groupBodyDiv.attr('class', "tool-group-body");
 
-            this.model.toolCollection.each(function (tool) {
+            this.model.tools.forEach(function (tool) {
                 var toolView = new ToolView({model: tool});
                 toolView.render(groupBodyDiv);
             });

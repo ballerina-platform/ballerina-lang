@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/processors/flow-controllers/modules', 'app/processors/manipulators/module'],
+define(['app/processors/flow-controllers/module', 'app/processors/manipulators/module'],
     function (flowControllers, manipulators) {
         return {
             flowControllers: flowControllers,

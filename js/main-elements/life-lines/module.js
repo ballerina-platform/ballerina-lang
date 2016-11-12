@@ -24,10 +24,6 @@ define(['./end-point', './resource', './source', './worker'], function (EndPoint
     lifelines[Source.id] = Source;
     lifelines[Worker.id] = Worker;
 
-    lifelines.get = function(id){
-        return lifelines[id];
-    };
-
     return lifelines;
 });
 

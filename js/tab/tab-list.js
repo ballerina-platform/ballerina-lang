@@ -79,6 +79,10 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 tabList.addClass(tabListClass);
                 this._$tabList = tabList;
                 this.el = tabList.get();
+
+                if(_.has(this.options, 'toolPalette')){
+                    _.get(this.options, 'toolPalette').render();
+                }
             },
 
             createHeaderForTab: function(tab){
@@ -95,7 +99,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 tabHeaderLink.text(tab.getTitle());
                 var self = this;
                 tabHeaderLink.click(function(e){
-                    self.setActiveTab.call(self, tab);
+                    self.setActiveTab(tab);
                     e.preventDefault();
                     e.stopPropagation();
                 });
@@ -141,7 +145,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                     log.error(errMsg);
                     throw errMsg;
                 }
-                this._tabs.remove(tab);
+                _.remove(this._tabs, tab);
                 tab.getHeader().remove();
                 tab.remove();
                 /**
