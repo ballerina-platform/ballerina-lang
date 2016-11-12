@@ -27,8 +27,8 @@ define(['log', 'backbone'], function (log, Backbone) {
          */
         initialize: function (options) {
             var errMsg, template;
-            // IMPORTANT: a workaround to use Backbone Views with Backbone Collections (instead of models)
-            _.set(this, 'attributes', {id: this.cid});
+            // FIXME
+            _.set(this, 'id', this.cid);
             if (!_.has(options, 'template')){
                 errMsg = 'unable to find config template ' + _.toString(options);
                 log.error(errMsg);

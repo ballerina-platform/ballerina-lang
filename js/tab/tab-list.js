@@ -26,7 +26,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
              * @class TabList represents a list of tabs.
              */
             initialize: function (options) {
-                var TabCollection, errMsg;
+                var errMsg;
                 // check whether a custom Tab type is set
                 if (_.has(options, 'tabModel')) {
                     this.TabModel = _.get(options, 'tabModel');
@@ -39,12 +39,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 } else {
                     this.TabModel = Tab;
                 }
-                TabCollection = Backbone.Collection.extend({
-                    modelId: function(attrs){
-                        return attrs.cid;
-                    }
-                });
-                this._tabs = new TabCollection();
+                this._tabs = [];
 
                 if (!_.has(options, 'container')) {
                     errMsg = 'unable to find configuration for container';
@@ -99,8 +94,10 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 tabHeaderLink.attr('href', '#' + tab.cid);
                 tabHeaderLink.text(tab.getTitle());
                 var self = this;
-                tabHeaderLink.click(function(){
-                    self.setActiveTab(tab);
+                tabHeaderLink.click(function(e){
+                    self.setActiveTab.call(self, tab);
+                    e.preventDefault();
+                    e.stopPropagation();
                 });
                 tab.setHeader(tabHeader);
             },
@@ -117,7 +114,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
             addTab: function (tab) {
                 tab.setParent(this);
                 this.createHeaderForTab(tab);
-                this._tabs.add(tab);
+                this._tabs.push(tab);
                 /**
                  * tab added event.
                  * @event TabList#tab-added
@@ -130,8 +127,8 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
              * @param {string} tab id
              * @returns {*}
              */
-            getTab: function (tab) {
-                return this._tabs.get(tab);
+            getTab: function (tabId) {
+                return _.find(this._tabs, ['id', tabId]);
             },
             /**
              * removes a tab
@@ -139,7 +136,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
              * @fires TabList#tab-removed
              */
             removeTab: function (tab) {
-                if (!this._tabs.contains(tab)) {
+                if (!_.includes(this._tabs, tab)) {
                     var errMsg = 'tab : ' + tab.id + 'is not part of this tab list.';
                     log.error(errMsg);
                     throw errMsg;
@@ -161,7 +158,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
              */
             setActiveTab: function (tab) {
                 if (!_.isEqual(this.activeTab, tab)) {
-                    if(false) {
+                    if(!_.includes(this._tabs, tab)) {
                         var errMsg = 'tab : ' + tab.cid + 'is not part of this tab list.';
                         log.error(errMsg);
                         throw errMsg;
